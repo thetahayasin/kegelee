@@ -47,6 +47,12 @@ class SettingsService
             'circle_track_width' => 9,
             'circle_glow_enabled' => true,
             'circle_glow_color' => '#E8202A',
+            'circle_animation_speed' => 0.12,
+            'circle_glow_speed' => 0.45,
+            // Playback tempo: 1 = real time, lower = slower (the count, beats and
+            // glow all stretch together). 0.7 ≈ runs about 40% slower.
+            'circle_time_scale' => 0.7,
+            'circle_start_phase' => 'contract',
             'haptics_enabled' => true,
             'sound_enabled' => true,
 
@@ -113,9 +119,10 @@ class SettingsService
     private function castOut(?string $value, string $type): mixed
     {
         return match ($type) {
-            'bool' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
-            'int' => (int) $value,
-            'json' => json_decode((string) $value, true),
+            'bool'  => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+            'int'   => (int) $value,
+            'float' => (float) $value,
+            'json'  => json_decode((string) $value, true),
             default => $value,
         };
     }

@@ -10,6 +10,7 @@
         :root {
             --c-bg: #0c0d11; --c-surface: #16181f; --c-surface-2: #1e2128;
             --c-accent: {{ $settings->get('color_accent') }}; --c-accent-soft: {{ $settings->get('color_accent_soft') }};
+            --c-glow: {{ $settings->get('circle_glow_color') ?: $settings->get('color_accent') }};
             --c-success: #22c55e; --c-text: #fff; --c-text-muted: #8a8f98;
         }
     </style>

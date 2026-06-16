@@ -3,6 +3,7 @@
 namespace App\Livewire\App;
 
 use App\Models\Exercise;
+use App\Models\Level;
 use App\Services\ProgressionService;
 use App\Services\SessionBuilder;
 use App\Services\SettingsService;
@@ -15,6 +16,12 @@ class Workout extends Component
     public ?Exercise $exercise = null;
 
     public bool $sessionMode = false;
+
+    /** Try-it-now preview: runs the single exercise at level 1, records nothing. */
+    public bool $trial = false;
+
+    /** Seconds before the trial "Skip" affordance appears (one full cycle). */
+    public float $skipAfter = 0.0;
 
     /** @var array<int, array{exercise:string,phase:string,label:string,seconds:float}> */
     public array $steps = [];
@@ -30,10 +37,16 @@ class Workout extends Component
     public function mount(SessionBuilder $builder)
     {
         $user = auth()->user();
-
         if ($this->exercise) {
-            $playlist = $builder->single($user, $this->exercise);
+            $this->trial = request()->boolean('trial');
+            // The try-it-now preview always runs at level 1, regardless of the
+            // user's current level.
+            $level = $this->trial
+                ? Level::where('is_active', true)->orderBy('number')->first()
+                : null;
+            $playlist = $builder->single($user, $this->exercise, $level);
             $this->exerciseNames = [$this->exercise->name];
+            $this->skipAfter = $this->skipThreshold($playlist['steps'], $playlist['total']);
         } else {
             $this->sessionMode = true;
             $playlist = $builder->daily($user);
@@ -43,8 +56,34 @@ class Workout extends Component
         $this->steps = $playlist['steps'];
     }
 
-    public function complete(int $seconds, ProgressionService $progression): void
+    /** One full cycle (contract + relax) — or 5s for a sustained hold. */
+    private function skipThreshold(array $steps, float $total): float
     {
+        if ($this->exercise?->full_hold) {
+            return min(5.0, $total);
+        }
+
+        $after = 0.0;
+        $seen = [];
+        foreach ($steps as $s) {
+            if (in_array($s['phase'], $seen, true)) {
+                break; // next cycle begins
+            }
+            $seen[] = $s['phase'];
+            $after += (float) $s['seconds'];
+        }
+
+        return $after;
+    }
+
+    public function complete(int $seconds, ProgressionService $progression)
+    {
+        // A try-it-now preview is throwaway: don't touch progression, just
+        // return to the exercise detail.
+        if ($this->trial) {
+            return $this->redirect(route('exercises.show', $this->exercise), navigate: true);
+        }
+
         $user = auth()->user();
         $context = $progression->recordSession($user, $this->sessionMode ? null : $this->exercise, $seconds);
 
@@ -81,6 +120,10 @@ class Workout extends Component
             'circleSize' => (int) $settings->get('circle_size'),
             'trackWidth' => (int) $settings->get('circle_track_width'),
             'haptics' => (bool) $settings->get('haptics_enabled'),
+            'animationSpeed' => (float) $settings->get('circle_animation_speed', 0.12),
+            'timeScale' => (float) $settings->get('circle_time_scale', 0.7),
+            'trial' => $this->trial,
+            'skipAfter' => $this->skipAfter,
         ]);
     }
 }

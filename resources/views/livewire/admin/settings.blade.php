@@ -71,6 +71,28 @@
                 <div class="flex-1"><label class="block text-sm text-muted">Glow colour</label>
                     <input wire:model="values.circle_glow_color" class="h-9 w-full rounded-lg border border-white/10 bg-surface-2 px-2 font-mono text-sm focus:border-accent focus:outline-none"></div>
             </div>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Arc animation smoothness (seconds)</label>
+                <input type="number" step="0.01" min="0.05" max="0.5" wire:model="values.circle_animation_speed" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">How tightly the arc tracks the count (0.12 = recommended). Keep small — this is not the tempo; use Playback speed for that.</p>
+            </div>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Playback speed</label>
+                <input type="number" step="0.05" min="0.3" max="1.5" wire:model="values.circle_time_scale" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">Tempo of the whole exercise — count, beats and glow (1 = real time, 0.7 ≈ 40% slower, 0.5 = half speed).</p>
+            </div>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Glow pulse speed (seconds)</label>
+                <input type="number" step="0.05" min="0.1" max="2" wire:model="values.circle_glow_speed" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">How fast the red circle fades in and out (0.1 = snappy, 2 = slow)</p>
+            </div>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Start phase</label>
+                <select wire:model="values.circle_start_phase" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                    <option value="contract">Contract first</option>
+                    <option value="relax">Relax first</option>
+                </select>
+            </div>
             <div class="space-y-3 pt-2">
                 <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.circle_glow_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Contraction glow</span></label>
                 <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.haptics_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Haptics</span></label>

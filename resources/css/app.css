@@ -35,6 +35,10 @@
     --c-text-muted: #8a8f98;
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 html,
 body {
     background: var(--c-bg);
@@ -71,17 +75,17 @@ body {
     transform: scale(0.96);
 }
 
-/* The breathing red glow behind the workout ring during a contraction.
-   The bright band is pushed outward so it forms a halo around the ring
-   rather than hiding under the opaque inner circle. */
+/* Coloured halo that pulses behind the workout circle on contraction.
+   `closest-side` makes the stops map to the visible (circular-clipped) disc,
+   so 100% is a solid outer rim and the colour reaches all the way in to meet
+   the inner circle, fading from there toward the hidden centre.
+   Uses --c-glow (the admin "circle glow colour"), falling back to accent. */
 .contract-glow {
-    background: radial-gradient(circle at center,
-        var(--c-accent) 0%,
-        var(--c-accent) 46%,
-        color-mix(in srgb, var(--c-accent) 45%, transparent) 62%,
-        transparent 80%);
-    filter: blur(10px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
+    background: radial-gradient(circle closest-side at center,
+        transparent 48%,
+        color-mix(in srgb, var(--c-glow, var(--c-accent)) 50%, transparent) 60%,
+        var(--c-glow, var(--c-accent)) 100%);
+    transition: opacity 0.1s linear, transform 0.1s linear;
 }
 
 @keyframes ring-pop {

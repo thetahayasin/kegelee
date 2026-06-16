@@ -11,13 +11,18 @@
                 i: 0, remaining: 0, elapsed: 0,
                 paused: false, running: true, timer: null,
                 glow: @js($glowEnabled), haptics: @js($haptics),
+                trial: @js($trial), skipAfter: @js($skipAfter),
+                timeScale: @js($timeScale),
                 showHelp: false,
                 init() {
                     if (!this.steps.length) { this.finish(); return; }
                     this.remaining = this.steps[0].seconds;
                     this.timer = setInterval(() => {
                         if (this.paused || !this.running) return;
-                        this.remaining -= 0.1; this.elapsed += 0.1;
+                        // Advance nominal time scaled by the playback tempo so the
+                        // whole exercise (count, beats, glow) runs slower/faster.
+                        let dt = 0.1 * this.timeScale;
+                        this.remaining -= dt; this.elapsed += dt;
                         if (this.remaining <= 0.0001) this.advance();
                     }, 100);
                 },
@@ -31,7 +36,35 @@
                 destroy() { clearInterval(this.timer); },
                 get cur() { return this.steps[this.i] || {phase:'relax',label:'',seconds:1,exercise:''}; },
                 get isContract() { return this.cur.phase === 'contract'; },
-                get stepPct() { let s = this.cur.seconds || 1; return Math.min(1, Math.max(0, (s - this.remaining) / s)); },
+                // 0→1 progress through the current step, tied to real seconds.
+                get phaseProgress() {
+                    let total = this.cur.seconds;
+                    return Math.max(0, Math.min(1, (total - this.remaining) / Math.max(0.001, total)));
+                },
+                ease(t) { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); },
+                get glowMode() { return this.cur.glow_mode || 'slowly'; },
+                // Where the glow should rest this phase: out/full while contracting
+                // (or holding), retracted to the inner circle during relax / rest.
+                get glowTarget() { return (this.cur.phase !== 'rest' && (this.cur.full || this.isContract)) ? 1 : 0; },
+                // slowly = travel over the phase seconds and complete by its end
+                // (eased so the seam never kinks); otherwise jump to the target and
+                // let the transition below carry it there seamlessly.
+                get intensity() {
+                    if (this.cur.phase === 'rest') return 0;
+                    if (this.cur.full) return 1;
+                    if (this.glowMode === 'slowly') return this.ease(this.isContract ? this.phaseProgress : 1 - this.phaseProgress);
+                    return this.glowTarget;
+                },
+                get glowOpacity() { return this.cur.phase === 'rest' ? 0 : 0.08 + this.intensity * 0.92; },
+                // 0.58 collapses the 1.7x glow disc until its rim meets the inner
+                // circle; 1.0 expands it fully out on contraction.
+                get glowScale()   { return 0.58 + this.intensity * 0.42; },
+                get glowTransition() {
+                    if (this.glowMode === 'slowly') return 'opacity 0.1s linear, transform 0.1s linear';
+                    let d = this.glowMode === 'very_fast' ? 0.12 : 0.4;
+                    return 'opacity ' + d + 's ease-in-out, transform ' + d + 's ease-in-out';
+                },
+                get canSkip() { return this.trial && this.elapsed >= this.skipAfter; },
                 // Center number: total time left in the current exercise (or the rest), not the per-beat count.
                 get blockRemaining() {
                     if (this.cur.phase === 'rest') return Math.max(0, Math.ceil(this.remaining));
@@ -43,7 +76,71 @@
                     }
                     return Math.max(0, Math.ceil(rem));
                 },
+                // Raw (non-ceiled) remaining for the current exercise block — used for smooth circle progress.
+                get blockRemainingRaw() {
+                    if (this.cur.phase === 'rest') return Math.max(0, this.remaining);
+                    let rem = this.remaining;
+                    for (let k = this.i + 1; k < this.steps.length; k++) {
+                        const s = this.steps[k];
+                        if (s.phase === 'rest' || s.exercise !== this.cur.exercise) break;
+                        rem += s.seconds;
+                    }
+                    return Math.max(0, rem);
+                },
+                // Total duration of the current exercise block (all contract+relax steps for this exercise).
+                get blockTotal() {
+                    if (this.cur.phase === 'rest') return Math.max(1, this.cur.seconds);
+                    let start = this.i;
+                    while (start > 0 && this.steps[start-1].phase !== 'rest' && this.steps[start-1].exercise === this.cur.exercise) start--;
+                    let total = 0;
+                    for (let k = start; k < this.steps.length; k++) {
+                        const s = this.steps[k];
+                        if (s.phase === 'rest' || s.exercise !== this.cur.exercise) break;
+                        total += s.seconds;
+                    }
+                    return Math.max(1, total);
+                },
+                // Circle fills over the full exercise block duration, not per-beat.
+                get blockPct() {
+                    let total = this.blockTotal;
+                    return Math.min(1, Math.max(0, (total - this.blockRemainingRaw) / total));
+                },
                 get totalRemaining() { let rem = this.remaining; for (let k = this.i + 1; k < this.steps.length; k++) rem += this.steps[k].seconds; return Math.ceil(rem); },
+                get timeLabel() {
+                    let s = this.totalRemaining;
+                    if (s >= 60) {
+                        let m = Math.floor(s / 60);
+                        let rem = s % 60;
+                        return rem > 0 ? m + 'm ' + rem + 's left' : m + ' min left';
+                    }
+                    return s + 's left';
+                },
+                get prevItem() {
+                    let curEx = this.cur.phase === 'rest' ? null : this.cur.exercise;
+                    for (let k = this.i - 1; k >= 0; k--) {
+                        const s = this.steps[k];
+                        if (s.phase === 'rest') {
+                            if (curEx === null) continue;
+                            return 'Rest';
+                        }
+                        if (s.exercise === curEx) continue;
+                        return s.exercise;
+                    }
+                    return null;
+                },
+                get nextItem() {
+                    let curEx = this.cur.phase === 'rest' ? null : this.cur.exercise;
+                    for (let k = this.i + 1; k < this.steps.length; k++) {
+                        const s = this.steps[k];
+                        if (s.phase === 'rest') {
+                            if (curEx === null) continue;
+                            return 'Rest';
+                        }
+                        if (s.exercise === curEx) continue;
+                        return s.exercise;
+                    }
+                    return null;
+                },
             }"
             x-init="init()"
             class="flex min-h-[100dvh] flex-col px-6 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
@@ -53,8 +150,17 @@
                 <a href="{{ route('home') }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
                     <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
                 </a>
-                <p class="text-sm text-muted" x-text="totalRemaining + ' sec left'"></p>
-                <span class="h-9 w-9"></span>
+                <p class="text-sm text-muted" x-text="timeLabel"></p>
+                @if ($trial && $exercise)
+                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate
+                       x-show="canSkip" x-cloak x-transition
+                       class="flex h-9 items-center gap-1 rounded-full bg-surface-2 pl-3 pr-2 text-sm font-semibold text-muted tap" aria-label="Skip">
+                        Skip
+                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8zM19 5v14"/></svg>
+                    </a>
+                @else
+                    <span class="h-9 w-9"></span>
+                @endif
             </div>
 
             {{-- Ring --}}
@@ -64,7 +170,7 @@
                     @if ($glowEnabled)
                         <div class="contract-glow rounded-full [grid-area:1/1]"
                              style="width: {{ round($circleSize * 1.7) }}px; height: {{ round($circleSize * 1.7) }}px;"
-                             x-bind:style="{ opacity: isContract ? 1 : 0, transform: isContract ? 'scale(1)' : 'scale(0.8)' }"></div>
+                             x-bind:style="{ opacity: glowOpacity, transform: 'scale(' + glowScale + ')', transition: glowTransition }"></div>
                     @endif
 
                     <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
@@ -74,8 +180,8 @@
                             <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="{{ $trackWidth }}"/>
                             <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                                     stroke-linecap="round" stroke-dasharray="{{ $circ }}"
-                                    x-bind:stroke-dashoffset="{{ $circ }} * (1 - stepPct)"
-                                    style="transition: stroke-dashoffset 0.12s linear; filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
+                                    x-bind:stroke-dashoffset="{{ $circ }} * (1 - blockPct)"
+                                    style="transition: stroke-dashoffset {{ $animationSpeed }}s linear; filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
                         </svg>
                         <div class="text-center">
                             <p class="text-5xl font-bold tabular-nums" x-text="blockRemaining"></p>
@@ -95,8 +201,12 @@
                 Squeeze your pelvic floor muscles when the circle says <span class="text-content font-medium">Contract &amp; hold</span> and the glow turns red. Let go fully on <span class="text-content font-medium">Relax</span>.
             </div>
 
-            {{-- Current exercise --}}
-            <p class="mb-3 text-center text-lg font-semibold" x-text="cur.phase === 'rest' ? 'Get ready' : cur.exercise"></p>
+            {{-- Past · Current · Next --}}
+            <div class="mb-3 flex items-center justify-between px-3">
+                <p class="w-[30%] truncate text-base text-white/40" x-text="prevItem ?? ''"></p>
+                <p class="shrink-0 text-center text-base font-semibold" x-text="cur.phase === 'rest' ? 'Rest' : cur.exercise"></p>
+                <p class="w-[30%] truncate text-right text-base text-white/40" x-text="nextItem ?? ''"></p>
+            </div>
 
             {{-- Pause / resume --}}
             <button @click="paused = !paused"
@@ -166,7 +276,7 @@
             {{-- Unlock progress --}}
             @if ($result['unlocked'])
                 <div class="mx-4 mt-3 rounded-2xl bg-surface p-4">
-                    <p class="font-semibold text-success">Unlocked: {{ implode(', ', $result['unlocked']) }} 🎉</p>
+                    <p class="font-semibold text-success">Unlocked: {{ implode(', ', $result['unlocked']) }}</p>
                 </div>
             @elseif ($result['next_unlock'])
                 @php($nu = $result['next_unlock'])

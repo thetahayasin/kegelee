@@ -24,6 +24,7 @@ class Settings extends Component
     /** Field type map: drives both rendering and persistence. */
     public const TYPES = [
         'circle_size' => 'int', 'circle_track_width' => 'int',
+        'circle_animation_speed' => 'float', 'circle_glow_speed' => 'float', 'circle_time_scale' => 'float',
         'sessions_per_day' => 'int', 'plan_length_days' => 'int',
         'circle_glow_enabled' => 'bool', 'haptics_enabled' => 'bool',
         'sound_enabled' => 'bool', 'allow_extra_sessions' => 'bool', 'onboarding_enabled' => 'bool',

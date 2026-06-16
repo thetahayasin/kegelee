@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Exercise;
 use App\Models\Level;
 use App\Models\User;
+use App\Models\UserExerciseSetting;
 use Illuminate\Support\Collection;
 
 /**
@@ -28,16 +29,25 @@ class SessionBuilder
         $total = (float) ($level?->total_session_seconds ?: 300);
         $rest = (float) ($level?->rest_seconds ?: 10);
 
-        return $this->pack($this->unlockedExercises($user), $level, $total, $rest);
+        return $this->pack($this->unlockedExercises($user), $level, $total, $rest, $user);
     }
 
-    /** A single round of one exercise at the user's level, for "Try" / detail. */
-    public function single(User $user, Exercise $exercise): array
+    /**
+     * A single round of one exercise, for "Try" / detail. Pass $level to run
+     * it at a specific level's duration (e.g. level 1 for the try-it preview);
+     * defaults to the user's current level.
+     */
+    public function single(User $user, Exercise $exercise, ?Level $level = null): array
     {
-        $duration = $exercise->durationForLevel($this->level($user));
+        $duration = $exercise->durationForLevel($level ?? $this->level($user));
+        $setting = UserExerciseSetting::where('user_id', $user->id)
+            ->where('exercise_id', $exercise->id)
+            ->first();
+
         $steps = [];
         $total = 0.0;
-        foreach ($exercise->steps($duration) as $s) {
+        // Pass null for startPhase so each exercise uses its own start_phase.
+        foreach ($exercise->steps($duration, null, $setting?->contract_seconds, $setting?->relax_seconds) as $s) {
             $steps[] = ['exercise' => $exercise->name] + $s;
             $total += (float) $s['seconds'];
         }
@@ -50,8 +60,16 @@ class SessionBuilder
      *
      * @param Collection<int,Exercise> $pool
      */
-    private function pack(Collection $pool, ?Level $level, float $total, float $rest): array
+    private function pack(Collection $pool, ?Level $level, float $total, float $rest, ?User $user = null): array
     {
+        // Load user timing overrides in one query.
+        $userSettings = ($user && $pool->isNotEmpty())
+            ? UserExerciseSetting::where('user_id', $user->id)
+                ->whereIn('exercise_id', $pool->pluck('id'))
+                ->get()
+                ->keyBy('exercise_id')
+            : collect();
+
         // Map of exercise_id => per-level duration (from the pivot), resolved
         // once. Keep only exercises whose contract/relax cycle fits.
         $durations = $level
@@ -59,10 +77,25 @@ class SessionBuilder
             : collect();
 
         $usable = $pool
-            ->map(fn (Exercise $e) => ['exercise' => $e, 'duration' => (float) ($durations[$e->id] ?? 30)])
+            ->map(fn (Exercise $e) => [
+                'exercise' => $e,
+                'duration' => (float) ($durations[$e->id] ?? 30),
+                'setting' => $userSettings[$e->id] ?? null,
+            ])
+            ->map(function ($r) {
+                // A full-hold exercise fills its whole duration as one
+                // contraction, so its "cycle" always fits exactly.
+                if ($r['exercise']->full_hold) {
+                    return $r + ['cycle' => $r['duration']];
+                }
+                $contract = $r['setting']?->contract_seconds ?? (float) $r['exercise']->contract_seconds;
+                $relax = $r['setting']?->relax_seconds ?? (float) $r['exercise']->relax_seconds;
+                $hold = (float) $r['exercise']->hold_seconds;
+                return $r + ['cycle' => $contract + $hold + $relax];
+            })
             ->filter(fn ($r) => $r['duration'] > 0
-                && $r['exercise']->cycleSeconds() > 0
-                && $r['exercise']->cycleSeconds() <= $r['duration'] + 1e-6)
+                && $r['cycle'] > 0
+                && $r['cycle'] <= $r['duration'] + 1e-6)
             ->values();
 
         if ($usable->isEmpty()) {
@@ -100,7 +133,8 @@ class SessionBuilder
                 $acc += $rest;
             }
 
-            foreach ($exercise->steps($duration) as $s) {
+            $setting = $row['setting'] ?? null;
+            foreach ($exercise->steps($duration, null, $setting?->contract_seconds, $setting?->relax_seconds) as $s) {
                 $steps[] = ['exercise' => $exercise->name] + $s;
                 $acc += (float) $s['seconds'];
             }

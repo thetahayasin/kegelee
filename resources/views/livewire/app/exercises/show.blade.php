@@ -30,21 +30,49 @@
 
         <p class="leading-relaxed text-muted">{{ $exercise->description }}</p>
 
-        <h2 class="mt-6 mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Rhythm @if ($levelName) <span class="text-content">· {{ $levelName }}</span> @endif</h2>
+        <div class="mt-6 mb-3 flex items-center justify-between">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-muted">Rhythm @if ($levelName) <span class="text-content">· {{ $levelName }}</span> @endif</h2>
+            @if (! $exercise->full_hold && ! $isDefault)
+                <button wire:click="resetTiming" class="text-xs text-muted underline tap">Reset to default</button>
+            @endif
+        </div>
+        @if ($exercise->full_hold)
+            {{-- Sustained hold: no contract/relax beat to tune. --}}
+            <div class="rounded-2xl bg-surface p-4 text-center">
+                <p class="text-2xl font-bold tabular-nums">{{ rtrim(rtrim(number_format($duration, 1), '0'), '.') }}s</p>
+                <p class="text-xs text-muted">Hold contraction the whole time</p>
+            </div>
+        @else
         <div class="grid grid-cols-3 gap-3">
-            <div class="rounded-2xl bg-surface p-4 text-center">
-                <p class="text-2xl font-bold">{{ rtrim(rtrim(number_format($exercise->contract_seconds, 1), '0'), '.') }}s</p>
-                <p class="text-xs text-muted">Contract</p>
+            {{-- Contract stepper --}}
+            <div class="rounded-2xl bg-surface p-3 text-center">
+                <p class="mb-2 text-xs text-muted">Contract</p>
+                <div class="flex items-center justify-center gap-1">
+                    <button wire:click="adjustContract(-0.5)"
+                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">-</button>
+                    <span class="w-10 text-center text-lg font-bold tabular-nums">{{ rtrim(rtrim(number_format($contractSeconds, 1), '0'), '.') }}s</span>
+                    <button wire:click="adjustContract(0.5)"
+                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">+</button>
+                </div>
             </div>
-            <div class="rounded-2xl bg-surface p-4 text-center">
-                <p class="text-2xl font-bold">{{ rtrim(rtrim(number_format($exercise->relax_seconds, 1), '0'), '.') }}s</p>
-                <p class="text-xs text-muted">Relax</p>
+            {{-- Relax stepper --}}
+            <div class="rounded-2xl bg-surface p-3 text-center">
+                <p class="mb-2 text-xs text-muted">Relax</p>
+                <div class="flex items-center justify-center gap-1">
+                    <button wire:click="adjustRelax(-0.5)"
+                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">-</button>
+                    <span class="w-10 text-center text-lg font-bold tabular-nums">{{ rtrim(rtrim(number_format($relaxSeconds, 1), '0'), '.') }}s</span>
+                    <button wire:click="adjustRelax(0.5)"
+                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">+</button>
+                </div>
             </div>
+            {{-- Reps --}}
             <div class="rounded-2xl bg-surface p-4 text-center">
-                <p class="text-2xl font-bold">{{ $reps }}×</p>
+                <p class="text-2xl font-bold">{{ $reps }}x</p>
                 <p class="text-xs text-muted">Reps / round</p>
             </div>
         </div>
+        @endif
         <p class="mt-2 text-sm text-muted">Runs {{ rtrim(rtrim(number_format($duration, 1), '0'), '.') }}s each time it appears in your session.</p>
 
         @if ($exercise->instructions)
@@ -57,10 +85,8 @@
     <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur">
         @if ($needsSubscription)
             <a href="{{ route('paywall') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Unlock Premium</a>
-        @elseif ($unlocked)
-            <a href="{{ route('workout', $exercise) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Start exercise</a>
         @else
-            <a href="{{ route('workout', $exercise) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-content tap">Try it now</a>
+            <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try it now</a>
         @endif
     </div>
 </div>

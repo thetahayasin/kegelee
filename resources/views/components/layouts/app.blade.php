@@ -28,6 +28,7 @@
             --c-surface-2: {{ $settings->get('color_surface_2') }};
             --c-accent: {{ $settings->get('color_accent') }};
             --c-accent-soft: {{ $settings->get('color_accent_soft') }};
+            --c-glow: {{ $settings->get('circle_glow_color') ?: $settings->get('color_accent') }};
             --c-success: {{ $settings->get('color_success') }};
             --c-text: {{ $settings->get('color_text') }};
             --c-text-muted: {{ $settings->get('color_text_muted') }};

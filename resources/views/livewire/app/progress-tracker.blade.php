@@ -14,7 +14,7 @@
             </span>
             <div>
                 <p class="text-xs text-muted">best result</p>
-                <p class="font-bold">{{ $best ? rtrim(rtrim(number_format($best, 1), '0'), '.').' sec' : '-' }}</p>
+                <p class="font-bold">{{ $best ? round($best).' sec' : '-' }}</p>
             </div>
         </div>
         <div class="text-right">
@@ -26,7 +26,7 @@
     {{-- Chart --}}
     <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface/40 p-4">
         <p class="font-semibold">{{ $rangeLabel }}</p>
-        <p class="text-sm text-muted">top result: {{ $best ? rtrim(rtrim(number_format($best, 1), '0'), '.').' sec' : '0 sec' }}</p>
+        <p class="text-sm text-muted">top result: {{ $best ? round($best).' sec' : '0 sec' }}</p>
 
         <div class="relative mt-5 h-44">
             {{-- gridlines --}}
@@ -98,7 +98,7 @@
                         class="relative grid h-40 w-40 select-none place-items-center rounded-full bg-accent text-center text-lg font-bold text-white shadow-[0_10px_40px_rgba(232,32,42,0.45)] transition-transform"
                         x-bind:style="holding ? 'transform: scale(1.12)' : 'transform: scale(1)'">
                         <span x-show="!holding">Press<br>&amp; Hold</span>
-                        <span x-show="holding" x-text="elapsed.toFixed(1) + 's'" class="text-3xl"></span>
+                        <span x-show="holding" x-text="Math.round(elapsed) + 's'" class="text-3xl"></span>
                     </button>
                 </div>
             </div>
