@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kegel",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["artisan", "serve", "--port=8777"],
+      "port": 8777
+    }
+  ]
+}

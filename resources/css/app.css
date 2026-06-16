@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';
+
+/*
+ | Design tokens map Tailwind colour utilities onto runtime CSS variables.
+ | The :root variables are emitted by the layout from the admin settings,
+ | so changing a colour in the backend instantly re-themes every utility
+ | (bg-accent, text-muted, ...) across the whole app.
+ */
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-bg: var(--c-bg);
+    --color-surface: var(--c-surface);
+    --color-surface-2: var(--c-surface-2);
+    --color-accent: var(--c-accent);
+    --color-accent-soft: var(--c-accent-soft);
+    --color-success: var(--c-success);
+    --color-content: var(--c-text);
+    --color-muted: var(--c-text-muted);
+}
+
+:root {
+    --c-bg: #0c0d11;
+    --c-surface: #16181f;
+    --c-surface-2: #1e2128;
+    --c-accent: #e8202a;
+    --c-accent-soft: #ff4d57;
+    --c-success: #22c55e;
+    --c-text: #ffffff;
+    --c-text-muted: #8a8f98;
+}
+
+html,
+body {
+    background: var(--c-bg);
+    color: var(--c-text);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+}
+
+/* Center the app in a phone frame on wide screens; full-bleed on real phones. */
+.app-frame {
+    width: 100%;
+    max-width: 440px;
+    margin-inline: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+    background: var(--c-bg);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.6);
+}
+
+/* Hide scrollbars for the native-app feel while keeping scroll. */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@utility tap {
+    transition: transform 0.08s ease;
+}
+.tap:active {
+    transform: scale(0.96);
+}
+
+/* The breathing red glow behind the workout ring during a contraction.
+   The bright band is pushed outward so it forms a halo around the ring
+   rather than hiding under the opaque inner circle. */
+.contract-glow {
+    background: radial-gradient(circle at center,
+        var(--c-accent) 0%,
+        var(--c-accent) 46%,
+        color-mix(in srgb, var(--c-accent) 45%, transparent) 62%,
+        transparent 80%);
+    filter: blur(10px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+@keyframes ring-pop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.animate-ring-pop {
+    animation: ring-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slide-up {
+    0% { transform: translateY(16px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up {
+    animation: slide-up 0.35s ease both;
+}
