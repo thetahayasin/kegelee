@@ -30,51 +30,6 @@
 
         <p class="leading-relaxed text-muted">{{ $exercise->description }}</p>
 
-        <div class="mt-6 mb-3 flex items-center justify-between">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-muted">Rhythm @if ($levelName) <span class="text-content">· {{ $levelName }}</span> @endif</h2>
-            @if (! $exercise->full_hold && ! $isDefault)
-                <button wire:click="resetTiming" class="text-xs text-muted underline tap">Reset to default</button>
-            @endif
-        </div>
-        @if ($exercise->full_hold)
-            {{-- Sustained hold: no contract/relax beat to tune. --}}
-            <div class="rounded-2xl bg-surface p-4 text-center">
-                <p class="text-2xl font-bold tabular-nums">{{ rtrim(rtrim(number_format($duration, 1), '0'), '.') }}s</p>
-                <p class="text-xs text-muted">Hold contraction the whole time</p>
-            </div>
-        @else
-        <div class="grid grid-cols-3 gap-3">
-            {{-- Contract stepper --}}
-            <div class="rounded-2xl bg-surface p-3 text-center">
-                <p class="mb-2 text-xs text-muted">Contract</p>
-                <div class="flex items-center justify-center gap-1">
-                    <button wire:click="adjustContract(-0.5)"
-                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">-</button>
-                    <span class="w-10 text-center text-lg font-bold tabular-nums">{{ rtrim(rtrim(number_format($contractSeconds, 1), '0'), '.') }}s</span>
-                    <button wire:click="adjustContract(0.5)"
-                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">+</button>
-                </div>
-            </div>
-            {{-- Relax stepper --}}
-            <div class="rounded-2xl bg-surface p-3 text-center">
-                <p class="mb-2 text-xs text-muted">Relax</p>
-                <div class="flex items-center justify-center gap-1">
-                    <button wire:click="adjustRelax(-0.5)"
-                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">-</button>
-                    <span class="w-10 text-center text-lg font-bold tabular-nums">{{ rtrim(rtrim(number_format($relaxSeconds, 1), '0'), '.') }}s</span>
-                    <button wire:click="adjustRelax(0.5)"
-                            class="grid h-7 w-7 place-items-center rounded-lg bg-surface-2 text-base font-bold leading-none tap">+</button>
-                </div>
-            </div>
-            {{-- Reps --}}
-            <div class="rounded-2xl bg-surface p-4 text-center">
-                <p class="text-2xl font-bold">{{ $reps }}x</p>
-                <p class="text-xs text-muted">Reps / round</p>
-            </div>
-        </div>
-        @endif
-        <p class="mt-2 text-sm text-muted">Runs {{ rtrim(rtrim(number_format($duration, 1), '0'), '.') }}s each time it appears in your session.</p>
-
         @if ($exercise->instructions)
             <h2 class="mt-6 mb-2 text-sm font-semibold uppercase tracking-wide text-muted">How to</h2>
             <p class="leading-relaxed text-muted">{{ $exercise->instructions }}</p>

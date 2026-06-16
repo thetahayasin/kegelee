@@ -18,6 +18,7 @@ class Settings extends Component
     public $logoUpload = null;
     public $faviconUpload = null;
     public $ogUpload = null;
+    public $homeImageUpload = null;
 
     public ?string $savedMessage = null;
 
@@ -47,6 +48,7 @@ class Settings extends Component
             'logoUpload' => 'nullable|image|max:4096',
             'faviconUpload' => 'nullable|image|max:1024',
             'ogUpload' => 'nullable|image|max:4096',
+            'homeImageUpload' => 'nullable|image|max:4096',
         ]);
 
         if ($this->logoUpload) {
@@ -58,9 +60,13 @@ class Settings extends Component
         if ($this->ogUpload) {
             $this->values['seo_og_image'] = $this->ogUpload->store('branding', 'public');
         }
+        if ($this->homeImageUpload) {
+            $this->values['home_hero_image'] = $this->homeImageUpload->store('branding', 'public');
+        }
 
         $groups = [
-            'app_name' => 'branding', 'app_tagline' => 'branding', 'logo_path' => 'branding', 'favicon_path' => 'branding',
+            'app_name' => 'branding', 'app_tagline' => 'branding', 'logo_path' => 'branding',
+            'favicon_path' => 'branding', 'home_hero_image' => 'branding',
             'seo_og_image' => 'seo',
         ];
 
@@ -72,7 +78,7 @@ class Settings extends Component
             $settings->set($key, $value, $type, $groups[$key] ?? 'general');
         }
 
-        $this->reset(['logoUpload', 'faviconUpload', 'ogUpload']);
+        $this->reset(['logoUpload', 'faviconUpload', 'ogUpload', 'homeImageUpload']);
         $this->savedMessage = 'Settings saved.';
     }
 
@@ -80,6 +86,7 @@ class Settings extends Component
     {
         return view('livewire.admin.settings', [
             'logoUrl' => $this->values['logo_path'] ? \Illuminate\Support\Facades\Storage::url($this->values['logo_path']) : null,
+            'homeImageUrl' => $this->values['home_hero_image'] ? \Illuminate\Support\Facades\Storage::url($this->values['home_hero_image']) : null,
         ]);
     }
 }

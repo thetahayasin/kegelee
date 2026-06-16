@@ -31,6 +31,7 @@ class SettingsService
             'app_tagline' => 'Train your pelvic floor',
             'logo_path' => null,
             'favicon_path' => null,
+            'home_hero_image' => null,
 
             // Theme / colours
             'color_accent' => '#E8202A',

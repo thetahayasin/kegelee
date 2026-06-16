@@ -11,7 +11,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'theme' => 'Theme', 'circle' => 'Circle UI', 'progression' => 'Progression', 'seo' => 'SEO', 'code' => 'Code injection'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'seo' => 'SEO', 'code' => 'Code injection'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -40,20 +40,13 @@
                     <input type="file" wire:model="faviconUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                     @error('faviconUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
-            </div>
-        </div>
-
-        {{-- THEME --}}
-        <div x-show="tab === 'theme'" class="grid gap-4 rounded-2xl bg-surface p-5 md:grid-cols-2">
-            @foreach (['color_accent' => 'Accent', 'color_accent_soft' => 'Accent soft', 'color_success' => 'Success', 'color_bg' => 'Background', 'color_surface' => 'Surface', 'color_surface_2' => 'Surface 2', 'color_text' => 'Text', 'color_text_muted' => 'Muted text'] as $key => $label)
-                <div class="flex items-center gap-3">
-                    <input type="color" wire:model="values.{{ $key }}" class="h-11 w-14 rounded-lg border border-white/10 bg-surface-2">
-                    <div class="flex-1">
-                        <label class="block text-sm text-muted">{{ $label }}</label>
-                        <input wire:model="values.{{ $key }}" class="h-9 w-full rounded-lg border border-white/10 bg-surface-2 px-2 font-mono text-sm focus:border-accent focus:outline-none">
-                    </div>
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Training page image</label>
+                    @if ($homeImageUrl)<img src="{{ $homeImageUrl }}" class="mb-2 h-12 rounded bg-surface-2 object-contain">@endif
+                    <input type="file" wire:model="homeImageUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
+                    @error('homeImageUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
-            @endforeach
+            </div>
         </div>
 
         {{-- CIRCLE UI --}}
@@ -65,11 +58,6 @@
             <div>
                 <label class="mb-1 block text-sm text-muted">Track width (px)</label>
                 <input type="number" wire:model="values.circle_track_width" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-            </div>
-            <div class="flex items-center gap-3">
-                <input type="color" wire:model="values.circle_glow_color" class="h-11 w-14 rounded-lg border border-white/10 bg-surface-2">
-                <div class="flex-1"><label class="block text-sm text-muted">Glow colour</label>
-                    <input wire:model="values.circle_glow_color" class="h-9 w-full rounded-lg border border-white/10 bg-surface-2 px-2 font-mono text-sm focus:border-accent focus:outline-none"></div>
             </div>
             <div>
                 <label class="mb-1 block text-sm text-muted">Arc animation smoothness (seconds)</label>

@@ -165,12 +165,12 @@
 
             {{-- Ring --}}
             <div class="flex flex-1 items-center justify-center">
-                <div class="relative grid place-items-center" style="width: {{ $circleSize + 120 }}px; height: {{ $circleSize + 120 }}px;">
-                    {{-- Red contract glow (stacked in the same grid cell so it stays centered) --}}
+                <div class="relative grid place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
+                    {{-- Red contract glow (absolutely centred so it never affects the circle's position) --}}
                     @if ($glowEnabled)
-                        <div class="contract-glow rounded-full [grid-area:1/1]"
+                        <div class="contract-glow absolute left-1/2 top-1/2 rounded-full"
                              style="width: {{ round($circleSize * 1.7) }}px; height: {{ round($circleSize * 1.7) }}px;"
-                             x-bind:style="{ opacity: glowOpacity, transform: 'scale(' + glowScale + ')', transition: glowTransition }"></div>
+                             x-bind:style="{ opacity: glowOpacity, transform: 'translate(-50%, -50%) scale(' + glowScale + ')', transition: glowTransition }"></div>
                     @endif
 
                     <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"

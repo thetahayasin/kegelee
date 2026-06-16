@@ -1,4 +1,4 @@
-<div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+<div class="min-h-[100dvh] pb-[calc(11rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
         <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
@@ -65,10 +65,12 @@
         @endforeach
     </div>
 
-    {{-- CTA --}}
-    <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
+    {{-- CTA (sits just above the tab bar) --}}
+    <div class="fixed inset-x-0 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-[440px] px-5">
         <button wire:click="startMeasure" class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Take measurement</button>
     </div>
+
+    <x-bottom-nav active="progress" />
 
     {{-- Measurement overlay --}}
     @if ($measuring)

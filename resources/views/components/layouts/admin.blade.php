@@ -1,19 +1,16 @@
 @php($settings = app(\App\Services\SettingsService::class))
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" style="
+    --c-bg: #0c0d11; --c-surface: #16181f; --c-surface-2: #1e2128;
+    --c-accent: {{ $settings->get('color_accent') }}; --c-accent-soft: {{ $settings->get('color_accent_soft') }};
+    --c-glow: {{ $settings->get('circle_glow_color') ?: $settings->get('color_accent') }};
+    --c-success: #22c55e; --c-text: #fff; --c-text-muted: #8a8f98;
+">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title ?? 'Admin' }} · {{ $settings->get('app_name') }}</title>
-    <style>
-        :root {
-            --c-bg: #0c0d11; --c-surface: #16181f; --c-surface-2: #1e2128;
-            --c-accent: {{ $settings->get('color_accent') }}; --c-accent-soft: {{ $settings->get('color_accent_soft') }};
-            --c-glow: {{ $settings->get('circle_glow_color') ?: $settings->get('color_accent') }};
-            --c-success: #22c55e; --c-text: #fff; --c-text-muted: #8a8f98;
-        }
-    </style>
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

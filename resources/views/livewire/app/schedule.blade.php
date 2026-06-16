@@ -1,6 +1,6 @@
 <div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
-        <h1 class="text-2xl font-bold">Kegel Training</h1>
+        <h1 class="text-2xl font-bold">Set reminders</h1>
     </header>
 
     {{-- Reminder card --}}

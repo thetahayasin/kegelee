@@ -1,7 +1,7 @@
 @props(['active' => 'home'])
 @php
     $tabs = [
-        ['key' => 'home', 'label' => 'Kegel', 'route' => 'home'],
+        ['key' => 'home', 'label' => 'Training', 'route' => 'home'],
         ['key' => 'progress', 'label' => 'Progress', 'route' => 'progress'],
         ['key' => 'schedule', 'label' => 'Schedule', 'route' => 'schedule'],
         ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile'],
@@ -16,8 +16,9 @@
                 <span class="grid place-items-center h-6 w-6">
                     @switch($tab['key'])
                         @case('home')
-                            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/>
+                            {{-- dumbbell --}}
+                            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                                <path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/>
                             </svg>
                             @break
                         @case('progress')

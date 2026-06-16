@@ -19,7 +19,7 @@ class Home extends Component
         }
     }
 
-    public function render(ProgressionService $progression)
+    public function render(ProgressionService $progression, SettingsService $settings)
     {
         $user = auth()->user();
         $position = $progression->position($user);
@@ -48,6 +48,9 @@ class Home extends Component
             'exercises' => $exercises,
             'nextUnlock' => $nextUnlock,
             'bestMeasurement' => $user->measurements()->max('seconds'),
+            'heroImage' => $settings->get('home_hero_image')
+                ? \Illuminate\Support\Facades\Storage::url($settings->get('home_hero_image'))
+                : null,
         ]);
     }
 }

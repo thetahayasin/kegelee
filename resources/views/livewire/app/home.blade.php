@@ -2,9 +2,13 @@
 <div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     {{-- Header --}}
     <header class="flex items-center justify-center relative px-5 py-4">
-        <h1 class="text-2xl font-bold">Kegel Training</h1>
+        <h1 class="text-2xl font-bold">Training</h1>
         <a href="{{ route('profile') }}" wire:navigate class="absolute right-5 grid place-items-center h-9 w-9 rounded-full bg-surface text-muted tap" aria-label="Info">
-            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 11.5v4.5" stroke-linecap="round"/>
+                <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>
+            </svg>
         </a>
     </header>
 
@@ -26,7 +30,11 @@
     <section class="mx-4 rounded-3xl bg-surface p-5 relative overflow-hidden">
         <div class="absolute -right-6 -top-6 h-44 w-44 rounded-full bg-white/[0.03]"></div>
         <div class="absolute right-2 top-3 opacity-90">
-            <x-equipment-icon name="dumbbell" :size="96" class="!bg-transparent !ring-0" />
+            @if ($heroImage)
+                <img src="{{ $heroImage }}" alt="" class="h-24 w-24 object-contain">
+            @else
+                <x-equipment-icon name="dumbbell" :size="96" class="!bg-transparent !ring-0" />
+            @endif
         </div>
 
         <x-gauge :value="$today['done']" :max="$today['required']" :size="68" class="mb-12">
@@ -42,17 +50,21 @@
         <p class="mt-2 text-xl font-bold">Month {{ $position['month'] }} <span class="text-muted/60">·</span> Day {{ $position['day'] }}</p>
 
         {{-- Start strip --}}
-        <div class="mt-5 rounded-2xl bg-surface-2 p-4 flex items-center justify-between">
-            <div>
+        <div class="mt-5 rounded-2xl bg-surface-2 p-4 flex items-center justify-between gap-3">
+            <div class="min-w-0">
                 <p class="flex items-center gap-1.5 text-sm text-muted">
-                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
                     {{ $sessionMinutes }} min
                 </p>
-                <p class="mt-1 font-semibold">
-                    Session {{ $today['done'] + 1 }}@if ($complete) <span class="text-muted font-normal">(optional)</span>@endif
+                <p class="mt-1 text-sm font-medium leading-snug">
+                    @if ($complete)
+                        Day complete - extra sessions are optional
+                    @else
+                        Complete {{ $today['required'] }} training {{ \Illuminate\Support\Str::plural('session', $today['required']) }} a day to finish a training day
+                    @endif
                 </p>
             </div>
-            <a href="{{ route('session') }}" wire:navigate class="h-12 px-8 grid place-items-center rounded-full bg-accent font-semibold text-white tap">Start</a>
+            <a href="{{ route('session') }}" wire:navigate class="h-12 shrink-0 px-6 grid place-items-center rounded-full bg-accent font-semibold text-white tap">Start workout</a>
         </div>
     </section>
 

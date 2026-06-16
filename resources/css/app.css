@@ -24,15 +24,19 @@
     --color-muted: var(--c-text-muted);
 }
 
+/* Fixed frosted-glass palette: cyan text on deep dark, translucent surfaces. */
 :root {
-    --c-bg: #0c0d11;
-    --c-surface: #16181f;
-    --c-surface-2: #1e2128;
-    --c-accent: #e8202a;
-    --c-accent-soft: #ff4d57;
+    --c-bg: #060810;
+    --c-surface: rgba(255, 255, 255, 0.14);
+    --c-surface-2: rgba(255, 255, 255, 0.22);
+    --c-accent: #6ef2f0;
+    --c-accent-soft: #9bf7f5;
+    --c-glow: #e8202a;
     --c-success: #22c55e;
-    --c-text: #ffffff;
-    --c-text-muted: #8a8f98;
+    --c-text: #6ef2f0;
+    --c-text-muted: rgba(110, 242, 240, 0.5);
+    /* Dark ink for text/icons sitting on the cyan accent. */
+    --c-on-accent: #042024;
 }
 
 [x-cloak] {
@@ -55,8 +59,55 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     position: relative;
-    background: var(--c-bg);
+    overflow: hidden;
+    background:
+        radial-gradient(135% 90% at 50% -10%, #0d1a26 0%, transparent 55%),
+        radial-gradient(120% 80% at 50% 112%, #1a070b 0%, transparent 55%),
+        #060810;
     box-shadow: 0 0 80px rgba(0, 0, 0, 0.6);
+}
+
+/* Giant rotated app-name watermark sitting behind the glass cards. */
+.app-watermark {
+    position: fixed;
+    inset: 0;
+    max-width: 440px;
+    margin-inline: auto;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+/* Full app name down the left edge, vertical 90deg letters, never clipped. */
+.app-watermark > span {
+    position: absolute;
+    left: 0.02em;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-weight: 900;
+    font-size: 21.5vh;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--c-text);
+    opacity: 0.12;
+    user-select: none;
+}
+
+/* Dark ink on the cyan accent buttons/badges so they read as themed. */
+.bg-accent {
+    color: var(--c-on-accent);
+}
+
+/* Liquid glass: very transparent, heavy blur, luminous edge + top highlight,
+   so the watermark behind reads through. Circle (rounded-full) keeps its ring. */
+[class*='bg-surface'] {
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+}
+[class*='bg-surface']:not(.rounded-full) {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.28);
 }
 
 /* Hide scrollbars for the native-app feel while keeping scroll. */
@@ -82,9 +133,10 @@ body {
    Uses --c-glow (the admin "circle glow colour"), falling back to accent. */
 .contract-glow {
     background: radial-gradient(circle closest-side at center,
-        transparent 48%,
-        color-mix(in srgb, var(--c-glow, var(--c-accent)) 50%, transparent) 60%,
-        var(--c-glow, var(--c-accent)) 100%);
+        transparent 56%,
+        color-mix(in srgb, var(--c-glow, var(--c-accent)) 8%, transparent) 66%,
+        color-mix(in srgb, var(--c-glow, var(--c-accent)) 42%, transparent) 90%,
+        color-mix(in srgb, var(--c-glow, var(--c-accent)) 24%, transparent) 100%);
     transition: opacity 0.1s linear, transform 0.1s linear;
 }
 
