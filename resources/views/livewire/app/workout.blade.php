@@ -13,7 +13,7 @@
                 glow: @js($glowEnabled), haptics: @js($haptics),
                 trial: @js($trial), skipAfter: @js($skipAfter),
                 timeScale: @js($timeScale),
-                showHelp: false, _centered: -1,
+                showHelp: false, trackX: 0,
                 init() {
                     if (!this.steps.length) { this.finish(); return; }
                     this.remaining = this.steps[0].seconds;
@@ -141,26 +141,41 @@
                     }
                     return null;
                 },
-                // The exercises in order for the carousel — rests are skipped and
-                // don't split a repeated exercise into separate entries.
-                get exerciseItems() {
+                // Carousel items follow the real session flow: each exercise block
+                // plus each rest between them (rests are shown).
+                get carouselItems() {
                     let items = []; let last = null;
                     for (const s of this.steps) {
-                        if (s.phase === 'rest') continue;
-                        if (s.exercise !== last) { items.push(s.exercise); last = s.exercise; }
+                        if (s.phase === 'rest') {
+                            if (last !== '__rest') { items.push({ label: 'Rest', rest: true }); last = '__rest'; }
+                        } else if (s.exercise !== last) {
+                            items.push({ label: s.exercise, rest: false }); last = s.exercise;
+                        }
                     }
                     return items;
                 },
-                // Index (in exerciseItems) of the exercise being worked on now.
+                // Index (in carouselItems) of the item being worked on now.
                 get curItemIndex() {
                     let idx = -1; let last = null;
                     let upto = Math.min(this.i, this.steps.length - 1);
                     for (let k = 0; k <= upto; k++) {
                         const s = this.steps[k];
-                        if (s.phase === 'rest') continue;
-                        if (s.exercise !== last) { idx++; last = s.exercise; }
+                        if (s.phase === 'rest') {
+                            if (last !== '__rest') { idx++; last = '__rest'; }
+                        } else if (s.exercise !== last) {
+                            idx++; last = s.exercise;
+                        }
                     }
                     return Math.max(0, idx);
+                },
+                // Centre the active carousel item by measuring its position (items
+                // are variable width, so the slide offset can't be a fixed stride).
+                recenter() {
+                    this.$nextTick(() => {
+                        const t = this.$refs.track; if (!t) return;
+                        const el = t.querySelectorAll('[data-c-item]')[this.curItemIndex];
+                        if (el) this.trackX = -(el.offsetLeft + el.offsetWidth / 2);
+                    });
                 },
             }"
             x-init="init()"
@@ -223,17 +238,18 @@
             </div>
 
             {{-- Past · Current · Next --}}
-            {{-- Exercise carousel — the active item centres and advances as each completes --}}
-            <div class="mb-3 flex items-center overflow-x-auto no-scrollbar" x-ref="carousel"
-                 x-effect="curItemIndex; $nextTick(() => centerCarousel())">
-                <div class="w-1/2 shrink-0"></div>
-                <template x-for="(name, idx) in exerciseItems" :key="idx">
-                    <div :data-idx="idx"
-                         class="w-40 shrink-0 truncate px-2 text-center transition-all duration-300"
-                         :class="idx === curItemIndex ? 'text-lg font-bold text-content' : 'text-base text-white/35'"
-                         x-text="name"></div>
-                </template>
-                <div class="w-1/2 shrink-0"></div>
+            {{-- Exercise carousel — auto-centres on the active item; not user-scrollable; full text on one line --}}
+            <div class="relative mb-3 h-9 overflow-hidden" x-on:resize.window="recenter()">
+                <div class="absolute left-1/2 top-1/2 flex items-center transition-transform duration-500 ease-out"
+                     x-ref="track" x-effect="curItemIndex; recenter()"
+                     x-bind:style="'transform: translate(' + trackX + 'px, -50%)'">
+                    <template x-for="(item, idx) in carouselItems" :key="idx">
+                        <div data-c-item
+                             class="shrink-0 whitespace-nowrap px-3 text-center"
+                             :class="idx === curItemIndex ? (item.rest ? 'text-base font-medium text-muted' : 'text-lg font-bold text-content') : 'text-base text-white/35'"
+                             x-text="item.label"></div>
+                    </template>
+                </div>
             </div>
 
             {{-- Pause / resume --}}
