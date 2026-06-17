@@ -31,11 +31,11 @@
     {{-- Subscription banner --}}
     @if (! $subscription)
         <a href="{{ route('paywall') }}" wire:navigate class="mx-4 mt-4 flex items-center justify-between rounded-2xl bg-gradient-to-r from-accent to-accent-soft p-5 tap">
-            <div>
-                <p class="text-lg font-bold text-white">Go Premium</p>
-                <p class="text-sm text-white/80">Unlock every exercise and level</p>
+            <div class="text-[color:var(--c-on-accent)]">
+                <p class="text-lg font-bold">Go Premium</p>
+                <p class="text-sm opacity-80">Unlock every exercise and level</p>
             </div>
-            <svg viewBox="0 0 24 24" class="h-6 w-6 text-white" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            <svg viewBox="0 0 24 24" class="h-6 w-6 text-[color:var(--c-on-accent)]" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
         </a>
     @else
         <div class="mx-4 mt-4 rounded-2xl bg-surface p-5">

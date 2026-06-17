@@ -63,6 +63,9 @@ class ExerciseEdit extends Component
                 'level' => $level->name,
                 'total' => (float) $level->total_session_seconds,
                 'duration' => (float) ($pivot->duration_seconds ?? 30),
+                // Whether this exercise is part of that level's session. Existing
+                // exercises keep their current attachment; new ones default in.
+                'included' => $this->exercise?->exists ? (bool) $pivot : true,
             ];
         }
     }
@@ -98,6 +101,10 @@ class ExerciseEdit extends Component
         // must fit the level's total session time.
         $cycle = (float) $this->contract_seconds + (float) $this->hold_seconds + (float) $this->relax_seconds;
         foreach ($this->durations as $levelId => $row) {
+            // Only validate levels this exercise is actually assigned to.
+            if (! ($row['included'] ?? true)) {
+                continue;
+            }
             $duration = (float) $row['duration'];
             // A full-hold exercise fills the whole duration as one contraction,
             // so the contract+hold+relax cycle check doesn't apply.
@@ -143,6 +150,10 @@ class ExerciseEdit extends Component
 
         $sync = [];
         foreach ($this->durations as $levelId => $row) {
+            // Attach only the levels this exercise is included in.
+            if (! ($row['included'] ?? true)) {
+                continue;
+            }
             $sync[$levelId] = ['duration_seconds' => (float) $row['duration']];
         }
         $exercise->levels()->sync($sync);

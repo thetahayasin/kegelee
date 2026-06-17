@@ -13,7 +13,7 @@
                 glow: @js($glowEnabled), haptics: @js($haptics),
                 trial: @js($trial), skipAfter: @js($skipAfter),
                 timeScale: @js($timeScale),
-                showHelp: false,
+                showHelp: false, _centered: -1,
                 init() {
                     if (!this.steps.length) { this.finish(); return; }
                     this.remaining = this.steps[0].seconds;
@@ -141,6 +141,27 @@
                     }
                     return null;
                 },
+                // The exercises in order for the carousel — rests are skipped and
+                // don't split a repeated exercise into separate entries.
+                get exerciseItems() {
+                    let items = []; let last = null;
+                    for (const s of this.steps) {
+                        if (s.phase === 'rest') continue;
+                        if (s.exercise !== last) { items.push(s.exercise); last = s.exercise; }
+                    }
+                    return items;
+                },
+                // Index (in exerciseItems) of the exercise being worked on now.
+                get curItemIndex() {
+                    let idx = -1; let last = null;
+                    let upto = Math.min(this.i, this.steps.length - 1);
+                    for (let k = 0; k <= upto; k++) {
+                        const s = this.steps[k];
+                        if (s.phase === 'rest') continue;
+                        if (s.exercise !== last) { idx++; last = s.exercise; }
+                    }
+                    return Math.max(0, idx);
+                },
             }"
             x-init="init()"
             class="flex min-h-[100dvh] flex-col px-6 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
@@ -194,7 +215,7 @@
             {{-- Help --}}
             <div class="flex justify-center pb-4">
                 <button @click="showHelp = !showHelp; paused = showHelp" class="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-muted tap" aria-label="Help">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 113.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 113.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>
                 </button>
             </div>
             <div x-show="showHelp" x-transition class="mb-3 rounded-2xl bg-surface px-4 py-3 text-sm text-muted">
@@ -202,10 +223,17 @@
             </div>
 
             {{-- Past · Current · Next --}}
-            <div class="mb-3 flex items-center justify-between px-3">
-                <p class="w-[30%] truncate text-base text-white/40" x-text="prevItem ?? ''"></p>
-                <p class="shrink-0 text-center text-base font-semibold" x-text="cur.phase === 'rest' ? 'Rest' : cur.exercise"></p>
-                <p class="w-[30%] truncate text-right text-base text-white/40" x-text="nextItem ?? ''"></p>
+            {{-- Exercise carousel — the active item centres and advances as each completes --}}
+            <div class="mb-3 flex items-center overflow-x-auto no-scrollbar" x-ref="carousel"
+                 x-effect="curItemIndex; $nextTick(() => centerCarousel())">
+                <div class="w-1/2 shrink-0"></div>
+                <template x-for="(name, idx) in exerciseItems" :key="idx">
+                    <div :data-idx="idx"
+                         class="w-40 shrink-0 truncate px-2 text-center transition-all duration-300"
+                         :class="idx === curItemIndex ? 'text-lg font-bold text-content' : 'text-base text-white/35'"
+                         x-text="name"></div>
+                </template>
+                <div class="w-1/2 shrink-0"></div>
             </div>
 
             {{-- Pause / resume --}}
@@ -227,24 +255,33 @@
         </div>
     @else
         {{-- ================= COMPLETION ================= --}}
-        @php($pos = $result['position'])
+        @php
+            $pos = $result['position'];
+            $cprog = $result['progress'];
+            $cpct = min(1, max(0, ($cprog['required'] ?? 0) > 0 ? $cprog['done'] / $cprog['required'] : 1));
+            $csize = 208; $cstroke = 12; $cr = ($csize - $cstroke) / 2;
+            $ccirc = round(2 * M_PI * $cr, 2);
+            $coff = round($ccirc * (1 - $cpct), 2);
+        @endphp
         <div class="flex min-h-[100dvh] flex-col pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-            {{-- Night hero --}}
-            <div class="relative h-72 overflow-hidden rounded-b-3xl"
-                 style="background: linear-gradient(180deg, #1b2a4a 0%, #16203a 45%, var(--c-bg) 100%);">
-                <div class="absolute right-10 top-10 h-16 w-16 rounded-full bg-[radial-gradient(circle,#fff,rgba(255,255,255,0.35))] shadow-[0_0_40px_rgba(255,255,255,0.4)]"></div>
-                <svg viewBox="0 0 440 180" class="absolute bottom-0 w-full" preserveAspectRatio="none">
-                    <path d="M0 180 L90 70 L150 120 L220 40 L300 120 L360 80 L440 150 L440 180 Z" fill="#0e1626"/>
-                    <circle cx="220" cy="40" r="4" fill="#cdd6e6"/>
-                </svg>
-                <div class="absolute inset-x-0 bottom-5 flex flex-col items-center">
-                    <x-gauge :value="$result['progress']['done']" :max="$result['progress']['required']" :size="72">
-                        <span class="text-sm font-bold">{{ $result['progress']['done'] }}/{{ $result['progress']['required'] }}</span>
-                    </x-gauge>
+            {{-- Big themed completion ring with an animated tick (no sky/mountains) --}}
+            <div class="flex flex-col items-center px-6 pt-[calc(2rem+env(safe-area-inset-top))]">
+                <div class="animate-ring-pop relative grid place-items-center" style="width: {{ $csize }}px; height: {{ $csize }}px;">
+                    <svg width="{{ $csize }}" height="{{ $csize }}" viewBox="0 0 {{ $csize }} {{ $csize }}" class="-rotate-90">
+                        <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="{{ $cstroke }}"/>
+                        <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="var(--c-accent)" stroke-width="{{ $cstroke }}"
+                                stroke-linecap="round" class="completion-ring"
+                                stroke-dasharray="{{ $ccirc }}" stroke-dashoffset="{{ $coff }}"
+                                style="--ring-start: {{ $ccirc }}; --ring-end: {{ $coff }}; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c-accent) 45%, transparent));"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="absolute h-24 w-24 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 13l4 4L19 7" pathLength="1" class="completion-tick"/>
+                    </svg>
                 </div>
+                <p class="mt-4 text-sm font-semibold text-muted">{{ $cprog['done'] }}/{{ $cprog['required'] }} sessions today</p>
             </div>
 
-            <div class="px-6 pt-5">
+            <div class="px-6 pt-5 text-center">
                 <h1 class="text-2xl font-bold">
                     @if ($result['day_completed']) Training Day Complete!
                     @elseif ($result['is_extra']) Extra Session Done!
@@ -262,7 +299,7 @@
                     @foreach ($result['days'] as $day)
                         <div class="flex flex-1 flex-col items-center gap-1">
                             <div class="grid aspect-square w-full place-items-center rounded-lg
-                                {{ $day['done'] ? 'bg-success text-black' : ($day['today'] ? 'border-2 border-white' : 'border border-white/15') }}">
+                                {{ $day['done'] ? 'bg-accent text-[color:var(--c-on-accent)]' : ($day['today'] ? 'border-2 border-accent' : 'border border-white/15') }}">
                                 @if ($day['done'])
                                     <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
                                 @endif

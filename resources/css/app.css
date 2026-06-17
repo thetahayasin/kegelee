@@ -32,7 +32,8 @@
     --c-accent: #6ef2f0;
     --c-accent-soft: #9bf7f5;
     --c-glow: #e8202a;
-    --c-success: #22c55e;
+    /* Success follows the theme accent so "completed"/success messages match. */
+    --c-success: var(--c-accent);
     --c-text: #6ef2f0;
     --c-text-muted: rgba(110, 242, 240, 0.5);
     /* Dark ink for text/icons sitting on the cyan accent. */
@@ -77,10 +78,10 @@ body {
     overflow: hidden;
     pointer-events: none;
 }
-/* Full app name down the left edge, vertical 90deg letters, never clipped. */
+/* Full app name hugging the extreme left edge, vertical 90deg letters. */
 .app-watermark > span {
     position: absolute;
-    left: 0.02em;
+    left: -0.06em;
     top: 50%;
     transform: translateY(-50%);
     writing-mode: vertical-rl;
@@ -94,9 +95,10 @@ body {
     user-select: none;
 }
 
-/* Dark ink on the cyan accent buttons/badges so they read as themed. */
+/* Dark ink on the cyan accent buttons/badges so the label reads (white text
+   on light cyan is invisible). !important beats leftover text-white utilities. */
 .bg-accent {
-    color: var(--c-on-accent);
+    color: var(--c-on-accent) !important;
 }
 
 /* Liquid glass: very transparent, heavy blur, luminous edge + top highlight,
@@ -108,6 +110,14 @@ body {
 [class*='bg-surface']:not(.rounded-full) {
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+/* Overlay bars (bottom nav, sticky CTA strips) are dark liquid glass too, so
+   content scrolls under them blurred instead of behind a near-solid bar. */
+.bg-bg\/95 {
+    background-color: color-mix(in srgb, var(--c-bg) 55%, transparent) !important;
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
 }
 
 /* Hide scrollbars for the native-app feel while keeping scroll. */
@@ -130,13 +140,13 @@ body {
    `closest-side` makes the stops map to the visible (circular-clipped) disc,
    so 100% is a solid outer rim and the colour reaches all the way in to meet
    the inner circle, fading from there toward the hidden centre.
-   Uses --c-glow (the admin "circle glow colour"), falling back to accent. */
+   Uses the theme accent (--c-accent) so the pulse matches the theme. */
 .contract-glow {
     background: radial-gradient(circle closest-side at center,
         transparent 56%,
-        color-mix(in srgb, var(--c-glow, var(--c-accent)) 8%, transparent) 66%,
-        color-mix(in srgb, var(--c-glow, var(--c-accent)) 42%, transparent) 90%,
-        color-mix(in srgb, var(--c-glow, var(--c-accent)) 24%, transparent) 100%);
+        color-mix(in srgb, var(--c-accent) 8%, transparent) 66%,
+        color-mix(in srgb, var(--c-accent) 42%, transparent) 90%,
+        color-mix(in srgb, var(--c-accent) 24%, transparent) 100%);
     transition: opacity 0.1s linear, transform 0.1s linear;
 }
 
@@ -154,4 +164,23 @@ body {
 }
 .animate-slide-up {
     animation: slide-up 0.35s ease both;
+}
+
+/* Session-complete celebration: the ring sweeps from empty to its value, then
+   the tick draws itself in. Both run on render (no JS needed). */
+@keyframes ring-fill {
+    from { stroke-dashoffset: var(--ring-start); }
+    to   { stroke-dashoffset: var(--ring-end); }
+}
+.completion-ring {
+    animation: ring-fill 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+@keyframes draw-tick {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+}
+.completion-tick {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-tick 0.45s ease-out 0.8s both;
 }

@@ -9,12 +9,12 @@
     {{-- Summary --}}
     <div class="flex items-start justify-between px-6 pt-3">
         <div class="flex items-center gap-3">
-            <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-yellow-400">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface text-accent">
                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor"><path d="M6 4h12v3a4 4 0 01-4 4h-4A4 4 0 016 7zM9 13h6v3H9zM8 19h8v2H8z"/></svg>
             </span>
             <div>
                 <p class="text-xs text-muted">best result</p>
-                <p class="font-bold">{{ $best ? round($best).' sec' : '-' }}</p>
+                <p class="font-bold">{{ $best ? (int) ceil($best).' sec' : '-' }}</p>
             </div>
         </div>
         <div class="text-right">
@@ -26,7 +26,7 @@
     {{-- Chart --}}
     <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface/40 p-4">
         <p class="font-semibold">{{ $rangeLabel }}</p>
-        <p class="text-sm text-muted">top result: {{ $best ? round($best).' sec' : '0 sec' }}</p>
+        <p class="text-sm text-muted">top result: {{ $best ? (int) ceil($best).' sec' : '0 sec' }}</p>
 
         <div class="relative mt-5 h-44">
             {{-- gridlines --}}
@@ -76,11 +76,12 @@
     @if ($measuring)
         <div class="fixed inset-0 z-50 mx-auto flex max-w-[440px] flex-col bg-bg px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
              x-data="{
-                holding: false, start: 0, elapsed: 0, timer: null,
-                begin(e) { if (this.holding) return; this.holding = true; this.start = Date.now();
+                holding: false, done: false, start: 0, elapsed: 0, result: 0, timer: null,
+                begin(e) { if (this.holding || this.done) return; this.holding = true; this.start = Date.now();
                     this.timer = setInterval(() => this.elapsed = (Date.now() - this.start) / 1000, 80); },
                 end() { if (!this.holding) return; this.holding = false; clearInterval(this.timer);
-                    let s = (Date.now() - this.start) / 1000; $wire.record(s); },
+                    this.result = (Date.now() - this.start) / 1000; this.done = true; },
+                retake() { this.done = false; this.elapsed = 0; this.result = 0; },
              }">
             <div class="flex items-center">
                 <button wire:click="$set('measuring', false)" class="grid h-9 w-9 place-items-center rounded-full text-muted tap">
@@ -94,22 +95,37 @@
                     @foreach ([320, 250, 180] as $ring)
                         <div class="absolute rounded-full border border-white/5" style="width: {{ $ring }}px; height: {{ $ring }}px;"></div>
                     @endforeach
-                    <button
+
+                    {{-- Press & hold — captures a result on release (no auto-save) --}}
+                    <button x-show="!done"
                         @pointerdown="begin($event)" @pointerup="end()" @pointerleave="end()"
                         @contextmenu.prevent
-                        class="relative grid h-40 w-40 select-none place-items-center rounded-full bg-accent text-center text-lg font-bold text-white shadow-[0_10px_40px_rgba(232,32,42,0.45)] transition-transform"
+                        class="relative grid h-40 w-40 select-none place-items-center rounded-full bg-accent text-center text-lg font-bold text-[color:var(--c-on-accent)] shadow-[0_10px_40px_color-mix(in_srgb,var(--c-accent)_45%,transparent)] transition-transform"
                         x-bind:style="holding ? 'transform: scale(1.12)' : 'transform: scale(1)'">
                         <span x-show="!holding">Press<br>&amp; Hold</span>
                         <span x-show="holding" x-text="Math.round(elapsed) + 's'" class="text-3xl"></span>
                     </button>
+
+                    {{-- Result of the hold (shown after release) --}}
+                    <div x-show="done" x-cloak class="grid h-40 w-40 place-items-center rounded-full bg-surface text-center">
+                        <div>
+                            <p class="text-5xl font-bold tabular-nums" x-text="Math.round(result) + 's'"></p>
+                            <p class="mt-1 text-xs text-muted">your hold</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-start gap-3 rounded-2xl bg-surface px-4 py-3">
+            {{-- Instructions while measuring; result actions once held --}}
+            <div x-show="!done" class="flex items-start gap-3 rounded-2xl bg-surface px-4 py-3">
                 <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface-2 text-accent-soft">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"/></svg>
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"/></svg>
                 </span>
-                <p class="text-sm text-muted">Hold the red button and contract the PF muscles for as long as possible.</p>
+                <p class="text-sm text-muted">Hold the button and contract the PF muscles for as long as possible.</p>
+            </div>
+            <div x-show="done" x-cloak class="space-y-3">
+                <button @click="$wire.record(result)" class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-[color:var(--c-on-accent)] tap">Continue</button>
+                <button @click="retake()" class="grid h-12 w-full place-items-center rounded-2xl bg-surface font-semibold tap">Try again</button>
             </div>
         </div>
     @endif

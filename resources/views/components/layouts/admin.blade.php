@@ -49,6 +49,14 @@
 
                 {{-- Main --}}
                 <main class="flex-1 overflow-x-hidden">
+                    {{-- Mobile top bar: the sidebar (and its logout) is desktop-only. --}}
+                    <div class="flex items-center justify-between border-b border-white/5 bg-surface px-4 py-3 md:hidden">
+                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
+                            <span class="grid h-8 w-8 place-items-center rounded-lg bg-accent text-sm font-bold">{{ strtoupper(substr($settings->get('app_name'), 0, 1)) }}</span>
+                            <span class="font-semibold">{{ $settings->get('app_name') }}</span>
+                        </a>
+                        <a href="{{ route('admin.logout') }}" class="rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-medium tap">Log out</a>
+                    </div>
                     <div class="mx-auto max-w-5xl p-5 md:p-8">
                         {{ $slot }}
                     </div>

@@ -237,22 +237,26 @@
         {{-- Per-level duration --}}
         @php($cycle = (float) $contract_seconds + (float) $hold_seconds + (float) $relax_seconds)
         <div class="rounded-2xl bg-surface p-5">
-            <h2 class="mb-1 font-semibold">Duration per level</h2>
+            <h2 class="mb-1 font-semibold">Levels &amp; duration</h2>
             @if ($full_hold)
-                <p class="mb-4 text-sm text-muted">How long this exercise runs each appearance, per difficulty. Held as one continuous contraction; the duration must fit the level's session time.</p>
+                <p class="mb-4 text-sm text-muted">Tick the levels this exercise belongs to (its sessions are randomised from the level's exercises). Held as one continuous contraction; the duration must fit the level's session time.</p>
             @else
-                <p class="mb-4 text-sm text-muted">How long this exercise runs each appearance, per difficulty. One cycle = {{ rtrim(rtrim(number_format($cycle, 1), '0'), '.') }}s; it must fit the duration, and the duration must fit the level's session time.</p>
+                <p class="mb-4 text-sm text-muted">Tick the levels this exercise belongs to (its sessions are randomised from the level's exercises). One cycle = {{ rtrim(rtrim(number_format($cycle, 1), '0'), '.') }}s; it must fit the duration, and the duration must fit the level's session time.</p>
             @endif
             <div class="space-y-2">
                 <div class="hidden grid-cols-5 gap-2 px-1 text-xs text-muted md:grid">
-                    <span>Level</span><span>Duration (s)</span><span>Reps</span><span>Session time</span><span>Fits?</span>
+                    <span>In level</span><span>Duration (s)</span><span>Reps</span><span>Session time</span><span>Fits?</span>
                 </div>
                 @foreach ($durations as $levelId => $row)
                     @php($dur = (float) $row['duration'])
+                    @php($on = $row['included'] ?? true)
                     @php($fits = $full_hold ? ($dur <= $row['total'] + 1e-6) : ($cycle > 0 && $cycle <= $dur + 1e-6 && $dur <= $row['total'] + 1e-6))
                     @php($reps = $full_hold ? 1 : ($cycle > 0 ? (int) floor($dur / $cycle) : 0))
-                    <div wire:key="dur-{{ $levelId }}" class="grid grid-cols-2 gap-2 rounded-xl bg-surface-2 p-3 md:grid-cols-5 md:items-center md:bg-transparent md:p-1">
-                        <span class="text-sm font-medium">{{ $row['level'] }}</span>
+                    <div wire:key="dur-{{ $levelId }}" class="grid grid-cols-2 gap-2 rounded-xl bg-surface-2 p-3 md:grid-cols-5 md:items-center md:bg-transparent md:p-1 {{ $on ? '' : 'opacity-50' }}">
+                        <label class="flex items-center gap-2 text-sm font-medium">
+                            <input type="checkbox" wire:model.live="durations.{{ $levelId }}.included" class="h-4 w-4 rounded accent-[var(--c-accent)]">
+                            {{ $row['level'] }}
+                        </label>
                         <div>
                             <input type="number" step="1" min="1" wire:model="durations.{{ $levelId }}.duration" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
                             @error("durations.{$levelId}.duration") <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror

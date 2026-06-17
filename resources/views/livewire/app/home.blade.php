@@ -37,7 +37,7 @@
             @endif
         </div>
 
-        <x-gauge :value="$today['done']" :max="$today['required']" :size="68" class="mb-12">
+        <x-gauge :value="$today['done']" :max="$today['required']" :size="68" color="var(--c-accent)" class="mb-12">
             <span class="text-sm font-bold">{{ $today['done'] }}/{{ $today['required'] }}</span>
         </x-gauge>
 
@@ -50,7 +50,7 @@
         <p class="mt-2 text-xl font-bold">Month {{ $position['month'] }} <span class="text-muted/60">·</span> Day {{ $position['day'] }}</p>
 
         {{-- Start strip --}}
-        <div class="mt-5 rounded-2xl bg-surface-2 p-4 flex items-center justify-between gap-3">
+        <div class="mt-5 rounded-2xl bg-surface-2 p-4">
             <div class="min-w-0">
                 <p class="flex items-center gap-1.5 text-sm text-muted">
                     <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
@@ -64,7 +64,7 @@
                     @endif
                 </p>
             </div>
-            <a href="{{ route('session') }}" wire:navigate class="h-12 shrink-0 px-6 grid place-items-center rounded-full bg-accent font-semibold text-white tap">Start workout</a>
+            <a href="{{ route('session') }}" wire:navigate class="mt-4 grid h-12 w-full place-items-center rounded-full bg-accent font-semibold tap">Start workout</a>
         </div>
     </section>
 
@@ -93,7 +93,7 @@
         <div>
             <p class="text-lg font-semibold">Progress Tracker</p>
             <p class="text-sm text-muted">
-                @if ($bestMeasurement) Best hold: {{ rtrim(rtrim(number_format($bestMeasurement, 1), '0'), '.') }} sec
+                @if ($bestMeasurement) Best hold: {{ (int) ceil($bestMeasurement) }} sec
                 @else Take measurements daily to track progress @endif
             </p>
         </div>

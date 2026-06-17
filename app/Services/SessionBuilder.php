@@ -29,7 +29,30 @@ class SessionBuilder
         $total = (float) ($level?->total_session_seconds ?: 300);
         $rest = (float) ($level?->rest_seconds ?: 10);
 
-        return $this->pack($this->unlockedExercises($user), $level, $total, $rest, $user);
+        return $this->pack($this->poolForLevel($user, $level), $level, $total, $rest, $user);
+    }
+
+    /**
+     * Exercises that make up a level's session: the ones assigned to that level
+     * (the exercise_level pivot), limited to active + unlocked, and randomised
+     * by pack(). Falls back to all unlocked exercises if the level has none
+     * assigned yet, so a session is never empty.
+     *
+     * @return Collection<int,Exercise>
+     */
+    private function poolForLevel(User $user, ?Level $level): Collection
+    {
+        if (! $level) {
+            return $this->unlockedExercises($user);
+        }
+
+        $assigned = $level->exercises
+            ->where('is_active', true)
+            ->filter(fn (Exercise $e) => $this->progression->isExerciseUnlocked($user, $e))
+            ->sortBy('sort_order')
+            ->values();
+
+        return $assigned->isNotEmpty() ? $assigned : $this->unlockedExercises($user);
     }
 
     /**
