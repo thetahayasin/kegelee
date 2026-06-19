@@ -175,6 +175,8 @@ class ExerciseEdit extends Component
             'glowEnabled'    => (bool) $settings->get('circle_glow_enabled'),
             'circleSize'     => (int)  $settings->get('circle_size', 220),
             'trackWidth'     => (int)  $settings->get('circle_track_width', 9),
+            'animationSpeed' => (float) $settings->get('circle_animation_speed', 0.12),
+            'glowSpeed'      => (float) $settings->get('circle_glow_speed', 0.45),
             'timeScale'      => (float) $settings->get('circle_time_scale', 0.7),
             'level1Duration' => $level1Duration,
         ]);

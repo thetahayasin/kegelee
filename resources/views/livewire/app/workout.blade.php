@@ -12,19 +12,20 @@
                 paused: false, running: true, timer: null,
                 glow: @js($glowEnabled), haptics: @js($haptics),
                 trial: @js($trial), skipAfter: @js($skipAfter),
-                timeScale: @js($timeScale),
+                timeScale: @js($timeScale), glowSpeed: @js($glowSpeed),
                 showHelp: false, trackX: 0,
                 init() {
                     if (!this.steps.length) { this.finish(); return; }
                     this.remaining = this.steps[0].seconds;
                     this.timer = setInterval(() => {
                         if (this.paused || !this.running) return;
-                        // Advance nominal time scaled by the playback tempo so the
-                        // whole exercise (count, beats, glow) runs slower/faster.
-                        let dt = 0.1 * this.timeScale;
+                        // 50ms tick (matches the admin preview) for a smooth,
+                        // non-abrupt glow. Advance nominal time scaled by the
+                        // playback tempo so count, beats and glow run together.
+                        let dt = 0.05 * this.timeScale;
                         this.remaining -= dt; this.elapsed += dt;
                         if (this.remaining <= 0.0001) this.advance();
-                    }, 100);
+                    }, 50);
                 },
                 advance() {
                     if (this.i >= this.steps.length - 1) { this.finish(); return; }
@@ -61,7 +62,7 @@
                 get glowScale()   { return 0.58 + this.intensity * 0.42; },
                 get glowTransition() {
                     if (this.glowMode === 'slowly') return 'opacity 0.1s linear, transform 0.1s linear';
-                    let d = this.glowMode === 'very_fast' ? 0.12 : 0.4;
+                    let d = this.glowMode === 'very_fast' ? Math.min(0.15, this.glowSpeed) : this.glowSpeed;
                     return 'opacity ' + d + 's ease-in-out, transform ' + d + 's ease-in-out';
                 },
                 get canSkip() { return this.trial && this.elapsed >= this.skipAfter; },

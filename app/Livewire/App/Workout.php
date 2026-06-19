@@ -121,6 +121,7 @@ class Workout extends Component
             'trackWidth' => (int) $settings->get('circle_track_width'),
             'haptics' => (bool) $settings->get('haptics_enabled'),
             'animationSpeed' => (float) $settings->get('circle_animation_speed', 0.12),
+            'glowSpeed' => (float) $settings->get('circle_glow_speed', 0.45),
             'timeScale' => (float) $settings->get('circle_time_scale', 0.7),
             'trial' => $this->trial,
             'skipAfter' => $this->skipAfter,

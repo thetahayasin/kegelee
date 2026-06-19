@@ -1,9 +1,10 @@
 @php($settings = app(\App\Services\SettingsService::class))
 <!DOCTYPE html>
+{{-- Admin keeps solid dark surfaces for dashboard legibility, but the accent
+     and glow match the app's fixed cyan so the circle preview is identical. --}}
 <html lang="en" class="dark" style="
     --c-bg: #0c0d11; --c-surface: #16181f; --c-surface-2: #1e2128;
-    --c-accent: {{ $settings->get('color_accent') }}; --c-accent-soft: {{ $settings->get('color_accent_soft') }};
-    --c-glow: {{ $settings->get('circle_glow_color') ?: $settings->get('color_accent') }};
+    --c-accent: #6ef2f0; --c-accent-soft: #9bf7f5; --c-glow: #6ef2f0;
     --c-success: #22c55e; --c-text: #fff; --c-text-muted: #8a8f98;
 ">
 <head>
