@@ -14,9 +14,9 @@ class Schedule extends Component
         $user = auth()->user();
         $position = $progression->position($user);
 
-        $days = [];
+        $calendarDays = [];
         for ($d = 1; $d <= $position['plan_length']; $d++) {
-            $days[] = [
+            $calendarDays[] = [
                 'n' => $d,
                 'done' => $d <= $position['completed'],
                 'today' => $d === $position['day'],
@@ -25,8 +25,8 @@ class Schedule extends Component
 
         return view('livewire.app.schedule', [
             'position' => $position,
-            'days' => $days,
-            'levelName' => $user->level?->name ?? 'Not set',
+            'calendarDays' => $calendarDays,
+            'reminderCount' => $user->reminders()->where('is_enabled', true)->count(),
         ]);
     }
 }

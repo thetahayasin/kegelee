@@ -29,6 +29,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(Reminder::class)->orderBy('weekday');
+    }
+
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);

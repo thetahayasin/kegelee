@@ -6,6 +6,7 @@ use App\Models\Exercise;
 use App\Models\Level;
 use App\Services\ProgressionService;
 use App\Services\SettingsService;
+use App\Models\WorkoutSession;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -16,6 +17,24 @@ class Home extends Component
     {
         if ($settings->get('onboarding_enabled') && ! auth()->user()->onboarded_at) {
             return $this->redirectRoute('onboarding', navigate: true);
+        }
+    }
+
+    public function syncPending(array $sessions, ProgressionService $progression): void
+    {
+        $user = auth()->user();
+        foreach ($sessions as $s) {
+            $ts = (int) ($s['ts'] ?? 0);
+            $secs = max(0, (int) ($s['seconds'] ?? 0));
+            if ($secs < 10) continue;
+            $at = $ts > 0 ? \Carbon\Carbon::createFromTimestampMs($ts) : now();
+            $exists = WorkoutSession::where('user_id', $user->id)
+                ->where('completed_at', '>=', $at->copy()->subSeconds(5))
+                ->where('completed_at', '<=', $at->copy()->addSeconds(5))
+                ->exists();
+            if (! $exists) {
+                $progression->recordSession($user, null, $secs);
+            }
         }
     }
 

@@ -1,7 +1,6 @@
 <div class="flex min-h-[100dvh] flex-col justify-center px-6 py-10">
     <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold">Welcome back</h1>
-        <p class="mt-1 text-muted">Log in to continue training</p>
+        <h1 class="text-3xl font-bold">Log In</h1>
     </div>
 
     <form wire:submit="login" class="space-y-3">

@@ -19,7 +19,7 @@
 <body class="min-h-screen bg-bg text-content antialiased">
     @auth
         @if (auth()->user()->is_admin)
-            <div class="flex min-h-screen">
+            <div class="flex min-h-screen" x-data="{ mobileNav: false }">
                 {{-- Sidebar --}}
                 <aside class="hidden w-60 shrink-0 flex-col border-r border-white/5 bg-surface p-4 md:flex">
                     <a href="{{ route('admin.dashboard') }}" class="mb-6 flex items-center gap-2 px-2 py-2">
@@ -53,10 +53,15 @@
                 <main class="flex-1 overflow-x-hidden">
                     {{-- Top bar with the settings gear menu (all sizes). --}}
                     <div class="flex items-center justify-between border-b border-white/5 bg-surface px-4 py-3">
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 md:invisible">
-                            <span class="grid h-8 w-8 place-items-center rounded-lg bg-accent text-sm font-bold">{{ strtoupper(substr($settings->get('app_name'), 0, 1)) }}</span>
-                            <span class="font-semibold">{{ $settings->get('app_name') }}</span>
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <button @click="mobileNav = !mobileNav" class="grid h-8 w-8 place-items-center rounded-lg bg-surface-2 text-muted md:hidden" aria-label="Menu">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                            </button>
+                            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 md:invisible">
+                                <span class="grid h-8 w-8 place-items-center rounded-lg bg-accent text-sm font-bold">{{ strtoupper(substr($settings->get('app_name'), 0, 1)) }}</span>
+                                <span class="font-semibold">{{ $settings->get('app_name') }}</span>
+                            </a>
+                        </div>
 
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" class="grid h-9 w-9 place-items-center rounded-lg bg-surface-2 text-muted tap" aria-label="Settings menu">
@@ -75,6 +80,25 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Mobile nav drawer --}}
+                    <div x-show="mobileNav" x-cloak x-transition.opacity class="fixed inset-0 z-40 bg-black/60 md:hidden" @click="mobileNav = false"></div>
+                    <nav x-show="mobileNav" x-cloak
+                         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+                         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full"
+                         class="fixed inset-y-0 left-0 z-50 w-64 bg-surface p-4 md:hidden">
+                        <div class="mb-4 flex items-center justify-between">
+                            <span class="font-bold">{{ $settings->get('app_name') }}</span>
+                            <button @click="mobileNav = false" class="grid h-8 w-8 place-items-center rounded-lg text-muted"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                        </div>
+                        @foreach ($nav as [$route, $label])
+                            <a href="{{ route($route) }}" @click="mobileNav = false"
+                               class="block rounded-lg px-3 py-2.5 text-sm {{ request()->routeIs($route.'*') ? 'bg-accent/15 font-semibold text-content' : 'text-muted hover:bg-white/5' }}">
+                                {{ $label }}
+                            </a>
+                        @endforeach
+                        <a href="{{ route('admin.logout') }}" class="mt-4 block rounded-lg px-3 py-2.5 text-sm text-muted hover:bg-white/5">Log out</a>
+                    </nav>
 
                     @if (session('status'))
                         <div class="mx-auto max-w-5xl px-5 pt-4 md:px-8">

@@ -14,7 +14,16 @@
     <div class="mt-6 space-y-3 px-4">
         @foreach ($plans as $plan)
             @php($selected = $selectedPlan === $plan->id)
+            @php($isFree = $plan->price <= 0)
             @php($final = $plan->priceWithDiscount($discount))
+            @php($intervalLabel = match(true) {
+                $plan->interval === 'lifetime' => '',
+                $plan->interval === 'year' => '/year',
+                $plan->interval === 'month' && $plan->interval_count === 3 => '/3 months',
+                $plan->interval === 'month' => '/month',
+                $plan->interval === 'week' => '/week',
+                default => '/'.$plan->interval,
+            })
             <button wire:click="$set('selectedPlan', {{ $plan->id }})"
                     class="relative w-full rounded-2xl border-2 p-4 text-left tap {{ $selected ? 'border-accent bg-accent/10' : 'border-white/10 bg-surface' }}">
                 @if ($plan->is_featured)
@@ -26,24 +35,28 @@
                         <p class="text-sm text-muted">{{ $plan->description }}</p>
                     </div>
                     <div class="text-right">
-                        @if ($discount && $final < $plan->price)
-                            <p class="text-sm text-muted line-through">${{ number_format($plan->price, 2) }}</p>
+                        @if ($isFree)
+                            <p class="text-lg font-bold">Free</p>
+                        @else
+                            @if ($discount && $final < $plan->price)
+                                <p class="text-sm text-muted line-through">${{ number_format($plan->price, 2) }}</p>
+                            @endif
+                            <p class="text-lg font-bold">${{ number_format($final, 2) }}</p>
+                            <p class="text-xs text-muted">{{ $intervalLabel }}</p>
                         @endif
-                        <p class="text-lg font-bold">${{ number_format($final, 2) }}</p>
-                        <p class="text-xs text-muted">/{{ $plan->interval }}</p>
                     </div>
                 </div>
                 @if ($plan->features)
                     <ul class="mt-3 space-y-1">
                         @foreach ($plan->features as $feature)
                             <li class="flex items-center gap-2 text-sm text-muted">
-                                <svg viewBox="0 0 24 24" class="h-4 w-4 text-success" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                                <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-success" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
                                 {{ $feature }}
                             </li>
                         @endforeach
                     </ul>
                 @endif
-                @if ($plan->trial_days)
+                @if ($plan->trial_days && ! $isFree)
                     <p class="mt-2 text-xs font-semibold text-success">{{ $plan->trial_days }}-day free trial</p>
                 @endif
             </button>
@@ -62,10 +75,11 @@
         @endif
     </div>
 
-    <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur">
+    <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        @php($selectedIsFree = $selectedPlan && Plan::find($selectedPlan)?->price <= 0)
         <button wire:click="subscribe({{ $selectedPlan }})" @disabled(! $selectedPlan)
                 class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap disabled:opacity-50">
-            Start now
+            {{ $selectedIsFree ? 'Continue with Free' : 'Start now' }}
         </button>
     </div>
 </div>

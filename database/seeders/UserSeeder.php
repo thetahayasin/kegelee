@@ -14,18 +14,19 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        $level1 = Level::where('number', 1)->first();
+
         User::updateOrCreate(
             ['email' => 'admin@kegel.test'],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
                 'is_admin' => true,
+                'level_id' => $level1?->id,
                 'email_verified_at' => now(),
                 'onboarded_at' => now(),
             ],
         );
-
-        $level5 = Level::where('number', 5)->first();
 
         $demo = User::updateOrCreate(
             ['email' => 'demo@kegel.test'],
@@ -33,7 +34,7 @@ class UserSeeder extends Seeder
                 'name' => 'Demo User',
                 'password' => Hash::make('password'),
                 'is_admin' => false,
-                'level_id' => $level5?->id,
+                'level_id' => $level1?->id,
                 'email_verified_at' => now(),
                 'onboarded_at' => now(),
             ],

@@ -17,6 +17,14 @@ class Register extends Component
     public string $email = '';
     public string $password = '';
 
+    public function mount()
+    {
+        if (auth()->check()) {
+            return $this->redirectRoute('home', navigate: true);
+        }
+        return $this->redirect('/welcome?auth_prompt=1&auth_mode=register', navigate: true);
+    }
+
     public function register()
     {
         $this->validate([

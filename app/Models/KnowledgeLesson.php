@@ -21,10 +21,7 @@ class KnowledgeLesson extends Model
             ->withTimestamps();
     }
 
-    public function thumbnailUrl(): ?string
-    {
-        return $this->thumbnail_path ? Storage::url($this->thumbnail_path) : null;
-    }
+
 
     public function videoSrc(): ?string
     {

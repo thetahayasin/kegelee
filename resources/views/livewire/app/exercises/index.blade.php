@@ -11,8 +11,11 @@
             @php($ex = $row['model'])
             @php($threshold = $ex->unlock_after_days)
             @php($pct = $threshold > 0 ? min(100, round($row['completed'] / $threshold * 100)) : 100)
-            <a href="{{ route('exercises.show', $ex) }}" wire:navigate
-               class="flex items-center gap-4 rounded-2xl bg-surface px-4 py-3.5 tap">
+            @if ($row['unlocked'])
+                <a href="{{ route('exercises.show', $ex) }}" wire:navigate class="flex items-center gap-4 rounded-2xl bg-surface px-4 py-3.5 tap">
+            @else
+                <div class="flex items-center gap-4 rounded-2xl bg-surface px-4 py-3.5 opacity-50">
+            @endif
                 <x-equipment-icon :exercise="$ex" :size="56" />
                 <div class="min-w-0 flex-1">
                     <p class="text-lg font-bold leading-tight">{{ $ex->name }}</p>
@@ -27,10 +30,11 @@
                 </div>
                 @if ($row['unlocked'])
                     <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-muted" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+                    </a>
                 @else
                     <span class="shrink-0 self-start text-sm font-semibold text-muted">{{ $row['completed'] }}/{{ $threshold }}</span>
-                @endif
-            </a>
+                </div>
+            @endif
         @endforeach
     </div>
 </div>

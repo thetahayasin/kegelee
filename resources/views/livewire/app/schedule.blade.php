@@ -1,29 +1,23 @@
 <div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
-        <h1 class="text-2xl font-bold">Set reminders</h1>
+        <h1 class="text-2xl font-bold">Schedule</h1>
     </header>
 
-    {{-- Reminder card --}}
-    <section class="mx-4 rounded-2xl bg-surface p-5">
-        <div class="flex items-center gap-3">
-            <span class="grid h-10 w-10 place-items-center rounded-xl bg-surface-2 text-muted">
-                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 1112 0c0 5 2 6 2 6H4s2-1 2-6M10 20a2 2 0 004 0"/></svg>
-            </span>
-            <div>
-                <p class="font-semibold">Workout reminder</p>
-                <p class="text-sm text-muted">You don't have any schedule</p>
-            </div>
-        </div>
-        <button onclick="alert('Reminders are scheduled on device via notifications.')"
-                class="mx-auto mt-4 block rounded-full bg-surface-2 px-6 py-3 font-semibold tap">Set reminders</button>
-    </section>
-
-    {{-- Difficulty --}}
-    <a href="{{ route('levels') }}" wire:navigate class="mx-4 mt-4 flex items-center justify-between rounded-2xl bg-surface px-5 py-4 tap">
-        <span class="font-semibold">Difficulty</span>
-        <span class="flex items-center gap-2 text-muted">{{ $levelName }}
-            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    {{-- Reminders entry --}}
+    <a href="{{ route('reminders') }}" wire:navigate
+       class="mx-4 flex items-center gap-4 rounded-2xl bg-surface px-5 py-4 tap">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/15 text-accent">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7">
+                <rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 9h18M8 3v4M16 3v4"/><path d="M12 13v3l2 1"/>
+            </svg>
         </span>
+        <div class="min-w-0 flex-1">
+            <p class="font-semibold">Reminders</p>
+            <p class="text-sm text-muted">
+                {{ $reminderCount > 0 ? $reminderCount.' '.\Illuminate\Support\Str::plural('day', $reminderCount).' set' : 'Set times for your week' }}
+            </p>
+        </div>
+        <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-muted" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
     </a>
 
     {{-- Month calendar --}}
@@ -39,7 +33,7 @@
         </div>
 
         <div class="mt-5 grid grid-cols-6 gap-2.5">
-            @foreach ($days as $day)
+            @foreach ($calendarDays as $day)
                 <div class="grid aspect-square place-items-center rounded-full text-sm font-semibold
                     {{ $day['done'] ? 'bg-accent text-white' : ($day['today'] ? 'bg-white text-black' : 'bg-surface-2 text-muted') }}">
                     {{ $day['n'] }}

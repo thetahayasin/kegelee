@@ -1,24 +1,15 @@
 <div class="min-h-[100dvh] pb-24 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
-        <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
-        </a>
-        <h1 class="text-2xl font-bold">Knowledge</h1>
+        @if (auth()->check())
+            <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
+                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
+            </a>
+        @endif
+        <h1 class="text-2xl font-bold">Learn the basics</h1>
     </header>
 
-    <p class="px-6 text-sm text-muted">Learn the essentials, one step at a time. Finish a lesson to unlock the next.</p>
-
-    @if ($total)
-        <div class="mx-6 mt-4 mb-4 flex items-center gap-3">
-            <div class="h-2 flex-1 overflow-hidden rounded-full bg-surface-2">
-                <div class="h-full rounded-full bg-accent transition-all" style="width: {{ $total ? round($completedCount / $total * 100) : 0 }}%"></div>
-            </div>
-            <span class="text-xs text-muted">{{ $completedCount }}/{{ $total }}</span>
-        </div>
-    @endif
-
     {{-- Timeline --}}
-    <div class="px-5">
+    <div class="mt-4 px-5">
         @forelse ($rows as $i => $row)
             @php($lesson = $row['lesson'])
             @php($locked = ! $row['unlocked'])
@@ -33,7 +24,7 @@
                         @elseif ($locked)
                             <x-ui-icon name="lock" class="h-5 w-5" />
                         @else
-                            <x-ui-icon :name="$lesson->icon ?: 'book'" class="h-6 w-6" />
+                            <span class="text-sm font-bold">{{ $i + 1 }}</span>
                         @endif
                     </div>
                     @unless ($last)
@@ -52,11 +43,7 @@
                     </div>
                     @unless ($locked)
                         <span class="shrink-0 text-muted">
-                            @if ($row['done'])
-                                <span class="text-xs font-semibold text-accent">Watch again</span>
-                            @else
-                                <x-ui-icon name="play" class="h-7 w-7 text-accent" />
-                            @endif
+                            <x-ui-icon name="play" class="h-7 w-7 text-accent" />
                         </span>
                     @endunless
                 </a>

@@ -39,6 +39,7 @@ class Settings extends Component
 
         return view('livewire.app.settings', [
             'user' => $user,
+            'subscription' => $user->activeSubscription(),
             'completedDays' => $progression->completedDays($user),
             'pages' => Page::where('is_published', true)->orderBy('sort_order')->get(['id', 'title', 'slug']),
         ]);

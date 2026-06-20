@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\ReminderIcsController;
 use App\Livewire\Admin;
 use App\Livewire\App;
 use App\Livewire\Auth;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/welcome', App\Onboarding::class)->name('onboarding');
 Route::get('/p/{page:slug}', App\Page\Show::class)->name('page.show');
+Route::get('/knowledge', App\Knowledge\Index::class)->name('knowledge.index');
+Route::get('/knowledge/{lesson}', App\Knowledge\Show::class)->name('knowledge.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -46,12 +49,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/session', App\Workout::class)->name('session');
     Route::get('/workout/{exercise:slug}', App\Workout::class)->name('workout');
 
-    Route::get('/knowledge', App\Knowledge\Index::class)->name('knowledge.index');
-    Route::get('/knowledge/{lesson}', App\Knowledge\Show::class)->name('knowledge.show');
 
     Route::get('/levels', App\Levels::class)->name('levels');
     Route::get('/progress', App\ProgressTracker::class)->name('progress');
     Route::get('/schedule', App\Schedule::class)->name('schedule');
+    Route::get('/reminders', App\Reminders::class)->name('reminders');
+    Route::get('/reminders/calendar.ics', [ReminderIcsController::class, 'download'])->name('reminders.ics');
     Route::get('/profile', App\Profile::class)->name('profile');
     Route::get('/settings', App\Settings::class)->name('app.settings');
     Route::get('/change-password', App\ChangePassword::class)->name('app.change-password');

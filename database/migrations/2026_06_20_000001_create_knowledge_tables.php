@@ -12,8 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('icon')->nullable();          // emoji or short glyph for the card
-            $table->string('thumbnail_path')->nullable(); // optional card image
             $table->string('video_path')->nullable();     // uploaded video file
             $table->string('video_url')->nullable();      // or an external URL
             $table->unsignedInteger('sort_order')->default(0);

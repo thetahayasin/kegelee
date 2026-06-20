@@ -2,30 +2,23 @@
 @php($slide = $slides[$index] ?? null)
 @php($isLast = $slide && $index >= $slides->count() - 1)
 <div class="min-h-[100dvh] flex flex-col px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-    {{-- Top bar: progress + skip --}}
-    <div class="flex items-center gap-2 pt-2">
-        @foreach ($slides as $i => $s)
-            <div class="h-1.5 flex-1 rounded-full {{ $i <= $index ? 'bg-accent' : 'bg-white/10' }} transition-colors"></div>
-        @endforeach
-        <button wire:click="skip" class="ml-2 text-sm text-muted tap">Skip</button>
+    {{-- Top bar: progress + Sign In --}}
+    <div class="flex items-center justify-between gap-4 pt-2">
+        <div class="flex flex-1 items-center gap-1.5">
+            @foreach ($slides as $i => $s)
+                <div class="h-1.5 flex-1 rounded-full {{ $i <= $index ? 'bg-accent' : 'bg-white/10' }} transition-colors"></div>
+            @endforeach
+        </div>
+        @guest
+            <button wire:click="showLogin" class="text-sm font-semibold text-accent tap">Sign In</button>
+        @endguest
     </div>
 
     @if ($slide)
         <div wire:key="slide-{{ $index }}" class="flex flex-1 flex-col animate-slide-up">
             {{-- Large visual --}}
             <div class="grid flex-1 place-items-center">
-                <div class="relative grid place-items-center animate-float">
-                    <div class="absolute h-64 w-64 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_24%,transparent),transparent_70%)] animate-pulse-glow"></div>
-                    @if ($slide->mediaUrl() && $slide->media_type === 'image')
-                        <img src="{{ $slide->mediaUrl() }}" class="relative h-60 w-60 animate-pop-in object-contain" alt="">
-                    @elseif ($slide->mediaUrl() && $slide->media_type === 'video')
-                        <video src="{{ $slide->mediaUrl() }}" class="relative h-64 w-64 animate-pop-in rounded-[2.5rem] object-cover" autoplay muted loop playsinline></video>
-                    @else
-                        <div class="relative grid h-44 w-44 animate-pop-in place-items-center rounded-[2.5rem] bg-surface ring-1 ring-white/10">
-                            <x-ui-icon :name="$slide->icon ?: 'sparkle'" class="h-20 w-20 text-accent" />
-                        </div>
-                    @endif
-                </div>
+                <x-onboarding-visual :index="$index" />
             </div>
 
             {{-- Copy --}}
@@ -44,13 +37,172 @@
                 {{ $slide->cta_label ?: ($isLast ? 'Get Started' : 'Next') }}
             </button>
         </div>
-        @guest
-            <p class="mt-4 text-center text-sm text-muted">Already have an account?
-                <a href="{{ route('login') }}" wire:navigate class="font-semibold text-accent">Log in</a>
-            </p>
-        @endguest
     @else
         <div class="grid flex-1 place-items-center text-muted">No onboarding content.</div>
         <button wire:click="finish" class="h-14 w-full rounded-2xl bg-accent font-semibold tap">Get Started</button>
+    @endif
+
+    {{-- Bottom-sheet auth modal --}}
+    @if ($showAuthModal)
+        <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/70 transition-opacity duration-300"
+             x-data="{ show: false }"
+             x-init="$nextTick(() => show = true)">
+            
+            {{-- Backdrop Click to close (only if lessons are not all completed) --}}
+            <div class="absolute inset-0" @if (!$this->isAllLessonsCompleted) wire:click="closeAuthModal" @endif></div>
+
+            {{-- Sheet Panel --}}
+            <div class="relative w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl transition-transform duration-300 z-10"
+                 x-show="show"
+                 x-transition:enter="transform transition-transform ease-out duration-300"
+                 x-transition:enter-start="translate-y-full"
+                 x-transition:enter-end="translate-y-0"
+                 x-transition:leave="transform transition-transform ease-in duration-200"
+                 x-transition:leave-start="translate-y-0"
+                 x-transition:leave-end="translate-y-full">
+                
+                {{-- Drag handle --}}
+                <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-white/10"></div>
+
+                @if (!$this->isAllLessonsCompleted && $authMode === 'options')
+                    {{-- Close button --}}
+                    <button wire:click="closeAuthModal" class="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
+                        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                @endif
+
+                @if ($authMode === 'options')
+                    {{-- Options View - just buttons --}}
+                    <div class="mt-2 space-y-3">
+                        <button wire:click="showRegister" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap">
+                            Sign Up
+                        </button>
+                        <button wire:click="showLogin" class="flex h-14 w-full items-center justify-center rounded-2xl bg-surface font-semibold text-content border border-white/5 tap">
+                            Log In
+                        </button>
+
+                        @if ($this->googleEnabled)
+                            <div class="flex items-center gap-3 py-1">
+                                <div class="h-px flex-1 bg-white/10"></div>
+                                <span class="text-xs text-muted">or</span>
+                                <div class="h-px flex-1 bg-white/10"></div>
+                            </div>
+                            <a href="{{ route('auth.google') }}"
+                               class="flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white font-semibold text-[#1f1f1f] tap">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+                                Continue with Google
+                            </a>
+                        @endif
+                    </div>
+                @elseif ($authMode === 'login')
+                    {{-- Login View --}}
+                    <div class="space-y-4 mt-2">
+                        <div class="flex items-center justify-between gap-3">
+                            <h2 class="text-xl font-bold text-white">Login</h2>
+                            @if (!$this->isAllLessonsCompleted)
+                                <button wire:click="closeAuthModal" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
+                                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </button>
+                            @else
+                                <div class="w-8 h-8 shrink-0"></div>
+                            @endif
+                        </div>
+
+                        <form wire:submit="login" class="space-y-4" autocomplete="on">
+                            <div>
+                                <label for="login-email" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email Address</label>
+                                <input type="email" id="login-email" name="login-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="name@example.com" required>
+                                @error('email') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label for="login-password" class="block text-xs font-semibold text-muted uppercase tracking-wider">Password</label>
+                                    <a href="{{ route('password.forgot') }}" wire:navigate class="text-xs font-semibold text-accent tap">Forgot password?</a>
+                                </div>
+                                <input type="password" id="login-password" name="login-password" autocomplete="current-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="••••••••" required>
+                                @error('password') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <button type="submit" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2">
+                                Log In
+                            </button>
+                        </form>
+
+                        @if ($this->googleEnabled)
+                            <div class="flex items-center gap-3 py-1">
+                                <div class="h-px flex-1 bg-white/10"></div>
+                                <span class="text-xs text-muted">or</span>
+                                <div class="h-px flex-1 bg-white/10"></div>
+                            </div>
+                            <a href="{{ route('auth.google') }}"
+                               class="flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white font-semibold text-[#1f1f1f] tap">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+                                Continue with Google
+                            </a>
+                        @endif
+
+                        <div class="flex justify-center pt-1 text-sm">
+                            <button wire:click="showRegister" class="text-accent font-semibold tap">Don't have an account? Sign Up</button>
+                        </div>
+                    </div>
+                @elseif ($authMode === 'register')
+                    {{-- Register View --}}
+                    <div class="space-y-4 mt-2">
+                        <div class="flex items-center justify-between gap-3">
+                            <h2 class="text-xl font-bold text-white">Sign Up</h2>
+                            @if (!$this->isAllLessonsCompleted)
+                                <button wire:click="closeAuthModal" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
+                                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </button>
+                            @else
+                                <div class="w-8 h-8 shrink-0"></div>
+                            @endif
+                        </div>
+
+                        <form wire:submit="register" class="space-y-4" autocomplete="on">
+                            <div>
+                                <label for="register-name" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Full Name</label>
+                                <input type="text" id="register-name" name="register-name" autocomplete="name" wire:model="name" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Your Name" required>
+                                @error('name') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label for="register-email" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email Address</label>
+                                <input type="email" id="register-email" name="register-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="name@example.com" required>
+                                @error('email') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label for="register-password" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Password</label>
+                                <input type="password" id="register-password" name="register-password" autocomplete="new-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Min. 6 characters" required>
+                                @error('password') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <button type="submit" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2">
+                                Create Account
+                            </button>
+                        </form>
+
+                        @if ($this->googleEnabled)
+                            <div class="flex items-center gap-3 py-1">
+                                <div class="h-px flex-1 bg-white/10"></div>
+                                <span class="text-xs text-muted">or</span>
+                                <div class="h-px flex-1 bg-white/10"></div>
+                            </div>
+                            <a href="{{ route('auth.google') }}"
+                               class="flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white font-semibold text-[#1f1f1f] tap">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+                                Continue with Google
+                            </a>
+                        @endif
+
+                        <div class="flex justify-center pt-1 text-sm">
+                            <button wire:click="showLogin" class="text-accent font-semibold tap">Already have an account? Log In</button>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
     @endif
 </div>

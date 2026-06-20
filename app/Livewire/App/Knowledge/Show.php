@@ -25,10 +25,14 @@ class Show extends Component
 
     private function isCompleted(): bool
     {
-        return auth()->user()->completedLessons()
-            ->where('knowledge_lessons.id', $this->lesson->id)
-            ->wherePivotNotNull('completed_at')
-            ->exists();
+        if (auth()->check()) {
+            return auth()->user()->completedLessons()
+                ->where('knowledge_lessons.id', $this->lesson->id)
+                ->wherePivotNotNull('completed_at')
+                ->exists();
+        }
+
+        return in_array($this->lesson->id, session('completed_lessons', []), true);
     }
 
     /** Unlocked when it's the first active lesson or the previous one is done. */
@@ -43,26 +47,36 @@ class Show extends Component
             return true;
         }
 
-        return auth()->user()->completedLessons()
-            ->where('knowledge_lessons.id', $previous->id)
-            ->wherePivotNotNull('completed_at')
-            ->exists();
+        if (auth()->check()) {
+            return auth()->user()->completedLessons()
+                ->where('knowledge_lessons.id', $previous->id)
+                ->wherePivotNotNull('completed_at')
+                ->exists();
+        }
+
+        return in_array($previous->id, session('completed_lessons', []), true);
     }
 
     /** Record completion (e.g. when the video ends) without leaving the screen. */
     public function markDone(): void
     {
-        auth()->user()->completedLessons()->syncWithoutDetaching([
-            $this->lesson->id => ['completed_at' => now()],
-        ]);
+        if (auth()->check()) {
+            auth()->user()->completedLessons()->syncWithoutDetaching([
+                $this->lesson->id => ['completed_at' => now()],
+            ]);
+        } else {
+            $completed = session('completed_lessons', []);
+            if (! in_array($this->lesson->id, $completed, true)) {
+                $completed[] = $this->lesson->id;
+                session(['completed_lessons' => $completed]);
+            }
+        }
         $this->done = true;
     }
 
     public function complete()
     {
-        auth()->user()->completedLessons()->syncWithoutDetaching([
-            $this->lesson->id => ['completed_at' => now()],
-        ]);
+        $this->markDone();
 
         $next = KnowledgeLesson::where('is_active', true)
             ->where('sort_order', '>', $this->lesson->sort_order)
@@ -71,6 +85,10 @@ class Show extends Component
 
         if ($next) {
             return $this->redirectRoute('knowledge.show', ['lesson' => $next->id], navigate: true);
+        }
+
+        if (! auth()->check()) {
+            return $this->redirectRoute('onboarding', ['auth_prompt' => 1], navigate: true);
         }
 
         return $this->redirectRoute('knowledge.index', navigate: true);

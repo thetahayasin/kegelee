@@ -15,6 +15,12 @@ class OnboardingSlides extends Component
     public array $rows = [];
     public array $uploads = [];
     public ?string $savedMessage = null;
+    public int $previewIndex = 0;
+
+    public function setPreviewIndex(int $index): void
+    {
+        $this->previewIndex = $index;
+    }
 
     public function mount(): void
     {

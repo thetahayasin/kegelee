@@ -25,9 +25,7 @@ class ProgressionService
 
     public function requiredSessionsPerDay(User $user): int
     {
-        $level = $user->level;
-
-        return $level?->effectiveSessionsPerDay()
+        return $user->level?->effectiveSessionsPerDay()
             ?? (int) $this->settings->get('sessions_per_day', 2);
     }
 
@@ -117,12 +115,15 @@ class ProgressionService
             $justCompletedDay = true;
         }
 
+        $totalSessions = $user->workoutSessions()->count();
+
         return [
             'session' => $session,
             'is_extra' => $wasComplete,
             'day_completed' => $justCompletedDay,
             'unlocked' => $justCompletedDay ? $this->exercisesUnlockedAt($this->completedDays($user)) : [],
             'progress' => $this->todayProgress($user->refresh()),
+            'ask_feedback' => $totalSessions > 0 && $totalSessions % 2 === 0,
         ];
     }
 
@@ -178,6 +179,34 @@ class ProgressionService
             ->where('number', '>', $user->level->number)
             ->orderBy('number')
             ->first();
+    }
+
+    public function previousLevel(User $user): ?Level
+    {
+        if (! $user->level) {
+            return null;
+        }
+
+        return Level::where('is_active', true)
+            ->where('number', '<', $user->level->number)
+            ->orderByDesc('number')
+            ->first();
+    }
+
+    public function applyFeedback(User $user, string $feedback): ?Level
+    {
+        $newLevel = match ($feedback) {
+            'easy' => $this->nextLevel($user),
+            'hard' => $this->previousLevel($user),
+            default => null,
+        };
+
+        if ($newLevel) {
+            $user->update(['level_id' => $newLevel->id, 'level_started_days' => $this->completedDays($user)]);
+            $user->setRelation('level', $newLevel);
+        }
+
+        return $newLevel;
     }
 
     private function today(User $user): Carbon

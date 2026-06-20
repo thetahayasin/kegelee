@@ -13,26 +13,53 @@
                 glow: @js($glowEnabled), haptics: @js($haptics),
                 trial: @js($trial), skipAfter: @js($skipAfter),
                 timeScale: @js($timeScale), glowSpeed: @js($glowSpeed),
-                showHelp: false, trackX: 0,
+                showHelp: false, showQuit: false, trackX: 0,
+                _wakeLock: null, _saveKey: 'kegel_workout_state',
                 init() {
-                    console.log('Alpine init called, timeScale:', this.timeScale, 'glowSpeed:', this.glowSpeed);
                     if (!this.steps.length) { this.finish(); return; }
-                    this.remaining = this.steps[0].seconds;
-                    if (window.kegelPlayerTimer) {
-                        console.log('Clearing existing duplicate interval:', window.kegelPlayerTimer);
-                        clearInterval(window.kegelPlayerTimer);
+                    if (!this.trial) {
+                        let saved = sessionStorage.getItem(this._saveKey);
+                        if (saved) {
+                            try {
+                                let s = JSON.parse(saved);
+                                if (s.steps) this.steps = s.steps;
+                                this.i = s.i; this.remaining = s.remaining; this.elapsed = s.elapsed;
+                            } catch(e) {}
+                        }
                     }
+                    if (!this.i) this.remaining = this.steps[0].seconds;
+                    if (window.kegelPlayerTimer) clearInterval(window.kegelPlayerTimer);
                     this.timer = setInterval(() => {
                         if (this.paused || !this.running) return;
-                        // 50ms tick (matches the admin preview) for a smooth,
-                        // non-abrupt glow. Advance nominal time scaled by the
-                        // playback tempo so count, beats and glow run together.
                         let dt = 0.05 * this.timeScale;
                         this.remaining -= dt; this.elapsed += dt;
                         if (this.remaining <= 0.0001) this.advance();
                     }, 50);
                     window.kegelPlayerTimer = this.timer;
-                    console.log('Set new interval:', this.timer);
+                    // Keep screen on during workout
+                    this._acquireWakeLock();
+                    // Auto-pause when app backgrounds, resume when foregrounded
+                    this._onVisibility = () => {
+                        if (document.hidden) { this._wasPaused = this.paused; this.paused = true; }
+                        else if (!this._wasPaused) { this.paused = false; }
+                    };
+                    document.addEventListener('visibilitychange', this._onVisibility);
+                    // Save state before page unloads (webview kill / navigation)
+                    this._onUnload = () => this._saveState();
+                    window.addEventListener('pagehide', this._onUnload);
+                },
+                _saveState() {
+                    if (!this.running) return;
+                    sessionStorage.setItem(this._saveKey, JSON.stringify({
+                        steps: this.steps, i: this.i,
+                        remaining: this.remaining, elapsed: this.elapsed,
+                    }));
+                },
+                async _acquireWakeLock() {
+                    try { if (navigator.wakeLock) this._wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+                },
+                _releaseWakeLock() {
+                    if (this._wakeLock) { this._wakeLock.release(); this._wakeLock = null; }
                 },
                 advance() {
                     if (this.i >= this.steps.length - 1) { this.finish(); return; }
@@ -41,22 +68,42 @@
                     if (this.haptics && window.kegel) window.kegel.haptic(this.cur.phase === 'contract' ? 30 : 12);
                 },
                 finish() {
-                    console.log('Alpine finish called');
                     this.running = false;
                     clearInterval(this.timer);
-                    if (window.kegelPlayerTimer) {
-                        clearInterval(window.kegelPlayerTimer);
-                        window.kegelPlayerTimer = null;
-                    }
-                    $wire.complete(Math.max(0, Math.round(this.elapsed)));
+                    if (window.kegelPlayerTimer) { clearInterval(window.kegelPlayerTimer); window.kegelPlayerTimer = null; }
+                    sessionStorage.removeItem(this._saveKey);
+                    this._releaseWakeLock();
+                    document.removeEventListener('visibilitychange', this._onVisibility);
+                    window.removeEventListener('pagehide', this._onUnload);
+                    let secs = Math.max(0, Math.round(this.elapsed));
+                    let pendingId = Date.now();
+                    try {
+                        let pending = JSON.parse(localStorage.getItem('kegel_pending_sessions') || '[]');
+                        pending.push({ seconds: secs, ts: pendingId });
+                        localStorage.setItem('kegel_pending_sessions', JSON.stringify(pending));
+                    } catch(e) {}
+                    $wire.complete(secs).then(() => {
+                        try {
+                            let pending = JSON.parse(localStorage.getItem('kegel_pending_sessions') || '[]');
+                            localStorage.setItem('kegel_pending_sessions', JSON.stringify(pending.filter(p => p.ts !== pendingId)));
+                        } catch(e) {}
+                    });
+                },
+                quit() {
+                    this.running = false;
+                    clearInterval(this.timer);
+                    if (window.kegelPlayerTimer) { clearInterval(window.kegelPlayerTimer); window.kegelPlayerTimer = null; }
+                    sessionStorage.removeItem(this._saveKey);
+                    this._releaseWakeLock();
+                    document.removeEventListener('visibilitychange', this._onVisibility);
+                    window.removeEventListener('pagehide', this._onUnload);
                 },
                 destroy() {
-                    console.log('Alpine destroy called');
                     clearInterval(this.timer);
-                    if (window.kegelPlayerTimer) {
-                        clearInterval(window.kegelPlayerTimer);
-                        window.kegelPlayerTimer = null;
-                    }
+                    if (window.kegelPlayerTimer) { clearInterval(window.kegelPlayerTimer); window.kegelPlayerTimer = null; }
+                    this._releaseWakeLock();
+                    document.removeEventListener('visibilitychange', this._onVisibility);
+                    window.removeEventListener('pagehide', this._onUnload);
                 },
                 get cur() { return this.steps[this.i] || {phase:'relax',label:'',seconds:1,exercise:''}; },
                 get isContract() { return this.cur.phase === 'contract'; },
@@ -205,15 +252,9 @@
         >
             {{-- Top row --}}
             <div class="flex items-center justify-between">
-                @if ($trial && $exercise)
-                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
-                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
-                    </a>
-                @else
-                    <a href="{{ route('home') }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
-                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
-                    </a>
-                @endif
+                <button @click="paused = true; showQuit = true" class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+                    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
                 <p class="text-sm text-muted" x-text="timeLabel"></p>
                 <span class="h-9 w-9"></span>
             </div>
@@ -246,15 +287,42 @@
                 </div>
             </div>
 
-            {{-- Help (hidden during rest) --}}
-            <div class="flex justify-center pb-4" x-show="cur.phase !== 'rest'" x-transition>
-                <button @click="showHelp = !showHelp; paused = showHelp" class="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-muted tap" aria-label="Help">
+            {{-- Help (kept in layout during rest so the ring above never shifts) --}}
+            <div class="flex justify-center pb-4">
+                <button @click="paused = true; showHelp = true"
+                        x-bind:class="cur.phase === 'rest' ? 'invisible' : ''"
+                        class="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-muted tap" aria-label="Help">
                     <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 113.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>
                 </button>
             </div>
-            <div x-show="showHelp && cur.phase !== 'rest'" x-transition class="mb-3 rounded-2xl bg-surface px-4 py-3 text-sm text-muted">
-                Squeeze your pelvic floor muscles when the circle says <span class="text-content font-medium">Contract &amp; hold</span> and the glow turns red. Let go fully on <span class="text-content font-medium">Relax</span>.
-            </div>
+
+            {{-- Help bottom sheet --}}
+            <template x-teleport="body">
+                <div x-show="showHelp" x-cloak class="fixed inset-0 z-50 flex items-end justify-center"
+                     @keydown.escape.window="showHelp = false; paused = false">
+                    <div x-show="showHelp"
+                         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                         @click="showHelp = false; paused = false"
+                         class="absolute inset-0 bg-black/70"></div>
+                    <div x-show="showHelp"
+                         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+                         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
+                         class="relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                        <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
+                        <p class="text-center text-lg font-bold" x-text="cur.exercise"></p>
+                        <p class="mt-3 text-center text-sm leading-relaxed text-muted" x-show="cur.instructions" x-text="cur.instructions"></p>
+                        <div class="mt-6 space-y-3">
+                            <button @click="showHelp = false; paused = false"
+                                    class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">OK</button>
+                            <a x-bind:href="'/exercises/' + cur.slug + '?from=session'"
+                               @click="_saveState()"
+                               wire:navigate
+                               class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold tap">Watch tutorial</a>
+                        </div>
+                    </div>
+                </div>
+            </template>
 
             {{-- Past · Current · Next --}}
             {{-- Exercise carousel — auto-centres on the active item; not user-scrollable; full text on one line --}}
@@ -290,13 +358,44 @@
 
             @if ($trial && $exercise)
                 <div x-show="canSkip" x-cloak x-transition class="mt-3">
-                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate
+                    <a href="{{ $fromSession ? route('session') : route('exercises.show', $exercise) }}" wire:navigate
                        class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold tap">
                         Skip
                         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8zM19 5v14"/></svg>
                     </a>
                 </div>
             @endif
+
+            {{-- Quit confirmation bottom sheet --}}
+            <template x-teleport="body">
+                <div x-show="showQuit" x-cloak class="fixed inset-0 z-50 flex items-end justify-center"
+                     @keydown.escape.window="showQuit = false; paused = false">
+                    <div x-show="showQuit"
+                         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                         @click="showQuit = false; paused = false"
+                         class="absolute inset-0 bg-black/70"></div>
+                    <div x-show="showQuit"
+                         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+                         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
+                         class="relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                        <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
+                        <p class="text-center text-lg font-bold">Leave training?</p>
+                        <p class="mt-2 text-center text-sm text-muted">If you leave, this session will not be counted towards your daily progress.</p>
+                        <div class="mt-6 space-y-3">
+                            <a href="{{ $trial && $exercise ? route('exercises.show', $exercise) : route('home') }}" wire:navigate
+                               @click="quit()"
+                               class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">
+                                Yes, quit training
+                            </a>
+                            <button @click="showQuit = false; paused = false"
+                                    class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold tap">
+                                No, go back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     @else
         {{-- ================= COMPLETION ================= --}}
@@ -311,10 +410,14 @@
                     </div>
                     <h1 class="text-2xl font-bold">Great job!</h1>
                 </div>
-                
+
                 <div class="flex flex-col gap-3 px-6">
-                    <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try again</a>
-                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-content tap">Back to exercise</a>
+                    @if ($fromSession)
+                        <a href="{{ route('session') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Back to workout</a>
+                    @else
+                        <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try again</a>
+                        <a href="{{ route('exercises.show', $exercise) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-content tap">Back to exercise</a>
+                    @endif
                 </div>
             </div>
         @else
@@ -352,6 +455,24 @@
                     </h1>
                 </div>
 
+                {{-- Difficulty feedback --}}
+                @if ($askFeedback)
+                    <div class="mx-4 mt-4 rounded-2xl bg-surface p-4 text-center">
+                        <p class="font-semibold">How was that?</p>
+                        <div class="mt-3 flex gap-2">
+                            <button wire:click="submitFeedback('easy')" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-semibold tap">Too easy</button>
+                            <button wire:click="submitFeedback('fine')" class="flex-1 rounded-xl bg-accent py-3 text-sm font-semibold tap">Just right</button>
+                            <button wire:click="submitFeedback('hard')" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-semibold tap">Too hard</button>
+                        </div>
+                    </div>
+                @endif
+
+                @if ($feedbackMessage)
+                    <div class="mx-4 mt-4 rounded-2xl bg-accent/10 px-4 py-3 text-center text-sm font-medium text-accent-soft">
+                        {{ $feedbackMessage }}
+                    </div>
+                @endif
+
                 {{-- Month calendar strip --}}
                 <div class="mx-4 mt-4 rounded-2xl bg-surface p-4">
                     <div class="flex items-center justify-between">
@@ -361,12 +482,21 @@
                     <div class="mt-3 flex justify-between gap-1.5">
                         @foreach ($result['days'] as $day)
                             <div class="flex flex-1 flex-col items-center gap-1">
-                                <div class="grid aspect-square w-full place-items-center rounded-lg
-                                    {{ $day['done'] ? 'bg-accent text-[color:var(--c-on-accent)]' : ($day['today'] ? 'border-2 border-accent' : 'border border-white/15') }}">
-                                    @if ($day['done'])
+                                @if ($day['today'] && $day['done'])
+                                    <div class="day-cell-pop grid aspect-square w-full place-items-center rounded-lg border-2 border-accent">
+                                        <svg viewBox="0 0 24 24" class="h-4 w-4 text-[color:var(--c-on-accent)]" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M5 13l4 4L19 7" pathLength="1" class="day-tick"/>
+                                        </svg>
+                                    </div>
+                                @elseif ($day['done'])
+                                    <div class="grid aspect-square w-full place-items-center rounded-lg bg-accent text-[color:var(--c-on-accent)]">
                                         <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
-                                    @endif
-                                </div>
+                                    </div>
+                                @elseif ($day['today'])
+                                    <div class="grid aspect-square w-full place-items-center rounded-lg border-2 border-accent"></div>
+                                @else
+                                    <div class="grid aspect-square w-full place-items-center rounded-lg border border-white/15"></div>
+                                @endif
                                 <span class="text-[10px] {{ $day['today'] ? 'font-bold text-content' : 'text-muted' }}">{{ $day['n'] }}</span>
                             </div>
                         @endforeach

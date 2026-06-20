@@ -1,5 +1,12 @@
 @php($complete = $today['complete'])
-<div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+<div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]"
+     x-data x-init="
+        let pending = JSON.parse(localStorage.getItem('kegel_pending_sessions') || '[]');
+        if (pending.length) {
+            localStorage.removeItem('kegel_pending_sessions');
+            $wire.syncPending(pending);
+        }
+     ">
     {{-- Header --}}
     <header class="flex items-center justify-center relative px-5 py-4">
         <h1 class="text-2xl font-bold">Training</h1>
@@ -84,13 +91,21 @@
     <div class="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
         @foreach ($exercises as $row)
             @php($ex = $row['model'])
-            <a href="{{ route('exercises.show', $ex) }}" wire:navigate class="w-28 shrink-0 rounded-2xl bg-surface p-3 tap">
+            @if ($row['unlocked'])
+                <a href="{{ route('exercises.show', $ex) }}" wire:navigate class="w-28 shrink-0 rounded-2xl bg-surface p-3 tap">
+            @else
+                <div class="w-28 shrink-0 rounded-2xl bg-surface p-3 opacity-50">
+            @endif
                 <x-equipment-icon :exercise="$ex" :size="84" class="mx-auto mb-2 w-full" />
                 <p class="text-sm font-semibold leading-tight truncate">{{ $ex->name }}</p>
                 <p class="text-xs {{ $row['unlocked'] ? 'text-muted' : 'text-accent-soft' }}">
                     {{ $row['unlocked'] ? 'Available' : $row['days_left'].' days' }}
                 </p>
-            </a>
+            @if ($row['unlocked'])
+                </a>
+            @else
+                </div>
+            @endif
         @endforeach
     </div>
 

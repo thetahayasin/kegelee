@@ -22,6 +22,6 @@
             </button>
         </form>
 
-        <p class="mt-6 text-center text-xs text-muted">Default: admin@kegel.test / password</p>
+        <p class="mt-6 text-center text-xs text-muted">Authorized personnel only.</p>
     </div>
 </div>

@@ -104,8 +104,8 @@ body {
 /* Liquid glass: very transparent, heavy blur, luminous edge + top highlight,
    so the watermark behind reads through. Circle (rounded-full) keeps its ring. */
 [class*='bg-surface'] {
-    -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
-    backdrop-filter: blur(28px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
+    backdrop-filter: blur(12px) saturate(1.4) !important;
 }
 [class*='bg-surface']:not(.rounded-full) {
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -116,8 +116,8 @@ body {
    content scrolls under them blurred instead of behind a near-solid bar. */
 .bg-bg\/95 {
     background-color: color-mix(in srgb, var(--c-bg) 55%, transparent) !important;
-    -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
-    backdrop-filter: blur(28px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
+    backdrop-filter: blur(12px) saturate(1.4) !important;
 }
 
 /* Hide scrollbars for the native-app feel while keeping scroll. */
@@ -127,6 +127,37 @@ body {
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+/* Pulsating circle nav loader (replaces NProgress bar). */
+#nav-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: grid;
+    place-items: center;
+    background: rgba(6, 8, 16, 0.5);
+    animation: nav-fade-in 0.15s ease both;
+}
+@keyframes nav-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.nav-pulse {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: var(--c-accent);
+    border-right-color: var(--c-accent);
+    animation: nav-spin 0.7s linear infinite, nav-glow 1.4s ease-in-out infinite;
+}
+@keyframes nav-spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes nav-glow {
+    0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--c-accent) 30%, transparent); }
+    50%      { box-shadow: 0 0 20px color-mix(in srgb, var(--c-accent) 60%, transparent); }
 }
 
 @utility tap {
@@ -216,4 +247,22 @@ label {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
     animation: draw-tick 0.45s ease-out 0.8s both;
+}
+
+/* Today's day cell fills with accent then the tick draws in. */
+@keyframes day-fill {
+    0% { background-color: transparent; }
+    100% { background-color: var(--c-accent); }
+}
+.day-cell-pop {
+    animation: day-fill 0.4s ease-out 1.2s both;
+}
+@keyframes day-draw-tick {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+}
+.day-tick {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: day-draw-tick 0.35s ease-out 1.5s both;
 }

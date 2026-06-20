@@ -63,7 +63,7 @@ class SessionBuilder
         $steps = [];
         $total = 0.0;
         foreach ($exercise->steps($duration, null, $setting?->contract_seconds, $setting?->relax_seconds) as $s) {
-            $steps[] = ['exercise' => $exercise->name] + $s;
+            $steps[] = ['exercise' => $exercise->name, 'slug' => $exercise->slug, 'instructions' => $exercise->instructions ?? ''] + $s;
             $total += (float) $s['seconds'];
         }
 
@@ -263,13 +263,13 @@ class SessionBuilder
 
             // Add rest before every exercise except the first.
             if ($i > 0 && $rest > 0) {
-                $steps[] = ['exercise' => $exercise->name, 'phase' => 'rest', 'label' => 'Rest', 'seconds' => $rest];
+                $steps[] = ['exercise' => $exercise->name, 'slug' => $exercise->slug, 'instructions' => $exercise->instructions ?? '', 'phase' => 'rest', 'label' => 'Rest', 'seconds' => $rest];
                 $acc += $rest;
             }
 
             $setting = $userSettings[$exercise->id] ?? null;
             foreach ($exercise->steps($duration, null, $setting?->contract_seconds, $setting?->relax_seconds) as $s) {
-                $steps[] = ['exercise' => $exercise->name] + $s;
+                $steps[] = ['exercise' => $exercise->name, 'slug' => $exercise->slug, 'instructions' => $exercise->instructions ?? ''] + $s;
                 $acc += (float) $s['seconds'];
             }
 

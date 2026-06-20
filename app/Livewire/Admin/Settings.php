@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Services\SettingsService;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -21,6 +22,14 @@ class Settings extends Component
     public $homeImageUpload = null;
 
     public ?string $savedMessage = null;
+
+    public string $currentPassword = '';
+
+    public string $adminNewPassword = '';
+
+    public string $adminNewPassword_confirmation = '';
+
+    public ?string $passwordMessage = null;
 
     /** Field type map: drives both rendering and persistence. */
     public const TYPES = [
@@ -81,6 +90,26 @@ class Settings extends Component
 
         $this->reset(['logoUpload', 'faviconUpload', 'ogUpload', 'homeImageUpload']);
         $this->savedMessage = 'Settings saved.';
+    }
+
+    public function changeAdminPassword(): void
+    {
+        $this->validate([
+            'currentPassword' => 'required',
+            'adminNewPassword' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = auth()->user();
+
+        if (! Hash::check($this->currentPassword, $user->password)) {
+            $this->addError('currentPassword', 'Current password is incorrect.');
+            return;
+        }
+
+        $user->update(['password' => Hash::make($this->adminNewPassword)]);
+
+        $this->reset(['currentPassword', 'adminNewPassword', 'adminNewPassword_confirmation']);
+        $this->passwordMessage = 'Password updated.';
     }
 
     public function render(SettingsService $settings)

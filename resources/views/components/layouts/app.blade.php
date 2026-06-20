@@ -44,7 +44,29 @@
         </div>
     </div>
 
+    <script>window.livewireScriptConfig = { progressBar: 'data-no-progress-bar' };</script>
     @livewireScripts
+    <script>
+    document.body.style.overscrollBehavior = 'none';
+    // Pulsating circle loader for wire:navigate
+    (function() {
+        let overlay = null;
+        function show() {
+            if (overlay) return;
+            overlay = document.createElement('div');
+            overlay.id = 'nav-loader';
+            overlay.innerHTML = '<div class="nav-pulse"></div>';
+            document.body.appendChild(overlay);
+        }
+        function hide() {
+            if (!overlay) return;
+            overlay.remove();
+            overlay = null;
+        }
+        document.addEventListener('livewire:navigate', show);
+        document.addEventListener('livewire:navigated', hide);
+    })();
+    </script>
     {!! $settings->get('inject_body_end') !!}
 </body>
 </html>

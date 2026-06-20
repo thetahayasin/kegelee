@@ -1,49 +1,58 @@
-<div class="min-h-[100dvh] pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]"
-     x-data="{ finished: @js($done) }">
-    <header class="relative flex items-center justify-center px-5 py-4">
-        <a href="{{ route('knowledge.index') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
-        </a>
-        <h1 class="truncate px-12 text-lg font-bold">Knowledge</h1>
-    </header>
+<div class="fixed inset-0 bg-black overflow-hidden z-50 flex flex-col justify-between"
+     x-data="{ finished: @js($done), paused: false }">
+    
+    {{-- Close Button --}}
+    <a href="{{ route('knowledge.index') }}" 
+       wire:navigate 
+       class="absolute top-[calc(1rem+env(safe-area-inset-top))] right-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors tap" 
+       aria-label="Close">
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </a>
 
-    {{-- Video (shown straight away) --}}
-    <div class="mx-4 grid aspect-video place-items-center overflow-hidden rounded-3xl bg-black ring-1 ring-white/10">
+    {{-- TikTok style full-screen Video --}}
+    <div class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"
+         x-data="{ maxTime: 0 }">
         @if ($lesson->hasVideo())
-            <video src="{{ $lesson->videoSrc() }}" class="h-full w-full object-contain" controls autoplay playsinline
-                   @if ($lesson->thumbnailUrl()) poster="{{ $lesson->thumbnailUrl() }}" @endif
-                   x-on:ended="finished = true; $wire.markDone()"></video>
+            <video src="{{ $lesson->videoSrc() }}" 
+                   class="w-full h-full object-cover cursor-pointer" 
+                   autoplay
+                   playsinline
+                   x-ref="player"
+                   @play="paused = false"
+                   @pause="paused = true"
+                   @click="$refs.player.paused ? $refs.player.play() : $refs.player.pause()"
+                   x-on:ended="finished = true; $wire.markDone()"
+                   @if (!auth()->check())
+                   x-on:timeupdate="if (!finished && $el.currentTime > maxTime + 1.5) { $el.currentTime = maxTime; } else { maxTime = Math.max(maxTime, $el.currentTime); }"
+                   @endif></video>
+
+            <div x-show="paused" 
+                 x-transition.opacity
+                 @click="$refs.player.play()"
+                 class="absolute inset-0 z-10 grid place-items-center bg-black/20 pointer-events-auto cursor-pointer">
+                <div class="grid h-20 w-20 place-items-center rounded-full bg-black/50 text-white scale-110 active:scale-95 transition-all duration-200">
+                    <svg viewBox="0 0 24 24" class="h-10 w-10 fill-current ml-1"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+            </div>
         @else
-            <div class="grid place-items-center gap-2 text-center text-muted">
-                <x-ui-icon :name="$lesson->icon ?: 'book'" class="h-12 w-12 text-accent" />
-                <p class="text-sm">Video coming soon</p>
+            <div class="relative z-10 grid place-items-center gap-2 text-center text-muted">
+                <svg viewBox="0 0 24 24" class="h-16 w-16 text-accent" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M10 8l6 4-6 4V8z"/>
+                </svg>
+                <p class="text-lg font-bold">Video coming soon</p>
             </div>
         @endif
     </div>
 
-    <div class="px-5 pt-5">
-        <h2 class="text-2xl font-bold leading-tight">{{ $lesson->title }}</h2>
-        @if ($lesson->description)
-            <p class="mt-3 leading-relaxed text-muted">{{ $lesson->description }}</p>
-        @endif
-        @if ($lesson->hasVideo())
-            <p x-show="!finished" class="mt-4 text-sm text-muted">Watch the video to continue.</p>
-        @endif
-    </div>
-
-    {{-- Sticky CTA: Continue/Next appears once the video has finished (or no video). --}}
-    <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur">
-        @php($needsWatch = $lesson->hasVideo())
+    {{-- Floating CTA Button at the bottom --}}
+    <div class="absolute bottom-[calc(2rem+env(safe-area-inset-bottom))] inset-x-5 z-20">
         <button wire:click="complete"
-                @if ($needsWatch) x-show="finished" x-transition x-cloak @endif
-                class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold tap">
-            {{ $hasNext ? 'Continue' : 'Done' }}
+                x-show="finished" 
+                x-transition 
+                x-cloak
+                class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-bold text-base shadow-lg shadow-accent/20 hover:brightness-110 active:scale-[0.98] transition-all tap">
+            {{ $hasNext ? 'Next' : 'Done' }}
         </button>
-        @if ($needsWatch)
-            <button x-show="!finished" @click="finished = true; $wire.markDone()"
-                    class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-muted tap">
-                Skip video
-            </button>
-        @endif
     </div>
 </div>

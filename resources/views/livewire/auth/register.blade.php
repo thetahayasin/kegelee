@@ -1,7 +1,6 @@
 <div class="flex min-h-[100dvh] flex-col justify-center px-6 py-10">
     <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold">Create account</h1>
-        <p class="mt-1 text-muted">Start training your pelvic floor</p>
+        <h1 class="text-3xl font-bold">Sign Up</h1>
     </div>
 
     <form wire:submit="register" class="space-y-3">

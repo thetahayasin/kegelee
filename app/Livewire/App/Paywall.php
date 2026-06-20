@@ -44,8 +44,11 @@ class Paywall extends Component
         $plan = Plan::findOrFail($planId);
         $user = auth()->user();
 
-        // Store integration (Apple/Google) would confirm the purchase here;
-        // we record the resulting subscription locally.
+        if ($plan->price <= 0) {
+            $this->redirectRoute('home', navigate: true);
+            return;
+        }
+
         Subscription::create([
             'user_id' => $user->id,
             'plan_id' => $plan->id,
@@ -73,7 +76,7 @@ class Paywall extends Component
     public function render()
     {
         return view('livewire.app.paywall', [
-            'plans' => Plan::where('is_active', true)->where('price', '>', 0)->orderBy('sort_order')->get(),
+            'plans' => Plan::where('is_active', true)->orderBy('sort_order')->get(),
         ]);
     }
 }

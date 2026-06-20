@@ -11,41 +11,37 @@ class OnboardingSeeder extends Seeder
     {
         $slides = [
             [
-                'title' => 'Meet your pelvic floor',
-                'icon' => 'anatomy',
-                'body' => "Deep inside your body, a hammock of muscles called the pelvic floor supports your bladder, bowel and core. Most people never train them - until now.",
-                'cta_label' => 'Next',
-            ],
-            [
-                'title' => 'Why it matters',
+                'title' => 'Improve health & perform better',
                 'icon' => 'heart',
-                'body' => "Strong pelvic floor muscles improve bladder control, core stability, recovery and confidence. Like any muscle, they get stronger with regular, guided exercise.",
+                'body' => 'Strengthen your pelvic floor muscles to enhance control, boost physical performance, and build core confidence that lasts.',
                 'cta_label' => 'Next',
             ],
             [
-                'title' => 'How Kegels work',
-                'icon' => 'refresh',
-                'body' => "A Kegel is simply squeezing and releasing these muscles. Imagine stopping the flow of urine midstream - that gentle lift is the contraction you will train.",
-                'cta_label' => 'Next',
-            ],
-            [
-                'title' => 'Train a little every day',
+                'title' => 'It takes only minutes',
                 'icon' => 'clock',
-                'body' => "Each day you complete a couple of short guided sessions. Just follow the glowing circle: contract when it lights up, relax when it fades. That is all it takes.",
+                'body' => 'Each session is designed to fit your busy life. In just 3 to 5 minutes a day, you can complete your daily exercises anytime, anywhere.',
                 'cta_label' => 'Next',
             ],
             [
-                'title' => 'Grow stronger over time',
+                'title' => 'Track your progress',
                 'icon' => 'chart',
-                'body' => "As you keep your streak, harder exercises unlock and your level rises. Track your endurance in the Progress Tracker and watch your record climb.",
+                'body' => 'Watch your daily streak grow, measure your endurance improvements, and unlock new challenges as your pelvic floor gets stronger.',
+                'cta_label' => 'Next',
+            ],
+            [
+                'title' => 'Schedule your training',
+                'icon' => 'calendar',
+                'body' => 'Set smart, quiet reminders at times that suit you. Stay consistent, build a habit, and see real results over time.',
                 'cta_label' => 'Get Started',
             ],
         ];
 
+        // Clean out any old active slides to ensure we have exactly 4.
+        OnboardingSlide::truncate();
+
         foreach ($slides as $i => $slide) {
-            OnboardingSlide::updateOrCreate(
-                ['sort_order' => $i],
-                $slide + ['media_type' => 'image', 'is_active' => true],
+            OnboardingSlide::create(
+                $slide + ['sort_order' => $i, 'media_type' => 'image', 'is_active' => true],
             );
         }
     }

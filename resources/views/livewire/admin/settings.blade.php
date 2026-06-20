@@ -11,7 +11,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'seo' => 'SEO', 'code' => 'Code injection'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -158,6 +158,27 @@
                 <textarea wire:model="values.custom_css" rows="4" class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-sm focus:border-accent focus:outline-none"></textarea></div>
         </div>
 
-        <button type="submit" class="rounded-xl bg-accent px-6 py-3 font-semibold text-white tap">Save settings</button>
+        {{-- SECURITY --}}
+        <div x-show="tab === 'security'" class="space-y-4 rounded-2xl bg-surface p-5">
+            <p class="text-sm text-muted">Change your admin account password.</p>
+            <div><label class="mb-1 block text-sm text-muted">Current password</label>
+                <input type="password" wire:model="currentPassword" autocomplete="current-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('currentPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+            <div><label class="mb-1 block text-sm text-muted">New password</label>
+                <input type="password" wire:model="adminNewPassword" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('adminNewPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+            <div><label class="mb-1 block text-sm text-muted">Confirm new password</label>
+                <input type="password" wire:model="adminNewPassword_confirmation" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+            <button type="button" wire:click="changeAdminPassword" class="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold tap">
+                <span wire:loading.remove wire:target="changeAdminPassword">Update password</span>
+                <span wire:loading wire:target="changeAdminPassword">Updating...</span>
+            </button>
+            @if ($passwordMessage) <p class="text-sm font-semibold text-success">{{ $passwordMessage }}</p> @endif
+        </div>
+
+        <button type="submit" class="rounded-xl bg-accent px-6 py-3 font-semibold tap">
+            <span wire:loading.remove wire:target="save">Save settings</span>
+            <span wire:loading wire:target="save">Saving...</span>
+        </button>
     </form>
 </div>

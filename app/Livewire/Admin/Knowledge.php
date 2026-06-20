@@ -14,7 +14,6 @@ class Knowledge extends Component
 
     public array $rows = [];
     public array $videoUploads = [];
-    public array $thumbUploads = [];
     public ?string $savedMessage = null;
 
     public function mount(): void
@@ -28,10 +27,8 @@ class Knowledge extends Component
             'id' => $l->id,
             'title' => $l->title,
             'description' => $l->description,
-            'icon' => $l->icon,
             'video_url' => $l->video_url,
             'video_src' => $l->videoSrc(),
-            'thumb_url' => $l->thumbnailUrl(),
             'sort_order' => $l->sort_order,
             'is_active' => $l->is_active,
         ])->all();
@@ -49,7 +46,11 @@ class Knowledge extends Component
 
     public function delete(int $id): void
     {
-        KnowledgeLesson::findOrFail($id)->delete();
+        $lesson = KnowledgeLesson::findOrFail($id);
+        if ($lesson->video_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->video_path);
+        }
+        $lesson->delete();
         $this->loadRows();
     }
 
@@ -59,7 +60,6 @@ class Knowledge extends Component
             'rows.*.title' => 'required|string|max:160',
             'rows.*.video_url' => 'nullable|url',
             'videoUploads.*' => 'nullable|mimetypes:video/mp4,video/quicktime,video/webm|max:102400',
-            'thumbUploads.*' => 'nullable|image|max:4096',
         ]);
 
         foreach ($this->rows as $i => $row) {
@@ -70,22 +70,21 @@ class Knowledge extends Component
             $data = [
                 'title' => $row['title'],
                 'description' => $row['description'],
-                'icon' => $row['icon'],
                 'video_url' => $row['video_url'] ?: null,
                 'sort_order' => (int) $row['sort_order'],
                 'is_active' => (bool) $row['is_active'],
             ];
             if (! empty($this->videoUploads[$i])) {
+                // Delete old video file from storage disk if exists
+                if ($lesson->video_path) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->video_path);
+                }
                 $data['video_path'] = $this->videoUploads[$i]->store('knowledge/videos', 'public');
-            }
-            if (! empty($this->thumbUploads[$i])) {
-                $data['thumbnail_path'] = $this->thumbUploads[$i]->store('knowledge/thumbs', 'public');
             }
             $lesson->update($data);
         }
 
         $this->videoUploads = [];
-        $this->thumbUploads = [];
         $this->savedMessage = 'Knowledge saved.';
         $this->loadRows();
     }

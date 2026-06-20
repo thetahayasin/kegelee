@@ -7,7 +7,7 @@
         ['key' => 'profile', 'label' => 'Profile', 'route' => 'profile'],
     ];
 @endphp
-<nav class="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 backdrop-blur px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+<nav class="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
     <div class="grid grid-cols-4">
         @foreach ($tabs as $tab)
             @php($on = $active === $tab['key'])

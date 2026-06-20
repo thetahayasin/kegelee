@@ -12,10 +12,14 @@ class Index extends Component
     public function render()
     {
         $user = auth()->user();
-        $completedIds = $user->completedLessons()
-            ->wherePivotNotNull('completed_at')
-            ->pluck('knowledge_lessons.id')
-            ->all();
+        if ($user) {
+            $completedIds = $user->completedLessons()
+                ->wherePivotNotNull('completed_at')
+                ->pluck('knowledge_lessons.id')
+                ->all();
+        } else {
+            $completedIds = session('completed_lessons', []);
+        }
 
         $lessons = KnowledgeLesson::where('is_active', true)
             ->orderBy('sort_order')
