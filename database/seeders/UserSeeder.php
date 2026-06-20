@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
                 'is_admin' => true,
+                'email_verified_at' => now(),
                 'onboarded_at' => now(),
             ],
         );
@@ -33,6 +34,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'is_admin' => false,
                 'level_id' => $level5?->id,
+                'email_verified_at' => now(),
                 'onboarded_at' => now(),
             ],
         );

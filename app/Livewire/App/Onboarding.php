@@ -15,8 +15,15 @@ class Onboarding extends Component
 
     public function mount(SettingsService $settings)
     {
-        if (! $settings->get('onboarding_enabled') || auth()->user()->onboarded_at) {
-            return $this->redirectRoute('home', navigate: true);
+        $user = auth()->user();
+
+        if ($user) {
+            // A logged-in user who's already onboarded skips straight to home.
+            if ($user->onboarded_at || ! $settings->get('onboarding_enabled')) {
+                return $this->redirectRoute('home', navigate: true);
+            }
+        } elseif (! $settings->get('onboarding_enabled')) {
+            return $this->redirectRoute('register', navigate: true);
         }
     }
 
@@ -46,9 +53,15 @@ class Onboarding extends Component
 
     public function finish()
     {
-        auth()->user()->update(['onboarded_at' => now()]);
+        $user = auth()->user();
 
-        return $this->redirectRoute('home', navigate: true);
+        if ($user) {
+            $user->update(['onboarded_at' => now()]);
+            return $this->redirectRoute('home', navigate: true);
+        }
+
+        // Guests finish the intro by creating an account.
+        return $this->redirectRoute('register', navigate: true);
     }
 
     public function render()

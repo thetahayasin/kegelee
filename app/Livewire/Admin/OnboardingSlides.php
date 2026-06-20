@@ -26,6 +26,7 @@ class OnboardingSlides extends Component
         $this->rows = OnboardingSlide::orderBy('sort_order')->get()->map(fn (OnboardingSlide $s) => [
             'id' => $s->id,
             'title' => $s->title,
+            'icon' => $s->icon,
             'body' => $s->body,
             'cta_label' => $s->cta_label,
             'media_type' => $s->media_type,
@@ -66,6 +67,7 @@ class OnboardingSlides extends Component
             }
             $data = [
                 'title' => $row['title'],
+                'icon' => $row['icon'] ?? null,
                 'body' => $row['body'],
                 'cta_label' => $row['cta_label'],
                 'media_type' => $row['media_type'],

@@ -4,20 +4,45 @@
         <a href="{{ route('admin.exercises.create') }}" class="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white tap">New exercise</a>
     </div>
 
+    {{-- Bulk actions bar --}}
+    @if (count($selected))
+        <div class="mb-4 flex flex-wrap items-center gap-2 rounded-2xl bg-surface-2 px-4 py-3">
+            <span class="mr-1 text-sm font-semibold text-muted">{{ count($selected) }} selected</span>
+            <button wire:click="bulkSetActive"   class="rounded-full bg-success/15 px-3 py-1.5 text-xs font-semibold text-success">Mark Active</button>
+            <button wire:click="bulkSetHidden"   class="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-muted">Mark Hidden</button>
+        </div>
+    @endif
+
     <div class="overflow-hidden rounded-2xl bg-surface">
         <table class="w-full text-sm">
             <thead class="text-left text-muted">
                 <tr class="border-b border-white/5">
+                    <th class="p-4 font-medium">
+                        <button wire:click="selectAll" class="grid h-5 w-5 place-items-center rounded border border-white/20 text-xs {{ count($selected) && count($selected) === $exercises->count() ? 'bg-accent text-white border-accent' : '' }}">
+                            @if (count($selected) && count($selected) === $exercises->count())
+                                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                            @elseif (count($selected))
+                                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14"/></svg>
+                            @endif
+                        </button>
+                    </th>
                     <th class="p-4 font-medium">Name</th>
                     <th class="p-4 font-medium">Unlock day</th>
-                    <th class="p-4 font-medium">Premium</th>
                     <th class="p-4 font-medium">Active</th>
                     <th class="p-4"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($exercises as $ex)
-                    <tr class="border-b border-white/5 last:border-0">
+                    <tr class="border-b border-white/5 last:border-0 {{ in_array($ex->id, $selected) ? 'bg-accent/5' : '' }}">
+                        <td class="p-4">
+                            <label class="grid h-5 w-5 cursor-pointer place-items-center rounded border border-white/20 {{ in_array($ex->id, $selected) ? 'bg-accent text-white border-accent' : '' }}">
+                                <input type="checkbox" wire:model.live="selected" value="{{ $ex->id }}" class="sr-only" />
+                                @if (in_array($ex->id, $selected))
+                                    <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                                @endif
+                            </label>
+                        </td>
                         <td class="p-4">
                             <div class="flex items-center gap-3">
                                 <x-equipment-icon :exercise="$ex" :size="36" />
@@ -25,7 +50,6 @@
                             </div>
                         </td>
                         <td class="p-4">{{ $ex->unlock_after_days }}</td>
-                        <td class="p-4">{{ $ex->is_premium ? 'Yes' : '-' }}</td>
                         <td class="p-4">
                             <button wire:click="toggleActive({{ $ex->id }})"
                                     class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $ex->is_active ? 'bg-success/15 text-success' : 'bg-white/10 text-muted' }}">

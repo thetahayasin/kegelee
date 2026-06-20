@@ -11,7 +11,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'seo' => 'SEO', 'code' => 'Code injection'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'seo' => 'SEO', 'code' => 'Code injection'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -65,9 +65,9 @@
                 <p class="mt-1 text-xs text-muted">How tightly the arc tracks the count (0.12 = recommended). Keep small — this is not the tempo; use Playback speed for that.</p>
             </div>
             <div>
-                <label class="mb-1 block text-sm text-muted">Playback speed</label>
+                <label class="mb-1 block text-sm text-muted">Counter speed</label>
                 <input type="number" step="0.05" min="0.3" max="1.5" wire:model="values.circle_time_scale" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">Tempo of the whole exercise — count, beats and glow (1 = real time, 0.7 ≈ 40% slower, 0.5 = half speed).</p>
+                <p class="mt-1 text-xs text-muted">How fast the countdown timer ticks (1 = real time, 0.7 = each real second counts 0.7s, making exercises last longer).</p>
             </div>
             <div>
                 <label class="mb-1 block text-sm text-muted">Glow pulse speed (seconds)</label>
@@ -100,6 +100,37 @@
             </div>
             <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.allow_extra_sessions" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Allow extra (optional) sessions</span></label>
             <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.onboarding_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Show onboarding story</span></label>
+        </div>
+
+        {{-- EMAIL (SMTP) --}}
+        <div x-show="tab === 'email'" class="grid gap-4 rounded-2xl bg-surface p-5 md:grid-cols-2">
+            <p class="md:col-span-2 text-sm text-muted">SMTP used to send verification and password-reset codes. Leave host blank to use the server default (codes are written to the log in local dev).</p>
+            <div><label class="mb-1 block text-sm text-muted">SMTP host</label>
+                <input wire:model="values.mail_host" placeholder="smtp.example.com" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+            <div><label class="mb-1 block text-sm text-muted">Port</label>
+                <input type="number" wire:model="values.mail_port" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+            <div><label class="mb-1 block text-sm text-muted">Username</label>
+                <input wire:model="values.mail_username" autocomplete="off" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+            <div><label class="mb-1 block text-sm text-muted">Password</label>
+                <input type="password" wire:model="values.mail_password" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+            <div><label class="mb-1 block text-sm text-muted">Encryption</label>
+                <select wire:model="values.mail_encryption" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                    <option value="tls">TLS</option><option value="ssl">SSL</option><option value="none">None</option>
+                </select></div>
+            <div><label class="mb-1 block text-sm text-muted">From name</label>
+                <input wire:model="values.mail_from_name" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+            <div class="md:col-span-2"><label class="mb-1 block text-sm text-muted">From address</label>
+                <input type="email" wire:model="values.mail_from_address" placeholder="no-reply@yourapp.com" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+        </div>
+
+        {{-- GOOGLE LOGIN --}}
+        <div x-show="tab === 'google'" class="space-y-4 rounded-2xl bg-surface p-5">
+            <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.google_login_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Enable "Continue with Google"</span></label>
+            <p class="text-sm text-muted">Create OAuth credentials in Google Cloud Console. Authorised redirect URI: <code class="text-content">{{ url('/auth/google/callback') }}</code></p>
+            <div><label class="mb-1 block text-sm text-muted">Client ID</label>
+                <input wire:model="values.google_client_id" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
+            <div><label class="mb-1 block text-sm text-muted">Client secret</label>
+                <input type="password" wire:model="values.google_client_secret" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
         </div>
 
         {{-- SEO --}}

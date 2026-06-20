@@ -15,8 +15,13 @@
                 timeScale: @js($timeScale), glowSpeed: @js($glowSpeed),
                 showHelp: false, trackX: 0,
                 init() {
+                    console.log('Alpine init called, timeScale:', this.timeScale, 'glowSpeed:', this.glowSpeed);
                     if (!this.steps.length) { this.finish(); return; }
                     this.remaining = this.steps[0].seconds;
+                    if (window.kegelPlayerTimer) {
+                        console.log('Clearing existing duplicate interval:', window.kegelPlayerTimer);
+                        clearInterval(window.kegelPlayerTimer);
+                    }
                     this.timer = setInterval(() => {
                         if (this.paused || !this.running) return;
                         // 50ms tick (matches the admin preview) for a smooth,
@@ -26,6 +31,8 @@
                         this.remaining -= dt; this.elapsed += dt;
                         if (this.remaining <= 0.0001) this.advance();
                     }, 50);
+                    window.kegelPlayerTimer = this.timer;
+                    console.log('Set new interval:', this.timer);
                 },
                 advance() {
                     if (this.i >= this.steps.length - 1) { this.finish(); return; }
@@ -33,8 +40,24 @@
                     this.remaining = this.steps[this.i].seconds;
                     if (this.haptics && window.kegel) window.kegel.haptic(this.cur.phase === 'contract' ? 30 : 12);
                 },
-                finish() { this.running = false; clearInterval(this.timer); $wire.complete(Math.max(0, Math.round(this.elapsed))); },
-                destroy() { clearInterval(this.timer); },
+                finish() {
+                    console.log('Alpine finish called');
+                    this.running = false;
+                    clearInterval(this.timer);
+                    if (window.kegelPlayerTimer) {
+                        clearInterval(window.kegelPlayerTimer);
+                        window.kegelPlayerTimer = null;
+                    }
+                    $wire.complete(Math.max(0, Math.round(this.elapsed)));
+                },
+                destroy() {
+                    console.log('Alpine destroy called');
+                    clearInterval(this.timer);
+                    if (window.kegelPlayerTimer) {
+                        clearInterval(window.kegelPlayerTimer);
+                        window.kegelPlayerTimer = null;
+                    }
+                },
                 get cur() { return this.steps[this.i] || {phase:'relax',label:'',seconds:1,exercise:''}; },
                 get isContract() { return this.cur.phase === 'contract'; },
                 // 0→1 progress through the current step, tied to real seconds.
@@ -109,10 +132,8 @@
                 get totalRemaining() { let rem = this.remaining; for (let k = this.i + 1; k < this.steps.length; k++) rem += this.steps[k].seconds; return Math.ceil(rem); },
                 get timeLabel() {
                     let s = this.totalRemaining;
-                    if (s >= 60) {
-                        let m = Math.floor(s / 60);
-                        let rem = s % 60;
-                        return rem > 0 ? m + 'm ' + rem + 's left' : m + ' min left';
+                    if (s > 30) {
+                        return Math.ceil(s / 60) + 'm left';
                     }
                     return s + 's left';
                 },
@@ -184,20 +205,17 @@
         >
             {{-- Top row --}}
             <div class="flex items-center justify-between">
-                <a href="{{ route('home') }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
-                    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                </a>
-                <p class="text-sm text-muted" x-text="timeLabel"></p>
                 @if ($trial && $exercise)
-                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate
-                       x-show="canSkip" x-cloak x-transition
-                       class="flex h-9 items-center gap-1 rounded-full bg-surface-2 pl-3 pr-2 text-sm font-semibold text-muted tap" aria-label="Skip">
-                        Skip
-                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8zM19 5v14"/></svg>
+                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
+                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
                     </a>
                 @else
-                    <span class="h-9 w-9"></span>
+                    <a href="{{ route('home') }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
+                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+                    </a>
                 @endif
+                <p class="text-sm text-muted" x-text="timeLabel"></p>
+                <span class="h-9 w-9"></span>
             </div>
 
             {{-- Ring --}}
@@ -228,13 +246,13 @@
                 </div>
             </div>
 
-            {{-- Help --}}
-            <div class="flex justify-center pb-4">
+            {{-- Help (hidden during rest) --}}
+            <div class="flex justify-center pb-4" x-show="cur.phase !== 'rest'" x-transition>
                 <button @click="showHelp = !showHelp; paused = showHelp" class="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-muted tap" aria-label="Help">
                     <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 113.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>
                 </button>
             </div>
-            <div x-show="showHelp" x-transition class="mb-3 rounded-2xl bg-surface px-4 py-3 text-sm text-muted">
+            <div x-show="showHelp && cur.phase !== 'rest'" x-transition class="mb-3 rounded-2xl bg-surface px-4 py-3 text-sm text-muted">
                 Squeeze your pelvic floor muscles when the circle says <span class="text-content font-medium">Contract &amp; hold</span> and the glow turns red. Let go fully on <span class="text-content font-medium">Relax</span>.
             </div>
 
@@ -269,91 +287,120 @@
                     </span>
                 </template>
             </button>
+
+            @if ($trial && $exercise)
+                <div x-show="canSkip" x-cloak x-transition class="mt-3">
+                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate
+                       class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold tap">
+                        Skip
+                        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8zM19 5v14"/></svg>
+                    </a>
+                </div>
+            @endif
         </div>
     @else
         {{-- ================= COMPLETION ================= --}}
-        @php
-            $pos = $result['position'];
-            $cprog = $result['progress'];
-            $cpct = min(1, max(0, ($cprog['required'] ?? 0) > 0 ? $cprog['done'] / $cprog['required'] : 1));
-            $csize = 208; $cstroke = 12; $cr = ($csize - $cstroke) / 2;
-            $ccirc = round(2 * M_PI * $cr, 2);
-            $coff = round($ccirc * (1 - $cpct), 2);
-        @endphp
-        <div class="flex min-h-[100dvh] flex-col pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-            {{-- Big themed completion ring with an animated tick (no sky/mountains) --}}
-            <div class="flex flex-col items-center px-6 pt-[calc(2rem+env(safe-area-inset-top))]">
-                <div class="animate-ring-pop relative grid place-items-center" style="width: {{ $csize }}px; height: {{ $csize }}px;">
-                    <svg width="{{ $csize }}" height="{{ $csize }}" viewBox="0 0 {{ $csize }} {{ $csize }}" class="-rotate-90">
-                        <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="{{ $cstroke }}"/>
-                        <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="var(--c-accent)" stroke-width="{{ $cstroke }}"
-                                stroke-linecap="round" class="completion-ring"
-                                stroke-dasharray="{{ $ccirc }}" stroke-dashoffset="{{ $coff }}"
-                                style="--ring-start: {{ $ccirc }}; --ring-end: {{ $coff }}; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c-accent) 45%, transparent));"/>
-                    </svg>
-                    <svg viewBox="0 0 24 24" class="absolute h-24 w-24 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 13l4 4L19 7" pathLength="1" class="completion-tick"/>
-                    </svg>
+        @if ($trial && $exercise)
+            <div class="flex min-h-[100dvh] flex-col pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                <div class="flex flex-1 flex-col items-center justify-center px-6 text-center">
+                    <div class="mb-6 grid aspect-square w-24 place-items-center rounded-full bg-accent/10 text-accent">
+                        <svg viewBox="0 0 24 24" class="h-12 w-12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                            <path d="M22 4L12 14.01l-3-3"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold">Great job!</h1>
                 </div>
-                <p class="mt-4 text-sm font-semibold text-muted">{{ $cprog['done'] }}/{{ $cprog['required'] }} sessions today</p>
-            </div>
-
-            <div class="px-6 pt-5 text-center">
-                <h1 class="text-2xl font-bold">
-                    @if ($result['day_completed']) Training Day Complete!
-                    @elseif ($result['is_extra']) Extra Session Done!
-                    @else Session Complete @endif
-                </h1>
-            </div>
-
-            {{-- Month calendar strip --}}
-            <div class="mx-4 mt-4 rounded-2xl bg-surface p-4">
-                <div class="flex items-center justify-between">
-                    <span class="font-semibold">Month {{ $pos['month'] }}</span>
-                    <span class="text-muted">{{ $pos['completed'] }}/{{ $pos['plan_length'] }}</span>
+                
+                <div class="flex flex-col gap-3 px-6">
+                    <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try again</a>
+                    <a href="{{ route('exercises.show', $exercise) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-content tap">Back to exercise</a>
                 </div>
-                <div class="mt-3 flex justify-between gap-1.5">
-                    @foreach ($result['days'] as $day)
-                        <div class="flex flex-1 flex-col items-center gap-1">
-                            <div class="grid aspect-square w-full place-items-center rounded-lg
-                                {{ $day['done'] ? 'bg-accent text-[color:var(--c-on-accent)]' : ($day['today'] ? 'border-2 border-accent' : 'border border-white/15') }}">
-                                @if ($day['done'])
-                                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
-                                @endif
+            </div>
+        @else
+            @php
+                $pos = $result['position'];
+                $cprog = $result['progress'];
+                $cpct = min(1, max(0, ($cprog['required'] ?? 0) > 0 ? $cprog['done'] / $cprog['required'] : 1));
+                $csize = 208; $cstroke = 12; $cr = ($csize - $cstroke) / 2;
+                $ccirc = round(2 * M_PI * $cr, 2);
+                $coff = round($ccirc * (1 - $cpct), 2);
+            @endphp
+            <div class="flex min-h-[100dvh] flex-col pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                {{-- Big themed completion ring with an animated tick (no sky/mountains) --}}
+                <div class="flex flex-col items-center px-6 pt-[calc(2rem+env(safe-area-inset-top))]">
+                    <div class="animate-ring-pop relative grid place-items-center" style="width: {{ $csize }}px; height: {{ $csize }}px;">
+                        <svg width="{{ $csize }}" height="{{ $csize }}" viewBox="0 0 {{ $csize }} {{ $csize }}" class="-rotate-90">
+                            <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="{{ $cstroke }}"/>
+                            <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="var(--c-accent)" stroke-width="{{ $cstroke }}"
+                                    stroke-linecap="round" class="completion-ring"
+                                    stroke-dasharray="{{ $ccirc }}" stroke-dashoffset="{{ $coff }}"
+                                    style="--ring-start: {{ $ccirc }}; --ring-end: {{ $coff }}; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c-accent) 45%, transparent));"/>
+                        </svg>
+                        <svg viewBox="0 0 24 24" class="absolute h-24 w-24 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 13l4 4L19 7" pathLength="1" class="completion-tick"/>
+                        </svg>
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-muted">{{ $cprog['done'] }}/{{ $cprog['required'] }} sessions today</p>
+                </div>
+
+                <div class="px-6 pt-5 text-center">
+                    <h1 class="text-2xl font-bold">
+                        @if ($result['day_completed']) Training Day Complete!
+                        @elseif ($result['is_extra']) Extra Session Done!
+                        @else Session Complete @endif
+                    </h1>
+                </div>
+
+                {{-- Month calendar strip --}}
+                <div class="mx-4 mt-4 rounded-2xl bg-surface p-4">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">Month {{ $pos['month'] }}</span>
+                        <span class="text-muted">{{ $pos['completed'] }}/{{ $pos['plan_length'] }}</span>
+                    </div>
+                    <div class="mt-3 flex justify-between gap-1.5">
+                        @foreach ($result['days'] as $day)
+                            <div class="flex flex-1 flex-col items-center gap-1">
+                                <div class="grid aspect-square w-full place-items-center rounded-lg
+                                    {{ $day['done'] ? 'bg-accent text-[color:var(--c-on-accent)]' : ($day['today'] ? 'border-2 border-accent' : 'border border-white/15') }}">
+                                    @if ($day['done'])
+                                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                </div>
+                                <span class="text-[10px] {{ $day['today'] ? 'font-bold text-content' : 'text-muted' }}">{{ $day['n'] }}</span>
                             </div>
-                            <span class="text-[10px] {{ $day['today'] ? 'font-bold text-content' : 'text-muted' }}">{{ $day['n'] }}</span>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Unlock progress --}}
+                @if ($result['unlocked'])
+                    <div class="mx-4 mt-3 rounded-2xl bg-surface p-4">
+                        <p class="font-semibold text-success">Unlocked: {{ implode(', ', $result['unlocked']) }}</p>
+                    </div>
+                @elseif ($result['next_unlock'])
+                    @php($nu = $result['next_unlock'])
+                    @php($pct = min(100, round($result['next_unlock_completed'] / max(1, $nu['unlock_after_days']) * 100)))
+                    <div class="mx-4 mt-3 flex items-center gap-3 rounded-2xl bg-surface p-4">
+                        <div class="relative">
+                            <x-equipment-icon name="{{ $nu['name'] }}" :size="46" />
+                            <span class="absolute -left-1 -top-1 rounded bg-accent px-1 text-[8px] font-bold text-white">NEW</span>
                         </div>
-                    @endforeach
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate font-semibold">Unlock '{{ $nu['name'] }}'</p>
+                            <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                                <div class="h-full rounded-full bg-accent" style="width: {{ $pct }}%"></div>
+                            </div>
+                        </div>
+                        <span class="text-sm text-muted">{{ $result['next_unlock_completed'] }}/{{ $nu['unlock_after_days'] }}</span>
+                    </div>
+                @endif
+
+                <div class="flex-1"></div>
+                <div class="px-6">
+                    <a href="{{ route('home') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Continue</a>
                 </div>
             </div>
-
-            {{-- Unlock progress --}}
-            @if ($result['unlocked'])
-                <div class="mx-4 mt-3 rounded-2xl bg-surface p-4">
-                    <p class="font-semibold text-success">Unlocked: {{ implode(', ', $result['unlocked']) }}</p>
-                </div>
-            @elseif ($result['next_unlock'])
-                @php($nu = $result['next_unlock'])
-                @php($pct = min(100, round($result['next_unlock_completed'] / max(1, $nu['unlock_after_days']) * 100)))
-                <div class="mx-4 mt-3 flex items-center gap-3 rounded-2xl bg-surface p-4">
-                    <div class="relative">
-                        <x-equipment-icon name="{{ $nu['name'] }}" :size="46" />
-                        <span class="absolute -left-1 -top-1 rounded bg-accent px-1 text-[8px] font-bold text-white">NEW</span>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate font-semibold">Unlock '{{ $nu['name'] }}'</p>
-                        <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                            <div class="h-full rounded-full bg-accent" style="width: {{ $pct }}%"></div>
-                        </div>
-                    </div>
-                    <span class="text-sm text-muted">{{ $result['next_unlock_completed'] }}/{{ $nu['unlock_after_days'] }}</span>
-                </div>
-            @endif
-
-            <div class="flex-1"></div>
-            <div class="px-6">
-                <a href="{{ route('home') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Continue</a>
-            </div>
-        </div>
+        @endif
     @endif
 </div>

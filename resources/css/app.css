@@ -104,8 +104,8 @@ body {
 /* Liquid glass: very transparent, heavy blur, luminous edge + top highlight,
    so the watermark behind reads through. Circle (rounded-full) keeps its ring. */
 [class*='bg-surface'] {
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
+    backdrop-filter: blur(28px) saturate(1.8) !important;
 }
 [class*='bg-surface']:not(.rounded-full) {
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -116,8 +116,8 @@ body {
    content scrolls under them blurred instead of behind a near-solid bar. */
 .bg-bg\/95 {
     background-color: color-mix(in srgb, var(--c-bg) 55%, transparent) !important;
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
+    backdrop-filter: blur(28px) saturate(1.8) !important;
 }
 
 /* Hide scrollbars for the native-app feel while keeping scroll. */
@@ -131,9 +131,18 @@ body {
 
 @utility tap {
     transition: transform 0.08s ease;
+    cursor: pointer;
 }
 .tap:active {
     transform: scale(0.96);
+}
+
+button,
+a,
+input[type="submit"],
+input[type="button"],
+label {
+    cursor: pointer;
 }
 
 /* Coloured halo that pulses behind the workout circle on contraction.
@@ -164,6 +173,30 @@ body {
 }
 .animate-slide-up {
     animation: slide-up 0.35s ease both;
+}
+
+/* Gentle continuous float + a breathing glow halo (onboarding visuals). */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-float {
+    animation: float 3.6s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.12); opacity: 1; }
+}
+.animate-pulse-glow {
+    animation: pulse-glow 3.6s ease-in-out infinite;
+}
+@keyframes pop-in {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in {
+    animation: pop-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Session-complete celebration: the ring sweeps from empty to its value, then

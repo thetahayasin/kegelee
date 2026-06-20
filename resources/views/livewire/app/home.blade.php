@@ -3,7 +3,7 @@
     {{-- Header --}}
     <header class="flex items-center justify-center relative px-5 py-4">
         <h1 class="text-2xl font-bold">Training</h1>
-        <a href="{{ route('profile') }}" wire:navigate class="absolute right-5 grid place-items-center h-9 w-9 rounded-full bg-surface text-muted tap" aria-label="Info">
+        <a href="{{ route('knowledge.index') }}" wire:navigate class="absolute right-5 grid place-items-center h-9 w-9 rounded-full bg-surface text-muted tap" aria-label="Knowledge">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
                 <circle cx="12" cy="12" r="9"/>
                 <path d="M12 11.5v4.5" stroke-linecap="round"/>
@@ -14,13 +14,19 @@
 
     {{-- New exercise banner --}}
     @if ($nextUnlock)
-        <div class="mx-4 mb-3 flex items-center gap-3 rounded-2xl bg-surface px-3 py-3">
-            <x-equipment-icon :exercise="$nextUnlock" :size="44" class="ring-1 ring-accent/60" />
-            <div class="min-w-0 flex-1">
-                <p class="font-semibold leading-tight truncate">{{ $nextUnlock->name }}</p>
-                <p class="text-xs text-muted">next in your training plan</p>
+        <div class="mx-4 mb-3 rounded-2xl bg-surface px-3 py-3">
+            <div class="flex items-center gap-3">
+                <x-equipment-icon :exercise="$nextUnlock" :size="44" class="ring-1 ring-accent/60" />
+                <div class="min-w-0 flex-1">
+                    <p class="font-semibold leading-tight truncate">{{ $nextUnlock->name }}</p>
+                    <p class="text-xs text-muted">next in your training plan</p>
+                </div>
+                <span class="text-right text-xs text-muted leading-tight">{{ $position['completed'] }}/{{ $nextUnlock->unlock_after_days }} days</span>
             </div>
-            <span class="text-right text-xs text-muted leading-tight">{{ $position['completed'] }}/{{ $nextUnlock->unlock_after_days }} days</span>
+            @php($unlockPct = $nextUnlock->unlock_after_days > 0 ? min(100, round($position['completed'] / $nextUnlock->unlock_after_days * 100)) : 100)
+            <div class="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                <div class="h-full rounded-full bg-accent transition-all duration-500" style="width: {{ $unlockPct }}%"></div>
+            </div>
         </div>
     @endif
 

@@ -31,6 +31,7 @@
                         ['admin.exercises', 'Exercises'],
                         ['admin.levels', 'Levels'],
                         ['admin.onboarding', 'Onboarding'],
+                        ['admin.knowledge', 'Knowledge'],
                         ['admin.plans', 'Plans'],
                         ['admin.discounts', 'Discounts'],
                         ['admin.subscriptions', 'Subscriptions'],
@@ -50,14 +51,37 @@
 
                 {{-- Main --}}
                 <main class="flex-1 overflow-x-hidden">
-                    {{-- Mobile top bar: the sidebar (and its logout) is desktop-only. --}}
-                    <div class="flex items-center justify-between border-b border-white/5 bg-surface px-4 py-3 md:hidden">
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
+                    {{-- Top bar with the settings gear menu (all sizes). --}}
+                    <div class="flex items-center justify-between border-b border-white/5 bg-surface px-4 py-3">
+                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 md:invisible">
                             <span class="grid h-8 w-8 place-items-center rounded-lg bg-accent text-sm font-bold">{{ strtoupper(substr($settings->get('app_name'), 0, 1)) }}</span>
                             <span class="font-semibold">{{ $settings->get('app_name') }}</span>
                         </a>
-                        <a href="{{ route('admin.logout') }}" class="rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-medium tap">Log out</a>
+
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open" class="grid h-9 w-9 place-items-center rounded-lg bg-surface-2 text-muted tap" aria-label="Settings menu">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.2.61.79 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                            </button>
+                            <div x-show="open" x-cloak @click.outside="open = false" x-transition
+                                 class="absolute right-0 top-12 z-50 w-60 overflow-hidden rounded-xl border border-white/10 bg-surface-2 shadow-2xl">
+                                <a href="{{ route('admin.pages') }}" class="block px-4 py-3 text-sm hover:bg-white/5">Pages (Privacy, Refund…)</a>
+                                <a href="{{ route('admin.settings') }}" class="block px-4 py-3 text-sm hover:bg-white/5">Settings</a>
+                                <form method="POST" action="{{ route('admin.reset-progress') }}"
+                                      onsubmit="return confirm('Reset ALL app-user progress? This wipes every app user\'s training days, sessions, measurements and knowledge completions.');">
+                                    @csrf
+                                    <button type="submit" class="block w-full px-4 py-3 text-left text-sm text-accent-soft hover:bg-white/5">Reset progress</button>
+                                </form>
+                                <a href="{{ route('admin.logout') }}" class="block border-t border-white/10 px-4 py-3 text-sm hover:bg-white/5">Log out</a>
+                            </div>
+                        </div>
                     </div>
+
+                    @if (session('status'))
+                        <div class="mx-auto max-w-5xl px-5 pt-4 md:px-8">
+                            <div class="rounded-xl bg-success/15 px-4 py-3 text-sm font-semibold text-success">{{ session('status') }}</div>
+                        </div>
+                    @endif
+
                     <div class="mx-auto max-w-5xl p-5 md:p-8">
                         {{ $slot }}
                     </div>

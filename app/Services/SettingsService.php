@@ -65,6 +65,20 @@ class SettingsService
             // Onboarding
             'onboarding_enabled' => true,
 
+            // Email (SMTP) - sender for verification / reset codes
+            'mail_host' => '',
+            'mail_port' => 587,
+            'mail_username' => '',
+            'mail_password' => '',
+            'mail_encryption' => 'tls',
+            'mail_from_address' => '',
+            'mail_from_name' => '',
+
+            // Google sign-in (Socialite)
+            'google_login_enabled' => false,
+            'google_client_id' => '',
+            'google_client_secret' => '',
+
             // SEO
             'seo_title' => 'Kegel Trainer - Pelvic Floor Exercises',
             'seo_description' => 'Strengthen your pelvic floor muscles with guided Kegel exercises, daily training plans and progress tracking.',

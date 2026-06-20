@@ -24,14 +24,14 @@
                     </svg>
                 </span>
                 <span class="flex-1">
-                    <span class="block font-semibold {{ $selected ? 'text-white' : 'text-content' }}">{{ $level->name }}</span>
+                    <span class="block font-semibold">{{ $level->name }}</span>
                     @if ($selected)
-                        <span class="block text-sm text-white/80">Current difficulty</span>
+                        <span class="block text-sm opacity-80">Current difficulty</span>
                     @endif
                 </span>
                 {{-- Radio --}}
-                <span class="grid h-7 w-7 place-items-center rounded-full border-2 {{ $selected ? 'border-white' : 'border-white/25' }}">
-                    @if ($selected)<span class="h-3.5 w-3.5 rounded-full bg-white"></span>@endif
+                <span class="grid h-7 w-7 place-items-center rounded-full border-2 {{ $selected ? 'border-[var(--c-on-accent)]' : 'border-white/25' }}">
+                    @if ($selected)<span class="h-3.5 w-3.5 rounded-full bg-[var(--c-on-accent)]"></span>@endif
                 </span>
             </button>
         @endforeach

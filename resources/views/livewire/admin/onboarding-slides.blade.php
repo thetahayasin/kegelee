@@ -12,7 +12,12 @@
             <div wire:key="slide-{{ $row['id'] }}" class="grid gap-3 rounded-2xl bg-surface p-5 md:grid-cols-3">
                 <div class="md:col-span-2 space-y-3">
                     <div class="flex gap-2">
-                        <input type="number" wire:model="rows.{{ $i }}.sort_order" class="h-10 w-16 rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none" title="Order">
+                        <input type="number" wire:model="rows.{{ $i }}.sort_order" class="h-10 w-14 rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none" title="Order">
+                        <select wire:model="rows.{{ $i }}.icon" class="h-10 w-32 rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none" title="Icon">
+                            @foreach (['anatomy','heart','refresh','clock','chart','search','compass','shield','check','book','target','muscle','bolt','location','calendar','play','info','sparkle'] as $ic)
+                                <option value="{{ $ic }}">{{ ucfirst($ic) }}</option>
+                            @endforeach
+                        </select>
                         <input wire:model="rows.{{ $i }}.title" placeholder="Title" class="h-10 flex-1 rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
                     </div>
                     <textarea wire:model="rows.{{ $i }}.body" rows="3" placeholder="Body" class="w-full rounded-lg border border-white/10 bg-surface-2 px-2 py-2 focus:border-accent focus:outline-none"></textarea>

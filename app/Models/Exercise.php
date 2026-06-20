@@ -14,7 +14,8 @@ class Exercise extends Model
         'contract_seconds' => 'float',
         'relax_seconds' => 'float',
         'hold_seconds' => 'float',
-        'is_premium' => 'boolean',
+        'min_duration' => 'float',
+        'max_duration' => 'float',
         'is_active' => 'boolean',
         'full_hold' => 'boolean',
     ];
@@ -37,13 +38,31 @@ class Exercise extends Model
     public function durationForLevel(?Level $level): float
     {
         if (! $level) {
-            return 30.0;
+            return (float) ($this->min_duration ?: 30.0);
         }
 
+        // If there's a pivot value from the exercise_level table, use it.
         $pivot = $this->levels->firstWhere('id', $level->id)?->pivot
             ?? $this->levels()->where('levels.id', $level->id)->first()?->pivot;
 
-        return (float) ($pivot->duration_seconds ?? 30);
+        if ($pivot && $pivot->duration_seconds) {
+            return (float) $pivot->duration_seconds;
+        }
+
+        // Fallback: interpolate from min_duration to max_duration by level number.
+        $minD = (float) ($this->min_duration ?: 30);
+        $maxD = (float) ($this->max_duration ?: 120);
+        $maxLevelNum = (int) (Level::max('number') ?? 10);
+        $minLevelNum = 1;
+
+        if ($maxLevelNum <= $minLevelNum) {
+            return $minD;
+        }
+
+        $n = (int) $level->number;
+        $pct = max(0, min(1, ($n - $minLevelNum) / ($maxLevelNum - $minLevelNum)));
+
+        return round($minD + $pct * ($maxD - $minD));
     }
 
     public function repsForDuration(float $duration): int

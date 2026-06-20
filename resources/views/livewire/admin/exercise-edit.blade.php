@@ -34,14 +34,25 @@
                 <label class="mb-1 block text-sm text-muted">Sort order</label>
                 <input type="number" wire:model="sort_order" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
             </div>
-            <label class="flex items-center gap-3"><input type="checkbox" wire:model="is_premium" class="h-5 w-5 rounded accent-[var(--c-accent)]"> <span>Premium (requires subscription)</span></label>
-            <label class="flex items-center gap-3"><input type="checkbox" wire:model="is_active" class="h-5 w-5 rounded accent-[var(--c-accent)]"> <span>Active (visible in app)</span></label>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Min duration (s)</label>
+                <input type="number" step="1" min="1" wire:model.live.debounce.300ms="min_duration" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('min_duration') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Max duration (s)</label>
+                <input type="number" step="1" min="1" wire:model.live.debounce.300ms="max_duration" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('max_duration') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            </div>
+            <div class="md:col-span-2 flex items-center gap-6 py-2">
+                <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" wire:model="is_active" class="h-5 w-5 rounded accent-[var(--c-accent)]"> <span>Active (visible in app)</span></label>
+            </div>
         </div>
 
         {{-- Circle rhythm: live preview beside its controls --}}
         @php($pr = ($circleSize - $trackWidth) / 2)
         @php($pcirc = round(2 * M_PI * $pr, 2))
-        <div class="rounded-2xl bg-surface p-5"
+        <div class="rounded-2xl bg-surface p-5" wire:ignore
              x-data="{
                  contract: {{ (float) $contract_seconds }},
                  relax: {{ (float) $relax_seconds }},
@@ -68,6 +79,7 @@
                      this.$wire.$watch('contract_label',     v => { this.contractLabel = v || 'Contract & hold'; });
                      this.$wire.$watch('relax_label',        v => { this.relaxLabel = v || 'Relax'; });
                      this.$wire.$watch('full_hold',          v => { this.fullHold = !!v; this.restart(); });
+                     this.$wire.$watch('min_duration',       v => { this.duration = parseFloat(v) || 30; this.restart(); });
                  },
                  phaseDur(p) { return p === 'contract' ? this.contract : (p === 'hold' ? this.hold : this.relax); },
                  nextPhase(p) {
@@ -239,36 +251,22 @@
             </div>
         </div>
 
-        {{-- Per-level duration --}}
+        {{-- Per-level duration (calculated from min/max) --}}
         @php($cycle = (float) $contract_seconds + (float) $hold_seconds + (float) $relax_seconds)
         <div class="rounded-2xl bg-surface p-5">
-            <h2 class="mb-1 font-semibold">Levels &amp; duration</h2>
-            @if ($full_hold)
-                <p class="mb-4 text-sm text-muted">Tick the levels this exercise belongs to. Held as one continuous contraction; the duration must fit the level's session time.</p>
-            @else
-                <p class="mb-4 text-sm text-muted">Tick the levels this exercise belongs to. One cycle = {{ rtrim(rtrim(number_format($cycle, 1), '0'), '.') }}s; it must fit the duration, and the duration must fit the level's session time.</p>
-            @endif
-            <div class="space-y-2">
-                <div class="hidden grid-cols-5 gap-2 px-1 text-xs text-muted md:grid">
-                    <span>In level</span><span>Duration (s)</span><span>Reps</span><span>Session time</span><span>Fits?</span>
+            <h2 class="mb-1 font-semibold">Calculated level durations</h2>
+            <p class="mb-4 text-sm text-muted">Auto-calculated from min/max duration range ({{ (int) $min_duration }}s → {{ (int) $max_duration }}s). Lower levels get shorter durations, higher levels get longer.</p>
+            <div class="space-y-1">
+                <div class="hidden grid-cols-3 gap-2 px-1 text-xs text-muted md:grid">
+                    <span>Level</span><span>Duration (s)</span><span>Reps</span>
                 </div>
                 @foreach ($durations as $levelId => $row)
                     @php($dur = (float) $row['duration'])
-                    @php($on = $row['included'] ?? true)
-                    @php($fits = $full_hold ? ($dur <= $row['total'] + 1e-6) : ($cycle > 0 && $cycle <= $dur + 1e-6 && $dur <= $row['total'] + 1e-6))
                     @php($reps = $full_hold ? 1 : ($cycle > 0 ? (int) floor($dur / $cycle) : 0))
-                    <div wire:key="dur-{{ $levelId }}" class="grid grid-cols-2 gap-2 rounded-xl bg-surface-2 p-3 md:grid-cols-5 md:items-center md:bg-transparent md:p-1 {{ $on ? '' : 'opacity-50' }}">
-                        <label class="flex items-center gap-2 text-sm font-medium">
-                            <input type="checkbox" wire:model.live="durations.{{ $levelId }}.included" class="h-4 w-4 rounded accent-[var(--c-accent)]">
-                            {{ $row['level'] }}
-                        </label>
-                        <div>
-                            <input type="number" step="1" min="1" wire:model="durations.{{ $levelId }}.duration" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
-                            @error("durations.{$levelId}.duration") <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
-                        </div>
-                        <span class="text-sm">{{ $full_hold ? 'Hold' : $reps.' reps' }}</span>
-                        <span class="text-sm text-muted">{{ (int) $row['total'] }}s</span>
-                        <span class="text-sm font-semibold {{ $fits ? 'text-success' : 'text-accent-soft' }}">{{ $fits ? 'OK' : 'Check' }}</span>
+                    <div wire:key="dur-{{ $levelId }}" class="grid grid-cols-3 gap-2 items-center rounded-lg px-1 py-1.5 text-sm">
+                        <span class="font-medium">{{ $row['level'] }}</span>
+                        <span class="tabular-nums">{{ (int) $dur }}s</span>
+                        <span class="text-muted">{{ $full_hold ? 'Hold' : $reps.' reps' }}</span>
                     </div>
                 @endforeach
             </div>

@@ -9,10 +9,19 @@ use App\Models\UserExerciseSetting;
 use Illuminate\Support\Collection;
 
 /**
- * Builds a user's session playlist: available (unlocked) exercises in a
- * randomised order, each running for its per-level duration (cycling its
- * universal contract/relax beat), separated by the level's rest, packed to
- * fill the level's total session time. The rotation repeats as needed.
+ * Builds a user's session playlist.
+ *
+ * The level defines how many beginner, pro and expert exercises to include.
+ * Each exercise has a min/max duration range; the system interpolates a base
+ * duration from that range according to the level number, then scales all
+ * durations proportionally so total_session_seconds is filled exactly (with
+ * rests between exercises).
+ *
+ * Rules:
+ * - Only active + unlocked exercises enter the pool.
+ * - No two consecutive exercises may be the same.
+ * - An exercise may repeat later in the sequence.
+ * - The total time (exercises + rests) must equal total_session_seconds.
  */
 class SessionBuilder
 {
@@ -29,36 +38,20 @@ class SessionBuilder
         $total = (float) ($level?->total_session_seconds ?: 300);
         $rest = (float) ($level?->rest_seconds ?: 10);
 
-        return $this->pack($this->poolForLevel($user, $level), $level, $total, $rest, $user);
-    }
+        $picks = $this->selectExercises($user, $level);
 
-    /**
-     * Exercises that make up a level's session: the ones assigned to that level
-     * (the exercise_level pivot), limited to active + unlocked, and randomised
-     * by pack(). Falls back to all unlocked exercises if the level has none
-     * assigned yet, so a session is never empty.
-     *
-     * @return Collection<int,Exercise>
-     */
-    private function poolForLevel(User $user, ?Level $level): Collection
-    {
-        if (! $level) {
-            return $this->unlockedExercises($user);
+        if ($picks->isEmpty()) {
+            return ['steps' => [], 'exercises' => [], 'total' => 0.0];
         }
 
-        $assigned = $level->exercises
-            ->where('is_active', true)
-            ->filter(fn (Exercise $e) => $this->progression->isExerciseUnlocked($user, $e))
-            ->sortBy('sort_order')
-            ->values();
+        $unlocked = $this->unlockedExercises($user);
+        $sequence = $level ? $this->generateSequence($picks, $level, $unlocked) : $picks;
 
-        return $assigned->isNotEmpty() ? $assigned : $this->unlockedExercises($user);
+        return $this->buildPlaylist($sequence, $level, $total, $rest, $user);
     }
 
     /**
-     * A single round of one exercise, for "Try" / detail. Pass $level to run
-     * it at a specific level's duration (e.g. level 1 for the try-it preview);
-     * defaults to the user's current level.
+     * A single round of one exercise, for "Try" / detail.
      */
     public function single(User $user, Exercise $exercise, ?Level $level = null): array
     {
@@ -69,7 +62,6 @@ class SessionBuilder
 
         $steps = [];
         $total = 0.0;
-        // Pass null for startPhase so each exercise uses its own start_phase.
         foreach ($exercise->steps($duration, null, $setting?->contract_seconds, $setting?->relax_seconds) as $s) {
             $steps[] = ['exercise' => $exercise->name] + $s;
             $total += (float) $s['seconds'];
@@ -79,84 +71,203 @@ class SessionBuilder
     }
 
     /**
-     * Pack a randomised rotation of exercises to fill the total session time.
+     * Select exercises for the session based on the level's minimum exercise requirements.
+     * Returns an ordered Collection of Exercise models with no two consecutive
+     * being the same.
      *
-     * @param Collection<int,Exercise> $pool
+     * @return Collection<int,Exercise>
      */
-    private function pack(Collection $pool, ?Level $level, float $total, float $rest, ?User $user = null): array
+    private function selectExercises(User $user, ?Level $level): Collection
+    {
+        $unlocked = $this->unlockedExercises($user);
+
+        if ($unlocked->isEmpty()) {
+            return collect();
+        }
+
+        if (! $level) {
+            return $unlocked->shuffle()->take(3)->values();
+        }
+
+        $minExercises = (int) ($level->min_exercises ?? 3);
+        if ($minExercises <= 0) {
+            $minExercises = 3;
+        }
+
+        // Randomly pick the minimum required unique exercises from the unlocked pool.
+        return $unlocked->shuffle()->take($minExercises)->values();
+    }
+
+    /**
+     * Rearrange exercises so no two consecutive are the same.
+     * If only one unique exercise exists, consecutive duplication is unavoidable.
+     */
+    private function arrangeNoConsecutive(Collection $exercises): Collection
+    {
+        $result = collect();
+        $remaining = $exercises->values()->all();
+
+        while (count($remaining) > 0) {
+            $placed = false;
+            foreach ($remaining as $idx => $ex) {
+                if ($result->isEmpty() || $result->last()->id !== $ex->id) {
+                    $result->push($ex);
+                    array_splice($remaining, $idx, 1);
+                    $placed = true;
+                    break;
+                }
+            }
+            // If we couldn't place without duplication, force the first one.
+            if (! $placed) {
+                $result->push(array_shift($remaining));
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Repeat the selected exercises in round-robin order until the total
+     * session time is roughly filled.  Each exercise slot gets its natural
+     * durationForLevel value — no single slot exceeds max_duration.
+     *
+     * @param Collection<int,Exercise> $picks     Distinct exercises chosen for the session.
+     * @param Level                    $level     Current user level.
+     * @param Collection<int,Exercise> $unlocked  All unlocked exercises for the user.
+     * @return Collection<int,Exercise>
+     */
+    private function generateSequence(Collection $picks, Level $level, Collection $unlocked): Collection
+    {
+        $totalSession = (float) ($level->total_session_seconds ?: 300);
+        $rest = (float) ($level->rest_seconds ?: 10);
+
+        // Estimate target count of exercises based on average duration.
+        $durations = $picks->map(fn ($e) => $e->durationForLevel($level));
+        $avgDuration = $durations->avg() ?: 30.0;
+        $targetCount = (int) max(1, round(($totalSession + $rest) / ($avgDuration + $rest)));
+
+        // If target count is greater than picks, fill with MORE unique exercises from unlocked first.
+        if ($picks->count() < $targetCount) {
+            $remaining = $unlocked->diff($picks)->shuffle();
+            $needed = $targetCount - $picks->count();
+            $picks = $picks->merge($remaining->take($needed));
+        }
+
+        $sequence = collect();
+        $acc = 0.0;
+        $idx = 0;
+        $all = $picks->values()->all();
+        $count = count($all);
+
+        if ($count === 0) {
+            return $sequence;
+        }
+
+        while ($acc < $totalSession) {
+            $exercise = $all[$idx % $count];
+            $dur = $exercise->durationForLevel($level);
+
+            // Add rest before every exercise except the first.
+            if ($sequence->isNotEmpty()) {
+                $acc += $rest;
+            }
+
+            $acc += $dur;
+            $sequence->push($exercise);
+            $idx++;
+
+            // Safety: cap at 30 slots to avoid infinite loops.
+            if ($idx >= 30) {
+                break;
+            }
+        }
+
+        return $this->arrangeNoConsecutive($sequence);
+    }
+
+    /**
+     * Build the full playlist with exact time scaling.
+     *
+     * @param Collection<int,Exercise> $sequence
+     */
+    private function buildPlaylist(Collection $sequence, ?Level $level, float $totalSession, float $rest, ?User $user = null): array
     {
         // Load user timing overrides in one query.
-        $userSettings = ($user && $pool->isNotEmpty())
+        $userSettings = ($user && $sequence->isNotEmpty())
             ? UserExerciseSetting::where('user_id', $user->id)
-                ->whereIn('exercise_id', $pool->pluck('id'))
+                ->whereIn('exercise_id', $sequence->pluck('id')->unique())
                 ->get()
                 ->keyBy('exercise_id')
             : collect();
 
-        // Map of exercise_id => per-level duration (from the pivot), resolved
-        // once. Keep only exercises whose contract/relax cycle fits.
-        $durations = $level
-            ? $level->exercises->mapWithKeys(fn (Exercise $e) => [$e->id => (float) $e->pivot->duration_seconds])
-            : collect();
+        // Calculate base durations for each exercise in the sequence.
+        $baseDurations = [];
+        foreach ($sequence as $i => $exercise) {
+            $baseDurations[$i] = $exercise->durationForLevel($level);
+        }
 
-        $usable = $pool
-            ->map(fn (Exercise $e) => [
-                'exercise' => $e,
-                'duration' => (float) ($durations[$e->id] ?? 30),
-                'setting' => $userSettings[$e->id] ?? null,
-            ])
-            ->map(function ($r) {
-                // A full-hold exercise fills its whole duration as one
-                // contraction, so its "cycle" always fits exactly.
-                if ($r['exercise']->full_hold) {
-                    return $r + ['cycle' => $r['duration']];
-                }
-                $contract = $r['setting']?->contract_seconds ?? (float) $r['exercise']->contract_seconds;
-                $relax = $r['setting']?->relax_seconds ?? (float) $r['exercise']->relax_seconds;
-                $hold = (float) $r['exercise']->hold_seconds;
-                return $r + ['cycle' => $contract + $hold + $relax];
-            })
-            ->filter(fn ($r) => $r['duration'] > 0
-                && $r['cycle'] > 0
-                && $r['cycle'] <= $r['duration'] + 1e-6)
-            ->values();
+        // Total rest time = rest between each pair of exercises.
+        $numRests = max(0, $sequence->count() - 1);
+        $totalRestTime = $numRests * $rest;
 
-        if ($usable->isEmpty()) {
+        // Available time for exercises = total session - total rest.
+        $availableForExercises = $totalSession - $totalRestTime;
+
+        if ($availableForExercises <= 0) {
             return ['steps' => [], 'exercises' => [], 'total' => 0.0];
         }
 
-        $minDuration = (float) $usable->min('duration');
+        // Scale base durations proportionally to fill the available time exactly.
+        $baseSum = array_sum($baseDurations);
+        if ($baseSum <= 0) {
+            return ['steps' => [], 'exercises' => [], 'total' => 0.0];
+        }
+
+        $scale = $availableForExercises / $baseSum;
+        $scaledDurations = [];
+        foreach ($baseDurations as $i => $bd) {
+            $ex = $sequence[$i];
+            $maxDur = (float) ($ex->max_duration ?: 120);
+            $scaledDurations[$i] = round(min($bd * $scale, $maxDur), 1);
+        }
+
+        // Ensure sum matches exactly — distribute any rounding remainder to last.
+        $scaledSum = array_sum($scaledDurations);
+        $diff = $availableForExercises - $scaledSum;
+        if (abs($diff) > 0.01 && count($scaledDurations) > 0) {
+            $lastIdx = array_key_last($scaledDurations);
+            $scaledDurations[$lastIdx] = round($scaledDurations[$lastIdx] + $diff, 1);
+        }
+
+        // Ensure each exercise duration fits at least one cycle.
+        foreach ($scaledDurations as $i => $dur) {
+            $ex = $sequence[$i];
+            $setting = $userSettings[$ex->id] ?? null;
+            $contract = $setting?->contract_seconds ?? (float) $ex->contract_seconds;
+            $relax = $setting?->relax_seconds ?? (float) $ex->relax_seconds;
+            $hold = (float) $ex->hold_seconds;
+            $cycle = $contract + $hold + $relax;
+
+            if (! $ex->full_hold && $cycle > 0 && $dur < $cycle) {
+                $scaledDurations[$i] = $cycle;
+            }
+        }
+
+        // Build the step array.
         $steps = [];
         $names = [];
         $acc = 0.0;
-        $bag = [];
-        $guard = 0;
 
-        while ($guard++ < 1000) {
-            $need = ($steps ? $rest : 0) + $minDuration;
-            if ($acc + $need > $total + 1e-6) {
-                break; // no room for even the shortest exercise
-            }
+        foreach ($sequence as $i => $exercise) {
+            $duration = $scaledDurations[$i];
 
-            if ($bag === []) {
-                $bag = $usable->shuffle()->all();
-            }
-
-            $row = array_shift($bag);
-            $exercise = $row['exercise'];
-            $duration = $row['duration'];
-
-            $add = ($steps ? $rest : 0) + $duration;
-            if ($acc + $add > $total + 1e-6) {
-                continue; // overshoots; try the next in the bag
-            }
-
-            if ($steps !== []) {
+            // Add rest before every exercise except the first.
+            if ($i > 0 && $rest > 0) {
                 $steps[] = ['exercise' => $exercise->name, 'phase' => 'rest', 'label' => 'Rest', 'seconds' => $rest];
                 $acc += $rest;
             }
 
-            $setting = $row['setting'] ?? null;
+            $setting = $userSettings[$exercise->id] ?? null;
             foreach ($exercise->steps($duration, null, $setting?->contract_seconds, $setting?->relax_seconds) as $s) {
                 $steps[] = ['exercise' => $exercise->name] + $s;
                 $acc += (float) $s['seconds'];

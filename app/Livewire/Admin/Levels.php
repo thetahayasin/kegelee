@@ -31,6 +31,7 @@ class Levels extends Component
             'sessions_per_day' => $l->sessions_per_day,
             'total_session_seconds' => $l->total_session_seconds,
             'rest_seconds' => $l->rest_seconds,
+            'min_exercises' => $l->min_exercises ?? 3,
             'is_active' => $l->is_active,
         ])->all();
     }
@@ -44,6 +45,7 @@ class Levels extends Component
             'days_to_complete' => 30,
             'total_session_seconds' => 300,
             'rest_seconds' => 10,
+            'min_exercises' => 3,
             'is_active' => true,
             'sort_order' => $number,
         ]);
@@ -65,6 +67,7 @@ class Levels extends Component
             'rows.*.sessions_per_day' => 'nullable|integer|min:1',
             'rows.*.total_session_seconds' => 'required|numeric|min:1',
             'rows.*.rest_seconds' => 'required|numeric|min:0',
+            'rows.*.min_exercises' => 'required|integer|min:1',
         ]);
 
         // Each exercise's per-level duration must fit inside this session time.
@@ -89,6 +92,7 @@ class Levels extends Component
                 'sessions_per_day' => $row['sessions_per_day'] ?: null,
                 'total_session_seconds' => $row['total_session_seconds'],
                 'rest_seconds' => $row['rest_seconds'],
+                'min_exercises' => (int) $row['min_exercises'],
                 'is_active' => (bool) $row['is_active'],
                 'sort_order' => $row['number'],
             ]);

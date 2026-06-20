@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             LevelSeeder::class,
             ExerciseSeeder::class,
             OnboardingSeeder::class,
+            KnowledgeSeeder::class,
+            PageSeeder::class,
             PlanSeeder::class,
             UserSeeder::class,
         ]);

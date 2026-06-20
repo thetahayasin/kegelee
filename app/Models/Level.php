@@ -13,6 +13,7 @@ class Level extends Model
     protected $casts = [
         'total_session_seconds' => 'float',
         'rest_seconds' => 'float',
+        'min_exercises' => 'integer',
         'is_active' => 'boolean',
     ];
 

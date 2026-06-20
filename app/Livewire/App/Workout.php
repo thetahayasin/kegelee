@@ -39,10 +39,9 @@ class Workout extends Component
         $user = auth()->user();
         if ($this->exercise) {
             $this->trial = request()->boolean('trial');
-            // The try-it-now preview always runs at level 1, regardless of the
-            // user's current level.
+            // The try-it-now preview runs at the user's current level.
             $level = $this->trial
-                ? Level::where('is_active', true)->orderBy('number')->first()
+                ? ($user->level ?? Level::where('is_active', true)->orderBy('number')->first())
                 : null;
             $playlist = $builder->single($user, $this->exercise, $level);
             $this->exerciseNames = [$this->exercise->name];
@@ -78,10 +77,10 @@ class Workout extends Component
 
     public function complete(int $seconds, ProgressionService $progression)
     {
-        // A try-it-now preview is throwaway: don't touch progression, just
-        // return to the exercise detail.
+        // A try-it-now preview is throwaway: don't touch progression, just show trial completion screen.
         if ($this->trial) {
-            return $this->redirect(route('exercises.show', $this->exercise), navigate: true);
+            $this->done = true;
+            return;
         }
 
         $user = auth()->user();

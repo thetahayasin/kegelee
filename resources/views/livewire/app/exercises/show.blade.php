@@ -23,8 +23,7 @@
         @unless ($unlocked)
             <div class="mb-4 flex items-center gap-2 rounded-2xl bg-accent/10 px-4 py-3 text-sm text-accent-soft">
                 <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
-                @if ($needsSubscription) Premium exercise - subscribe to unlock.
-                @else Complete {{ $daysLeft }} more training days to unlock. @endif
+                Complete {{ $daysLeft }} more training days to unlock.
             </div>
         @endunless
 
@@ -38,10 +37,6 @@
 
     {{-- Sticky CTA --}}
     <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur">
-        @if ($needsSubscription)
-            <a href="{{ route('paywall') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Unlock Premium</a>
-        @else
-            <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try it now</a>
-        @endif
+        <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try it now</a>
     </div>
 </div>

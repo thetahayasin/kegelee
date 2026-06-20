@@ -9,12 +9,6 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Profile extends Component
 {
-    public function replayOnboarding(): void
-    {
-        auth()->user()->update(['onboarded_at' => null]);
-        $this->redirectRoute('onboarding', navigate: true);
-    }
-
     public function render(ProgressionService $progression)
     {
         $user = auth()->user();

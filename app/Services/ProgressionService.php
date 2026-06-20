@@ -128,10 +128,6 @@ class ProgressionService
 
     public function isExerciseUnlocked(User $user, Exercise $exercise): bool
     {
-        if ($exercise->is_premium && ! $user->isSubscribed()) {
-            return false;
-        }
-
         return $this->completedDays($user) >= $exercise->unlock_after_days;
     }
 

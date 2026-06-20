@@ -64,7 +64,6 @@ class Show extends Component
         return view('livewire.app.exercises.show', [
             'unlocked' => $progression->isExerciseUnlocked($user, $this->exercise),
             'daysLeft' => $progression->daysUntilUnlock($user, $this->exercise),
-            'needsSubscription' => $this->exercise->is_premium && ! $user->isSubscribed(),
             'levelName' => $user->level?->name,
             'reps' => $reps,
             'duration' => $duration,

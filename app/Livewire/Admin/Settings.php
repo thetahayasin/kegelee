@@ -33,6 +33,7 @@ class Settings extends Component
         'color_accent' => 'color', 'color_accent_soft' => 'color', 'color_success' => 'color',
         'color_bg' => 'color', 'color_surface' => 'color', 'color_surface_2' => 'color',
         'color_text' => 'color', 'color_text_muted' => 'color', 'circle_glow_color' => 'color',
+        'mail_port' => 'int', 'google_login_enabled' => 'bool',
     ];
 
     public function mount(SettingsService $settings): void
