@@ -252,9 +252,19 @@
         >
             {{-- Top row --}}
             <div class="flex items-center justify-between">
-                <button @click="paused = true; showQuit = true" class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
-                    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
+                <template x-if="trial">
+                    <a href="{{ $trial && $exercise ? route('exercises.show', $exercise) : route('home') }}"
+                       wire:navigate
+                       @click="quit()"
+                       class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </a>
+                </template>
+                <template x-if="!trial">
+                    <button @click="paused = true; showQuit = true" class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+                        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </template>
                 <p class="text-sm text-muted" x-text="timeLabel"></p>
                 <span class="h-9 w-9"></span>
             </div>
@@ -290,7 +300,7 @@
             {{-- Help (kept in layout during rest so the ring above never shifts) --}}
             <div class="flex justify-center pb-4">
                 <button @click="paused = true; showHelp = true"
-                        x-bind:class="cur.phase === 'rest' ? 'invisible' : ''"
+                        x-bind:class="(trial || cur.phase === 'rest') ? 'invisible' : ''"
                         class="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-muted tap" aria-label="Help">
                     <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 113.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg>
                 </button>

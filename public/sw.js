@@ -26,8 +26,8 @@ self.addEventListener('fetch', (e) => {
     // Skip non-GET and Livewire update requests (POST to /livewire/update)
     if (e.request.method !== 'GET') return;
 
-    // Skip livewire internal routes
-    if (url.pathname.startsWith('/livewire/')) return;
+    // Skip Livewire internal routes (v4 uses /livewire-{hash}/…)
+    if (url.pathname.startsWith('/livewire-')) return;
 
     // Static assets: cache-first (CSS, JS, fonts, images)
     if (/\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)(\?|$)/.test(url.pathname)

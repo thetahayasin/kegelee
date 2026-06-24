@@ -44,7 +44,6 @@
         </div>
     </div>
 
-    <script>window.livewireScriptConfig = { progressBar: 'data-no-progress-bar' };</script>
     @livewireScripts
     <script>
     document.body.style.overscrollBehavior = 'none';
