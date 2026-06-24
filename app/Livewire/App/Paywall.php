@@ -58,7 +58,10 @@ class Paywall extends Component
         $plan = Plan::findOrFail($planId);
         $user = auth()->user();
 
+        // Free plans grant access immediately by recording a subscription, so the
+        // subscription gate is satisfied (no payment, no redirect loop).
         if ($plan->price <= 0) {
+            $this->createSubscription($plan, $user, 'free');
             $this->redirectRoute('home', navigate: true);
 
             return;
@@ -74,7 +77,7 @@ class Paywall extends Component
 
         // Manual / web fallback
         $this->createSubscription($plan, $user, 'manual');
-        $this->redirectRoute('profile', navigate: true);
+        $this->redirectRoute('home', navigate: true);
     }
 
     // -------------------------------------------------------------------------

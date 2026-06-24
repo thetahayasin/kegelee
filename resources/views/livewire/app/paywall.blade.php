@@ -1,6 +1,8 @@
 <div class="min-h-[100dvh] pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]">
+    @php($subscribed = auth()->user()?->isSubscribed())
     <header class="relative flex items-center justify-center px-5 py-4">
-        <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+        {{-- Subscribed users return to the app; everyone else falls back to the free videos. --}}
+        <a href="{{ $subscribed ? route('home') : route('knowledge.index') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </a>
         <h1 class="text-xl font-bold">Go Premium</h1>
@@ -8,8 +10,17 @@
 
     <div class="px-6 pt-2 text-center">
         <h2 class="text-2xl font-bold leading-tight">Unlock the full programme</h2>
-        <p class="mt-2 text-muted">Every exercise, every level, detailed analytics.</p>
+        <p class="mt-2 text-muted">Every plan gives you full access to the entire app.</p>
     </div>
+
+    <ul class="mx-auto mt-5 max-w-xs space-y-2 px-6">
+        @foreach (['All exercises and difficulty levels', 'Detailed progress analytics', 'Reminders and scheduling', 'All future updates'] as $benefit)
+            <li class="flex items-center gap-2 text-sm">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-success" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                {{ $benefit }}
+            </li>
+        @endforeach
+    </ul>
 
     <div class="mt-6 space-y-3 px-4">
         @foreach ($plans as $plan)
@@ -46,16 +57,6 @@
                         @endif
                     </div>
                 </div>
-                @if ($plan->features)
-                    <ul class="mt-3 space-y-1">
-                        @foreach ($plan->features as $feature)
-                            <li class="flex items-center gap-2 text-sm text-muted">
-                                <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-success" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
-                                {{ $feature }}
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
                 @if ($plan->trial_days && ! $isFree)
                     <p class="mt-2 text-xs font-semibold text-success">{{ $plan->trial_days }}-day free trial</p>
                 @endif

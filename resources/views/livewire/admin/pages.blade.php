@@ -42,9 +42,9 @@
                 </div>
             </div>
 
-            <div>
-                <label class="mb-1 block text-sm text-muted">Content (HTML allowed)</label>
-                <textarea wire:model="content" rows="12" class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-sm focus:border-accent focus:outline-none"></textarea>
+            <div wire:key="page-content-{{ $editingId ?? 'new' }}">
+                <label class="mb-1 block text-sm text-muted">Content</label>
+                <x-wysiwyg model="content" placeholder="Write the page content..." />
             </div>
 
             <div class="flex items-center justify-between">

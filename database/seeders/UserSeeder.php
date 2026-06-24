@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Level;
 use App\Models\Measurement;
+use App\Models\Plan;
+use App\Models\Subscription;
 use App\Models\TrainingDay;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -58,5 +60,22 @@ class UserSeeder extends Seeder
         $demo->measurements()->delete();
         Measurement::create(['user_id' => $demo->id, 'seconds' => 3, 'measured_at' => Carbon::today()->subDays(7)]);
         Measurement::create(['user_id' => $demo->id, 'seconds' => 4, 'measured_at' => Carbon::today()]);
+
+        // The app now requires an active subscription, so give the demo user one
+        // to keep the seeded walkthrough fully accessible.
+        $plan = Plan::where('is_active', true)->where('is_featured', true)->first()
+            ?? Plan::where('is_active', true)->orderBy('sort_order')->first();
+
+        if ($plan) {
+            Subscription::updateOrCreate(
+                ['user_id' => $demo->id, 'plan_id' => $plan->id],
+                [
+                    'status' => 'active',
+                    'store' => 'manual',
+                    'started_at' => now(),
+                    'ends_at' => $plan->interval === 'lifetime' ? null : now()->addYear(),
+                ],
+            );
+        }
     }
 }

@@ -25,8 +25,7 @@
                         <input type="number" wire:model="rows.{{ $i }}.trial_days" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none"></div>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="mb-1 block text-sm text-muted">Features (one per line)</label>
-                    <textarea wire:model="rows.{{ $i }}.features" rows="3" class="w-full rounded-lg border border-white/10 bg-surface-2 px-2 py-2 focus:border-accent focus:outline-none"></textarea>
+                    <p class="rounded-lg bg-surface-2 px-3 py-2 text-sm text-muted">Every plan grants full access to the entire app. There are no per-plan feature differences.</p>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm text-muted">Store product ID</label>

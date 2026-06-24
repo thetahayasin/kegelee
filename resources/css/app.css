@@ -249,6 +249,62 @@ label {
     animation: draw-tick 0.45s ease-out 0.8s both;
 }
 
+/* ---------------------------------------------------------------------------
+   Simple WYSIWYG editor (admin Pages)
+   A contenteditable surface with a small toolbar. These rules give the edited
+   HTML readable formatting inside the editor (headings, lists, links, quotes).
+--------------------------------------------------------------------------- */
+.wysiwyg-content:empty::before {
+    content: attr(data-placeholder);
+    color: var(--c-text-muted);
+    pointer-events: none;
+}
+.wysiwyg-content:focus {
+    outline: none;
+}
+.wysiwyg-content h1 { font-size: 1.5rem; font-weight: 700; margin: 0.6em 0 0.3em; }
+.wysiwyg-content h2 { font-size: 1.25rem; font-weight: 700; margin: 0.6em 0 0.3em; }
+.wysiwyg-content h3 { font-size: 1.1rem; font-weight: 600; margin: 0.6em 0 0.3em; }
+.wysiwyg-content p { margin: 0.5em 0; }
+.wysiwyg-content ul { list-style: disc; padding-left: 1.5em; margin: 0.5em 0; }
+.wysiwyg-content ol { list-style: decimal; padding-left: 1.5em; margin: 0.5em 0; }
+.wysiwyg-content a { color: var(--c-accent); text-decoration: underline; }
+.wysiwyg-content blockquote {
+    border-left: 3px solid var(--c-accent);
+    padding-left: 0.75em;
+    margin: 0.5em 0;
+    opacity: 0.85;
+}
+.wysiwyg-toolbar button {
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    display: inline-grid;
+    place-items: center;
+    color: var(--c-text);
+}
+.wysiwyg-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Public content pages render the same WYSIWYG HTML, so mirror the formatting. */
+.prose-page h1 { font-size: 1.5rem; font-weight: 700; margin: 0.8em 0 0.4em; color: var(--c-text); }
+.prose-page h2 { font-size: 1.25rem; font-weight: 700; margin: 0.8em 0 0.4em; color: var(--c-text); }
+.prose-page h3 { font-size: 1.1rem; font-weight: 600; margin: 0.8em 0 0.4em; color: var(--c-text); }
+.prose-page p { margin: 0.6em 0; }
+.prose-page ul { list-style: disc; padding-left: 1.5em; margin: 0.6em 0; }
+.prose-page ol { list-style: decimal; padding-left: 1.5em; margin: 0.6em 0; }
+.prose-page a { color: var(--c-accent); text-decoration: underline; }
+.prose-page blockquote {
+    border-left: 3px solid var(--c-accent);
+    padding-left: 0.75em;
+    margin: 0.6em 0;
+    opacity: 0.85;
+}
+
 /* Today's day cell fills with accent then the tick draws in. */
 @keyframes day-fill {
     0% { background-color: transparent; }
