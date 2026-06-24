@@ -84,6 +84,34 @@ class SettingsService
             'google_play_package_name' => 'com.kegeltrainer.app',
             'google_play_service_account_json' => '',
 
+            // Public homepage
+            'homepage_enabled' => true,
+            'home_badge_text' => '#1 Pelvic Floor Training App',
+            'home_headline' => 'A Stronger Pelvic Floor Starts Here',
+            'home_subheadline' => 'Science-backed Kegel training with guided exercises, real-time coaching, and daily progress tracking — all in one beautiful app.',
+            'home_cta_primary' => 'Start Free Today',
+            'home_cta_secondary' => 'See how it works',
+            'home_stats' => [
+                ['value' => '50 K+', 'label' => 'Active users'],
+                ['value' => '1 M+', 'label' => 'Sessions completed'],
+                ['value' => '4.9', 'label' => 'App Store rating'],
+                ['value' => '30 days', 'label' => 'Average to feel results'],
+            ],
+            'home_features' => [
+                ['icon' => 'target', 'title' => 'Personalised programmes', 'desc' => 'Six difficulty levels that adapt as you improve. Every session is built for where you are today.'],
+                ['icon' => 'activity', 'title' => 'Real-time coaching', 'desc' => 'The animated circle guides every contraction and relax phase so you never have to guess.'],
+                ['icon' => 'trending-up', 'title' => 'Progress tracking', 'desc' => 'Charts, endurance measurements and streaks keep you motivated over the full 30-day plan.'],
+                ['icon' => 'bell', 'title' => 'Smart reminders', 'desc' => 'Custom reminder schedules with calendar sync make it easy to build a lasting daily habit.'],
+                ['icon' => 'book-open', 'title' => 'Knowledge library', 'desc' => 'Understand the science behind pelvic health with curated lessons from leading physios.'],
+                ['icon' => 'shield', 'title' => 'Private by design', 'desc' => 'Your data stays on your device. No account required to start. No ads. Ever.'],
+            ],
+            'home_steps' => [
+                ['number' => '01', 'title' => 'Choose your level', 'desc' => 'Answer a few quick questions and we match you to the right starting intensity.'],
+                ['number' => '02', 'title' => 'Follow the circle', 'desc' => 'The animated ring tells you exactly when to squeeze and when to relax — no guessing.'],
+                ['number' => '03', 'title' => 'Track your gains', 'desc' => 'Daily streaks, endurance tests and progress charts show you how far you\'ve come.'],
+            ],
+            'home_footer_tagline' => 'Built for people who take pelvic health seriously.',
+
             // SEO
             'seo_title' => 'Kegel Trainer - Pelvic Floor Exercises',
             'seo_description' => 'Strengthen your pelvic floor muscles with guided Kegel exercises, daily training plans and progress tracking.',

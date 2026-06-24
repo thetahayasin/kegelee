@@ -11,7 +11,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -180,6 +180,62 @@
                     (e.g. <code class="text-content">premium_monthly</code>).
                     Plans without a product ID fall back to the manual subscription flow.
                 </p>
+            </div>
+        </div>
+
+        {{-- HOMEPAGE --}}
+        <div x-show="tab === 'homepage'" class="space-y-4 rounded-2xl bg-surface p-5">
+            <label class="flex items-center gap-3">
+                <input type="checkbox" wire:model="values.homepage_enabled" class="h-5 w-5 accent-[var(--c-accent)]">
+                <span>Show public marketing homepage at <code class="text-content">/</code></span>
+            </label>
+            <p class="text-sm text-muted">When disabled, visitors are redirected to the onboarding screen instead.</p>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Badge text</label>
+                    <input wire:model="values.home_badge_text" placeholder="#1 Kegel App" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Footer tagline</label>
+                    <input wire:model="values.home_footer_tagline" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm text-muted">Hero headline</label>
+                    <input wire:model="values.home_headline" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm text-muted">Hero sub-headline</label>
+                    <textarea wire:model="values.home_subheadline" rows="2" class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 focus:border-accent focus:outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Primary CTA button</label>
+                    <input wire:model="values.home_cta_primary" placeholder="Start Free Today" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Secondary CTA button</label>
+                    <input wire:model="values.home_cta_secondary" placeholder="See how it works" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm text-muted">Stats <span class="text-xs">(JSON array of {value, label})</span></label>
+                <textarea wire:model="values.home_stats" rows="6"
+                          class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs focus:border-accent focus:outline-none"
+                          placeholder='[{"value":"50K+","label":"Active users"},{"value":"1M+","label":"Sessions completed"}]'></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm text-muted">Features <span class="text-xs">(JSON array of {icon, title, desc})</span></label>
+                <p class="mb-1 text-xs text-muted">Icon options: target, activity, trending-up, bell, book-open, shield, heart, zap, star, lock</p>
+                <textarea wire:model="values.home_features" rows="8"
+                          class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs focus:border-accent focus:outline-none"></textarea>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm text-muted">How it works steps <span class="text-xs">(JSON array of {number, title, desc})</span></label>
+                <textarea wire:model="values.home_steps" rows="6"
+                          class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs focus:border-accent focus:outline-none"></textarea>
             </div>
         </div>
 

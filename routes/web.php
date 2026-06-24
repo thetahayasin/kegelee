@@ -7,6 +7,7 @@ use App\Livewire\Admin;
 use App\Livewire\App;
 use App\Livewire\Auth;
 use App\Models\User;
+use App\Services\SettingsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,24 @@ use Illuminate\Support\Facades\Route;
 Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handle'])
     ->name('webhooks.google-play')
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+/*
+|--------------------------------------------------------------------------
+| Public marketing homepage — shown at / when homepage_enabled is true.
+| Authenticated users are bounced straight to the app.
+|--------------------------------------------------------------------------
+*/
+Route::get('/', function (SettingsService $settings) {
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+
+    if (! $settings->get('homepage_enabled', true)) {
+        return redirect()->route('onboarding');
+    }
+
+    return view('landing');
+})->name('landing');
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +71,7 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-    Route::get('/', App\Home::class)->name('home');
+    Route::get('/app', App\Home::class)->name('home');
 
     Route::get('/exercises', App\Exercises\Index::class)->name('exercises.index');
     Route::get('/exercises/{exercise:slug}', App\Exercises\Show::class)->name('exercises.show');

@@ -45,6 +45,10 @@ class Settings extends Component
         'mail_port' => 'int', 'google_login_enabled' => 'bool',
         'google_play_enabled' => 'bool',
         'google_play_service_account_json' => 'html',
+        'homepage_enabled' => 'bool',
+        'home_stats' => 'json',
+        'home_features' => 'json',
+        'home_steps' => 'json',
     ];
 
     public function mount(SettingsService $settings): void
@@ -83,6 +87,16 @@ class Settings extends Component
             'google_play_enabled' => 'google_play',
             'google_play_package_name' => 'google_play',
             'google_play_service_account_json' => 'google_play',
+            'homepage_enabled' => 'homepage',
+            'home_badge_text' => 'homepage',
+            'home_headline' => 'homepage',
+            'home_subheadline' => 'homepage',
+            'home_cta_primary' => 'homepage',
+            'home_cta_secondary' => 'homepage',
+            'home_stats' => 'homepage',
+            'home_features' => 'homepage',
+            'home_steps' => 'homepage',
+            'home_footer_tagline' => 'homepage',
         ];
 
         foreach ($this->values as $key => $value) {

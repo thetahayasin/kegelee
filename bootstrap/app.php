@@ -18,11 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
 
-        // Guests hitting the app land on the onboarding intro (which leads to
-        // sign up / log in). Admin routes redirect to the admin login instead.
+        // Guests hitting the app land on the public homepage (or onboarding when
+        // the homepage is disabled). Admin routes redirect to the admin login.
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin*')
             ? route('admin.login')
-            : route('onboarding'));
+            : route('landing'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
