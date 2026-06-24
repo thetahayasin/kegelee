@@ -130,15 +130,14 @@ class Onboarding extends Component
         $this->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8',
         ]);
 
         $user = \App\Models\User::create([
-            'name' => $this->name,
+            'name' => trim($this->name),
             'email' => strtolower($this->email),
             'password' => \Illuminate\Support\Facades\Hash::make($this->password),
             'level_id' => \App\Models\Level::where('is_active', true)->orderBy('number')->value('id'),
-            'onboarded_at' => now(),
         ]);
 
         \App\Services\CodeSender::send($user->email, 'verify');

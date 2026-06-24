@@ -11,13 +11,14 @@ class ChangePassword extends Component
 {
     public string $current = '';
     public string $password = '';
+    public string $password_confirmation = '';
     public bool $saved = false;
 
     public function update()
     {
         $this->validate([
             'current' => 'required',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = auth()->user();
@@ -28,7 +29,7 @@ class ChangePassword extends Component
         }
 
         $user->update(['password' => Hash::make($this->password)]);
-        $this->reset(['current', 'password']);
+        $this->reset(['current', 'password', 'password_confirmation']);
         $this->saved = true;
     }
 

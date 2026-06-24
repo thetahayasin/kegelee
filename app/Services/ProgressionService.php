@@ -19,6 +19,9 @@ use Illuminate\Support\Carbon;
  */
 class ProgressionService
 {
+    /** Per-request memoization cache keyed by user ID. */
+    private array $completedDaysCache = [];
+
     public function __construct(private readonly SettingsService $settings)
     {
     }
@@ -35,10 +38,11 @@ class ProgressionService
             ?? (int) $this->settings->get('plan_length_days', 30);
     }
 
-    /** Total fully completed training days for the user. */
+    /** Total fully completed training days for the user (memoized per request). */
     public function completedDays(User $user): int
     {
-        return $user->trainingDays()->whereNotNull('completed_at')->count();
+        return $this->completedDaysCache[$user->id] ??=
+            $user->trainingDays()->whereNotNull('completed_at')->count();
     }
 
     /** 1-based day the user is currently working on, capped at the plan length. */

@@ -24,9 +24,9 @@ class ResetPassword extends Component
     public function submit()
     {
         $this->validate([
-            'email' => 'required|email',
+            'email' => 'required|email|max:190',
             'code' => 'required|digits:6',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8',
         ]);
 
         $email = strtolower($this->email);

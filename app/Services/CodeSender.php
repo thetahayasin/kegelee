@@ -17,7 +17,7 @@ class CodeSender
         $settings = app(SettingsService::class);
 
         try {
-            Mail::to($email)->send(new CodeMail(
+            Mail::to($email)->queue(new CodeMail(
                 code: $code->code,
                 purpose: $purpose,
                 appName: $settings->get('app_name', 'App'),

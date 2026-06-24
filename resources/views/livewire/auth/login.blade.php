@@ -17,7 +17,10 @@
         <div class="flex justify-end">
             <a href="{{ route('password.forgot') }}" wire:navigate class="text-sm text-muted tap">Forgot password?</a>
         </div>
-        <button type="submit" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap">Log in</button>
+        <button type="submit" wire:loading.attr="disabled" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap disabled:opacity-60">
+            <span wire:loading.remove>Log in</span>
+            <span wire:loading><svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg></span>
+        </button>
     </form>
 
     @if ($googleEnabled)

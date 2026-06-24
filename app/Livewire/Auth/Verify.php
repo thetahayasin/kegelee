@@ -6,6 +6,7 @@ use App\Models\EmailCode;
 use App\Models\User;
 use App\Services\CodeSender;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -48,6 +49,12 @@ class Verify extends Component
 
     public function resend(): void
     {
+        $key = 'resend:'.$this->email;
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+            return;
+        }
+        RateLimiter::hit($key, 300);
+
         CodeSender::send($this->email, 'verify');
         $this->resent = true;
     }

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'kegel-v1';
+const CACHE_NAME = 'kegel-v2';
 
 const PRECACHE = [
-    '/',
+    '/app',
 ];
 
 self.addEventListener('install', (e) => {
@@ -58,7 +58,7 @@ self.addEventListener('fetch', (e) => {
                     }
                     return resp;
                 })
-                .catch(() => caches.match(e.request).then(c => c || caches.match('/')))
+                .catch(() => caches.match(e.request).then(c => c || caches.match('/app')))
         );
         return;
     }

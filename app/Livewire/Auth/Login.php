@@ -7,6 +7,7 @@ use App\Services\CodeSender;
 use App\Services\SettingsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -27,17 +28,27 @@ class Login extends Component
 
     public function login()
     {
+        $key = 'login:'.strtolower($this->email).':'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            $this->addError('email', "Too many attempts. Try again in {$seconds} seconds.");
+            return;
+        }
+
         $this->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => 'required|email|max:190',
+            'password' => 'required|string|max:255',
         ]);
 
         $user = User::where('email', strtolower($this->email))->first();
 
         if (! $user || ! $user->password || ! Hash::check($this->password, $user->password)) {
+            RateLimiter::hit($key, 300);
             $this->addError('email', 'These credentials do not match our records.');
             return;
         }
+
+        RateLimiter::clear($key);
 
         // Unverified accounts must confirm the emailed code first.
         if (! $user->email_verified_at) {

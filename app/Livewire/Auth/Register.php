@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\CodeSender;
 use App\Services\SettingsService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -16,6 +17,7 @@ class Register extends Component
     public string $name = '';
     public string $email = '';
     public string $password = '';
+    public string $password_confirmation = '';
 
     public function mount()
     {
@@ -27,18 +29,25 @@ class Register extends Component
 
     public function register()
     {
+        $key = 'register:'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            $this->addError('email', "Too many attempts. Try again in {$seconds} seconds.");
+            return;
+        }
+        RateLimiter::hit($key, 900);
+
         $this->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name' => $this->name,
+            'name' => trim($this->name),
             'email' => strtolower($this->email),
             'password' => Hash::make($this->password),
             'level_id' => Level::where('is_active', true)->orderBy('number')->value('id'),
-            'onboarded_at' => now(),
         ]);
 
         CodeSender::send($user->email, 'verify');

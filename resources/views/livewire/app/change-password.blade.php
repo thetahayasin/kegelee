@@ -16,10 +16,17 @@
             @error('current') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
         </div>
         <div>
-            <input wire:model="password" type="password" placeholder="New password" autocomplete="new-password"
+            <input wire:model="password" type="password" placeholder="New password (min. 8 characters)" autocomplete="new-password"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
             @error('password') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
         </div>
-        <button type="submit" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap">Update password</button>
+        <div>
+            <input wire:model="password_confirmation" type="password" placeholder="Confirm new password" autocomplete="new-password"
+                   class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
+        </div>
+        <button type="submit" wire:loading.attr="disabled" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap disabled:opacity-60">
+            <span wire:loading.remove>Update password</span>
+            <span wire:loading><svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg></span>
+        </button>
     </form>
 </div>
