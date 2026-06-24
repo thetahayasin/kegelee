@@ -72,6 +72,8 @@ body {
 .app-watermark {
     position: fixed;
     inset: 0;
+    /* Pin to large viewport so keyboard open/close never resizes this layer. */
+    height: 100lvh;
     max-width: 440px;
     margin-inline: auto;
     z-index: 0;
@@ -86,7 +88,8 @@ body {
     transform: translateY(-50%);
     writing-mode: vertical-rl;
     font-weight: 900;
-    font-size: 21.5vh;
+    /* lvh = large viewport height — stays constant while keyboard is open. */
+    font-size: 21.5lvh;
     letter-spacing: -0.06em;
     text-transform: uppercase;
     white-space: nowrap;
