@@ -77,9 +77,21 @@
 
     <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         @php($selectedIsFree = $selectedPlan && Plan::find($selectedPlan)?->price <= 0)
-        <button wire:click="subscribe({{ $selectedPlan }})" @disabled(! $selectedPlan)
-                class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap disabled:opacity-50">
-            {{ $selectedIsFree ? 'Continue with Free' : 'Start now' }}
+        <button wire:click="subscribe({{ $selectedPlan }})" @disabled(! $selectedPlan || $purchasing)
+                class="relative grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap disabled:opacity-50">
+            @if ($purchasing)
+                <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                </svg>
+            @else
+                {{ $selectedIsFree ? 'Continue with Free' : 'Start now' }}
+            @endif
         </button>
+        @if (! $selectedIsFree && ! $purchasing)
+            <p class="mt-2 text-center text-xs text-muted">
+                Billed via Google Play &bull; Cancel anytime
+            </p>
+        @endif
     </div>
 </div>

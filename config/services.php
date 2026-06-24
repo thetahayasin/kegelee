@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'google_play' => [
+        // Your app's package name as registered on the Play Console
+        'package_name' => env('GOOGLE_PLAY_PACKAGE_NAME', 'com.kegeltrainer.app'),
+        // Full JSON content of your Google service account key file
+        'service_account_json' => env('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON'),
+    ],
+
 ];

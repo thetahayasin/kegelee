@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\GooglePlayWebhookController;
 use App\Http\Controllers\ReminderIcsController;
 use App\Livewire\Admin;
 use App\Livewire\App;
@@ -8,6 +9,16 @@ use App\Livewire\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Google Play Real-Time Developer Notifications (RTDN)
+| Pub/Sub pushes to this endpoint; no CSRF / auth needed.
+|--------------------------------------------------------------------------
+*/
+Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handle'])
+    ->name('webhooks.google-play')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 /*
 |--------------------------------------------------------------------------

@@ -36,4 +36,9 @@ class Subscription extends Model
         return in_array($this->status, ['trialing', 'active'], true)
             && (! $this->ends_at || $this->ends_at->isFuture());
     }
+
+    public function isGooglePlay(): bool
+    {
+        return $this->store === 'google_play';
+    }
 }

@@ -121,3 +121,29 @@ function showToast(msg) {
 }
 
 window.showToast = showToast;
+
+// ---------------------------------------------------------------------------
+// Google Play Billing bridge
+// NativePHP Mobile dispatches billing results as custom DOM events.
+// We forward them to Livewire so the Paywall component can react.
+// ---------------------------------------------------------------------------
+(function () {
+    const map = {
+        // NativePHP Mobile v3 event name → Livewire event name
+        'native:billing.purchaseCompleted':   'native:InAppPurchase.purchaseCompleted',
+        'native:billing.purchaseFailed':      'native:InAppPurchase.purchaseFailed',
+        'native:billing.purchaseCancelled':   'native:InAppPurchase.purchaseCancelled',
+        // Also handle alternative casing emitted by some versions
+        'native:InAppPurchase.PurchaseCompleted':  'native:InAppPurchase.purchaseCompleted',
+        'native:InAppPurchase.PurchaseFailed':     'native:InAppPurchase.purchaseFailed',
+        'native:InAppPurchase.PurchaseCancelled':  'native:InAppPurchase.purchaseCancelled',
+    };
+
+    Object.entries(map).forEach(([domEvent, livewireEvent]) => {
+        document.addEventListener(domEvent, (e) => {
+            if (window.Livewire) {
+                Livewire.dispatch(livewireEvent, e.detail ?? {});
+            }
+        });
+    });
+}());
