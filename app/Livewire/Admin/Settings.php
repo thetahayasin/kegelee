@@ -43,6 +43,8 @@ class Settings extends Component
         'color_bg' => 'color', 'color_surface' => 'color', 'color_surface_2' => 'color',
         'color_text' => 'color', 'color_text_muted' => 'color', 'circle_glow_color' => 'color',
         'mail_port' => 'int', 'google_login_enabled' => 'bool',
+        'google_play_enabled' => 'bool',
+        'google_play_service_account_json' => 'html',
     ];
 
     public function mount(SettingsService $settings): void
@@ -78,6 +80,9 @@ class Settings extends Component
             'app_name' => 'branding', 'app_tagline' => 'branding', 'logo_path' => 'branding',
             'favicon_path' => 'branding', 'home_hero_image' => 'branding',
             'seo_og_image' => 'seo',
+            'google_play_enabled' => 'google_play',
+            'google_play_package_name' => 'google_play',
+            'google_play_service_account_json' => 'google_play',
         ];
 
         foreach ($this->values as $key => $value) {

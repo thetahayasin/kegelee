@@ -11,11 +11,15 @@ class GooglePlayBillingService
     private string $packageName;
     private array $serviceAccount;
 
-    public function __construct()
+    public function __construct(SettingsService $settings)
     {
-        $this->packageName = config('services.google_play.package_name');
-        $raw = config('services.google_play.service_account_json', '{}');
-        $this->serviceAccount = is_array($raw) ? $raw : (json_decode($raw, true) ?? []);
+        $this->packageName = $settings->get('google_play_package_name')
+            ?: config('services.google_play.package_name', '');
+
+        $raw = $settings->get('google_play_service_account_json')
+            ?: config('services.google_play.service_account_json', '{}');
+
+        $this->serviceAccount = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?? []);
     }
 
     /**

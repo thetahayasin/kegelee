@@ -79,6 +79,11 @@ class SettingsService
             'google_client_id' => '',
             'google_client_secret' => '',
 
+            // Google Play Billing
+            'google_play_enabled' => false,
+            'google_play_package_name' => 'com.kegeltrainer.app',
+            'google_play_service_account_json' => '',
+
             // SEO
             'seo_title' => 'Kegel Trainer - Pelvic Floor Exercises',
             'seo_description' => 'Strengthen your pelvic floor muscles with guided Kegel exercises, daily training plans and progress tracking.',

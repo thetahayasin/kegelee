@@ -11,7 +11,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -131,6 +131,56 @@
                 <input wire:model="values.google_client_id" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
             <div><label class="mb-1 block text-sm text-muted">Client secret</label>
                 <input type="password" wire:model="values.google_client_secret" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
+        </div>
+
+        {{-- GOOGLE PLAY BILLING --}}
+        <div x-show="tab === 'google_play'" class="space-y-4 rounded-2xl bg-surface p-5">
+            <label class="flex items-center gap-3">
+                <input type="checkbox" wire:model="values.google_play_enabled" class="h-5 w-5 accent-[var(--c-accent)]">
+                <span>Enable Google Play Billing</span>
+            </label>
+
+            <p class="text-sm text-muted">
+                Create a service account in
+                <strong class="text-content">Google Cloud Console</strong> with the
+                <em>Android Publisher</em> role, download its JSON key, and paste the full
+                contents below. Also add the service account email to your
+                <strong class="text-content">Play Console &rarr; Users &amp; permissions</strong>
+                with <em>View financial data</em> + <em>Manage orders</em> access.
+            </p>
+
+            <div>
+                <label class="mb-1 block text-sm text-muted">Android package name</label>
+                <input wire:model="values.google_play_package_name"
+                       placeholder="com.yourapp.id"
+                       class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">Must match the Application ID in your Play Console listing.</p>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm text-muted">Service account JSON key</label>
+                <textarea wire:model="values.google_play_service_account_json"
+                          rows="10"
+                          placeholder='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"-----BEGIN RSA PRIVATE KEY-----\n...","client_email":"...@....iam.gserviceaccount.com",...}'
+                          class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs leading-relaxed focus:border-accent focus:outline-none"></textarea>
+                <p class="mt-1 text-xs text-muted">Paste the full contents of the downloaded <code>.json</code> key file. Stored encrypted at rest — never exposed to the app.</p>
+            </div>
+
+            <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
+                <p class="font-semibold text-content">Pub/Sub webhook URL</p>
+                <p class="mt-1 font-mono text-xs break-all">{{ url('/webhooks/google-play') }}</p>
+                <p class="mt-2">Configure this as the push endpoint in your Google Cloud Pub/Sub subscription so Play sends real-time renewal and cancellation events.</p>
+            </div>
+
+            <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
+                <p class="font-semibold text-content">Per-plan product IDs</p>
+                <p class="mt-1">Set each plan's <em>Store product ID</em> in
+                    <a href="{{ route('admin.plans') }}" class="text-accent underline">Admin &rarr; Plans</a>
+                    to match the subscription product ID in your Play Console
+                    (e.g. <code class="text-content">premium_monthly</code>).
+                    Plans without a product ID fall back to the manual subscription flow.
+                </p>
+            </div>
         </div>
 
         {{-- SEO --}}

@@ -6,6 +6,7 @@ use App\Models\Discount;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\GooglePlayBillingService;
+use App\Services\SettingsService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
@@ -63,8 +64,9 @@ class Paywall extends Component
             return;
         }
 
-        // Route to Google Play billing when the plan has a Play Store product ID
-        if (! empty($plan->store_product_id)) {
+        // Route to Google Play billing when enabled in admin and the plan has a product ID
+        $gpEnabled = app(SettingsService::class)->get('google_play_enabled', false);
+        if ($gpEnabled && ! empty($plan->store_product_id)) {
             $this->initiateGooglePlayPurchase($plan);
 
             return;
