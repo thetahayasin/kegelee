@@ -28,15 +28,18 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 |--------------------------------------------------------------------------
 */
 Route::get('/', function (SettingsService $settings) {
-    if (auth()->check()) {
+    // When a public marketing homepage is enabled, always show it —
+    // authenticated users navigate to the app via the "Open App" link.
+    if ($settings->get('homepage_enabled', true)) {
+        return view('landing');
+    }
+
+    // Homepage disabled (native-app / no-marketing mode).
+    if (auth()->check() && auth()->user()->onboarded_at) {
         return redirect()->route('home');
     }
 
-    if (! $settings->get('homepage_enabled', true)) {
-        return redirect()->route('onboarding');
-    }
-
-    return view('landing');
+    return redirect()->route('onboarding');
 })->name('landing');
 
 /*

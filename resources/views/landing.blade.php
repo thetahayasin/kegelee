@@ -197,14 +197,22 @@
             @endif
         </a>
         <div class="flex items-center gap-3">
-            <a href="{{ route('login') }}"
-               class="hidden sm:inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium text-muted-c hover:text-white transition-colors">
-                Sign in
-            </a>
-            <a href="{{ route('register') }}"
-               class="inline-flex items-center rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
-                {{ $ctaPrimary }}
-            </a>
+            @auth
+                <a href="{{ route('home') }}"
+                   class="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
+                    Open App
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+            @else
+                <a href="{{ route('login') }}"
+                   class="hidden sm:inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium text-muted-c hover:text-white transition-colors">
+                    Sign in
+                </a>
+                <a href="{{ route('register') }}"
+                   class="inline-flex items-center rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
+                    {{ $ctaPrimary }}
+                </a>
+            @endauth
         </div>
     </div>
 </nav>
