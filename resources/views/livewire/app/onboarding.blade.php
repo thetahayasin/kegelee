@@ -1,6 +1,6 @@
 <div class="min-h-[100dvh] flex flex-col px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
      x-data="{
-         index: @entangle('index'),
+         index: @entangle('index').live,
          slides: [],
          async init() {
              this.slides = [
