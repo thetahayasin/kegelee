@@ -52,6 +52,12 @@
             </div>
         @empty
             <p class="px-2 py-10 text-center text-muted">No lessons yet.</p>
+            @if (!empty($syncStatus))
+                <div class="mt-4 rounded-xl border border-white/10 bg-surface p-3 text-left text-[11px] leading-relaxed text-muted">
+                    <p class="mb-2 font-bold text-content">Sync diagnostics</p>
+                    <pre class="whitespace-pre-wrap break-all">{{ json_encode($syncStatus, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                </div>
+            @endif
         @endforelse
     </div>
 </div>
