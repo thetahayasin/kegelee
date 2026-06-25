@@ -11,22 +11,35 @@
 
     {{-- TikTok style full-screen Video --}}
     <div class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"
-         x-data="{ maxTime: 0 }">
+         x-data="{ maxTime: 0, videoError: false }">
         @if ($lesson->hasVideo())
-            <video src="{{ $lesson->videoSrc() }}" 
-                   class="w-full h-full object-cover cursor-pointer" 
+            <video src="{{ $lesson->videoSrc() }}"
+                   class="w-full h-full object-cover cursor-pointer"
+                   x-show="!videoError"
                    autoplay
                    playsinline
                    x-ref="player"
                    @play="paused = false"
                    @pause="paused = true"
                    @click="$refs.player.paused ? $refs.player.play() : $refs.player.pause()"
+                   x-on:error="videoError = true"
                    x-on:ended="finished = true; $wire.markDone()"
                    @if (!auth()->check())
                    x-on:timeupdate="if (!finished && $el.currentTime > maxTime + 1.5) { $el.currentTime = maxTime; } else { maxTime = Math.max(maxTime, $el.currentTime); }"
                    @endif></video>
 
-            <div x-show="paused" 
+            {{-- Videos are online-only — show a friendly prompt if it can't load. --}}
+            <div x-show="videoError" x-cloak class="absolute inset-0 z-10 grid place-items-center gap-3 px-8 text-center">
+                <div class="grid gap-2 justify-items-center">
+                    <svg viewBox="0 0 24 24" class="h-14 w-14 text-muted" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.58 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+                    <p class="text-lg font-bold">Connect to the internet</p>
+                    <p class="max-w-xs text-sm text-muted">Lessons stream online. Reconnect to watch this video.</p>
+                    <button @click="videoError = false; $nextTick(() => $refs.player.load())"
+                            class="mt-2 rounded-xl bg-accent px-5 py-2 text-sm font-bold text-[var(--c-on-accent)] tap">Retry</button>
+                </div>
+            </div>
+
+            <div x-show="paused && !videoError"
                  x-transition.opacity
                  @click="$refs.player.play()"
                  class="absolute inset-0 z-10 grid place-items-center bg-black/20 pointer-events-auto cursor-pointer">

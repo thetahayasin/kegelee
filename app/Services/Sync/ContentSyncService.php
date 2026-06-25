@@ -10,6 +10,7 @@ use App\Models\OnboardingSlide;
 use App\Services\SettingsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Pulls the content catalogue (exercises, levels, onboarding, knowledge lessons
@@ -24,8 +25,26 @@ class ContentSyncService
     /** Last pull outcome, for on-device diagnostics. */
     public array $report = ['ran' => false];
 
+    /** @var array<string, array<int, string>> table => column names */
+    private array $columnCache = [];
+
     public function __construct(private readonly SettingsService $settings)
     {
+    }
+
+    /**
+     * Keep only the keys that are real columns on the given table. The device's
+     * schema can differ from the backend's (e.g. exercises has no video_path),
+     * so writing an unknown column would throw and roll the whole pull back.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function fillable(string $table, array $data): array
+    {
+        $cols = $this->columnCache[$table] ??= Schema::getColumnListing($table);
+
+        return array_intersect_key($data, array_flip($cols));
     }
 
     /**
@@ -90,7 +109,7 @@ class ContentSyncService
                 continue;
             }
 
-            Exercise::updateOrCreate(['id' => $row['id']], [
+            Exercise::updateOrCreate(['id' => $row['id']], $this->fillable('exercises', [
                 'slug'               => $row['slug'] ?? null,
                 'name'               => $row['name'] ?? '',
                 'description'        => $row['description'] ?? null,
@@ -112,7 +131,7 @@ class ContentSyncService
                 // Store the absolute backend URL; the model accessors pass it through.
                 'icon_path'          => $row['icon_url'] ?? null,
                 'video_path'         => $row['video_url'] ?? null,
-            ]);
+            ]));
         }
     }
 
@@ -139,7 +158,7 @@ class ContentSyncService
                 continue;
             }
 
-            Level::updateOrCreate(['id' => $row['id']], [
+            Level::updateOrCreate(['id' => $row['id']], $this->fillable('levels', [
                 'number'                => $row['number'] ?? 1,
                 'name'                  => $row['name'] ?? '',
                 'description'           => $row['description'] ?? null,
@@ -149,7 +168,7 @@ class ContentSyncService
                 'days_to_complete'      => $row['days_to_complete'] ?? 30,
                 'sessions_per_day'      => $row['sessions_per_day'] ?? null,
                 'is_active'             => true,
-            ]);
+            ]));
         }
     }
 
@@ -161,7 +180,7 @@ class ContentSyncService
                 continue;
             }
 
-            OnboardingSlide::updateOrCreate(['id' => $row['id']], [
+            OnboardingSlide::updateOrCreate(['id' => $row['id']], $this->fillable('onboarding_slides', [
                 'title'      => $row['title'] ?? '',
                 'body'       => $row['body'] ?? null,
                 'icon'       => $row['icon'] ?? null,
@@ -169,7 +188,7 @@ class ContentSyncService
                 'media_path' => $row['media_url'] ?? null,
                 'sort_order' => $row['sort_order'] ?? 0,
                 'is_active'  => true,
-            ]);
+            ]));
         }
     }
 
@@ -181,7 +200,7 @@ class ContentSyncService
                 continue;
             }
 
-            KnowledgeLesson::updateOrCreate(['id' => $row['id']], [
+            KnowledgeLesson::updateOrCreate(['id' => $row['id']], $this->fillable('knowledge_lessons', [
                 'title'       => $row['title'] ?? '',
                 'description' => $row['description'] ?? null,
                 // The backend already resolved a streamable URL; store it directly
@@ -190,7 +209,7 @@ class ContentSyncService
                 'video_path'  => null,
                 'sort_order'  => $row['sort_order'] ?? 0,
                 'is_active'   => true,
-            ]);
+            ]));
         }
     }
 
