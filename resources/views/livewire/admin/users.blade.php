@@ -1,16 +1,24 @@
 <div x-data="{ showPwModal: false }">
-    <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Users</h1>
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold">Users</h1>
+            <p class="text-sm text-muted">Manage accounts, roles and progress.</p>
+        </div>
         @if ($statusMessage)
-            <span class="text-sm font-semibold text-success">{{ $statusMessage }}</span>
+            <span class="rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success">{{ $statusMessage }}</span>
         @endif
     </div>
 
-    <input wire:model.live.debounce.300ms="search" placeholder="Search name or email..."
-           class="mb-4 h-11 w-full max-w-sm rounded-xl border border-white/10 bg-surface px-4 focus:border-accent focus:outline-none">
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+        <div class="relative flex-1 min-w-56">
+            <svg viewBox="0 0 24 24" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input wire:model.live.debounce.300ms="search" placeholder="Search name or email…"
+                   class="h-10 w-full rounded-xl border border-white/10 bg-surface pl-9 pr-4 text-sm focus:border-accent focus:outline-none">
+        </div>
+    </div>
 
-    <div class="overflow-x-auto rounded-2xl bg-surface">
-        <table class="w-full text-sm">
+    <div class="overflow-x-auto rounded-2xl border border-white/5 bg-surface">
+        <table class="admin-table w-full text-sm">
             <thead class="text-left text-muted"><tr class="border-b border-white/5">
                 <th class="p-4 font-medium">User</th>
                 <th class="p-4 font-medium">Days</th>

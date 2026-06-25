@@ -1,6 +1,9 @@
 <div>
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-2xl font-bold">Subscriptions</h1>
+        <div>
+            <h1 class="text-2xl font-bold">Subscriptions</h1>
+            <p class="text-sm text-muted">Active subscriber records, billing status, and manual grants.</p>
+        </div>
         <button wire:click="openGrant" class="flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white tap">
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
             Grant subscription
@@ -41,7 +44,7 @@
     </div>
 
     {{-- Table --}}
-    <div class="overflow-hidden rounded-2xl bg-surface">
+    <div class="overflow-hidden rounded-2xl border border-white/5 bg-surface">
         <table class="w-full text-sm">
             <thead class="border-b border-white/5 text-left text-muted">
                 <tr>

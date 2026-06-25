@@ -1,75 +1,171 @@
-<div>
-    <h1 class="mb-6 text-2xl font-bold">Dashboard</h1>
+<div class="space-y-6">
 
-    {{-- Primary stats --}}
+    {{-- ─── Page header ──────────────────────────────────────────────────── --}}
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold">Dashboard</h1>
+            <p class="text-sm text-muted">{{ now()->format('l, j F Y') }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.subscriptions') }}"
+               class="flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold tap"
+               style="color:#042024">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                Grant sub
+            </a>
+        </div>
+    </div>
+
+    {{-- ─── Primary stats ─────────────────────────────────────────────────── --}}
+    @php
+        $statDefs = [
+            ['users',    'bg-blue-500/10',    'text-blue-400',    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+            ['activity', 'bg-accent/10',      'text-accent',      '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'],
+            ['trending', 'bg-purple-500/10',  'text-purple-400',  '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>'],
+            ['star',     'bg-success/10',     'text-success',     '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'],
+        ];
+    @endphp
+
     <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-        @foreach ($stats as $stat)
-            <div class="rounded-2xl bg-surface p-5">
-                <div class="flex items-center justify-between">
-                    <p class="text-3xl font-bold tabular-nums">{{ $stat['value'] }}</p>
-                    @if ($stat['icon'] === 'users')
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 text-muted" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                    @elseif ($stat['icon'] === 'activity')
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 text-muted" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    @elseif ($stat['icon'] === 'trending')
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 text-muted" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                    @elseif ($stat['icon'] === 'star')
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 text-muted" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    @endif
+        @foreach ($stats as $i => $stat)
+            @php([$key, $bgCls, $textCls, $svg] = $statDefs[$i])
+            <div class="stat-card">
+                <div class="mb-3 flex items-center justify-between">
+                    <div class="grid h-9 w-9 place-items-center rounded-xl {{ $bgCls }}">
+                        <svg viewBox="0 0 24 24" class="h-4 w-4 {{ $textCls }}" fill="none" stroke="currentColor" stroke-width="2">
+                            {!! $svg !!}
+                        </svg>
+                    </div>
                 </div>
-                <p class="mt-1 text-sm text-muted">{{ $stat['label'] }}</p>
+                <p class="text-3xl font-black tabular-nums">{{ number_format($stat['value']) }}</p>
+                <p class="mt-1 text-xs font-medium text-muted">{{ $stat['label'] }}</p>
             </div>
         @endforeach
     </div>
 
-    {{-- Secondary counts --}}
-    <div class="mt-4 grid grid-cols-4 gap-4">
+    {{-- ─── Secondary counts (content inventory) ─────────────────────────── --}}
+    <div class="grid grid-cols-4 gap-3">
+        @php
+            $secondaryLinks = [
+                'Exercises'  => 'admin.exercises',
+                'Levels'     => 'admin.levels',
+                'Knowledge'  => 'admin.knowledge',
+                'Plans'      => 'admin.plans',
+            ];
+        @endphp
         @foreach ($secondary as $label => $value)
-            <div class="rounded-xl bg-surface px-4 py-3 text-center">
-                <p class="text-lg font-bold tabular-nums">{{ $value }}</p>
-                <p class="text-xs text-muted">{{ $label }}</p>
-            </div>
+            <a href="{{ route($secondaryLinks[$label]) }}"
+               class="flex flex-col items-center justify-center gap-1 rounded-xl border border-white/5 bg-surface-2/60 py-4 text-center hover:border-accent/30 hover:bg-accent/5 transition-colors">
+                <span class="text-xl font-bold tabular-nums">{{ $value }}</span>
+                <span class="text-[11px] font-medium text-muted">{{ $label }}</span>
+            </a>
         @endforeach
     </div>
 
-    {{-- Chart --}}
-    <div class="mt-6 rounded-2xl bg-surface p-5">
-        <div class="mb-4 flex items-center justify-between">
-            <p class="font-semibold">Workout sessions</p>
-            <span class="text-xs text-muted">Last 14 days</span>
+    {{-- ─── Chart ──────────────────────────────────────────────────────────── --}}
+    <div class="rounded-2xl border border-white/5 bg-surface p-5">
+        <div class="mb-5 flex items-center justify-between">
+            <div>
+                <p class="font-semibold">Workout sessions</p>
+                <p class="text-xs text-muted">Last 14 days</p>
+            </div>
+            <span class="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                {{ number_format($chart->sum('value')) }} total
+            </span>
         </div>
-        <div class="flex h-40 items-end gap-1.5">
-            @foreach ($chart as $bar)
-                <div class="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
-                    <span class="text-[9px] font-medium text-muted tabular-nums">{{ $bar['value'] ?: '' }}</span>
-                    <div class="w-full rounded-t bg-accent/80 transition-all" style="height: {{ max(2, $bar['value'] / $chartMax * 100) }}%"></div>
-                    <span class="text-[10px] text-muted">{{ $bar['label'] }}</span>
-                </div>
-            @endforeach
+
+        {{-- Chart with grid lines --}}
+        <div class="relative">
+            {{-- Horizontal grid lines --}}
+            <div class="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none" style="padding-bottom:1.75rem">
+                @foreach ([1, 0.66, 0.33, 0] as $frac)
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 shrink-0 text-right text-[9px] text-muted tabular-nums">
+                            {{ $frac > 0 ? number_format(round($chartMax * $frac)) : '0' }}
+                        </span>
+                        <div class="flex-1 border-t border-white/5"></div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Bars --}}
+            <div class="relative ml-8 flex h-44 items-end gap-1">
+                @foreach ($chart as $bar)
+                    @php($pct = max(2, round($bar['value'] / $chartMax * 100)))
+                    <div class="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+                        <div class="relative w-full group">
+                            {{-- Tooltip --}}
+                            @if ($bar['value'])
+                                <div class="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    <div class="rounded-md bg-surface-2 border border-white/10 px-1.5 py-0.5 text-[9px] font-semibold whitespace-nowrap">
+                                        {{ $bar['value'] }}
+                                    </div>
+                                </div>
+                            @endif
+                            <div class="chart-bar w-full rounded-t"
+                                 style="height:{{ $pct }}%;background:linear-gradient(180deg,rgba(110,242,240,.9) 0%,rgba(110,242,240,.4) 100%)">
+                            </div>
+                        </div>
+                        <span class="text-[9px] text-muted tabular-nums">{{ $bar['label'] }}</span>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 
-    {{-- Recent users --}}
-    <div class="mt-6 rounded-2xl bg-surface p-5">
-        <div class="mb-4 flex items-center justify-between">
-            <p class="font-semibold">Recent users</p>
-            <a href="{{ route('admin.users') }}" class="text-xs font-medium text-accent hover:underline">View all</a>
-        </div>
-        @forelse ($recentUsers as $user)
-            <div class="flex items-center justify-between border-b border-white/5 py-2.5 last:border-0">
-                <div class="flex items-center gap-3">
-                    <div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface-2 text-xs font-bold text-muted">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium">{{ $user->name }}</p>
-                        <p class="text-xs text-muted">{{ $user->email }}</p>
-                    </div>
-                </div>
-                <span class="text-xs text-muted">{{ $user->created_at->diffForHumans() }}</span>
+    {{-- ─── Bottom two columns ─────────────────────────────────────────────── --}}
+    <div class="grid gap-6 lg:grid-cols-5">
+
+        {{-- Recent users (3/5) --}}
+        <div class="lg:col-span-3 rounded-2xl border border-white/5 bg-surface p-5">
+            <div class="mb-4 flex items-center justify-between">
+                <p class="font-semibold">Recent users</p>
+                <a href="{{ route('admin.users') }}"
+                   class="text-xs font-medium text-accent hover:underline">View all →</a>
             </div>
-        @empty
-            <p class="text-sm text-muted">No users yet.</p>
-        @endforelse
+            <div class="space-y-1">
+                @forelse ($recentUsers as $user)
+                    <div class="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-white/4 transition-colors">
+                        <div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent/15 text-xs font-bold text-accent">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-medium">{{ $user->name }}</p>
+                            <p class="truncate text-xs text-muted">{{ $user->email }}</p>
+                        </div>
+                        <span class="shrink-0 text-[11px] text-muted">{{ $user->created_at->diffForHumans(short: true) }}</span>
+                    </div>
+                @empty
+                    <p class="py-6 text-center text-sm text-muted">No users yet.</p>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Quick actions (2/5) --}}
+        <div class="lg:col-span-2 rounded-2xl border border-white/5 bg-surface p-5">
+            <p class="mb-4 font-semibold">Quick actions</p>
+            <div class="space-y-2">
+                @php($actions = [
+                    ['admin.exercises.create', 'New exercise', '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>'],
+                    ['admin.plans', 'Manage plans', '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
+                    ['admin.subscriptions', 'Subscriptions', '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'],
+                    ['admin.knowledge', 'Add knowledge', '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'],
+                    ['admin.users', 'All users', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],
+                    ['admin.settings', 'Settings', '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.74 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'],
+                ])
+                @foreach ($actions as [$route, $label, $svg])
+                    <a href="{{ route($route) }}"
+                       class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm hover:bg-white/5 transition-colors group">
+                        <div class="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-surface-2 group-hover:bg-accent/10 group-hover:text-accent transition-colors">
+                            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" stroke-width="1.8">
+                                {!! $svg !!}
+                            </svg>
+                        </div>
+                        <span class="font-medium">{{ $label }}</span>
+                        <svg viewBox="0 0 24 24" class="ml-auto h-3.5 w-3.5 text-muted opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                @endforeach
+            </div>
+        </div>
     </div>
 </div>

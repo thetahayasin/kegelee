@@ -18,6 +18,7 @@ class SettingSeeder extends Seeder
             'onboarding_enabled' => 'bool',
             'inject_head' => 'html', 'inject_body_start' => 'html',
             'inject_body_end' => 'html', 'custom_css' => 'html',
+            'home_stats' => 'json', 'home_features' => 'json', 'home_steps' => 'json',
         ];
         $groupMap = [
             'app_name' => 'branding', 'app_tagline' => 'branding', 'logo_path' => 'branding', 'favicon_path' => 'branding',

@@ -1,7 +1,14 @@
 <div>
-    <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Exercises</h1>
-        <a href="{{ route('admin.exercises.create') }}" class="rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white tap">New exercise</a>
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold">Exercises</h1>
+            <p class="text-sm text-muted">Library of training movements and their unlock progression.</p>
+        </div>
+        <a href="{{ route('admin.exercises.create') }}"
+           class="flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold tap" style="color:#042024">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            New exercise
+        </a>
     </div>
 
     {{-- Bulk actions bar --}}
@@ -13,8 +20,8 @@
         </div>
     @endif
 
-    <div class="overflow-hidden rounded-2xl bg-surface">
-        <table class="w-full text-sm">
+    <div class="overflow-hidden rounded-2xl border border-white/5 bg-surface">
+        <table class="admin-table w-full text-sm">
             <thead class="text-left text-muted">
                 <tr class="border-b border-white/5">
                     <th class="p-4 font-medium">

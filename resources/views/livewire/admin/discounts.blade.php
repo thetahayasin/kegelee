@@ -1,5 +1,8 @@
 <div>
-    <h1 class="mb-6 text-2xl font-bold">Discounts</h1>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold">Discounts</h1>
+        <p class="text-sm text-muted">Promo codes applied at checkout to reduce the subscription price.</p>
+    </div>
 
     <form wire:submit="create" class="mb-6 grid gap-3 rounded-2xl bg-surface p-5 md:grid-cols-3">
         <div>
@@ -33,7 +36,7 @@
         <button type="submit" class="rounded-xl bg-accent px-6 py-3 font-semibold text-white tap md:w-max">Create discount</button>
     </form>
 
-    <div class="overflow-hidden rounded-2xl bg-surface">
+    <div class="overflow-hidden rounded-2xl border border-white/5 bg-surface">
         <table class="w-full text-sm">
             <thead class="text-left text-muted"><tr class="border-b border-white/5">
                 <th class="p-4 font-medium">Code</th><th class="p-4 font-medium">Value</th>

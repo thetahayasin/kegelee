@@ -28,11 +28,18 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 |--------------------------------------------------------------------------
 */
 Route::get('/', function (SettingsService $settings) {
-    if (! $settings->get('homepage_enabled', true)) {
-        return redirect()->route('onboarding');
+    // When a public marketing homepage is enabled, always show it —
+    // authenticated users navigate to the app via the "Open App" link.
+    if ($settings->get('homepage_enabled', true)) {
+        return view('landing');
     }
 
-    return view('landing');
+    // Homepage disabled (native-app / no-marketing mode).
+    if (auth()->check() && auth()->user()->onboarded_at) {
+        return redirect()->route('home');
+    }
+
+    return redirect()->route('onboarding');
 })->name('landing');
 
 /*
@@ -67,24 +74,29 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-    Route::get('/app', App\Home::class)->name('home');
-
-    Route::get('/exercises', App\Exercises\Index::class)->name('exercises.index');
-    Route::get('/exercises/{exercise:slug}', App\Exercises\Show::class)->name('exercises.show');
-
-    Route::get('/session', App\Workout::class)->name('session');
-    Route::get('/workout/{exercise:slug}', App\Workout::class)->name('workout');
-
-
-    Route::get('/levels', App\Levels::class)->name('levels');
-    Route::get('/progress', App\ProgressTracker::class)->name('progress');
-    Route::get('/schedule', App\Schedule::class)->name('schedule');
-    Route::get('/reminders', App\Reminders::class)->name('reminders');
-    Route::get('/reminders/calendar.ics', [ReminderIcsController::class, 'download'])->name('reminders.ics');
+    // Account / subscription management stays reachable without an active sub,
+    // so users can subscribe, manage their account, or sign out.
     Route::get('/profile', App\Profile::class)->name('profile');
     Route::get('/settings', App\Settings::class)->name('app.settings');
     Route::get('/change-password', App\ChangePassword::class)->name('app.change-password');
     Route::get('/upgrade', App\Paywall::class)->name('paywall');
+
+    // The core training experience requires an active subscription.
+    Route::middleware('subscribed')->group(function () {
+        Route::get('/app', App\Home::class)->name('home');
+
+        Route::get('/exercises', App\Exercises\Index::class)->name('exercises.index');
+        Route::get('/exercises/{exercise:slug}', App\Exercises\Show::class)->name('exercises.show');
+
+        Route::get('/session', App\Workout::class)->name('session');
+        Route::get('/workout/{exercise:slug}', App\Workout::class)->name('workout');
+
+        Route::get('/levels', App\Levels::class)->name('levels');
+        Route::get('/progress', App\ProgressTracker::class)->name('progress');
+        Route::get('/schedule', App\Schedule::class)->name('schedule');
+        Route::get('/reminders', App\Reminders::class)->name('reminders');
+        Route::get('/reminders/calendar.ics', [ReminderIcsController::class, 'download'])->name('reminders.ics');
+    });
 });
 
 /*

@@ -1,15 +1,24 @@
 <div>
-    <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Plans</h1>
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold">Plans</h1>
+            <p class="text-sm text-muted">Subscription tiers available for purchase. Every plan grants full app access.</p>
+        </div>
         <div class="flex items-center gap-3">
-            @if ($savedMessage)<span class="text-sm font-semibold text-success">{{ $savedMessage }}</span>@endif
-            <button wire:click="addPlan" class="rounded-xl bg-surface px-4 py-2.5 text-sm font-semibold tap">Add plan</button>
+            @if ($savedMessage)
+                <span class="rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success">{{ $savedMessage }}</span>
+            @endif
+            <button wire:click="addPlan"
+                    class="flex items-center gap-1.5 rounded-xl border border-white/10 bg-surface px-4 py-2.5 text-sm font-semibold tap hover:border-accent/40 transition-colors">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Add plan
+            </button>
         </div>
     </div>
 
     <form wire:submit="save" class="space-y-4">
         @foreach ($rows as $i => $row)
-            <div wire:key="plan-{{ $row['id'] }}" class="grid gap-3 rounded-2xl bg-surface p-5 md:grid-cols-2">
+            <div wire:key="plan-{{ $row['id'] }}" class="grid gap-3 rounded-2xl border border-white/5 bg-surface p-5 md:grid-cols-2">
                 <div>
                     <label class="mb-1 block text-sm text-muted">Name</label>
                     <input wire:model="rows.{{ $i }}.name" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
@@ -25,8 +34,7 @@
                         <input type="number" wire:model="rows.{{ $i }}.trial_days" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none"></div>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="mb-1 block text-sm text-muted">Features (one per line)</label>
-                    <textarea wire:model="rows.{{ $i }}.features" rows="3" class="w-full rounded-lg border border-white/10 bg-surface-2 px-2 py-2 focus:border-accent focus:outline-none"></textarea>
+                    <p class="rounded-lg bg-surface-2 px-3 py-2 text-sm text-muted">Every plan grants full access to the entire app. There are no per-plan feature differences.</p>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm text-muted">Store product ID</label>

@@ -2,7 +2,7 @@
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold">Knowledge</h1>
-            <p class="text-sm text-muted">Sequential video lessons - users unlock each by finishing the one before.</p>
+            <p class="text-sm text-muted">Sequential video lessons — each unlocks when the previous one is finished.</p>
         </div>
         <div class="flex items-center gap-3">
             @if ($savedMessage)<span class="text-sm font-semibold text-success">{{ $savedMessage }}</span>@endif
