@@ -1,12 +1,5 @@
 @php
     $s = app(\App\Services\SettingsService::class);
-    $accentHex   = $s->get('color_accent',      '#E8202A');
-    $bgHex       = $s->get('color_bg',          '#0C0D11');
-    $surfaceHex  = $s->get('color_surface',      '#16181F');
-    $surface2Hex = $s->get('color_surface_2',    '#1E2128');
-    $textHex     = $s->get('color_text',         '#FFFFFF');
-    $mutedHex    = $s->get('color_text_muted',   '#8A8F98');
-    $successHex  = $s->get('color_success',      '#22C55E');
 
     $appName     = $s->get('app_name',           'Kegel Trainer');
     $headline    = $s->get('home_headline',      'A Stronger Pelvic Floor Starts Here');
@@ -97,16 +90,6 @@
     @endif
 
     <style>
-        :root {
-            --c-bg:       {{ $bgHex }};
-            --c-surface:  {{ $surfaceHex }};
-            --c-surface-2:{{ $surface2Hex }};
-            --c-accent:   {{ $accentHex }};
-            --c-text:     {{ $textHex }};
-            --c-muted:    {{ $mutedHex }};
-            --c-success:  {{ $successHex }};
-        }
-
         /* Neomorphism helpers */
         .neo-card {
             background: var(--c-surface);
@@ -130,22 +113,12 @@
         }
         .neo-glow {
             box-shadow:
-                0 0 24px rgba({{ hexdec(substr($accentHex,1,2)) }},{{ hexdec(substr($accentHex,3,2)) }},{{ hexdec(substr($accentHex,5,2)) }},.35),
+                0 0 24px color-mix(in srgb, var(--c-accent) 35%, transparent),
                 6px 6px 16px rgba(0,0,0,.55),
                 -4px -4px 10px rgba(255,255,255,.03);
         }
 
-        body {
-            background: var(--c-bg);
-            color: var(--c-text);
-            font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-        .text-accent  { color: var(--c-accent); }
-        .text-muted-c { color: var(--c-muted); }
-        .text-success { color: var(--c-success); }
-        .bg-accent    { background: var(--c-accent); }
-        .border-accent{ border-color: var(--c-accent); }
+        .text-muted-c { color: var(--c-text-muted); }
 
         /* Gradient text */
         .grad-text {
@@ -185,7 +158,7 @@
      NAV
 ============================================================ --}}
 <nav class="sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl"
-     style="background: rgba({{ hexdec(substr($bgHex,1,2)) }},{{ hexdec(substr($bgHex,3,2)) }},{{ hexdec(substr($bgHex,5,2)) }},.88)">
+     style="background: color-mix(in srgb, var(--c-bg) 88%, transparent)">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
         <a href="/" class="flex items-center gap-2.5 font-bold text-lg" aria-label="{{ $appName }} home">
             @if ($logo)
@@ -225,7 +198,7 @@
     <div class="relative mx-auto max-w-3xl">
         @if ($badge)
             <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/30 px-4 py-1.5 text-sm font-semibold text-accent"
-                 style="background: rgba({{ hexdec(substr($accentHex,1,2)) }},{{ hexdec(substr($accentHex,3,2)) }},{{ hexdec(substr($accentHex,5,2)) }},.1)">
+                 style="background: color-mix(in srgb, var(--c-accent) 10%, transparent)">
                 <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 {{ $badge }}
             </div>
