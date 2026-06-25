@@ -15,6 +15,13 @@ use Illuminate\Support\Facades\Http;
 class BackendClient
 {
     /**
+     * Bump this whenever the sync logic changes. It is surfaced in the on-device
+     * diagnostics so we can tell at a glance whether a rebuild actually shipped
+     * the latest code (vs. a stale bundled copy).
+     */
+    public const SYNC_BUILD = 'fk-isolation-v4';
+
+    /**
      * True when this install should pull/push against a remote backend — i.e.
      * it is the native device app, not the backend itself.
      *
@@ -63,6 +70,7 @@ class BackendClient
         $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? null;
 
         return [
+            'sync_build'       => self::SYNC_BUILD,
             'is_device'        => self::isDevice(),
             'is_client'        => self::isClient(),
             'request_host'     => $reqHost,

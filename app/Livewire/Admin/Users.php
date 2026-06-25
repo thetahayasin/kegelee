@@ -27,6 +27,12 @@ class Users extends Component
     public string $editName = '';
     public string $editEmail = '';
 
+    // Create user
+    public bool $creating = false;
+    public string $newName = '';
+    public string $newEmail = '';
+    public string $newUserPassword = '';
+
     public ?string $statusMessage = null;
 
     public function updatingSearch(): void
@@ -46,6 +52,34 @@ class Users extends Component
             return;
         }
         $user->update(['is_admin' => ! $user->is_admin]);
+    }
+
+    public function createUser(): void
+    {
+        $data = $this->validate([
+            'newName'         => 'required|string|max:255',
+            'newEmail'        => 'required|email|max:255|unique:users,email',
+            'newUserPassword' => 'required|string|min:6',
+        ]);
+
+        $user = User::create([
+            'name'              => $data['newName'],
+            'email'             => strtolower($data['newEmail']),
+            'password'          => Hash::make($data['newUserPassword']),
+            'email_verified_at' => now(), // ready to log in immediately, no code needed
+            'level_id'          => Level::where('is_active', true)->orderBy('number')->value('id'),
+        ]);
+
+        $this->reset(['creating', 'newName', 'newEmail', 'newUserPassword']);
+        $this->statusMessage = "User {$user->email} created and verified — they can log in now.";
+    }
+
+    /** Mark an existing user verified so they can log in without an email code. */
+    public function markVerified(int $userId): void
+    {
+        $user = User::findOrFail($userId);
+        $user->update(['email_verified_at' => now()]);
+        $this->statusMessage = "{$user->email} marked as verified.";
     }
 
     public function openPasswordReset(int $userId): void

@@ -40,7 +40,7 @@ class Index extends Component
                 ->orderBy('sort_order')
                 ->get();
 
-            if ($lessons->isEmpty() && app(SettingsService::class)->get('sync_debug', true)) {
+            if ($lessons->isEmpty() && app(SettingsService::class)->get('sync_debug', false)) {
                 $syncStatus = array_merge(
                     BackendClient::diagnostics(),
                     ['content_pull' => $content->report],

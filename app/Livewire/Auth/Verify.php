@@ -29,13 +29,18 @@ class Verify extends Component
     {
         $this->validate(['code' => 'required|digits:6']);
 
-        $remoteVerified = $this->verifyRemotely();
-        if (is_array($remoteVerified) && isset($remoteVerified['error'])) {
-            $this->addError('code', $remoteVerified['error']);
-            return;
-        }
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $remoteVerified = $this->verifyRemotely();
+            if (is_array($remoteVerified) && isset($remoteVerified['error'])) {
+                $this->addError('code', $remoteVerified['error']);
+                return;
+            }
 
-        if ($remoteVerified) {
+            if (! $remoteVerified) {
+                $this->addError('code', 'Could not reach the server. Check your internet connection and try again.');
+                return;
+            }
+
             $user = User::updateOrCreate(
                 ['email' => strtolower($remoteVerified['email'])],
                 [
@@ -75,12 +80,18 @@ class Verify extends Component
     {
         $key = 'resend:'.$this->email;
         if (RateLimiter::tooManyAttempts($key, 3)) {
+            $this->addError('code', 'Too many requests. Try again later.');
             return;
         }
         RateLimiter::hit($key, 300);
 
-        if ($this->resendRemotely()) {
-            $this->resent = true;
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $result = $this->resendRemotely();
+            if ($result === true) {
+                $this->resent = true;
+            } else {
+                $this->addError('code', is_string($result) ? $result : 'Could not reach the server. Check your internet connection and try again.');
+            }
         } else {
             CodeSender::send($this->email, 'verify');
             $this->resent = true;
@@ -103,16 +114,22 @@ class Verify extends Component
             if ($response->successful()) {
                 return $response->json('user');
             } elseif ($response->status() === 422) {
-                return ['error' => $response->json('error') ?: 'Invalid code.'];
+                return ['error' => $response->json('error') ?: 'That code is invalid or has expired.'];
+            } elseif ($response->status() === 404) {
+                return ['error' => 'User not found.'];
+            } elseif ($response->status() === 401 && $response->json('error') === 'Invalid API key.') {
+                return ['error' => 'API configuration error. Please check sync settings.'];
             }
+            return ['error' => 'Could not verify on remote server. Status code: ' . $response->status()];
         } catch (\Exception $e) {
-            // Fallback to local verification
+            return ['error' => 'Could not reach the server. Check your internet connection and try again.'];
         }
-
-        return null;
     }
 
-    private function resendRemotely(): bool
+    /**
+     * @return bool|string
+     */
+    private function resendRemotely(): bool|string
     {
         if (! \App\Services\Sync\BackendClient::isClient()) {
             return false;
@@ -124,9 +141,16 @@ class Verify extends Component
                     'email' => $this->email,
                 ]);
 
-            return $response->successful();
+            if ($response->successful()) {
+                return true;
+            } elseif ($response->status() === 429) {
+                return 'Too many requests. Try again later.';
+            } elseif ($response->status() === 401 && $response->json('error') === 'Invalid API key.') {
+                return 'API configuration error. Please check sync settings.';
+            }
+            return 'Could not resend verification code. Status code: ' . $response->status();
         } catch (\Exception $e) {
-            return false;
+            return 'Could not reach the server. Check your internet connection and try again.';
         }
     }
 

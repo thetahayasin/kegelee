@@ -237,27 +237,51 @@ async function pullUserData() {
 
         const data = await res.json();
 
-        // Store server sessions (already synced).
+        // Store server sessions — deduplicate by completed_at timestamp against
+        // existing local entries to prevent offline→online inflation.
         if (data.workout_sessions?.length) {
+            const existingSessions = await db.getAll('workout_sessions');
+            const existingTimestamps = new Set(
+                existingSessions.map(s => s.completed_at_iso || s.completed_at || '')
+                    .filter(Boolean)
+            );
+
             for (const s of data.workout_sessions) {
+                const ts = s.completed_at || '';
+                // Skip if we already have a session within the same second
+                if (ts && existingTimestamps.has(ts)) continue;
+
                 await db.put('workout_sessions', {
                     ...s,
+                    completed_at_iso: s.completed_at,
                     local_id: s.id,
                     _synced: true,
                     _from_server: true,
                 });
+                if (ts) existingTimestamps.add(ts);
             }
         }
 
-        // Store server measurements.
+        // Store server measurements — same deduplication.
         if (data.measurements?.length) {
+            const existingMeasurements = await db.getAll('measurements');
+            const existingMeasTs = new Set(
+                existingMeasurements.map(m => m.measured_at_iso || m.measured_at || '')
+                    .filter(Boolean)
+            );
+
             for (const m of data.measurements) {
+                const ts = m.measured_at || '';
+                if (ts && existingMeasTs.has(ts)) continue;
+
                 await db.put('measurements', {
                     ...m,
+                    measured_at_iso: m.measured_at,
                     local_id: m.id,
                     _synced: true,
                     _from_server: true,
                 });
+                if (ts) existingMeasTs.add(ts);
             }
         }
 

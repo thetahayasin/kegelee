@@ -126,6 +126,42 @@ class SyncController extends Controller
                 'updated_at'  => $k->updated_at?->toIso8601String(),
             ]);
 
+        $plans = \App\Models\Plan::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn (\App\Models\Plan $p) => [
+                'id'               => $p->id,
+                'name'             => $p->name,
+                'slug'             => $p->slug,
+                'description'      => $p->description,
+                'price'            => (float) $p->price,
+                'currency'         => $p->currency,
+                'interval'         => $p->interval,
+                'interval_count'   => (int) $p->interval_count,
+                'features'         => $p->features,
+                'store_product_id' => $p->store_product_id,
+                'is_active'        => (bool) $p->is_active,
+                'is_featured'      => (bool) $p->is_featured,
+                'sort_order'       => (int) $p->sort_order,
+                'updated_at'       => $p->updated_at?->toIso8601String(),
+            ]);
+
+        $discounts = \App\Models\Discount::where('is_active', true)
+            ->get()
+            ->map(fn (\App\Models\Discount $d) => [
+                'id'              => $d->id,
+                'code'            => $d->code,
+                'description'     => $d->description,
+                'type'            => $d->type,
+                'value'           => (float) $d->value,
+                'max_redemptions' => $d->max_redemptions !== null ? (int) $d->max_redemptions : null,
+                'redemptions'     => (int) $d->redemptions,
+                'starts_at'       => $d->starts_at?->toIso8601String(),
+                'expires_at'      => $d->expires_at?->toIso8601String(),
+                'is_active'       => (bool) $d->is_active,
+                'updated_at'      => $d->updated_at?->toIso8601String(),
+            ]);
+
         // Only send client-relevant settings (not SMTP credentials, etc.)
         $publicKeys = [
             'app_name', 'app_tagline', 'color_accent', 'color_accent_soft',
@@ -153,6 +189,8 @@ class SyncController extends Controller
             'onboarding_slides' => $slides,
             'knowledge_lessons' => $lessons,
             'settings'         => $appSettings,
+            'plans'            => $plans,
+            'discounts'        => $discounts,
             'synced_at'        => now()->toIso8601String(),
         ]);
     }
@@ -199,7 +237,26 @@ class SyncController extends Controller
                     ? Exercise::where('slug', $s['exercise_slug'])->first()
                     : null;
 
-                $progression->recordSession($user, $exercise, $durationSeconds);
+                // Use the original client timestamp so subsequent pushes of the
+                // same session are correctly deduplicated by the ±5s window.
+                $record = $progression->todayRecord($user, $completedAt);
+                $wasComplete = $record->completed_at !== null;
+
+                WorkoutSession::create([
+                    'user_id'          => $user->id,
+                    'exercise_id'      => $exercise?->id,
+                    'level_id'         => $user->level_id,
+                    'started_at'       => $completedAt->copy()->subSeconds($durationSeconds),
+                    'completed_at'     => $completedAt,
+                    'duration_seconds' => $durationSeconds,
+                    'is_extra'         => $wasComplete,
+                ]);
+
+                $record->increment('sessions_count');
+                if (! $wasComplete && $record->sessions_count >= $record->required_sessions) {
+                    $record->update(['completed_at' => $completedAt]);
+                }
+
                 $synced['sessions']++;
             }
         }
@@ -319,6 +376,21 @@ class SyncController extends Controller
                     'required_sessions' => (int) $td->required_sessions,
                     'completed_at'      => $td->completed_at?->toIso8601String(),
                 ]),
+            'subscriptions' => $user->subscriptions()->get()->map(fn (\App\Models\Subscription $s) => [
+                'id'                   => $s->id,
+                'plan_id'              => $s->plan_id,
+                'discount_id'          => $s->discount_id,
+                'status'               => $s->status,
+                'store'                => $s->store,
+                'store_transaction_id' => $s->store_transaction_id,
+                'purchase_token'       => $s->purchase_token,
+                'google_order_id'      => $s->google_order_id,
+                'trial_ends_at'        => $s->trial_ends_at?->toIso8601String(),
+                'started_at'           => $s->started_at?->toIso8601String(),
+                'ends_at'              => $s->ends_at?->toIso8601String(),
+                'canceled_at'          => $s->canceled_at?->toIso8601String(),
+                'auto_renewing'        => (bool) $s->auto_renewing,
+            ]),
             'synced_at' => now()->toIso8601String(),
         ]);
     }

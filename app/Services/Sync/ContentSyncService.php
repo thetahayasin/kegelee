@@ -86,6 +86,8 @@ class ContentSyncService
                 'onboarding'      => fn () => $this->applyOnboarding($data['onboarding_slides'] ?? []),
                 'knowledge'       => fn () => $this->applyKnowledge($data['knowledge_lessons'] ?? []),
                 'settings'        => fn () => $this->applySettings($data['settings'] ?? []),
+                'plans'           => fn () => $this->applyPlans($data['plans'] ?? []),
+                'discounts'       => fn () => $this->applyDiscounts($data['discounts'] ?? []),
             ];
 
             $domainStatus = [];
@@ -105,6 +107,8 @@ class ContentSyncService
                 'exercises' => count($data['exercises'] ?? []),
                 'levels'    => count($data['levels'] ?? []),
                 'knowledge' => count($data['knowledge_lessons'] ?? []),
+                'plans'     => count($data['plans'] ?? []),
+                'discounts' => count($data['discounts'] ?? []),
             ];
 
             return true;
@@ -119,6 +123,9 @@ class ContentSyncService
     /** @param array<int, array<string, mixed>> $rows */
     private function applyExercises(array $rows): void
     {
+        $ids = array_filter(array_column($rows, 'id'));
+        Exercise::whereNotIn('id', $ids)->update(['is_active' => false]);
+
         foreach ($rows as $row) {
             if (empty($row['id'])) {
                 continue;
@@ -162,6 +169,9 @@ class ContentSyncService
         $exerciseIds = array_flip(Exercise::pluck('id')->all());
         $levelIds = array_flip(Level::pluck('id')->all());
 
+        // Clear existing local pivots before rewriting them
+        DB::table('exercise_level')->truncate();
+
         foreach ($rows as $row) {
             $exerciseId = $row['exercise_id'] ?? null;
             $levelId = $row['level_id'] ?? null;
@@ -183,6 +193,9 @@ class ContentSyncService
     /** @param array<int, array<string, mixed>> $rows */
     private function applyLevels(array $rows): void
     {
+        $ids = array_filter(array_column($rows, 'id'));
+        Level::whereNotIn('id', $ids)->update(['is_active' => false]);
+
         foreach ($rows as $row) {
             if (empty($row['id'])) {
                 continue;
@@ -205,6 +218,9 @@ class ContentSyncService
     /** @param array<int, array<string, mixed>> $rows */
     private function applyOnboarding(array $rows): void
     {
+        $ids = array_filter(array_column($rows, 'id'));
+        OnboardingSlide::whereNotIn('id', $ids)->update(['is_active' => false]);
+
         foreach ($rows as $row) {
             if (empty($row['id'])) {
                 continue;
@@ -225,6 +241,9 @@ class ContentSyncService
     /** @param array<int, array<string, mixed>> $rows */
     private function applyKnowledge(array $rows): void
     {
+        $ids = array_filter(array_column($rows, 'id'));
+        KnowledgeLesson::whereNotIn('id', $ids)->update(['is_active' => false]);
+
         foreach ($rows as $row) {
             if (empty($row['id'])) {
                 continue;
@@ -252,6 +271,59 @@ class ContentSyncService
             }
             $type = AdminSettings::TYPES[$key] ?? 'string';
             $this->settings->set($key, $value, $type);
+        }
+    }
+
+    /** @param array<int, array<string, mixed>> $rows */
+    private function applyPlans(array $rows): void
+    {
+        $ids = array_filter(array_column($rows, 'id'));
+        \App\Models\Plan::whereNotIn('id', $ids)->update(['is_active' => false]);
+
+        foreach ($rows as $row) {
+            if (empty($row['id'])) {
+                continue;
+            }
+
+            \App\Models\Plan::updateOrCreate(['id' => $row['id']], $this->fillable('plans', [
+                'name'             => $row['name'] ?? '',
+                'slug'             => $row['slug'] ?? '',
+                'description'      => $row['description'] ?? null,
+                'price'            => $row['price'] ?? 0,
+                'currency'         => $row['currency'] ?? 'USD',
+                'interval'         => $row['interval'] ?? 'month',
+                'interval_count'   => $row['interval_count'] ?? 1,
+                'features'         => isset($row['features']) ? (is_array($row['features']) ? json_encode($row['features']) : $row['features']) : null,
+                'store_product_id' => $row['store_product_id'] ?? null,
+                'is_active'        => $row['is_active'] ?? true,
+                'is_featured'      => $row['is_featured'] ?? false,
+                'sort_order'       => $row['sort_order'] ?? 0,
+            ]));
+        }
+    }
+
+    /** @param array<int, array<string, mixed>> $rows */
+    private function applyDiscounts(array $rows): void
+    {
+        $ids = array_filter(array_column($rows, 'id'));
+        \App\Models\Discount::whereNotIn('id', $ids)->update(['is_active' => false]);
+
+        foreach ($rows as $row) {
+            if (empty($row['id'])) {
+                continue;
+            }
+
+            \App\Models\Discount::updateOrCreate(['id' => $row['id']], $this->fillable('discounts', [
+                'code'            => $row['code'] ?? '',
+                'description'     => $row['description'] ?? null,
+                'type'            => $row['type'] ?? 'percent',
+                'value'           => $row['value'] ?? 0,
+                'max_redemptions' => $row['max_redemptions'] ?? null,
+                'redemptions'     => $row['redemptions'] ?? 0,
+                'starts_at'       => !empty($row['starts_at']) ? now()->parse($row['starts_at']) : null,
+                'expires_at'      => !empty($row['expires_at']) ? now()->parse($row['expires_at']) : null,
+                'is_active'       => $row['is_active'] ?? true,
+            ]));
         }
     }
 }

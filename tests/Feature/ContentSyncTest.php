@@ -86,6 +86,16 @@ class ContentSyncTest extends TestCase
                     'video_src' => 'https://ke.downloadh.com/storage/k.mp4', 'sort_order' => 0,
                 ]],
                 'settings' => [],
+                'plans' => [[
+                    'id' => 5, 'name' => 'Premium Monthly Test', 'slug' => 'premium-monthly-test',
+                    'price' => 12.99, 'currency' => 'USD', 'interval' => 'month',
+                    'interval_count' => 1, 'trial_days' => 7, 'is_active' => true,
+                    'is_featured' => true, 'sort_order' => 1, 'store_product_id' => 'pm_test'
+                ]],
+                'discounts' => [[
+                    'id' => 3, 'code' => 'TEST50', 'description' => '50% Off Test',
+                    'type' => 'percent', 'value' => 50.0, 'is_active' => true
+                ]],
             ], 200),
         ]);
 
@@ -100,5 +110,15 @@ class ContentSyncTest extends TestCase
         $this->assertSame('https://ke.downloadh.com/storage/k.mp4', $lesson->videoSrc());
         // Exercise synced with its icon, video_path silently skipped (no column).
         $this->assertSame('https://ke.downloadh.com/storage/i.png', Exercise::find(1)->icon_path);
+
+        // Verify plans and discounts synced successfully
+        $this->assertSame(1, \App\Models\Plan::where('slug', 'premium-monthly-test')->count());
+        $plan = \App\Models\Plan::where('slug', 'premium-monthly-test')->first();
+        $this->assertEquals(12.99, (float) $plan->price);
+        $this->assertTrue((bool) $plan->is_featured);
+
+        $this->assertSame(1, \App\Models\Discount::where('code', 'TEST50')->count());
+        $discount = \App\Models\Discount::where('code', 'TEST50')->first();
+        $this->assertEquals(50.0, (float) $discount->value);
     }
 }

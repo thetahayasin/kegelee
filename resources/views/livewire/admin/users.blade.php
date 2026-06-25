@@ -15,7 +15,33 @@
             <input wire:model.live.debounce.300ms="search" placeholder="Search name or email…"
                    class="h-10 w-full rounded-xl border border-white/10 bg-surface pl-9 pr-4 text-sm focus:border-accent focus:outline-none">
         </div>
+        <button wire:click="$toggle('creating')"
+                class="h-10 rounded-xl bg-accent px-4 text-sm font-semibold text-[var(--c-on-accent)] tap">+ New user</button>
     </div>
+
+    {{-- Create user: makes a verified account that can log in immediately (no email code needed). --}}
+    @if ($creating)
+        <form wire:submit="createUser" class="mb-4 grid gap-3 rounded-2xl border border-white/10 bg-surface p-4 sm:grid-cols-4">
+            <div>
+                <label class="mb-1 block text-xs text-muted">Name</label>
+                <input type="text" wire:model="newName" class="h-10 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
+                @error('newName') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="mb-1 block text-xs text-muted">Email</label>
+                <input type="email" wire:model="newEmail" autocomplete="off" class="h-10 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
+                @error('newEmail') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="mb-1 block text-xs text-muted">Password</label>
+                <input type="text" wire:model="newUserPassword" autocomplete="off" class="h-10 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
+                @error('newUserPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="h-10 w-full rounded-xl bg-accent font-semibold text-[var(--c-on-accent)] tap">Create &amp; verify</button>
+            </div>
+        </form>
+    @endif
 
     <div class="overflow-x-auto rounded-2xl border border-white/5 bg-surface">
         <table class="admin-table w-full text-sm">
@@ -34,6 +60,9 @@
                         <td class="p-4">
                             <p class="font-medium">{{ $user->name }}</p>
                             <p class="text-xs text-muted">{{ $user->email }}</p>
+                            @if (! $user->email_verified_at)
+                                <span class="mt-1 inline-block rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-400">Unverified</span>
+                            @endif
                         </td>
                         <td class="p-4 tabular-nums">{{ $user->completed_days_count }}</td>
                         <td class="p-4 tabular-nums">{{ $user->sessions_count }}</td>
@@ -66,6 +95,13 @@
                                     <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                                     Password
                                 </button>
+                                @if (! $user->email_verified_at)
+                                    <button wire:click="markVerified({{ $user->id }})"
+                                            class="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[11px] font-medium text-muted hover:text-success transition-colors" title="Mark verified">
+                                        <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                                        Verify
+                                    </button>
+                                @endif
                                 @if ($user->id !== auth()->id())
                                     <button wire:click="deleteUser({{ $user->id }})" wire:confirm="Delete {{ $user->name }}? This removes all their data."
                                             class="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[11px] font-medium text-muted hover:text-accent-soft transition-colors" title="Delete user">

@@ -40,30 +40,41 @@ class Login extends Component
             'password' => 'required|string|max:255',
         ]);
 
-        $user = User::where('email', strtolower($this->email))->first();
+        $user = null;
 
-        // If local authentication fails, try remote sync server!
-        if (! $user || ! $user->password || ! Hash::check($this->password, $user->password)) {
-            $remoteUser = $this->authenticateRemotely(strtolower($this->email), $this->password);
-            if ($remoteUser) {
-                // Replicate / sync user details locally
-                $user = User::updateOrCreate(
-                    ['email' => strtolower($remoteUser['email'])],
-                    [
-                        'id' => $remoteUser['id'],
-                        'name' => $remoteUser['name'],
-                        'email_verified_at' => $remoteUser['email_verified_at'] ? now()->parse($remoteUser['email_verified_at']) : null,
-                        'password' => $remoteUser['password_hash'], // Store the hash directly so offline works next time!
-                        'is_admin' => (bool)$remoteUser['is_admin'],
-                        'level_id' => $remoteUser['level_id'],
-                        'level_started_days' => (int)$remoteUser['level_started_days'],
-                        'onboarded_at' => $remoteUser['onboarded_at'] ? now()->parse($remoteUser['onboarded_at']) : null,
-                        'timezone' => $remoteUser['timezone'],
-                    ]
-                );
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $result = $this->authenticateRemotely(strtolower($this->email), $this->password);
+
+            if (! empty($result['user'])) {
+                $remoteUser = $result['user'];
+                $attributes = [
+                    'name' => $remoteUser['name'],
+                    'email_verified_at' => $remoteUser['email_verified_at'] ? now()->parse($remoteUser['email_verified_at']) : null,
+                    'password' => $remoteUser['password_hash'],
+                    'is_admin' => (bool)$remoteUser['is_admin'],
+                    'level_id' => $remoteUser['level_id'],
+                    'level_started_days' => (int)$remoteUser['level_started_days'],
+                    'onboarded_at' => $remoteUser['onboarded_at'] ? now()->parse($remoteUser['onboarded_at']) : null,
+                    'timezone' => $remoteUser['timezone'],
+                ];
+                if (! User::where('email', strtolower($remoteUser['email']))->exists()) {
+                    $attributes['id'] = $remoteUser['id'];
+                }
+                $user = User::updateOrCreate(['email' => strtolower($remoteUser['email'])], $attributes);
             } else {
                 RateLimiter::hit($key, 300);
-                $this->addError('email', 'These credentials do not match our records.');
+                if (($result['reason'] ?? '') === 'invalid') {
+                    $this->addError('email', 'Email or password is incorrect.');
+                } else {
+                    $this->addError('email', 'Could not reach the server. Check your internet connection and try again.');
+                }
+                return;
+            }
+        } else {
+            $user = User::where('email', strtolower($this->email))->first();
+            if (! $user || ! $user->password || ! Hash::check($this->password, $user->password)) {
+                RateLimiter::hit($key, 300);
+                $this->addError('email', 'Email or password is incorrect.');
                 return;
             }
         }
@@ -83,10 +94,14 @@ class Login extends Component
         return $this->redirectRoute('home', navigate: true);
     }
 
-    private function authenticateRemotely(string $email, string $password): ?array
+    /**
+     * @return array{user?: array<string,mixed>, reason?: string}
+     *   ['user'=>...] on success; otherwise ['reason'=>'invalid'|'unreachable'|'offline'].
+     */
+    private function authenticateRemotely(string $email, string $password): array
     {
         if (! \App\Services\Sync\BackendClient::isClient()) {
-            return null;
+            return ['reason' => 'offline'];
         }
 
         try {
@@ -97,13 +112,21 @@ class Login extends Component
                 ]);
 
             if ($response->successful()) {
-                return $response->json('user');
+                return ['user' => $response->json('user')];
             }
-        } catch (\Exception $e) {
-            // Network failure or timeout
-        }
 
-        return null;
+            // 401/422 = the backend rejected the credentials.
+            if (in_array($response->status(), [401, 422], true)) {
+                if ($response->json('error') === 'Invalid API key.') {
+                    return ['reason' => 'unreachable'];
+                }
+                return ['reason' => 'invalid'];
+            }
+
+            return ['reason' => 'unreachable'];
+        } catch (\Throwable $e) {
+            return ['reason' => 'unreachable'];
+        }
     }
 
     public function render(SettingsService $settings)

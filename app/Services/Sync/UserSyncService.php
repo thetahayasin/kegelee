@@ -101,6 +101,7 @@ class UserSyncService
                 $this->applyMeasurements($user, $data['measurements'] ?? []);
                 $this->applyReminders($user, $data['reminders'] ?? []);
                 $this->applyTrainingDays($user, $data['training_days'] ?? []);
+                $this->applySubscriptions($user, $data['subscriptions'] ?? []);
             });
 
             return true;
@@ -205,6 +206,51 @@ class UserSyncService
                     'completed_at'      => $row['completed_at'] ?? null,
                     'updated_at'        => now(),
                 ],
+            );
+        }
+    }
+
+    /** @param array<int, array<string, mixed>> $rows */
+    private function applySubscriptions(User $user, array $rows): void
+    {
+        $ids = array_filter(array_column($rows, 'id'));
+        if (!empty($ids)) {
+            $user->subscriptions()->whereNotIn('id', $ids)->delete();
+        } else {
+            $user->subscriptions()->delete();
+        }
+
+        foreach ($rows as $row) {
+            if (empty($row['id'])) {
+                continue;
+            }
+
+            // Check if plan exists locally to avoid foreign key issues
+            if (!empty($row['plan_id']) && !\App\Models\Plan::where('id', $row['plan_id'])->exists()) {
+                continue;
+            }
+
+            // Check if discount exists locally to avoid foreign key issues
+            if (!empty($row['discount_id']) && !\App\Models\Discount::where('id', $row['discount_id'])->exists()) {
+                $row['discount_id'] = null;
+            }
+
+            $user->subscriptions()->updateOrCreate(
+                ['id' => $row['id']],
+                [
+                    'plan_id'              => $row['plan_id'] ?? null,
+                    'discount_id'          => $row['discount_id'] ?? null,
+                    'status'               => $row['status'] ?? 'active',
+                    'store'                => $row['store'] ?? null,
+                    'store_transaction_id' => $row['store_transaction_id'] ?? null,
+                    'purchase_token'       => $row['purchase_token'] ?? null,
+                    'google_order_id'      => $row['google_order_id'] ?? null,
+                    'trial_ends_at'        => !empty($row['trial_ends_at']) ? Carbon::parse($row['trial_ends_at']) : null,
+                    'started_at'           => !empty($row['started_at']) ? Carbon::parse($row['started_at']) : null,
+                    'ends_at'              => !empty($row['ends_at']) ? Carbon::parse($row['ends_at']) : null,
+                    'canceled_at'          => !empty($row['canceled_at']) ? Carbon::parse($row['canceled_at']) : null,
+                    'auto_renewing'        => (bool) ($row['auto_renewing'] ?? true),
+                ]
             );
         }
     }

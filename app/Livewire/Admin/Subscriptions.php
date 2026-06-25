@@ -235,7 +235,7 @@ class Subscriptions extends Component
 
         return view('livewire.admin.subscriptions', [
             'subscriptions' => $query->paginate(25),
-            'plans' => Plan::where('is_active', true)->orderBy('sort_order')->get(),
+            'plans' => Plan::orderBy('sort_order')->get(),
             'summary' => $summary,
         ]);
     }

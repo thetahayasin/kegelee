@@ -75,6 +75,7 @@ class SyncAuthTest extends TestCase
             'measurements',
             'reminders',
             'training_days',
+            'subscriptions',
         ]);
     }
 }

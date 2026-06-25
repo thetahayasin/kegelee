@@ -50,15 +50,20 @@ class Register extends Component
         ]);
 
         // Attempt remote registration first if we have a remote server
-        $remoteUser = $this->registerRemotely();
-        if (is_array($remoteUser) && isset($remoteUser['error'])) {
-            $this->addError('email', $remoteUser['error']);
-            return;
-        }
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $remoteUser = $this->registerRemotely();
+            if (is_array($remoteUser) && isset($remoteUser['error'])) {
+                $this->addError('email', $remoteUser['error']);
+                return;
+            }
 
-        RateLimiter::hit($key, 900);
+            if (! $remoteUser) {
+                $this->addError('email', 'Could not reach the server. Check your internet connection and try again.');
+                return;
+            }
 
-        if ($remoteUser) {
+            RateLimiter::hit($key, 900);
+
             $user = User::updateOrCreate(
                 ['email' => strtolower($remoteUser['email'])],
                 [
@@ -118,12 +123,13 @@ class Register extends Component
                 $errors = $response->json('errors.email');
                 $message = $errors ? $errors[0] : $response->json('message');
                 return ['error' => $message ?: 'Validation failed.'];
+            } elseif ($response->status() === 401 && $response->json('error') === 'Invalid API key.') {
+                return ['error' => 'API configuration error. Please check sync settings.'];
             }
+            return ['error' => 'Could not register on remote server. Status code: ' . $response->status()];
         } catch (\Exception $e) {
-            // Network failure or timeout - fallback to local registration
+            return ['error' => 'Could not reach the server. Check your internet connection and try again.'];
         }
-
-        return null;
     }
 
     public function render(SettingsService $settings)

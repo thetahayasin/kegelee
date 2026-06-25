@@ -3,19 +3,20 @@
          index: @entangle('index').live,
          slides: [],
          async init() {
-             this.slides = [
-                 { id: 1, title: 'Improve health & perform better', body: 'Strengthen your pelvic floor muscles to enhance control, boost physical performance, and build core confidence that lasts.', cta_label: 'Next' },
-                 { id: 2, title: 'It takes only minutes', body: 'Each session is designed to fit your busy life. In just 3 to 5 minutes a day, you can complete your daily exercises anytime, anywhere.', cta_label: 'Next' },
-                 { id: 3, title: 'Track your progress', body: 'Watch your daily streak grow, measure your endurance improvements, and unlock new challenges as your pelvic floor gets stronger.', cta_label: 'Next' },
-                 { id: 4, title: 'Schedule your training', body: 'Set smart, quiet reminders at times that suit you. Stay consistent, build a habit, and see real results over time.', cta_label: 'Get Started' }
-             ];
-             if (window.kegelSync) {
-                 try {
-                     const stored = await window.kegelSync.db.getAll('onboarding_slides');
-                     if (stored && stored.length) {
-                         this.slides = stored.sort((a, b) => a.sort_order - b.sort_order);
-                     }
-                 } catch(e) {}
+             this.slides = @js($this->slides->map(fn($s) => [
+                 'id' => $s->id,
+                 'title' => $s->title,
+                 'body' => $s->body,
+                 'cta_label' => $s->cta_label ?: ($s->sort_order === 3 ? 'Get Started' : 'Next'),
+             ])->all());
+
+             if (this.slides.length === 0) {
+                 this.slides = [
+                     { id: 1, title: 'Improve health & perform better', body: 'Strengthen your pelvic floor muscles to enhance control, boost physical performance, and build core confidence that lasts.', cta_label: 'Next' },
+                     { id: 2, title: 'It takes only minutes', body: 'Each session is designed to fit your busy life. In just 3 to 5 minutes a day, you can complete your daily exercises anytime, anywhere.', cta_label: 'Next' },
+                     { id: 3, title: 'Track your progress', body: 'Watch your daily streak grow, measure your endurance improvements, and unlock new challenges as your pelvic floor gets stronger.', cta_label: 'Next' },
+                     { id: 4, title: 'Schedule your training', body: 'Set smart, quiet reminders at times that suit you. Stay consistent, build a habit, and see real results over time.', cta_label: 'Get Started' }
+                 ];
              }
          }
      }">
