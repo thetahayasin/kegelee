@@ -28,7 +28,7 @@
 
     <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
         @foreach ($stats as $i => $stat)
-            @php([$key, $bgCls, $textCls, $svg] = $statDefs[$i])
+            @php [$key, $bgCls, $textCls, $svg] = $statDefs[$i]; @endphp
             <div class="stat-card">
                 <div class="mb-3 flex items-center justify-between">
                     <div class="grid h-9 w-9 place-items-center rounded-xl {{ $bgCls }}">

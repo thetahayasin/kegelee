@@ -1,5 +1,7 @@
-@php($settings = app(\App\Services\SettingsService::class))
-@php($appName = $settings->get('app_name', 'Kegel Trainer'))
+@php
+    $settings = app(\App\Services\SettingsService::class);
+    $appName = $settings->get('app_name', 'Kegel Trainer');
+@endphp
 <!DOCTYPE html>
 <html lang="en" class="dark" style="
     --c-bg: #0a0b0f; --c-surface: #13151b; --c-surface-2: #1a1d25;
