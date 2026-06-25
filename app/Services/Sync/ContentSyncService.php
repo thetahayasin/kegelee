@@ -76,16 +76,31 @@ class ContentSyncService
                 return false;
             }
 
-            DB::transaction(function () use ($data) {
-                $this->applyExercises($data['exercises'] ?? []);
-                $this->applyExerciseLevels($data['exercise_levels'] ?? []);
-                $this->applyLevels($data['levels'] ?? []);
-                $this->applyOnboarding($data['onboarding_slides'] ?? []);
-                $this->applyKnowledge($data['knowledge_lessons'] ?? []);
-                $this->applySettings($data['settings'] ?? []);
-            });
+            // Apply each domain INDEPENDENTLY (no shared transaction): a failure
+            // in one (e.g. a foreign-key hiccup on the pivot) must never roll
+            // back the others. Parents (exercises, levels) before the pivot.
+            $domains = [
+                'exercises'       => fn () => $this->applyExercises($data['exercises'] ?? []),
+                'levels'          => fn () => $this->applyLevels($data['levels'] ?? []),
+                'exercise_levels' => fn () => $this->applyExerciseLevels($data['exercise_levels'] ?? []),
+                'onboarding'      => fn () => $this->applyOnboarding($data['onboarding_slides'] ?? []),
+                'knowledge'       => fn () => $this->applyKnowledge($data['knowledge_lessons'] ?? []),
+                'settings'        => fn () => $this->applySettings($data['settings'] ?? []),
+            ];
 
-            $this->report['ok'] = true;
+            $domainStatus = [];
+            foreach ($domains as $name => $apply) {
+                try {
+                    $apply();
+                    $domainStatus[$name] = 'ok';
+                } catch (\Throwable $e) {
+                    $domainStatus[$name] = $e->getMessage();
+                    Log::warning("Content sync [$name] failed: ".$e->getMessage());
+                }
+            }
+
+            $this->report['ok'] = empty(array_filter($domainStatus, fn ($s) => $s !== 'ok'));
+            $this->report['domains'] = $domainStatus;
             $this->report['counts'] = [
                 'exercises' => count($data['exercises'] ?? []),
                 'levels'    => count($data['levels'] ?? []),
@@ -138,13 +153,28 @@ class ContentSyncService
     /** @param array<int, array<string, mixed>> $rows */
     private function applyExerciseLevels(array $rows): void
     {
+        if (! $rows) {
+            return;
+        }
+
+        // Only link pivots whose parents exist locally — otherwise the FK
+        // constraint throws (exactly what was rolling the whole pull back).
+        $exerciseIds = array_flip(Exercise::pluck('id')->all());
+        $levelIds = array_flip(Level::pluck('id')->all());
+
         foreach ($rows as $row) {
-            if (empty($row['exercise_id']) || empty($row['level_id'])) {
+            $exerciseId = $row['exercise_id'] ?? null;
+            $levelId = $row['level_id'] ?? null;
+
+            if (! $exerciseId || ! $levelId) {
+                continue;
+            }
+            if (! isset($exerciseIds[$exerciseId], $levelIds[$levelId])) {
                 continue;
             }
 
             DB::table('exercise_level')->updateOrInsert(
-                ['exercise_id' => $row['exercise_id'], 'level_id' => $row['level_id']],
+                ['exercise_id' => $exerciseId, 'level_id' => $levelId],
                 ['duration_seconds' => $row['duration_seconds'] ?? 30, 'updated_at' => now()],
             );
         }
