@@ -73,7 +73,7 @@ Route::middleware('guest')->group(function () {
 | Authenticated app
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'app.enabled'])->group(function () {
     // Account / subscription management stays reachable without an active sub,
     // so users can subscribe, manage their account, or sign out.
     Route::get('/profile', App\Profile::class)->name('profile');

@@ -18,9 +18,14 @@ class Users extends Component
     #[Url]
     public string $search = '';
 
+    // Password reset
     public ?int $editingUserId = null;
-
     public string $newPassword = '';
+
+    // Profile edit
+    public ?int $editingProfileId = null;
+    public string $editName = '';
+    public string $editEmail = '';
 
     public ?string $statusMessage = null;
 
@@ -59,6 +64,31 @@ class Users extends Component
         $this->editingUserId = null;
         $this->newPassword = '';
         $this->statusMessage = "Password updated for {$user->name}.";
+    }
+
+    public function openEditProfile(int $userId): void
+    {
+        $user = User::findOrFail($userId);
+        $this->editingProfileId = $userId;
+        $this->editName  = $user->name;
+        $this->editEmail = $user->email;
+    }
+
+    public function updateProfile(): void
+    {
+        $this->validate([
+            'editName'  => 'required|string|max:255',
+            'editEmail' => 'required|email|max:255|unique:users,email,' . $this->editingProfileId,
+        ]);
+
+        $user = User::findOrFail($this->editingProfileId);
+        $user->update([
+            'name'  => $this->editName,
+            'email' => $this->editEmail,
+        ]);
+
+        $this->editingProfileId = null;
+        $this->statusMessage = "Profile updated for {$user->name}.";
     }
 
     public function deleteUser(int $userId): void

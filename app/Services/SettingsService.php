@@ -62,6 +62,9 @@ class SettingsService
             'allow_extra_sessions' => true,
             'plan_length_days' => 30,
 
+            // App access
+            'app_enabled' => true,
+
             // Onboarding
             'onboarding_enabled' => true,
 

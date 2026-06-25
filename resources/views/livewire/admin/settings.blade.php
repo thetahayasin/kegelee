@@ -271,7 +271,25 @@
 
         {{-- SECURITY --}}
         <div x-show="tab === 'security'" class="space-y-4 rounded-2xl bg-surface p-5">
-            <p class="text-sm text-muted">Change your admin account password.</p>
+
+            {{-- App access toggle --}}
+            <div class="rounded-xl border border-white/5 bg-surface-2 p-4">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="font-semibold">App access</p>
+                        <p class="mt-0.5 text-sm text-muted">When disabled, all app routes redirect to the landing page. Admin panel stays accessible. Use this to run the app in Android-only mode.</p>
+                    </div>
+                    <label class="relative inline-flex shrink-0 cursor-pointer items-center">
+                        <input type="checkbox" wire:model="values.app_enabled" class="peer sr-only">
+                        <div class="peer h-6 w-11 rounded-full bg-white/10 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-accent peer-checked:after:translate-x-full"></div>
+                    </label>
+                </div>
+                @unless($values['app_enabled'] ?? true)
+                    <p class="mt-2 text-xs font-semibold text-accent-soft">⚠ App is currently closed — web users will see the landing page.</p>
+                @endunless
+            </div>
+
+            <p class="text-sm font-semibold text-muted">Admin password</p>
             <div><label class="mb-1 block text-sm text-muted">Current password</label>
                 <input type="password" wire:model="currentPassword" autocomplete="current-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
                 @error('currentPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>

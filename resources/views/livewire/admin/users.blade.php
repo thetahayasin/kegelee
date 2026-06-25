@@ -1,4 +1,4 @@
-<div x-data="{ showPwModal: false }">
+<div x-data="{ showPwModal: false, showEditModal: false }">
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
             <h1 class="text-2xl font-bold">Users</h1>
@@ -56,6 +56,11 @@
                         </td>
                         <td class="p-4 text-right">
                             <div class="flex items-center justify-end gap-2">
+                                <button wire:click="openEditProfile({{ $user->id }})" @click="showEditModal = true"
+                                        class="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[11px] font-medium text-muted hover:text-content transition-colors" title="Edit profile">
+                                    <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    Edit
+                                </button>
                                 <button wire:click="openPasswordReset({{ $user->id }})" @click="showPwModal = true"
                                         class="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[11px] font-medium text-muted hover:text-content transition-colors" title="Reset password">
                                     <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -76,6 +81,41 @@
     </div>
 
     <div class="mt-4">{{ $users->links() }}</div>
+
+    {{-- Edit profile modal --}}
+    @if ($editingProfileId)
+        <template x-teleport="body">
+            <div x-show="showEditModal" x-cloak
+                 class="fixed inset-0 z-50 flex items-center justify-center px-6"
+                 @keydown.escape.window="showEditModal = false">
+                <div x-show="showEditModal" x-transition.opacity @click="showEditModal = false" class="absolute inset-0 bg-black/70"></div>
+                <div x-show="showEditModal" x-transition class="relative w-full max-w-sm rounded-2xl border border-white/10 bg-surface p-6 shadow-2xl">
+                    <h2 class="text-lg font-bold">Edit user</h2>
+                    <form wire:submit="updateProfile" class="mt-4 space-y-4">
+                        <div>
+                            <label class="mb-1 block text-sm text-muted">Name</label>
+                            <input type="text" wire:model="editName" autocomplete="off"
+                                   class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                            @error('editName') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm text-muted">Email</label>
+                            <input type="email" wire:model="editEmail" autocomplete="off"
+                                   class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                            @error('editEmail') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="button" @click="showEditModal = false" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>
+                            <button type="submit" @click="showEditModal = false" class="h-11 flex-1 rounded-xl bg-accent font-semibold tap">
+                                <span wire:loading.remove wire:target="updateProfile">Save</span>
+                                <span wire:loading wire:target="updateProfile">Saving...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </template>
+    @endif
 
     {{-- Password reset modal --}}
     @if ($editingUserId)

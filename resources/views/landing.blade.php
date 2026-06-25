@@ -154,6 +154,12 @@
 
 {!! $s->get('inject_body_start') !!}
 
+@if (session('app_disabled'))
+<div class="w-full bg-accent/10 border-b border-accent/20 px-5 py-3 text-center text-sm font-medium text-accent-soft">
+    The web app is currently available on Android only. Download the app below to continue.
+</div>
+@endif
+
 {{-- ============================================================
      NAV
 ============================================================ --}}

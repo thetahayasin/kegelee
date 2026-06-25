@@ -37,7 +37,7 @@ class Settings extends Component
         'circle_animation_speed' => 'float', 'circle_glow_speed' => 'float', 'circle_time_scale' => 'float',
         'sessions_per_day' => 'int', 'plan_length_days' => 'int',
         'circle_glow_enabled' => 'bool', 'haptics_enabled' => 'bool',
-        'sound_enabled' => 'bool', 'allow_extra_sessions' => 'bool', 'onboarding_enabled' => 'bool',
+        'sound_enabled' => 'bool', 'allow_extra_sessions' => 'bool', 'onboarding_enabled' => 'bool', 'app_enabled' => 'bool',
         'inject_head' => 'html', 'inject_body_start' => 'html', 'inject_body_end' => 'html', 'custom_css' => 'html',
         'color_accent' => 'color', 'color_accent_soft' => 'color', 'color_success' => 'color',
         'color_bg' => 'color', 'color_surface' => 'color', 'color_surface_2' => 'color',

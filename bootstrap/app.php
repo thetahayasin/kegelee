@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
             'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,
+            'app.enabled' => \App\Http\Middleware\EnsureAppEnabled::class,
         ]);
 
         $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
