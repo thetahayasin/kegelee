@@ -17,7 +17,11 @@ class CodeSender
         $settings = app(SettingsService::class);
 
         try {
-            Mail::to($email)->queue(new CodeMail(
+            // Send synchronously rather than queueing: there is no guaranteed
+            // queue worker running on the backend (QUEUE_CONNECTION=database),
+            // and a verification code that sits unsent in the jobs table is
+            // useless. Sending inline guarantees delivery during the request.
+            Mail::to($email)->send(new CodeMail(
                 code: $code->code,
                 purpose: $purpose,
                 appName: $settings->get('app_name', 'App'),

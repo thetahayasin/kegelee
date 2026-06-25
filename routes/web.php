@@ -23,6 +23,31 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 
 /*
 |--------------------------------------------------------------------------
+| On-demand sync — the device app calls this when connectivity returns so
+| fresh backend content/progress lands immediately instead of waiting for
+| the next navigation. No-op on the backend (CONTENT_SYNC_URL empty).
+|--------------------------------------------------------------------------
+*/
+Route::post('/sync/run', function (
+    \App\Services\Sync\ContentSyncService $content,
+    \App\Services\Sync\UserSyncService $userSync,
+) {
+    if (! \App\Services\Sync\BackendClient::isClient()) {
+        return response()->json(['ok' => false, 'reason' => 'not_a_client']);
+    }
+
+    $changed = $content->pull();
+
+    if ($user = auth()->user()) {
+        $userSync->push($user);
+        $userSync->pull($user);
+    }
+
+    return response()->json(['ok' => true, 'changed' => $changed]);
+})->name('sync.run');
+
+/*
+|--------------------------------------------------------------------------
 | Public marketing homepage — shown at / when homepage_enabled is true.
 | Authenticated users are bounced straight to the app.
 |--------------------------------------------------------------------------

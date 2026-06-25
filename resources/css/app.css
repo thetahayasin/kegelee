@@ -132,7 +132,7 @@ body {
     scrollbar-width: none;
 }
 
-/* Pulsating circle nav loader (replaces NProgress bar). */
+/* Simple circular spinner nav loader (replaces NProgress bar). */
 #nav-loader {
     position: fixed;
     inset: 0;
@@ -147,20 +147,15 @@ body {
     to   { opacity: 1; }
 }
 .nav-pulse {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 3px solid transparent;
+    border: 3px solid rgba(255, 255, 255, 0.15);
     border-top-color: var(--c-accent);
-    border-right-color: var(--c-accent);
-    animation: nav-spin 0.7s linear infinite, nav-glow 1.4s ease-in-out infinite;
+    animation: nav-spin 0.7s linear infinite;
 }
 @keyframes nav-spin {
     to { transform: rotate(360deg); }
-}
-@keyframes nav-glow {
-    0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--c-accent) 30%, transparent); }
-    50%      { box-shadow: 0 0 20px color-mix(in srgb, var(--c-accent) 60%, transparent); }
 }
 
 @utility tap {

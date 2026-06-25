@@ -319,15 +319,47 @@ async function saveReminder(weekday, times, isEnabled) {
 }
 
 // ---------------------------------------------------------------------------
+// Server-side sync — asks the LOCAL device server to pull fresh backend
+// content into its SQLite (the primary render source) and two-way sync the
+// signed-in user's data. This is what makes admin content actually appear.
+// ---------------------------------------------------------------------------
+async function runServerSync() {
+    try {
+        const res = await fetch('/sync/run', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        // Refresh the visible Livewire components so new content shows without
+        // a hard reload.
+        if (data.changed && window.Livewire) {
+            window.Livewire.all().forEach(c => c.$wire.$refresh());
+        }
+        return !!data.changed;
+    } catch (e) {
+        return false;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Full sync cycle.
 // ---------------------------------------------------------------------------
 async function fullSync() {
     if (!navigator.onLine) return;
 
+    // Primary: server-side pull into local SQLite (renders server-side).
+    await runServerSync();
+
+    // Secondary: keep the IndexedDB offline cache warm for offline rendering.
     await pullContent();
     await pushUserData();
 
-    // Only pull user data if we haven't done it recently (avoids overwriting local).
     const lastUserPull = await db.get('sync_meta', 'last_user_pull');
     const fiveMinAgo = Date.now() - 5 * 60 * 1000;
     if (!lastUserPull || new Date(lastUserPull.at).getTime() < fiveMinAgo) {

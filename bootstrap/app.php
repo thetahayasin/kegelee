@@ -29,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
 
+        // Device app only: pull backend content + two-way sync user data on
+        // page navigations. No-op on the backend (CONTENT_SYNC_URL empty).
+        $middleware->web(append: [
+            \App\Http\Middleware\SyncWithBackend::class,
+        ]);
+
         // Guests hitting the app land on the public homepage (or onboarding when
         // the homepage is disabled). Admin routes redirect to the admin login.
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin*')

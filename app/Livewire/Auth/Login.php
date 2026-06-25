@@ -85,31 +85,16 @@ class Login extends Component
 
     private function authenticateRemotely(string $email, string $password): ?array
     {
-        $syncUrl = config('app.content_sync_url');
-        if (! $syncUrl) {
+        if (! \App\Services\Sync\BackendClient::isClient()) {
             return null;
         }
 
-        // Clean/resolve the API base URL
-        if (str_ends_with($syncUrl, '/v1/content')) {
-            $syncUrl = substr($syncUrl, 0, -11);
-        }
-        $syncUrl = rtrim($syncUrl, '/');
-        if (! str_ends_with($syncUrl, '/api')) {
-            $syncUrl .= '/api';
-        }
-
-        $apiUrl = $syncUrl . '/v1/auth/login';
-        $apiKey = config('app.sync_api_key');
-
         try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'Accept' => 'application/json',
-            ])->timeout(5)->post($apiUrl, [
-                'email' => $email,
-                'password' => $password,
-            ]);
+            $response = \App\Services\Sync\BackendClient::request()
+                ->post(\App\Services\Sync\BackendClient::base().'/v1/auth/login', [
+                    'email' => $email,
+                    'password' => $password,
+                ]);
 
             if ($response->successful()) {
                 return $response->json('user');

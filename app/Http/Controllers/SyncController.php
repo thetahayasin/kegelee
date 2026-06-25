@@ -32,6 +32,20 @@ class SyncController extends Controller
      */
     public function content(SettingsService $settings): JsonResponse
     {
+        // Media paths are stored relative ("/storage/..."). Devices render these
+        // against their own local server, so we must hand back ABSOLUTE URLs
+        // pointing at this backend, or the device can't load the asset.
+        $abs = static function (?string $url): ?string {
+            if (! $url) {
+                return null;
+            }
+            if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                return $url;
+            }
+
+            return url($url);
+        };
+
         $exercises = Exercise::where('is_active', true)
             ->orderBy('sort_order')
             ->get()
@@ -55,9 +69,19 @@ class SyncController extends Controller
                 'relax_label'        => $e->relax_label,
                 'unlock_after_days'  => (int) $e->unlock_after_days,
                 'sort_order'         => (int) $e->sort_order,
-                'icon_url'           => $e->iconUrl(),
-                'video_url'          => $e->videoUrl(),
+                'icon_url'           => $abs($e->iconUrl()),
+                'video_url'          => $abs($e->videoUrl()),
                 'updated_at'         => $e->updated_at?->toIso8601String(),
+            ]);
+
+        // Per-level run durations (the exercise_level pivot) — the SessionBuilder
+        // needs these to assemble each level's workout, so they must sync too.
+        $exerciseLevels = \Illuminate\Support\Facades\DB::table('exercise_level')
+            ->get()
+            ->map(fn ($row) => [
+                'exercise_id'      => (int) $row->exercise_id,
+                'level_id'         => (int) $row->level_id,
+                'duration_seconds' => (float) $row->duration_seconds,
             ]);
 
         $levels = Level::where('is_active', true)
@@ -85,7 +109,7 @@ class SyncController extends Controller
                 'body'       => $s->body,
                 'icon'       => $s->icon,
                 'cta_label'  => $s->cta_label,
-                'media_url'  => $s->mediaUrl(),
+                'media_url'  => $abs($s->mediaUrl()),
                 'sort_order' => (int) $s->sort_order,
                 'updated_at' => $s->updated_at?->toIso8601String(),
             ]);
@@ -96,8 +120,8 @@ class SyncController extends Controller
             ->map(fn (KnowledgeLesson $k) => [
                 'id'          => $k->id,
                 'title'       => $k->title,
-                'body'        => $k->body,
-                'video_src'   => $k->videoSrc(),
+                'description' => $k->description,
+                'video_src'   => $abs($k->videoSrc()),
                 'sort_order'  => (int) $k->sort_order,
                 'updated_at'  => $k->updated_at?->toIso8601String(),
             ]);
@@ -117,9 +141,14 @@ class SyncController extends Controller
         foreach ($publicKeys as $key) {
             $appSettings[$key] = $settings->get($key);
         }
+        // The hero image is a stored path; hand back an absolute URL.
+        if (! empty($appSettings['home_hero_image'])) {
+            $appSettings['home_hero_image'] = $abs($appSettings['home_hero_image']);
+        }
 
         return response()->json([
             'exercises'        => $exercises,
+            'exercise_levels'  => $exerciseLevels,
             'levels'           => $levels,
             'onboarding_slides' => $slides,
             'knowledge_lessons' => $lessons,

@@ -135,11 +135,25 @@ class Exercise extends Model
 
     public function iconUrl(): ?string
     {
-        return $this->icon_path ? Storage::url($this->icon_path) : null;
+        return $this->resolveMedia($this->icon_path);
     }
 
     public function videoUrl(): ?string
     {
-        return $this->video_path ? Storage::url($this->video_path) : null;
+        return $this->resolveMedia($this->video_path);
+    }
+
+    /** Resolve a stored media path to a URL, passing through absolute (synced) URLs. */
+    private function resolveMedia(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return Storage::url($path);
     }
 }
