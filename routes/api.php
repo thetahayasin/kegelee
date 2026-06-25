@@ -20,6 +20,12 @@ Route::prefix('v1')->middleware('sync.key')->group(function () {
     // No user auth needed; the API key is enough.
     Route::get('/content', [SyncController::class, 'content']);
 
+    // Remote authentication endpoints (accessed by NativePHP clients/app)
+    Route::post('/auth/login', [SyncController::class, 'remoteLogin']);
+    Route::post('/auth/register', [SyncController::class, 'remoteRegister']);
+    Route::post('/auth/verify', [SyncController::class, 'remoteVerify']);
+    Route::post('/auth/resend', [SyncController::class, 'remoteResend']);
+
     // User-specific data — requires auth session cookie.
     Route::middleware('auth')->group(function () {
         Route::post('/user/push', [SyncController::class, 'push']);

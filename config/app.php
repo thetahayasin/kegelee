@@ -135,4 +135,6 @@ return [
 
     'sync_api_key' => env('SYNC_API_KEY'),
 
+    'content_sync_url' => env('CONTENT_SYNC_URL'),
+
 ];

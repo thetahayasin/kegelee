@@ -7,7 +7,21 @@
     <meta name="theme-color" content="#060810">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="sync-api-key" content="{{ config('app.sync_api_key') }}">
-    <meta name="sync-api-base" content="{{ url('/api') }}">
+    <?php
+        $syncBase = config('app.content_sync_url');
+        if (empty($syncBase)) {
+            $syncBase = url('/api');
+        } else {
+            if (str_ends_with($syncBase, '/v1/content')) {
+                $syncBase = substr($syncBase, 0, -11);
+            }
+            $syncBase = rtrim($syncBase, '/');
+            if (!str_ends_with($syncBase, '/api')) {
+                $syncBase .= '/api';
+            }
+        }
+    ?>
+    <meta name="sync-api-base" content="{{ $syncBase }}">
     <meta name="sync-enabled" content="{{ $settings->get('sync_enabled', true) ? '1' : '0' }}">
     <meta name="sync-interval" content="{{ (int) $settings->get('sync_interval_minutes', 15) }}">
 

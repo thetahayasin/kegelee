@@ -42,10 +42,30 @@ class Login extends Component
 
         $user = User::where('email', strtolower($this->email))->first();
 
+        // If local authentication fails, try remote sync server!
         if (! $user || ! $user->password || ! Hash::check($this->password, $user->password)) {
-            RateLimiter::hit($key, 300);
-            $this->addError('email', 'These credentials do not match our records.');
-            return;
+            $remoteUser = $this->authenticateRemotely(strtolower($this->email), $this->password);
+            if ($remoteUser) {
+                // Replicate / sync user details locally
+                $user = User::updateOrCreate(
+                    ['email' => strtolower($remoteUser['email'])],
+                    [
+                        'id' => $remoteUser['id'],
+                        'name' => $remoteUser['name'],
+                        'email_verified_at' => $remoteUser['email_verified_at'] ? now()->parse($remoteUser['email_verified_at']) : null,
+                        'password' => $remoteUser['password_hash'], // Store the hash directly so offline works next time!
+                        'is_admin' => (bool)$remoteUser['is_admin'],
+                        'level_id' => $remoteUser['level_id'],
+                        'level_started_days' => (int)$remoteUser['level_started_days'],
+                        'onboarded_at' => $remoteUser['onboarded_at'] ? now()->parse($remoteUser['onboarded_at']) : null,
+                        'timezone' => $remoteUser['timezone'],
+                    ]
+                );
+            } else {
+                RateLimiter::hit($key, 300);
+                $this->addError('email', 'These credentials do not match our records.');
+                return;
+            }
         }
 
         RateLimiter::clear($key);
@@ -61,6 +81,44 @@ class Login extends Component
         session()->regenerate();
 
         return $this->redirectRoute('home', navigate: true);
+    }
+
+    private function authenticateRemotely(string $email, string $password): ?array
+    {
+        $syncUrl = config('app.content_sync_url');
+        if (! $syncUrl) {
+            return null;
+        }
+
+        // Clean/resolve the API base URL
+        if (str_ends_with($syncUrl, '/v1/content')) {
+            $syncUrl = substr($syncUrl, 0, -11);
+        }
+        $syncUrl = rtrim($syncUrl, '/');
+        if (! str_ends_with($syncUrl, '/api')) {
+            $syncUrl .= '/api';
+        }
+
+        $apiUrl = $syncUrl . '/v1/auth/login';
+        $apiKey = config('app.sync_api_key');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Accept' => 'application/json',
+            ])->timeout(5)->post($apiUrl, [
+                'email' => $email,
+                'password' => $password,
+            ]);
+
+            if ($response->successful()) {
+                return $response->json('user');
+            }
+        } catch (\Exception $e) {
+            // Network failure or timeout
+        }
+
+        return null;
     }
 
     public function render(SettingsService $settings)

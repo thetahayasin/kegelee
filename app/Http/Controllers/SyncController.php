@@ -291,4 +291,120 @@ class SyncController extends Controller
             'synced_at' => now()->toIso8601String(),
         ]);
     }
+
+    public function remoteLogin(Request $request): JsonResponse
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        if (! auth()->attempt($credentials)) {
+            return response()->json(['error' => 'These credentials do not match our records.'], 401);
+        }
+
+        $user = auth()->user();
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+                'password_hash' => $user->password,
+                'is_admin' => (bool) $user->is_admin,
+                'level_id' => $user->level_id,
+                'level_started_days' => (int) $user->level_started_days,
+                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+                'timezone' => $user->timezone,
+            ]
+        ]);
+    }
+
+    public function remoteRegister(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:120',
+            'email' => 'required|email|max:190|unique:users,email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => trim($data['name']),
+            'email' => strtolower($data['email']),
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'level_id' => Level::where('is_active', true)->orderBy('number')->value('id'),
+        ]);
+
+        \App\Services\CodeSender::send($user->email, 'verify');
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+                'password_hash' => $user->password,
+                'is_admin' => (bool) $user->is_admin,
+                'level_id' => $user->level_id,
+                'level_started_days' => (int) $user->level_started_days,
+                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+                'timezone' => $user->timezone,
+            ]
+        ]);
+    }
+
+    public function remoteVerify(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|digits:6',
+        ]);
+
+        if (! \App\Models\EmailCode::verify($data['email'], $data['code'], 'verify')) {
+            return response()->json(['error' => 'That code is invalid or has expired.'], 422);
+        }
+
+        $user = \App\Models\User::where('email', $data['email'])->first();
+        if (! $user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        $user->update(['email_verified_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+                'password_hash' => $user->password,
+                'is_admin' => (bool) $user->is_admin,
+                'level_id' => $user->level_id,
+                'level_started_days' => (int) $user->level_started_days,
+                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+                'timezone' => $user->timezone,
+            ]
+        ]);
+    }
+
+    public function remoteResend(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $key = 'resend:'.$data['email'];
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 3)) {
+            return response()->json(['error' => 'Too many requests. Try again later.'], 429);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 300);
+
+        \App\Services\CodeSender::send($data['email'], 'verify');
+
+        return response()->json(['success' => true]);
+    }
 }
