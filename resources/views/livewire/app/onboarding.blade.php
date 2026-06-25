@@ -52,9 +52,9 @@
     {{-- CTA --}}
     <div class="flex items-center gap-3">
         <button x-show="index > 0 && index < (slides.length - 1)"
-                @click="index = Math.max(0, index - 1); $wire.back()"
+                @click="index = Math.max(0, index - 1)"
                 class="h-14 rounded-2xl bg-surface px-5 text-content tap">Back</button>
-        <button @click="if (index >= slides.length - 1) { $wire.finish(); } else { index = Math.min(slides.length - 1, index + 1); $wire.next(); }"
+        <button @click="if (index >= slides.length - 1) { $wire.finish(); } else { index = Math.min(slides.length - 1, index + 1); }"
                 class="h-14 flex-1 rounded-2xl bg-accent text-base font-semibold tap text-white"
                 x-text="slides[index] ? (slides[index].cta_label || (index === slides.length - 1 ? 'Get Started' : 'Next')) : 'Next'">
         </button>
