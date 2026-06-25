@@ -28,10 +28,6 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 |--------------------------------------------------------------------------
 */
 Route::get('/', function (SettingsService $settings) {
-    if (auth()->check()) {
-        return redirect()->route('home');
-    }
-
     if (! $settings->get('homepage_enabled', true)) {
         return redirect()->route('onboarding');
     }
