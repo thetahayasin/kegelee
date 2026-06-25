@@ -67,7 +67,7 @@
     {{-- JSON-LD structured data --}}
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "{{ addslashes($appName) }}",
         "description": "{{ addslashes($seoDesc) }}",
