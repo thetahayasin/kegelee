@@ -24,9 +24,27 @@ class BackendClient
      */
     public static function isClient(): bool
     {
-        return (bool) config('nativephp-internal.running')
+        return self::isNativeRuntime()
             && ! empty(config('app.content_sync_url'))
             && ! empty(config('app.sync_api_key'));
+    }
+
+    /**
+     * Whether we are running inside the packaged NativePHP device app.
+     *
+     * Read the flag straight from the runtime environment ($_SERVER / getenv),
+     * NOT via config('nativephp-internal.running'): packaged apps cache their
+     * config at BUILD time (where the flag is false), which would freeze it to
+     * false forever. The native C bridge sets NATIVEPHP_RUNNING at RUNTIME on
+     * both the OS env and $_SERVER, so reading them directly is cache-proof.
+     */
+    public static function isNativeRuntime(): bool
+    {
+        $flag = $_SERVER['NATIVEPHP_RUNNING']
+            ?? $_ENV['NATIVEPHP_RUNNING']
+            ?? getenv('NATIVEPHP_RUNNING');
+
+        return filter_var($flag, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**

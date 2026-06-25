@@ -130,7 +130,7 @@ return [
         'show' => (bool) env('MOBILE_SPLASHSCREEN_SHOW_ICON', false),
         'size' => (float) env('MOBILE_SPLASHSCREEN_ICON_SIZE', 0.2),
         'position' => env('MOBILE_SPLASHSCREEN_ICON_POSITION', 'bottom'),
-        'corner_radius' => (float) env('MOBILE_SPLASHSCREEN_ICON_RADIUS', 0.0),
+        'corner_radius' => (float) env('MOBILE_SPLASHSCREEN_ICON_RADIUS', 0.22),
     ],
 
     /*
