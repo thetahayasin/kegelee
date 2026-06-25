@@ -55,7 +55,13 @@
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/30">
                                     <svg viewBox="0 0 24 24" class="h-8 w-8 text-white/80" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                                 </div>
-                                <span class="absolute bottom-1.5 right-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-semibold text-white">Uploaded</span>
+                                <span class="absolute bottom-1.5 right-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-semibold text-white">{{ $row['video_path'] ? 'Uploaded' : 'External' }}</span>
+                                @if ($row['video_path'])
+                                    <button type="button" wire:click="removeVideo({{ $i }})" wire:confirm="Remove the uploaded video for this lesson?"
+                                            class="absolute top-1.5 right-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white hover:bg-accent transition-colors" title="Remove video">
+                                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                    </button>
+                                @endif
                             </div>
                         @endif
 

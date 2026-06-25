@@ -1,0 +1,294 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Exercise;
+use App\Models\KnowledgeLesson;
+use App\Models\Level;
+use App\Models\Measurement;
+use App\Models\OnboardingSlide;
+use App\Models\Reminder;
+use App\Models\TrainingDay;
+use App\Models\WorkoutSession;
+use App\Services\ProgressionService;
+use App\Services\SettingsService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+/**
+ * Secure API for the offline-first sync engine.
+ *
+ * All endpoints sit behind the VerifySyncApiKey middleware.
+ * User-specific endpoints additionally require auth (session cookie).
+ */
+class SyncController extends Controller
+{
+    /**
+     * GET /api/v1/content
+     *
+     * Returns the full content catalog: exercises, levels, onboarding slides,
+     * knowledge lessons, and app settings. The client stores this in IndexedDB
+     * and uses it as the offline source of truth for content.
+     */
+    public function content(SettingsService $settings): JsonResponse
+    {
+        $exercises = Exercise::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn (Exercise $e) => [
+                'id'                 => $e->id,
+                'slug'               => $e->slug,
+                'name'               => $e->name,
+                'description'        => $e->description,
+                'instructions'       => $e->instructions,
+                'contract_seconds'   => (float) $e->contract_seconds,
+                'relax_seconds'      => (float) $e->relax_seconds,
+                'hold_seconds'       => (float) $e->hold_seconds,
+                'min_duration'       => (float) $e->min_duration,
+                'max_duration'       => (float) $e->max_duration,
+                'is_active'          => (bool) $e->is_active,
+                'full_hold'          => (bool) $e->full_hold,
+                'start_phase'        => $e->start_phase,
+                'contract_glow_mode' => $e->contract_glow_mode,
+                'relax_glow_mode'    => $e->relax_glow_mode,
+                'contract_label'     => $e->contract_label,
+                'relax_label'        => $e->relax_label,
+                'unlock_after_days'  => (int) $e->unlock_after_days,
+                'sort_order'         => (int) $e->sort_order,
+                'icon_url'           => $e->iconUrl(),
+                'video_url'          => $e->videoUrl(),
+                'updated_at'         => $e->updated_at?->toIso8601String(),
+            ]);
+
+        $levels = Level::where('is_active', true)
+            ->orderBy('number')
+            ->get()
+            ->map(fn (Level $l) => [
+                'id'                    => $l->id,
+                'number'                => (int) $l->number,
+                'name'                  => $l->name,
+                'description'           => $l->description,
+                'total_session_seconds' => (float) $l->total_session_seconds,
+                'rest_seconds'          => (float) $l->rest_seconds,
+                'min_exercises'         => (int) $l->min_exercises,
+                'days_to_complete'      => (int) $l->days_to_complete,
+                'sessions_per_day'      => $l->sessions_per_day,
+                'updated_at'            => $l->updated_at?->toIso8601String(),
+            ]);
+
+        $slides = OnboardingSlide::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn (OnboardingSlide $s) => [
+                'id'         => $s->id,
+                'title'      => $s->title,
+                'body'       => $s->body,
+                'icon'       => $s->icon,
+                'cta_label'  => $s->cta_label,
+                'media_url'  => $s->mediaUrl(),
+                'sort_order' => (int) $s->sort_order,
+                'updated_at' => $s->updated_at?->toIso8601String(),
+            ]);
+
+        $lessons = KnowledgeLesson::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn (KnowledgeLesson $k) => [
+                'id'          => $k->id,
+                'title'       => $k->title,
+                'body'        => $k->body,
+                'video_src'   => $k->videoSrc(),
+                'sort_order'  => (int) $k->sort_order,
+                'updated_at'  => $k->updated_at?->toIso8601String(),
+            ]);
+
+        // Only send client-relevant settings (not SMTP credentials, etc.)
+        $publicKeys = [
+            'app_name', 'app_tagline', 'color_accent', 'color_accent_soft',
+            'color_success', 'color_bg', 'color_surface', 'color_surface_2',
+            'color_text', 'color_text_muted', 'circle_size', 'circle_track_width',
+            'circle_glow_enabled', 'circle_glow_color', 'circle_animation_speed',
+            'circle_glow_speed', 'circle_time_scale', 'haptics_enabled',
+            'sound_enabled', 'sessions_per_day', 'plan_length_days',
+            'onboarding_enabled', 'home_hero_image',
+        ];
+
+        $appSettings = [];
+        foreach ($publicKeys as $key) {
+            $appSettings[$key] = $settings->get($key);
+        }
+
+        return response()->json([
+            'exercises'        => $exercises,
+            'levels'           => $levels,
+            'onboarding_slides' => $slides,
+            'knowledge_lessons' => $lessons,
+            'settings'         => $appSettings,
+            'synced_at'        => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * POST /api/v1/user/push
+     *
+     * Accepts queued offline data from the client:
+     * - workout_sessions: [{exercise_slug, duration_seconds, completed_at_iso, is_extra}]
+     * - measurements: [{seconds, measured_at_iso}]
+     * - reminders: [{weekday, times[], is_enabled}]
+     *
+     * De-duplicates sessions and measurements by timestamp (±5 seconds window).
+     */
+    public function push(Request $request, ProgressionService $progression): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        $synced = ['sessions' => 0, 'measurements' => 0, 'reminders' => 0];
+
+        // --- Workout Sessions ---
+        foreach ($request->input('workout_sessions', []) as $s) {
+            $completedAt = isset($s['completed_at_iso'])
+                ? \Carbon\Carbon::parse($s['completed_at_iso'])
+                : now();
+
+            $durationSeconds = max(0, (int) ($s['duration_seconds'] ?? 0));
+            if ($durationSeconds < 10) {
+                continue;
+            }
+
+            // De-duplicate: skip if a session exists within ±5 seconds
+            $exists = WorkoutSession::where('user_id', $user->id)
+                ->where('completed_at', '>=', $completedAt->copy()->subSeconds(5))
+                ->where('completed_at', '<=', $completedAt->copy()->addSeconds(5))
+                ->exists();
+
+            if (! $exists) {
+                $exercise = isset($s['exercise_slug'])
+                    ? Exercise::where('slug', $s['exercise_slug'])->first()
+                    : null;
+
+                $progression->recordSession($user, $exercise, $durationSeconds);
+                $synced['sessions']++;
+            }
+        }
+
+        // --- Measurements ---
+        foreach ($request->input('measurements', []) as $m) {
+            $measuredAt = isset($m['measured_at_iso'])
+                ? \Carbon\Carbon::parse($m['measured_at_iso'])
+                : now();
+
+            $seconds = round(max(0, min((float) ($m['seconds'] ?? 0), 600)), 1);
+            if ($seconds <= 0) {
+                continue;
+            }
+
+            // De-duplicate
+            $exists = Measurement::where('user_id', $user->id)
+                ->where('measured_at', '>=', $measuredAt->copy()->subSeconds(5))
+                ->where('measured_at', '<=', $measuredAt->copy()->addSeconds(5))
+                ->exists();
+
+            if (! $exists) {
+                Measurement::create([
+                    'user_id'     => $user->id,
+                    'seconds'     => $seconds,
+                    'measured_at' => $measuredAt,
+                ]);
+                $synced['measurements']++;
+            }
+        }
+
+        // --- Reminders ---
+        foreach ($request->input('reminders', []) as $r) {
+            $weekday = (int) ($r['weekday'] ?? -1);
+            if ($weekday < 0 || $weekday > 6) {
+                continue;
+            }
+
+            $user->reminders()->updateOrCreate(
+                ['weekday' => $weekday],
+                [
+                    'times'      => $r['times'] ?? ['08:00'],
+                    'is_enabled' => (bool) ($r['is_enabled'] ?? false),
+                ],
+            );
+            $synced['reminders']++;
+        }
+
+        return response()->json([
+            'ok'     => true,
+            'synced' => $synced,
+        ]);
+    }
+
+    /**
+     * GET /api/v1/user/pull
+     *
+     * Returns the authenticated user's progress data so a device can
+     * re-hydrate its local IndexedDB after a fresh install or cache clear.
+     */
+    public function pull(Request $request, ProgressionService $progression): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        $position = $progression->position($user);
+        $today = $progression->todayProgress($user);
+
+        return response()->json([
+            'user' => [
+                'id'        => $user->id,
+                'name'      => $user->name,
+                'level_id'  => $user->level_id,
+                'timezone'  => $user->timezone,
+                'onboarded' => (bool) $user->onboarded_at,
+            ],
+            'position'         => $position,
+            'today'            => $today,
+            'workout_sessions' => $user->workoutSessions()
+                ->orderByDesc('completed_at')
+                ->take(200)
+                ->get()
+                ->map(fn (WorkoutSession $ws) => [
+                    'id'               => $ws->id,
+                    'exercise_id'      => $ws->exercise_id,
+                    'level_id'         => $ws->level_id,
+                    'duration_seconds' => (int) $ws->duration_seconds,
+                    'is_extra'         => (bool) $ws->is_extra,
+                    'completed_at'     => $ws->completed_at?->toIso8601String(),
+                ]),
+            'measurements' => $user->measurements()
+                ->orderByDesc('measured_at')
+                ->take(100)
+                ->get()
+                ->map(fn (Measurement $m) => [
+                    'id'          => $m->id,
+                    'seconds'     => (float) $m->seconds,
+                    'measured_at' => $m->measured_at?->toIso8601String(),
+                ]),
+            'reminders' => $user->reminders()->get()->map(fn (Reminder $r) => [
+                'weekday'    => (int) $r->weekday,
+                'times'      => $r->times,
+                'is_enabled' => (bool) $r->is_enabled,
+            ]),
+            'training_days' => $user->trainingDays()
+                ->orderByDesc('date')
+                ->take(200)
+                ->get()
+                ->map(fn (TrainingDay $td) => [
+                    'date'              => $td->date,
+                    'sessions_count'    => (int) $td->sessions_count,
+                    'required_sessions' => (int) $td->required_sessions,
+                    'completed_at'      => $td->completed_at?->toIso8601String(),
+                ]),
+            'synced_at' => now()->toIso8601String(),
+        ]);
+    }
+}

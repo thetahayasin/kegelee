@@ -11,7 +11,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'sync' => 'Offline sync', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -31,18 +31,37 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label class="mb-1 block text-sm text-muted">Logo</label>
-                    @if ($logoUrl)<img src="{{ $logoUrl }}" class="mb-2 h-12 rounded bg-surface-2 object-contain">@endif
+                    @if ($logoUrl)
+                        <div class="mb-2 flex items-center gap-3">
+                            <img src="{{ $logoUrl }}" class="h-12 rounded bg-surface-2 object-contain">
+                            <button type="button" wire:click="removeImage('logo_path')" wire:confirm="Remove the logo?"
+                                    class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
+                        </div>
+                    @endif
                     <input type="file" wire:model="logoUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                     @error('logoUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="mb-1 block text-sm text-muted">Favicon</label>
+                    @if ($faviconUrl)
+                        <div class="mb-2 flex items-center gap-3">
+                            <img src="{{ $faviconUrl }}" class="h-12 w-12 rounded bg-surface-2 object-contain">
+                            <button type="button" wire:click="removeImage('favicon_path')" wire:confirm="Remove the favicon?"
+                                    class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
+                        </div>
+                    @endif
                     <input type="file" wire:model="faviconUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                     @error('faviconUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="mb-1 block text-sm text-muted">Training page image</label>
-                    @if ($homeImageUrl)<img src="{{ $homeImageUrl }}" class="mb-2 h-12 rounded bg-surface-2 object-contain">@endif
+                    @if ($homeImageUrl)
+                        <div class="mb-2 flex items-center gap-3">
+                            <img src="{{ $homeImageUrl }}" class="h-12 rounded bg-surface-2 object-contain">
+                            <button type="button" wire:click="removeImage('home_hero_image')" wire:confirm="Remove the training page image?"
+                                    class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
+                        </div>
+                    @endif
                     <input type="file" wire:model="homeImageUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                     @error('homeImageUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
@@ -100,6 +119,31 @@
             </div>
             <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.allow_extra_sessions" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Allow extra (optional) sessions</span></label>
             <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.onboarding_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Show onboarding story</span></label>
+        </div>
+
+        {{-- OFFLINE SYNC --}}
+        <div x-show="tab === 'sync'" class="space-y-4 rounded-2xl bg-surface p-5">
+            <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.sync_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Enable offline sync</span></label>
+            <p class="text-sm text-muted">When enabled, the app stores exercises, sessions and progress locally in the browser. User data syncs automatically when connectivity returns.</p>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Sync interval (minutes)</label>
+                    <input type="number" min="5" max="120" wire:model="values.sync_interval_minutes" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                    <p class="mt-1 text-xs text-muted">How often the app checks for new exercises/content from the server while online. Lower = fresher data, higher = less bandwidth.</p>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Session lifetime (days)</label>
+                    <input type="number" min="1" max="365" wire:model="values.sync_session_lifetime_days" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                    <p class="mt-1 text-xs text-muted">How long users stay logged in before needing to re-authenticate. 30 days is recommended for fitness apps.</p>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
+                <p class="font-semibold text-content">Sync API endpoint</p>
+                <p class="mt-1 font-mono text-xs break-all">{{ url('/api/v1/content') }}</p>
+                <p class="mt-2">Secured by <code class="text-content">SYNC_API_KEY</code> in your <code>.env</code>. The app passes this automatically — no user action needed.</p>
+            </div>
         </div>
 
         {{-- EMAIL (SMTP) --}}
@@ -170,6 +214,13 @@
                 <p class="font-semibold text-content">Pub/Sub webhook URL</p>
                 <p class="mt-1 font-mono text-xs break-all">{{ url('/webhooks/google-play') }}</p>
                 <p class="mt-2">Configure this as the push endpoint in your Google Cloud Pub/Sub subscription so Play sends real-time renewal and cancellation events.</p>
+            </div>
+
+            <div>
+                <label class="mb-1 block text-sm text-muted">Free trial days (all plans)</label>
+                <input type="number" min="0" wire:model="values.subscription_trial_days"
+                       class="h-11 w-32 rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">Set to 0 to disable trials. Applies to every plan — there are no per-plan trial periods.</p>
             </div>
 
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
@@ -253,6 +304,13 @@
             <div><label class="mb-1 block text-sm text-muted">Keywords</label>
                 <input wire:model="values.seo_keywords" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <div><label class="mb-1 block text-sm text-muted">OG image</label>
+                @if ($ogImageUrl)
+                    <div class="mb-2 flex items-center gap-3">
+                        <img src="{{ $ogImageUrl }}" class="h-16 rounded bg-surface-2 object-contain">
+                        <button type="button" wire:click="removeImage('seo_og_image')" wire:confirm="Remove the OG image?"
+                                class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
+                    </div>
+                @endif
                 <input type="file" wire:model="ogUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content"></div>
         </div>
 

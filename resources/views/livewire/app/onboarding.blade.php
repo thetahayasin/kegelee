@@ -1,58 +1,76 @@
-@php($slides = $this->slides)
-@php($slide = $slides[$index] ?? null)
-@php($isLast = $slide && $index >= $slides->count() - 1)
-<div class="min-h-[100dvh] flex flex-col px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+<div class="min-h-[100dvh] flex flex-col px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+     x-data="{
+         index: @entangle('index'),
+         slides: [],
+         async init() {
+             this.slides = [
+                 { id: 1, title: 'Improve health & perform better', body: 'Strengthen your pelvic floor muscles to enhance control, boost physical performance, and build core confidence that lasts.', cta_label: 'Next' },
+                 { id: 2, title: 'It takes only minutes', body: 'Each session is designed to fit your busy life. In just 3 to 5 minutes a day, you can complete your daily exercises anytime, anywhere.', cta_label: 'Next' },
+                 { id: 3, title: 'Track your progress', body: 'Watch your daily streak grow, measure your endurance improvements, and unlock new challenges as your pelvic floor gets stronger.', cta_label: 'Next' },
+                 { id: 4, title: 'Schedule your training', body: 'Set smart, quiet reminders at times that suit you. Stay consistent, build a habit, and see real results over time.', cta_label: 'Get Started' }
+             ];
+             if (window.kegelSync) {
+                 try {
+                     const stored = await window.kegelSync.db.getAll('onboarding_slides');
+                     if (stored && stored.length) {
+                         this.slides = stored.sort((a, b) => a.sort_order - b.sort_order);
+                     }
+                 } catch(e) {}
+             }
+         }
+     }">
     {{-- Top bar: progress + Sign In --}}
     <div class="flex items-center justify-between gap-4 pt-2">
         <div class="flex flex-1 items-center gap-1.5">
-            @foreach ($slides as $i => $s)
-                <div class="h-1.5 flex-1 rounded-full {{ $i <= $index ? 'bg-accent' : 'bg-white/10' }} transition-colors"></div>
-            @endforeach
+            <template x-for="(s, i) in slides" :key="s.id || i">
+                <div class="h-1.5 flex-1 rounded-full transition-colors"
+                     :class="i <= index ? 'bg-accent' : 'bg-white/10'"></div>
+            </template>
         </div>
         @guest
             <button wire:click="showLogin" class="text-sm font-semibold text-accent tap">Sign In</button>
         @endguest
     </div>
 
-    @if ($slide)
-        <div wire:key="slide-{{ $index }}" class="flex flex-1 flex-col animate-slide-up">
-            {{-- Large visual --}}
-            <div class="grid flex-1 place-items-center">
-                <x-onboarding-visual :index="$index" />
-            </div>
-
-            {{-- Copy --}}
-            <div class="space-y-3 pb-6 text-center">
-                <h1 class="text-3xl font-bold leading-tight">{{ $slide->title }}</h1>
-                <p class="leading-relaxed text-muted">{{ $slide->body }}</p>
-            </div>
+    {{-- Slide visual & copy --}}
+    <div class="flex flex-1 flex-col animate-slide-up mt-4">
+        {{-- Large visual --}}
+        <div class="grid flex-1 place-items-center">
+            <div x-show="index === 0" class="w-full h-full flex items-center justify-center"><x-onboarding-visual index="0" /></div>
+            <div x-show="index === 1" class="w-full h-full flex items-center justify-center"><x-onboarding-visual index="1" /></div>
+            <div x-show="index === 2" class="w-full h-full flex items-center justify-center"><x-onboarding-visual index="2" /></div>
+            <div x-show="index === 3" class="w-full h-full flex items-center justify-center"><x-onboarding-visual index="3" /></div>
         </div>
 
-        {{-- CTA --}}
-        <div class="flex items-center gap-3">
-            @if ($index > 0 && ! $isLast)
-                <button wire:click="back" class="h-14 rounded-2xl bg-surface px-5 text-content tap">Back</button>
-            @endif
-            <button wire:click="next" class="h-14 flex-1 rounded-2xl bg-accent text-base font-semibold tap">
-                {{ $slide->cta_label ?: ($isLast ? 'Get Started' : 'Next') }}
-            </button>
+        {{-- Copy --}}
+        <div class="space-y-3 pb-6 text-center" x-show="slides[index]">
+            <h1 class="text-3xl font-bold leading-tight text-white" x-text="slides[index] ? slides[index].title : ''"></h1>
+            <p class="leading-relaxed text-muted text-sm" x-text="slides[index] ? slides[index].body : ''"></p>
         </div>
-    @else
-        <div class="grid flex-1 place-items-center text-muted">No onboarding content.</div>
-        <button wire:click="finish" class="h-14 w-full rounded-2xl bg-accent font-semibold tap">Get Started</button>
-    @endif
+    </div>
+
+    {{-- CTA --}}
+    <div class="flex items-center gap-3">
+        <button x-show="index > 0 && index < (slides.length - 1)"
+                @click="index = Math.max(0, index - 1); $wire.back()"
+                class="h-14 rounded-2xl bg-surface px-5 text-content tap">Back</button>
+        <button @click="if (index >= slides.length - 1) { $wire.finish(); } else { index = Math.min(slides.length - 1, index + 1); $wire.next(); }"
+                class="h-14 flex-1 rounded-2xl bg-accent text-base font-semibold tap text-white"
+                x-text="slides[index] ? (slides[index].cta_label || (index === slides.length - 1 ? 'Get Started' : 'Next')) : 'Next'">
+        </button>
+    </div>
 
     {{-- Bottom-sheet auth modal --}}
     @if ($showAuthModal)
         <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/70 transition-opacity duration-300"
              x-data="{ show: false }"
              x-init="$nextTick(() => show = true)">
-            
-            {{-- Backdrop Click to close (only if lessons are not all completed) --}}
-            <div class="absolute inset-0" @if (!$this->isAllLessonsCompleted) wire:click="closeAuthModal" @endif></div>
 
-            {{-- Sheet Panel --}}
-            <div class="relative w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl transition-transform duration-300 z-10"
+            {{-- Backdrop click to close --}}
+            <div class="absolute inset-0" wire:click="closeAuthModal"></div>
+
+            {{-- Sheet panel --}}
+            <div class="relative w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl z-10"
                  x-show="show"
                  x-transition:enter="transform transition-transform ease-out duration-300"
                  x-transition:enter-start="translate-y-full"
@@ -60,19 +78,17 @@
                  x-transition:leave="transform transition-transform ease-in duration-200"
                  x-transition:leave-start="translate-y-0"
                  x-transition:leave-end="translate-y-full">
-                
+
                 {{-- Drag handle --}}
                 <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-white/10"></div>
 
-                @if (!$this->isAllLessonsCompleted && $authMode === 'options')
-                    {{-- Close button --}}
+                @if ($authMode === 'options')
+                    {{-- Close button (options view) --}}
                     <button wire:click="closeAuthModal" class="absolute top-4 right-4 grid h-8 w-8 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
                         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
-                @endif
 
-                @if ($authMode === 'options')
-                    {{-- Options View - just buttons --}}
+                    {{-- Options View --}}
                     <div class="mt-2 space-y-3">
                         <button wire:click="showRegister" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap">
                             Sign Up
@@ -94,25 +110,22 @@
                             </a>
                         @endif
                     </div>
+
                 @elseif ($authMode === 'login')
                     {{-- Login View --}}
-                    <div class="space-y-4 mt-2">
+                    <div class="space-y-4">
                         <div class="flex items-center justify-between gap-3">
                             <h2 class="text-xl font-bold text-white">Login</h2>
-                            @if (!$this->isAllLessonsCompleted)
-                                <button wire:click="closeAuthModal" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
-                                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                                </button>
-                            @else
-                                <div class="w-8 h-8 shrink-0"></div>
-                            @endif
+                            <button wire:click="closeAuthModal" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
+                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            </button>
                         </div>
 
                         <form wire:submit="login" class="space-y-4" autocomplete="on">
                             <div>
                                 <label for="login-email" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email Address</label>
                                 <input type="email" id="login-email" name="login-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="name@example.com" required>
-                                @error('email') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                @error('email') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
@@ -121,7 +134,7 @@
                                     <a href="{{ route('password.forgot') }}" wire:navigate class="text-xs font-semibold text-accent tap">Forgot password?</a>
                                 </div>
                                 <input type="password" id="login-password" name="login-password" autocomplete="current-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="••••••••" required>
-                                @error('password') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                @error('password') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <button type="submit" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2">
@@ -146,37 +159,40 @@
                             <button wire:click="showRegister" class="text-accent font-semibold tap">Don't have an account? Sign Up</button>
                         </div>
                     </div>
+
                 @elseif ($authMode === 'register')
                     {{-- Register View --}}
-                    <div class="space-y-4 mt-2">
+                    <div class="space-y-4">
                         <div class="flex items-center justify-between gap-3">
                             <h2 class="text-xl font-bold text-white">Sign Up</h2>
-                            @if (!$this->isAllLessonsCompleted)
-                                <button wire:click="closeAuthModal" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
-                                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                                </button>
-                            @else
-                                <div class="w-8 h-8 shrink-0"></div>
-                            @endif
+                            <button wire:click="closeAuthModal" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/5 hover:bg-white/10 text-muted tap" aria-label="Close">
+                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            </button>
                         </div>
 
                         <form wire:submit="register" class="space-y-4" autocomplete="on">
                             <div>
                                 <label for="register-name" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Full Name</label>
                                 <input type="text" id="register-name" name="register-name" autocomplete="name" wire:model="name" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Your Name" required>
-                                @error('name') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                @error('name') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label for="register-email" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email Address</label>
                                 <input type="email" id="register-email" name="register-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="name@example.com" required>
-                                @error('email') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                @error('email') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label for="register-password" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Password</label>
                                 <input type="password" id="register-password" name="register-password" autocomplete="new-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Min. 6 characters" required>
-                                @error('password') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                @error('password') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label for="register-password-confirm" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Confirm Password</label>
+                                <input type="password" id="register-password-confirm" name="register-password-confirm" autocomplete="new-password" wire:model="password_confirmation" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Repeat your password" required>
+                                @error('password_confirmation') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <button type="submit" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2">

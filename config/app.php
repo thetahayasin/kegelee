@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Sync API Key
+    |--------------------------------------------------------------------------
+    |
+    | Used by the VerifySyncApiKey middleware to secure the offline-first
+    | content sync API. Clients must send this as a Bearer token.
+    |
+    */
+
+    'sync_api_key' => env('SYNC_API_KEY'),
+
 ];

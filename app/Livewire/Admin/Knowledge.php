@@ -28,6 +28,7 @@ class Knowledge extends Component
             'title' => $l->title,
             'description' => $l->description,
             'video_url' => $l->video_url,
+            'video_path' => $l->video_path,
             'video_src' => $l->videoSrc(),
             'sort_order' => $l->sort_order,
             'is_active' => $l->is_active,
@@ -51,6 +52,23 @@ class Knowledge extends Component
             \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->video_path);
         }
         $lesson->delete();
+        $this->loadRows();
+    }
+
+    public function removeVideo(int $i): void
+    {
+        $row = $this->rows[$i] ?? null;
+        if (! $row) {
+            return;
+        }
+
+        $lesson = KnowledgeLesson::find($row['id']);
+        if ($lesson && $lesson->video_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->video_path);
+            $lesson->update(['video_path' => null]);
+        }
+
+        unset($this->videoUploads[$i]);
         $this->loadRows();
     }
 

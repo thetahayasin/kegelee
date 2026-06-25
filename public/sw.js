@@ -1,9 +1,13 @@
-const CACHE_NAME = 'kegel-v2';
+const CACHE_NAME = 'kegel-v3';
 
 const PRECACHE = [
-    '/app',
+    '/welcome',
+    '/offline.html',
 ];
 
+// ---------------------------------------------------------------------------
+// INSTALL — pre-cache onboarding + offline fallback.
+// ---------------------------------------------------------------------------
 self.addEventListener('install', (e) => {
     e.waitUntil(
         caches.open(CACHE_NAME)
@@ -12,6 +16,9 @@ self.addEventListener('install', (e) => {
     );
 });
 
+// ---------------------------------------------------------------------------
+// ACTIVATE — clean old caches, claim clients immediately.
+// ---------------------------------------------------------------------------
 self.addEventListener('activate', (e) => {
     e.waitUntil(
         caches.keys().then(names =>
@@ -20,17 +27,30 @@ self.addEventListener('activate', (e) => {
     );
 });
 
+// ---------------------------------------------------------------------------
+// FETCH — strategy depends on the request type.
+// ---------------------------------------------------------------------------
 self.addEventListener('fetch', (e) => {
     const url = new URL(e.request.url);
 
-    // Skip non-GET and Livewire update requests (POST to /livewire/update)
+    // Skip non-GET and Livewire update requests (POST to /livewire/update).
     if (e.request.method !== 'GET') return;
 
-    // Skip Livewire internal routes (v4 uses /livewire-{hash}/…)
+    // Skip Livewire internal routes.
     if (url.pathname.startsWith('/livewire-')) return;
 
-    // Static assets: cache-first (CSS, JS, fonts, images)
-    if (/\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico)(\?|$)/.test(url.pathname)
+    // Skip API routes — the sync engine handles these directly.
+    if (url.pathname.startsWith('/api/')) return;
+
+    // Skip auth-related routes — these must always be fresh.
+    const authPaths = ['/login', '/register', '/verify', '/forgot-password', '/reset-password', '/auth/'];
+    if (authPaths.some(p => url.pathname.startsWith(p))) return;
+
+    // Skip admin routes.
+    if (url.pathname.startsWith('/admin')) return;
+
+    // ----- Static assets: cache-first -----
+    if (/\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico|lottie)(\?|$)/.test(url.pathname)
         || url.pathname.startsWith('/build/')) {
         e.respondWith(
             caches.match(e.request).then(cached => {
@@ -47,7 +67,7 @@ self.addEventListener('fetch', (e) => {
         return;
     }
 
-    // HTML pages: network-first with cache fallback
+    // ----- HTML pages: network-first, cache fallback, offline shell last resort -----
     if (e.request.headers.get('accept')?.includes('text/html')) {
         e.respondWith(
             fetch(e.request)
@@ -58,12 +78,16 @@ self.addEventListener('fetch', (e) => {
                     }
                     return resp;
                 })
-                .catch(() => caches.match(e.request).then(c => c || caches.match('/app')))
+                .catch(() =>
+                    caches.match(e.request)
+                        .then(c => c || caches.match('/welcome'))
+                        .then(c => c || caches.match('/offline.html'))
+                )
         );
         return;
     }
 
-    // Videos: cache if small enough, otherwise network-only
+    // ----- Videos: cache-if-available, otherwise network -----
     if (/\.(mp4|webm|mov)(\?|$)/.test(url.pathname)) {
         e.respondWith(
             caches.match(e.request).then(cached => {

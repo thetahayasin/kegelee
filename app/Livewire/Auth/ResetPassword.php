@@ -26,7 +26,14 @@ class ResetPassword extends Component
         $this->validate([
             'email' => 'required|email|max:190',
             'code' => 'required|digits:6',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:6',
+        ], [
+            'email.required'    => 'Email is required.',
+            'email.email'       => 'Enter a valid email address.',
+            'code.required'     => 'Enter the code from your email.',
+            'code.digits'       => 'The code should be 6 digits.',
+            'password.required' => 'Password is required.',
+            'password.min'      => 'Password must be at least 6 characters.',
         ]);
 
         $email = strtolower($this->email);

@@ -21,15 +21,14 @@ class Plans extends Component
     private function loadRows(): void
     {
         $this->rows = Plan::orderBy('sort_order')->get()->map(fn (Plan $p) => [
-            'id' => $p->id,
-            'name' => $p->name,
-            'price' => $p->price,
-            'interval' => $p->interval,
-            'interval_count' => $p->interval_count,
-            'trial_days' => $p->trial_days,
+            'id'               => $p->id,
+            'name'             => $p->name,
+            'price'            => $p->price,
+            'interval'         => $p->interval,
+            'interval_count'   => $p->interval_count,
             'store_product_id' => $p->store_product_id,
-            'is_featured' => $p->is_featured,
-            'is_active' => $p->is_active,
+            'is_featured'      => $p->is_featured,
+            'is_active'        => $p->is_active,
         ])->all();
     }
 
@@ -55,14 +54,13 @@ class Plans extends Component
     {
         foreach ($this->rows as $row) {
             Plan::where('id', $row['id'])->update([
-                'name' => $row['name'],
-                'price' => (float) $row['price'],
-                'interval' => $row['interval'],
-                'interval_count' => max(1, (int) $row['interval_count']),
-                'trial_days' => max(0, (int) $row['trial_days']),
+                'name'             => $row['name'],
+                'price'            => (float) $row['price'],
+                'interval'         => $row['interval'],
+                'interval_count'   => max(1, (int) $row['interval_count']),
                 'store_product_id' => $row['store_product_id'] ?: null,
-                'is_featured' => (bool) $row['is_featured'],
-                'is_active' => (bool) $row['is_active'],
+                'is_featured'      => (bool) $row['is_featured'],
+                'is_active'        => (bool) $row['is_active'],
             ]);
         }
         $this->savedMessage = 'Plans saved.';

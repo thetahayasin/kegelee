@@ -22,6 +22,9 @@
 /storage/pail
 /database/*.sqlite
 /database/*.sqlite-journal
+/dist
+*.keystore
+*.jks
 /vendor
 _ide_helper.php
 Homestead.json

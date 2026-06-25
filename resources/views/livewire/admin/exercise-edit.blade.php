@@ -234,7 +234,11 @@
             <div>
                 <label class="mb-1 block text-sm text-muted">Icon image</label>
                 @if ($exercise?->iconUrl())
-                    <img src="{{ $exercise->iconUrl() }}" class="mb-2 h-16 w-16 rounded-xl object-contain bg-surface-2">
+                    <div class="mb-2 flex items-center gap-3">
+                        <img src="{{ $exercise->iconUrl() }}" class="h-16 w-16 rounded-xl object-contain bg-surface-2">
+                        <button type="button" wire:click="removeIcon" wire:confirm="Remove this icon image?"
+                                class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
+                    </div>
                 @endif
                 <input type="file" wire:model="iconUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                 <div wire:loading wire:target="iconUpload" class="mt-1 text-xs text-muted">Uploading…</div>
@@ -243,7 +247,11 @@
             <div>
                 <label class="mb-1 block text-sm text-muted">Training video (mp4)</label>
                 @if ($exercise?->videoUrl())
-                    <p class="mb-2 text-xs text-success">Video uploaded ✓</p>
+                    <div class="mb-2 flex items-center gap-3">
+                        <p class="text-xs text-success">Video uploaded ✓</p>
+                        <button type="button" wire:click="removeVideo" wire:confirm="Remove this training video?"
+                                class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
+                    </div>
                 @endif
                 <input type="file" wire:model="videoUpload" accept="video/*" class="block w-full text-sm text-muted file:mr-3 file:rounded-lg file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                 <div wire:loading wire:target="videoUpload" class="mt-1 text-xs text-muted">Uploading…</div>

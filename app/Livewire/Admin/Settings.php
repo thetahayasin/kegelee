@@ -45,10 +45,14 @@ class Settings extends Component
         'mail_port' => 'int', 'google_login_enabled' => 'bool',
         'google_play_enabled' => 'bool',
         'google_play_service_account_json' => 'html',
+        'subscription_trial_days' => 'int',
         'homepage_enabled' => 'bool',
         'home_stats' => 'json',
         'home_features' => 'json',
         'home_steps' => 'json',
+        'sync_enabled' => 'bool',
+        'sync_interval_minutes' => 'int',
+        'sync_session_lifetime_days' => 'int',
     ];
 
     public function mount(SettingsService $settings): void
@@ -92,6 +96,7 @@ class Settings extends Component
             'seo_og_image' => 'seo',
             'google_play_enabled' => 'google_play',
             'google_play_package_name' => 'google_play',
+            'subscription_trial_days' => 'google_play',
             'google_play_service_account_json' => 'google_play',
             'homepage_enabled' => 'homepage',
             'home_badge_text' => 'homepage',
@@ -103,6 +108,9 @@ class Settings extends Component
             'home_features' => 'homepage',
             'home_steps' => 'homepage',
             'home_footer_tagline' => 'homepage',
+            'sync_enabled' => 'sync',
+            'sync_interval_minutes' => 'sync',
+            'sync_session_lifetime_days' => 'sync',
         ];
 
         foreach ($this->values as $key => $value) {
@@ -121,11 +129,38 @@ class Settings extends Component
         $this->savedMessage = 'Settings saved.';
     }
 
+    /**
+     * Remove a saved branding/SEO image: delete the stored file and clear the
+     * setting immediately (so it persists without needing a full Save).
+     */
+    public function removeImage(string $key, SettingsService $settings): void
+    {
+        $groups = [
+            'logo_path'       => 'branding',
+            'favicon_path'    => 'branding',
+            'home_hero_image' => 'branding',
+            'seo_og_image'    => 'seo',
+        ];
+
+        if (! isset($groups[$key])) {
+            return;
+        }
+
+        $path = $this->values[$key] ?? null;
+        if ($path && \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        }
+
+        $this->values[$key] = null;
+        $settings->set($key, null, 'string', $groups[$key]);
+        $this->savedMessage = 'Image removed.';
+    }
+
     public function changeAdminPassword(): void
     {
         $this->validate([
             'currentPassword' => 'required',
-            'adminNewPassword' => 'required|string|min:8|confirmed',
+            'adminNewPassword' => 'required|string|min:6|confirmed',
         ]);
 
         $user = auth()->user();
@@ -143,9 +178,15 @@ class Settings extends Component
 
     public function render(SettingsService $settings)
     {
+        $url = fn ($key) => ! empty($this->values[$key])
+            ? \Illuminate\Support\Facades\Storage::url($this->values[$key])
+            : null;
+
         return view('livewire.admin.settings', [
-            'logoUrl' => $this->values['logo_path'] ? \Illuminate\Support\Facades\Storage::url($this->values['logo_path']) : null,
-            'homeImageUrl' => $this->values['home_hero_image'] ? \Illuminate\Support\Facades\Storage::url($this->values['home_hero_image']) : null,
+            'logoUrl'      => $url('logo_path'),
+            'faviconUrl'   => $url('favicon_path'),
+            'homeImageUrl' => $url('home_hero_image'),
+            'ogImageUrl'   => $url('seo_og_image'),
         ]);
     }
 }

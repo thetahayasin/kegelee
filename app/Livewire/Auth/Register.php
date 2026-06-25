@@ -40,7 +40,15 @@ class Register extends Component
         $this->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'name.required'      => 'Name is required.',
+            'email.required'     => 'Email is required.',
+            'email.email'        => 'Enter a valid email address.',
+            'email.unique'       => 'This email is already registered.',
+            'password.required'  => 'Password is required.',
+            'password.min'       => 'Password must be at least 6 characters.',
+            'password.confirmed' => "Passwords don't match.",
         ]);
 
         $user = User::create([

@@ -17,8 +17,13 @@ class ChangePassword extends Component
     public function update()
     {
         $this->validate([
-            'current' => 'required',
-            'password' => 'required|string|min:8|confirmed',
+            'current'  => 'required',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'current.required'   => 'Current password is required.',
+            'password.required'  => 'New password is required.',
+            'password.min'       => 'New password must be at least 6 characters.',
+            'password.confirmed' => "Passwords don't match.",
         ]);
 
         $user = auth()->user();

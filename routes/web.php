@@ -48,6 +48,10 @@ Route::get('/', function (SettingsService $settings) {
 |--------------------------------------------------------------------------
 */
 Route::get('/welcome', App\Onboarding::class)->name('onboarding');
+// Legal / policy pages — always public so they work even when the web app is
+// closed (app_enabled=false) or the marketing homepage is disabled. Required
+// for the Google Play privacy-policy URL.
+Route::view('/legal', 'legal.index')->name('legal.index');
 Route::get('/p/{page:slug}', App\Page\Show::class)->name('page.show');
 Route::get('/knowledge', App\Knowledge\Index::class)->name('knowledge.index');
 Route::get('/knowledge/{lesson}', App\Knowledge\Show::class)->name('knowledge.show');
@@ -74,6 +78,16 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'app.enabled'])->group(function () {
+    // Stores the device timezone (captured client-side on first load) so day
+    // boundaries follow the user's local day.
+    Route::post('/timezone', function (\Illuminate\Http\Request $request) {
+        $tz = (string) $request->input('timezone');
+        if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true)) {
+            $request->user()->update(['timezone' => $tz]);
+        }
+        return response()->noContent();
+    })->name('timezone.set');
+
     // Account / subscription management stays reachable without an active sub,
     // so users can subscribe, manage their account, or sign out.
     Route::get('/profile', App\Profile::class)->name('profile');

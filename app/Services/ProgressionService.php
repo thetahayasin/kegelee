@@ -45,10 +45,22 @@ class ProgressionService
             $user->trainingDays()->whereNotNull('completed_at')->count();
     }
 
-    /** 1-based day the user is currently working on, capped at the plan length. */
+    /**
+     * 1-based day the user is currently working on, capped at the plan length.
+     *
+     * Advances only when the calendar day turns over (in the user's timezone):
+     * finishing today's sessions completes the current day but keeps the display
+     * on it until tomorrow, rather than jumping straight to the next day. So we
+     * count days completed on PRIOR calendar dates, plus one for today.
+     */
     public function currentDayNumber(User $user): int
     {
-        return min($this->completedDays($user) + 1, $this->planLength($user));
+        $completedBeforeToday = $user->trainingDays()
+            ->whereNotNull('completed_at')
+            ->whereDate('date', '<', $this->today($user)->toDateString())
+            ->count();
+
+        return min($completedBeforeToday + 1, $this->planLength($user));
     }
 
     /** Month/day pair derived from completed days (Month 1 Day 20, etc.). */

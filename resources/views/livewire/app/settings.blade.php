@@ -6,17 +6,51 @@
         <h1 class="text-2xl font-bold">Settings</h1>
     </header>
 
-    {{-- Account --}}
-    <p class="px-6 pb-2 pt-4 text-xs font-semibold uppercase tracking-wide text-muted">Account</p>
-    <div class="mx-4 divide-y divide-white/5 overflow-hidden rounded-2xl bg-surface">
-        <div class="flex items-center justify-between px-5 py-4">
-            <span>Subscription</span>
-            @if ($subscription)
-                <span class="text-sm text-success font-medium">Active{{ $subscription->ends_at ? ' till '.$subscription->ends_at->format('j M Y') : '' }}</span>
-            @else
-                <span class="text-sm text-muted">Inactive</span>
+    {{-- Subscription --}}
+    <p class="px-6 pb-2 pt-4 text-xs font-semibold uppercase tracking-wide text-muted">Subscription</p>
+    <div class="mx-4 overflow-hidden rounded-2xl bg-surface">
+        @if ($subscription)
+            <div class="px-5 py-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="font-semibold">{{ $subscription->plan?->name ?? 'Premium' }}</p>
+                        <p class="mt-0.5 text-sm {{ $subscription->status === 'trialing' ? 'text-accent-soft' : 'text-success' }}">
+                            {{ $subscription->status === 'trialing' ? 'Free trial' : 'Active' }}{{ $subscription->ends_at ? ' · renews '.$subscription->ends_at->format('j M Y') : '' }}
+                        </p>
+                    </div>
+                    <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold {{ $subscription->auto_renewing ? 'bg-success/15 text-success' : 'bg-white/10 text-muted' }}">
+                        Auto-renew {{ $subscription->auto_renewing ? 'on' : 'off' }}
+                    </span>
+                </div>
+            </div>
+            <div class="divide-y divide-white/5 border-t border-white/5">
+                <a href="{{ route('paywall') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
+                    <span>Change plan</span><span class="text-muted">›</span>
+                </a>
+                @if ($manageUrl)
+                    <a href="{{ $manageUrl }}" target="_blank" rel="noopener" class="flex items-center justify-between px-5 py-4 tap">
+                        <span>Manage or cancel in Google Play</span>
+                        <svg viewBox="0 0 24 24" class="h-4 w-4 text-muted" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+                    </a>
+                @endif
+            </div>
+            @if ($subscription->isGooglePlay())
+                <p class="px-5 pb-4 text-xs text-muted">Auto-renewal is managed by Google Play. Use the link above to turn it off or cancel — you'll keep access until {{ $subscription->ends_at?->format('j M Y') ?? 'the period ends' }}.</p>
             @endif
-        </div>
+        @else
+            <a href="{{ route('paywall') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
+                <div>
+                    <p class="font-semibold">No active subscription</p>
+                    <p class="mt-0.5 text-sm text-muted">Subscribe to unlock full access</p>
+                </div>
+                <span class="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white">Subscribe</span>
+            </a>
+        @endif
+    </div>
+
+    {{-- Account --}}
+    <p class="px-6 pb-2 pt-6 text-xs font-semibold uppercase tracking-wide text-muted">Account</p>
+    <div class="mx-4 divide-y divide-white/5 overflow-hidden rounded-2xl bg-surface">
         <a href="{{ route('app.change-password') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
             <span>Change password</span><span class="text-muted">›</span>
         </a>

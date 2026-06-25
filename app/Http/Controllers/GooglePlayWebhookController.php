@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SubscriptionCanceledMail;
+use App\Mail\SubscriptionRenewedMail;
 use App\Models\Subscription;
 use App\Services\GooglePlayBillingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class GooglePlayWebhookController extends Controller
 {
@@ -79,7 +82,7 @@ class GooglePlayWebhookController extends Controller
             self::SUBSCRIPTION_RESTARTED => $this->renew($sub, $billing, $productId, $purchaseToken),
 
             self::SUBSCRIPTION_CANCELED,
-            self::SUBSCRIPTION_REVOKED => $sub?->update(['status' => 'canceled', 'canceled_at' => now()]),
+            self::SUBSCRIPTION_REVOKED => $this->cancel($sub),
 
             self::SUBSCRIPTION_ON_HOLD,
             self::SUBSCRIPTION_IN_GRACE_PERIOD => $sub?->update(['status' => 'past_due']),
@@ -106,13 +109,33 @@ class GooglePlayWebhookController extends Controller
         $data = $billing->verifySubscription($productId, $purchaseToken);
 
         $sub->update([
-            'status' => 'active',
+            'status'         => 'active',
             'purchase_token' => $purchaseToken,
-            'google_order_id' => $data['orderId'] ?? $sub->google_order_id,
-            'ends_at' => isset($data['expiryTimeMillis'])
+            'google_order_id'=> $data['orderId'] ?? $sub->google_order_id,
+            'auto_renewing'  => (bool) ($data['autoRenewing'] ?? true),
+            'ends_at'        => isset($data['expiryTimeMillis'])
                 ? Carbon::createFromTimestampMs($data['expiryTimeMillis'])
                 : $sub->ends_at,
         ]);
+
+        try {
+            Mail::to($sub->user)->send(new SubscriptionRenewedMail($sub->fresh()));
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send renewal email', ['error' => $e->getMessage()]);
+        }
+    }
+
+    private function cancel(?Subscription $sub): void
+    {
+        if (! $sub) {
+            return;
+        }
+        $sub->update(['status' => 'canceled', 'canceled_at' => now(), 'auto_renewing' => false]);
+        try {
+            Mail::to($sub->user)->send(new SubscriptionCanceledMail($sub));
+        } catch (\Throwable $e) {
+            Log::warning('Failed to send cancellation email', ['error' => $e->getMessage()]);
+        }
     }
 
     private function acknowledgeIfNeeded(

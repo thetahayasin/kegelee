@@ -11,7 +11,8 @@
         "laravel/socialite": "^5.28",
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3",
-        "nativephp/mobile": "^3.3"
+        "nativephp/mobile": "^3.3",
+        "s2br/nativephp-mobile-splashscreen": "^1.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

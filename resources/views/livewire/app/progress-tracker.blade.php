@@ -1,9 +1,101 @@
-<div class="min-h-[100dvh] pb-[calc(11rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]">
+<div class="min-h-[100dvh] pb-[calc(11rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]"
+     x-data="{
+        best: @js($best ? (int) ceil($best) : 0),
+        lastSecs: @js($last ? (int) ceil($last->seconds) : 0),
+        lastLabel: @js($last ? ($last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans()) : '-'),
+        bars: @js($bars),
+        maxScale: @js($maxScale),
+        mode: @entangle('mode'),
+        localList: [],
+        async init() {
+            if (window.kegelSync) {
+                try {
+                    const list = await window.kegelSync.db.getAll('measurements');
+                    if (list && list.length) {
+                        this.localList = list;
+                        this.recalculate();
+                    }
+                } catch(e) {}
+            }
+        },
+        recalculate() {
+            if (!this.localList || !this.localList.length) return;
+            const secs = this.localList.map(m => m.seconds);
+            this.best = Math.round(Math.max(...secs));
+            
+            const sorted = [...this.localList].sort((a, b) => new Date(b.measured_at_iso || b.measured_at) - new Date(a.measured_at_iso || a.measured_at));
+            this.lastSecs = Math.round(sorted[0].seconds);
+            this.lastLabel = 'Today';
+            
+            this.calculateOfflineBars(this.localList);
+        },
+        calculateOfflineBars(list) {
+            let count = this.mode === 'days' ? 7 : 6;
+            let unit = this.mode === 'days' ? 'day' : (this.mode === 'months' ? 'month' : 'week');
+            
+            let bars = [];
+            let maxVal = 0;
+            
+            for (let i = count - 1; i >= 0; i--) {
+                let start = new Date();
+                if (unit === 'day') {
+                    start.setDate(start.getDate() - i);
+                    start.setHours(0,0,0,0);
+                } else if (unit === 'month') {
+                    start.setMonth(start.getMonth() - i);
+                    start.setDate(1);
+                    start.setHours(0,0,0,0);
+                } else {
+                    start.setDate(start.getDate() - i * 7);
+                    let day = start.getDay();
+                    let diff = start.getDate() - day + (day === 0 ? -6 : 1);
+                    start.setDate(diff);
+                    start.setHours(0,0,0,0);
+                }
+                
+                let end = new Date(start);
+                if (unit === 'day') {
+                    end.setHours(23,59,59,999);
+                } else if (unit === 'month') {
+                    end.setMonth(end.getMonth() + 1);
+                    end.setDate(0);
+                    end.setHours(23,59,59,999);
+                } else {
+                    end.setDate(end.getDate() + 6);
+                    end.setHours(23,59,59,999);
+                }
+                
+                let val = 0;
+                for (const m of list) {
+                    let d = new Date(m.measured_at_iso || m.measured_at);
+                    if (d >= start && d <= end) {
+                        if (m.seconds > val) val = m.seconds;
+                    }
+                }
+                
+                let label = '';
+                if (unit === 'day') {
+                    label = start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                } else if (unit === 'month') {
+                    label = start.toLocaleDateString(undefined, { month: 'short' });
+                } else {
+                    label = start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                }
+                
+                bars.push({ label, value: val });
+                if (val > maxVal) maxVal = val;
+            }
+            
+            this.bars = bars;
+            this.maxScale = Math.max(6, Math.ceil(maxVal / 2) * 2);
+        }
+     }"
+     x-effect="recalculate()">
     <header class="relative flex items-center justify-center px-5 py-4">
         <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
         </a>
-        <h1 class="text-2xl font-bold">Progress Tracker</h1>
+        <h1 class="text-2xl font-bold text-white">Progress Tracker</h1>
     </header>
 
     {{-- Summary --}}
@@ -14,46 +106,45 @@
             </span>
             <div>
                 <p class="text-xs text-muted">best result</p>
-                <p class="font-bold">{{ $best ? (int) ceil($best).' sec' : '-' }}</p>
+                <p class="font-bold text-white" x-text="best > 0 ? best + ' sec' : '-'"></p>
             </div>
         </div>
         <div class="text-right">
             <p class="text-xs text-muted">last measurement</p>
-            <p class="font-bold">{{ $last ? $last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans() : '-' }}</p>
+            <p class="font-bold text-white" x-text="lastSecs > 0 ? lastSecs + ' sec (' + lastLabel + ')' : '-'"></p>
         </div>
     </div>
 
     {{-- Chart --}}
     <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface/40 p-4">
-        <p class="font-semibold">{{ $rangeLabel }}</p>
-        <p class="text-sm text-muted">top result: {{ $best ? (int) ceil($best).' sec' : '0 sec' }}</p>
+        <p class="font-semibold text-white">{{ $rangeLabel }}</p>
+        <p class="text-sm text-muted">top result: <span x-text="best ? best + ' sec' : '0 sec'"></span></p>
 
         <div class="relative mt-5 h-44">
             {{-- gridlines --}}
-            @for ($g = $maxScale; $g >= 0; $g -= max(2, $maxScale / 3))
-                @php($top = (1 - $g / $maxScale) * 100)
-                <div class="absolute inset-x-0 flex items-center" style="top: {{ $top }}%">
+            <template x-for="gVal in [maxScale, Math.round(maxScale * 2/3), Math.round(maxScale * 1/3), 0]" :key="gVal">
+                <div class="absolute inset-x-0 flex items-center" :style="'top: ' + ((1 - gVal / maxScale) * 100) + '%'">
                     <div class="h-px flex-1 bg-white/5"></div>
-                    <span class="ml-2 w-12 text-right text-[10px] text-muted">{{ (int) $g }} sec</span>
+                    <span class="ml-2 w-12 text-right text-[10px] text-muted" x-text="gVal + ' sec'"></span>
                 </div>
-            @endfor
+            </template>
 
             {{-- bars --}}
             <div class="absolute inset-0 flex items-end justify-between gap-2 pr-14">
-                @foreach ($bars as $bar)
+                <template x-for="bar in bars" :key="bar.label">
                     <div class="flex h-full flex-1 flex-col items-center justify-end">
                         <div class="w-7 rounded-md bg-accent transition-all"
-                             style="height: {{ $bar['value'] > 0 ? max(4, $bar['value'] / $maxScale * 100) : 0 }}%"></div>
+                             :style="'height: ' + (bar.value > 0 ? Math.max(4, bar.value / maxScale * 100) : 0) + '%'"></div>
                     </div>
-                @endforeach
+                </template>
             </div>
         </div>
 
         {{-- x labels --}}
         <div class="mt-2 flex justify-between gap-2 pr-14">
-            @foreach ($bars as $bar)
-                <span class="flex-1 text-center text-[10px] text-muted">{{ $bar['label'] }}</span>
-            @endforeach
+            <template x-for="bar in bars" :key="bar.label">
+                <span class="flex-1 text-center text-[10px] text-muted" x-text="bar.label"></span>
+            </template>
         </div>
     </section>
 
@@ -124,7 +215,16 @@
                 <p class="text-sm text-muted">Hold the button and contract the PF muscles for as long as possible.</p>
             </div>
             <div x-show="done" x-cloak class="space-y-3">
-                <button @click="$wire.record(result)" class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-[color:var(--c-on-accent)] tap">Continue</button>
+                <button @click="
+                    if (window.kegelSync) {
+                        window.kegelSync.queueMeasurement({ seconds: result }).then(() => {
+                            window.kegelSync.pushUserData().catch(() => {});
+                        });
+                    }
+                    $wire.record(result).catch(() => {
+                        window.location.href = '{{ route('progress') }}';
+                    });
+                " class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-[color:var(--c-on-accent)] tap">Continue</button>
                 <button @click="retake()" class="grid h-12 w-full place-items-center rounded-2xl bg-surface font-semibold tap">Try again</button>
             </div>
         </div>

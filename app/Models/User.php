@@ -69,8 +69,18 @@ class User extends Authenticatable
     public function activeSubscription(): ?Subscription
     {
         return $this->subscriptions()
-            ->whereIn('status', ['trialing', 'active'])
-            ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->where(function ($q) {
+                // Active / trialing: entitled while not yet expired.
+                $q->where(function ($w) {
+                    $w->whereIn('status', ['trialing', 'active'])
+                      ->where(fn ($e) => $e->whereNull('ends_at')->orWhere('ends_at', '>', now()));
+                })
+                // Canceled (e.g. auto-renew turned off in Google Play): keep
+                // access until the paid period actually ends.
+                ->orWhere(function ($w) {
+                    $w->where('status', 'canceled')->where('ends_at', '>', now());
+                });
+            })
             ->latest('id')
             ->first();
     }

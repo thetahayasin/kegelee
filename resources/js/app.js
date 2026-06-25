@@ -2,6 +2,18 @@
 // only carries small, app-wide helpers used by the workout player and
 // offline-first resilience for NativePHP Android.
 
+// ---------------------------------------------------------------------------
+// Offline-first sync engine — IndexedDB + server two-way sync
+// ---------------------------------------------------------------------------
+import './sync-engine.js';
+
+// Boot the sync engine once the DOM is ready.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.kegelSync?.boot());
+} else {
+    window.kegelSync?.boot();
+}
+
 window.kegel = {
     haptic(ms = 20) {
         try {

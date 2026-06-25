@@ -26,6 +26,7 @@ class Onboarding extends Component
     public string $name = '';
     public string $email = '';
     public string $password = '';
+    public string $password_confirmation = '';
     public bool $remember = true;
 
     public function mount(SettingsService $settings)
@@ -108,7 +109,7 @@ class Onboarding extends Component
         $user = \App\Models\User::where('email', strtolower($this->email))->first();
 
         if (! $user || ! $user->password || ! \Illuminate\Support\Facades\Hash::check($this->password, $user->password)) {
-            $this->addError('email', 'These credentials do not match our records.');
+            $this->addError('email', 'Email or password is incorrect.');
             return;
         }
 
@@ -128,9 +129,17 @@ class Onboarding extends Component
     public function register()
     {
         $this->validate([
-            'name' => 'required|string|max:120',
-            'email' => 'required|email|max:190|unique:users,email',
-            'password' => 'required|string|min:8',
+            'name'     => 'required|string|max:120',
+            'email'    => 'required|email|max:190|unique:users,email',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'name.required'      => 'Name is required.',
+            'email.required'     => 'Email is required.',
+            'email.email'        => 'Enter a valid email address.',
+            'email.unique'       => 'This email is already registered.',
+            'password.required'  => 'Password is required.',
+            'password.min'       => 'Password must be at least 6 characters.',
+            'password.confirmed' => "Passwords don't match.",
         ]);
 
         $user = \App\Models\User::create([
@@ -182,10 +191,6 @@ class Onboarding extends Component
 
     public function closeAuthModal(): void
     {
-        if ($this->isAllLessonsCompleted) {
-            return;
-        }
-
         $this->showAuthModal = false;
 
         if ($this->wasAutoOpened) {

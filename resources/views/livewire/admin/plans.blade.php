@@ -23,15 +23,13 @@
                     <label class="mb-1 block text-sm text-muted">Name</label>
                     <input wire:model="rows.{{ $i }}.name" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
                 </div>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 gap-2">
                     <div><label class="mb-1 block text-sm text-muted">Price</label>
                         <input type="number" step="0.01" wire:model="rows.{{ $i }}.price" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none"></div>
                     <div><label class="mb-1 block text-sm text-muted">Interval</label>
                         <select wire:model="rows.{{ $i }}.interval" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
                             @foreach ($intervals as $opt)<option value="{{ $opt }}">{{ $opt }}</option>@endforeach
                         </select></div>
-                    <div><label class="mb-1 block text-sm text-muted">Trial days</label>
-                        <input type="number" wire:model="rows.{{ $i }}.trial_days" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none"></div>
                 </div>
                 <div class="md:col-span-2">
                     <p class="rounded-lg bg-surface-2 px-3 py-2 text-sm text-muted">Every plan grants full access to the entire app. There are no per-plan feature differences.</p>

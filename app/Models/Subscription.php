@@ -11,9 +11,10 @@ class Subscription extends Model
 
     protected $casts = [
         'trial_ends_at' => 'datetime',
-        'started_at' => 'datetime',
-        'ends_at' => 'datetime',
-        'canceled_at' => 'datetime',
+        'started_at'    => 'datetime',
+        'ends_at'       => 'datetime',
+        'canceled_at'   => 'datetime',
+        'auto_renewing' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -33,6 +34,12 @@ class Subscription extends Model
 
     public function isActive(): bool
     {
+        // A canceled subscription (auto-renew off) is still entitled until the
+        // paid period ends.
+        if ($this->status === 'canceled') {
+            return (bool) $this->ends_at?->isFuture();
+        }
+
         return in_array($this->status, ['trialing', 'active'], true)
             && (! $this->ends_at || $this->ends_at->isFuture());
     }

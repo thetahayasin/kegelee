@@ -63,6 +63,26 @@ class ExerciseEdit extends Component
         $this->updateCalculatedDurations();
     }
 
+    public function removeIcon(): void
+    {
+        if ($this->exercise && $this->exercise->icon_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->exercise->icon_path);
+            $this->exercise->update(['icon_path' => null]);
+            $this->exercise = $this->exercise->fresh('levels');
+        }
+        $this->iconUpload = null;
+    }
+
+    public function removeVideo(): void
+    {
+        if ($this->exercise && $this->exercise->video_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->exercise->video_path);
+            $this->exercise->update(['video_path' => null]);
+            $this->exercise = $this->exercise->fresh('levels');
+        }
+        $this->videoUpload = null;
+    }
+
     public function updatedMinDuration(): void
     {
         $this->updateCalculatedDurations();

@@ -16,7 +16,7 @@
             @error('current') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
         </div>
         <div>
-            <input wire:model="password" type="password" placeholder="New password (min. 8 characters)" autocomplete="new-password"
+            <input wire:model="password" type="password" placeholder="New password (min. 6 characters)" autocomplete="new-password"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
             @error('password') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
         </div>

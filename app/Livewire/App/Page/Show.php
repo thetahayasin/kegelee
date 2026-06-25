@@ -6,7 +6,7 @@ use App\Models\Page;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
+#[Layout('components.layouts.page')]
 class Show extends Component
 {
     public Page $page;

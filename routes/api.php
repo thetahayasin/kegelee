@@ -1,0 +1,28 @@
+<?php
+
+use App\Http\Controllers\SyncController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Sync API — secured by SYNC_API_KEY (Bearer token)
+|--------------------------------------------------------------------------
+|
+| These endpoints power the offline-first sync engine. The client stores
+| content in IndexedDB and pushes queued user data when connectivity
+| returns. All routes require a valid API key; user-specific routes
+| additionally require an authenticated session.
+|
+*/
+Route::prefix('v1')->middleware('sync.key')->group(function () {
+
+    // Public content catalog — exercises, levels, onboarding, settings.
+    // No user auth needed; the API key is enough.
+    Route::get('/content', [SyncController::class, 'content']);
+
+    // User-specific data — requires auth session cookie.
+    Route::middleware('auth')->group(function () {
+        Route::post('/user/push', [SyncController::class, 'push']);
+        Route::get('/user/pull', [SyncController::class, 'pull']);
+    });
+});

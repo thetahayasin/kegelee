@@ -1,12 +1,32 @@
 @php($complete = $today['complete'])
 <div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]"
-     x-data x-init="
-        let pending = JSON.parse(localStorage.getItem('kegel_pending_sessions') || '[]');
-        if (pending.length) {
-            localStorage.removeItem('kegel_pending_sessions');
-            $wire.syncPending(pending);
+     x-data="{
+        done: @js($today['done']),
+        required: @js($today['required']),
+        month: @js($position['month']),
+        day: @js($position['day']),
+        complete: @js($complete),
+        async init() {
+            if (window.kegelSync) {
+                // Background sync
+                window.kegelSync.fullSync();
+                // Load local progress metadata
+                try {
+                    const todayProgress = await window.kegelSync.db.get('sync_meta', 'today_progress');
+                    if (todayProgress && todayProgress.value) {
+                        this.done = todayProgress.value.done;
+                        this.required = todayProgress.value.required;
+                        this.complete = this.done >= this.required;
+                    }
+                    const pos = await window.kegelSync.db.get('sync_meta', 'user_position');
+                    if (pos && pos.value) {
+                        this.month = pos.value.month;
+                        this.day = pos.value.day;
+                    }
+                } catch(e) {}
+            }
         }
-     ">
+     }">
     {{-- Header --}}
     <header class="flex items-center justify-center relative px-5 py-4">
         <h1 class="text-2xl font-bold">Training</h1>
@@ -28,11 +48,11 @@
                     <p class="font-semibold leading-tight truncate">{{ $nextUnlock->name }}</p>
                     <p class="text-xs text-muted">next in your training plan</p>
                 </div>
-                <span class="text-right text-xs text-muted leading-tight">{{ $position['completed'] }}/{{ $nextUnlock->unlock_after_days }} days</span>
+                <span class="text-right text-xs text-muted leading-tight" x-text="day + '/{{ $nextUnlock->unlock_after_days }} days'">{{ $position['completed'] }}/{{ $nextUnlock->unlock_after_days }} days</span>
             </div>
             @php($unlockPct = $nextUnlock->unlock_after_days > 0 ? min(100, round($position['completed'] / $nextUnlock->unlock_after_days * 100)) : 100)
             <div class="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                <div class="h-full rounded-full bg-accent transition-all duration-500" style="width: {{ $unlockPct }}%"></div>
+                <div class="h-full rounded-full bg-accent transition-all duration-500" :style="'width: ' + Math.min(100, Math.round(day / {{ max(1, $nextUnlock->unlock_after_days) }} * 100)) + '%'"></div>
             </div>
         </div>
     @endif
@@ -50,17 +70,27 @@
             @endif
         </div>
 
-        <x-gauge :value="$today['done']" :max="$today['required']" :size="68" color="var(--c-accent)" class="mb-12">
-            <span class="text-sm font-bold">{{ $today['done'] }}/{{ $today['required'] }}</span>
-        </x-gauge>
+        <div class="relative grid place-items-center mb-12" style="width: 68px; height: 68px;">
+            <svg width="68" height="68" viewBox="0 0 68 68" style="transform: rotate(126deg);">
+                <circle cx="34" cy="34" r="31.5" fill="none"
+                        stroke="rgba(255,255,255,0.10)" stroke-width="5"
+                        stroke-dasharray="158.336 197.920" stroke-linecap="round"/>
+                <circle cx="34" cy="34" r="31.5" fill="none"
+                        stroke="var(--c-accent)" stroke-width="5"
+                        stroke-dasharray="158.336 197.920"
+                        :stroke-dashoffset="158.336 * (1 - Math.min(1, Math.max(0, done / Math.max(1, required))))"
+                        stroke-linecap="round" style="transition: stroke-dashoffset 0.6s ease;"/>
+            </svg>
+            <div class="absolute inset-0 grid place-items-center">
+                <span class="text-sm font-bold text-white" x-text="done + '/' + required"></span>
+            </div>
+        </div>
 
-        @if ($complete)
-            <span class="inline-flex items-center gap-1.5 rounded-lg bg-success/15 px-2.5 py-1 text-xs font-semibold text-success">
-                COMPLETED
-                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
-            </span>
-        @endif
-        <p class="mt-2 text-xl font-bold">Month {{ $position['month'] }} <span class="text-muted/60">·</span> Day {{ $position['day'] }}</p>
+        <span x-show="complete" class="inline-flex items-center gap-1.5 rounded-lg bg-success/15 px-2.5 py-1 text-xs font-semibold text-success">
+            COMPLETED
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        </span>
+        <p class="mt-2 text-xl font-bold text-white">Month <span x-text="month"></span> <span class="text-muted/60">·</span> Day <span x-text="day"></span></p>
 
         {{-- Start strip --}}
         <div class="mt-5 rounded-2xl bg-surface-2 p-4">
@@ -69,15 +99,16 @@
                     <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
                     {{ $sessionMinutes }} min
                 </p>
-                <p class="mt-1 text-sm font-medium leading-snug">
-                    @if ($complete)
-                        Day complete - extra sessions are optional
-                    @else
-                        Complete {{ $today['required'] }} training {{ \Illuminate\Support\Str::plural('session', $today['required']) }} a day to finish a training day
-                    @endif
+                <p class="mt-1 text-sm font-medium leading-snug text-white">
+                    <template x-if="complete">
+                        <span>Day complete - extra sessions are optional</span>
+                    </template>
+                    <template x-if="!complete">
+                        <span x-text="'Complete ' + required + ' training session' + (required > 1 ? 's' : '') + ' a day to finish a training day'"></span>
+                    </template>
                 </p>
             </div>
-            <a href="{{ route('session') }}" wire:navigate class="mt-4 grid h-12 w-full place-items-center rounded-full bg-accent font-semibold tap">Start workout</a>
+            <a href="{{ route('session') }}" wire:navigate class="mt-4 grid h-12 w-full place-items-center rounded-full bg-accent font-semibold tap text-white">Start workout</a>
         </div>
     </section>
 
@@ -88,25 +119,55 @@
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
         </a>
     </div>
-    <div class="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
-        @foreach ($exercises as $row)
-            @php($ex = $row['model'])
-            @if ($row['unlocked'])
-                <a href="{{ route('exercises.show', $ex) }}" wire:navigate class="w-28 shrink-0 rounded-2xl bg-surface p-3 tap">
-            @else
-                <div class="w-28 shrink-0 rounded-2xl bg-surface p-3 opacity-50">
-            @endif
-                <x-equipment-icon :exercise="$ex" :size="84" class="mx-auto mb-2 w-full" />
-                <p class="text-sm font-semibold leading-tight truncate">{{ $ex->name }}</p>
-                <p class="text-xs {{ $row['unlocked'] ? 'text-muted' : 'text-accent-soft' }}">
-                    {{ $row['unlocked'] ? 'Available' : $row['days_left'].' days' }}
-                </p>
-            @if ($row['unlocked'])
+    <div class="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1"
+         x-data="{
+             localExercises: [],
+             async init() {
+                 if (window.kegelSync) {
+                     try {
+                         const list = await window.kegelSync.db.getAll('exercises');
+                         if (list && list.length) {
+                             this.localExercises = list.sort((a, b) => a.sort_order - b.sort_order);
+                         }
+                     } catch(e) {}
+                 }
+             }
+         }">
+        @if ($exercises->isNotEmpty())
+            @foreach ($exercises as $row)
+                @php($ex = $row['model'])
+                @if ($row['unlocked'])
+                    <a href="{{ route('exercises.show', $ex) }}" wire:navigate class="w-28 shrink-0 rounded-2xl bg-surface p-3 tap">
+                @else
+                    <div class="w-28 shrink-0 rounded-2xl bg-surface p-3 opacity-50">
+                @endif
+                    <x-equipment-icon :exercise="$ex" :size="84" class="mx-auto mb-2 w-full" />
+                    <p class="text-sm font-semibold leading-tight truncate">{{ $ex->name }}</p>
+                    <p class="text-xs {{ $row['unlocked'] ? 'text-muted' : 'text-accent-soft' }}">
+                        {{ $row['unlocked'] ? 'Available' : $row['days_left'].' days' }}
+                    </p>
+                @if ($row['unlocked'])
+                    </a>
+                @else
+                    </div>
+                @endif
+            @endforeach
+        @else
+            <template x-for="ex in localExercises" :key="ex.id || ex.slug">
+                <a :href="'/exercises/' + ex.slug" wire:navigate class="w-28 shrink-0 rounded-2xl bg-surface p-3 tap">
+                    <div class="mx-auto mb-2 w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center border border-white/5">
+                        <span class="text-3xl" x-text="
+                            ex.slug === 'dumbbell' ? '🏋️' :
+                            (ex.slug === 'stretch' ? '🧘' :
+                            (ex.slug === 'hold' ? '⏱️' :
+                            (ex.slug === 'squat' ? '🦵' : '💪')))
+                        "></span>
+                    </div>
+                    <p class="text-sm font-semibold leading-tight truncate text-white" x-text="ex.name"></p>
+                    <p class="text-xs text-muted" x-text="ex.unlock_after_days > 0 ? 'Unlocks in ' + ex.unlock_after_days + 'd' : 'Available'"></p>
                 </a>
-            @else
-                </div>
-            @endif
-        @endforeach
+            </template>
+        @endif
     </div>
 
     {{-- Progress tracker preview --}}

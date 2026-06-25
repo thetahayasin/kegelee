@@ -15,6 +15,9 @@
                 timeScale: @js($timeScale), glowSpeed: @js($glowSpeed),
                 showHelp: false, showQuit: false, trackX: 0,
                 _wakeLock: null, _saveKey: 'kegel_workout_state',
+                done: false,
+                useOfflineResult: false,
+                offlineResult: null,
                 init() {
                     if (!this.steps.length) { this.finish(); return; }
                     if (!this.trial) {
@@ -76,18 +79,82 @@
                     document.removeEventListener('visibilitychange', this._onVisibility);
                     window.removeEventListener('pagehide', this._onUnload);
                     let secs = Math.max(0, Math.round(this.elapsed));
-                    let pendingId = Date.now();
-                    try {
-                        let pending = JSON.parse(localStorage.getItem('kegel_pending_sessions') || '[]');
-                        pending.push({ seconds: secs, ts: pendingId });
-                        localStorage.setItem('kegel_pending_sessions', JSON.stringify(pending));
-                    } catch(e) {}
-                    $wire.complete(secs).then(() => {
-                        try {
-                            let pending = JSON.parse(localStorage.getItem('kegel_pending_sessions') || '[]');
-                            localStorage.setItem('kegel_pending_sessions', JSON.stringify(pending.filter(p => p.ts !== pendingId)));
-                        } catch(e) {}
+
+                    if (!this.trial && window.kegelSync) {
+                        window.kegelSync.queueSession({
+                            exercise_slug: @js($exercise?->slug) || null,
+                            duration_seconds: secs,
+                            completed_at_iso: new Date().toISOString(),
+                            is_extra: false
+                        }).then(() => {
+                            window.kegelSync.pushUserData().catch(() => {});
+                        });
+                    }
+
+                    this.done = true;
+
+                    $wire.complete(secs).catch(err => {
+                        this.loadOfflineResults(secs);
                     });
+                },
+                loadOfflineResults(secs) {
+                    if (window.kegelSync) {
+                        Promise.all([
+                            window.kegelSync.db.get('sync_meta', 'today_progress'),
+                            window.kegelSync.db.get('sync_meta', 'user_position'),
+                        ]).then(([todayProgress, userPosition]) => {
+                            let doneVal = (todayProgress && todayProgress.value ? todayProgress.value.done : 0) + 1;
+                            let reqVal = todayProgress && todayProgress.value ? todayProgress.value.required : 3;
+                            let monthVal = userPosition && userPosition.value ? userPosition.value.month : 1;
+                            let dayVal = userPosition && userPosition.value ? userPosition.value.day : 1;
+                            let completedVal = userPosition && userPosition.value ? userPosition.value.completed : 0;
+                            let planLengthVal = userPosition && userPosition.value ? userPosition.value.plan_length : 30;
+
+                            window.kegelSync.db.put('sync_meta', {
+                                key: 'today_progress',
+                                value: { done: doneVal, required: reqVal }
+                            });
+
+                            let dayCompleted = doneVal >= reqVal;
+                            if (dayCompleted) {
+                                completedVal++;
+                                window.kegelSync.db.put('sync_meta', {
+                                    key: 'user_position',
+                                    value: { month: monthVal, day: dayVal + 1, completed: completedVal, plan_length: planLengthVal }
+                                });
+                            }
+
+                            this.offlineResult = {
+                                day_completed: dayCompleted,
+                                is_extra: doneVal > reqVal,
+                                progress: { done: doneVal, required: reqVal },
+                                position: { month: monthVal, day: dayVal, completed: completedVal, plan_length: planLengthVal },
+                                days: this.generateOfflineCalendar(dayVal, completedVal, planLengthVal),
+                                unlocked: [],
+                                next_unlock: null
+                            };
+                            this.useOfflineResult = true;
+                        });
+                    } else {
+                        this.offlineResult = {
+                            day_completed: false,
+                            is_extra: false,
+                            progress: { done: 1, required: 3 },
+                            position: { month: 1, day: 1, completed: 1, plan_length: 30 },
+                            days: this.generateOfflineCalendar(1, 1, 30),
+                            unlocked: [],
+                            next_unlock: null
+                        };
+                        this.useOfflineResult = true;
+                    }
+                },
+                generateOfflineCalendar(currentDay, completedDays, planLength) {
+                    let days = [];
+                    let start = Math.max(1, currentDay - 4);
+                    for (let d = start; d <= Math.min(planLength, start + 6); d++) {
+                        days.push({ n: d, done: d <= completedDays, today: d === currentDay });
+                    }
+                    return days;
                 },
                 quit() {
                     this.running = false;
@@ -404,8 +471,68 @@
                             </button>
                         </div>
                     </div>
-                </div>
             </template>
+        </div>
+
+        {{-- ================= OFFLINE COMPLETION OVERLAY ================= --}}
+        <div x-show="done && useOfflineResult" x-cloak class="flex min-h-[100dvh] flex-col pb-[calc(1.5rem+env(safe-area-inset-bottom))] w-full">
+            <div class="flex flex-col items-center px-6 pt-[calc(2rem+env(safe-area-inset-top))]">
+                <div class="animate-ring-pop relative grid place-items-center" style="width: 208px; height: 208px;">
+                    <svg width="208" height="208" viewBox="0 0 208 208" class="-rotate-90">
+                        <circle cx="104" cy="104" r="98" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="12"/>
+                        <circle cx="104" cy="104" r="98" fill="none" stroke="var(--c-accent)" stroke-width="12"
+                                stroke-linecap="round" class="completion-ring"
+                                stroke-dasharray="615.75" :stroke-dashoffset="615.75 * (1 - (offlineResult ? Math.min(1, offlineResult.progress.done / offlineResult.progress.required) : 1))"
+                                style="filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c-accent) 45%, transparent));"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" class="absolute h-24 w-24 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 13l4 4L19 7" pathLength="1" class="completion-tick"/>
+                    </svg>
+                </div>
+                <p class="mt-4 text-sm font-semibold text-muted" x-text="(offlineResult ? offlineResult.progress.done : 0) + '/' + (offlineResult ? offlineResult.progress.required : 3) + ' sessions today'"></p>
+            </div>
+
+            <div class="px-6 pt-5 text-center">
+                <h1 class="text-2xl font-bold text-white" x-text="offlineResult && offlineResult.day_completed ? 'Training Day Complete!' : (offlineResult && offlineResult.is_extra ? 'Extra Session Done!' : 'Session Complete')"></h1>
+            </div>
+
+            {{-- Month calendar strip --}}
+            <div class="mx-4 mt-4 rounded-2xl bg-surface p-4" x-show="offlineResult">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold text-white" x-text="'Month ' + (offlineResult ? offlineResult.position.month : 1)"></span>
+                    <span class="text-muted" x-text="(offlineResult ? offlineResult.position.completed : 0) + '/' + (offlineResult ? offlineResult.position.plan_length : 30)"></span>
+                </div>
+                <div class="mt-3 flex justify-between gap-1.5">
+                    <template x-for="day in (offlineResult ? offlineResult.days : [])" :key="day.n">
+                        <div class="flex flex-1 flex-col items-center gap-1">
+                            <template x-if="day.today && day.done">
+                                <div class="day-cell-pop grid aspect-square w-full place-items-center rounded-lg border-2 border-accent">
+                                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-[color:var(--c-on-accent)]" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 13l4 4L19 7" pathLength="1" class="day-tick"/>
+                                    </svg>
+                                </div>
+                            </template>
+                            <template x-if="day.done && !day.today">
+                                <div class="grid aspect-square w-full place-items-center rounded-lg bg-accent text-[color:var(--c-on-accent)]">
+                                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-white" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                            </template>
+                            <template x-if="day.today && !day.done">
+                                <div class="grid aspect-square w-full place-items-center rounded-lg border-2 border-accent"></div>
+                            </template>
+                            <template x-if="!day.today && !day.done">
+                                <div class="grid aspect-square w-full place-items-center rounded-lg border border-white/15"></div>
+                            </template>
+                            <span class="text-[10px]" :class="day.today ? 'font-bold text-content' : 'text-muted'" x-text="day.n"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="flex-1"></div>
+            <div class="px-6">
+                <a href="{{ route('home') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Continue</a>
+            </div>
         </div>
     @else
         {{-- ================= COMPLETION ================= --}}

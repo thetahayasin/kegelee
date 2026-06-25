@@ -1,4 +1,4 @@
-<div class="min-h-[100dvh] pb-24 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+<div class="min-h-[100dvh] pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
         @if (auth()->check())
             <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
@@ -10,7 +10,9 @@
 
     {{-- Timeline --}}
     <div class="mt-4 px-5">
-        @forelse ($rows as $i => $row)
+        @livewire('app.subscribe-sheet')
+
+    @forelse ($rows as $i => $row)
             @php($lesson = $row['lesson'])
             @php($locked = ! $row['unlocked'])
             @php($last = $i === $rows->count() - 1)

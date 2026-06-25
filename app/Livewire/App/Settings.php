@@ -4,6 +4,7 @@ namespace App\Livewire\App;
 
 use App\Models\Page;
 use App\Services\ProgressionService;
+use App\Services\SettingsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -33,13 +34,25 @@ class Settings extends Component
         return redirect()->route('login');
     }
 
-    public function render(ProgressionService $progression)
+    public function render(ProgressionService $progression, SettingsService $settings)
     {
         $user = auth()->user();
+        $subscription = $user->activeSubscription();
+
+        // Google Play subscription centre deep link — the only place Play allows
+        // users to turn off auto-renew / cancel. Pre-fills the product when known.
+        $manageUrl = null;
+        if ($subscription?->isGooglePlay()) {
+            $package = $settings->get('google_play_package_name');
+            $sku = $subscription->plan?->store_product_id;
+            $manageUrl = 'https://play.google.com/store/account/subscriptions'
+                .($sku && $package ? "?sku={$sku}&package={$package}" : '');
+        }
 
         return view('livewire.app.settings', [
             'user' => $user,
-            'subscription' => $user->activeSubscription(),
+            'subscription' => $subscription,
+            'manageUrl' => $manageUrl,
             'completedDays' => $progression->completedDays($user),
             'pages' => Page::where('is_published', true)->orderBy('sort_order')->get(['id', 'title', 'slug']),
         ]);
