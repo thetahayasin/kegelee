@@ -1,4 +1,8 @@
-<div class="flex min-h-[100dvh] flex-col justify-center px-6 py-10">
+<div class="relative flex min-h-[100dvh] flex-col justify-center px-6 py-10">
+    <a href="{{ route('login') }}" wire:navigate
+       class="absolute right-4 top-[calc(1rem+env(safe-area-inset-top))] grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </a>
     <div class="mb-8 text-center">
         <h1 class="text-3xl font-bold">Forgot password</h1>
         <p class="mt-1 text-muted">We'll email you a 6-digit reset code</p>
