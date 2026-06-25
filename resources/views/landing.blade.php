@@ -12,12 +12,13 @@
     $headline    = $s->get('home_headline',      'A Stronger Pelvic Floor Starts Here');
     $sub         = $s->get('home_subheadline',   '');
     $badge       = $s->get('home_badge_text',    '');
-    $ctaPrimary  = $s->get('home_cta_primary',   'Start Free Today');
+    $ctaPrimary  = $s->get('home_cta_primary',   'Download on Google Play');
     $ctaSecond   = $s->get('home_cta_secondary', 'See how it works');
     $stats       = $s->get('home_stats',         []);
     $features    = $s->get('home_features',      []);
     $steps       = $s->get('home_steps',         []);
     $footerTag   = $s->get('home_footer_tagline','');
+    $playUrl     = $s->get('play_store_url') ?: ('https://play.google.com/store/apps/details?id=' . $s->get('google_play_package_name', 'com.kegeltrainer.app'));
 
     $seoTitle    = $s->get('seo_title',          $appName.' - Pelvic Floor Training');
     $seoDesc     = $s->get('seo_description',    $sub);
@@ -196,16 +197,11 @@
                 <span>{{ $appName }}</span>
             @endif
         </a>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('login') }}"
-               class="hidden sm:inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium text-muted-c hover:text-white transition-colors">
-                Sign in
-            </a>
-            <a href="{{ route('register') }}"
-               class="inline-flex items-center rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
-                {{ $ctaPrimary }}
-            </a>
-        </div>
+        <a href="{{ $playUrl }}" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M3.18 23.76c.36.2.8.2 1.17-.02l11.65-6.72-2.6-2.6-10.22 9.34zm-1.61-20.3C1.22 3.9 1 4.4 1 5v14c0 .6.22 1.1.57 1.54l.08.08 7.84-7.84v-.18L1.57 3.46zm17.49 7.9-2.49-1.44-2.9 2.9 2.9 2.9 2.5-1.44c.72-.41.72-1.5-.01-1.92zM4.35.26C3.98.04 3.54.05 3.18.26l10.2 10.2 2.6-2.6L4.35.26z"/></svg>
+            Download
+        </a>
     </div>
 </nav>
 
@@ -244,11 +240,11 @@
         @endif
 
         <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href="{{ route('register') }}"
-               class="neo-glow inline-flex h-14 items-center rounded-2xl bg-accent px-8 text-base font-bold text-white transition-opacity hover:opacity-90"
-               role="button" aria-label="{{ $ctaPrimary }}">
+            <a href="{{ $playUrl }}" target="_blank" rel="noopener"
+               class="neo-glow inline-flex h-14 items-center gap-3 rounded-2xl bg-accent px-8 text-base font-bold text-white transition-opacity hover:opacity-90"
+               aria-label="{{ $ctaPrimary }}">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor"><path d="M3.18 23.76c.36.2.8.2 1.17-.02l11.65-6.72-2.6-2.6-10.22 9.34zm-1.61-20.3C1.22 3.9 1 4.4 1 5v14c0 .6.22 1.1.57 1.54l.08.08 7.84-7.84v-.18L1.57 3.46zm17.49 7.9-2.49-1.44-2.9 2.9 2.9 2.9 2.5-1.44c.72-.41.72-1.5-.01-1.92zM4.35.26C3.98.04 3.54.05 3.18.26l10.2 10.2 2.6-2.6L4.35.26z"/></svg>
                 {{ $ctaPrimary }}
-                <svg viewBox="0 0 24 24" class="ml-2 h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
             @if ($ctaSecond)
                 <a href="#how-it-works"
@@ -378,12 +374,12 @@
             </div>
             <h2 class="grad-text mb-4 text-3xl font-bold sm:text-4xl">Ready to feel the difference?</h2>
             <p class="mb-8 text-muted-c">Join thousands already training smarter. No equipment, no gym, no excuses.</p>
-            <a href="{{ route('register') }}"
-               class="neo-glow inline-flex h-14 items-center rounded-2xl bg-accent px-10 text-base font-bold text-white hover:opacity-90 transition-opacity">
+            <a href="{{ $playUrl }}" target="_blank" rel="noopener"
+               class="neo-glow inline-flex h-14 items-center gap-3 rounded-2xl bg-accent px-10 text-base font-bold text-white hover:opacity-90 transition-opacity">
+                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor"><path d="M3.18 23.76c.36.2.8.2 1.17-.02l11.65-6.72-2.6-2.6-10.22 9.34zm-1.61-20.3C1.22 3.9 1 4.4 1 5v14c0 .6.22 1.1.57 1.54l.08.08 7.84-7.84v-.18L1.57 3.46zm17.49 7.9-2.49-1.44-2.9 2.9 2.9 2.9 2.5-1.44c.72-.41.72-1.5-.01-1.92zM4.35.26C3.98.04 3.54.05 3.18.26l10.2 10.2 2.6-2.6L4.35.26z"/></svg>
                 {{ $ctaPrimary }}
-                <svg viewBox="0 0 24 24" class="ml-2 h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
-            <p class="mt-4 text-sm text-muted-c">Free to start &bull; No credit card required</p>
+            <p class="mt-4 text-sm text-muted-c">Free to download &bull; No account required</p>
         </div>
     </div>
 </section>
@@ -408,8 +404,7 @@
                 <p class="text-sm text-muted-c">{{ $footerTag }}</p>
             @endif
             <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-c" aria-label="Footer links">
-                <a href="{{ route('login') }}" class="hover:text-white transition-colors">Sign in</a>
-                <a href="{{ route('register') }}" class="hover:text-white transition-colors">Sign up</a>
+                <a href="{{ $playUrl }}" target="_blank" rel="noopener" class="hover:text-white transition-colors">Google Play</a>
                 @foreach (\App\Models\Page::where('is_published', true)->orderBy('sort_order')->get() as $page)
                     <a href="{{ route('page.show', $page) }}" class="hover:text-white transition-colors">{{ $page->title }}</a>
                 @endforeach

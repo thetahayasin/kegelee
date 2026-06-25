@@ -86,6 +86,7 @@ class SettingsService
 
             // Public homepage
             'homepage_enabled' => true,
+            'play_store_url' => '',
             'home_badge_text' => '#1 Pelvic Floor Training App',
             'home_headline' => 'A Stronger Pelvic Floor Starts Here',
             'home_subheadline' => 'Science-backed Kegel training with guided exercises, real-time coaching, and daily progress tracking — all in one beautiful app.',

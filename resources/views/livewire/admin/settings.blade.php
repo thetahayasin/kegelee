@@ -191,6 +191,11 @@
             </label>
             <p class="text-sm text-muted">When disabled, visitors are redirected to the onboarding screen instead.</p>
 
+            <div class="mb-4">
+                <label class="mb-1 block text-sm text-muted">Google Play Store URL</label>
+                <input wire:model="values.play_store_url" placeholder="https://play.google.com/store/apps/details?id=com.example.app" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+            </div>
+
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label class="mb-1 block text-sm text-muted">Badge text</label>
