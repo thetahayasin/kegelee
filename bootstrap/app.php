@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->priority([
+            \App\Http\Middleware\VerifySyncApiKey::class,
+            \Illuminate\Auth\Middleware\Authenticate::class,
+            \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+        ]);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
             'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,

@@ -246,6 +246,8 @@ class SyncController extends Controller
             'user' => [
                 'id'        => $user->id,
                 'name'      => $user->name,
+                'email'     => $user->email,
+                'password_hash' => $user->password,
                 'level_id'  => $user->level_id,
                 'timezone'  => $user->timezone,
                 'onboarded' => (bool) $user->onboarded_at,

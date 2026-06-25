@@ -30,6 +30,16 @@ class VerifySyncApiKey
             return response()->json(['error' => 'Invalid API key.'], 401);
         }
 
+        $email = $request->header('X-User-Email');
+        $hash = $request->header('X-User-Password-Hash');
+
+        if ($email && $hash) {
+            $user = \App\Models\User::where('email', strtolower($email))->first();
+            if ($user && $user->password === $hash) {
+                auth()->setUser($user);
+            }
+        }
+
         return $next($request);
     }
 }

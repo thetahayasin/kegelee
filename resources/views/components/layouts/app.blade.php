@@ -24,6 +24,10 @@
     <meta name="sync-api-base" content="{{ $syncBase }}">
     <meta name="sync-enabled" content="{{ $settings->get('sync_enabled', true) ? '1' : '0' }}">
     <meta name="sync-interval" content="{{ (int) $settings->get('sync_interval_minutes', 15) }}">
+    @auth
+        <meta name="user-email" content="{{ auth()->user()->email }}">
+        <meta name="user-hash" content="{{ auth()->user()->password }}">
+    @endauth
 
     <title>{{ $title ?? $settings->get('seo_title') }}</title>
     <meta name="description" content="{{ $settings->get('seo_description') }}">

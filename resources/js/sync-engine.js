@@ -32,6 +32,36 @@ function csrfToken() {
     return el ? el.content : '';
 }
 
+async function authHeaders(key) {
+    const headers = {
+        'Authorization': `Bearer ${key}`,
+        'Accept': 'application/json',
+    };
+
+    const emailEl = document.querySelector('meta[name="user-email"]');
+    const hashEl = document.querySelector('meta[name="user-hash"]');
+
+    let email = emailEl ? emailEl.content : '';
+    let hash = hashEl ? hashEl.content : '';
+
+    if (!email || !hash) {
+        try {
+            const profile = await db.get('sync_meta', 'user_profile');
+            if (profile && profile.value) {
+                if (!email && profile.value.email) email = profile.value.email;
+                if (!hash && profile.value.password_hash) hash = profile.value.password_hash;
+            }
+        } catch (e) {
+            // DB not ready yet or read failed
+        }
+    }
+
+    if (email) headers['X-User-Email'] = email;
+    if (hash) headers['X-User-Password-Hash'] = hash;
+
+    return headers;
+}
+
 // ---------------------------------------------------------------------------
 // Pre-seed — writes hardcoded data into IndexedDB on first ever boot.
 // ---------------------------------------------------------------------------
@@ -136,14 +166,13 @@ async function pushUserData() {
     }
 
     try {
+        const headers = await authHeaders(key);
+        headers['Content-Type'] = 'application/json';
+        headers['X-CSRF-TOKEN'] = csrfToken();
+
         const res = await fetch(`${base}/v1/user/push`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${key}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken(),
-            },
+            headers: headers,
             credentials: 'same-origin',
             body: JSON.stringify({
                 workout_sessions: pendingSessions.map(s => ({
@@ -198,11 +227,9 @@ async function pullUserData() {
     if (!base || !key) return;
 
     try {
+        const headers = await authHeaders(key);
         const res = await fetch(`${base}/v1/user/pull`, {
-            headers: {
-                'Authorization': `Bearer ${key}`,
-                'Accept': 'application/json',
-            },
+            headers: headers,
             credentials: 'same-origin',
         });
 
