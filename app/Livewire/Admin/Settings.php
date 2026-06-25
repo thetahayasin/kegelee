@@ -54,7 +54,13 @@ class Settings extends Component
     public function mount(SettingsService $settings): void
     {
         foreach (SettingsService::defaults() as $key => $default) {
-            $this->values[$key] = $settings->get($key, $default);
+            $value = $settings->get($key, $default);
+            // JSON fields decoded to arrays by SettingsService — re-encode as
+            // formatted strings so textareas display them correctly.
+            if ((self::TYPES[$key] ?? '') === 'json' && is_array($value)) {
+                $value = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            }
+            $this->values[$key] = $value;
         }
     }
 
@@ -103,6 +109,10 @@ class Settings extends Component
             $type = self::TYPES[$key] ?? 'string';
             if ($type === 'bool') {
                 $value = (bool) $value;
+            } elseif ($type === 'json' && is_string($value)) {
+                // Textarea gives us a JSON string; decode to array so castIn
+                // can re-encode it cleanly for storage.
+                $value = json_decode($value, true) ?? [];
             }
             $settings->set($key, $value, $type, $groups[$key] ?? 'general');
         }
