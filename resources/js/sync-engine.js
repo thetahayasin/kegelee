@@ -334,16 +334,40 @@ async function runServerSync() {
             },
             credentials: 'same-origin',
         });
-        if (!res.ok) return false;
+        if (!res.ok) {
+            toastSync('Sync request failed (HTTP ' + res.status + ')');
+            return false;
+        }
         const data = await res.json();
+
+        // Surface failures so they are visible on-device instead of silent.
+        if (data.reason === 'not_a_client') {
+            toastSync('Sync off: app not detected as device (host ' + (data.diagnostics?.request_host || '?') + ')');
+            return false;
+        }
+        const c = data.content || {};
+        if (!c.ok && c.error) {
+            toastSync('Sync error: ' + c.error);
+        }
+
         // Refresh the visible Livewire components so new content shows without
         // a hard reload.
         if (data.changed && window.Livewire) {
-            window.Livewire.all().forEach(c => c.$wire.$refresh());
+            window.Livewire.all().forEach(comp => comp.$wire.$refresh());
         }
         return !!data.changed;
     } catch (e) {
+        toastSync('Sync failed: ' + (e?.message || 'network error'));
         return false;
+    }
+}
+
+// Toast only when sync debugging is enabled (meta[name=sync-debug]=1), so we
+// don't nag users in production but can diagnose on demand.
+function toastSync(msg) {
+    const dbg = document.querySelector('meta[name="sync-debug"]');
+    if (dbg && dbg.content === '1' && window.showToast) {
+        window.showToast(msg);
     }
 }
 

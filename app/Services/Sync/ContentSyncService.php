@@ -21,29 +21,39 @@ use Illuminate\Support\Facades\Log;
  */
 class ContentSyncService
 {
+    /** Last pull outcome, for on-device diagnostics. */
+    public array $report = ['ran' => false];
+
     public function __construct(private readonly SettingsService $settings)
     {
     }
 
     /**
      * Fetch and apply the remote catalogue. Returns true if anything changed.
-     * Never throws — a sync failure must never break a page render.
+     * Never throws — a sync failure must never break a page render. The detailed
+     * outcome (http status / error / counts) is recorded in $this->report.
      */
     public function pull(): bool
     {
+        $this->report = ['ran' => true, 'ok' => false, 'http' => null, 'error' => null, 'counts' => []];
+
         if (! BackendClient::isClient()) {
+            $this->report['error'] = 'not_a_client';
             return false;
         }
 
         try {
             $response = BackendClient::request()->get(BackendClient::base().'/v1/content');
+            $this->report['http'] = $response->status();
 
             if (! $response->successful()) {
+                $this->report['error'] = 'http_'.$response->status();
                 return false;
             }
 
             $data = $response->json();
             if (! is_array($data)) {
+                $this->report['error'] = 'bad_json';
                 return false;
             }
 
@@ -56,8 +66,16 @@ class ContentSyncService
                 $this->applySettings($data['settings'] ?? []);
             });
 
+            $this->report['ok'] = true;
+            $this->report['counts'] = [
+                'exercises' => count($data['exercises'] ?? []),
+                'levels'    => count($data['levels'] ?? []),
+                'knowledge' => count($data['knowledge_lessons'] ?? []),
+            ];
+
             return true;
         } catch (\Throwable $e) {
+            $this->report['error'] = $e->getMessage();
             Log::warning('Content sync pull failed: '.$e->getMessage());
 
             return false;

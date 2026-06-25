@@ -24,6 +24,7 @@
     <meta name="sync-api-base" content="{{ $syncBase }}">
     <meta name="sync-enabled" content="{{ $settings->get('sync_enabled', true) ? '1' : '0' }}">
     <meta name="sync-interval" content="{{ (int) $settings->get('sync_interval_minutes', 15) }}">
+    <meta name="sync-debug" content="{{ $settings->get('sync_debug', true) ? '1' : '0' }}">
     @auth
         <meta name="user-email" content="{{ auth()->user()->email }}">
         <meta name="user-hash" content="{{ auth()->user()->password }}">

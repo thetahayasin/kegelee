@@ -24,27 +24,52 @@ class BackendClient
      */
     public static function isClient(): bool
     {
-        return self::isNativeRuntime()
+        return self::isDevice()
             && ! empty(config('app.content_sync_url'))
             && ! empty(config('app.sync_api_key'));
     }
 
     /**
-     * Whether we are running inside the packaged NativePHP device app.
+     * Whether we are running inside the packaged NativePHP device app (vs. the
+     * backend serving ke.downloadh.com).
      *
-     * Read the flag straight from the runtime environment ($_SERVER / getenv),
-     * NOT via config('nativephp-internal.running'): packaged apps cache their
-     * config at BUILD time (where the flag is false), which would freeze it to
-     * false forever. The native C bridge sets NATIVEPHP_RUNNING at RUNTIME on
-     * both the OS env and $_SERVER, so reading them directly is cache-proof.
+     * Primary signal is the REQUEST HOST: the native C bridge serves the app
+     * from 127.0.0.1 (it hard-sets HTTP_HOST/SERVER_NAME), which can never
+     * equal the public backend host. This is bulletproof and does NOT depend on
+     * config caching. We also accept the NATIVEPHP_RUNNING env flag as a second
+     * signal (read from the live environment, never via cached config()).
      */
-    public static function isNativeRuntime(): bool
+    public static function isDevice(): bool
     {
+        // 1) Native runtime flag, read straight from the live environment.
         $flag = $_SERVER['NATIVEPHP_RUNNING']
             ?? $_ENV['NATIVEPHP_RUNNING']
             ?? getenv('NATIVEPHP_RUNNING');
+        if (filter_var($flag, FILTER_VALIDATE_BOOLEAN)) {
+            return true;
+        }
 
-        return filter_var($flag, FILTER_VALIDATE_BOOLEAN);
+        // 2) Request host differs from the backend host → we are the device.
+        $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        $reqHost = strtolower(preg_replace('/:\d+$/', '', (string) $reqHost));
+        $backendHost = strtolower((string) parse_url((string) config('app.content_sync_url'), PHP_URL_HOST));
+
+        return $reqHost !== '' && $backendHost !== '' && $reqHost !== $backendHost;
+    }
+
+    /** Diagnostic snapshot — surfaced to the device so failures are visible. */
+    public static function diagnostics(): array
+    {
+        $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? null;
+
+        return [
+            'is_device'        => self::isDevice(),
+            'is_client'        => self::isClient(),
+            'request_host'     => $reqHost,
+            'backend_base'     => self::base(),
+            'native_flag'      => $_SERVER['NATIVEPHP_RUNNING'] ?? $_ENV['NATIVEPHP_RUNNING'] ?? getenv('NATIVEPHP_RUNNING') ?: null,
+            'has_api_key'      => ! empty(config('app.sync_api_key')),
+        ];
     }
 
     /**

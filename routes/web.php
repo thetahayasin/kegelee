@@ -32,8 +32,10 @@ Route::post('/sync/run', function (
     \App\Services\Sync\ContentSyncService $content,
     \App\Services\Sync\UserSyncService $userSync,
 ) {
+    $diag = \App\Services\Sync\BackendClient::diagnostics();
+
     if (! \App\Services\Sync\BackendClient::isClient()) {
-        return response()->json(['ok' => false, 'reason' => 'not_a_client']);
+        return response()->json(['ok' => false, 'reason' => 'not_a_client', 'diagnostics' => $diag]);
     }
 
     $changed = $content->pull();
@@ -43,8 +45,27 @@ Route::post('/sync/run', function (
         $userSync->pull($user);
     }
 
-    return response()->json(['ok' => true, 'changed' => $changed]);
+    return response()->json([
+        'ok'        => $content->report['ok'] ?? false,
+        'changed'   => $changed,
+        'content'   => $content->report,
+        'diagnostics' => $diag,
+    ]);
 })->name('sync.run');
+
+// Plain-GET diagnostic: open this in the device to see exactly why sync is or
+// isn't working (host detection, HTTP status, counts). Safe to leave in.
+Route::get('/sync/status', function (\App\Services\Sync\ContentSyncService $content) {
+    $diag = \App\Services\Sync\BackendClient::diagnostics();
+    $content->pull();
+
+    return response()->json([
+        'diagnostics'           => $diag,
+        'content_pull'          => $content->report,
+        'local_knowledge_count' => \App\Models\KnowledgeLesson::count(),
+        'local_exercise_count'  => \App\Models\Exercise::count(),
+    ], 200, [], JSON_PRETTY_PRINT);
+})->name('sync.status');
 
 /*
 |--------------------------------------------------------------------------
