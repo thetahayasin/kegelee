@@ -13,7 +13,7 @@ class EnsureAppEnabled
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $this->settings->get('app_enabled', true) && ! auth()->user()?->is_admin) {
+        if (! $this->settings->get('app_enabled', true)) {
             return redirect()->route('landing')->with('app_disabled', true);
         }
 
