@@ -22,7 +22,7 @@ class ProgressTracker extends Component
         $this->lastResult = null;
     }
 
-    public function record(float $seconds): void
+    public function record(float $seconds)
     {
         $seconds = round(max(0, min($seconds, 600)), 1);
 
@@ -32,13 +32,9 @@ class ProgressTracker extends Component
             'measured_at' => now(),
         ]);
 
-        $this->lastResult = $seconds;
-        $this->measuring = false;
-
-        // Push fresh stats to Alpine so the chart updates immediately
-        // (Livewire morphing preserves Alpine state and won't reinit x-data).
-        $best = auth()->user()->measurements()->max('seconds');
-        $this->dispatch('measurement-recorded', best: (int) floor($best), lastSecs: (int) floor($seconds));
+        // Hard redirect reloads the page with completely fresh server data,
+        // bypassing any stale Alpine state from the previous render.
+        return redirect()->route('progress');
     }
 
     public function render()

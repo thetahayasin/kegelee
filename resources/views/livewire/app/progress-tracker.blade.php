@@ -91,7 +91,7 @@
         }
      }"
      x-effect="recalculate()"
-     @measurement-recorded.window="best = $event.detail.best; lastSecs = $event.detail.lastSecs; lastLabel = 'Today'; $nextTick(() => { if (localList.length) recalculate(); })">
+     @progress-reset.window="best = 0; lastSecs = 0; lastLabel = '-'; bars = bars.map(b => ({...b, value: 0})); maxScale = 6; localList = [];">
     <header class="relative flex items-center justify-center px-5 py-4">
         <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
@@ -116,11 +116,11 @@
         </div>
     </div>
 
-    {{-- Re-seed Alpine from the freshly server-rendered values whenever the
-         range changes OR after a measurement is recorded ($measuring flips).
-         The wire:key forces this element to re-init, pushing fresh server data
-         into Alpine (which preserves its own state across Livewire morphs). --}}
-    <div wire:key="bars-{{ $mode }}-{{ $measuring ? '1' : '0' }}" x-init="bars = @js($bars); maxScale = @js($maxScale); best = @js($best ? (int) floor($best) : 0); lastSecs = @js($last ? (int) floor($last->seconds) : 0); lastLabel = @js($last ? ($last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans()) : '-');" hidden></div>
+    {{-- Re-seed Alpine from the freshly server-rendered bars whenever the range
+         changes. The wire:key forces this element to re-init on each mode toggle,
+         so the chart updates even when there is no offline (IndexedDB) data yet.
+         When offline data IS present, x-effect/recalculate() overrides it. --}}
+    <div wire:key="bars-{{ $mode }}" x-init="if (!localList || !localList.length) { bars = @js($bars); maxScale = @js($maxScale); }" hidden></div>
 
     {{-- Chart --}}
     <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface/40 p-4">

@@ -46,7 +46,9 @@ class Settings extends Component
         // Clear the device's offline copy so it can't re-push the deleted data.
         $this->dispatch('progress-reset');
 
-        return $this->redirectRoute('home', navigate: true);
+        // Hard redirect flushes the entire wire:navigate SPA cache so every
+        // page (progress tracker, home, etc.) renders with zeroed-out data.
+        return redirect()->route('home');
     }
 
     public function logout()
