@@ -14,9 +14,9 @@ class Levels extends Component
         $level = Level::where('is_active', true)->findOrFail($levelId);
         auth()->user()->update(['level_id' => $level->id]);
 
-        // Hard redirect clears the wire:navigate SPA cache so every page
-        // (Profile, Home, etc.) re-renders with the new level.
-        return redirect()->route('home');
+        // Hard redirect (navigate: false) clears the wire:navigate SPA cache
+        // so every page (Profile, Home, etc.) re-renders with the new level.
+        $this->redirect(route('home'), navigate: false);
     }
 
     public function render()
