@@ -48,7 +48,7 @@ export const SEED_KNOWLEDGE_LESSONS = [
 ];
 
 export const SEED_SETTINGS = {
-    app_name: 'Kegel Trainer',
+    app_name: 'Kegelee',
     app_tagline: 'Train your pelvic floor',
     color_accent: '#E8202A',
     color_accent_soft: '#FF4D57',

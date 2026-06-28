@@ -22,7 +22,7 @@ class Index extends Component
                 'model' => $e,
                 'unlocked' => $progression->isExerciseUnlocked($user, $e),
                 'days_left' => $progression->daysUntilUnlock($user, $e),
-                'completed' => $completed,
+                'completed' => min($completed, $e->unlock_after_days),
             ]);
 
         return view('livewire.app.exercises.index', ['exercises' => $exercises]);

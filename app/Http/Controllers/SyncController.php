@@ -215,6 +215,12 @@ class SyncController extends Controller
 
         $synced = ['sessions' => 0, 'measurements' => 0, 'reminders' => 0];
 
+        // --- Timezone (per-device; last write wins) ---
+        $tz = (string) $request->input('timezone', '');
+        if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true) && $user->timezone !== $tz) {
+            $user->update(['timezone' => $tz]);
+        }
+
         // --- Workout Sessions ---
         foreach ($request->input('workout_sessions', []) as $s) {
             $completedAt = isset($s['completed_at_iso'])
@@ -395,6 +401,28 @@ class SyncController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/v1/user/reset — wipe the acting user's progress on the backend
+     * (training days, sessions, measurements, lesson completions) so "Reset
+     * progress" on the device clears server-side too and can't sync back.
+     */
+    public function reset(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        \Illuminate\Support\Facades\DB::table('training_days')->where('user_id', $user->id)->delete();
+        \Illuminate\Support\Facades\DB::table('workout_sessions')->where('user_id', $user->id)->delete();
+        \Illuminate\Support\Facades\DB::table('measurements')->where('user_id', $user->id)->delete();
+        \Illuminate\Support\Facades\DB::table('knowledge_lesson_user')->where('user_id', $user->id)->delete();
+        \Illuminate\Support\Facades\DB::table('reminders')->where('user_id', $user->id)->delete();
+        $user->update(['level_started_days' => 0]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function remoteLogin(Request $request): JsonResponse
     {
         $credentials = $request->validate([
@@ -423,6 +451,35 @@ class SyncController extends Controller
                 'timezone' => $user->timezone,
             ]
         ]);
+    }
+
+    /**
+     * Change a user's password on the backend (the auth source of truth). The
+     * native device calls this so a password change actually persists server-side
+     * and is reflected on every device, not just locally.
+     */
+    public function remoteChangePassword(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => 'required|email',
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = \App\Models\User::where('email', strtolower($data['email']))->first();
+
+        if (! $user) {
+            return response()->json(['error' => 'Account not found.'], 404);
+        }
+
+        if ($user->password && ! \Illuminate\Support\Facades\Hash::check($data['current_password'], $user->password)) {
+            return response()->json(['error' => 'Your current password is incorrect.'], 422);
+        }
+
+        $user->update(['password' => \Illuminate\Support\Facades\Hash::make($data['password'])]);
+
+        // Hand back the new hash so the device can mirror it and stay signed in.
+        return response()->json(['success' => true, 'password_hash' => $user->password]);
     }
 
     public function remoteRegister(Request $request): JsonResponse

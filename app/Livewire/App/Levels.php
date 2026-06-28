@@ -9,13 +9,14 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Levels extends Component
 {
-    public function select(int $levelId): void
+    public function select(int $levelId)
     {
         $level = Level::where('is_active', true)->findOrFail($levelId);
         auth()->user()->update(['level_id' => $level->id]);
 
-        $this->dispatch('level-changed');
-        $this->redirectRoute('home', navigate: true);
+        // Hard redirect clears the wire:navigate SPA cache so every page
+        // (Profile, Home, etc.) re-renders with the new level.
+        return redirect()->route('home');
     }
 
     public function render()

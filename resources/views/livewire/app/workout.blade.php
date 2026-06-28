@@ -15,6 +15,7 @@
                 timeScale: @js($timeScale), glowSpeed: @js($glowSpeed),
                 showHelp: false, showQuit: false, trackX: 0,
                 _wakeLock: null, _saveKey: 'kegel_workout_state',
+                _backOff: null,
                 done: false,
                 useOfflineResult: false,
                 offlineResult: null,
@@ -50,6 +51,16 @@
                     // Save state before page unloads (webview kill / navigation)
                     this._onUnload = () => this._saveState();
                     window.addEventListener('pagehide', this._onUnload);
+                    // Hardware back during a real session shows the quit dialog
+                    // (the same one the ✕ opens) instead of abandoning silently.
+                    if (!this.trial && window.appBack) {
+                        this._backOff = window.appBack.register(() => {
+                            if (this.done) return;
+                            if (this.showHelp) { this.showHelp = false; this.paused = false; return; }
+                            if (this.showQuit) { this.showQuit = false; this.paused = false; return; }
+                            this.paused = true; this.showQuit = true;
+                        });
+                    }
                 },
                 _saveState() {
                     if (!this.running) return;
@@ -78,6 +89,7 @@
                     this._releaseWakeLock();
                     document.removeEventListener('visibilitychange', this._onVisibility);
                     window.removeEventListener('pagehide', this._onUnload);
+                    if (this._backOff) { this._backOff(); this._backOff = null; }
                     let secs = Math.max(0, Math.round(this.elapsed));
 
                     if (!this.trial && window.kegelSync) {
@@ -164,6 +176,7 @@
                     this._releaseWakeLock();
                     document.removeEventListener('visibilitychange', this._onVisibility);
                     window.removeEventListener('pagehide', this._onUnload);
+                    if (this._backOff) { this._backOff(); this._backOff = null; }
                 },
                 destroy() {
                     clearInterval(this.timer);
@@ -171,6 +184,7 @@
                     this._releaseWakeLock();
                     document.removeEventListener('visibilitychange', this._onVisibility);
                     window.removeEventListener('pagehide', this._onUnload);
+                    if (this._backOff) { this._backOff(); this._backOff = null; }
                 },
                 get cur() { return this.steps[this.i] || {phase:'relax',label:'',seconds:1,exercise:''}; },
                 get isContract() { return this.cur.phase === 'contract'; },
@@ -471,6 +485,7 @@
                             </button>
                         </div>
                     </div>
+                </div>
             </template>
         </div>
 
@@ -596,10 +611,10 @@
                 @if ($askFeedback)
                     <div class="mx-4 mt-4 rounded-2xl bg-surface p-4 text-center">
                         <p class="font-semibold">How was that?</p>
-                        <div class="mt-3 flex gap-2">
-                            <button wire:click="submitFeedback('easy')" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-semibold tap">Too easy</button>
-                            <button wire:click="submitFeedback('fine')" class="flex-1 rounded-xl bg-accent py-3 text-sm font-semibold tap">Just right</button>
-                            <button wire:click="submitFeedback('hard')" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-semibold tap">Too hard</button>
+                        <div class="mt-3 flex gap-2" wire:loading.class="opacity-60 pointer-events-none" wire:target="submitFeedback">
+                            <button wire:click="submitFeedback('easy')" wire:loading.attr="disabled" wire:target="submitFeedback" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-semibold tap">Too easy</button>
+                            <button wire:click="submitFeedback('fine')" wire:loading.attr="disabled" wire:target="submitFeedback" class="flex-1 rounded-xl bg-accent py-3 text-sm font-semibold tap">Just right</button>
+                            <button wire:click="submitFeedback('hard')" wire:loading.attr="disabled" wire:target="submitFeedback" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-semibold tap">Too hard</button>
                         </div>
                     </div>
                 @endif

@@ -23,6 +23,59 @@ window.kegel = {
 };
 
 // ---------------------------------------------------------------------------
+// Logout coordination
+// ---------------------------------------------------------------------------
+// When the user signs out, a hard redirect to /login is in flight. Any
+// background request (sync engine, Livewire $refresh, retries) that lands on an
+// auth-gated endpoint after Auth::logout() returns a raw "Unauthenticated."
+// body. We set a global flag the instant logout starts so every background
+// task no-ops until the navigation completes.
+window.__loggingOut = false;
+window.beginLogout = function () {
+    window.__loggingOut = true;
+    try { window.kegelSync?.stop(); } catch (e) {}
+};
+document.addEventListener('auth:logout', window.beginLogout);
+
+// ---------------------------------------------------------------------------
+// Hardware back-button coordination (Android / webview)
+// ---------------------------------------------------------------------------
+// wire:navigate drives history, so the hardware back button normally navigates
+// to the previous screen — which feels native everywhere EXCEPT screens that
+// need to intercept it. The workout player must show its "Leave training?"
+// confirmation instead of silently abandoning the session (the same dialog the
+// ✕ shows). A screen registers a handler while it needs to capture back; the
+// topmost handler runs and we stay put. With no handler, back navigates as usual.
+(function () {
+    const stack = [];
+
+    // Push a sentinel history entry so the next back press fires popstate
+    // without leaving the page.
+    function arm() {
+        try { history.pushState({ __backGuard: true }, ''); } catch (e) {}
+    }
+
+    window.appBack = {
+        register(handler) {
+            stack.push(handler);
+            arm();
+            return function unregister() {
+                const i = stack.lastIndexOf(handler);
+                if (i !== -1) stack.splice(i, 1);
+            };
+        },
+        get active() { return stack.length > 0; },
+    };
+
+    window.addEventListener('popstate', function () {
+        if (!stack.length) return; // no interceptor → allow normal back navigation
+        arm(); // re-arm for the next back press while the screen is still active
+        const handler = stack[stack.length - 1];
+        try { handler(); } catch (e) {}
+    });
+})();
+
+// ---------------------------------------------------------------------------
 // Service Worker registration
 // ---------------------------------------------------------------------------
 if ('serviceWorker' in navigator) {
@@ -40,12 +93,34 @@ document.addEventListener('livewire:init', () => {
     const RETRY_MS = 800;
     let retryCount = 0;
 
+    // After a server-confirmed "Reset progress", wipe the offline copy too so
+    // the sync engine can't re-push the just-deleted sessions/measurements.
+    Livewire.on('progress-reset', () => {
+        window.kegelSync?.clearProgressData?.();
+    });
+
     Livewire.hook('request', ({ fail }) => {
         fail(({ status, preventDefault }) => {
+            // Signing out: a hard redirect is in flight — abandon quietly, never
+            // show an error or refresh a now-unauthenticated component.
+            if (window.__loggingOut) {
+                preventDefault();
+                return;
+            }
+
             // 419 = session expired: reload silently instead of confirm()
             if (status === 419) {
                 preventDefault();
                 window.location.reload();
+                return;
+            }
+
+            // 401 = no longer authenticated (session ended, or navigating back to
+            // an authenticated page after logout). Redirect to login cleanly
+            // instead of surfacing the raw {"message":"Unauthenticated."} body.
+            if (status === 401) {
+                preventDefault();
+                window.location.href = '/login';
                 return;
             }
 
@@ -80,7 +155,7 @@ function showOfflineBanner() {
     if (offlineBanner) return;
     offlineBanner = document.createElement('div');
     offlineBanner.id = 'offline-banner';
-    offlineBanner.textContent = 'You are offline';
+    offlineBanner.textContent = 'No internet connection';
     Object.assign(offlineBanner.style, {
         position: 'fixed', top: 'env(safe-area-inset-top, 0)',
         left: '0', right: '0', zIndex: '9999',
@@ -98,15 +173,42 @@ function hideOfflineBanner() {
     offlineBanner = null;
 }
 
-window.addEventListener('offline', showOfflineBanner);
-window.addEventListener('online', () => {
-    hideOfflineBanner();
-    // Re-send any pending Livewire commits
-    if (window.Livewire) {
-        Livewire.all().forEach(c => c.$wire.$refresh());
+// Reconcile the banner with REAL connectivity — the OS online flag lies, so we
+// confirm by probing the backend. Emits app:online / app:offline so screens
+// that need the network (videos, etc.) can show a "no connection" state.
+let _wasOffline = false;
+async function refreshConnectivity() {
+    if (window.__loggingOut) return;
+    let online = true;
+    try {
+        online = window.kegelSync ? await window.kegelSync.probeOnline() : navigator.onLine;
+    } catch (e) {
+        online = navigator.onLine;
     }
-});
 
+    if (online) {
+        hideOfflineBanner();
+        window.dispatchEvent(new CustomEvent('app-online'));
+        // Recovering from offline: re-pull fresh data into visible components.
+        if (_wasOffline && window.Livewire && !window.__loggingOut) {
+            Livewire.all().forEach(c => c.$wire.$refresh());
+        }
+        _wasOffline = false;
+    } else {
+        showOfflineBanner();
+        window.dispatchEvent(new CustomEvent('app-offline'));
+        _wasOffline = true;
+    }
+}
+
+// Instant OS signals plus a periodic real probe (captive portals, dropped radios).
+window.addEventListener('offline', () => { showOfflineBanner(); _wasOffline = true; });
+window.addEventListener('online', refreshConnectivity);
+setInterval(refreshConnectivity, 20000);
+setTimeout(refreshConnectivity, 2500);
+
+// Promise<boolean> helper screens can await before doing online-only work.
+window.appOnline = () => (window.kegelSync ? window.kegelSync.probeOnline() : Promise.resolve(navigator.onLine));
 if (!navigator.onLine) showOfflineBanner();
 
 // ---------------------------------------------------------------------------

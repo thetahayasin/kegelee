@@ -35,7 +35,7 @@
                 @endif
             </div>
             @if ($subscription->isGooglePlay())
-                <p class="px-5 pb-4 text-xs text-muted">Auto-renewal is managed by Google Play. Use the link above to turn it off or cancel — you'll keep access until {{ $subscription->ends_at?->format('j M Y') ?? 'the period ends' }}.</p>
+                <p class="px-5 pb-4 text-xs text-muted">Auto-renewal is managed by Google Play. Use the link above to turn it off or cancel - you'll keep access until {{ $subscription->ends_at?->format('j M Y') ?? 'the period ends' }}.</p>
             @endif
         @else
             <a href="{{ route('paywall') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
@@ -69,10 +69,19 @@
     @endif
 
     {{-- Standalone actions --}}
-    <div class="mt-10 space-y-3 px-4" x-data="{ showReset: false }">
+    <div class="mt-10 space-y-3 px-4"
+         x-data="{ showReset: false, offline: !navigator.onLine }"
+         @offline.window="offline = true" @online.window="offline = false"
+         @app-offline.window="offline = true" @app-online.window="offline = false">
         <button @click="showReset = true"
                 class="h-14 w-full rounded-2xl bg-surface font-semibold tap">Reset progress</button>
-        <button wire:click="logout" class="h-14 w-full rounded-2xl bg-accent font-semibold tap">Log out</button>
+        <button wire:click="logout" @click="window.beginLogout && window.beginLogout()"
+                wire:loading.attr="disabled" wire:target="logout"
+                class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold tap disabled:opacity-70">
+            <svg wire:loading wire:target="logout" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            <span wire:loading.remove wire:target="logout">Log out</span>
+            <span wire:loading wire:target="logout">Signing out...</span>
+        </button>
 
         {{-- Reset progress confirmation modal --}}
         <template x-teleport="body">
@@ -104,11 +113,20 @@
                     <h2 class="text-lg font-bold text-content">Reset progress?</h2>
                     <p class="mt-2 text-sm text-muted leading-relaxed">This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.</p>
 
+                    <div x-show="offline" x-cloak class="mt-3 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-medium text-accent-soft">
+                        No internet connection — connect to reset your progress.
+                    </div>
+                    @error('reset') <p class="mt-3 text-sm text-accent-soft">{{ $message }}</p> @enderror
+
                     <div class="mt-6 flex gap-3">
                         <button @click="showReset = false"
                                 class="h-12 flex-1 rounded-xl bg-white/5 font-semibold text-content tap">Cancel</button>
-                        <button wire:click="resetProgress" @click="showReset = false"
-                                class="h-12 flex-1 rounded-xl bg-accent font-semibold text-white tap">Reset</button>
+                        <button wire:click="resetProgress" x-bind:disabled="offline" wire:loading.attr="disabled" wire:target="resetProgress"
+                                class="h-12 flex-1 rounded-xl bg-accent font-semibold text-white tap disabled:opacity-60">
+                            <span x-show="offline">No internet</span>
+                            <span x-show="!offline" wire:loading.remove wire:target="resetProgress">Reset</span>
+                            <span x-show="!offline" wire:loading wire:target="resetProgress">Resetting...</span>
+                        </button>
                     </div>
                 </div>
             </div>

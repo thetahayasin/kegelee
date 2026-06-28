@@ -32,6 +32,35 @@ function csrfToken() {
     return el ? el.content : '';
 }
 
+// Real connectivity probe. The OS online flag lies (idle radios, captive
+// portals), so confirm by reaching the backend health endpoint. Uses no-cors
+// so a cross-origin device→backend probe isn't blocked: any resolved response
+// (even opaque) means the server is reachable. Result is briefly cached.
+let _probe = { at: 0, online: null };
+async function probeOnline(maxAgeMs = 6000) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        _probe = { at: Date.now(), online: false };
+        return false;
+    }
+    if (_probe.online !== null && (Date.now() - _probe.at) < maxAgeMs) {
+        return _probe.online;
+    }
+    const origin = (apiBase() || '').replace(/\/api\/?$/, '');
+    const url = (origin || '') + '/up';
+    let online = false;
+    try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 4000);
+        await fetch(url, { method: 'GET', cache: 'no-store', mode: 'no-cors', signal: ctrl.signal });
+        clearTimeout(timer);
+        online = true; // resolved (even opaque) ⇒ server reachable
+    } catch (e) {
+        online = false;
+    }
+    _probe = { at: Date.now(), online };
+    return online;
+}
+
 async function authHeaders(key) {
     const headers = {
         'Authorization': `Bearer ${key}`,
@@ -146,6 +175,7 @@ async function pullContent() {
 // PUSH — send queued user data (sessions, measurements) to the server.
 // ---------------------------------------------------------------------------
 async function pushUserData() {
+    if (halted()) return;
     const base = apiBase();
     const key = apiKey();
     if (!base || !key) return;
@@ -158,10 +188,11 @@ async function pushUserData() {
     const allMeasurements = await db.getAll('measurements');
     const pendingMeasurements = allMeasurements.filter(m => !m._synced);
 
-    // Gather reminders.
-    const reminders = await db.getAll('reminders');
+    // Reminders are NOT pushed from here: the Reminders screen writes them to
+    // the local DB (SQLite) and UserSyncService pushes the live rows. Pushing a
+    // possibly-stale IndexedDB copy here could overwrite a fresh edit.
 
-    if (!pendingSessions.length && !pendingMeasurements.length && !reminders.length) {
+    if (!pendingSessions.length && !pendingMeasurements.length) {
         return;
     }
 
@@ -342,12 +373,39 @@ async function saveReminder(weekday, times, isEnabled) {
     });
 }
 
+/**
+ * Wipe the local offline copy of the user's progress (after a server-confirmed
+ * "Reset progress"), so the engine can't re-push the just-deleted data.
+ */
+async function clearProgressData() {
+    try {
+        await db.clear('workout_sessions');
+        await db.clear('measurements');
+        await db.clear('reminders');
+        await db.remove('sync_meta', 'user_position');
+        await db.put('sync_meta', { key: 'today_progress', value: { done: 0, required: 2 } });
+    } catch (e) {}
+}
+
+/**
+ * Object form used by the Reminders screen. The `reminders` store keys on
+ * `weekday`, so this upserts (no duplicate rows). Tolerates string weekdays.
+ */
+async function queueReminder(data) {
+    await db.put('reminders', {
+        weekday: parseInt(data.weekday, 10),
+        times: data.times || ['08:00'],
+        is_enabled: !!data.is_enabled,
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Server-side sync — asks the LOCAL device server to pull fresh backend
 // content into its SQLite (the primary render source) and two-way sync the
 // signed-in user's data. This is what makes admin content actually appear.
 // ---------------------------------------------------------------------------
 async function runServerSync() {
+    if (halted()) return false;
     try {
         const res = await fetch('/sync/run', {
             method: 'POST',
@@ -398,20 +456,39 @@ function toastSync(msg) {
 // ---------------------------------------------------------------------------
 // Full sync cycle.
 // ---------------------------------------------------------------------------
+let _syncing = false;
+let _failures = 0;
+let _nextAllowedAt = 0;
+
 async function fullSync() {
-    if (!navigator.onLine) return;
+    if (halted()) return;
+    if (_syncing) return;                      // single-flight: never overlap
+    if (Date.now() < _nextAllowedAt) return;   // honoring backoff window
+    if (!(await probeOnline())) return;        // real connectivity, not the OS flag
 
-    // Primary: server-side pull into local SQLite (renders server-side).
-    await runServerSync();
+    _syncing = true;
+    try {
+        // Primary: server-side pull into local SQLite (renders server-side).
+        await runServerSync();
 
-    // Secondary: keep the IndexedDB offline cache warm for offline rendering.
-    await pullContent();
-    await pushUserData();
+        // Secondary: keep the IndexedDB offline cache warm for offline rendering.
+        await pullContent();
+        await pushUserData();
 
-    const lastUserPull = await db.get('sync_meta', 'last_user_pull');
-    const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-    if (!lastUserPull || new Date(lastUserPull.at).getTime() < fiveMinAgo) {
-        await pullUserData();
+        const lastUserPull = await db.get('sync_meta', 'last_user_pull');
+        const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+        if (!lastUserPull || new Date(lastUserPull.at).getTime() < fiveMinAgo) {
+            await pullUserData();
+        }
+
+        _failures = 0;
+        _nextAllowedAt = 0;
+    } catch (e) {
+        // Exponential backoff (capped at 5 min) so a flaky network doesn't spin.
+        _failures = Math.min(_failures + 1, 6);
+        _nextAllowedAt = Date.now() + Math.min(5 * 60 * 1000, 1000 * Math.pow(2, _failures));
+    } finally {
+        _syncing = false;
     }
 }
 
@@ -419,6 +496,21 @@ async function fullSync() {
 // Boot — initialize the sync engine.
 // ---------------------------------------------------------------------------
 let _syncInterval = null;
+let _stopped = false;
+
+/** Halt all background sync permanently (called on logout). */
+function stop() {
+    _stopped = true;
+    if (_syncInterval) {
+        clearInterval(_syncInterval);
+        _syncInterval = null;
+    }
+}
+
+/** True when sync must not run: stopped, or a logout redirect is in flight. */
+function halted() {
+    return _stopped || (typeof window !== 'undefined' && window.__loggingOut);
+}
 
 function syncEnabled() {
     const el = document.querySelector('meta[name="sync-enabled"]');
@@ -442,21 +534,18 @@ async function boot() {
         navigator.storage.persist().catch(() => {});
     }
 
-    // Sync now if online.
-    if (navigator.onLine) {
-        // Small delay so the page finishes loading first.
-        setTimeout(() => fullSync(), 2000);
-    }
+    // Initial sync shortly after load — fullSync() self-gates on real connectivity.
+    setTimeout(() => fullSync(), 2000);
 
-    // Sync when connectivity returns.
+    // Sync when connectivity returns (force a fresh probe first).
     window.addEventListener('online', () => {
+        _probe = { at: 0, online: null };
+        _nextAllowedAt = 0;
         setTimeout(() => fullSync(), 1000);
     });
 
-    // Periodic sync at admin-configured interval.
-    _syncInterval = setInterval(() => {
-        if (navigator.onLine) fullSync();
-    }, syncIntervalMs());
+    // Periodic sync at the admin-configured interval.
+    _syncInterval = setInterval(() => fullSync(), syncIntervalMs());
 }
 
 // Expose on window for Livewire/Alpine access.
@@ -469,6 +558,10 @@ window.kegelSync = {
     queueSession,
     queueMeasurement,
     saveReminder,
+    queueReminder,
+    clearProgressData,
+    stop,
+    probeOnline,
     db, // expose db for direct reads in Alpine
 };
 

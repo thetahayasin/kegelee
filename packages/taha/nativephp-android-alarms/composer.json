@@ -1,0 +1,42 @@
+{
+    "name": "taha/nativephp-android-alarms",
+    "description": "Create real alarms in the device's system Clock app via Android's AlarmClock.ACTION_SET_ALARM. No AlarmManager, no BroadcastReceiver, no boot re-arming - the OS Clock app owns and fires the alarms.",
+    "type": "nativephp-plugin",
+    "version": "1.0.0",
+    "license": "MIT",
+    "keywords": ["nativephp", "android", "alarm", "alarmclock", "reminder"],
+    "authors": [
+        {
+            "name": "Taha"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "nativephp/mobile": "^3.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Taha\\AndroidAlarms\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Taha\\AndroidAlarms\\AndroidAlarmsServiceProvider"
+            ]
+        },
+        "nativephp": {
+            "manifest": "nativephp.json"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

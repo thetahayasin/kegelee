@@ -27,7 +27,7 @@ class SettingsService
     {
         return [
             // Branding
-            'app_name' => 'Kegel Trainer',
+            'app_name' => 'Kegelee',
             'app_tagline' => 'Train your pelvic floor',
             'logo_path' => null,
             'favicon_path' => null,

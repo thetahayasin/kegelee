@@ -11,7 +11,9 @@
 
     {{-- TikTok style full-screen Video --}}
     <div class="absolute inset-0 w-full h-full z-0 flex items-center justify-center"
-         x-data="{ maxTime: 0, videoError: false }">
+         x-data="{ maxTime: 0, videoError: false }"
+         @app-offline.window="videoError = true"
+         @app-online.window="if (videoError) { videoError = false; $nextTick(() => $refs.player && $refs.player.load()) }">
         @if ($lesson->hasVideo())
             <video src="{{ $lesson->videoSrc() }}"
                    class="w-full h-full object-cover cursor-pointer"

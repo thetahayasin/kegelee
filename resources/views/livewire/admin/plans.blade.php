@@ -23,9 +23,11 @@
                     <label class="mb-1 block text-sm text-muted">Name</label>
                     <input wire:model="rows.{{ $i }}.name" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <div><label class="mb-1 block text-sm text-muted">Price</label>
                         <input type="number" step="0.01" wire:model="rows.{{ $i }}.price" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none"></div>
+                    <div><label class="mb-1 block text-sm text-muted">Every</label>
+                        <input type="number" min="1" wire:model="rows.{{ $i }}.interval_count" title="e.g. 3 + month = every 3 months" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none"></div>
                     <div><label class="mb-1 block text-sm text-muted">Interval</label>
                         <select wire:model="rows.{{ $i }}.interval" class="h-10 w-full rounded-lg border border-white/10 bg-surface-2 px-2 focus:border-accent focus:outline-none">
                             @foreach ($intervals as $opt)<option value="{{ $opt }}">{{ $opt }}</option>@endforeach

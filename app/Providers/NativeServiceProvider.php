@@ -35,7 +35,7 @@ class NativeServiceProvider extends ServiceProvider
     {
         return [
             \S2BR\MobileSplashscreen\MobileSplashscreenServiceProvider::class,
-        
+            \Taha\AndroidAlarms\AndroidAlarmsServiceProvider::class,
         ];
     }
 }

@@ -39,6 +39,7 @@ class Plans extends Component
             'slug' => 'plan-'.Str::random(5),
             'price' => 0,
             'interval' => 'month',
+            'interval_count' => 1,
             'sort_order' => (int) Plan::max('sort_order') + 1,
         ]);
         $this->loadRows();

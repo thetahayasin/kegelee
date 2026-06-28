@@ -91,6 +91,19 @@ class Login extends Component
         Auth::login($user, $this->remember);
         session()->regenerate();
 
+        // On a device, sync immediately so the home page renders with
+        // up-to-date data instead of stale data that updates moments later.
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            try {
+                app(\App\Services\Sync\ContentSyncService::class)->pull();
+                $userSync = app(\App\Services\Sync\UserSyncService::class);
+                $userSync->push($user);
+                $userSync->pull($user);
+            } catch (\Throwable $e) {
+                // Best-effort — don't block login if sync fails.
+            }
+        }
+
         return $this->redirectRoute('home', navigate: true);
     }
 

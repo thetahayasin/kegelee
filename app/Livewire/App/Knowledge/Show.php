@@ -84,14 +84,18 @@ class Show extends Component
             ->first();
 
         if ($next) {
-            return $this->redirectRoute('knowledge.show', ['lesson' => $next->id], navigate: true);
+            // Hard redirect replaces the video in history so native back
+            // goes to the lesson list, not back into the finished video.
+            return redirect()->route('knowledge.show', ['lesson' => $next->id]);
         }
 
+        // Guest finished the free lessons → prompt to sign up / log in (which then
+        // leads to the paywall to purchase), instead of looping back to onboarding.
         if (! auth()->check()) {
-            return $this->redirectRoute('onboarding', ['auth_prompt' => 1], navigate: true);
+            return redirect('/welcome?auth_prompt=1&auth_mode=options');
         }
 
-        return $this->redirectRoute('knowledge.index', navigate: true);
+        return redirect()->route('knowledge.index');
     }
 
     public function render()

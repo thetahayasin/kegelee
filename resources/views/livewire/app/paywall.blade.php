@@ -20,14 +20,11 @@
             @php($isFree = $plan->price <= 0)
             @php($final = $plan->priceWithDiscount($discount))
             @php($isCurrentPlan = $activeSub?->plan_id === $plan->id)
-            @php($intervalLabel = match(true) {
-                $plan->interval === 'lifetime' => '',
-                $plan->interval === 'year' => '/year',
-                $plan->interval === 'month' && $plan->interval_count === 3 => '/3 months',
-                $plan->interval === 'month' => '/month',
-                $plan->interval === 'week' => '/week',
-                default => '/'.$plan->interval,
-            })
+            @php($intervalLabel = $plan->interval === 'lifetime'
+                ? ''
+                : '/'.($plan->interval_count > 1
+                    ? $plan->interval_count.' '.\Illuminate\Support\Str::plural($plan->interval, $plan->interval_count)
+                    : $plan->interval))
             <button wire:click="$set('selectedPlan', {{ $plan->id }})"
                     class="relative w-full rounded-2xl border-2 p-4 text-left tap {{ $selected ? 'border-accent bg-accent/10' : 'border-white/10 bg-surface' }}">
                 @if ($plan->is_featured)
@@ -66,7 +63,11 @@
             <div class="flex gap-2">
                 <input type="text" wire:model="code" placeholder="Discount code"
                        class="h-12 flex-1 rounded-xl border border-white/10 bg-surface px-4 text-content placeholder:text-muted focus:border-accent focus:outline-none">
-                <button wire:click="applyCode" class="h-12 rounded-xl bg-surface-2 px-5 font-semibold tap">Apply</button>
+                <button wire:click="applyCode" wire:loading.attr="disabled" wire:target="applyCode"
+                        class="h-12 rounded-xl bg-surface-2 px-5 font-semibold tap disabled:opacity-60">
+                    <span wire:loading.remove wire:target="applyCode">Apply</span>
+                    <span wire:loading wire:target="applyCode">...</span>
+                </button>
             </div>
             @if ($message)
                 <p class="mt-2 text-sm {{ $discount ? 'text-success' : 'text-accent-soft' }}">{{ $message }}</p>
@@ -79,19 +80,27 @@
         @php($selectedIsFree = $selectedPlanModel && $selectedPlanModel->price <= 0)
         @php($isUpgrade = $activeSub && $selectedPlan && $activeSub->plan_id !== $selectedPlan)
         <button wire:click="subscribe({{ $selectedPlan }})" @disabled(! $selectedPlan || $purchasing)
+                wire:loading.attr="disabled" wire:target="subscribe"
                 class="relative grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap disabled:opacity-50">
-            @if ($purchasing)
-                <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-                </svg>
-            @elseif ($isUpgrade)
-                Switch to {{ $selectedPlanModel?->name }}
-            @elseif ($selectedIsFree)
-                Continue with Free
-            @else
-                {{ $trialDays > 0 ? "Start {$trialDays}-day free trial" : 'Start now' }}
-            @endif
+            {{-- Spinner during the subscribe round-trip --}}
+            <svg wire:loading wire:target="subscribe" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+            </svg>
+            <span wire:loading.remove wire:target="subscribe" class="grid place-items-center">
+                @if ($purchasing)
+                    <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                    </svg>
+                @elseif ($isUpgrade)
+                    Switch to {{ $selectedPlanModel?->name }}
+                @elseif ($selectedIsFree)
+                    Continue with Free
+                @else
+                    {{ $trialDays > 0 ? "Start {$trialDays}-day free trial" : 'Start now' }}
+                @endif
+            </span>
         </button>
         @if (! $selectedIsFree && ! $purchasing)
             <p class="mt-2 text-center text-xs text-muted">

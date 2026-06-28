@@ -126,10 +126,17 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'app.enabled'])->group(function () {
     // Stores the device timezone (captured client-side on first load) so day
     // boundaries follow the user's local day.
-    Route::post('/timezone', function (\Illuminate\Http\Request $request) {
+    Route::post('/timezone', function (\Illuminate\Http\Request $request, \App\Services\Sync\UserSyncService $userSync) {
         $tz = (string) $request->input('timezone');
         if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true)) {
-            $request->user()->update(['timezone' => $tz]);
+            $user = $request->user();
+            if ($user->timezone !== $tz) {
+                $user->update(['timezone' => $tz]);
+                // On a device, propagate the new timezone up to the backend now.
+                if (\App\Services\Sync\BackendClient::isClient()) {
+                    $userSync->push($user);
+                }
+            }
         }
         return response()->noContent();
     })->name('timezone.set');
@@ -188,6 +195,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             DB::table('workout_sessions')->whereIn('user_id', $userIds)->delete();
             DB::table('measurements')->whereIn('user_id', $userIds)->delete();
             DB::table('knowledge_lesson_user')->whereIn('user_id', $userIds)->delete();
+            DB::table('reminders')->whereIn('user_id', $userIds)->delete();
             User::whereIn('id', $userIds)->update(['onboarded_at' => null, 'level_started_days' => 0]);
 
             return back()->with('status', 'All app progress has been reset.');

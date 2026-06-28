@@ -20,11 +20,14 @@ use Native\Mobile\Facades\InAppPurchase;
 class Paywall extends Component
 {
     /**
-     * Google Play replacement mode for subscription upgrades. WITH_TIME_PRORATION
-     * upgrades the user immediately and credits the unused portion of the old
-     * plan as extra time on the new one — the standard "move to a better plan".
+     * Google Play replacement modes for plan switches.
+     * - WITH_TIME_PRORATION (upgrade): switch immediately and credit the unused
+     *   portion of the old plan as extra time on the new one.
+     * - DEFERRED (downgrade): keep the current plan until the paid period ends,
+     *   then start the new (cheaper) plan — the user keeps what they paid for.
      */
     private const PRORATION_MODE = 'WITH_TIME_PRORATION';
+    private const DEFERRED_MODE = 'DEFERRED';
 
     public ?int $selectedPlan = null;
     public string $code = '';
@@ -91,13 +94,19 @@ class Paywall extends Component
 
         // Switching from an existing Google Play subscription uses Play's native
         // proration: hand Google the old purchase token + replacement mode and it
-        // credits the unused time, charges the prorated difference, and replaces
-        // the old subscription itself. A first-time subscriber just buys fresh.
+        // credits/charges and replaces the old subscription itself. We pick the
+        // mode by direction — upgrades switch now, downgrades defer to period end
+        // (by absolute price, so monthly→yearly is an upgrade, yearly→monthly a
+        // downgrade, matching Google's recommended behaviour). A first-time
+        // subscriber just buys fresh.
         if ($current && $current->isGooglePlay() && $current->purchase_token && $current->plan_id !== $plan->id) {
+            $currentPlan = $current->plan;
+            $isUpgrade = ! $currentPlan || $plan->price >= $currentPlan->price;
+
             InAppPurchase::purchase(
                 $plan->store_product_id,
                 $current->purchase_token,
-                self::PRORATION_MODE,
+                $isUpgrade ? self::PRORATION_MODE : self::DEFERRED_MODE,
             );
         } else {
             InAppPurchase::purchase($plan->store_product_id);
@@ -112,6 +121,13 @@ class Paywall extends Component
         $plan = Plan::where('store_product_id', $productId)->where('is_active', true)->first();
         if (! $plan) {
             $this->message = 'Purchase received but plan could not be matched. Contact support.';
+            return;
+        }
+
+        // Idempotency: a re-delivered completion for a token we already recorded
+        // must not create a duplicate subscription or re-send the welcome email.
+        if (Subscription::where('purchase_token', $purchaseToken)->exists()) {
+            $this->showAutoRenewalNotice = true;
             return;
         }
 

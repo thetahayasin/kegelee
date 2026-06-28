@@ -55,7 +55,9 @@ class UserSyncService
                 'is_enabled' => (bool) $r->is_enabled,
             ])->all();
 
-            if (! $sessions && ! $measurements && ! $reminders) {
+            $timezone = $user->timezone;
+
+            if (! $sessions && ! $measurements && ! $reminders && ! $timezone) {
                 return true;
             }
 
@@ -65,6 +67,7 @@ class UserSyncService
                     'workout_sessions' => $sessions,
                     'measurements'     => $measurements,
                     'reminders'        => $reminders,
+                    'timezone'         => $timezone,
                 ]);
 
             return $response->successful();
@@ -97,6 +100,25 @@ class UserSyncService
             }
 
             DB::transaction(function () use ($user, $data) {
+                // Sync user profile fields (level, timezone, etc.) so the
+                // local model reflects the backend's current state and the
+                // level card / profile page show the correct level.
+                if (! empty($data['user'])) {
+                    $profileUpdates = [];
+                    if (isset($data['user']['level_id'])) {
+                        $profileUpdates['level_id'] = $data['user']['level_id'];
+                    }
+                    if (! empty($data['user']['timezone'])) {
+                        $profileUpdates['timezone'] = $data['user']['timezone'];
+                    }
+                    if (isset($data['user']['level_started_days'])) {
+                        $profileUpdates['level_started_days'] = (int) $data['user']['level_started_days'];
+                    }
+                    if ($profileUpdates) {
+                        $user->update($profileUpdates);
+                    }
+                }
+
                 $this->applySessions($user, $data['workout_sessions'] ?? []);
                 $this->applyMeasurements($user, $data['measurements'] ?? []);
                 $this->applyReminders($user, $data['reminders'] ?? []);

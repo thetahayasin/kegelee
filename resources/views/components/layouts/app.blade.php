@@ -98,15 +98,19 @@
     })();
     </script>
 
-    {{-- Capture the user's timezone once, on first authenticated load, so day
-         boundaries match their local day. today() in ProgressionService uses it. --}}
+    {{-- Keep the user's timezone in sync with THIS device. Posts whenever the
+         device tz differs from what's stored (first login/registration, or when
+         the same account opens on a device in another zone). The route persists
+         it and, on a native client, pushes it up to the backend. day boundaries
+         in ProgressionService follow it. --}}
     @auth
-        @unless (auth()->user()->timezone)
         <script>
         (function () {
             try {
                 var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 if (!tz) return;
+                var stored = @json(auth()->user()->timezone);
+                if (tz === stored) return;
                 fetch('{{ route('timezone.set') }}', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -116,7 +120,6 @@
             } catch (e) {}
         })();
         </script>
-        @endunless
     @endauth
 
     {!! $settings->get('inject_body_end') !!}

@@ -73,6 +73,18 @@ class Verify extends Component
         session()->regenerate();
         session()->forget('verify_email');
 
+        // Sync immediately so the home page has fresh data from the start.
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            try {
+                app(\App\Services\Sync\ContentSyncService::class)->pull();
+                $userSync = app(\App\Services\Sync\UserSyncService::class);
+                $userSync->push($user);
+                $userSync->pull($user);
+            } catch (\Throwable $e) {
+                // Best-effort.
+            }
+        }
+
         return $this->redirectRoute('home', navigate: true);
     }
 

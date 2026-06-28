@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36784b95bf926a3da8b56a5cfb26c8a1",
+    "content-hash": "072d4ce5b280b831e00790b9b7720401",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7102,6 +7102,57 @@
                 }
             ],
             "time": "2026-05-29T05:06:50+00:00"
+        },
+        {
+            "name": "taha/nativephp-android-alarms",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/taha/nativephp-android-alarms",
+                "reference": "58f5af08139bf2be529990ec28820cfafbfac9aa"
+            },
+            "require": {
+                "nativephp/mobile": "^3.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "pestphp/pest": "^3.0"
+            },
+            "type": "nativephp-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Taha\\AndroidAlarms\\AndroidAlarmsServiceProvider"
+                    ]
+                },
+                "nativephp": {
+                    "manifest": "nativephp.json"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Taha\\AndroidAlarms\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taha"
+                }
+            ],
+            "description": "Create real alarms in the device's system Clock app via Android's AlarmClock.ACTION_SET_ALARM. No AlarmManager, no BroadcastReceiver, no boot re-arming - the OS Clock app owns and fires the alarms.",
+            "keywords": [
+                "alarm",
+                "alarmclock",
+                "android",
+                "nativephp",
+                "reminder"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",

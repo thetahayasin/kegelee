@@ -34,6 +34,11 @@ class ProgressTracker extends Component
 
         $this->lastResult = $seconds;
         $this->measuring = false;
+
+        // Push fresh stats to Alpine so the chart updates immediately
+        // (Livewire morphing preserves Alpine state and won't reinit x-data).
+        $best = auth()->user()->measurements()->max('seconds');
+        $this->dispatch('measurement-recorded', best: (int) floor($best), lastSecs: (int) floor($seconds));
     }
 
     public function render()
@@ -52,6 +57,11 @@ class ProgressTracker extends Component
         ]);
     }
 
+    private function tz(): string
+    {
+        return auth()->user()->timezone ?: config('app.timezone', 'UTC');
+    }
+
     private function buckets($measurements)
     {
         [$count, $unit, $format] = match ($this->mode) {
@@ -60,7 +70,7 @@ class ProgressTracker extends Component
             default => [6, 'week', 'j M'],
         };
 
-        $now = Carbon::now();
+        $now = Carbon::now($this->tz());
 
         return collect(range($count - 1, 0))->map(function ($i) use ($measurements, $unit, $format, $now) {
             $start = $now->copy()->sub($unit, $i)->startOf($unit);
@@ -77,8 +87,8 @@ class ProgressTracker extends Component
     {
         $unit = $this->mode === 'days' ? 'day' : ($this->mode === 'months' ? 'month' : 'week');
         $count = $this->mode === 'days' ? 7 : 6;
-        $start = Carbon::now()->sub($unit, $count - 1)->startOf($unit);
+        $start = Carbon::now($this->tz())->sub($unit, $count - 1)->startOf($unit);
 
-        return $start->translatedFormat('j M').' - '.Carbon::now()->translatedFormat('j M Y');
+        return $start->translatedFormat('j M').' - '.Carbon::now($this->tz())->translatedFormat('j M Y');
     }
 }

@@ -23,6 +23,7 @@ Route::prefix('v1')->middleware('sync.key')->group(function () {
     // Remote authentication endpoints (accessed by NativePHP clients/app)
     Route::post('/auth/login', [SyncController::class, 'remoteLogin']);
     Route::post('/auth/register', [SyncController::class, 'remoteRegister']);
+    Route::post('/auth/change-password', [SyncController::class, 'remoteChangePassword']);
     Route::post('/auth/verify', [SyncController::class, 'remoteVerify']);
     Route::post('/auth/resend', [SyncController::class, 'remoteResend']);
 
@@ -30,5 +31,6 @@ Route::prefix('v1')->middleware('sync.key')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::post('/user/push', [SyncController::class, 'push']);
         Route::get('/user/pull', [SyncController::class, 'pull']);
+        Route::post('/user/reset', [SyncController::class, 'reset']);
     });
 });

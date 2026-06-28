@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Reminder extends Model
 {
     public const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    public const SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     public const RRULE = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
     protected function casts(): array

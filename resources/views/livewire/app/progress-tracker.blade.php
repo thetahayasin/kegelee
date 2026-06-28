@@ -1,7 +1,7 @@
 <div class="min-h-[100dvh] pb-[calc(11rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]"
      x-data="{
-        best: @js($best ? (int) ceil($best) : 0),
-        lastSecs: @js($last ? (int) ceil($last->seconds) : 0),
+        best: @js($best ? (int) floor($best) : 0),
+        lastSecs: @js($last ? (int) floor($last->seconds) : 0),
         lastLabel: @js($last ? ($last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans()) : '-'),
         bars: @js($bars),
         maxScale: @js($maxScale),
@@ -21,10 +21,10 @@
         recalculate() {
             if (!this.localList || !this.localList.length) return;
             const secs = this.localList.map(m => m.seconds);
-            this.best = Math.round(Math.max(...secs));
+            this.best = Math.floor(Math.max(...secs));
             
             const sorted = [...this.localList].sort((a, b) => new Date(b.measured_at_iso || b.measured_at) - new Date(a.measured_at_iso || a.measured_at));
-            this.lastSecs = Math.round(sorted[0].seconds);
+            this.lastSecs = Math.floor(sorted[0].seconds);
             this.lastLabel = 'Today';
             
             this.calculateOfflineBars(this.localList);
@@ -90,7 +90,8 @@
             this.maxScale = Math.max(6, Math.ceil(maxVal / 2) * 2);
         }
      }"
-     x-effect="recalculate()">
+     x-effect="recalculate()"
+     @measurement-recorded.window="best = $event.detail.best; lastSecs = $event.detail.lastSecs; lastLabel = 'Today'; $nextTick(() => { if (localList.length) recalculate(); })">
     <header class="relative flex items-center justify-center px-5 py-4">
         <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
@@ -115,6 +116,12 @@
         </div>
     </div>
 
+    {{-- Re-seed Alpine from the freshly server-rendered values whenever the
+         range changes OR after a measurement is recorded ($measuring flips).
+         The wire:key forces this element to re-init, pushing fresh server data
+         into Alpine (which preserves its own state across Livewire morphs). --}}
+    <div wire:key="bars-{{ $mode }}-{{ $measuring ? '1' : '0' }}" x-init="bars = @js($bars); maxScale = @js($maxScale); best = @js($best ? (int) floor($best) : 0); lastSecs = @js($last ? (int) floor($last->seconds) : 0); lastLabel = @js($last ? ($last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans()) : '-');" hidden></div>
+
     {{-- Chart --}}
     <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface/40 p-4">
         <p class="font-semibold text-white">{{ $rangeLabel }}</p>
@@ -131,10 +138,10 @@
 
             {{-- bars --}}
             <div class="absolute inset-0 flex items-end justify-between gap-2 pr-14">
-                <template x-for="bar in bars" :key="bar.label">
+                <template x-for="(bar, index) in bars" :key="index">
                     <div class="flex h-full flex-1 flex-col items-center justify-end">
                         <div class="w-7 rounded-md bg-accent transition-all"
-                             :style="'height: ' + (bar.value > 0 ? Math.max(4, bar.value / maxScale * 100) : 0) + '%'"></div>
+                             :style="'height: ' + (bar.value > 0 ? Math.min(100, Math.max(4, bar.value / maxScale * 100)) : 0) + '%'"></div>
                     </div>
                 </template>
             </div>
@@ -142,7 +149,7 @@
 
         {{-- x labels --}}
         <div class="mt-2 flex justify-between gap-2 pr-14">
-            <template x-for="bar in bars" :key="bar.label">
+            <template x-for="(bar, index) in bars" :key="index">
                 <span class="flex-1 text-center text-[10px] text-muted" x-text="bar.label"></span>
             </template>
         </div>
@@ -167,7 +174,7 @@
     @if ($measuring)
         <div class="fixed inset-0 z-50 mx-auto flex max-w-[440px] flex-col bg-bg px-6 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
              x-data="{
-                holding: false, done: false, start: 0, elapsed: 0, result: 0, timer: null,
+                holding: false, done: false, saving: false, start: 0, elapsed: 0, result: 0, timer: null,
                 begin(e) { if (this.holding || this.done) return; this.holding = true; this.start = Date.now();
                     this.timer = setInterval(() => this.elapsed = (Date.now() - this.start) / 1000, 80); },
                 end() { if (!this.holding) return; this.holding = false; clearInterval(this.timer);
@@ -215,7 +222,9 @@
                 <p class="text-sm text-muted">Hold the button and contract the PF muscles for as long as possible.</p>
             </div>
             <div x-show="done" x-cloak class="space-y-3">
-                <button @click="
+                <button x-bind:disabled="saving" @click="
+                    if (saving) return;
+                    saving = true;
                     if (window.kegelSync) {
                         window.kegelSync.queueMeasurement({ seconds: result }).then(() => {
                             window.kegelSync.pushUserData().catch(() => {});
@@ -224,7 +233,10 @@
                     $wire.record(result).catch(() => {
                         window.location.href = '{{ route('progress') }}';
                     });
-                " class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-[color:var(--c-on-accent)] tap">Continue</button>
+                " class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-[color:var(--c-on-accent)] tap disabled:opacity-70">
+                    <span x-show="!saving">Continue</span>
+                    <span x-show="saving">Saving...</span>
+                </button>
                 <button @click="retake()" class="grid h-12 w-full place-items-center rounded-2xl bg-surface font-semibold tap">Try again</button>
             </div>
         </div>

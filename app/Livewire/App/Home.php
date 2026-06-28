@@ -57,15 +57,12 @@ class Home extends Component
                 'days_left' => $progression->daysUntilUnlock($user, $e),
             ]);
 
-        $nextUnlock = $progression->nextUnlock($user);
-
         return view('livewire.app.home', [
             'user' => $user,
             'position' => $position,
             'today' => $today,
             'sessionMinutes' => max(1, (int) round($sessionSeconds / 60)),
             'exercises' => $exercises,
-            'nextUnlock' => $nextUnlock,
             'bestMeasurement' => $user->measurements()->max('seconds'),
             'heroImage' => $settings->get('home_hero_image')
                 ? \Illuminate\Support\Facades\Storage::url($settings->get('home_hero_image'))

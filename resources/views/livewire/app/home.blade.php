@@ -1,30 +1,18 @@
 @php($complete = $today['complete'])
 <div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]"
      x-data="{
-        done: @js($today['done']),
-        required: @js($today['required']),
-        month: @js($position['month']),
-        day: @js($position['day']),
+        done: @js((int) ($today['done'] ?? 0)),
+        required: @js((int) ($today['required'] ?? 2)),
+        month: @js((int) ($position['month'] ?? 1)),
+        day: @js((int) ($position['day'] ?? 1)),
         complete: @js($complete),
-        async init() {
-            if (window.kegelSync) {
-                // Background sync
-                window.kegelSync.fullSync();
-                // Load local progress metadata
-                try {
-                    const todayProgress = await window.kegelSync.db.get('sync_meta', 'today_progress');
-                    if (todayProgress && todayProgress.value) {
-                        this.done = todayProgress.value.done;
-                        this.required = todayProgress.value.required;
-                        this.complete = this.done >= this.required;
-                    }
-                    const pos = await window.kegelSync.db.get('sync_meta', 'user_position');
-                    if (pos && pos.value) {
-                        this.month = pos.value.month;
-                        this.day = pos.value.day;
-                    }
-                } catch(e) {}
-            }
+        init() {
+            // This page renders server-side from the (synced) local DB, so these
+            // values are authoritative and always fresh. We only kick a background
+            // sync; runServerSync refreshes this component if the server changed.
+            // (We no longer override from IndexedDB — that showed a stale 'null/2'
+            // and a frozen session count when the cached copy lagged the server.)
+            if (window.kegelSync) window.kegelSync.fullSync();
         }
      }">
     {{-- Header --}}
@@ -39,23 +27,6 @@
         </a>
     </header>
 
-    {{-- New exercise banner --}}
-    @if ($nextUnlock)
-        <div class="mx-4 mb-3 rounded-2xl bg-surface px-3 py-3">
-            <div class="flex items-center gap-3">
-                <x-equipment-icon :exercise="$nextUnlock" :size="44" class="ring-1 ring-accent/60" />
-                <div class="min-w-0 flex-1">
-                    <p class="font-semibold leading-tight truncate">{{ $nextUnlock->name }}</p>
-                    <p class="text-xs text-muted">next in your training plan</p>
-                </div>
-                <span class="text-right text-xs text-muted leading-tight" x-text="day + '/{{ $nextUnlock->unlock_after_days }} days'">{{ $position['completed'] }}/{{ $nextUnlock->unlock_after_days }} days</span>
-            </div>
-            @php($unlockPct = $nextUnlock->unlock_after_days > 0 ? min(100, round($position['completed'] / $nextUnlock->unlock_after_days * 100)) : 100)
-            <div class="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                <div class="h-full rounded-full bg-accent transition-all duration-500" :style="'width: ' + Math.min(100, Math.round(day / {{ max(1, $nextUnlock->unlock_after_days) }} * 100)) + '%'"></div>
-            </div>
-        </div>
-    @endif
 
     <h2 class="px-5 pt-2 pb-3 text-lg font-semibold">Training for Today</h2>
 
@@ -82,7 +53,7 @@
                         stroke-linecap="round" style="transition: stroke-dashoffset 0.6s ease;"/>
             </svg>
             <div class="absolute inset-0 grid place-items-center">
-                <span class="text-sm font-bold text-white" x-text="done + '/' + required"></span>
+                <span class="text-sm font-bold text-white" x-text="(done ?? 0) + '/' + (required ?? 0)"></span>
             </div>
         </div>
 
@@ -175,7 +146,7 @@
         <div>
             <p class="text-lg font-semibold">Progress Tracker</p>
             <p class="text-sm text-muted">
-                @if ($bestMeasurement) Best hold: {{ (int) ceil($bestMeasurement) }} sec
+                @if ($bestMeasurement) Best hold: {{ (int) floor($bestMeasurement) }} sec
                 @else Take measurements daily to track progress @endif
             </p>
         </div>

@@ -38,16 +38,23 @@ class Onboarding extends Component
             if ($user->onboarded_at || ! $settings->get('onboarding_enabled')) {
                 return $this->redirectRoute('home', navigate: true);
             }
-        } elseif (! $settings->get('onboarding_enabled')) {
-            return $this->redirectRoute('register', navigate: true);
         }
 
-        if ($this->auth_prompt === '1') {
+        // Open the auth modal when prompted (after the free lessons, a login /
+        // register link, or logout) — and ALSO when onboarding is disabled, so a
+        // guest sees the sign-in options. We must NOT redirect a guest to
+        // /register here: that route redirects straight back to /welcome and the
+        // two bounce forever, which renders as a blank screen.
+        $prompted = $this->auth_prompt === '1';
+        $onboardingOff = ! $settings->get('onboarding_enabled');
+
+        if (! $user && ($prompted || $onboardingOff)) {
             $this->showAuthModal = true;
             $this->index = max(0, $this->slides->count() - 1);
-            if (in_array($this->auth_mode, ['login', 'register'])) {
-                $this->authMode = $this->auth_mode;
-            }
+            $this->authMode = in_array($this->auth_mode, ['login', 'register', 'options'], true)
+                ? $this->auth_mode
+                : ($onboardingOff ? 'options' : 'login');
+            $this->wasAutoOpened = true;
         }
     }
 
@@ -163,6 +170,18 @@ class Onboarding extends Component
 
         \Illuminate\Support\Facades\Auth::login($user, $this->remember);
         session()->regenerate();
+
+        // Sync immediately so the home page has fresh data from the start.
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            try {
+                app(\App\Services\Sync\ContentSyncService::class)->pull();
+                $userSync = app(\App\Services\Sync\UserSyncService::class);
+                $userSync->push($user);
+                $userSync->pull($user);
+            } catch (\Throwable $e) {
+                // Best-effort.
+            }
+        }
 
         return $this->redirectRoute('home', navigate: true);
     }
