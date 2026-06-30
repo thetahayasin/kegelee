@@ -64,10 +64,12 @@ class UserSyncService
             $response = BackendClient::request()
                 ->withHeaders(BackendClient::userHeaders($user))
                 ->post(BackendClient::base().'/v1/user/push', [
-                    'workout_sessions' => $sessions,
-                    'measurements'     => $measurements,
-                    'reminders'        => $reminders,
-                    'timezone'         => $timezone,
+                    'workout_sessions'   => $sessions,
+                    'measurements'       => $measurements,
+                    'reminders'          => $reminders,
+                    'timezone'           => $timezone,
+                    'level_id'           => $user->level_id,
+                    'level_started_days' => (int) $user->level_started_days,
                 ]);
 
             return $response->successful();

@@ -221,6 +221,15 @@ class SyncController extends Controller
             $user->update(['timezone' => $tz]);
         }
 
+        // --- Level (chosen difficulty) — so a level change persists server-side. ---
+        $levelId = $request->input('level_id');
+        if ($levelId && Level::where('id', $levelId)->exists()) {
+            $user->update(['level_id' => (int) $levelId]);
+        }
+        if ($request->has('level_started_days')) {
+            $user->update(['level_started_days' => max(0, (int) $request->input('level_started_days'))]);
+        }
+
         // --- Workout Sessions ---
         foreach ($request->input('workout_sessions', []) as $s) {
             $completedAt = isset($s['completed_at_iso'])

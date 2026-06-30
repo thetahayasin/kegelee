@@ -63,7 +63,10 @@
                     }
                 },
                 _saveState() {
-                    if (!this.running) return;
+                    // Never persist a try-it-now preview: it must NOT resume as
+                    // the daily session (that bug made the next session contain
+                    // only the single tried exercise).
+                    if (this.trial || !this.running) return;
                     sessionStorage.setItem(this._saveKey, JSON.stringify({
                         steps: this.steps, i: this.i,
                         remaining: this.remaining, elapsed: this.elapsed,

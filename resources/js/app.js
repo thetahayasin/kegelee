@@ -37,6 +37,16 @@ window.beginLogout = function () {
 };
 document.addEventListener('auth:logout', window.beginLogout);
 
+// Back/forward can restore a stale page from the browser's bfcache — e.g. the
+// old level on the Profile/Home cards right after changing it. Refresh Livewire
+// components when a page is restored from bfcache so every card reflects the
+// latest server data. Skip during an active workout so the player isn't reset.
+window.addEventListener('pageshow', (e) => {
+    if (e.persisted && window.Livewire && !window.__loggingOut && !window.kegelPlayerTimer) {
+        try { window.Livewire.all().forEach((c) => c.$wire.$refresh()); } catch (err) {}
+    }
+});
+
 // ---------------------------------------------------------------------------
 // Hardware back-button coordination (Android / webview)
 // ---------------------------------------------------------------------------
