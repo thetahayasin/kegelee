@@ -103,12 +103,12 @@ class BackendClient
     }
 
     /** A pre-configured HTTP request carrying the API key. */
-    public static function request(int $timeout = 8): PendingRequest
+    public static function request(int $timeout = 6): PendingRequest
     {
         return Http::withHeaders([
             'Authorization' => 'Bearer '.config('app.sync_api_key'),
             'Accept'        => 'application/json',
-        ])->timeout($timeout)->connectTimeout(5);
+        ])->timeout($timeout)->connectTimeout(3);
     }
 
     /**

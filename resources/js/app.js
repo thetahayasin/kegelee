@@ -122,6 +122,14 @@ document.addEventListener('livewire:init', () => {
         window.kegelSync?.clearProgressData?.();
     });
 
+    // Navigate while REPLACING the current history entry (used after finishing a
+    // knowledge lesson) so the native Back button doesn't return to the video.
+    Livewire.on('navigate-replace', (payload) => {
+        const data = Array.isArray(payload) ? payload[0] : payload;
+        const url = data && data.url;
+        if (url) window.location.replace(url);
+    });
+
     Livewire.hook('request', ({ fail }) => {
         fail(({ status, preventDefault }) => {
             // Signing out: a hard redirect is in flight — abandon quietly, never

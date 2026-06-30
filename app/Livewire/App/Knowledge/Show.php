@@ -83,19 +83,22 @@ class Show extends Component
             ->orderBy('sort_order')
             ->first();
 
+        // Navigate by REPLACING the current history entry (window.location.replace
+        // via the 'navigate-replace' handler) so finishing a lesson and pressing
+        // native Back does NOT drop back onto the just-watched video.
         if ($next) {
-            // Hard redirect replaces the video in history so native back
-            // goes to the lesson list, not back into the finished video.
-            return redirect()->route('knowledge.show', ['lesson' => $next->id]);
+            $this->dispatch('navigate-replace', url: route('knowledge.show', ['lesson' => $next->id]));
+            return;
         }
 
         // Guest finished the free lessons → prompt to sign up / log in (which then
         // leads to the paywall to purchase), instead of looping back to onboarding.
         if (! auth()->check()) {
-            return redirect('/welcome?auth_prompt=1&auth_mode=options');
+            $this->dispatch('navigate-replace', url: '/welcome?auth_prompt=1&auth_mode=options');
+            return;
         }
 
-        return redirect()->route('knowledge.index');
+        $this->dispatch('navigate-replace', url: route('knowledge.index'));
     }
 
     public function render()

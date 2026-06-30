@@ -405,7 +405,7 @@
                          class="relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                         <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
                         <p class="text-center text-lg font-bold" x-text="cur.exercise"></p>
-                        <p class="mt-3 text-center text-sm leading-relaxed text-muted" x-show="cur.instructions" x-text="cur.instructions"></p>
+                        <p class="mt-2 text-center text-sm text-muted">Watch a quick tutorial for this exercise.</p>
                         <div class="mt-6 space-y-3">
                             <button @click="showHelp = false; paused = false"
                                     class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">OK</button>
@@ -452,11 +452,14 @@
 
             @if ($trial && $exercise)
                 <div x-show="canSkip" x-cloak x-transition class="mt-3">
-                    <a href="{{ $fromSession ? route('session') : route('exercises.show', $exercise) }}" wire:navigate
-                       class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold tap">
+                    {{-- Go BACK (pop the preview off history) so a later native back
+                         doesn't return to this try-it-now screen. --}}
+                    <button type="button"
+                            onclick="history.length > 1 ? history.back() : (window.location.href = '{{ $fromSession ? route('session') : route('exercises.show', $exercise) }}')"
+                            class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-semibold tap">
                         Skip
                         <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8zM19 5v14"/></svg>
-                    </a>
+                    </button>
                 </div>
             @endif
 
@@ -568,10 +571,10 @@
 
                 <div class="flex flex-col gap-3 px-6">
                     @if ($fromSession)
-                        <a href="{{ route('session') }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Back to workout</a>
+                        <button type="button" onclick="history.length > 1 ? history.back() : (window.location.href = '{{ route('session') }}')" class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Back to workout</button>
                     @else
                         <a href="{{ route('workout', ['exercise' => $exercise, 'trial' => 1]) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">Try again</a>
-                        <a href="{{ route('exercises.show', $exercise) }}" wire:navigate class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-content tap">Back to exercise</a>
+                        <button type="button" onclick="history.length > 1 ? history.back() : (window.location.href = '{{ route('exercises.show', $exercise) }}')" class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold text-content tap">Back to exercise</button>
                     @endif
                 </div>
             </div>
