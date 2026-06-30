@@ -112,6 +112,26 @@ class BackendClient
     }
 
     /**
+     * Fast "is the backend reachable?" check (~1s). Used to back off quickly when
+     * offline so the device never stacks multiple slow connection timeouts.
+     */
+    public static function reachable(int $timeout = 1): bool
+    {
+        $base = self::base();
+        if (! $base) {
+            return false;
+        }
+
+        $origin = preg_replace('#/api/?$#', '', $base);
+
+        try {
+            return Http::timeout($timeout)->connectTimeout($timeout)->get($origin.'/up')->successful();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
      * Headers that identify the acting user to the backend's VerifySyncApiKey
      * middleware (stateless auth via email + stored password hash).
      *

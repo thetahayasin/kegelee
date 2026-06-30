@@ -45,9 +45,28 @@ class SyncWithBackend
             return;
         }
 
+        // Is anything actually due? (check throttles WITHOUT consuming them, so a
+        // skipped/offline attempt doesn't waste the next sync window). Most
+        // navigations land here and return instantly.
+        $user = $request->user();
+        $contentDue = ! Cache::has('sync:content:lock');
+        $userDue = $user && ! Cache::has('sync:user:'.$user->id);
+
+        if (! $contentDue && ! $userDue) {
+            return;
+        }
+
+        // One fast reachability probe (~1s). Offline → back off for a while so the
+        // following navigations skip entirely instead of stacking slow timeouts.
+        // This is what stops "open the app without internet" from blanking.
+        if (! BackendClient::reachable()) {
+            Cache::put('sync:backend:cooldown', 1, self::COOLDOWN);
+            return;
+        }
+
         $ok = true;
 
-        if (Cache::add('sync:content:lock', 1, self::CONTENT_THROTTLE)) {
+        if ($contentDue && Cache::add('sync:content:lock', 1, self::CONTENT_THROTTLE)) {
             try {
                 $ok = app(ContentSyncService::class)->pull() && $ok;
             } catch (\Throwable $e) {
@@ -55,7 +74,7 @@ class SyncWithBackend
             }
         }
 
-        if (($user = $request->user()) && Cache::add('sync:user:'.$user->id, 1, self::USER_THROTTLE)) {
+        if ($userDue && $user && Cache::add('sync:user:'.$user->id, 1, self::USER_THROTTLE)) {
             try {
                 $userSync = app(UserSyncService::class);
                 $ok = $userSync->push($user) && $ok;
@@ -65,8 +84,6 @@ class SyncWithBackend
             }
         }
 
-        // Backend unreachable (offline) → back off so the next navigations skip
-        // the sync entirely instead of repeatedly hanging on connection timeouts.
         if (! $ok) {
             Cache::put('sync:backend:cooldown', 1, self::COOLDOWN);
         }
