@@ -138,8 +138,11 @@
                                 @error('password') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <button type="submit" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2">
-                                Log In
+                            <button type="submit" wire:loading.attr="disabled" wire:target="login"
+                                    class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2 disabled:opacity-70">
+                                <svg wire:loading wire:target="login" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                                <span wire:loading.remove wire:target="login">Log In</span>
+                                <span wire:loading wire:target="login">Logging in...</span>
                             </button>
                         </form>
 
@@ -196,8 +199,11 @@
                                 @error('password_confirmation') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <button type="submit" class="flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2">
-                                Create Account
+                            <button type="submit" wire:loading.attr="disabled" wire:target="register"
+                                    class="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/15 tap mt-2 disabled:opacity-70">
+                                <svg wire:loading wire:target="register" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                                <span wire:loading.remove wire:target="register">Create Account</span>
+                                <span wire:loading wire:target="register">Creating account...</span>
                             </button>
                         </form>
 

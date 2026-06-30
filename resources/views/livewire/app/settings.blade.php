@@ -70,7 +70,8 @@
 
     {{-- Standalone actions --}}
     <div class="mt-10 space-y-3 px-4"
-         x-data="{ showReset: false, offline: !navigator.onLine }"
+         x-data="{ showReset: false, offline: !navigator.onLine, _backOff: null }"
+         x-init="$watch('showReset', open => { if (open) { _backOff = window.appBack?.register(() => { showReset = false; }); } else { _backOff?.(); _backOff = null; } })"
          @offline.window="offline = true" @online.window="offline = false"
          @app-offline.window="offline = true" @app-online.window="offline = false">
         <button @click="showReset = true"

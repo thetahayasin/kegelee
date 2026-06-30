@@ -47,6 +47,19 @@ window.addEventListener('pageshow', (e) => {
     }
 });
 
+// The Home (training) and Profile screens show difficulty-derived data — the
+// level name on the "Difficulty" button and the session length. wire:navigate
+// serves a cached snapshot on a back/forward gesture, which can show the OLD
+// difficulty after a change. Refresh those two screens whenever they're shown so
+// they always reflect the current level. Skipped during a workout.
+document.addEventListener('livewire:navigated', () => {
+    if (window.__loggingOut || window.kegelPlayerTimer) return;
+    const p = location.pathname;
+    if (p === '/app' || p === '/profile') {
+        try { window.Livewire?.all().forEach((c) => c.$wire.$refresh()); } catch (e) {}
+    }
+});
+
 // ---------------------------------------------------------------------------
 // Hardware back-button coordination (Android / webview)
 // ---------------------------------------------------------------------------

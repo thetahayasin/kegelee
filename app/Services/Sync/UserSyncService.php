@@ -102,24 +102,13 @@ class UserSyncService
             }
 
             DB::transaction(function () use ($user, $data) {
-                // Sync user profile fields (level, timezone, etc.) so the
-                // local model reflects the backend's current state and the
-                // level card / profile page show the correct level.
-                if (! empty($data['user'])) {
-                    $profileUpdates = [];
-                    if (isset($data['user']['level_id'])) {
-                        $profileUpdates['level_id'] = $data['user']['level_id'];
-                    }
-                    if (! empty($data['user']['timezone'])) {
-                        $profileUpdates['timezone'] = $data['user']['timezone'];
-                    }
-                    if (isset($data['user']['level_started_days'])) {
-                        $profileUpdates['level_started_days'] = (int) $data['user']['level_started_days'];
-                    }
-                    if ($profileUpdates) {
-                        $user->update($profileUpdates);
-                    }
-                }
+                // IMPORTANT: do NOT overwrite the device-owned scalar settings
+                // (level_id, timezone, level_started_days) from the pull. The
+                // device is the writer for those — it changes them locally and
+                // PUSHES them up. Applying the backend's copy here reverted a
+                // fresh local change (e.g. a difficulty change snapping straight
+                // back to the old level on the very next sync). They arrive from
+                // the backend at login time, which is the correct moment.
 
                 $this->applySessions($user, $data['workout_sessions'] ?? []);
                 $this->applyMeasurements($user, $data['measurements'] ?? []);

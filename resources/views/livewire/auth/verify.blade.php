@@ -5,7 +5,7 @@
     </div>
 
     <form wire:submit="verify" class="space-y-4">
-        <input wire:model="code" inputmode="numeric" maxlength="6" placeholder="––––––"
+        <input wire:model="code" inputmode="numeric" maxlength="6" placeholder="------"
                class="h-16 w-full rounded-2xl border border-white/10 bg-surface text-center text-3xl font-bold tracking-[0.5em] placeholder:text-muted focus:border-accent focus:outline-none">
         @error('code') <p class="text-center text-sm text-accent-soft">{{ $message }}</p> @enderror
         <p class="text-center text-xs text-muted">Code expires in 15 minutes</p>
@@ -19,7 +19,11 @@
         @if ($resent)
             <span class="text-success">A new code has been sent.</span>
         @else
-            Didn't get it? <button wire:click="resend" class="font-semibold text-accent tap">Resend code</button>
+            Didn't get it?
+            <button wire:click="resend" wire:loading.attr="disabled" wire:target="resend" class="font-semibold text-accent tap disabled:opacity-60">
+                <span wire:loading.remove wire:target="resend">Resend code</span>
+                <span wire:loading wire:target="resend">Sending...</span>
+            </button>
         @endif
     </div>
 </div>
