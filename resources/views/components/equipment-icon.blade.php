@@ -48,10 +48,10 @@
     @else
         <svg viewBox="0 0 64 64" class="relative" style="width: {{ round($size * 0.66) }}px; height: {{ round($size * 0.66) }}px; {{ $flip ? 'transform: scaleX(-1);' : '' }}" fill="none">
             <defs>
+                {{-- Follow the app theme: a top-lit accent gradient instead of grey silver. --}}
                 <linearGradient id="silver-{{ $glyph }}{{ $flip ? '-f' : '' }}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#f4f6f8"/>
-                    <stop offset="0.5" stop-color="#c2c7cf"/>
-                    <stop offset="1" stop-color="#7d8390"/>
+                    <stop offset="0" style="stop-color: var(--c-accent-soft, #FF4D57)"/>
+                    <stop offset="1" style="stop-color: var(--c-accent, #E8202A)"/>
                 </linearGradient>
             </defs>
             @php($g = 'url(#silver-'.$glyph.($flip ? '-f' : '').')')
