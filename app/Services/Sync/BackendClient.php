@@ -19,7 +19,7 @@ class BackendClient
      * diagnostics so we can tell at a glance whether a rebuild actually shipped
      * the latest code (vs. a stale bundled copy).
      */
-    public const SYNC_BUILD = 'fk-isolation-v4';
+    public const SYNC_BUILD = 'level-pull-fix-v5';
 
     /**
      * True when this install should pull/push against a remote backend — i.e.
