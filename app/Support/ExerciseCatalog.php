@@ -243,7 +243,7 @@ final class ExerciseCatalog
                 'summary' => '4-step climb to the top',
                 'description' => 'Climb the squeeze in four steps, a little stronger at each level.',
                 'how_to' => 'Imagine riding an elevator upward. Tighten a little, then more, then more, until you reach your strongest squeeze, spending about one second at each level. Relax afterward.',
-                'pattern' => [$hold(1, 0.25, 'Step 1'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.75, 'Step 3'), $hold(1, 1, 'Top'), $s(1, 1, 0, 'Relax')],
+                'pattern' => [$hold(1, 0.25, 'Step 1'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.75, 'Step 3'), $hold(1, 1, 'Top'), $hold(1, 0, 'Relax')],
             ],
             [
                 'name' => 'Steady Clamp',
@@ -263,7 +263,7 @@ final class ExerciseCatalog
                 'summary' => '4-step descent from the top',
                 'description' => 'Squeeze to the top, then come down one step at a time under full control.',
                 'how_to' => 'Squeeze to your strongest, then relax a little at a time, pausing about one second at each level on the way down. The controlled descent is the exercise.',
-                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(1, 1, 'Top'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
+                'pattern' => [$hold(1, 1, 'Top'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
             ],
             [
                 'name' => 'Long Steady Clamp',
