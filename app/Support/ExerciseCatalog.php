@@ -246,13 +246,14 @@ final class ExerciseCatalog
                 'pattern' => [$hold(1, 0.25, 'Step 1'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.75, 'Step 3'), $hold(1, 1, 'Top'), $hold(1, 0, 'Relax')],
             ],
             [
+                // 1s squeeze up, then a steady 5s hold.
                 'name' => 'Steady Clamp',
                 'slug' => 'steady-clamp',
                 'unlock_after_days' => 79,
-                'summary' => '5 seconds up, 5 seconds down',
+                'summary' => '1 second squeeze, 5 second hold',
                 'description' => 'A long, steady clamp that demands sustained control.',
-                'how_to' => 'Tighten slowly over five seconds, then release just as slowly. Stay in full control the whole way.',
-                'pattern' => [$s(5, 0, 1, 'Contract & hold'), $s(5, 1, 0, 'Relax')],
+                'how_to' => 'Tighten for one second, then hold at full strength for five seconds without letting the tension drop. Let go and repeat.',
+                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(5, 1, 'Hold'), $hold(1, 0, 'Relax')],
             ],
             [
                 // The mirror of Upstairs: squeeze to the top, then step down
