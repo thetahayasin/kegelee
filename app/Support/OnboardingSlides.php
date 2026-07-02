@@ -15,26 +15,26 @@ final class OnboardingSlides
         return [
             [
                 'id' => 1,
-                'title' => 'Improve health and perform better',
-                'body' => 'Strengthen your pelvic floor muscles to build control, boost physical performance, and feel confident every day.',
+                'title' => 'Stronger, the natural way',
+                'body' => 'Kegel exercises train your pelvic floor like any workout trains a muscle. No pills, no side effects. Just real strength that lasts.',
                 'cta_label' => 'Next',
             ],
             [
                 'id' => 2,
-                'title' => 'It takes only minutes',
-                'body' => 'Each session fits your day. In just a few minutes you can complete your daily exercises anytime, anywhere.',
+                'title' => 'Only minutes a day',
+                'body' => 'Sessions start at just one minute. Do them anywhere, anytime. Nobody will even notice.',
                 'cta_label' => 'Next',
             ],
             [
                 'id' => 3,
-                'title' => 'Track your progress',
-                'body' => 'Watch your daily streak grow, measure your improvement, and unlock new exercises as you get stronger.',
+                'title' => 'Watch yourself improve',
+                'body' => 'Finish your daily sessions, grow your streak, and unlock new exercises as you get stronger week after week.',
                 'cta_label' => 'Next',
             ],
             [
                 'id' => 4,
-                'title' => 'Schedule your training',
-                'body' => 'Set gentle reminders at times that suit you. Stay consistent, build the habit, and see real results.',
+                'title' => 'Build the habit',
+                'body' => 'Set reminders that fit your day. A little effort every day brings lasting change.',
                 'cta_label' => 'Get Started',
             ],
         ];
