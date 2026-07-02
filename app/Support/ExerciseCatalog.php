@@ -186,15 +186,14 @@ final class ExerciseCatalog
                 'pattern' => [$s(3, 0, 1, 'Contract & hold'), $s(3, 1, 0, 'Relax')],
             ],
             [
-                // A small, snappy flick (about half a second up and straight
-                // back down) flowing directly into a 5 second hold.
+                // A small quick flick, a smooth relax down, then a 5 second hold.
                 'name' => 'Starter',
                 'slug' => 'starter',
                 'unlock_after_days' => 20,
                 'summary' => 'Quick flick, then a 5 second hold',
                 'description' => 'One quick squeeze to wake the muscle, then a strong 5 second hold.',
-                'how_to' => 'Give one quick squeeze and let go right away. Then squeeze again and hold strong for five seconds. Let go, breathe, and repeat.',
-                'pattern' => [$s(0.3, 0, 1, 'Contract'), $s(0.2, 1, 0, 'Relax'), $hold(5, 1, 'Contract & hold'), $hold(1, 0, 'Relax')],
+                'how_to' => 'Give one quick squeeze, relax smoothly, then squeeze again and hold strong for five seconds. Let go, breathe, and repeat.',
+                'pattern' => [$s(0.3, 0, 1, 'Contract'), $s(0.7, 1, 0, 'Relax'), $hold(5, 1, 'Contract & hold'), $hold(1, 0, 'Relax')],
             ],
             [
                 'name' => 'Short Holding',
