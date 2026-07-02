@@ -53,12 +53,24 @@ class Show extends Component
             if ($response->successful()) {
                 $this->remoteContent = (string) $response->json('content');
                 $this->remoteUpdatedAt = $response->json('updated_at');
-            } else {
-                $this->offline = true;
+
+                return;
             }
         } catch (\Throwable $e) {
-            $this->offline = true;
+            // Unreachable - fall through to the local copy below.
         }
+
+        // Live fetch failed. Show the copy stored on the device (seeded at
+        // install) rather than wrongly claiming there is no internet; the
+        // offline state only appears when there is nothing to show at all.
+        if (! empty($this->page->content)) {
+            $this->remoteContent = (string) $this->page->content;
+            $this->remoteUpdatedAt = $this->page->updated_at?->toIso8601String();
+
+            return;
+        }
+
+        $this->offline = true;
     }
 
     public function render()

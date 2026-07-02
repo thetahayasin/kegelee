@@ -57,6 +57,8 @@ class SyncController extends Controller
                 'updated_at'  => $k->updated_at?->toIso8601String(),
             ]);
 
+        // Content ships too so the device holds a current fallback copy;
+        // opening a page still fetches the live version first.
         $pages = Page::where('is_published', true)
             ->orderBy('sort_order')
             ->get()
@@ -64,6 +66,7 @@ class SyncController extends Controller
                 'id'         => $p->id,
                 'slug'       => $p->slug,
                 'title'      => $p->title,
+                'content'    => $p->content,
                 'sort_order' => (int) $p->sort_order,
                 'updated_at' => $p->updated_at?->toIso8601String(),
             ]);

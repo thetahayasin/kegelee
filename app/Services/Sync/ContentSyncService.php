@@ -107,9 +107,9 @@ class ContentSyncService
     }
 
     /**
-     * Only the page LIST syncs (slug, title, order) so Settings can show the
-     * legal links. The page content itself is fetched live when opened -
-     * legal documents are online-only so users always see the current version.
+     * Legal pages: the list powers the Settings links and the content is the
+     * device's fallback copy. Opening a page always fetches the live version
+     * from the backend first, so users normally read the current text.
      *
      * @param array<int, array<string, mixed>> $rows
      */
@@ -127,11 +127,16 @@ class ContentSyncService
                 continue;
             }
 
-            Page::updateOrCreate(['slug' => $row['slug']], [
+            $attributes = [
                 'title'        => $row['title'] ?? '',
                 'sort_order'   => $row['sort_order'] ?? 0,
                 'is_published' => true,
-            ]);
+            ];
+            if (array_key_exists('content', $row) && $row['content'] !== null) {
+                $attributes['content'] = $row['content'];
+            }
+
+            Page::updateOrCreate(['slug' => $row['slug']], $attributes);
         }
     }
 }

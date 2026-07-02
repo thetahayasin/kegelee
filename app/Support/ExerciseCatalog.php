@@ -10,7 +10,9 @@ namespace App\Support;
  * [label, seconds, from, to] where from/to describe the squeeze intensity
  * (0 = fully relaxed, 1 = fully contracted). The workout player animates the
  * glow between those keyframes and shows the segment label (Contract, Hold,
- * Release, Rest, Floor 1, ...) so the user always knows what to do.
+ * Release, Floor 1, ...) so the user always knows what to do. Patterns hold
+ * only the movement itself - rest happens between exercises, inserted by the
+ * SessionBuilder, never inside a pattern.
  *
  * Nothing here is stored in or edited from the backend. The backend only
  * handles accounts, session history, completed days, reminders and
@@ -140,17 +142,17 @@ final class ExerciseCatalog
                 'unlock_after_days' => 0,
                 'summary' => 'Rapid quick flicks',
                 'description' => 'Rapid short squeezes that make the muscle tremble and wake up its fast response.',
-                'how_to' => 'Squeeze your pelvic floor quickly, then let go right away. Repeat with the circle. Keep the flicks light and fast, then rest and breathe when the circle rests.',
-                'pattern' => [...self::pulses(6, 0.45, 'Quick flicks'), $hold(1.4, 0, 'Rest')],
+                'how_to' => 'Squeeze your pelvic floor quickly, then let go right away. Repeat with the circle. Keep the flicks light and fast.',
+                'pattern' => [...self::pulses(6, 0.45, 'Quick flicks')],
             ],
             [
                 'name' => 'Holding',
                 'slug' => 'holding',
                 'unlock_after_days' => 0,
-                'summary' => 'Squeeze, hold 3 seconds, rest',
-                'description' => 'The classic exercise. Squeeze, hold for a few seconds, then rest just as long.',
-                'how_to' => 'Squeeze your pelvic floor and hold it while the circle stays full. Then let go slowly and rest until the circle empties. Keep breathing normally the whole time.',
-                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(3, 1, 'Hold'), $s(1, 1, 0, 'Release'), $hold(3, 0, 'Rest')],
+                'summary' => 'Squeeze, hold 3 seconds, release',
+                'description' => 'The classic exercise. Squeeze, hold for a few seconds, then release with control.',
+                'how_to' => 'Squeeze your pelvic floor and hold it while the circle stays full. Then let go slowly as the circle empties. Keep breathing normally the whole time.',
+                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(3, 1, 'Hold'), $s(1, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Front Clamp',
@@ -158,8 +160,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 1,
                 'summary' => 'Hold 3 seconds, quick release',
                 'description' => 'A steady hold at the front of the pelvic floor, finished with a quick clean release.',
-                'how_to' => 'Squeeze as if stopping the flow of urine and hold it steady. When the circle drops, let go all at once. Rest, then repeat.',
-                'pattern' => [$s(1.2, 0, 1, 'Contract'), $hold(3, 1, 'Hold'), $s(0.4, 1, 0, 'Quick release'), $hold(1.2, 0, 'Rest')],
+                'how_to' => 'Squeeze as if stopping the flow of urine and hold it steady. When the circle drops, let go all at once, then repeat.',
+                'pattern' => [$s(1.2, 0, 1, 'Contract'), $hold(3, 1, 'Hold'), $s(0.4, 1, 0, 'Quick release')],
             ],
             [
                 'name' => 'Reverse Clamp',
@@ -168,7 +170,7 @@ final class ExerciseCatalog
                 'summary' => 'Quick clamp, slow release',
                 'description' => 'A fast squeeze followed by a slow, controlled letting go. Great for control.',
                 'how_to' => 'Squeeze quickly and hold for a moment. Then release as slowly as you can, following the circle down. The slow letting go is the exercise.',
-                'pattern' => [$s(0.4, 0, 1, 'Contract'), $hold(1, 1, 'Hold'), $s(3, 1, 0, 'Ease down slowly'), $hold(1.2, 0, 'Rest')],
+                'pattern' => [$s(0.4, 0, 1, 'Contract'), $hold(1, 1, 'Hold'), $s(3, 1, 0, 'Ease down slowly')],
             ],
             [
                 'name' => 'Flash',
@@ -176,8 +178,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 5,
                 'summary' => 'Fastest flick pulses',
                 'description' => 'The fastest flicks. Short snappy squeezes that train quick reactions.',
-                'how_to' => 'Squeeze and let go as fast as you can, in time with the circle. Stay light, do not strain. Rest when the circle rests.',
-                'pattern' => [...self::pulses(8, 0.28, 'Flash flicks'), $hold(1, 0, 'Rest')],
+                'how_to' => 'Squeeze and let go as fast as you can, in time with the circle. Stay light, do not strain.',
+                'pattern' => [...self::pulses(8, 0.28, 'Flash flicks')],
             ],
             [
                 'name' => 'Steady Trembling',
@@ -185,8 +187,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 7,
                 'summary' => 'Hold high, tremble, release',
                 'description' => 'Squeeze up, keep the tension while it gently trembles, then release.',
-                'how_to' => 'Squeeze up to a strong hold. Keep the tension while making tiny quick squeezes on top of it. Then release and rest.',
-                'pattern' => [$s(1, 0, 1, 'Contract'), ...self::tremble(5, 0.24, 'Hold and tremble'), $s(0.6, 1, 0, 'Release'), $hold(1.2, 0, 'Rest')],
+                'how_to' => 'Squeeze up to a strong hold. Keep the tension while making tiny quick squeezes on top of it. Then release.',
+                'pattern' => [$s(1, 0, 1, 'Contract'), ...self::tremble(5, 0.24, 'Hold and tremble'), $s(0.6, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Clamp',
@@ -194,17 +196,17 @@ final class ExerciseCatalog
                 'unlock_after_days' => 14,
                 'summary' => 'Firm clamp, 3 second hold',
                 'description' => 'A firm full squeeze held steady, then let go with control.',
-                'how_to' => 'Squeeze firmly and hold it steady without letting the tension drop. Release with control and rest before the next round.',
-                'pattern' => [$s(0.7, 0, 1, 'Contract'), $hold(3, 1, 'Hold'), $s(0.9, 1, 0, 'Release'), $hold(2.5, 0, 'Rest')],
+                'how_to' => 'Squeeze firmly and hold it steady without letting the tension drop. Release with control, then go again.',
+                'pattern' => [$s(0.7, 0, 1, 'Contract'), $hold(3, 1, 'Hold'), $s(0.9, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Starter',
                 'slug' => 'starter',
                 'unlock_after_days' => 20,
                 'summary' => 'Gentle ease in and out',
-                'description' => 'A gentle warm up. Ease into the squeeze, hold briefly, ease out and breathe.',
+                'description' => 'A gentle warm up. Ease into the squeeze, hold briefly, then ease out.',
                 'how_to' => 'Tighten slowly and smoothly as the circle fills. Hold briefly, then let go just as smoothly. Focus on breathing calmly.',
-                'pattern' => [$s(2, 0, 1, 'Ease in'), $hold(1.5, 1, 'Hold'), $s(1.5, 1, 0, 'Ease out'), $hold(1.5, 0, 'Breathe')],
+                'pattern' => [$s(2, 0, 1, 'Ease in'), $hold(1.5, 1, 'Hold'), $s(1.5, 1, 0, 'Ease out')],
             ],
             [
                 'name' => 'Short Holding',
@@ -212,8 +214,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 36,
                 'summary' => 'Quick squeeze, 4 second hold',
                 'description' => 'Short, strong holds with a clean release.',
-                'how_to' => 'Squeeze quickly to full strength and hold it there. Release cleanly when the circle drops, rest briefly, then go again.',
-                'pattern' => [$s(0.8, 0, 1, 'Squeeze'), $hold(4, 1, 'Hold'), $s(0.7, 1, 0, 'Release'), $hold(1.5, 0, 'Rest')],
+                'how_to' => 'Squeeze quickly to full strength and hold it there. Release cleanly when the circle drops, then go again.',
+                'pattern' => [$s(0.8, 0, 1, 'Squeeze'), $hold(4, 1, 'Hold'), $s(0.7, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Waves',
@@ -230,8 +232,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 50,
                 'summary' => 'Rapid rhythmic pulses',
                 'description' => 'Rhythmic pulses that build stamina and timing.',
-                'how_to' => 'Squeeze and release in a steady rhythm with the circle. Keep every pulse the same strength. Rest when the circle rests.',
-                'pattern' => [...self::pulses(8, 0.35, 'Pulse'), $hold(2, 0, 'Rest')],
+                'how_to' => 'Squeeze and release in a steady rhythm with the circle. Keep every pulse the same strength.',
+                'pattern' => [...self::pulses(8, 0.35, 'Pulse')],
             ],
             [
                 'name' => 'Push',
@@ -240,7 +242,7 @@ final class ExerciseCatalog
                 'summary' => 'Build to a strong peak',
                 'description' => 'Build the squeeze gradually to a strong peak, hold it, then let go.',
                 'how_to' => 'Tighten gradually, getting stronger as the circle fills. At the top, hold your strongest squeeze. Squeeze harder, never push down or strain.',
-                'pattern' => [$s(4, 0, 1, 'Build'), $hold(2.5, 1, 'Peak hold'), $s(1.2, 1, 0, 'Release'), $hold(1.5, 0, 'Rest')],
+                'pattern' => [$s(4, 0, 1, 'Build'), $hold(2.5, 1, 'Peak hold'), $s(1.2, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Upstairs',
@@ -248,8 +250,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 69,
                 'summary' => 'Climb up in 4 steps',
                 'description' => 'Climb the squeeze up in small steps until you reach the top.',
-                'how_to' => 'Tighten a little and hold. Then a little more. Step up in stages until you reach your strongest squeeze, then release and rest.',
-                'pattern' => [$hold(0.9, 0.25, 'Step 1'), $hold(0.9, 0.5, 'Step 2'), $hold(0.9, 0.75, 'Step 3'), $hold(1.1, 1, 'Top'), $s(1.2, 1, 0, 'Release'), $hold(1.2, 0, 'Rest')],
+                'how_to' => 'Tighten a little and hold. Then a little more. Step up in stages until you reach your strongest squeeze, then release.',
+                'pattern' => [$hold(0.9, 0.25, 'Step 1'), $hold(0.9, 0.5, 'Step 2'), $hold(0.9, 0.75, 'Step 3'), $hold(1.1, 1, 'Top'), $s(1.2, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Steady Clamp',
@@ -257,8 +259,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 79,
                 'summary' => 'Clamp, 5 second steady hold',
                 'description' => 'A long, steady clamp held under full control.',
-                'how_to' => 'Squeeze to full strength and keep it perfectly steady while the circle holds. Release with control and rest well between rounds.',
-                'pattern' => [$s(0.8, 0, 1, 'Clamp'), $hold(5, 1, 'Hold steady'), $s(0.8, 1, 0, 'Release'), $hold(2, 0, 'Rest')],
+                'how_to' => 'Squeeze to full strength and keep it perfectly steady while the circle holds. Release with control.',
+                'pattern' => [$s(0.8, 0, 1, 'Clamp'), $hold(5, 1, 'Hold steady'), $s(0.8, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Downstairs',
@@ -267,7 +269,7 @@ final class ExerciseCatalog
                 'summary' => 'Lower down in 4 steps',
                 'description' => 'Squeeze to the top, then come down in small controlled steps.',
                 'how_to' => 'Squeeze up to full strength first. Then relax a little at a time, pausing at each step on the way down. The slow controlled descent is the goal.',
-                'pattern' => [$s(0.9, 0, 1, 'Lift'), $hold(0.8, 1, 'Top'), $hold(0.9, 0.75, 'Down 3'), $hold(0.9, 0.5, 'Down 2'), $hold(0.9, 0.25, 'Down 1'), $s(0.7, 0.25, 0, 'Release'), $hold(1.2, 0, 'Rest')],
+                'pattern' => [$s(0.9, 0, 1, 'Lift'), $hold(0.8, 1, 'Top'), $hold(0.9, 0.75, 'Down 3'), $hold(0.9, 0.5, 'Down 2'), $hold(0.9, 0.25, 'Down 1'), $s(0.7, 0.25, 0, 'Release')],
             ],
             [
                 'name' => 'Long Steady Clamp',
@@ -275,8 +277,8 @@ final class ExerciseCatalog
                 'unlock_after_days' => 99,
                 'summary' => 'Clamp, 10 second max hold',
                 'description' => 'An extended maximum hold for peak endurance.',
-                'how_to' => 'Squeeze to full strength and hold for the whole count. If the tension fades, gently squeeze back up to full. Rest well afterwards.',
-                'pattern' => [$s(1, 0, 1, 'Clamp'), $hold(10, 1, 'Hold'), $s(1, 1, 0, 'Release'), $hold(3, 0, 'Rest')],
+                'how_to' => 'Squeeze to full strength and hold for the whole count. If the tension fades, gently squeeze back up to full.',
+                'pattern' => [$s(1, 0, 1, 'Clamp'), $hold(10, 1, 'Hold'), $s(1, 1, 0, 'Release')],
             ],
             [
                 'name' => 'Elevator',
@@ -285,7 +287,7 @@ final class ExerciseCatalog
                 'summary' => 'Lift, hold top, lower',
                 'description' => 'The signature exercise. Lift floor by floor, hold at the top, then lower back down.',
                 'how_to' => 'Imagine an elevator rising inside you. Tighten a little more at each floor. Hold at the top, then come back down one floor at a time until fully relaxed.',
-                'pattern' => [$hold(0.85, 0.2, 'Floor 1'), $hold(0.85, 0.4, 'Floor 2'), $hold(0.85, 0.6, 'Floor 3'), $hold(0.85, 0.8, 'Floor 4'), $hold(1.3, 1, 'Top'), $hold(0.85, 0.8, 'Down 4'), $hold(0.85, 0.6, 'Down 3'), $hold(0.85, 0.4, 'Down 2'), $hold(0.85, 0.2, 'Down 1'), $s(0.7, 0.2, 0, 'Ground'), $hold(1.3, 0, 'Rest')],
+                'pattern' => [$hold(0.85, 0.2, 'Floor 1'), $hold(0.85, 0.4, 'Floor 2'), $hold(0.85, 0.6, 'Floor 3'), $hold(0.85, 0.8, 'Floor 4'), $hold(1.3, 1, 'Top'), $hold(0.85, 0.8, 'Down 4'), $hold(0.85, 0.6, 'Down 3'), $hold(0.85, 0.4, 'Down 2'), $hold(0.85, 0.2, 'Down 1'), $s(0.7, 0.2, 0, 'Ground')],
             ],
         ];
 

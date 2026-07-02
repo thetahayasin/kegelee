@@ -225,11 +225,26 @@
 
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
                 <p class="font-semibold text-content">Subscription products</p>
-                <p class="mt-1">The three plans are fixed in code (1 month, 3 months, 1 year) with the product IDs
-                    <code class="text-content">premium_monthly</code>, <code class="text-content">premium_quarterly</code>
-                    and <code class="text-content">premium_yearly</code>.
-                    Create matching subscription products with those IDs in your Play Console.
-                </p>
+                <p class="mt-1">The plans are fixed in code. Create a subscription product in your Play Console
+                    for each <span class="text-content">Product ID</span> below (base plan price shown for reference).</p>
+                <table class="mt-3 w-full text-left text-xs">
+                    <thead>
+                        <tr class="text-muted">
+                            <th class="pb-1.5 font-medium">Plan</th>
+                            <th class="pb-1.5 font-medium">Price</th>
+                            <th class="pb-1.5 font-medium">Product ID (use this in Play Console)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-content">
+                        @foreach (\App\Models\Plan::where('is_active', true)->orderBy('sort_order')->get() as $plan)
+                            <tr class="border-t border-white/5">
+                                <td class="py-2">{{ $plan->name }}</td>
+                                <td class="py-2">${{ number_format($plan->price, 2) }}</td>
+                                <td class="py-2 font-mono">{{ $plan->store_product_id }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
 

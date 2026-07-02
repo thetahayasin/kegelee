@@ -82,7 +82,7 @@ class SessionBuilderTest extends TestCase
 
         $playlist = app(SessionBuilder::class)->single($user, $exercise);
 
-        $cycle = 8.0; // holding: contract 1 + hold 3 + release 1 + rest 3
+        $cycle = 5.0; // holding: contract 1 + hold 3 + release 1
         $this->assertEqualsWithDelta(0.0, fmod($playlist['total'], $cycle), 0.01);
         $this->assertGreaterThanOrEqual($cycle, $playlist['total']);
     }

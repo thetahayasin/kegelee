@@ -19,6 +19,7 @@
                 done: false,
                 useOfflineResult: false,
                 offlineResult: null,
+                levelId: @js(auth()->user()->level_id),
                 init() {
                     if (!this.steps.length) { this.finish(); return; }
                     if (!this.trial) {
@@ -26,8 +27,15 @@
                         if (saved) {
                             try {
                                 let s = JSON.parse(saved);
-                                if (s.steps) this.steps = s.steps;
-                                this.i = s.i; this.remaining = s.remaining; this.elapsed = s.elapsed;
+                                // Only resume a playlist built for the CURRENT level -
+                                // after a difficulty change the old saved session must
+                                // not replace the freshly built one.
+                                if (s.levelId === this.levelId) {
+                                    if (s.steps) this.steps = s.steps;
+                                    this.i = s.i; this.remaining = s.remaining; this.elapsed = s.elapsed;
+                                } else {
+                                    sessionStorage.removeItem(this._saveKey);
+                                }
                             } catch(e) {}
                         }
                     }
@@ -70,6 +78,7 @@
                     sessionStorage.setItem(this._saveKey, JSON.stringify({
                         steps: this.steps, i: this.i,
                         remaining: this.remaining, elapsed: this.elapsed,
+                        levelId: this.levelId,
                     }));
                 },
                 async _acquireWakeLock() {

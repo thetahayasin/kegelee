@@ -45,11 +45,11 @@ class ContentSyncTest extends TestCase
         $res->assertJsonPath('knowledge_lessons.0.description', 'Find them first.');
         $this->assertStringStartsWith('https://ke.downloadh.com/', $res->json('knowledge_lessons.0.video_src'));
 
-        // Page LIST syncs (title/slug), but never the content - legal pages
-        // are read live so users always see the current version.
+        // Pages sync with content as the device's fallback copy; opening a
+        // page still fetches the live version first.
         $res->assertJsonPath('pages.0.slug', 'privacy-policy');
         $res->assertJsonPath('pages.0.title', 'Privacy Policy');
-        $this->assertNull($res->json('pages.0.content'));
+        $res->assertJsonPath('pages.0.content', '<p>Policy body.</p>');
 
         // The hardcoded catalogues never sync.
         $this->assertNull($res->json('exercises'));

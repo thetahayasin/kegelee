@@ -55,15 +55,30 @@ class ExerciseCatalogTest extends TestCase
 
     public function test_steps_fill_the_duration_with_whole_cycles(): void
     {
-        $cycle = ExerciseCatalog::cycleSeconds('holding'); // 1 + 3 + 1 + 3 = 8s
-        $this->assertEqualsWithDelta(8.0, $cycle, 0.01);
+        $cycle = ExerciseCatalog::cycleSeconds('holding'); // 1 + 3 + 1 = 5s
+        $this->assertEqualsWithDelta(5.0, $cycle, 0.01);
 
-        $steps = ExerciseCatalog::steps('holding', 27.0); // 3 whole cycles
-        $this->assertEqualsWithDelta(24.0, array_sum(array_column($steps, 'seconds')), 0.01);
-        $this->assertSame(['Contract', 'Hold', 'Release', 'Rest'], array_slice(array_column($steps, 'label'), 0, 4));
+        $steps = ExerciseCatalog::steps('holding', 27.0); // 5 whole cycles
+        $this->assertEqualsWithDelta(25.0, array_sum(array_column($steps, 'seconds')), 0.01);
+        $this->assertSame(['Contract', 'Hold', 'Release'], array_slice(array_column($steps, 'label'), 0, 3));
 
         // Shorter than one cycle still plays one full cycle.
-        $this->assertEqualsWithDelta(8.0, array_sum(array_column(ExerciseCatalog::steps('holding', 3.0), 'seconds')), 0.01);
+        $this->assertEqualsWithDelta(5.0, array_sum(array_column(ExerciseCatalog::steps('holding', 3.0), 'seconds')), 0.01);
+    }
+
+    public function test_patterns_hold_only_the_movement_never_a_rest(): void
+    {
+        // Rest happens BETWEEN exercises (inserted by the SessionBuilder), so
+        // no pattern may contain a flat zero-intensity segment or a Rest label.
+        foreach (ExerciseCatalog::all() as $slug => $def) {
+            foreach ($def['pattern'] as $seg) {
+                $this->assertFalse(
+                    $seg['from'] === $seg['to'] && (float) $seg['to'] === 0.0,
+                    "$slug contains an in-pattern rest segment",
+                );
+                $this->assertNotSame('Rest', $seg['label'], $slug);
+            }
+        }
     }
 
     public function test_elevator_pattern_keeps_its_floor_labels(): void
@@ -71,7 +86,7 @@ class ExerciseCatalogTest extends TestCase
         $labels = array_column(ExerciseCatalog::get('elevator')['pattern'], 'label');
 
         $this->assertSame(
-            ['Floor 1', 'Floor 2', 'Floor 3', 'Floor 4', 'Top', 'Down 4', 'Down 3', 'Down 2', 'Down 1', 'Ground', 'Rest'],
+            ['Floor 1', 'Floor 2', 'Floor 3', 'Floor 4', 'Top', 'Down 4', 'Down 3', 'Down 2', 'Down 1', 'Ground'],
             $labels,
         );
     }
