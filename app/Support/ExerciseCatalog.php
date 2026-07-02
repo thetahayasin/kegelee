@@ -196,13 +196,14 @@ final class ExerciseCatalog
                 'pattern' => [$s(0.3, 0, 1, 'Contract'), $s(0.7, 1, 0, 'Relax'), $hold(5, 1, 'Contract & hold'), $hold(1, 0, 'Relax')],
             ],
             [
+                // Squeeze up slowly over 1s, hold 4s, then let go at once.
                 'name' => 'Short Holding',
                 'slug' => 'short-holding',
                 'unlock_after_days' => 36,
-                'summary' => 'Slow 4 second build, quick release',
-                'description' => 'A long gradual squeeze with a short release.',
-                'how_to' => 'Tighten gradually over 4 seconds to full strength, then release quickly and go again.',
-                'pattern' => [$s(4, 0, 1, 'Contract & hold'), $s(1, 1, 0, 'Relax')],
+                'summary' => 'Squeeze up, hold 4 seconds, let go',
+                'description' => 'A slow squeeze into a strong 4 second hold with a quick release.',
+                'how_to' => 'Tighten slowly for one second, then hold at full strength for four seconds. Let go at once and go again.',
+                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(4, 1, 'Hold'), $hold(1, 0, 'Relax')],
             ],
             [
                 'name' => 'Waves',
