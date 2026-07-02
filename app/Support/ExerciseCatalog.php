@@ -267,13 +267,14 @@ final class ExerciseCatalog
                 'pattern' => [$hold(1, 1, 'Top'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
             ],
             [
+                // 1s squeeze up, then an extended 10s hold.
                 'name' => 'Long Steady Clamp',
                 'slug' => 'long-steady-clamp',
                 'unlock_after_days' => 99,
-                'summary' => '10 second squeeze, slow release',
-                'description' => 'An extended gradual squeeze for peak endurance.',
-                'how_to' => 'Build to full strength over ten seconds, keeping control the whole time, then release slowly. The long climb builds endurance.',
-                'pattern' => [$s(10, 0, 1, 'Contract & hold'), $s(5, 1, 0, 'Relax')],
+                'summary' => '1 second squeeze, 10 second hold',
+                'description' => 'An extended maximum hold for peak endurance.',
+                'how_to' => 'Tighten for one second, then hold at full strength for ten seconds. If the tension fades, gently squeeze back up to full. Let go and repeat.',
+                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(10, 1, 'Hold'), $hold(1, 0, 'Relax')],
             ],
             [
                 'name' => 'Elevator',
