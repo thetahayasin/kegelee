@@ -236,13 +236,14 @@ final class ExerciseCatalog
                 'pattern' => [$s(3, 0, 1, 'Build'), $hold(2, 1, 'Peak hold'), $s(3, 1, 0, 'Relax')],
             ],
             [
+                // A 4-step climb: 25%, 50%, 75%, 100%, about 1s each, then relax.
                 'name' => 'Upstairs',
                 'slug' => 'upstairs',
                 'unlock_after_days' => 69,
-                'summary' => '2 seconds up, 1 second down',
-                'description' => 'Step the squeeze up over two seconds, like climbing stairs.',
-                'how_to' => 'Tighten over two seconds as if climbing steps, then release. Each round is one climb.',
-                'pattern' => [$s(2, 0, 1, 'Contract & hold'), $s(1, 1, 0, 'Relax')],
+                'summary' => '4-step climb to the top',
+                'description' => 'Climb the squeeze in four steps, a little stronger at each level.',
+                'how_to' => 'Imagine riding an elevator upward. Tighten a little, then more, then more, until you reach your strongest squeeze, spending about one second at each level. Relax afterward.',
+                'pattern' => [$hold(1, 0.25, 'Step 1'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.75, 'Step 3'), $hold(1, 1, 'Top'), $s(1, 1, 0, 'Relax')],
             ],
             [
                 'name' => 'Steady Clamp',
@@ -254,13 +255,15 @@ final class ExerciseCatalog
                 'pattern' => [$s(5, 0, 1, 'Contract & hold'), $s(5, 1, 0, 'Relax')],
             ],
             [
+                // The mirror of Upstairs: squeeze to the top, then step down
+                // 75%, 50%, 25%, about 1s each, and release.
                 'name' => 'Downstairs',
                 'slug' => 'downstairs',
                 'unlock_after_days' => 89,
-                'summary' => 'Squeeze up, walk it back down',
-                'description' => 'Like Upstairs, but the focus is the controlled way back down.',
-                'how_to' => 'Tighten over two seconds, then put all your focus on the controlled letting go, like walking back down the steps.',
-                'pattern' => [$s(2, 0, 1, 'Contract & hold'), $s(1, 1, 0, 'Relax')],
+                'summary' => '4-step descent from the top',
+                'description' => 'Squeeze to the top, then come down one step at a time under full control.',
+                'how_to' => 'Squeeze to your strongest, then relax a little at a time, pausing about one second at each level on the way down. The controlled descent is the exercise.',
+                'pattern' => [$s(1, 0, 1, 'Contract'), $hold(1, 1, 'Top'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
             ],
             [
                 'name' => 'Long Steady Clamp',
