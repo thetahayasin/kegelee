@@ -185,13 +185,14 @@ final class ExerciseCatalog
                 'pattern' => [$s(3, 0, 1, 'Contract & hold'), $s(3, 1, 0, 'Relax')],
             ],
             [
+                // A quick 0.5s flick, a short relax, then a 5 second hold.
                 'name' => 'Starter',
                 'slug' => 'starter',
                 'unlock_after_days' => 20,
-                'summary' => 'Gentle squeeze and release',
-                'description' => 'A gentle warm up rhythm to prepare the pelvic floor for harder work.',
-                'how_to' => 'Tighten slowly as the circle fills, then let go a little faster as it empties. Focus on breathing calmly.',
-                'pattern' => [$s(2, 0, 1, 'Contract & hold'), $s(1, 1, 0, 'Relax')],
+                'summary' => 'Quick flick, then a 5 second hold',
+                'description' => 'One quick squeeze to wake the muscle, then a strong 5 second hold.',
+                'how_to' => 'Give one quick squeeze and let go. Then squeeze again and hold strong for five seconds. Let go, breathe, and repeat.',
+                'pattern' => [$s(0.5, 0, 1, 'Contract'), $hold(1, 0, 'Relax'), $hold(5, 1, 'Contract & hold'), $hold(1, 0, 'Relax')],
             ],
             [
                 'name' => 'Short Holding',

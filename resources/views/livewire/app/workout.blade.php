@@ -229,7 +229,17 @@
                 // circle; 1.0 expands it fully out on contraction.
                 get glowScale()   { return 0.58 + this.intensity * 0.42; },
                 get glowTransition() {
-                    if (this.cur.from !== undefined || this.glowMode === 'slowly') return 'opacity 0.1s linear, transform 0.1s linear';
+                    if (this.cur.from !== undefined) {
+                        // Keyframed steps: ramps (from != to) are driven frame by
+                        // frame, so they only need a tiny linear smoother. Flat
+                        // "at once" beats glide to their value with an eased
+                        // transition (capped to the beat length) so a quick
+                        // contract or relax feels smooth, never like a hard cut.
+                        if (this.cur.from !== this.cur.to) return 'opacity 0.1s linear, transform 0.1s linear';
+                        let g = Math.min(this.glowSpeed, Math.max(0.15, this.cur.seconds * 0.8));
+                        return 'opacity ' + g + 's ease-in-out, transform ' + g + 's ease-in-out';
+                    }
+                    if (this.glowMode === 'slowly') return 'opacity 0.1s linear, transform 0.1s linear';
                     let d = this.glowMode === 'very_fast' ? Math.min(0.15, this.glowSpeed) : this.glowSpeed;
                     return 'opacity ' + d + 's ease-in-out, transform ' + d + 's ease-in-out';
                 },
