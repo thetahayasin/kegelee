@@ -232,7 +232,7 @@
                     if (this.cur.from !== undefined) {
                         // Keyframed steps: ramps (from != to) are driven frame by
                         // frame, so they only need a tiny linear smoother. Flat
-                        // "at once" beats glide to their value with an eased
+                        // at-once beats glide to their value with an eased
                         // transition (capped to the beat length) so a quick
                         // contract or relax feels smooth, never like a hard cut.
                         if (this.cur.from !== this.cur.to) return 'opacity 0.1s linear, transform 0.1s linear';
