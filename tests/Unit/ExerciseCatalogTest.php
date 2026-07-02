@@ -90,9 +90,12 @@ class ExerciseCatalogTest extends TestCase
         $this->assertSame([0.0, 1.0], [(float) $front[0]['from'], (float) $front[0]['to']]); // ramp up
         $this->assertSame([0.0, 0.0], [(float) $front[1]['from'], (float) $front[1]['to']]); // instant drop
 
-        // Reverse Clamp mirrors it: squeeze at once, release slowly over 3s.
+        // Reverse Clamp mirrors it: an instant squeeze straight into the
+        // slow 3s release - no hold in between.
         $reverse = ExerciseCatalog::get('reverse-clamp')['pattern'];
-        $this->assertSame([1.0, 1.0], [(float) $reverse[0]['from'], (float) $reverse[0]['to']]); // instant squeeze
+        $this->assertCount(2, $reverse);
+        $this->assertLessThan(0.6, $reverse[0]['seconds']); // instant squeeze
+        $this->assertSame([0.0, 1.0], [(float) $reverse[0]['from'], (float) $reverse[0]['to']]);
         $this->assertEqualsWithDelta(3.0, $reverse[1]['seconds'], 0.01);
         $this->assertSame([1.0, 0.0], [(float) $reverse[1]['from'], (float) $reverse[1]['to']]); // slow release
 

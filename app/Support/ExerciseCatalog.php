@@ -145,14 +145,15 @@ final class ExerciseCatalog
                 'pattern' => [$s(3, 0, 1, 'Contract & hold'), $hold(1, 0, 'Release')],
             ],
             [
-                // Front Clamp reversed: contract at once, release slowly over 3s.
+                // Front Clamp reversed: squeeze up instantly, then straight
+                // into the slow 3s release - no hold in between.
                 'name' => 'Reverse Clamp',
                 'slug' => 'reverse-clamp',
                 'unlock_after_days' => 3,
                 'summary' => 'Squeeze at once, release slowly',
                 'description' => 'A quick squeeze followed by a slow, controlled letting go. Great for control.',
-                'how_to' => 'Squeeze at once and hold for a moment. Then release as slowly as you can, following the circle down. The slow letting go is the exercise.',
-                'pattern' => [$hold(1, 1, 'Clamp'), $s(3, 1, 0, 'Release slowly')],
+                'how_to' => 'Squeeze at once, then immediately start releasing as slowly as you can, following the circle down. The slow letting go is the exercise.',
+                'pattern' => [$s(0.3, 0, 1, 'Clamp'), $s(3, 1, 0, 'Release slowly')],
             ],
             [
                 // The fastest flicks: 0.3s on, 0.3s off.
@@ -185,14 +186,15 @@ final class ExerciseCatalog
                 'pattern' => [$s(3, 0, 1, 'Contract & hold'), $s(3, 1, 0, 'Relax')],
             ],
             [
-                // A quick 0.5s flick, a short relax, then a 5 second hold.
+                // A small, snappy flick (about half a second up and straight
+                // back down), a short relax, then a 5 second hold.
                 'name' => 'Starter',
                 'slug' => 'starter',
                 'unlock_after_days' => 20,
                 'summary' => 'Quick flick, then a 5 second hold',
                 'description' => 'One quick squeeze to wake the muscle, then a strong 5 second hold.',
-                'how_to' => 'Give one quick squeeze and let go. Then squeeze again and hold strong for five seconds. Let go, breathe, and repeat.',
-                'pattern' => [$s(0.5, 0, 1, 'Contract'), $hold(1, 0, 'Relax'), $hold(5, 1, 'Contract & hold'), $hold(1, 0, 'Relax')],
+                'how_to' => 'Give one quick squeeze and let go right away. Then squeeze again and hold strong for five seconds. Let go, breathe, and repeat.',
+                'pattern' => [$s(0.3, 0, 1, 'Contract'), $s(0.2, 1, 0, 'Relax'), $hold(0.8, 0, 'Relax'), $hold(5, 1, 'Contract & hold'), $hold(1, 0, 'Relax')],
             ],
             [
                 'name' => 'Short Holding',
