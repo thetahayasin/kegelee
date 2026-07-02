@@ -118,7 +118,7 @@ class ExerciseCatalogTest extends TestCase
         $levels = LevelCatalog::all();
 
         $this->assertCount(5, $levels);
-        $this->assertSame(90, $levels[1]['total_session_seconds']);   // 1.5 min
+        $this->assertSame(60, $levels[1]['total_session_seconds']);   // 1 min
         $this->assertSame(120, $levels[2]['total_session_seconds']);  // 2 min
         $this->assertSame(180, $levels[3]['total_session_seconds']);  // 3 min
         $this->assertSame(240, $levels[4]['total_session_seconds']);  // 4 min

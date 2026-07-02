@@ -45,7 +45,7 @@ class Home extends Component
         $today = $progression->todayProgress($user);
 
         $level = $user->level ?? Level::where('is_active', true)->orderBy('number')->first();
-        $sessionSeconds = (float) ($level?->total_session_seconds ?: 90);
+        $sessionSeconds = (float) ($level?->total_session_seconds ?: 60);
 
         // "1.5 min" for level 1, whole minutes everywhere else.
         $minutes = $sessionSeconds / 60;

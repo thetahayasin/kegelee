@@ -6,10 +6,10 @@ namespace App\Support;
  * The hardcoded training levels - the single source of truth for session
  * length and structure at each difficulty.
  *
- * Level 1 = 1.5 minutes, then the level number is the session length in
- * minutes: level 2 = 2 minutes, level 3 = 3, level 4 = 4, level 5 = 5.
- * The LevelSeeder mirrors this into the database so relations
- * (users.level_id, workout_sessions.level_id) keep working.
+ * The level number is the session length in minutes: level 1 = 1 minute,
+ * level 2 = 2 minutes, up to level 5 = 5 minutes. The LevelSeeder mirrors
+ * this into the database so relations (users.level_id,
+ * workout_sessions.level_id) keep working.
  */
 final class LevelCatalog
 {
@@ -20,8 +20,8 @@ final class LevelCatalog
             1 => [
                 'number' => 1,
                 'name' => 'Level 1',
-                'description' => 'Gentle start. Short 1.5 minute sessions.',
-                'total_session_seconds' => 90,
+                'description' => 'Gentle start. Short 1 minute sessions.',
+                'total_session_seconds' => 60,
                 'rest_seconds' => 5,
                 'min_exercises' => 3,
             ],
