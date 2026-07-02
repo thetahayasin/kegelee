@@ -36,6 +36,15 @@
 
         <p class="leading-relaxed text-muted">{{ $exercise->description }}</p>
 
+        @if ($summary)
+            <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                <span class="rounded-full bg-surface px-3 py-1.5 text-accent-soft">{{ $summary }}</span>
+                @if ($reps > 0)
+                    <span class="rounded-full bg-surface px-3 py-1.5 text-muted">{{ $reps }} {{ $reps === 1 ? 'round' : 'rounds' }} at your level</span>
+                @endif
+            </div>
+        @endif
+
         @if ($exercise->instructions)
             <h2 class="mt-6 mb-2 text-sm font-semibold uppercase tracking-wide text-muted">How to</h2>
             <p class="leading-relaxed text-muted">{{ $exercise->instructions }}</p>

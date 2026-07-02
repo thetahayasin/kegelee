@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kegel-v4';
+const CACHE_NAME = 'kegel-v5';
 
 const PRECACHE = [
     '/welcome',
@@ -48,6 +48,9 @@ self.addEventListener('fetch', (e) => {
 
     // Skip admin routes.
     if (url.pathname.startsWith('/admin')) return;
+
+    // Legal pages are online-only - never serve a stale cached policy.
+    if (url.pathname.startsWith('/p/') || url.pathname === '/legal') return;
 
     // ----- Static assets: cache-first -----
     if (/\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|webp|ico|lottie)(\?|$)/.test(url.pathname)

@@ -201,11 +201,16 @@
                 // Where the glow should rest this phase: out/full while contracting
                 // (or holding), retracted to the inner circle during relax / rest.
                 get glowTarget() { return (this.cur.phase !== 'rest' && (this.cur.full || this.isContract)) ? 1 : 0; },
-                // slowly = travel over the phase seconds and complete by its end
-                // (eased so the seam never kinks); otherwise jump to the target and
-                // let the transition below carry it there seamlessly.
+                // Keyframed steps carry from/to intensity: the glow travels
+                // between those keyframes over the step (eased so the seam never
+                // kinks). Legacy steps fall back to the two-phase behaviour:
+                // slowly = travel over the phase seconds, otherwise jump to the
+                // target and let the transition below carry it there.
                 get intensity() {
                     if (this.cur.phase === 'rest') return 0;
+                    if (this.cur.from !== undefined && this.cur.to !== undefined) {
+                        return this.cur.from + (this.cur.to - this.cur.from) * this.ease(this.phaseProgress);
+                    }
                     if (this.cur.full) return 1;
                     if (this.glowMode === 'slowly') return this.ease(this.isContract ? this.phaseProgress : 1 - this.phaseProgress);
                     return this.glowTarget;
@@ -215,7 +220,7 @@
                 // circle; 1.0 expands it fully out on contraction.
                 get glowScale()   { return 0.58 + this.intensity * 0.42; },
                 get glowTransition() {
-                    if (this.glowMode === 'slowly') return 'opacity 0.1s linear, transform 0.1s linear';
+                    if (this.cur.from !== undefined || this.glowMode === 'slowly') return 'opacity 0.1s linear, transform 0.1s linear';
                     let d = this.glowMode === 'very_fast' ? Math.min(0.15, this.glowSpeed) : this.glowSpeed;
                     return 'opacity ' + d + 's ease-in-out, transform ' + d + 's ease-in-out';
                 },

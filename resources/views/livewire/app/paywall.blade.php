@@ -18,7 +18,6 @@
         @foreach ($plans as $plan)
             @php($selected = $selectedPlan === $plan->id)
             @php($isFree = $plan->price <= 0)
-            @php($final = $plan->priceWithDiscount($discount))
             @php($isCurrentPlan = $activeSub?->plan_id === $plan->id)
             @php($intervalLabel = $plan->interval === 'lifetime'
                 ? ''
@@ -42,10 +41,7 @@
                         @if ($isFree)
                             <p class="text-lg font-bold">Free</p>
                         @else
-                            @if ($discount && $final < $plan->price)
-                                <p class="text-sm text-muted line-through">${{ number_format($plan->price, 2) }}</p>
-                            @endif
-                            <p class="text-lg font-bold">${{ number_format($final, 2) }}</p>
+                            <p class="text-lg font-bold">${{ number_format($plan->price, 2) }}</p>
                             <p class="text-xs text-muted">{{ $intervalLabel }}</p>
                         @endif
                     </div>
@@ -57,22 +53,8 @@
         @endforeach
     </div>
 
-    {{-- Discount code --}}
-    @if (! $subscribed)
-        <div class="mx-4 mt-4">
-            <div class="flex gap-2">
-                <input type="text" wire:model="code" placeholder="Discount code"
-                       class="h-12 flex-1 rounded-xl border border-white/10 bg-surface px-4 text-content placeholder:text-muted focus:border-accent focus:outline-none">
-                <button wire:click="applyCode" wire:loading.attr="disabled" wire:target="applyCode"
-                        class="h-12 rounded-xl bg-surface-2 px-5 font-semibold tap disabled:opacity-60">
-                    <span wire:loading.remove wire:target="applyCode">Apply</span>
-                    <span wire:loading wire:target="applyCode">...</span>
-                </button>
-            </div>
-            @if ($message)
-                <p class="mt-2 text-sm {{ $discount ? 'text-success' : 'text-accent-soft' }}">{{ $message }}</p>
-            @endif
-        </div>
+    @if ($message)
+        <p class="mx-4 mt-4 text-sm text-accent-soft">{{ $message }}</p>
     @endif
 
     <div class="fixed inset-x-0 bottom-0 mx-auto max-w-[440px] border-t border-white/5 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">

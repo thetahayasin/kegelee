@@ -2,10 +2,8 @@
 
 namespace App\Livewire\Admin;
 
-use App\Models\Exercise;
 use App\Models\KnowledgeLesson;
-use App\Models\Level;
-use App\Models\Plan;
+use App\Models\Page;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\WorkoutSession;
@@ -40,10 +38,10 @@ class Dashboard extends Component
                 ['label' => 'Active subs', 'value' => Subscription::whereIn('status', ['active', 'trialing'])->count(), 'icon' => 'star'],
             ],
             'secondary' => [
-                'Exercises' => Exercise::where('is_active', true)->count(),
-                'Levels' => Level::where('is_active', true)->count(),
                 'Knowledge' => KnowledgeLesson::where('is_active', true)->count(),
-                'Plans' => Plan::where('is_active', true)->count(),
+                'Pages' => Page::where('is_published', true)->count(),
+                'Subscribers' => Subscription::whereIn('status', ['active', 'trialing'])->distinct('user_id')->count('user_id'),
+                'Users' => $totalUsers,
             ],
             'chart' => $chart,
             'chartMax' => max(1, $chart->max('value')),

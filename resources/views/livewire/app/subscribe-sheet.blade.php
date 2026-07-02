@@ -13,7 +13,12 @@
 
     {{-- Bottom sheet --}}
     @if ($showSheet)
-        <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm">
+        <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+             x-data="{
+                 _backOff: null,
+                 init() { this._backOff = window.appBack?.register(() => this.$wire.close()); },
+                 destroy() { if (this._backOff) { this._backOff(); this._backOff = null; } },
+             }">
             {{-- Backdrop --}}
             <div class="absolute inset-0" wire:click="close"></div>
 

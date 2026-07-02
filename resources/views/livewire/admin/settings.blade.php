@@ -224,12 +224,11 @@
             </div>
 
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
-                <p class="font-semibold text-content">Per-plan product IDs</p>
-                <p class="mt-1">Set each plan's <em>Store product ID</em> in
-                    <a href="{{ route('admin.plans') }}" class="text-accent underline">Admin &rarr; Plans</a>
-                    to match the subscription product ID in your Play Console
-                    (e.g. <code class="text-content">premium_monthly</code>).
-                    Plans without a product ID fall back to the manual subscription flow.
+                <p class="font-semibold text-content">Subscription products</p>
+                <p class="mt-1">The three plans are fixed in code (1 month, 3 months, 1 year) with the product IDs
+                    <code class="text-content">premium_monthly</code>, <code class="text-content">premium_quarterly</code>
+                    and <code class="text-content">premium_yearly</code>.
+                    Create matching subscription products with those IDs in your Play Console.
                 </p>
             </div>
         </div>

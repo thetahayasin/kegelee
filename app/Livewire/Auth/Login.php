@@ -43,24 +43,10 @@ class Login extends Component
         $user = null;
 
         if (\App\Services\Sync\BackendClient::isClient()) {
-            $result = $this->authenticateRemotely(strtolower($this->email), $this->password);
+            $result = \App\Services\RemoteAuth::login(strtolower($this->email), $this->password);
 
             if (! empty($result['user'])) {
-                $remoteUser = $result['user'];
-                $attributes = [
-                    'name' => $remoteUser['name'],
-                    'email_verified_at' => $remoteUser['email_verified_at'] ? now()->parse($remoteUser['email_verified_at']) : null,
-                    'password' => $remoteUser['password_hash'],
-                    'is_admin' => (bool)$remoteUser['is_admin'],
-                    'level_id' => $remoteUser['level_id'],
-                    'level_started_days' => (int)$remoteUser['level_started_days'],
-                    'onboarded_at' => $remoteUser['onboarded_at'] ? now()->parse($remoteUser['onboarded_at']) : null,
-                    'timezone' => $remoteUser['timezone'],
-                ];
-                if (! User::where('email', strtolower($remoteUser['email']))->exists()) {
-                    $attributes['id'] = $remoteUser['id'];
-                }
-                $user = User::updateOrCreate(['email' => strtolower($remoteUser['email'])], $attributes);
+                $user = \App\Services\RemoteAuth::mirror($result['user']);
             } else {
                 RateLimiter::hit($key, 300);
                 if (($result['reason'] ?? '') === 'invalid') {
@@ -93,53 +79,9 @@ class Login extends Component
 
         // On a device, sync immediately so the home page renders with
         // up-to-date data instead of stale data that updates moments later.
-        if (\App\Services\Sync\BackendClient::isClient()) {
-            try {
-                app(\App\Services\Sync\ContentSyncService::class)->pull();
-                $userSync = app(\App\Services\Sync\UserSyncService::class);
-                $userSync->push($user);
-                $userSync->pull($user);
-            } catch (\Throwable $e) {
-                // Best-effort — don't block login if sync fails.
-            }
-        }
+        \App\Services\RemoteAuth::syncAfterLogin($user);
 
         return $this->redirectRoute('home', navigate: true);
-    }
-
-    /**
-     * @return array{user?: array<string,mixed>, reason?: string}
-     *   ['user'=>...] on success; otherwise ['reason'=>'invalid'|'unreachable'|'offline'].
-     */
-    private function authenticateRemotely(string $email, string $password): array
-    {
-        if (! \App\Services\Sync\BackendClient::isClient()) {
-            return ['reason' => 'offline'];
-        }
-
-        try {
-            $response = \App\Services\Sync\BackendClient::request()
-                ->post(\App\Services\Sync\BackendClient::base().'/v1/auth/login', [
-                    'email' => $email,
-                    'password' => $password,
-                ]);
-
-            if ($response->successful()) {
-                return ['user' => $response->json('user')];
-            }
-
-            // 401/422 = the backend rejected the credentials.
-            if (in_array($response->status(), [401, 422], true)) {
-                if ($response->json('error') === 'Invalid API key.') {
-                    return ['reason' => 'unreachable'];
-                }
-                return ['reason' => 'invalid'];
-            }
-
-            return ['reason' => 'unreachable'];
-        } catch (\Throwable $e) {
-            return ['reason' => 'unreachable'];
-        }
     }
 
     public function render(SettingsService $settings)

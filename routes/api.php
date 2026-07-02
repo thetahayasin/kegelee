@@ -16,9 +16,14 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('v1')->middleware('sync.key')->group(function () {
 
-    // Public content catalog — exercises, levels, onboarding, settings.
+    // Backend-managed content: knowledge lessons + legal page titles.
+    // Exercises, levels, onboarding and plans are hardcoded in the app.
     // No user auth needed; the API key is enough.
     Route::get('/content', [SyncController::class, 'content']);
+
+    // Legal pages are served live (online-only) so the app always shows the
+    // current version.
+    Route::get('/pages/{slug}', [SyncController::class, 'page']);
 
     // Remote authentication endpoints (accessed by NativePHP clients/app)
     Route::post('/auth/login', [SyncController::class, 'remoteLogin']);

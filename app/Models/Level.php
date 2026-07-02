@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Level extends Model
@@ -16,13 +15,6 @@ class Level extends Model
         'min_exercises' => 'integer',
         'is_active' => 'boolean',
     ];
-
-    public function exercises(): BelongsToMany
-    {
-        return $this->belongsToMany(Exercise::class)
-            ->withPivot('duration_seconds')
-            ->withTimestamps();
-    }
 
     public function users(): HasMany
     {

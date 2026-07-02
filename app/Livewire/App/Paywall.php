@@ -3,7 +3,6 @@
 namespace App\Livewire\App;
 
 use App\Mail\SubscriptionStartedMail;
-use App\Models\Discount;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\GooglePlayBillingService;
@@ -30,8 +29,6 @@ class Paywall extends Component
     private const DEFERRED_MODE = 'DEFERRED';
 
     public ?int $selectedPlan = null;
-    public string $code = '';
-    public ?Discount $discount = null;
     public ?string $message = null;
     public bool $purchasing = false;
     public bool $showAutoRenewalNotice = false;
@@ -49,20 +46,6 @@ class Paywall extends Component
         }
     }
 
-    public function applyCode(): void
-    {
-        $discount = Discount::where('code', strtoupper(trim($this->code)))->first();
-
-        if (! $discount || ! $discount->isRedeemable()) {
-            $this->discount = null;
-            $this->message = 'That code is not valid.';
-            return;
-        }
-
-        $this->discount = $discount;
-        $this->message = 'Code applied: '.($discount->type === 'percent' ? $discount->value.'% off' : '$'.$discount->value.' off');
-    }
-
     public function subscribe(int $planId): void
     {
         $plan = Plan::findOrFail($planId);
@@ -74,7 +57,10 @@ class Paywall extends Component
             return;
         }
 
-        $gpEnabled = app(SettingsService::class)->get('google_play_enabled', false);
+        // The native app always bills through Google Play. The manual path
+        // only exists for the backend website (admin testing).
+        $gpEnabled = \App\Services\Sync\BackendClient::isClient()
+            || app(SettingsService::class)->get('google_play_enabled', false);
         if ($gpEnabled && ! empty($plan->store_product_id)) {
             $this->initiateGooglePlayPurchase($plan);
             return;
@@ -127,6 +113,38 @@ class Paywall extends Component
         // Idempotency: a re-delivered completion for a token we already recorded
         // must not create a duplicate subscription or re-send the welcome email.
         if (Subscription::where('purchase_token', $purchaseToken)->exists()) {
+            $this->showAutoRenewalNotice = true;
+            return;
+        }
+
+        // On the device the Play client just completed a real purchase, but the
+        // verification key lives only on the backend. Record the subscription
+        // locally now (instant access) and report the token; the backend
+        // verifies it with Google before storing its authoritative copy.
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $user   = auth()->user();
+            $oldSub = $user->activeSubscription();
+            if ($oldSub && $oldSub->plan_id !== $plan->id) {
+                $oldSub->update(['status' => 'canceled', 'canceled_at' => now(), 'auto_renewing' => false]);
+            }
+
+            $this->createSubscription(
+                plan: $plan,
+                user: $user,
+                store: 'google_play',
+                purchaseToken: $purchaseToken,
+                orderId: $orderId,
+                status: 'active',
+                autoRenewing: true,
+            );
+
+            try {
+                app(\App\Services\Sync\UserSyncService::class)->push($user);
+            } catch (\Throwable $e) {
+                // Offline right now - the background sync delivers the token later.
+            }
+
+            $this->autoRenewing = true;
             $this->showAutoRenewalNotice = true;
             return;
         }
@@ -229,7 +247,6 @@ class Paywall extends Component
         $subscription = Subscription::create([
             'user_id'              => $user->id,
             'plan_id'              => $plan->id,
-            'discount_id'          => $this->discount?->id,
             'status'               => $status,
             'store'                => $store,
             'store_transaction_id' => $orderId,
@@ -240,10 +257,6 @@ class Paywall extends Component
             'ends_at'              => $endsAt,
             'auto_renewing'        => $autoRenewing,
         ]);
-
-        if ($this->discount) {
-            $this->discount->increment('redemptions');
-        }
 
         try {
             Mail::to($user)->send(new SubscriptionStartedMail($subscription));

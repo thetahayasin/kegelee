@@ -91,10 +91,11 @@ class Show extends Component
             return;
         }
 
-        // Guest finished the free lessons → prompt to sign up / log in (which then
-        // leads to the paywall to purchase), instead of looping back to onboarding.
+        // Guest finished the free lessons: return to the lesson list and open
+        // the subscription sheet (pick a plan, create the account, purchase
+        // through Google Play).
         if (! auth()->check()) {
-            $this->dispatch('navigate-replace', url: '/welcome?auth_prompt=1&auth_mode=options');
+            $this->dispatch('navigate-replace', url: route('knowledge.index').'?subscribe=1');
             return;
         }
 

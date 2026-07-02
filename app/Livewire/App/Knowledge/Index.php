@@ -58,11 +58,17 @@ class Index extends Component
             return ['lesson' => $lesson, 'done' => $done, 'unlocked' => $unlocked];
         });
 
+        // Arriving with ?subscribe=1 (a guest just finished the last lesson)
+        // opens the subscription sheet on load.
+        $promptSubscribe = request()->boolean('subscribe')
+            && ! auth()->user()?->isSubscribed();
+
         return view('livewire.app.knowledge.index', [
             'rows' => $rows,
             'completedCount' => count($completedIds),
             'total' => $lessons->count(),
             'syncStatus' => $syncStatus,
+            'promptSubscribe' => $promptSubscribe,
         ]);
     }
 }

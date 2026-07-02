@@ -12,7 +12,6 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             LevelSeeder::class,
             ExerciseSeeder::class,
-            OnboardingSeeder::class,
             KnowledgeSeeder::class,
             PageSeeder::class,
             PlanSeeder::class,

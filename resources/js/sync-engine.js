@@ -1,20 +1,19 @@
 /**
  * Kegelee Sync Engine — two-way offline-first sync.
  *
- * Pull: server content → IndexedDB (server always wins for content).
- * Push: queued user data from IndexedDB → server (never deletes until confirmed).
+ * Exercises, levels, onboarding and plans are hardcoded in the app (PHP
+ * catalogues seeded into the device's SQLite), so the only synced content is
+ * the knowledge lesson list. User progress (sessions, measurements,
+ * reminders) queues in IndexedDB while offline and pushes when connectivity
+ * returns.
  *
  * Runs automatically:
- * - On app boot (pre-seed if empty, then sync if online).
+ * - On app boot (sync if online).
  * - On `navigator.onLine` change (sync immediately when connectivity returns).
  * - Every 15 minutes while online (catch admin content changes).
  */
 
 import db from './offline-db.js';
-import {
-    SEED_EXERCISES, SEED_LEVELS, SEED_ONBOARDING_SLIDES,
-    SEED_KNOWLEDGE_LESSONS, SEED_SETTINGS,
-} from './pre-seed-data.js';
 
 // Read the API key from the meta tag injected in the layout.
 function apiKey() {
@@ -92,45 +91,7 @@ async function authHeaders(key) {
 }
 
 // ---------------------------------------------------------------------------
-// Pre-seed — writes hardcoded data into IndexedDB on first ever boot.
-// ---------------------------------------------------------------------------
-async function ensurePreSeeded() {
-    const meta = await db.get('sync_meta', 'seeded');
-    if (meta) return; // already seeded
-
-    const exerciseCount = await db.count('exercises');
-    if (exerciseCount === 0) {
-        await db.putAll('exercises', SEED_EXERCISES);
-    }
-
-    const levelCount = await db.count('levels');
-    if (levelCount === 0) {
-        await db.putAll('levels', SEED_LEVELS);
-    }
-
-    const slideCount = await db.count('onboarding_slides');
-    if (slideCount === 0) {
-        await db.putAll('onboarding_slides', SEED_ONBOARDING_SLIDES);
-    }
-
-    const lessonCount = await db.count('knowledge_lessons');
-    if (lessonCount === 0) {
-        await db.putAll('knowledge_lessons', SEED_KNOWLEDGE_LESSONS);
-    }
-
-    // Settings are stored as {key, value} pairs.
-    const settingCount = await db.count('settings');
-    if (settingCount === 0) {
-        for (const [key, value] of Object.entries(SEED_SETTINGS)) {
-            await db.put('settings', { key, value });
-        }
-    }
-
-    await db.put('sync_meta', { key: 'seeded', at: new Date().toISOString() });
-}
-
-// ---------------------------------------------------------------------------
-// PULL — fetch fresh content from the server and update IndexedDB.
+// PULL — fetch the knowledge lesson list and keep an offline copy of it.
 // ---------------------------------------------------------------------------
 async function pullContent() {
     const base = apiBase();
@@ -147,22 +108,8 @@ async function pullContent() {
 
         const data = await res.json();
 
-        if (data.exercises?.length) {
-            await db.putAll('exercises', data.exercises);
-        }
-        if (data.levels?.length) {
-            await db.putAll('levels', data.levels);
-        }
-        if (data.onboarding_slides?.length) {
-            await db.putAll('onboarding_slides', data.onboarding_slides);
-        }
         if (data.knowledge_lessons?.length) {
             await db.putAll('knowledge_lessons', data.knowledge_lessons);
-        }
-        if (data.settings) {
-            for (const [key, value] of Object.entries(data.settings)) {
-                await db.put('settings', { key, value });
-            }
         }
 
         await db.put('sync_meta', { key: 'last_pull', at: data.synced_at || new Date().toISOString() });
@@ -215,11 +162,6 @@ async function pushUserData() {
                 measurements: pendingMeasurements.map(m => ({
                     seconds: m.seconds,
                     measured_at_iso: m.measured_at_iso,
-                })),
-                reminders: reminders.map(r => ({
-                    weekday: r.weekday,
-                    times: r.times,
-                    is_enabled: r.is_enabled,
                 })),
             }),
         });
@@ -525,7 +467,6 @@ function syncIntervalMs() {
 
 async function boot() {
     await db.open();
-    await ensurePreSeeded();
 
     if (!syncEnabled()) return; // Sync disabled from admin panel.
 
@@ -542,6 +483,14 @@ async function boot() {
         _probe = { at: 0, online: null };
         _nextAllowedAt = 0;
         setTimeout(() => fullSync(), 1000);
+    });
+
+    // Flush the outbox the moment the app goes to the background, so a just
+    // finished session isn't lost if Android kills the webview afterwards.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' && !halted()) {
+            pushUserData().catch(() => {});
+        }
     });
 
     // Periodic sync at the admin-configured interval.

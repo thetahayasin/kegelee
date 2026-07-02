@@ -19,7 +19,7 @@ class BackendClient
      * diagnostics so we can tell at a glance whether a rebuild actually shipped
      * the latest code (vs. a stale bundled copy).
      */
-    public const SYNC_BUILD = 'level-pull-fix-v5';
+    public const SYNC_BUILD = 'offapp-hardcoded-catalog-v1';
 
     /**
      * True when this install should pull/push against a remote backend — i.e.

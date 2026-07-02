@@ -25,9 +25,10 @@
                 </span>
                 <span class="flex-1">
                     <span class="block font-semibold">{{ $level->name }}</span>
-                    @if ($selected)
-                        <span class="block text-sm opacity-80">Current difficulty</span>
-                    @endif
+                    @php($mins = $level->total_session_seconds / 60)
+                    <span class="block text-sm {{ $selected ? 'opacity-80' : 'text-muted' }}">
+                        {{ fmod($mins, 1.0) > 0.01 ? number_format($mins, 1) : (int) $mins }} minute sessions{{ $selected ? ' · current' : '' }}
+                    </span>
                 </span>
                 {{-- Radio --}}
                 <span class="grid h-7 w-7 place-items-center rounded-full border-2 {{ $selected ? 'border-[var(--c-on-accent)]' : 'border-white/25' }}">

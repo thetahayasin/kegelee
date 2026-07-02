@@ -47,10 +47,10 @@
     <div class="grid grid-cols-4 gap-3">
         @php
             $secondaryLinks = [
-                'Exercises'  => 'admin.exercises',
-                'Levels'     => 'admin.levels',
-                'Knowledge'  => 'admin.knowledge',
-                'Plans'      => 'admin.plans',
+                'Knowledge'   => 'admin.knowledge',
+                'Pages'       => 'admin.pages',
+                'Subscribers' => 'admin.subscriptions',
+                'Users'       => 'admin.users',
             ];
         @endphp
         @foreach ($secondary as $label => $value)
@@ -146,8 +146,6 @@
             <p class="mb-4 font-semibold">Quick actions</p>
             <div class="space-y-2">
                 @php($actions = [
-                    ['admin.exercises.create', 'New exercise', '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>'],
-                    ['admin.plans', 'Manage plans', '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>'],
                     ['admin.subscriptions', 'Subscriptions', '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'],
                     ['admin.knowledge', 'Add knowledge', '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'],
                     ['admin.users', 'All users', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'],

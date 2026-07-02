@@ -175,16 +175,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', Admin\Login::class)->name('login');
 
     Route::middleware('admin')->group(function () {
+        // Exercises, levels, onboarding and plans are hardcoded in the app
+        // (App\Support catalogues) - the backend only manages accounts,
+        // progress, knowledge videos, legal pages and subscriptions.
         Route::get('/', Admin\Dashboard::class)->name('dashboard');
-        Route::get('exercises', Admin\Exercises::class)->name('exercises');
-        Route::get('exercises/{exercise}', Admin\ExerciseEdit::class)->name('exercises.edit');
-        Route::get('exercises-create', Admin\ExerciseEdit::class)->name('exercises.create');
-        Route::get('levels', Admin\Levels::class)->name('levels');
         Route::get('users', Admin\Users::class)->name('users');
-        Route::get('plans', Admin\Plans::class)->name('plans');
-        Route::get('discounts', Admin\Discounts::class)->name('discounts');
         Route::get('subscriptions', Admin\Subscriptions::class)->name('subscriptions');
-        Route::get('onboarding', Admin\OnboardingSlides::class)->name('onboarding');
         Route::get('knowledge', Admin\Knowledge::class)->name('knowledge');
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');

@@ -11,6 +11,9 @@
     {{-- Timeline --}}
     <div class="mt-4 px-5">
         @livewire('app.subscribe-sheet')
+        @if ($promptSubscribe)
+            <div wire:ignore x-data x-init="setTimeout(() => Livewire.dispatch('open-subscribe-sheet'), 350)"></div>
+        @endif
 
     @forelse ($rows as $i => $row)
             @php($lesson = $row['lesson'])

@@ -54,6 +54,12 @@ class GoogleAuthController extends Controller
         Auth::login($user, true);
         session()->regenerate();
 
+        // New or unsubscribed Google users go straight to the subscription
+        // screen; subscribers (and admins) land in the app.
+        if (! $user->is_admin && ! $user->isSubscribed()) {
+            return redirect()->route('paywall');
+        }
+
         return redirect()->route('home');
     }
 

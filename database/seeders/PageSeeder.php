@@ -27,8 +27,9 @@ class PageSeeder extends Seeder
             ],
         ];
 
+        // Create-only: never overwrite content the admin has edited.
         foreach ($pages as $i => $data) {
-            Page::updateOrCreate(
+            Page::firstOrCreate(
                 ['slug' => $data['slug']],
                 $data + ['is_published' => true, 'sort_order' => $i],
             );

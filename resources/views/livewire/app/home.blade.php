@@ -68,7 +68,7 @@
             <div class="min-w-0">
                 <p class="flex items-center gap-1.5 text-sm text-muted">
                     <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-                    {{ $sessionMinutes }} min
+                    {{ $sessionLength }}
                 </p>
                 <p class="mt-1 text-sm font-medium leading-snug text-white">
                     <template x-if="complete">
@@ -90,20 +90,7 @@
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
         </a>
     </div>
-    <div class="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1"
-         x-data="{
-             localExercises: [],
-             async init() {
-                 if (window.kegelSync) {
-                     try {
-                         const list = await window.kegelSync.db.getAll('exercises');
-                         if (list && list.length) {
-                             this.localExercises = list.sort((a, b) => a.sort_order - b.sort_order);
-                         }
-                     } catch(e) {}
-                 }
-             }
-         }">
+    <div class="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
         @if ($exercises->isNotEmpty())
             @foreach ($exercises as $row)
                 @php($ex = $row['model'])
@@ -123,21 +110,6 @@
                     </div>
                 @endif
             @endforeach
-        @else
-            <template x-for="ex in localExercises" :key="ex.id || ex.slug">
-                <a :href="'/exercises/' + ex.slug" wire:navigate class="w-28 shrink-0 rounded-2xl bg-surface p-3 tap">
-                    <div class="mx-auto mb-2 w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center border border-white/5">
-                        <span class="text-3xl" x-text="
-                            ex.slug === 'dumbbell' ? '🏋️' :
-                            (ex.slug === 'stretch' ? '🧘' :
-                            (ex.slug === 'hold' ? '⏱️' :
-                            (ex.slug === 'squat' ? '🦵' : '💪')))
-                        "></span>
-                    </div>
-                    <p class="text-sm font-semibold leading-tight truncate text-white" x-text="ex.name"></p>
-                    <p class="text-xs text-muted" x-text="ex.unlock_after_days > 0 ? 'Unlocks in ' + ex.unlock_after_days + 'd' : 'Available'"></p>
-                </a>
-            </template>
         @endif
     </div>
 

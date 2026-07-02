@@ -6,12 +6,11 @@ use App\Models\Exercise;
 use App\Models\KnowledgeLesson;
 use App\Models\Level;
 use App\Models\Measurement;
-use App\Models\OnboardingSlide;
+use App\Models\Page;
 use App\Models\Reminder;
 use App\Models\TrainingDay;
 use App\Models\WorkoutSession;
 use App\Services\ProgressionService;
-use App\Services\SettingsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,11 +25,11 @@ class SyncController extends Controller
     /**
      * GET /api/v1/content
      *
-     * Returns the full content catalog: exercises, levels, onboarding slides,
-     * knowledge lessons, and app settings. The client stores this in IndexedDB
-     * and uses it as the offline source of truth for content.
+     * Returns the small backend-managed catalogue: knowledge lessons (videos
+     * are online-only, streamed from this backend) and legal pages. Exercises,
+     * levels, onboarding and plans are hardcoded in the app and never sync.
      */
-    public function content(SettingsService $settings): JsonResponse
+    public function content(): JsonResponse
     {
         // Media paths are stored relative ("/storage/..."). Devices render these
         // against their own local server, so we must hand back ABSOLUTE URLs
@@ -46,74 +45,6 @@ class SyncController extends Controller
             return url($url);
         };
 
-        $exercises = Exercise::where('is_active', true)
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn (Exercise $e) => [
-                'id'                 => $e->id,
-                'slug'               => $e->slug,
-                'name'               => $e->name,
-                'description'        => $e->description,
-                'instructions'       => $e->instructions,
-                'contract_seconds'   => (float) $e->contract_seconds,
-                'relax_seconds'      => (float) $e->relax_seconds,
-                'hold_seconds'       => (float) $e->hold_seconds,
-                'min_duration'       => (float) $e->min_duration,
-                'max_duration'       => (float) $e->max_duration,
-                'is_active'          => (bool) $e->is_active,
-                'full_hold'          => (bool) $e->full_hold,
-                'start_phase'        => $e->start_phase,
-                'contract_glow_mode' => $e->contract_glow_mode,
-                'relax_glow_mode'    => $e->relax_glow_mode,
-                'contract_label'     => $e->contract_label,
-                'relax_label'        => $e->relax_label,
-                'unlock_after_days'  => (int) $e->unlock_after_days,
-                'sort_order'         => (int) $e->sort_order,
-                'icon_url'           => $abs($e->iconUrl()),
-                'video_url'          => $abs($e->videoUrl()),
-                'updated_at'         => $e->updated_at?->toIso8601String(),
-            ]);
-
-        // Per-level run durations (the exercise_level pivot) — the SessionBuilder
-        // needs these to assemble each level's workout, so they must sync too.
-        $exerciseLevels = \Illuminate\Support\Facades\DB::table('exercise_level')
-            ->get()
-            ->map(fn ($row) => [
-                'exercise_id'      => (int) $row->exercise_id,
-                'level_id'         => (int) $row->level_id,
-                'duration_seconds' => (float) $row->duration_seconds,
-            ]);
-
-        $levels = Level::where('is_active', true)
-            ->orderBy('number')
-            ->get()
-            ->map(fn (Level $l) => [
-                'id'                    => $l->id,
-                'number'                => (int) $l->number,
-                'name'                  => $l->name,
-                'description'           => $l->description,
-                'total_session_seconds' => (float) $l->total_session_seconds,
-                'rest_seconds'          => (float) $l->rest_seconds,
-                'min_exercises'         => (int) $l->min_exercises,
-                'days_to_complete'      => (int) $l->days_to_complete,
-                'sessions_per_day'      => $l->sessions_per_day,
-                'updated_at'            => $l->updated_at?->toIso8601String(),
-            ]);
-
-        $slides = OnboardingSlide::where('is_active', true)
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn (OnboardingSlide $s) => [
-                'id'         => $s->id,
-                'title'      => $s->title,
-                'body'       => $s->body,
-                'icon'       => $s->icon,
-                'cta_label'  => $s->cta_label,
-                'media_url'  => $abs($s->mediaUrl()),
-                'sort_order' => (int) $s->sort_order,
-                'updated_at' => $s->updated_at?->toIso8601String(),
-            ]);
-
         $lessons = KnowledgeLesson::where('is_active', true)
             ->orderBy('sort_order')
             ->get()
@@ -126,72 +57,44 @@ class SyncController extends Controller
                 'updated_at'  => $k->updated_at?->toIso8601String(),
             ]);
 
-        $plans = \App\Models\Plan::where('is_active', true)
+        $pages = Page::where('is_published', true)
             ->orderBy('sort_order')
             ->get()
-            ->map(fn (\App\Models\Plan $p) => [
-                'id'               => $p->id,
-                'name'             => $p->name,
-                'slug'             => $p->slug,
-                'description'      => $p->description,
-                'price'            => (float) $p->price,
-                'currency'         => $p->currency,
-                'interval'         => $p->interval,
-                'interval_count'   => (int) $p->interval_count,
-                'features'         => $p->features,
-                'store_product_id' => $p->store_product_id,
-                'is_active'        => (bool) $p->is_active,
-                'is_featured'      => (bool) $p->is_featured,
-                'sort_order'       => (int) $p->sort_order,
-                'updated_at'       => $p->updated_at?->toIso8601String(),
+            ->map(fn (Page $p) => [
+                'id'         => $p->id,
+                'slug'       => $p->slug,
+                'title'      => $p->title,
+                'sort_order' => (int) $p->sort_order,
+                'updated_at' => $p->updated_at?->toIso8601String(),
             ]);
 
-        $discounts = \App\Models\Discount::where('is_active', true)
-            ->get()
-            ->map(fn (\App\Models\Discount $d) => [
-                'id'              => $d->id,
-                'code'            => $d->code,
-                'description'     => $d->description,
-                'type'            => $d->type,
-                'value'           => (float) $d->value,
-                'max_redemptions' => $d->max_redemptions !== null ? (int) $d->max_redemptions : null,
-                'redemptions'     => (int) $d->redemptions,
-                'starts_at'       => $d->starts_at?->toIso8601String(),
-                'expires_at'      => $d->expires_at?->toIso8601String(),
-                'is_active'       => (bool) $d->is_active,
-                'updated_at'      => $d->updated_at?->toIso8601String(),
-            ]);
+        return response()->json([
+            'knowledge_lessons' => $lessons,
+            'pages'             => $pages,
+            'synced_at'         => now()->toIso8601String(),
+        ]);
+    }
 
-        // Only send client-relevant settings (not SMTP credentials, etc.)
-        $publicKeys = [
-            'app_name', 'app_tagline', 'color_accent', 'color_accent_soft',
-            'color_success', 'color_bg', 'color_surface', 'color_surface_2',
-            'color_text', 'color_text_muted', 'circle_size', 'circle_track_width',
-            'circle_glow_enabled', 'circle_glow_color', 'circle_animation_speed',
-            'circle_glow_speed', 'circle_time_scale', 'haptics_enabled',
-            'sound_enabled', 'sessions_per_day', 'plan_length_days',
-            'onboarding_enabled', 'home_hero_image',
-        ];
+    /**
+     * GET /api/v1/pages/{slug}
+     *
+     * Serves a single legal page (privacy policy, terms, ...) live so the app
+     * always shows the current version. Legal content is online-only by
+     * design and never cached on the device.
+     */
+    public function page(string $slug): JsonResponse
+    {
+        $page = Page::where('slug', $slug)->where('is_published', true)->first();
 
-        $appSettings = [];
-        foreach ($publicKeys as $key) {
-            $appSettings[$key] = $settings->get($key);
-        }
-        // The hero image is a stored path; hand back an absolute URL.
-        if (! empty($appSettings['home_hero_image'])) {
-            $appSettings['home_hero_image'] = $abs($appSettings['home_hero_image']);
+        if (! $page) {
+            return response()->json(['error' => 'Page not found.'], 404);
         }
 
         return response()->json([
-            'exercises'        => $exercises,
-            'exercise_levels'  => $exerciseLevels,
-            'levels'           => $levels,
-            'onboarding_slides' => $slides,
-            'knowledge_lessons' => $lessons,
-            'settings'         => $appSettings,
-            'plans'            => $plans,
-            'discounts'        => $discounts,
-            'synced_at'        => now()->toIso8601String(),
+            'slug'       => $page->slug,
+            'title'      => $page->title,
+            'content'    => $page->content,
+            'updated_at' => $page->updated_at?->toIso8601String(),
         ]);
     }
 
@@ -320,6 +223,68 @@ class SyncController extends Controller
             $synced['reminders']++;
         }
 
+        // --- Subscriptions (Google Play purchases complete on the device) ---
+        // The device reports the purchase token; the backend VERIFIES it with
+        // the Play Developer API before storing anything, so a forged token
+        // can never grant access. Known tokens are ignored here - the backend
+        // record is authoritative and kept current by the RTDN webhooks.
+        $synced['subscriptions'] = 0;
+        foreach ($request->input('subscriptions', []) as $s) {
+            $token = (string) ($s['purchase_token'] ?? '');
+            if ($token === '') {
+                continue;
+            }
+
+            if (\App\Models\Subscription::where('purchase_token', $token)->exists()) {
+                continue;
+            }
+
+            $plan = ! empty($s['plan_slug'])
+                ? \App\Models\Plan::where('slug', $s['plan_slug'])->first()
+                : null;
+
+            if (! $plan || empty($plan->store_product_id)) {
+                continue;
+            }
+
+            try {
+                $billing = app(\App\Services\GooglePlayBillingService::class);
+                $data = $billing->verifySubscription($plan->store_product_id, $token);
+
+                // 1 = paid, 2 = free trial. Anything else is not a valid purchase.
+                if (! in_array($data['paymentState'] ?? -1, [1, 2], true)) {
+                    continue;
+                }
+
+                $billing->acknowledgeSubscription($plan->store_product_id, $token);
+
+                $expiresAt = isset($data['expiryTimeMillis'])
+                    ? \Carbon\Carbon::createFromTimestampMs((int) $data['expiryTimeMillis'])
+                    : null;
+                $isTrial = ($data['paymentState'] ?? 0) === 2;
+
+                \App\Models\Subscription::create([
+                    'user_id'         => $user->id,
+                    'plan_id'         => $plan->id,
+                    'status'          => $isTrial ? 'trialing' : 'active',
+                    'store'           => 'google_play',
+                    'purchase_token'  => $token,
+                    'google_order_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
+                    'store_transaction_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
+                    'trial_ends_at'   => $isTrial ? $expiresAt : null,
+                    'started_at'      => ! empty($s['started_at']) ? \Carbon\Carbon::parse($s['started_at']) : now(),
+                    'ends_at'         => $expiresAt,
+                    'auto_renewing'   => (bool) ($data['autoRenewing'] ?? true),
+                ]);
+                $synced['subscriptions']++;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Pushed purchase token failed verification', [
+                    'user_id' => $user->id,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
+        }
+
         return response()->json([
             'ok'     => true,
             'synced' => $synced,
@@ -391,10 +356,10 @@ class SyncController extends Controller
                     'required_sessions' => (int) $td->required_sessions,
                     'completed_at'      => $td->completed_at?->toIso8601String(),
                 ]),
-            'subscriptions' => $user->subscriptions()->get()->map(fn (\App\Models\Subscription $s) => [
+            'subscriptions' => $user->subscriptions()->with('plan:id,slug')->get()->map(fn (\App\Models\Subscription $s) => [
                 'id'                   => $s->id,
                 'plan_id'              => $s->plan_id,
-                'discount_id'          => $s->discount_id,
+                'plan_slug'            => $s->plan?->slug,
                 'status'               => $s->status,
                 'store'                => $s->store,
                 'store_transaction_id' => $s->store_transaction_id,

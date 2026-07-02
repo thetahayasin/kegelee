@@ -55,9 +55,28 @@ class UserSyncService
                 'is_enabled' => (bool) $r->is_enabled,
             ])->all();
 
+            // Google Play purchases complete ON the device, so the backend
+            // learns about them here. Keyed by purchase_token; plans map by
+            // slug (both sides seed the same fixed plans).
+            $subscriptions = $user->subscriptions()
+                ->whereNotNull('purchase_token')
+                ->get()
+                ->map(fn (\App\Models\Subscription $s) => [
+                    'plan_slug'      => $s->plan?->slug,
+                    'status'         => $s->status,
+                    'store'          => $s->store,
+                    'purchase_token' => $s->purchase_token,
+                    'google_order_id'=> $s->google_order_id,
+                    'trial_ends_at'  => $s->trial_ends_at?->toIso8601String(),
+                    'started_at'     => $s->started_at?->toIso8601String(),
+                    'ends_at'        => $s->ends_at?->toIso8601String(),
+                    'canceled_at'    => $s->canceled_at?->toIso8601String(),
+                    'auto_renewing'  => (bool) $s->auto_renewing,
+                ])->all();
+
             $timezone = $user->timezone;
 
-            if (! $sessions && ! $measurements && ! $reminders && ! $timezone) {
+            if (! $sessions && ! $measurements && ! $reminders && ! $subscriptions && ! $timezone) {
                 return true;
             }
 
@@ -67,6 +86,7 @@ class UserSyncService
                     'workout_sessions'   => $sessions,
                     'measurements'       => $measurements,
                     'reminders'          => $reminders,
+                    'subscriptions'      => $subscriptions,
                     'timezone'           => $timezone,
                     'level_id'           => $user->level_id,
                     'level_started_days' => (int) $user->level_started_days,
@@ -226,37 +246,48 @@ class UserSyncService
     /** @param array<int, array<string, mixed>> $rows */
     private function applySubscriptions(User $user, array $rows): void
     {
-        $ids = array_filter(array_column($rows, 'id'));
-        if (!empty($ids)) {
-            $user->subscriptions()->whereNotIn('id', $ids)->delete();
-        } else {
-            $user->subscriptions()->delete();
+        // Reconcile by purchase_token, NOT raw id: a purchase completes on the
+        // device first, so a fresh local record must never be deleted just
+        // because the backend has not received the push yet.
+        $tokens = array_filter(array_column($rows, 'purchase_token'));
+
+        $stale = $user->subscriptions();
+        if ($tokens) {
+            $stale = $stale->whereNotIn('purchase_token', $tokens);
         }
+        // Only remove local records the backend has had a full day to verify
+        // and adopt - a fresh purchase must never lose access because the
+        // backend hasn't seen its token yet. Token-less manual rows stay.
+        $stale->whereNotNull('purchase_token')
+            ->where('created_at', '<', now()->subDay())
+            ->delete();
 
         foreach ($rows as $row) {
-            if (empty($row['id'])) {
+            if (empty($row['id']) && empty($row['purchase_token'])) {
                 continue;
             }
 
-            // Check if plan exists locally to avoid foreign key issues
-            if (!empty($row['plan_id']) && !\App\Models\Plan::where('id', $row['plan_id'])->exists()) {
-                continue;
+            // Plans are the fixed hardcoded set on both sides; slugs are the
+            // stable key. Fall back to plan_id only when it exists locally.
+            $planId = null;
+            if (! empty($row['plan_slug'])) {
+                $planId = \App\Models\Plan::where('slug', $row['plan_slug'])->value('id');
+            }
+            if (! $planId && ! empty($row['plan_id']) && \App\Models\Plan::where('id', $row['plan_id'])->exists()) {
+                $planId = $row['plan_id'];
             }
 
-            // Check if discount exists locally to avoid foreign key issues
-            if (!empty($row['discount_id']) && !\App\Models\Discount::where('id', $row['discount_id'])->exists()) {
-                $row['discount_id'] = null;
-            }
+            $key = ! empty($row['purchase_token'])
+                ? ['purchase_token' => $row['purchase_token']]
+                : ['id' => $row['id']];
 
             $user->subscriptions()->updateOrCreate(
-                ['id' => $row['id']],
+                $key,
                 [
-                    'plan_id'              => $row['plan_id'] ?? null,
-                    'discount_id'          => $row['discount_id'] ?? null,
+                    'plan_id'              => $planId,
                     'status'               => $row['status'] ?? 'active',
                     'store'                => $row['store'] ?? null,
                     'store_transaction_id' => $row['store_transaction_id'] ?? null,
-                    'purchase_token'       => $row['purchase_token'] ?? null,
                     'google_order_id'      => $row['google_order_id'] ?? null,
                     'trial_ends_at'        => !empty($row['trial_ends_at']) ? Carbon::parse($row['trial_ends_at']) : null,
                     'started_at'           => !empty($row['started_at']) ? Carbon::parse($row['started_at']) : null,

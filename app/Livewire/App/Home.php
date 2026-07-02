@@ -45,7 +45,11 @@ class Home extends Component
         $today = $progression->todayProgress($user);
 
         $level = $user->level ?? Level::where('is_active', true)->orderBy('number')->first();
-        $sessionSeconds = (float) ($level?->total_session_seconds ?: 300);
+        $sessionSeconds = (float) ($level?->total_session_seconds ?: 90);
+
+        // "1.5 min" for level 1, whole minutes everywhere else.
+        $minutes = $sessionSeconds / 60;
+        $sessionLength = (fmod($minutes, 1.0) > 0.01 ? number_format($minutes, 1) : (string) (int) round($minutes)).' min';
 
         $exercises = Exercise::where('is_active', true)
             ->orderBy('sort_order')
@@ -61,7 +65,7 @@ class Home extends Component
             'user' => $user,
             'position' => $position,
             'today' => $today,
-            'sessionMinutes' => max(1, (int) round($sessionSeconds / 60)),
+            'sessionLength' => $sessionLength,
             'exercises' => $exercises,
             'bestMeasurement' => $user->measurements()->max('seconds'),
             'heroImage' => $settings->get('home_hero_image')

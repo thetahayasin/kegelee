@@ -6,36 +6,24 @@
         <h1 class="text-2xl font-bold">Settings</h1>
     </header>
 
-    {{-- Subscription --}}
+    {{-- Subscription: just the status. Google Play manages billing, renewal
+         and cancellation, so everything else lives there. --}}
     <p class="px-6 pb-2 pt-4 text-xs font-semibold uppercase tracking-wide text-muted">Subscription</p>
     <div class="mx-4 overflow-hidden rounded-2xl bg-surface">
         @if ($subscription)
-            <div class="px-5 py-4">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="font-semibold">{{ $subscription->plan?->name ?? 'Premium' }}</p>
-                        <p class="mt-0.5 text-sm {{ $subscription->status === 'trialing' ? 'text-accent-soft' : 'text-success' }}">
-                            {{ $subscription->status === 'trialing' ? 'Free trial' : 'Active' }}{{ $subscription->ends_at ? ' · renews '.$subscription->ends_at->format('j M Y') : '' }}
-                        </p>
-                    </div>
-                    <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold {{ $subscription->auto_renewing ? 'bg-success/15 text-success' : 'bg-white/10 text-muted' }}">
-                        Auto-renew {{ $subscription->auto_renewing ? 'on' : 'off' }}
-                    </span>
-                </div>
+            <div class="flex items-center justify-between gap-3 px-5 py-4">
+                <p class="font-semibold">Subscription</p>
+                <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold {{ $subscription->status === 'trialing' ? 'bg-accent/15 text-accent-soft' : 'bg-success/15 text-success' }}">
+                    {{ $subscription->status === 'trialing' ? 'Free trial' : 'Active' }}
+                </span>
             </div>
-            <div class="divide-y divide-white/5 border-t border-white/5">
-                <a href="{{ route('paywall') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
-                    <span>Change plan</span><span class="text-muted">›</span>
-                </a>
-                @if ($manageUrl)
+            @if ($manageUrl)
+                <div class="border-t border-white/5">
                     <a href="{{ $manageUrl }}" target="_blank" rel="noopener" class="flex items-center justify-between px-5 py-4 tap">
-                        <span>Manage or cancel in Google Play</span>
+                        <span>Manage in Google Play</span>
                         <svg viewBox="0 0 24 24" class="h-4 w-4 text-muted" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
                     </a>
-                @endif
-            </div>
-            @if ($subscription->isGooglePlay())
-                <p class="px-5 pb-4 text-xs text-muted">Auto-renewal is managed by Google Play. Use the link above to turn it off or cancel - you'll keep access until {{ $subscription->ends_at?->format('j M Y') ?? 'the period ends' }}.</p>
+                </div>
             @endif
         @else
             <a href="{{ route('paywall') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
@@ -48,11 +36,17 @@
         @endif
     </div>
 
-    {{-- Account --}}
+    {{-- Account. Changing the password needs the server, so it is disabled offline. --}}
     <p class="px-6 pb-2 pt-6 text-xs font-semibold uppercase tracking-wide text-muted">Account</p>
-    <div class="mx-4 divide-y divide-white/5 overflow-hidden rounded-2xl bg-surface">
-        <a href="{{ route('app.change-password') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
-            <span>Change password</span><span class="text-muted">›</span>
+    <div class="mx-4 divide-y divide-white/5 overflow-hidden rounded-2xl bg-surface"
+         x-data="{ offline: !navigator.onLine }"
+         @offline.window="offline = true" @online.window="offline = false"
+         @app-offline.window="offline = true" @app-online.window="offline = false">
+        <a href="{{ route('app.change-password') }}" wire:navigate
+           x-bind:class="offline ? 'pointer-events-none opacity-50' : ''"
+           class="flex items-center justify-between px-5 py-4 tap">
+            <span>Change password <span x-show="offline" x-cloak class="ml-1 text-xs text-muted">(needs internet)</span></span>
+            <span class="text-muted">›</span>
         </a>
     </div>
 
@@ -115,7 +109,7 @@
                     <p class="mt-2 text-sm text-muted leading-relaxed">This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.</p>
 
                     <div x-show="offline" x-cloak class="mt-3 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-medium text-accent-soft">
-                        No internet connection — connect to reset your progress.
+                        No internet connection. Connect to reset your progress.
                     </div>
                     @error('reset') <p class="mt-3 text-sm text-accent-soft">{{ $message }}</p> @enderror
 

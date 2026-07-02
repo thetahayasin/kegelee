@@ -24,12 +24,9 @@ class AuthSyncFlowTest extends TestCase
         // Set client mode
         $_SERVER['HTTP_HOST'] = '127.0.0.1';
 
-        // Seed a default level so foreign keys are satisfied
-        Level::create([
-            'id' => 1,
-            'number' => 1,
-            'name' => 'Level 1',
-        ]);
+        // Levels are seeded by the hardcoded-catalogue migration; make sure
+        // level 1 exists for the foreign keys used below.
+        $this->assertNotNull(Level::where('number', 1)->first());
     }
 
     public function test_remote_login_success_replicates_user_locally(): void

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\ExerciseCatalog;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
 class Exercise extends Model
@@ -20,51 +20,56 @@ class Exercise extends Model
         'full_hold' => 'boolean',
     ];
 
-    /** Per-level run duration lives on the pivot. */
-    public function levels(): BelongsToMany
+    /** The hardcoded catalogue definition for this exercise (movement pattern, how to, summary). */
+    public function catalog(): ?array
     {
-        return $this->belongsToMany(Level::class)
-            ->withPivot('duration_seconds')
-            ->withTimestamps();
+        return ExerciseCatalog::get((string) $this->slug);
     }
 
-    /** One contract (+ peak hold) + relax cycle, in seconds - the rhythm the circle follows. */
+    /** Short plain-language summary of the movement, e.g. "Squeeze, hold 3 seconds, rest". */
+    public function summary(): ?string
+    {
+        return $this->catalog()['summary'] ?? null;
+    }
+
+    /** One full movement cycle, in seconds - the rhythm the circle follows. */
     public function cycleSeconds(): float
     {
+        $cycle = ExerciseCatalog::cycleSeconds((string) $this->slug);
+        if ($cycle > 0) {
+            return $cycle;
+        }
+
+        // Legacy two-phase fallback for anything not in the catalogue.
         return (float) $this->contract_seconds + (float) $this->hold_seconds + (float) $this->relax_seconds;
     }
 
-    /** How long this exercise runs at the given level (seconds). */
+    /**
+     * How long this exercise runs at the given level (seconds): the level's
+     * per-exercise time share, rounded to whole movement cycles so a pattern
+     * is never cut off mid-movement.
+     */
     public function durationForLevel(?Level $level): float
     {
+        $cycle = $this->cycleSeconds();
+        if ($cycle <= 0) {
+            return 30.0;
+        }
+
         if (! $level) {
-            return (float) ($this->min_duration ?: 30.0);
+            return round(2 * $cycle, 1);
         }
 
-        // If there's a pivot value from the exercise_level table, use it.
-        $pivot = $this->levels->firstWhere('id', $level->id)?->pivot
-            ?? $this->levels()->where('levels.id', $level->id)->first()?->pivot;
+        $slots = max(1, (int) ($level->min_exercises ?: 3));
+        $rests = max(0, $slots - 1) * (float) ($level->rest_seconds ?: 0);
+        $share = (((float) $level->total_session_seconds ?: 90) - $rests) / $slots;
 
-        if ($pivot && $pivot->duration_seconds) {
-            return (float) $pivot->duration_seconds;
-        }
+        $cycles = max(1, (int) round($share / $cycle));
 
-        // Fallback: interpolate from min_duration to max_duration by level number.
-        $minD = (float) ($this->min_duration ?: 30);
-        $maxD = (float) ($this->max_duration ?: 120);
-        $maxLevelNum = (int) (Level::max('number') ?? 10);
-        $minLevelNum = 1;
-
-        if ($maxLevelNum <= $minLevelNum) {
-            return $minD;
-        }
-
-        $n = (int) $level->number;
-        $pct = max(0, min(1, ($n - $minLevelNum) / ($maxLevelNum - $minLevelNum)));
-
-        return round($minD + $pct * ($maxD - $minD));
+        return round($cycles * $cycle, 1);
     }
 
+    /** Whole movement cycles that fit in the given duration (at least one). */
     public function repsForDuration(float $duration): int
     {
         $cycle = $this->cycleSeconds();
@@ -73,29 +78,33 @@ class Exercise extends Model
     }
 
     /**
-     * Expand this exercise into timed steps filling the given duration. The
-     * circle follows each contract/relax beat.
+     * Expand this exercise into timed player steps filling the given duration.
      *
-     * @return array<int, array{phase: string, label: string, seconds: float}>
+     * Catalogue exercises play their keyframed movement pattern: each step
+     * carries from/to intensity plus the cue label (Contract, Hold, Release,
+     * Rest, Floor 1, ...) shown inside the circle.
+     *
+     * @return array<int, array<string, mixed>>
      */
-    public function steps(float $duration, ?string $startPhase = null, ?float $contractOverride = null, ?float $relaxOverride = null): array
+    public function steps(float $duration): array
     {
-        $contract = $contractOverride ?? (float) $this->contract_seconds;
-        $relax = $relaxOverride ?? (float) $this->relax_seconds;
+        $patternSteps = ExerciseCatalog::steps((string) $this->slug, $duration);
+        if ($patternSteps) {
+            return $patternSteps;
+        }
+
+        // Legacy two-phase fallback for anything not in the catalogue.
+        $contract = (float) $this->contract_seconds;
+        $relax = (float) $this->relax_seconds;
         $hold = (float) $this->hold_seconds;
         $cycle = $contract + $hold + $relax;
-        $contractGlowMode = $this->contract_glow_mode ?: 'slowly';
-        $relaxGlowMode    = $this->relax_glow_mode ?: 'slowly';
-        $phase = $startPhase ?? $this->start_phase ?? 'contract';
 
-        // Full-hold exercises are one sustained contraction for the whole
-        // duration: a single contract step, no relax beats, glow pinned full.
         if ($this->full_hold) {
             return [[
                 'phase' => 'contract',
-                'label' => $this->contract_label ?: 'Contract & hold',
+                'label' => $this->contract_label ?: 'Contract and hold',
                 'seconds' => $duration,
-                'glow_mode' => $contractGlowMode,
+                'glow_mode' => $this->contract_glow_mode ?: 'slowly',
                 'full' => true,
             ]];
         }
@@ -104,28 +113,15 @@ class Exercise extends Model
             return [];
         }
 
-        $reps = max(1, (int) floor($duration / $cycle + 1e-6));
         $steps = [];
+        $contractStep = ['phase' => 'contract', 'label' => $this->contract_label ?: 'Contract and hold', 'seconds' => $contract, 'glow_mode' => $this->contract_glow_mode ?: 'slowly'];
+        $relaxStep = ['phase' => 'relax', 'label' => $this->relax_label ?: 'Relax', 'seconds' => $relax, 'glow_mode' => $this->relax_glow_mode ?: 'slowly'];
 
-        $contractLabel = $this->contract_label ?: 'Contract & hold';
-        $contractStep = ['phase' => 'contract', 'label' => $contractLabel,                'seconds' => $contract, 'glow_mode' => $contractGlowMode];
-        $relaxStep    = ['phase' => 'relax',    'label' => $this->relax_label ?: 'Relax', 'seconds' => $relax,    'glow_mode' => $relaxGlowMode];
+        $order = ($this->start_phase === 'relax' && $relax > 0) ? [$relaxStep, $contractStep] : [$contractStep, $relaxStep];
+        $order = array_values(array_filter($order, fn ($p) => $p['seconds'] > 0));
 
-        // The contraction is the ramp followed by an optional peak hold (glow
-        // pinned full), kept together so the phase ordering stays intact.
-        $contractGroup = [$contractStep];
-        if ($hold > 0) {
-            $contractGroup[] = ['phase' => 'contract', 'label' => $contractLabel, 'seconds' => $hold, 'glow_mode' => $contractGlowMode, 'full' => true];
-        }
-
-        $phaseOrder = ($phase === 'relax' && $relax > 0)
-            ? array_merge([$relaxStep], $contractGroup)
-            : array_merge($contractGroup, [$relaxStep]);
-
-        $phaseOrder = array_values(array_filter($phaseOrder, fn ($p) => $p['seconds'] > 0));
-
-        for ($i = 0; $i < $reps; $i++) {
-            foreach ($phaseOrder as $step) {
+        for ($i = 0, $reps = $this->repsForDuration($duration); $i < $reps; $i++) {
+            foreach ($order as $step) {
                 $steps[] = $step;
             }
         }
@@ -143,7 +139,7 @@ class Exercise extends Model
         return $this->resolveMedia($this->video_path);
     }
 
-    /** Resolve a stored media path to a URL, passing through absolute (synced) URLs. */
+    /** Resolve a stored media path to a URL, passing through absolute URLs. */
     private function resolveMedia(?string $path): ?string
     {
         if (! $path) {

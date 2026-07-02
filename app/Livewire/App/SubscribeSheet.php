@@ -35,6 +35,7 @@ class SubscribeSheet extends Component
     public string $email    = '';
     public string $password = '';
 
+    #[On('open-subscribe-sheet')]
     public function open(): void
     {
         $this->showSheet    = true;
@@ -76,24 +77,38 @@ class SubscribeSheet extends Component
     {
         $this->validate([
             'name'     => 'required|string|max:120',
-            'email'    => 'required|email|max:190|unique:users,email',
+            'email'    => 'required|email|max:190',
             'password' => 'required|string|min:6',
         ], [
             'name.required'     => 'Name is required.',
             'email.required'    => 'Email is required.',
             'email.email'       => 'Enter a valid email address.',
-            'email.unique'      => 'This email is already registered.',
             'password.required' => 'Password is required.',
             'password.min'      => 'Password must be at least 6 characters.',
         ]);
 
-        $user = \App\Models\User::create([
-            'name'              => trim($this->name),
-            'email'             => strtolower($this->email),
-            'password'          => Hash::make($this->password),
-            'email_verified_at' => now(),
-            'level_id'          => Level::where('is_active', true)->orderBy('number')->value('id'),
-        ]);
+        // On the device the backend owns accounts: register there first, then
+        // mirror the confirmed account locally. Requires internet.
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $result = \App\Services\RemoteAuth::register(trim($this->name), strtolower($this->email), $this->password);
+
+            if (empty($result['user'])) {
+                $this->addError('email', $result['error'] ?? 'Could not reach the server. Check your internet connection and try again.');
+                return;
+            }
+
+            $user = \App\Services\RemoteAuth::mirror($result['user']);
+        } else {
+            $this->validate(['email' => 'unique:users,email'], ['email.unique' => 'This email is already registered.']);
+
+            $user = \App\Models\User::create([
+                'name'              => trim($this->name),
+                'email'             => strtolower($this->email),
+                'password'          => Hash::make($this->password),
+                'email_verified_at' => now(),
+                'level_id'          => Level::where('is_active', true)->orderBy('number')->value('id'),
+            ]);
+        }
 
         Auth::login($user, true);
         session()->regenerate();
@@ -111,15 +126,30 @@ class SubscribeSheet extends Component
             'password.required' => 'Password is required.',
         ]);
 
-        $user = \App\Models\User::where('email', strtolower($this->email))->first();
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $result = \App\Services\RemoteAuth::login(strtolower($this->email), $this->password);
 
-        if (! $user || ! $user->password || ! Hash::check($this->password, $user->password)) {
-            $this->addError('email', 'Email or password is incorrect.');
-            return;
+            if (empty($result['user'])) {
+                $this->addError('email', ($result['reason'] ?? '') === 'invalid'
+                    ? 'Email or password is incorrect.'
+                    : 'Could not reach the server. Check your internet connection and try again.');
+                return;
+            }
+
+            $user = \App\Services\RemoteAuth::mirror($result['user']);
+        } else {
+            $user = \App\Models\User::where('email', strtolower($this->email))->first();
+
+            if (! $user || ! $user->password || ! Hash::check($this->password, $user->password)) {
+                $this->addError('email', 'Email or password is incorrect.');
+                return;
+            }
         }
 
         Auth::login($user, true);
         session()->regenerate();
+
+        \App\Services\RemoteAuth::syncAfterLogin($user);
 
         if ($user->isSubscribed()) {
             $this->redirectRoute('home', navigate: true);
@@ -137,8 +167,10 @@ class SubscribeSheet extends Component
             return;
         }
 
-        $settings  = app(SettingsService::class);
-        $gpEnabled = $settings->get('google_play_enabled', false);
+        // The native app always bills through Google Play. The manual path
+        // only exists for the backend website (admin testing).
+        $gpEnabled = \App\Services\Sync\BackendClient::isClient()
+            || app(SettingsService::class)->get('google_play_enabled', false);
 
         if ($gpEnabled && ! empty($plan->store_product_id)) {
             $this->purchasing = true;
@@ -163,6 +195,37 @@ class SubscribeSheet extends Component
         $plan = Plan::where('store_product_id', $productId)->where('is_active', true)->first();
         if (! $plan) {
             $this->message = 'Purchase received but plan could not be matched. Contact support.';
+            return;
+        }
+
+        // Idempotency: ignore a re-delivered completion for a known token.
+        if (Subscription::where('purchase_token', $purchaseToken)->exists()) {
+            $this->redirectRoute('home', navigate: true);
+            return;
+        }
+
+        // On the device: record locally for instant access and report the
+        // token; the backend verifies it with Google before storing.
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            $user = auth()->user();
+
+            $this->createSubscription(
+                plan: $plan,
+                user: $user,
+                store: 'google_play',
+                purchaseToken: $purchaseToken,
+                orderId: $orderId,
+                status: 'active',
+                autoRenewing: true,
+            );
+
+            try {
+                app(\App\Services\Sync\UserSyncService::class)->push($user);
+            } catch (\Throwable $e) {
+                // Offline right now - the background sync delivers the token later.
+            }
+
+            $this->redirectRoute('home', navigate: true);
             return;
         }
 

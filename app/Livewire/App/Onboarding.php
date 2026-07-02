@@ -2,7 +2,6 @@
 
 namespace App\Livewire\App;
 
-use App\Models\OnboardingSlide;
 use App\Services\SettingsService;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -60,7 +59,7 @@ class Onboarding extends Component
 
     public function getSlidesProperty(): Collection
     {
-        return OnboardingSlide::where('is_active', true)->orderBy('sort_order')->get();
+        return collect(\App\Support\OnboardingSlides::all());
     }
 
     public function getGoogleEnabledProperty(): bool
@@ -123,24 +122,10 @@ class Onboarding extends Component
         $user = null;
 
         if (\App\Services\Sync\BackendClient::isClient()) {
-            $result = $this->authenticateRemotely(strtolower($this->email), $this->password);
+            $result = \App\Services\RemoteAuth::login(strtolower($this->email), $this->password);
 
             if (! empty($result['user'])) {
-                $remoteUser = $result['user'];
-                $attributes = [
-                    'name' => $remoteUser['name'],
-                    'email_verified_at' => $remoteUser['email_verified_at'] ? now()->parse($remoteUser['email_verified_at']) : null,
-                    'password' => $remoteUser['password_hash'],
-                    'is_admin' => (bool)$remoteUser['is_admin'],
-                    'level_id' => $remoteUser['level_id'],
-                    'level_started_days' => (int)$remoteUser['level_started_days'],
-                    'onboarded_at' => $remoteUser['onboarded_at'] ? now()->parse($remoteUser['onboarded_at']) : null,
-                    'timezone' => $remoteUser['timezone'],
-                ];
-                if (! \App\Models\User::where('email', strtolower($remoteUser['email']))->exists()) {
-                    $attributes['id'] = $remoteUser['id'];
-                }
-                $user = \App\Models\User::updateOrCreate(['email' => strtolower($remoteUser['email'])], $attributes);
+                $user = \App\Services\RemoteAuth::mirror($result['user']);
             } else {
                 \Illuminate\Support\Facades\RateLimiter::hit($key, 300);
                 if (($result['reason'] ?? '') === 'invalid') {
@@ -172,16 +157,7 @@ class Onboarding extends Component
         session()->regenerate();
 
         // Sync immediately so the home page has fresh data from the start.
-        if (\App\Services\Sync\BackendClient::isClient()) {
-            try {
-                app(\App\Services\Sync\ContentSyncService::class)->pull();
-                $userSync = app(\App\Services\Sync\UserSyncService::class);
-                $userSync->push($user);
-                $userSync->pull($user);
-            } catch (\Throwable $e) {
-                // Best-effort.
-            }
-        }
+        \App\Services\RemoteAuth::syncAfterLogin($user);
 
         return $this->redirectRoute('home', navigate: true);
     }
@@ -209,33 +185,16 @@ class Onboarding extends Component
         ]);
 
         if (\App\Services\Sync\BackendClient::isClient()) {
-            $remoteUser = $this->registerRemotely();
-            if (is_array($remoteUser) && isset($remoteUser['error'])) {
-                $this->addError('email', $remoteUser['error']);
-                return;
-            }
+            $result = \App\Services\RemoteAuth::register(trim($this->name), strtolower($this->email), $this->password);
 
-            if (! $remoteUser) {
-                $this->addError('email', 'Could not reach the server. Check your internet connection and try again.');
+            if (empty($result['user'])) {
+                $this->addError('email', $result['error'] ?? 'Could not reach the server. Check your internet connection and try again.');
                 return;
             }
 
             \Illuminate\Support\Facades\RateLimiter::hit($key, 900);
 
-            $user = \App\Models\User::updateOrCreate(
-                ['email' => strtolower($remoteUser['email'])],
-                [
-                    'id' => $remoteUser['id'],
-                    'name' => $remoteUser['name'],
-                    'email_verified_at' => $remoteUser['email_verified_at'] ? now()->parse($remoteUser['email_verified_at']) : null,
-                    'password' => $remoteUser['password_hash'],
-                    'is_admin' => (bool)$remoteUser['is_admin'],
-                    'level_id' => $remoteUser['level_id'],
-                    'level_started_days' => (int)$remoteUser['level_started_days'],
-                    'onboarded_at' => $remoteUser['onboarded_at'] ? now()->parse($remoteUser['onboarded_at']) : null,
-                    'timezone' => $remoteUser['timezone'],
-                ]
-            );
+            $user = \App\Services\RemoteAuth::mirror($result['user']);
         } else {
             // Check local unique constraint
             $this->validate([
@@ -259,69 +218,6 @@ class Onboarding extends Component
         session(['verify_email' => $user->email]);
 
         return $this->redirectRoute('verify', navigate: true);
-    }
-
-    /**
-     * @return array{user?: array<string,mixed>, reason?: string}
-     */
-    private function authenticateRemotely(string $email, string $password): array
-    {
-        if (! \App\Services\Sync\BackendClient::isClient()) {
-            return ['reason' => 'offline'];
-        }
-
-        try {
-            $response = \App\Services\Sync\BackendClient::request()
-                ->post(\App\Services\Sync\BackendClient::base().'/v1/auth/login', [
-                    'email' => $email,
-                    'password' => $password,
-                ]);
-
-            if ($response->successful()) {
-                return ['user' => $response->json('user')];
-            }
-
-            if (in_array($response->status(), [401, 422], true)) {
-                if ($response->json('error') === 'Invalid API key.') {
-                    return ['reason' => 'unreachable'];
-                }
-                return ['reason' => 'invalid'];
-            }
-
-            return ['reason' => 'unreachable'];
-        } catch (\Throwable $e) {
-            return ['reason' => 'unreachable'];
-        }
-    }
-
-    private function registerRemotely(): ?array
-    {
-        if (! \App\Services\Sync\BackendClient::isClient()) {
-            return null;
-        }
-
-        try {
-            $response = \App\Services\Sync\BackendClient::request()
-                ->post(\App\Services\Sync\BackendClient::base().'/v1/auth/register', [
-                    'name' => trim($this->name),
-                    'email' => strtolower($this->email),
-                    'password' => $this->password,
-                    'password_confirmation' => $this->password_confirmation,
-                ]);
-
-            if ($response->successful()) {
-                return $response->json('user');
-            } elseif ($response->status() === 422) {
-                $errors = $response->json('errors.email');
-                $message = $errors ? $errors[0] : $response->json('message');
-                return ['error' => $message ?: 'Validation failed.'];
-            } elseif ($response->status() === 401 && $response->json('error') === 'Invalid API key.') {
-                return ['error' => 'API configuration error. Please check sync settings.'];
-            }
-            return ['error' => 'Could not register on remote server. Status code: ' . $response->status()];
-        } catch (\Exception $e) {
-            return ['error' => 'Could not reach the server. Check your internet connection and try again.'];
-        }
     }
 
     public function next(): void
