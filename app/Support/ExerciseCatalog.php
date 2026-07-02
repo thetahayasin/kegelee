@@ -297,15 +297,15 @@ final class ExerciseCatalog
                 'pattern' => [$s(1, 0, 1, 'Contract'), $hold(10, 1, 'Hold'), $hold(1, 0, 'Relax')],
             ],
             [
-                // Upstairs and Downstairs combined: climb floor by floor to the
+                // Upstairs and Downstairs combined: climb step by step to the
                 // top, then come back down step by step, about 1s per level.
                 'name' => 'Elevator',
                 'slug' => 'elevator',
                 'unlock_after_days' => 109,
                 'summary' => 'Climb to the top, then step back down',
-                'description' => 'The signature exercise. Ride up floor by floor, then come back down under control.',
-                'how_to' => 'Imagine riding an elevator. Tighten a little more at each floor until you reach your strongest squeeze, then come back down one floor at a time until fully relaxed.',
-                'pattern' => [$hold(1, 0.25, 'Floor 1'), $hold(1, 0.5, 'Floor 2'), $hold(1, 0.75, 'Floor 3'), $hold(1, 1, 'Top'), $hold(1, 0.75, 'Floor 3'), $hold(1, 0.5, 'Floor 2'), $hold(1, 0.25, 'Floor 1'), $s(1, 0.25, 0, 'Relax')],
+                'description' => 'The signature exercise. Climb up step by step, then come back down under control.',
+                'how_to' => 'Imagine riding an elevator. Tighten a little more at each step until you reach your strongest squeeze, then come back down one step at a time until fully relaxed.',
+                'pattern' => [$hold(1, 0.25, 'Step 1'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.75, 'Step 3'), $hold(1, 1, 'Top'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
             ],
         ];
 
