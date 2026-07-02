@@ -45,9 +45,11 @@ class Exercise extends Model
     }
 
     /**
-     * How long this exercise runs at the given level (seconds): the level's
-     * per-exercise time share, rounded to whole movement cycles so a pattern
-     * is never cut off mid-movement.
+     * How long this exercise runs at the given level (seconds). Every
+     * exercise has a duration range (20-60s by default, Holding 12-30s):
+     * level 1 runs the minimum, the top level runs the maximum, levels in
+     * between interpolate. The result is rounded to whole movement cycles so
+     * a pattern is never cut off mid-movement.
      */
     public function durationForLevel(?Level $level): float
     {
@@ -56,15 +58,18 @@ class Exercise extends Model
             return 30.0;
         }
 
-        if (! $level) {
-            return round(2 * $cycle, 1);
+        [$min, $max] = ExerciseCatalog::durationBounds((string) $this->slug);
+
+        $topNumber = max(1, ...array_keys(\App\Support\LevelCatalog::all()));
+        $number = (int) ($level?->number ?? 1);
+        $pct = $topNumber > 1 ? max(0.0, min(1.0, ($number - 1) / ($topNumber - 1))) : 0.0;
+        $target = $min + ($max - $min) * $pct;
+
+        $cycles = max(1, (int) round($target / $cycle));
+        // Whole cycles, but never blow past the range maximum on rounding.
+        while ($cycles > 1 && $cycles * $cycle > $max + 0.01) {
+            $cycles--;
         }
-
-        $slots = max(1, (int) ($level->min_exercises ?: 3));
-        $rests = max(0, $slots - 1) * (float) ($level->rest_seconds ?: 0);
-        $share = (((float) $level->total_session_seconds ?: 90) - $rests) / $slots;
-
-        $cycles = max(1, (int) round($share / $cycle));
 
         return round($cycles * $cycle, 1);
     }

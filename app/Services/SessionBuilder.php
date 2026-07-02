@@ -11,10 +11,10 @@ use Illuminate\Support\Collection;
  * Builds a user's session playlist from the hardcoded exercise catalogue.
  *
  * The level defines the total session length (level 1 = 1.5 minutes, then the
- * level number in minutes), the rest between exercises and how many exercises
- * to include. Each picked exercise gets a whole number of movement cycles so
- * a pattern is never cut off mid-movement, sized so the session lands as
- * close to the level's total time as possible.
+ * level number in minutes) and the rest between exercises. Each exercise runs
+ * its natural duration for the level (its 20-60s range, Holding 12-30s,
+ * interpolated by level) rounded to whole movement cycles, and the session
+ * fills with as many exercises as fit the level's total time.
  *
  * Rules:
  * - Only unlocked exercises enter the pool.
@@ -35,15 +35,13 @@ class SessionBuilder
         $level = $this->level($user);
         $total = (float) ($level?->total_session_seconds ?: 90);
         $rest = (float) ($level?->rest_seconds ?: 5);
-        $slots = max(1, (int) ($level?->min_exercises ?: 3));
 
         $unlocked = $this->unlockedExercises($user);
         if ($unlocked->isEmpty()) {
             return ['steps' => [], 'exercises' => [], 'total' => 0.0];
         }
 
-        $sequence = $this->pickSequence($unlocked, $slots);
-        $durations = $this->allocateDurations($sequence, $total, $rest);
+        [$sequence, $durations] = $this->fillSession($unlocked, $level, $total, $rest);
 
         return $this->buildPlaylist($sequence, $durations, $rest);
     }
@@ -66,94 +64,52 @@ class SessionBuilder
     }
 
     /**
-     * Pick the session's exercise order: distinct random picks first, wrapping
-     * around when the level asks for more slots than there are unlocked
-     * exercises, and never the same exercise twice in a row (when avoidable).
+     * Fill the session with exercises at their natural level durations until
+     * the level's total time is reached: random order, wrapping around the
+     * unlocked pool, never the same exercise twice in a row (when avoidable).
+     * The last exercise is included only when that lands the session closer
+     * to the level total than stopping without it.
      *
      * @param  Collection<int,Exercise>  $unlocked
-     * @return Collection<int,Exercise>
+     * @return array{0: Collection<int,Exercise>, 1: array<int, float>}
      */
-    private function pickSequence(Collection $unlocked, int $slots): Collection
+    private function fillSession(Collection $unlocked, ?\App\Models\Level $level, float $total, float $rest): array
     {
         $picks = $unlocked->shuffle()->values();
         $sequence = collect();
-
-        for ($i = 0; $i < $slots; $i++) {
-            $candidate = $picks[$i % $picks->count()];
-
-            if ($sequence->isNotEmpty() && $sequence->last()->id === $candidate->id && $picks->count() > 1) {
-                $candidate = $picks[($i + 1) % $picks->count()];
-            }
-
-            $sequence->push($candidate);
-        }
-
-        return $sequence;
-    }
-
-    /**
-     * Give each slot a whole number of movement cycles, then nudge cycle
-     * counts up or down so the summed session time lands as close to the
-     * level total as whole cycles allow.
-     *
-     * @param  Collection<int,Exercise>  $sequence
-     * @return array<int, float> slot index => seconds
-     */
-    private function allocateDurations(Collection $sequence, float $total, float $rest): array
-    {
-        $budget = $total - max(0, $sequence->count() - 1) * $rest;
-        $share = $budget / max(1, $sequence->count());
-
-        $cycles = [];
-        $cycleLengths = [];
-        foreach ($sequence as $i => $exercise) {
-            $cycle = $exercise->cycleSeconds();
-            $cycleLengths[$i] = $cycle > 0 ? $cycle : $share;
-            $cycles[$i] = max(1, (int) round($share / $cycleLengths[$i]));
-        }
-
-        // Nudge towards the budget: add cycles while clearly under, remove
-        // while clearly over (never below one cycle). Capped for safety.
-        for ($guard = 0; $guard < 20; $guard++) {
-            $sum = 0.0;
-            foreach ($cycles as $i => $n) {
-                $sum += $n * $cycleLengths[$i];
-            }
-            $diff = $budget - $sum;
-
-            if ($diff > 0) {
-                // Room left: add a cycle of the exercise that fits best.
-                $best = null;
-                foreach ($cycles as $i => $n) {
-                    if ($cycleLengths[$i] <= $diff + 0.001 && ($best === null || $cycleLengths[$i] > $cycleLengths[$best])) {
-                        $best = $i;
-                    }
-                }
-                if ($best === null) {
-                    break;
-                }
-                $cycles[$best]++;
-            } else {
-                // Over budget: drop a cycle where it helps, if allowed.
-                $best = null;
-                foreach ($cycles as $i => $n) {
-                    if ($n > 1 && ($best === null || $cycleLengths[$i] > $cycleLengths[$best])) {
-                        $best = $i;
-                    }
-                }
-                if ($best === null || -$diff < $cycleLengths[$best] / 2) {
-                    break;
-                }
-                $cycles[$best]--;
-            }
-        }
-
         $durations = [];
-        foreach ($cycles as $i => $n) {
-            $durations[$i] = round($n * $cycleLengths[$i], 1);
+        $acc = 0.0;
+        $idx = 0;
+
+        while ($sequence->count() < 30) {
+            $candidate = $picks[$idx % $picks->count()];
+            if ($sequence->isNotEmpty() && $sequence->last()->id === $candidate->id && $picks->count() > 1) {
+                $idx++;
+                $candidate = $picks[$idx % $picks->count()];
+            }
+
+            $duration = $candidate->durationForLevel($level);
+            $addition = ($sequence->isEmpty() ? 0.0 : $rest) + $duration;
+
+            if ($sequence->isNotEmpty() && $acc + $addition > $total) {
+                $over = ($acc + $addition) - $total;
+                $under = $total - $acc;
+                if ($over >= $under) {
+                    break;
+                }
+            }
+
+            $durations[$sequence->count()] = $duration;
+            $sequence->push($candidate);
+            $acc += $addition;
+            $idx++;
+
+            if ($acc >= $total) {
+                break;
+            }
         }
 
-        return $durations;
+        return [$sequence, $durations];
     }
 
     /**

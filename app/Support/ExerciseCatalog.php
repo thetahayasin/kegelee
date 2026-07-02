@@ -49,6 +49,23 @@ final class ExerciseCatalog
         return round(array_sum(array_column($def['pattern'], 'seconds')), 2);
     }
 
+    /**
+     * How long the exercise runs per session slot: [min, max] seconds.
+     * Level 1 runs the minimum, the top level runs the maximum, levels in
+     * between interpolate. Default 20-60s; Holding is 12-30s.
+     *
+     * @return array{0: float, 1: float}
+     */
+    public static function durationBounds(string $slug): array
+    {
+        $def = self::get($slug);
+
+        return [
+            (float) ($def['min_seconds'] ?? 20),
+            (float) ($def['max_seconds'] ?? 60),
+        ];
+    }
+
     /** Whole pattern cycles that fit in the given duration (at least one). */
     public static function repsForDuration(string $slug, float $duration): int
     {
@@ -125,7 +142,8 @@ final class ExerciseCatalog
                 'pattern' => [$hold(0.4, 0, 'Relax'), $hold(0.7, 1, 'Contract')],
             ],
             [
-                // One continuous hold for the whole round.
+                // One continuous hold for the whole round. Shorter than the
+                // others: 12s at level 1 up to 30s at level 5.
                 'name' => 'Holding',
                 'slug' => 'holding',
                 'unlock_after_days' => 0,
@@ -133,6 +151,8 @@ final class ExerciseCatalog
                 'description' => 'Squeeze and keep holding to build baseline endurance in the pelvic floor.',
                 'how_to' => 'Squeeze your pelvic floor and keep holding for the whole round. If the tension fades, gently squeeze back up. Keep breathing normally.',
                 'pattern' => [$hold(3, 1, 'Contract & hold')],
+                'min_seconds' => 12,
+                'max_seconds' => 30,
             ],
             [
                 // Contract slowly over 3s, then let go at once.

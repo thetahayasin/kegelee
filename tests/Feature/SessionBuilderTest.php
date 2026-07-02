@@ -38,14 +38,38 @@ class SessionBuilderTest extends TestCase
 
             $this->assertNotEmpty($playlist['steps'], "level $number");
 
-            // Whole-cycle quantisation cannot hit the total exactly; it must
-            // land within one longest-cycle (15s) of the target.
+            // Exercises keep their natural whole-cycle durations, so the
+            // session can only land within about half an exercise (up to
+            // 60s + rest) of the level total.
             $this->assertEqualsWithDelta(
                 (float) $def['total_session_seconds'],
                 $playlist['total'],
-                15.0,
+                35.0,
                 "level $number should run about {$def['total_session_seconds']}s, got {$playlist['total']}s",
             );
+        }
+    }
+
+    public function test_exercise_durations_follow_level_bounds(): void
+    {
+        $l1 = \App\Models\Level::where('number', 1)->firstOrFail();
+        $l5 = \App\Models\Level::where('number', 5)->firstOrFail();
+
+        // Holding runs 12s at level 1 up to 30s at level 5.
+        $holding = \App\Models\Exercise::where('slug', 'holding')->firstOrFail();
+        $this->assertEqualsWithDelta(12.0, $holding->durationForLevel($l1), 0.01);
+        $this->assertEqualsWithDelta(30.0, $holding->durationForLevel($l5), 0.01);
+
+        // Everything else runs about 20s at level 1 up to 60s at level 5,
+        // within one whole movement cycle.
+        foreach (\App\Support\ExerciseCatalog::all() as $slug => $def) {
+            $exercise = \App\Models\Exercise::where('slug', $slug)->firstOrFail();
+            $cycle = $exercise->cycleSeconds();
+            [$min, $max] = \App\Support\ExerciseCatalog::durationBounds($slug);
+
+            $this->assertGreaterThanOrEqual($min - $cycle, $exercise->durationForLevel($l1), $slug);
+            $this->assertLessThanOrEqual($max + 0.01, $exercise->durationForLevel($l5), $slug);
+            $this->assertGreaterThan($exercise->durationForLevel($l1) - 0.01, $exercise->durationForLevel($l5) + 0.01, "$slug should not shrink as levels rise");
         }
     }
 
