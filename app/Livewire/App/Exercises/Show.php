@@ -15,15 +15,16 @@ class Show extends Component
     public function render(ProgressionService $progression)
     {
         $user = auth()->user();
-        $duration = $this->exercise->durationForLevel($user->level);
+
+        // Copy comes straight from the hardcoded catalogue so the page always
+        // shows the current text, never a stale database row.
+        $catalog = $this->exercise->catalog();
 
         return view('livewire.app.exercises.show', [
             'unlocked' => $progression->isExerciseUnlocked($user, $this->exercise),
             'daysLeft' => $progression->daysUntilUnlock($user, $this->exercise),
-            'levelName' => $user->level?->name,
-            'summary' => $this->exercise->summary(),
-            'reps' => $this->exercise->repsForDuration($duration),
-            'duration' => $duration,
+            'description' => $catalog['description'] ?? $this->exercise->description,
+            'howTo' => $catalog['how_to'] ?? $this->exercise->instructions,
         ]);
     }
 }
