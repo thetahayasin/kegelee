@@ -64,7 +64,7 @@
                 class="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-6 py-4 font-bold text-white shadow-lg shadow-accent/20 tap disabled:opacity-60">
             <svg wire:loading.remove wire:target="scheduleAlarms" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6m20 0-3-3"/></svg>
             <svg wire:loading wire:target="scheduleAlarms" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-            <span wire:loading.remove wire:target="scheduleAlarms">Save &amp; add to Clock</span>
+            <span wire:loading.remove wire:target="scheduleAlarms">Add Reminders</span>
             <span wire:loading wire:target="scheduleAlarms">Saving...</span>
         </button>
 
@@ -88,10 +88,6 @@
                 </button>
             </div>
         @endif
-
-        <p class="px-2 text-center text-xs text-muted">
-            Alarms are created in your phone's own Clock app, which rings them - even after a reboot.
-        </p>
     </div>
 
     {{-- One-time consent before touching the Clock app. --}}
