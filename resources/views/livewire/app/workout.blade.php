@@ -429,14 +429,13 @@
                          class="relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                         <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
                         <p class="text-center text-lg font-bold" x-text="cur.exercise"></p>
-                        <p class="mt-2 text-center text-sm text-muted">Watch a quick tutorial for this exercise.</p>
                         <div class="mt-6 space-y-3">
                             <button @click="showHelp = false; paused = false"
                                     class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">OK</button>
                             <a x-bind:href="'/exercises/' + cur.slug + '?from=session'"
                                @click="_saveState()"
                                wire:navigate
-                               class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold tap">Watch tutorial</a>
+                               class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold tap">View exercise</a>
                         </div>
                     </div>
                 </div>
