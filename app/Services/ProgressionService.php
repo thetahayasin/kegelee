@@ -145,12 +145,20 @@ class ProgressionService
 
     public function isExerciseUnlocked(User $user, Exercise $exercise): bool
     {
+        if (config('app.unlock_all_exercises')) {
+            return true;
+        }
+
         return $this->completedDays($user) >= $exercise->unlock_after_days;
     }
 
     /** Days the user still needs to train before an exercise unlocks. */
     public function daysUntilUnlock(User $user, Exercise $exercise): int
     {
+        if (config('app.unlock_all_exercises')) {
+            return 0;
+        }
+
         return max(0, $exercise->unlock_after_days - $this->completedDays($user));
     }
 
@@ -173,6 +181,10 @@ class ProgressionService
     /** The next exercise the user is working toward unlocking. */
     public function nextUnlock(User $user): ?Exercise
     {
+        if (config('app.unlock_all_exercises')) {
+            return null;
+        }
+
         return Exercise::query()
             ->where('is_active', true)
             ->where('unlock_after_days', '>', $this->completedDays($user))

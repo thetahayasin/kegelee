@@ -137,4 +137,17 @@ return [
 
     'content_sync_url' => env('CONTENT_SYNC_URL'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Testing: unlock every exercise
+    |--------------------------------------------------------------------------
+    |
+    | When true, all exercises are available regardless of completed training
+    | days. For development and test builds only - never ship a release build
+    | with this on.
+    |
+    */
+
+    'unlock_all_exercises' => env('UNLOCK_ALL_EXERCISES', false),
+
 ];
