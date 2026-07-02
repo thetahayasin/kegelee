@@ -434,7 +434,7 @@
                             <a x-bind:href="'/exercises/' + cur.slug + '?from=session'"
                                @click="_saveState()"
                                wire:navigate
-                               class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold tap">View exercise</a>
+                               class="grid h-14 w-full place-items-center rounded-2xl bg-surface-2 font-semibold tap">Tutorial</a>
                         </div>
                     </div>
                 </div>
