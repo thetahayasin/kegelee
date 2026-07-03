@@ -28,45 +28,46 @@
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
         </div>
-        <h1 class="mt-8 text-2xl font-bold leading-tight">A muscle you can train</h1>
-        <p class="mt-3 max-w-xs leading-relaxed text-muted">Your pelvic floor is a real muscle. Train it a few minutes a day and it gets stronger, just like any workout. No pills, no side effects, and the results last.</p>
+        <h1 class="mt-8 text-3xl font-bold leading-tight">A muscle you can train</h1>
+        <p class="mt-4 max-w-sm text-lg leading-relaxed text-muted">Your pelvic floor is a real muscle. Train it a few minutes a day and it gets stronger, just like any workout. No pills, no side effects, and the results last.</p>
+        <p class="mt-3 max-w-sm text-lg leading-relaxed text-muted">And you can do it anywhere, anytime. Sitting, standing, on the bus. Nobody can tell.</p>
     </div>
 
     {{-- Step 2: the benefits --}}
     <div x-show="step === 1" x-cloak class="flex flex-1 flex-col justify-center">
-        <h1 class="text-center text-2xl font-bold leading-tight">What you gain</h1>
+        <h1 class="text-center text-3xl font-bold leading-tight">What you gain</h1>
         <div class="mt-6 space-y-3" x-show="step === 1">
             <div class="ls-card flex items-center gap-4 rounded-2xl bg-surface p-4" style="animation-delay: 0.1s">
                 <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent/15">
                     <svg viewBox="0 0 24 24" class="h-6 w-6 text-accent" fill="currentColor"><path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
                 </div>
-                <div><p class="font-bold">Better bladder control</p><p class="text-sm text-muted">Fewer leaks and urgent moments.</p></div>
+                <div><p class="text-lg font-bold">Better bladder control</p><p class="text-base text-muted">Fewer leaks and urgent moments.</p></div>
             </div>
             <div class="ls-card flex items-center gap-4 rounded-2xl bg-surface p-4" style="animation-delay: 0.3s">
                 <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent/15">
                     <svg viewBox="0 0 24 24" class="h-6 w-6 text-accent" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                 </div>
-                <div><p class="font-bold">Stronger performance</p><p class="text-sm text-muted">More control and stamina in intimacy.</p></div>
+                <div><p class="text-lg font-bold">Stronger performance</p><p class="text-base text-muted">More control and stamina in intimacy.</p></div>
             </div>
             <div class="ls-card flex items-center gap-4 rounded-2xl bg-surface p-4" style="animation-delay: 0.5s">
                 <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent/15">
                     <svg viewBox="0 0 24 24" class="h-6 w-6 text-accent" fill="currentColor"><path d="M12 2l8 3v6c0 5.25-3.4 9.74-8 11-4.6-1.26-8-5.75-8-11V5l8-3z"/></svg>
                 </div>
-                <div><p class="font-bold">A supported core</p><p class="text-sm text-muted">Helps posture and lower back.</p></div>
+                <div><p class="text-lg font-bold">A supported core</p><p class="text-base text-muted">Helps posture and lower back.</p></div>
             </div>
             <div class="ls-card flex items-center gap-4 rounded-2xl bg-surface p-4" style="animation-delay: 0.7s">
                 <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent/15">
                     <svg viewBox="0 0 24 24" class="h-6 w-6 text-accent" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 </div>
-                <div><p class="font-bold">Lasting confidence</p><p class="text-sm text-muted">Gains that build week after week.</p></div>
+                <div><p class="text-lg font-bold">Lasting confidence</p><p class="text-base text-muted">Gains that build week after week.</p></div>
             </div>
         </div>
     </div>
 
     {{-- Step 3: doing it right is everything --}}
     <div x-show="step === 2" x-cloak class="flex flex-1 flex-col justify-center">
-        <h1 class="text-center text-2xl font-bold leading-tight">Doing it right is everything</h1>
-        <p class="mt-3 text-center text-base leading-relaxed text-muted">Squeeze the wrong muscles and you get nothing back.</p>
+        <h1 class="text-center text-3xl font-bold leading-tight">Doing it right is everything</h1>
+        <p class="mt-3 text-center text-lg leading-relaxed text-muted">Squeeze the wrong muscles and you get nothing back.</p>
 
         <div class="ls-card mt-6 overflow-hidden rounded-3xl border border-accent/30 bg-surface" style="animation-delay: 0.15s">
             <div class="flex items-center gap-3 border-b border-white/10 bg-accent/10 px-5 py-3.5">
@@ -75,14 +76,14 @@
             </div>
             <div class="space-y-3 px-5 py-4">
                 <div class="flex items-center gap-3">
-                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/15 text-xs font-bold text-accent">2</span>
-                    <p class="text-sm leading-relaxed text-muted">The next lesson shows you exactly where your muscles are.</p>
+                    <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent/15 text-sm font-bold text-accent">2</span>
+                    <p class="text-base leading-relaxed text-muted">The next lesson shows you exactly where your muscles are.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/15 text-xs font-bold text-accent">3</span>
-                    <p class="text-sm leading-relaxed text-muted">Then you do your first real exercise, guided by the circle.</p>
+                    <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent/15 text-sm font-bold text-accent">3</span>
+                    <p class="text-base leading-relaxed text-muted">Then you do your first real exercise, guided by the circle.</p>
                 </div>
-                <p class="pt-1 text-sm font-semibold leading-relaxed">Learn it once, and every minute you train actually counts.</p>
+                <p class="pt-1 text-base font-semibold leading-relaxed">Learn it once, and every minute you train actually counts.</p>
             </div>
         </div>
     </div>

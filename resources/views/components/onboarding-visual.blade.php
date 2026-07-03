@@ -14,22 +14,15 @@
             0% { transform: scale(0.78); opacity: 0.55; }
             100% { transform: scale(1.12); opacity: 0; }
         }
-        /* Scene 0: liquid rises inside the heart and holds - gains that stay. */
-        @keyframes ob-liquid-rise {
-            0% { transform: translateY(20px); }
-            55% { transform: translateY(2px); }
-            88% { transform: translateY(2px); }
-            100% { transform: translateY(20px); }
-        }
-        @keyframes ob-liquid-wave {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-6px); }
-        }
-        @keyframes ob-heart-beat {
-            0%, 40%, 100% { transform: scale(1); }
-            48% { transform: scale(1.07); }
-            56% { transform: scale(1); }
-            64% { transform: scale(1.05); }
+        /* Scene 0: the heart grows to full strength, then beats - and stays. */
+        @keyframes ob-heart-grow {
+            0% { transform: scale(0.15); opacity: 0.35; }
+            40% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.09); }
+            57% { transform: scale(1); }
+            65% { transform: scale(1.07); }
+            72%, 94% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.15); opacity: 0.35; }
         }
         @keyframes ob-twinkle {
             0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
@@ -86,22 +79,14 @@
         <div class="absolute inset-2 rounded-full border-2 border-accent/12 animate-[ob-ring-out_3.2s_ease-out_infinite_1.6s]"></div>
 
         <div class="absolute inset-6 grid place-items-center rounded-full border-[5px] border-accent/60 bg-surface shadow-2xl">
-            <div class="relative h-[54%] w-[54%] animate-[ob-heart-beat_2.6s_ease-in-out_infinite] drop-shadow-[0_0_18px_color-mix(in_srgb,var(--c-accent)_55%,transparent)]">
-                {{-- Liquid strength rising inside the heart, with a live wave surface --}}
-                <svg viewBox="0 0 24 24" class="h-full w-full">
-                    <defs>
-                        <clipPath id="ob-heart-clip">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </clipPath>
-                    </defs>
-                    <path fill="currentColor" class="text-accent/20"
-                          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    <g clip-path="url(#ob-heart-clip)">
-                        <g style="animation: ob-liquid-rise 5.5s ease-in-out infinite;">
-                            <path fill="currentColor" class="text-accent" style="animation: ob-liquid-wave 1.6s linear infinite;"
-                                  d="M-14 3 q3 -1.6 6 0 t6 0 t6 0 t6 0 t6 0 t6 0 V30 H-14 Z"/>
-                        </g>
-                    </g>
+            <div class="relative h-[54%] w-[54%]">
+                {{-- Faint outline heart stays; the solid heart grows into it and beats --}}
+                <svg viewBox="0 0 24 24" class="absolute inset-0 h-full w-full text-accent/15" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <svg viewBox="0 0 24 24" class="h-full w-full text-accent drop-shadow-[0_0_18px_color-mix(in_srgb,var(--c-accent)_60%,transparent)]"
+                     style="animation: ob-heart-grow 5s ease-in-out infinite;" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
             </div>
 
@@ -146,10 +131,6 @@
             </div>
         </div>
 
-        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-surface-2 px-4 py-2 shadow-xl">
-            <span class="whitespace-nowrap text-xs font-bold uppercase tracking-wider text-white">A minute a day</span>
-        </div>
-
     @elseif ($index == 2)
         <!-- Scene 2: Watch yourself improve - stair-step bars growing into a star -->
         <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_15%,transparent),transparent_72%)]"></div>
@@ -162,12 +143,14 @@
                 </svg>
             </div>
 
-            {{-- Solid stair-step bars --}}
+            {{-- Solid stair-step bars. fill-mode both keeps each bar collapsed
+                 during its animation delay, so every bar visibly grows bottom-up
+                 instead of flashing full height first. --}}
             <div class="flex h-[62%] items-end justify-between gap-3 px-1">
-                <div class="h-[36%] flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent animate-[ob-bar-grow_5s_ease-in-out_infinite]"></div>
-                <div class="h-[58%] flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent animate-[ob-bar-grow_5s_ease-in-out_infinite_0.35s]"></div>
-                <div class="h-[79%] flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent animate-[ob-bar-grow_5s_ease-in-out_infinite_0.7s]"></div>
-                <div class="h-full flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent animate-[ob-bar-grow_5s_ease-in-out_infinite_1.05s]"></div>
+                <div class="h-[36%] flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent" style="animation: ob-bar-grow 5s ease-in-out 0s infinite both;"></div>
+                <div class="h-[58%] flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent" style="animation: ob-bar-grow 5s ease-in-out 0.35s infinite both;"></div>
+                <div class="h-[79%] flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent" style="animation: ob-bar-grow 5s ease-in-out 0.7s infinite both;"></div>
+                <div class="h-full flex-1 origin-bottom rounded-xl bg-gradient-to-t from-accent/35 to-accent" style="animation: ob-bar-grow 5s ease-in-out 1.05s infinite both;"></div>
             </div>
 
             <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-3">

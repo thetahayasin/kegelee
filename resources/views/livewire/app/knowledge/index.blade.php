@@ -8,18 +8,7 @@
         <h1 class="text-2xl font-bold">Learn the basics</h1>
     </header>
 
-    {{-- Overall progress --}}
-    <div class="px-5 pt-1">
-        <div class="flex items-center justify-between text-sm">
-            <p class="text-muted">Three short lessons before you train</p>
-            <p class="font-bold text-accent">{{ $completedCount }}/{{ $total }}</p>
-        </div>
-        <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-            <div class="h-full rounded-full bg-accent transition-all duration-500" style="width: {{ $total > 0 ? round($completedCount / $total * 100) : 0 }}%"></div>
-        </div>
-    </div>
-
-    <div class="mt-5 space-y-4 px-4">
+    <div class="mt-3 space-y-4 px-4">
         @livewire('app.subscribe-sheet')
         @if ($promptSubscribe)
             <div wire:ignore x-data x-init="setTimeout(() => Livewire.dispatch('open-subscribe-sheet'), 350)"></div>
@@ -56,7 +45,7 @@
 
                     <div class="min-w-0 flex-1">
                         <p class="text-[11px] font-bold uppercase tracking-wider {{ $row['done'] ? 'text-accent' : 'text-muted' }}">
-                            Lesson {{ $i + 1 }} · 2 min
+                            Lesson {{ $i + 1 }}
                         </p>
                         <p class="mt-1 text-lg font-bold leading-snug">{{ $lesson->title }}</p>
                         <p class="mt-0.5 text-sm {{ $row['done'] ? 'text-accent-soft' : 'text-muted' }}">

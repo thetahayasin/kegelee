@@ -6,7 +6,7 @@
              this.slides = @js($this->slides->values()->all());
          }
      }">
-    {{-- Top bar: progress + Sign In --}}
+    {{-- Top bar: progress + Sign In + skip cross --}}
     <div class="flex items-center justify-between gap-4 pt-2">
         <div class="flex flex-1 items-center gap-1.5">
             <template x-for="(s, i) in slides" :key="s.id || i">
@@ -17,6 +17,9 @@
         @guest
             <button wire:click="showLogin" class="text-sm font-semibold text-accent tap">Sign In</button>
         @endguest
+        <button wire:click="skip" class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-muted tap" aria-label="Skip">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
     </div>
 
     {{-- Slide visual & copy --}}

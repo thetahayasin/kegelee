@@ -12,7 +12,7 @@
          step: 0, last: 2,
          steps: @js($tremblingSteps),
          total: @js($tremblingTotal),
-         timeScale: @js($timeScale), glowSpeed: @js($glowSpeed),
+         timeScale: 1, glowSpeed: @js($glowSpeed),
          i: 0, remaining: 0, playing: false, looping: false, tried: false, _t: null,
          go(n) {
              this.step = Math.max(0, Math.min(this.last, n));
@@ -86,14 +86,14 @@
                 </div>
             </div>
         </div>
-        <h1 class="mt-6 text-2xl font-bold leading-tight">The circle is your guide</h1>
-        <p class="mt-3 max-w-xs leading-relaxed text-muted">Every exercise follows this circle. When it glows and swells, squeeze. When the glow fades, relax. The word inside always tells you what to do.</p>
+        <h1 class="mt-6 text-3xl font-bold leading-tight">The circle is your guide</h1>
+        <p class="mt-3 max-w-sm text-lg leading-relaxed text-muted">Every exercise follows this circle. When it glows and swells, squeeze. When the glow fades, relax. The word inside always tells you what to do.</p>
     </div>
 
     {{-- Step 2: watch Trembling run on the real player circle --}}
     <div x-show="step === 1" x-cloak class="flex flex-1 flex-col items-center justify-center text-center">
-        <h1 class="shrink-0 text-2xl font-bold leading-tight">This is Trembling</h1>
-        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted">Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.</p>
+        <h1 class="shrink-0 text-3xl font-bold leading-tight">This is Trembling</h1>
+        <p class="mt-3 max-w-sm shrink-0 text-lg leading-relaxed text-muted">Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.</p>
 
         <div class="relative mt-12 mb-6 grid shrink-0 place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
             @if ($glowEnabled)
@@ -120,10 +120,10 @@
 
     {{-- Step 3: guided try on the same circle --}}
     <div x-show="step === 2" x-cloak class="flex flex-1 flex-col items-center justify-center text-center">
-        <h1 class="shrink-0 text-2xl font-bold leading-tight" x-text="tried ? 'Nice work!' : 'Now you try'"></h1>
-        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted" x-show="!tried && !playing">Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?</p>
-        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted" x-show="playing" x-cloak>Follow the circle. Squeeze... and relax.</p>
-        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted" x-show="tried" x-cloak>That was a real exercise. Every session works exactly like this, one circle at a time.</p>
+        <h1 class="shrink-0 text-3xl font-bold leading-tight" x-text="tried ? 'Nice work!' : 'Now you try'"></h1>
+        <p class="mt-3 max-w-sm shrink-0 text-lg leading-relaxed text-muted" x-show="!tried && !playing">Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?</p>
+        <p class="mt-3 max-w-sm shrink-0 text-lg leading-relaxed text-muted" x-show="playing" x-cloak>Follow the circle. Squeeze... and relax.</p>
+        <p class="mt-3 max-w-sm shrink-0 text-lg leading-relaxed text-muted" x-show="tried" x-cloak>That was a real exercise. Every session works exactly like this, one circle at a time.</p>
 
         <div class="relative mt-12 mb-6 grid shrink-0 place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
             @if ($glowEnabled)
@@ -133,7 +133,9 @@
             @endif
             <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
                  style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
-                <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="absolute -rotate-90">
+                {{-- pointer-events-none: the positioned svg paints above the
+                     static button and would swallow the tap otherwise. --}}
+                <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="pointer-events-none absolute -rotate-90">
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="{{ $trackWidth }}"/>
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                             stroke-linecap="round" stroke-dasharray="{{ $circ }}"
@@ -141,7 +143,7 @@
                             style="transition: stroke-dashoffset 0.12s linear; filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
                 </svg>
                 <button x-show="!playing && !tried" @click="startTry()"
-                        class="grid h-24 w-24 place-items-center rounded-full bg-accent text-lg font-bold text-white shadow-lg shadow-accent/30 tap">Start</button>
+                        class="relative z-10 grid h-24 w-24 place-items-center rounded-full bg-accent text-lg font-bold text-white shadow-lg shadow-accent/30 tap">Start</button>
                 <div x-show="playing" x-cloak class="text-center">
                     <p class="text-5xl font-bold tabular-nums" x-text="count"></p>
                     <p class="mt-1 font-semibold" x-text="cur.label"></p>
