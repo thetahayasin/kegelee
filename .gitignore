@@ -32,3 +32,5 @@ Homestead.yaml
 Thumbs.db
 .claude/
 
+
+dist/

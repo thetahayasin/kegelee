@@ -24,6 +24,16 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 
 /*
 |--------------------------------------------------------------------------
+| Web deploy tasks for hosts without shell access - migrations, storage
+| link and production caches. Guarded by SYNC_API_KEY + throttle.
+|--------------------------------------------------------------------------
+*/
+Route::get('/deploy', \App\Http\Controllers\DeployController::class)
+    ->middleware('throttle:6,1')
+    ->name('deploy');
+
+/*
+|--------------------------------------------------------------------------
 | On-demand sync — the device app calls this when connectivity returns so
 | fresh backend content/progress lands immediately instead of waiting for
 | the next navigation. No-op on the backend (CONTENT_SYNC_URL empty).
