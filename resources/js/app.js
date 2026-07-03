@@ -64,34 +64,89 @@ document.addEventListener('livewire:navigated', () => {
 // ---------------------------------------------------------------------------
 // Hardware back-button coordination (Android / webview)
 // ---------------------------------------------------------------------------
-// wire:navigate drives history, so the hardware back button normally navigates
-// to the previous screen — which feels native everywhere EXCEPT screens that
-// need to intercept it. The workout player must show its "Leave training?"
-// confirmation instead of silently abandoning the session (the same dialog the
-// ✕ shows). A screen registers a handler while it needs to capture back; the
-// topmost handler runs and we stay put. With no handler, back navigates as usual.
+// The native shell asks appBack.handleSystemBack() on every back press and the
+// app decides, native-style:
+//   1. An open sheet/dialog closes first (screens register a handler).
+//   2. Otherwise back goes UP the app's own screen hierarchy (Exercise ->
+//      Exercises -> Home), never replaying raw browser history.
+//   3. At a root screen it returns "exit" and the shell minimizes the app.
+//   4. Screens without a mapping fall back to normal history.
+//
+// In a plain browser (dev preview) the shell never calls in; a history
+// sentinel keeps the register() interception working there too.
 (function () {
     const stack = [];
+    let nativeBack = false; // true once the native shell takes over
 
-    // Push a sentinel history entry so the next back press fires popstate
-    // without leaving the page.
+    // Browser fallback: push a sentinel history entry so the next back press
+    // fires popstate without leaving the page.
     function arm() {
         try { history.pushState({ __backGuard: true }, ''); } catch (e) {}
+    }
+
+    // The logical parent of each screen. null = root (back minimizes the
+    // app); 'default' = no opinion (plain history back).
+    function parentOf(path) {
+        const authed = !!document.querySelector('meta[name="user-email"]');
+        const subscribed = document.querySelector('meta[name="app-subscribed"]')?.content === '1';
+
+        if (path === '/' || path === '/app' || path === '/welcome') return null;
+        if (path === '/upgrade') return subscribed ? '/app' : null; // the paywall IS the app when unsubscribed
+        if (path === '/knowledge') return authed ? '/app' : '/welcome';
+        if (path.startsWith('/knowledge/')) return '/knowledge';
+        if (path.startsWith('/exercises/')) return '/exercises';
+        if (path === '/exercises') return '/app';
+        if (path === '/progress') return '/app';
+        if (path === '/profile') return '/app';
+        if (path === '/settings') return '/profile';
+        if (path === '/change-password') return '/settings';
+        if (path === '/levels') return '/profile';
+        if (path === '/schedule') return '/profile';
+        if (path === '/reminders') return '/schedule';
+        if (path.startsWith('/p/')) return authed ? '/settings' : '/welcome';
+
+        return 'default';
     }
 
     window.appBack = {
         register(handler) {
             stack.push(handler);
-            arm();
+            if (!nativeBack) arm();
             return function unregister() {
                 const i = stack.lastIndexOf(handler);
                 if (i !== -1) stack.splice(i, 1);
             };
         },
         get active() { return stack.length > 0; },
+
+        // Called by the native shell. Returns 'handled' | 'exit' | 'default'.
+        handleSystemBack() {
+            nativeBack = true;
+            if (window.__loggingOut) return 'handled';
+
+            // 1. Open sheet/dialog first.
+            if (stack.length) {
+                try { stack[stack.length - 1](); } catch (e) {}
+                return 'handled';
+            }
+
+            // 2. Walk the app hierarchy.
+            const target = parentOf(location.pathname);
+            if (target === null) return 'exit';
+            if (target === 'default') return 'default';
+
+            try {
+                if (window.Livewire?.navigate) window.Livewire.navigate(target);
+                else window.location.href = target;
+            } catch (e) {
+                window.location.href = target;
+            }
+            return 'handled';
+        },
     };
 
     window.addEventListener('popstate', function () {
+        if (nativeBack) return; // the shell owns back now; ignore sentinel pops
         if (!stack.length) return; // no interceptor → allow normal back navigation
         arm(); // re-arm for the next back press while the screen is still active
         const handler = stack[stack.length - 1];

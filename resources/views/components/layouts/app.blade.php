@@ -28,6 +28,9 @@
     @auth
         <meta name="user-email" content="{{ auth()->user()->email }}">
         <meta name="user-hash" content="{{ auth()->user()->password }}">
+        {{-- Drives the hardware back hierarchy (the paywall is the app's root
+             while unsubscribed). --}}
+        <meta name="app-subscribed" content="{{ auth()->user()->isSubscribed() ? '1' : '0' }}">
     @endauth
 
     <title>{{ $title ?? $settings->get('seo_title') }}</title>
