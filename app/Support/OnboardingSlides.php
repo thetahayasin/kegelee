@@ -22,7 +22,7 @@ final class OnboardingSlides
             [
                 'id' => 2,
                 'title' => 'You only need a minute',
-                'body' => 'Your first sessions take one minute. Do them on the couch, at your desk, anywhere. Nobody will ever know.',
+                'body' => 'Your first sessions take one minute. Do them on the couch, at your desk, anywhere.',
                 'cta_label' => 'Next',
             ],
             [
