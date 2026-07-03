@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "072d4ce5b280b831e00790b9b7720401",
+    "content-hash": "a213c413c7ae8d406957ed9037fec0ae",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7150,6 +7150,43 @@
                 "nativephp",
                 "reminder"
             ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "taha/nativephp-android-back",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/taha/nativephp-android-back",
+                "reference": "20aae533419e247f14ebcdaf608430b9155ebe64"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Taha\\AndroidBack\\AndroidBackServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Taha\\AndroidBack\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taha"
+                }
+            ],
+            "description": "Native-style hardware back for NativePHP Android: the shell asks the app's JavaScript (appBack.handleSystemBack) so sheets close first, back walks the app hierarchy, and root screens minimize. Ships as a pre-compile hook that keeps MainActivity patched across regenerations.",
             "transport-options": {
                 "relative": true
             }
