@@ -2,8 +2,10 @@
      Trembling steps on the exact workout player circle. --}}
 @php
     // Same circle as the workout player, capped so the glow never crowds the
-    // lesson copy on small screens.
+    // lesson copy on small screens. The glow disc is tighter here (1.45x vs
+    // the player's 1.7x) so its pulse stays clear of the text above.
     $circleSize = min($circleSize, 185);
+    $glowSize = round($circleSize * 1.45);
     $r = ($circleSize - $trackWidth) / 2;
     $circ = 2 * M_PI * $r;
 @endphp
@@ -97,13 +99,13 @@
 
         <div class="relative mt-12 mb-6 grid shrink-0 place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
             @if ($glowEnabled)
-                <div class="contract-glow absolute left-1/2 top-1/2 rounded-full"
-                     style="width: {{ round($circleSize * 1.7) }}px; height: {{ round($circleSize * 1.7) }}px;"
+                <div class="contract-glow pointer-events-none absolute left-1/2 top-1/2 rounded-full"
+                     style="width: {{ $glowSize }}px; height: {{ $glowSize }}px;"
                      x-bind:style="{ opacity: glowOpacity, transform: 'translate(-50%, -50%) scale(' + glowScale + ')', transition: glowTransition }"></div>
             @endif
             <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
                  style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
-                <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="absolute -rotate-90">
+                <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="pointer-events-none absolute -rotate-90">
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="{{ $trackWidth }}"/>
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                             stroke-linecap="round" stroke-dasharray="{{ $circ }}"
@@ -127,8 +129,8 @@
 
         <div class="relative mt-12 mb-6 grid shrink-0 place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
             @if ($glowEnabled)
-                <div class="contract-glow absolute left-1/2 top-1/2 rounded-full"
-                     style="width: {{ round($circleSize * 1.7) }}px; height: {{ round($circleSize * 1.7) }}px;"
+                <div class="contract-glow pointer-events-none absolute left-1/2 top-1/2 rounded-full"
+                     style="width: {{ $glowSize }}px; height: {{ $glowSize }}px;"
                      x-bind:style="{ opacity: glowOpacity, transform: 'translate(-50%, -50%) scale(' + glowScale + ')', transition: glowTransition }"></div>
             @endif
             <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
