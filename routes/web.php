@@ -181,7 +181,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', Admin\Dashboard::class)->name('dashboard');
         Route::get('users', Admin\Users::class)->name('users');
         Route::get('subscriptions', Admin\Subscriptions::class)->name('subscriptions');
-        Route::get('knowledge', Admin\Knowledge::class)->name('knowledge');
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');
 

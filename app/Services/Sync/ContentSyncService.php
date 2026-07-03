@@ -2,17 +2,16 @@
 
 namespace App\Services\Sync;
 
-use App\Models\KnowledgeLesson;
 use App\Models\Page;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Pulls the small backend-managed catalogue into this device's local SQLite:
- * knowledge lessons (their videos stream online-only from the backend) and
- * legal page titles (their content is fetched live, never cached).
+ * Pulls the only backend-managed content left into this device's local
+ * SQLite: legal pages (their content doubles as the offline fallback copy;
+ * opening a page always fetches the live version first).
  *
- * Exercises, levels, onboarding and plans are hardcoded in the app
- * (App\Support catalogues) and are never synced.
+ * Exercises, levels, onboarding, plans and the basics tutorials are all
+ * hardcoded in the app (App\Support catalogues) and are never synced.
  */
 class ContentSyncService
 {
@@ -48,30 +47,15 @@ class ContentSyncService
                 return false;
             }
 
-            // Apply each domain independently: a failure in one must never
-            // roll back the other.
-            $domains = [
-                'knowledge' => fn () => $this->applyKnowledge($data['knowledge_lessons'] ?? []),
-                'pages'     => fn () => $this->applyPages($data['pages'] ?? []),
-            ];
-
-            $domainStatus = [];
-            foreach ($domains as $name => $apply) {
-                try {
-                    $apply();
-                    $domainStatus[$name] = 'ok';
-                } catch (\Throwable $e) {
-                    $domainStatus[$name] = $e->getMessage();
-                    Log::warning("Content sync [$name] failed: ".$e->getMessage());
-                }
+            try {
+                $this->applyPages($data['pages'] ?? []);
+                $this->report['ok'] = true;
+            } catch (\Throwable $e) {
+                $this->report['error'] = $e->getMessage();
+                Log::warning('Content sync [pages] failed: '.$e->getMessage());
             }
 
-            $this->report['ok'] = empty(array_filter($domainStatus, fn ($s) => $s !== 'ok'));
-            $this->report['domains'] = $domainStatus;
-            $this->report['counts'] = [
-                'knowledge' => count($data['knowledge_lessons'] ?? []),
-                'pages'     => count($data['pages'] ?? []),
-            ];
+            $this->report['counts'] = ['pages' => count($data['pages'] ?? [])];
 
             return true;
         } catch (\Throwable $e) {
@@ -79,30 +63,6 @@ class ContentSyncService
             Log::warning('Content sync pull failed: '.$e->getMessage());
 
             return false;
-        }
-    }
-
-    /** @param array<int, array<string, mixed>> $rows */
-    private function applyKnowledge(array $rows): void
-    {
-        $ids = array_filter(array_column($rows, 'id'));
-        KnowledgeLesson::whereNotIn('id', $ids)->update(['is_active' => false]);
-
-        foreach ($rows as $row) {
-            if (empty($row['id'])) {
-                continue;
-            }
-
-            KnowledgeLesson::updateOrCreate(['id' => $row['id']], [
-                'title'       => $row['title'] ?? '',
-                'description' => $row['description'] ?? null,
-                // The backend already resolved a streamable URL; store it directly
-                // in video_url so videoSrc() serves it without local storage.
-                'video_url'   => $row['video_src'] ?? null,
-                'video_path'  => null,
-                'sort_order'  => $row['sort_order'] ?? 0,
-                'is_active'   => true,
-            ]);
         }
     }
 

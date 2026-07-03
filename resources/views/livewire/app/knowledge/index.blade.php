@@ -42,9 +42,6 @@
                    class="mb-4 flex flex-1 items-center gap-3 rounded-2xl bg-surface p-4 {{ $locked ? 'opacity-50' : 'tap' }}">
                     <div class="min-w-0 flex-1">
                         <p class="font-bold leading-tight">{{ $lesson->title }}</p>
-                        @if ($lesson->description)
-                            <p class="mt-0.5 line-clamp-2 text-sm text-muted">{{ $lesson->description }}</p>
-                        @endif
                     </div>
                     @unless ($locked)
                         <span class="shrink-0 text-muted">
@@ -55,12 +52,6 @@
             </div>
         @empty
             <p class="px-2 py-10 text-center text-muted">No lessons yet.</p>
-            @if (!empty($syncStatus))
-                <div class="mt-4 rounded-xl border border-white/10 bg-surface p-3 text-left text-[11px] leading-relaxed text-muted">
-                    <p class="mb-2 font-bold text-content">Sync diagnostics</p>
-                    <pre class="whitespace-pre-wrap break-all">{{ json_encode($syncStatus, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
-                </div>
-            @endif
         @endforelse
     </div>
 </div>

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\KnowledgeLesson;
 use App\Models\Page;
 use App\Services\Sync\ContentSyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,14 +20,8 @@ class ContentSyncTest extends TestCase
         config(['app.sync_api_key' => $this->apiKey, 'app.url' => 'https://ke.downloadh.com']);
     }
 
-    public function test_content_returns_knowledge_and_page_list_only(): void
+    public function test_content_returns_pages_only(): void
     {
-        KnowledgeLesson::create([
-            'title' => 'Where are your pelvic floor muscles?',
-            'description' => 'Find them first.',
-            'video_path' => 'knowledge/videos/clip.mp4',
-            'is_active' => true, 'sort_order' => 0,
-        ]);
         // The catalogue migration seeds the default pages; pin known content.
         Page::updateOrCreate(
             ['slug' => 'privacy-policy'],
@@ -40,22 +33,18 @@ class ContentSyncTest extends TestCase
 
         $res->assertStatus(200);
 
-        // Knowledge lesson present with description + absolute video URL.
-        $res->assertJsonPath('knowledge_lessons.0.title', 'Where are your pelvic floor muscles?');
-        $res->assertJsonPath('knowledge_lessons.0.description', 'Find them first.');
-        $this->assertStringStartsWith('https://ke.downloadh.com/', $res->json('knowledge_lessons.0.video_src'));
-
         // Pages sync with content as the device's fallback copy; opening a
         // page still fetches the live version first.
         $res->assertJsonPath('pages.0.slug', 'privacy-policy');
         $res->assertJsonPath('pages.0.title', 'Privacy Policy');
         $res->assertJsonPath('pages.0.content', '<p>Policy body.</p>');
 
-        // The hardcoded catalogues never sync.
+        // Everything hardcoded in the app never syncs.
         $this->assertNull($res->json('exercises'));
         $this->assertNull($res->json('levels'));
         $this->assertNull($res->json('onboarding_slides'));
         $this->assertNull($res->json('plans'));
+        $this->assertNull($res->json('knowledge_lessons'));
     }
 
     public function test_page_endpoint_serves_live_content(): void
@@ -77,7 +66,7 @@ class ContentSyncTest extends TestCase
             ->assertStatus(404);
     }
 
-    public function test_device_pull_ingests_knowledge_and_page_titles(): void
+    public function test_device_pull_ingests_page_titles_and_content(): void
     {
         // Act like the device: a sync target whose host differs from the request.
         config(['app.content_sync_url' => 'https://ke.downloadh.com/api/v1/content']);
@@ -85,12 +74,9 @@ class ContentSyncTest extends TestCase
 
         Http::fake([
             'ke.downloadh.com/api/v1/content' => Http::response([
-                'knowledge_lessons' => [[
-                    'id' => 1, 'title' => 'Pelvic floor', 'description' => 'Intro',
-                    'video_src' => 'https://ke.downloadh.com/storage/k.mp4', 'sort_order' => 0,
-                ]],
                 'pages' => [[
-                    'id' => 1, 'slug' => 'privacy-policy', 'title' => 'Privacy Policy', 'sort_order' => 0,
+                    'id' => 1, 'slug' => 'privacy-policy', 'title' => 'Privacy Policy',
+                    'content' => '<p>Fresh policy.</p>', 'sort_order' => 0,
                 ]],
             ], 200),
         ]);
@@ -101,15 +87,26 @@ class ContentSyncTest extends TestCase
         $this->assertTrue($ok, 'pull should succeed: '.json_encode($svc->report));
         $this->assertTrue($svc->report['ok']);
 
-        $this->assertSame(1, KnowledgeLesson::count());
-        $lesson = KnowledgeLesson::first();
-        $this->assertSame('Pelvic floor', $lesson->title);
-        $this->assertSame('https://ke.downloadh.com/storage/k.mp4', $lesson->videoSrc());
-
-        // The page list mirrors locally (for the Settings links); content stays online-only.
         $page = Page::where('slug', 'privacy-policy')->first();
         $this->assertNotNull($page);
         $this->assertSame('Privacy Policy', $page->title);
+        $this->assertSame('<p>Fresh policy.</p>', $page->content);
         $this->assertTrue((bool) $page->is_published);
+    }
+
+    public function test_basics_lessons_are_seeded_and_sequential(): void
+    {
+        $lessons = \App\Models\KnowledgeLesson::where('is_active', true)->orderBy('sort_order')->get();
+
+        $this->assertCount(3, $lessons);
+        $this->assertSame(
+            ['Why Kegel training works', 'Find your pelvic floor', 'Your first exercise'],
+            $lessons->pluck('title')->all(),
+        );
+
+        // Every lesson maps to an interactive tutorial partial.
+        foreach (\App\Support\BasicsLessons::all() as $lesson) {
+            $this->assertTrue(view()->exists($lesson['view']), $lesson['view']);
+        }
     }
 }

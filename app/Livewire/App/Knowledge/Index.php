@@ -3,9 +3,6 @@
 namespace App\Livewire\App\Knowledge;
 
 use App\Models\KnowledgeLesson;
-use App\Services\Sync\BackendClient;
-use App\Services\Sync\ContentSyncService;
-use App\Services\SettingsService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -28,26 +25,6 @@ class Index extends Component
             ->orderBy('sort_order')
             ->get();
 
-        // Self-heal + self-report: if there is no content yet, pull it straight
-        // from the backend here (server-side, no JS / IndexedDB involved). If it
-        // is STILL empty afterwards, capture exactly why so the page can show it.
-        $syncStatus = null;
-        if ($lessons->isEmpty()) {
-            $content = app(ContentSyncService::class);
-            $content->pull();
-
-            $lessons = KnowledgeLesson::where('is_active', true)
-                ->orderBy('sort_order')
-                ->get();
-
-            if ($lessons->isEmpty() && app(SettingsService::class)->get('sync_debug', false)) {
-                $syncStatus = array_merge(
-                    BackendClient::diagnostics(),
-                    ['content_pull' => $content->report],
-                );
-            }
-        }
-
         // Sequential unlock: a lesson opens once the previous one is complete.
         $prevComplete = true;
         $rows = $lessons->map(function (KnowledgeLesson $lesson) use ($completedIds, &$prevComplete) {
@@ -67,7 +44,6 @@ class Index extends Component
             'rows' => $rows,
             'completedCount' => count($completedIds),
             'total' => $lessons->count(),
-            'syncStatus' => $syncStatus,
             'promptSubscribe' => $promptSubscribe,
         ]);
     }

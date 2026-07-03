@@ -36,14 +36,28 @@
         </div>
     </div>
 
-    {{-- CTA --}}
+    {{-- Navigation: arrows between slides, Get Started on the last one --}}
     <div class="flex items-center gap-3">
-        <button x-show="index > 0 && index < (slides.length - 1)"
+        <button x-show="index > 0" x-cloak
                 @click="index = Math.max(0, index - 1)"
-                class="h-14 rounded-2xl bg-surface px-5 text-content tap">Back</button>
-        <button @click="if (index >= slides.length - 1) { $wire.finish(); } else { index = Math.min(slides.length - 1, index + 1); }"
-                class="h-14 flex-1 rounded-2xl bg-accent text-base font-semibold tap text-white"
-                x-text="slides[index] ? (slides[index].cta_label || (index === slides.length - 1 ? 'Get Started' : 'Next')) : 'Next'">
+                class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-surface text-content tap"
+                aria-label="Back">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+
+        <div class="flex-1" x-show="index < slides.length - 1"></div>
+
+        <button x-show="index < slides.length - 1"
+                @click="index = Math.min(slides.length - 1, index + 1)"
+                class="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-accent text-white shadow-lg shadow-accent/25 tap"
+                aria-label="Next">
+            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+
+        <button x-show="index >= slides.length - 1" x-cloak
+                @click="$wire.finish()"
+                class="h-14 flex-1 rounded-2xl bg-accent text-base font-semibold text-white shadow-lg shadow-accent/25 tap"
+                x-text="slides[index] ? (slides[index].cta_label || 'Get Started') : 'Get Started'">
         </button>
     </div>
 

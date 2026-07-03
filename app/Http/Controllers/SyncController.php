@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercise;
-use App\Models\KnowledgeLesson;
 use App\Models\Level;
 use App\Models\Measurement;
 use App\Models\Page;
@@ -25,38 +24,12 @@ class SyncController extends Controller
     /**
      * GET /api/v1/content
      *
-     * Returns the small backend-managed catalogue: knowledge lessons (videos
-     * are online-only, streamed from this backend) and legal pages. Exercises,
-     * levels, onboarding and plans are hardcoded in the app and never sync.
+     * Returns the only backend-managed content left: legal pages. Exercises,
+     * levels, onboarding, plans and the basics tutorials are all hardcoded in
+     * the app and never sync.
      */
     public function content(): JsonResponse
     {
-        // Media paths are stored relative ("/storage/..."). Devices render these
-        // against their own local server, so we must hand back ABSOLUTE URLs
-        // pointing at this backend, or the device can't load the asset.
-        $abs = static function (?string $url): ?string {
-            if (! $url) {
-                return null;
-            }
-            if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
-                return $url;
-            }
-
-            return url($url);
-        };
-
-        $lessons = KnowledgeLesson::where('is_active', true)
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn (KnowledgeLesson $k) => [
-                'id'          => $k->id,
-                'title'       => $k->title,
-                'description' => $k->description,
-                'video_src'   => $abs($k->videoSrc()),
-                'sort_order'  => (int) $k->sort_order,
-                'updated_at'  => $k->updated_at?->toIso8601String(),
-            ]);
-
         // Content ships too so the device holds a current fallback copy;
         // opening a page still fetches the live version first.
         $pages = Page::where('is_published', true)
@@ -72,9 +45,8 @@ class SyncController extends Controller
             ]);
 
         return response()->json([
-            'knowledge_lessons' => $lessons,
-            'pages'             => $pages,
-            'synced_at'         => now()->toIso8601String(),
+            'pages'     => $pages,
+            'synced_at' => now()->toIso8601String(),
         ]);
     }
 

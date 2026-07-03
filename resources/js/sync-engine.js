@@ -1,16 +1,16 @@
 /**
  * Kegelee Sync Engine — two-way offline-first sync.
  *
- * Exercises, levels, onboarding and plans are hardcoded in the app (PHP
- * catalogues seeded into the device's SQLite), so the only synced content is
- * the knowledge lesson list. User progress (sessions, measurements,
- * reminders) queues in IndexedDB while offline and pushes when connectivity
- * returns.
+ * Exercises, levels, onboarding, plans and the basics tutorials are all
+ * hardcoded in the app (PHP catalogues seeded into the device's SQLite);
+ * the server-side content sync only refreshes legal pages. This engine's
+ * job is user progress: sessions and measurements queue in IndexedDB while
+ * offline and push when connectivity returns.
  *
  * Runs automatically:
  * - On app boot (sync if online).
  * - On `navigator.onLine` change (sync immediately when connectivity returns).
- * - Every 15 minutes while online (catch admin content changes).
+ * - Every 15 minutes while online.
  */
 
 import db from './offline-db.js';
@@ -91,7 +91,7 @@ async function authHeaders(key) {
 }
 
 // ---------------------------------------------------------------------------
-// PULL — fetch the knowledge lesson list and keep an offline copy of it.
+// PULL — note the last successful content check (pages sync server-side).
 // ---------------------------------------------------------------------------
 async function pullContent() {
     const base = apiBase();
@@ -108,13 +108,9 @@ async function pullContent() {
 
         const data = await res.json();
 
-        if (data.knowledge_lessons?.length) {
-            await db.putAll('knowledge_lessons', data.knowledge_lessons);
-        }
-
         await db.put('sync_meta', { key: 'last_pull', at: data.synced_at || new Date().toISOString() });
     } catch (e) {
-        // Network error — silently skip, data stays as-is.
+        // Network error — silently skip.
     }
 }
 

@@ -3,6 +3,7 @@
 namespace App\Livewire\App\Knowledge;
 
 use App\Models\KnowledgeLesson;
+use App\Support\BasicsLessons;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -57,7 +58,7 @@ class Show extends Component
         return in_array($previous->id, session('completed_lessons', []), true);
     }
 
-    /** Record completion (e.g. when the video ends) without leaving the screen. */
+    /** Record completion (when the tutorial's last step is reached). */
     public function markDone(): void
     {
         if (auth()->check()) {
@@ -85,7 +86,7 @@ class Show extends Component
 
         // Navigate by REPLACING the current history entry (window.location.replace
         // via the 'navigate-replace' handler) so finishing a lesson and pressing
-        // native Back does NOT drop back onto the just-watched video.
+        // native Back does NOT drop back onto the just-finished tutorial.
         if ($next) {
             $this->dispatch('navigate-replace', url: route('knowledge.show', ['lesson' => $next->id]));
             return;
@@ -102,12 +103,30 @@ class Show extends Component
         $this->dispatch('navigate-replace', url: route('knowledge.index'));
     }
 
-    public function render()
+    public function render(\App\Services\SettingsService $settings)
     {
         $hasNext = KnowledgeLesson::where('is_active', true)
             ->where('sort_order', '>', $this->lesson->sort_order)
             ->exists();
 
-        return view('livewire.app.knowledge.show', ['hasNext' => $hasNext]);
+        // The interactive tutorial partial for this lesson (hardcoded in code).
+        $basics = BasicsLessons::all()[$this->lesson->sort_order] ?? null;
+
+        // The Trembling try-out runs on the REAL exercise steps and the same
+        // circle settings as the workout player, so the tutorial looks and
+        // behaves exactly like a session.
+        $tremblingSteps = \App\Support\ExerciseCatalog::steps('trembling', 10.0);
+
+        return view('livewire.app.knowledge.show', [
+            'hasNext' => $hasNext,
+            'lessonView' => $basics['view'] ?? null,
+            'circleSize' => (int) $settings->get('circle_size'),
+            'trackWidth' => (int) $settings->get('circle_track_width'),
+            'glowEnabled' => (bool) $settings->get('circle_glow_enabled'),
+            'glowSpeed' => (float) $settings->get('circle_glow_speed', 0.45),
+            'timeScale' => (float) $settings->get('circle_time_scale', 0.7),
+            'tremblingSteps' => $tremblingSteps,
+            'tremblingTotal' => round(array_sum(array_column($tremblingSteps, 'seconds')), 1),
+        ]);
     }
 }

@@ -94,7 +94,7 @@ body {
     text-transform: uppercase;
     white-space: nowrap;
     color: var(--c-text);
-    opacity: 0.12;
+    opacity: 0.06;
     user-select: none;
 }
 
