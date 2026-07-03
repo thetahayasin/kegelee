@@ -64,16 +64,27 @@
     </div>
 
     {{-- Step 3: doing it right is everything --}}
-    <div x-show="step === 2" x-cloak class="flex flex-1 flex-col items-center justify-center text-center">
-        <div class="relative grid h-40 w-40 place-items-center rounded-full border-4 border-accent/50 bg-surface shadow-2xl">
-            <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_14%,transparent),transparent_70%)]"></div>
-            <svg viewBox="0 0 24 24" class="h-16 w-16 text-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" fill="color-mix(in srgb, var(--c-accent) 12%, transparent)" stroke="none"/>
-                <path d="M12 8v5M12 16.5h.01"/>
-            </svg>
+    <div x-show="step === 2" x-cloak class="flex flex-1 flex-col justify-center">
+        <h1 class="text-center text-2xl font-bold leading-tight">Doing it right is everything</h1>
+        <p class="mt-3 text-center text-base leading-relaxed text-muted">Squeeze the wrong muscles and you get nothing back.</p>
+
+        <div class="ls-card mt-6 overflow-hidden rounded-3xl border border-accent/30 bg-surface" style="animation-delay: 0.15s">
+            <div class="flex items-center gap-3 border-b border-white/10 bg-accent/10 px-5 py-3.5">
+                <svg viewBox="0 0 24 24" class="h-5 w-5 shrink-0 text-accent" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <p class="font-bold text-accent-soft">Worth two minutes of your time</p>
+            </div>
+            <div class="space-y-3 px-5 py-4">
+                <div class="flex items-center gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/15 text-xs font-bold text-accent">2</span>
+                    <p class="text-sm leading-relaxed text-muted">The next lesson shows you exactly where your muscles are.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/15 text-xs font-bold text-accent">3</span>
+                    <p class="text-sm leading-relaxed text-muted">Then you do your first real exercise, guided by the circle.</p>
+                </div>
+                <p class="pt-1 text-sm font-semibold leading-relaxed">Learn it once, and every minute you train actually counts.</p>
+            </div>
         </div>
-        <h1 class="mt-8 text-2xl font-bold leading-tight">Doing it right is everything</h1>
-        <p class="mt-3 max-w-xs leading-relaxed text-muted">Squeezing the wrong muscles brings no results. These two short lessons show you exactly what to do, so every minute you train actually counts.</p>
     </div>
 
     {{-- Step navigation: the continue button takes the forward arrow's place --}}

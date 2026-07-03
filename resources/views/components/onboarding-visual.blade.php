@@ -14,12 +14,16 @@
             0% { transform: scale(0.78); opacity: 0.55; }
             100% { transform: scale(1.12); opacity: 0; }
         }
-        /* Scene 0: the heart fills from the bottom and holds - gains that stay. */
-        @keyframes ob-heart-fill {
-            0% { clip-path: inset(92% 0 0 0); }
-            55% { clip-path: inset(10% 0 0 0); }
-            88% { clip-path: inset(10% 0 0 0); }
-            100% { clip-path: inset(92% 0 0 0); }
+        /* Scene 0: liquid rises inside the heart and holds - gains that stay. */
+        @keyframes ob-liquid-rise {
+            0% { transform: translateY(20px); }
+            55% { transform: translateY(2px); }
+            88% { transform: translateY(2px); }
+            100% { transform: translateY(20px); }
+        }
+        @keyframes ob-liquid-wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-6px); }
         }
         @keyframes ob-heart-beat {
             0%, 40%, 100% { transform: scale(1); }
@@ -31,11 +35,7 @@
             0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
             50% { opacity: 1; transform: scale(1) rotate(90deg); }
         }
-        /* Scene 1: one smooth sweep of the stopwatch hand per lap. */
-        @keyframes ob-hand-sweep {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Scene 1: one smooth sweep of the stopwatch dial per lap. */
         @keyframes ob-dial-sweep {
             0% { stroke-dashoffset: 264; }
             100% { stroke-dashoffset: 0; }
@@ -86,16 +86,23 @@
         <div class="absolute inset-2 rounded-full border-2 border-accent/12 animate-[ob-ring-out_3.2s_ease-out_infinite_1.6s]"></div>
 
         <div class="absolute inset-6 grid place-items-center rounded-full border-[5px] border-accent/60 bg-surface shadow-2xl">
-            <div class="relative h-[54%] w-[54%] animate-[ob-heart-beat_2.6s_ease-in-out_infinite]">
-                {{-- Dim heart underneath, solid heart fills over it and holds --}}
-                <svg viewBox="0 0 24 24" class="absolute inset-0 h-full w-full text-accent/20" fill="currentColor">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <div class="relative h-[54%] w-[54%] animate-[ob-heart-beat_2.6s_ease-in-out_infinite] drop-shadow-[0_0_18px_color-mix(in_srgb,var(--c-accent)_55%,transparent)]">
+                {{-- Liquid strength rising inside the heart, with a live wave surface --}}
+                <svg viewBox="0 0 24 24" class="h-full w-full">
+                    <defs>
+                        <clipPath id="ob-heart-clip">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </clipPath>
+                    </defs>
+                    <path fill="currentColor" class="text-accent/20"
+                          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    <g clip-path="url(#ob-heart-clip)">
+                        <g style="animation: ob-liquid-rise 5.5s ease-in-out infinite;">
+                            <path fill="currentColor" class="text-accent" style="animation: ob-liquid-wave 1.6s linear infinite;"
+                                  d="M-14 3 q3 -1.6 6 0 t6 0 t6 0 t6 0 t6 0 t6 0 V30 H-14 Z"/>
+                        </g>
+                    </g>
                 </svg>
-                <div class="absolute inset-0 animate-[ob-heart-fill_5.5s_ease-in-out_infinite]">
-                    <svg viewBox="0 0 24 24" class="h-full w-full text-accent drop-shadow-[0_0_18px_color-mix(in_srgb,var(--c-accent)_65%,transparent)]" fill="currentColor">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                </div>
             </div>
 
             <svg viewBox="0 0 24 24" class="absolute right-[16%] top-[18%] h-[9%] w-[9%] text-accent animate-[ob-twinkle_2.8s_ease-in-out_infinite]" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>
@@ -132,16 +139,10 @@
                         class="animate-[ob-dial-sweep_3.2s_linear_infinite]"/>
             </svg>
 
-            {{-- Hand --}}
-            <div class="absolute inset-0 grid place-items-center">
-                <div class="relative h-[5%] w-[5%] rounded-full bg-accent shadow-[0_0_10px_color-mix(in_srgb,var(--c-accent)_70%,transparent)]">
-                    <div class="absolute bottom-1/2 left-1/2 h-[380%] w-[28%] origin-bottom -translate-x-1/2 rounded-full bg-accent animate-[ob-hand-sweep_3.2s_linear_infinite]"></div>
-                </div>
-            </div>
-
-            {{-- Time readout --}}
-            <div class="z-10 mt-[42%] rounded-full border border-white/10 bg-black/50 px-5 py-1.5">
-                <span class="font-mono text-xl font-bold tracking-widest text-accent">1<span class="animate-[ob-colon-blink_1s_step-end_infinite]">:</span>00</span>
+            {{-- Big, unobstructed time readout in the centre --}}
+            <div class="z-10 text-center">
+                <p class="font-mono text-5xl font-bold tracking-wider text-accent drop-shadow-[0_0_14px_color-mix(in_srgb,var(--c-accent)_45%,transparent)]">1<span class="animate-[ob-colon-blink_1s_step-end_infinite]">:</span>00</p>
+                <p class="mt-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-muted">per day</p>
             </div>
         </div>
 

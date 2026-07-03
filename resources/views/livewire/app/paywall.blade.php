@@ -1,12 +1,19 @@
 <div class="min-h-[100dvh] pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]">
-    @php
-        $subscribed = auth()->user()?->isSubscribed();
-        $closeUrl = $subscribed ? route('home') : (auth()->check() ? route('app.settings') : route('knowledge.index'));
-    @endphp
+    @php($subscribed = auth()->user()?->isSubscribed())
     <header class="relative flex items-center justify-center px-5 py-4">
-        <a href="{{ $closeUrl }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
-            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </a>
+        @if ($subscribed || ! auth()->check())
+            <a href="{{ $subscribed ? route('home') : route('knowledge.index') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </a>
+        @else
+            {{-- Signed in without a subscription: the paywall is the whole app,
+                 so the only way out is signing out. --}}
+            <button wire:click="logout" @click="window.beginLogout && window.beginLogout()"
+                    wire:loading.attr="disabled" wire:target="logout"
+                    class="absolute left-4 rounded-full px-3 py-1.5 text-sm font-semibold text-muted tap">
+                Log out
+            </button>
+        @endif
         <h1 class="text-xl font-bold">{{ $subscribed ? 'Manage Plan' : 'Go Premium' }}</h1>
     </header>
 

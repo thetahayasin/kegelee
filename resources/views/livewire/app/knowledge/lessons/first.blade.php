@@ -1,6 +1,9 @@
 {{-- Lesson 3: Your first exercise. The demo and the try-out run the REAL
      Trembling steps on the exact workout player circle. --}}
 @php
+    // Same circle as the workout player, capped so the glow never crowds the
+    // lesson copy on small screens.
+    $circleSize = min($circleSize, 185);
     $r = ($circleSize - $trackWidth) / 2;
     $circ = 2 * M_PI * $r;
 @endphp
@@ -89,10 +92,10 @@
 
     {{-- Step 2: watch Trembling run on the real player circle --}}
     <div x-show="step === 1" x-cloak class="flex flex-1 flex-col items-center justify-center text-center">
-        <h1 class="text-2xl font-bold leading-tight">This is Trembling</h1>
-        <p class="mt-2 max-w-xs text-sm leading-relaxed text-muted">Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.</p>
+        <h1 class="shrink-0 text-2xl font-bold leading-tight">This is Trembling</h1>
+        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted">Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.</p>
 
-        <div class="relative mt-6 grid place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
+        <div class="relative mt-12 mb-6 grid shrink-0 place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
             @if ($glowEnabled)
                 <div class="contract-glow absolute left-1/2 top-1/2 rounded-full"
                      style="width: {{ round($circleSize * 1.7) }}px; height: {{ round($circleSize * 1.7) }}px;"
@@ -117,12 +120,12 @@
 
     {{-- Step 3: guided try on the same circle --}}
     <div x-show="step === 2" x-cloak class="flex flex-1 flex-col items-center justify-center text-center">
-        <h1 class="text-2xl font-bold leading-tight" x-text="tried ? 'Nice work!' : 'Now you try'"></h1>
-        <p class="mt-2 max-w-xs text-sm leading-relaxed text-muted" x-show="!tried && !playing">Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?</p>
-        <p class="mt-2 max-w-xs text-sm leading-relaxed text-muted" x-show="playing" x-cloak>Follow the circle. Squeeze... and relax.</p>
-        <p class="mt-2 max-w-xs text-sm leading-relaxed text-muted" x-show="tried" x-cloak>That was a real exercise. Every session works exactly like this, one circle at a time.</p>
+        <h1 class="shrink-0 text-2xl font-bold leading-tight" x-text="tried ? 'Nice work!' : 'Now you try'"></h1>
+        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted" x-show="!tried && !playing">Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?</p>
+        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted" x-show="playing" x-cloak>Follow the circle. Squeeze... and relax.</p>
+        <p class="mt-2 max-w-xs shrink-0 text-base leading-relaxed text-muted" x-show="tried" x-cloak>That was a real exercise. Every session works exactly like this, one circle at a time.</p>
 
-        <div class="relative mt-6 grid place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
+        <div class="relative mt-12 mb-6 grid shrink-0 place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
             @if ($glowEnabled)
                 <div class="contract-glow absolute left-1/2 top-1/2 rounded-full"
                      style="width: {{ round($circleSize * 1.7) }}px; height: {{ round($circleSize * 1.7) }}px;"

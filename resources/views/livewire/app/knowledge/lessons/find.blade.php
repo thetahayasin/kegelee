@@ -28,6 +28,11 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+        @keyframes ls-rule-in {
+            0% { opacity: 0; transform: translateY(14px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .ls-rule { opacity: 0; animation: ls-rule-in 0.5s ease-out forwards; }
     </style>
 
     {{-- Step dots --}}
@@ -49,17 +54,29 @@
         <p class="mt-3 max-w-xs leading-relaxed text-muted">Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor. That squeeze is exactly the move you will train.</p>
     </div>
 
-    {{-- Step 2: one time only + extra cues --}}
-    <div x-show="step === 1" x-cloak class="flex flex-1 flex-col items-center justify-center text-center">
-        <div class="relative grid h-40 w-40 place-items-center rounded-full border-4 border-accent/50 bg-surface shadow-2xl">
-            <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_14%,transparent),transparent_70%)]"></div>
-            <svg viewBox="0 0 24 24" class="h-16 w-16 text-accent" fill="currentColor">
-                <path d="M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-7h-2v5h2V9z"/>
-            </svg>
+    {{-- Step 2: one time only + extra cues, as do/dont cards --}}
+    <div x-show="step === 1" x-cloak class="flex flex-1 flex-col justify-center">
+        <h1 class="text-center text-2xl font-bold leading-tight">Two quick rules</h1>
+        <div class="mt-6 space-y-3">
+            <div class="ls-rule flex items-start gap-4 rounded-2xl border border-white/10 bg-surface p-5" style="animation-delay: 0.1s">
+                <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-red-500/15">
+                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </div>
+                <div>
+                    <p class="font-bold">Only do the pee test once</p>
+                    <p class="mt-1 text-sm leading-relaxed text-muted">It is just a way to find the muscles, not an exercise. Stopping your pee often is not good for your bladder.</p>
+                </div>
+            </div>
+            <div class="ls-rule flex items-start gap-4 rounded-2xl border border-white/10 bg-surface p-5" style="animation-delay: 0.35s">
+                <div class="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-success/15">
+                    <svg viewBox="0 0 24 24" class="h-6 w-6 text-success" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <p class="font-bold">Squeeze only those muscles</p>
+                    <p class="mt-1 text-sm leading-relaxed text-muted">Another cue: squeeze as if holding back gas. Your belly, legs and buttocks stay completely relaxed.</p>
+                </div>
+            </div>
         </div>
-        <h1 class="mt-8 text-2xl font-bold leading-tight">Only do that once</h1>
-        <p class="mt-3 max-w-xs leading-relaxed text-muted">Stopping your pee is just a way to find the muscles, not an exercise. Doing it often is not good for your bladder.</p>
-        <p class="mt-3 max-w-xs leading-relaxed text-muted">Another cue: squeeze as if holding back gas. Your belly, legs and buttocks stay completely relaxed.</p>
     </div>
 
     {{-- Step 3: try it - press and hold --}}

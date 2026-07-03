@@ -32,7 +32,7 @@
         {{-- Copy --}}
         <div class="space-y-3 pb-6 text-center" x-show="slides[index]">
             <h1 class="text-3xl font-bold leading-tight text-white" x-text="slides[index] ? slides[index].title : ''"></h1>
-            <p class="leading-relaxed text-muted text-sm" x-text="slides[index] ? slides[index].body : ''"></p>
+            <p class="text-lg leading-relaxed text-muted" x-text="slides[index] ? slides[index].body : ''"></p>
         </div>
     </div>
 

@@ -16,6 +16,13 @@ class Show extends Component
 
     public function mount()
     {
+        // Signed-in users must subscribe before touching anything, including
+        // the basics (guests may browse them - that is the sales funnel).
+        $user = auth()->user();
+        if ($user && ! $user->is_admin && ! $user->isSubscribed()) {
+            return $this->redirectRoute('paywall', navigate: true);
+        }
+
         // Block deep-linking into a still-locked lesson.
         if (! $this->isUnlocked()) {
             return $this->redirectRoute('knowledge.index', navigate: true);
@@ -73,6 +80,12 @@ class Show extends Component
             }
         }
         $this->done = true;
+
+        // CRITICAL: no re-render. A morph here re-initialises the tutorial's
+        // Alpine state mid-interaction (the step jumps back and the finished
+        // controls vanish). The page's own Alpine state already shows the
+        // continue button.
+        $this->skipRender();
     }
 
     public function complete()

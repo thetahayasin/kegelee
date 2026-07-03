@@ -9,6 +9,16 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Index extends Component
 {
+    public function mount()
+    {
+        // Signed-in users must subscribe before touching anything, including
+        // the basics (guests may browse them - that is the sales funnel).
+        $user = auth()->user();
+        if ($user && ! $user->is_admin && ! $user->isSubscribed()) {
+            return $this->redirectRoute('paywall', navigate: true);
+        }
+    }
+
     public function render()
     {
         $user = auth()->user();

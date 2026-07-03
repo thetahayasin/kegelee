@@ -15,26 +15,26 @@ final class OnboardingSlides
         return [
             [
                 'id' => 1,
-                'title' => 'Stronger, the natural way',
-                'body' => 'Kegel exercises train your pelvic floor like any workout trains a muscle. No pills, no side effects. Just real strength that lasts.',
+                'title' => 'Get stronger, naturally',
+                'body' => 'You train your pelvic floor like any other muscle. No pills, no side effects. You put in a few minutes, you keep the strength.',
                 'cta_label' => 'Next',
             ],
             [
                 'id' => 2,
-                'title' => 'Only minutes a day',
-                'body' => 'Sessions start at just one minute. Do them anywhere, anytime. Nobody will even notice.',
+                'title' => 'You only need a minute',
+                'body' => 'Your first sessions take one minute. Do them on the couch, at your desk, anywhere. Nobody will ever know.',
                 'cta_label' => 'Next',
             ],
             [
                 'id' => 3,
-                'title' => 'Watch yourself improve',
-                'body' => 'Finish your daily sessions, grow your streak, and unlock new exercises as you get stronger week after week.',
+                'title' => 'Watch yourself get stronger',
+                'body' => 'You finish your sessions, your streak grows, and new exercises unlock as you improve. You will feel the difference week after week.',
                 'cta_label' => 'Next',
             ],
             [
                 'id' => 4,
-                'title' => 'Build the habit',
-                'body' => 'Set reminders that fit your day. A little effort every day brings lasting change.',
+                'title' => 'Make it your habit',
+                'body' => 'Set reminders that fit your day. A few minutes daily, and you get results that last.',
                 'cta_label' => 'Get Started',
             ],
         ];

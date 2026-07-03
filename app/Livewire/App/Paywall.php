@@ -209,6 +209,19 @@ class Paywall extends Component
         $this->redirectRoute('home', navigate: true);
     }
 
+    /**
+     * The paywall is the only page an unsubscribed user can reach, so it
+     * carries the sign-out escape hatch.
+     */
+    public function logout()
+    {
+        \Illuminate\Support\Facades\Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect('/welcome?auth_prompt=1&auth_mode=login');
+    }
+
     #[On('native:InAppPurchase.purchaseFailed')]
     public function onPurchaseFailed(?string $error = null): void
     {
