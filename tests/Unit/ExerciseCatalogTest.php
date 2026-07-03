@@ -60,7 +60,7 @@ class ExerciseCatalogTest extends TestCase
 
         $steps = ExerciseCatalog::steps('clamp', 27.0); // 4 whole cycles
         $this->assertEqualsWithDelta(24.0, array_sum(array_column($steps, 'seconds')), 0.01);
-        $this->assertSame(['Contract & hold', 'Relax'], array_slice(array_column($steps, 'label'), 0, 2));
+        $this->assertSame(['Contract slowly', 'Relax slowly'], array_slice(array_column($steps, 'label'), 0, 2));
 
         // Shorter than one cycle still plays one full cycle.
         $this->assertEqualsWithDelta(6.0, array_sum(array_column(ExerciseCatalog::steps('clamp', 3.0), 'seconds')), 0.01);

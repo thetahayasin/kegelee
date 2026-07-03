@@ -162,7 +162,7 @@ final class ExerciseCatalog
                 'summary' => 'Squeeze up slowly, let go at once',
                 'description' => 'A slow, focused squeeze of the front pelvic floor with a quick clean release.',
                 'how_to' => 'Tighten slowly over 3 seconds as the circle fills. When it empties, let go all at once. Then start the next slow squeeze.',
-                'pattern' => [$s(3, 0, 1, 'Contract & hold'), $hold(1, 0, 'Release')],
+                'pattern' => [$s(3, 0, 1, 'Contract slowly'), $hold(1, 0, 'Release')],
             ],
             [
                 // Front Clamp reversed: squeeze up instantly, then straight
@@ -173,7 +173,7 @@ final class ExerciseCatalog
                 'summary' => 'Squeeze at once, release slowly',
                 'description' => 'A quick squeeze followed by a slow, controlled letting go. Great for control.',
                 'how_to' => 'Squeeze at once, then immediately start releasing as slowly as you can, following the circle down. The slow letting go is the exercise.',
-                'pattern' => [$s(0.3, 0, 1, 'Clamp'), $s(3, 1, 0, 'Release slowly')],
+                'pattern' => [$s(0.3, 0, 1, 'Contract'), $s(3, 1, 0, 'Release slowly')],
             ],
             [
                 // The fastest flicks: 0.3s on, 0.3s off.
@@ -203,7 +203,7 @@ final class ExerciseCatalog
                 'summary' => 'Slow squeeze up, slow release',
                 'description' => 'A firm squeeze built up slowly and released just as slowly.',
                 'how_to' => 'Tighten slowly over 3 seconds as the circle fills, then release just as slowly as it empties. Keep the movement smooth in both directions.',
-                'pattern' => [$s(3, 0, 1, 'Contract & hold'), $s(3, 1, 0, 'Relax')],
+                'pattern' => [$s(3, 0, 1, 'Contract slowly'), $s(3, 1, 0, 'Relax slowly')],
             ],
             [
                 // A small quick flick, a smooth relax down, then a 5 second hold.
@@ -233,7 +233,7 @@ final class ExerciseCatalog
                 'summary' => '2 seconds up, 2 seconds down',
                 'description' => 'Wave-like squeezes that build and release tension continuously.',
                 'how_to' => 'Tighten slowly for two seconds, then release just as slowly, like a wave rising and falling. Keep it smooth and continuous.',
-                'pattern' => [$s(2, 0, 1, 'Contract & hold'), $s(2, 1, 0, 'Relax')],
+                'pattern' => [$s(2, 0, 1, 'Contract slowly'), $s(2, 1, 0, 'Relax slowly')],
             ],
             [
                 // Fast half-second pulses, in and out.
@@ -253,7 +253,7 @@ final class ExerciseCatalog
                 'summary' => '3s build, 2s peak hold, 3s relax',
                 'description' => 'Build the squeeze to a strong peak, hold it, then let go slowly.',
                 'how_to' => 'Tighten gradually over three seconds, getting stronger as the circle fills. Hold your strongest squeeze for two seconds, then release slowly. Squeeze harder, never push down or strain.',
-                'pattern' => [$s(3, 0, 1, 'Build'), $hold(2, 1, 'Peak hold'), $s(3, 1, 0, 'Relax')],
+                'pattern' => [$s(3, 0, 1, 'Contract slowly'), $hold(2, 1, 'Hold'), $s(3, 1, 0, 'Relax slowly')],
             ],
             [
                 // A 4-step climb: 25%, 50%, 75%, 100%, about 1s each, then relax.
@@ -284,7 +284,7 @@ final class ExerciseCatalog
                 'summary' => '4-step descent from the top',
                 'description' => 'Squeeze to the top, then come down one step at a time under full control.',
                 'how_to' => 'Squeeze to your strongest, then relax a little at a time, pausing about one second at each level on the way down. The controlled descent is the exercise.',
-                'pattern' => [$hold(1, 1, 'Top'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
+                'pattern' => [$hold(1, 1, 'Contract'), $hold(1, 0.75, 'Step 3'), $hold(1, 0.5, 'Step 2'), $hold(1, 0.25, 'Step 1'), $s(1, 0.25, 0, 'Relax')],
             ],
             [
                 // 1s squeeze up, then an extended 10s hold.
