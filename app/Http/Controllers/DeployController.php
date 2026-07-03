@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 
 /**
- * Web-based deploy tasks for hosts WITHOUT shell access: runs migrations,
- * ensures the public storage link, and rebuilds the production caches.
+ * Web-based deploy tasks for hosts WITHOUT shell access: runs migrations
+ * and rebuilds the production caches. Public uploads need no storage
+ * symlink (the public disk writes straight into the webroot), so this is
+ * everything a deploy requires.
  *
- * Guarded by the SYNC_API_KEY (same long random secret the app uses), plus
- * a throttle. Hit it after every file upload:
+ * Guarded by the SYNC_API_KEY (the same long random secret the app uses),
+ * plus a throttle. Hit it once after every file upload:
  *
  *   https://kegelee.com/deploy?key=YOUR_SYNC_API_KEY
  */
@@ -33,19 +35,12 @@ class DeployController extends Controller
         Artisan::call('migrate', ['--force' => true]);
         $result['migrate'] = trim(Artisan::output()) ?: 'nothing to migrate';
 
-        // storage:link without SSH - plain PHP symlink().
-        $link = public_path('storage');
-        $target = storage_path('app/public');
-        if (is_link($link) || file_exists($link)) {
-            $result['storage_link'] = 'exists';
-        } else {
-            try {
-                symlink($target, $link);
-                $result['storage_link'] = 'created';
-            } catch (\Throwable $e) {
-                $result['storage_link'] = 'failed: '.$e->getMessage();
-            }
+        // Make sure the public uploads folder exists in the webroot.
+        $uploads = public_path('storage');
+        if (! is_dir($uploads)) {
+            @mkdir($uploads, 0755, true);
         }
+        $result['uploads_dir'] = is_dir($uploads) ? 'ok' : 'missing';
 
         foreach (['config:cache', 'route:cache', 'view:cache', 'event:cache'] as $command) {
             try {

@@ -58,8 +58,13 @@ $env = $env -replace '^APP_KEY=.*', 'APP_KEY='
 
 Write-Host '==> composer install --no-dev (this takes a minute)' -ForegroundColor Cyan
 Push-Location $stage
+# Copy the local path packages (taha/*) into vendor instead of symlinking -
+# symlinks break the moment the folder moves or gets zipped.
+$env:COMPOSER_MIRROR_PATH_REPOS = '1'
 composer install --no-dev --optimize-autoloader --no-interaction --quiet
-if ($LASTEXITCODE -ne 0) { Pop-Location; throw 'composer install failed' }
+$composerExit = $LASTEXITCODE
+Remove-Item Env:\COMPOSER_MIRROR_PATH_REPOS
+if ($composerExit -ne 0) { Pop-Location; throw 'composer install failed' }
 
 Write-Host '==> Generating APP_KEY' -ForegroundColor Cyan
 php artisan key:generate --force | Out-Null
@@ -84,6 +89,9 @@ Pop-Location
 Write-Host '==> Splitting webroot (public_html) from the app' -ForegroundColor Cyan
 Move-Item (Join-Path $stage 'public') $webDir
 Move-Item $stage $appDir
+
+# Public uploads folder (the public disk writes here; no symlink needed).
+New-Item -ItemType Directory -Force (Join-Path $webDir 'storage') | Out-Null
 
 # index.php wired to the app folder next to public_html, with the public
 # path bound to the webroot so storage links and Vite resolve correctly.
@@ -130,8 +138,8 @@ Upload steps
    You get: ~/kegelee and ~/public_html (replace the existing public_html
    contents with the extracted one).
 2. Make sure the domain uses PHP 8.3.
-3. Open the Deploy URL above once - it runs migrations, creates the
-   storage link and builds the production caches.
+3. Open the Deploy URL above once - it runs migrations and builds the
+   production caches.
 4. Log into https://kegelee.com/admin/login and change the admin password.
 
 Future updates: re-run this script, upload the changed files (or the whole
