@@ -1,14 +1,15 @@
 <?php
 
+use App\Http\Controllers\AdminMaintenanceController;
+use App\Http\Controllers\DeviceSyncController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GooglePlayWebhookController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ReminderIcsController;
+use App\Http\Controllers\TimezoneController;
 use App\Livewire\Admin;
 use App\Livewire\App;
 use App\Livewire\Auth;
-use App\Models\User;
-use App\Services\SettingsService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,44 +29,8 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 | the next navigation. No-op on the backend (CONTENT_SYNC_URL empty).
 |--------------------------------------------------------------------------
 */
-Route::post('/sync/run', function (
-    \App\Services\Sync\ContentSyncService $content,
-    \App\Services\Sync\UserSyncService $userSync,
-) {
-    $diag = \App\Services\Sync\BackendClient::diagnostics();
-
-    if (! \App\Services\Sync\BackendClient::isClient()) {
-        return response()->json(['ok' => false, 'reason' => 'not_a_client', 'diagnostics' => $diag]);
-    }
-
-    $changed = $content->pull();
-
-    if ($user = auth()->user()) {
-        $userSync->push($user);
-        $userSync->pull($user);
-    }
-
-    return response()->json([
-        'ok'        => $content->report['ok'] ?? false,
-        'changed'   => $changed,
-        'content'   => $content->report,
-        'diagnostics' => $diag,
-    ]);
-})->name('sync.run');
-
-// Plain-GET diagnostic: open this in the device to see exactly why sync is or
-// isn't working (host detection, HTTP status, counts). Safe to leave in.
-Route::get('/sync/status', function (\App\Services\Sync\ContentSyncService $content) {
-    $diag = \App\Services\Sync\BackendClient::diagnostics();
-    $content->pull();
-
-    return response()->json([
-        'diagnostics'           => $diag,
-        'content_pull'          => $content->report,
-        'local_knowledge_count' => \App\Models\KnowledgeLesson::count(),
-        'local_exercise_count'  => \App\Models\Exercise::count(),
-    ], 200, [], JSON_PRETTY_PRINT);
-})->name('sync.status');
+Route::post('/sync/run', [DeviceSyncController::class, 'run'])->name('sync.run');
+Route::get('/sync/status', [DeviceSyncController::class, 'status'])->name('sync.status');
 
 /*
 |--------------------------------------------------------------------------
@@ -73,20 +38,7 @@ Route::get('/sync/status', function (\App\Services\Sync\ContentSyncService $cont
 | Authenticated users are bounced straight to the app.
 |--------------------------------------------------------------------------
 */
-Route::get('/', function (SettingsService $settings) {
-    // When a public marketing homepage is enabled, always show it —
-    // authenticated users navigate to the app via the "Open App" link.
-    if ($settings->get('homepage_enabled', true)) {
-        return view('landing');
-    }
-
-    // Homepage disabled (native-app / no-marketing mode).
-    if (auth()->check() && auth()->user()->onboarded_at) {
-        return redirect()->route('home');
-    }
-
-    return redirect()->route('onboarding');
-})->name('landing');
+Route::get('/', LandingController::class)->name('landing');
 
 /*
 |--------------------------------------------------------------------------
@@ -126,20 +78,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'app.enabled'])->group(function () {
     // Stores the device timezone (captured client-side on first load) so day
     // boundaries follow the user's local day.
-    Route::post('/timezone', function (\Illuminate\Http\Request $request, \App\Services\Sync\UserSyncService $userSync) {
-        $tz = (string) $request->input('timezone');
-        if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true)) {
-            $user = $request->user();
-            if ($user->timezone !== $tz) {
-                $user->update(['timezone' => $tz]);
-                // On a device, propagate the new timezone up to the backend now.
-                if (\App\Services\Sync\BackendClient::isClient()) {
-                    $userSync->push($user);
-                }
-            }
-        }
-        return response()->noContent();
-    })->name('timezone.set');
+    Route::post('/timezone', TimezoneController::class)->name('timezone.set');
 
     // The ONLY page reachable without an active subscription is the paywall:
     // a signed-up user subscribes (or signs out) before touching anything else.
@@ -184,21 +123,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');
 
-        Route::post('reset-progress', function () {
-            $userIds = User::where('is_admin', false)->pluck('id');
-            DB::table('training_days')->whereIn('user_id', $userIds)->delete();
-            DB::table('workout_sessions')->whereIn('user_id', $userIds)->delete();
-            DB::table('measurements')->whereIn('user_id', $userIds)->delete();
-            DB::table('knowledge_lesson_user')->whereIn('user_id', $userIds)->delete();
-            DB::table('reminders')->whereIn('user_id', $userIds)->delete();
-            User::whereIn('id', $userIds)->update(['onboarded_at' => null, 'level_started_days' => 0]);
-
-            return back()->with('status', 'All app progress has been reset.');
-        })->name('reset-progress');
-
-        Route::get('logout', function () {
-            auth()->logout();
-            return redirect()->route('admin.login');
-        })->name('logout');
+        Route::post('reset-progress', [AdminMaintenanceController::class, 'resetProgress'])->name('reset-progress');
+        Route::get('logout', [AdminMaintenanceController::class, 'logout'])->name('logout');
     });
 });

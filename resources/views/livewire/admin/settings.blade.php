@@ -1,8 +1,3 @@
-@php
-    $colorField = function ($key, $label) {
-        return [$key, $label];
-    };
-@endphp
 <div x-data="{ tab: 'branding' }">
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">Settings</h1>
@@ -11,7 +6,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'circle' => 'Circle UI', 'progression' => 'Progression', 'sync' => 'Offline sync', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'progression' => 'Progression', 'sync' => 'Offline sync', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -25,8 +20,9 @@
                 <input wire:model="values.app_name" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
             </div>
             <div>
-                <label class="mb-1 block text-sm text-muted">Tagline</label>
-                <input wire:model="values.app_tagline" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                <label class="mb-1 block text-sm text-muted">Email accent colour</label>
+                <input type="color" wire:model="values.color_accent" class="h-11 w-24 rounded-xl border border-white/10 bg-surface-2 px-1">
+                <p class="mt-1 text-xs text-muted">Used in the subscription emails. The app's own colours are built in.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
@@ -53,62 +49,12 @@
                     <input type="file" wire:model="faviconUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                     @error('faviconUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
-                <div>
-                    <label class="mb-1 block text-sm text-muted">Training page image</label>
-                    @if ($homeImageUrl)
-                        <div class="mb-2 flex items-center gap-3">
-                            <img src="{{ $homeImageUrl }}" class="h-12 rounded bg-surface-2 object-contain">
-                            <button type="button" wire:click="removeImage('home_hero_image')" wire:confirm="Remove the training page image?"
-                                    class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
-                        </div>
-                    @endif
-                    <input type="file" wire:model="homeImageUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
-                    @error('homeImageUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
-                </div>
-            </div>
-        </div>
-
-        {{-- CIRCLE UI --}}
-        <div x-show="tab === 'circle'" class="grid gap-4 rounded-2xl bg-surface p-5 md:grid-cols-2">
-            <div>
-                <label class="mb-1 block text-sm text-muted">Circle size (px)</label>
-                <input type="number" wire:model="values.circle_size" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-            </div>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Track width (px)</label>
-                <input type="number" wire:model="values.circle_track_width" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-            </div>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Arc animation smoothness (seconds)</label>
-                <input type="number" step="0.01" min="0.05" max="0.5" wire:model="values.circle_animation_speed" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">How tightly the arc tracks the count (0.12 = recommended). Keep small — this is not the tempo; use Playback speed for that.</p>
-            </div>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Counter speed</label>
-                <input type="number" step="0.05" min="0.3" max="1.5" wire:model="values.circle_time_scale" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">How fast the countdown timer ticks (1 = real time, 0.7 = each real second counts 0.7s, making exercises last longer).</p>
-            </div>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Glow pulse speed (seconds)</label>
-                <input type="number" step="0.05" min="0.1" max="2" wire:model="values.circle_glow_speed" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">How fast the red circle fades in and out (0.1 = snappy, 2 = slow)</p>
-            </div>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Start phase</label>
-                <select wire:model="values.circle_start_phase" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                    <option value="contract">Contract first</option>
-                    <option value="relax">Relax first</option>
-                </select>
-            </div>
-            <div class="space-y-3 pt-2">
-                <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.circle_glow_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Contraction glow</span></label>
-                <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.haptics_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Haptics</span></label>
-                <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.sound_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Sound cues</span></label>
             </div>
         </div>
 
         {{-- PROGRESSION --}}
         <div x-show="tab === 'progression'" class="grid gap-4 rounded-2xl bg-surface p-5 md:grid-cols-2">
+            <p class="md:col-span-2 text-sm text-muted">These drive how the backend counts a completed training day when syncing sessions. The workout circle, exercises and onboarding are built into the app itself.</p>
             <div>
                 <label class="mb-1 block text-sm text-muted">Sessions per day (counts as a completed day)</label>
                 <input type="number" wire:model="values.sessions_per_day" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
@@ -117,26 +63,17 @@
                 <label class="mb-1 block text-sm text-muted">Plan length (days per month)</label>
                 <input type="number" wire:model="values.plan_length_days" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
             </div>
-            <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.allow_extra_sessions" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Allow extra (optional) sessions</span></label>
-            <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.onboarding_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Show onboarding story</span></label>
         </div>
 
         {{-- OFFLINE SYNC --}}
         <div x-show="tab === 'sync'" class="space-y-4 rounded-2xl bg-surface p-5">
             <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.sync_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Enable offline sync</span></label>
-            <p class="text-sm text-muted">When enabled, the app stores exercises, sessions and progress locally in the browser. User data syncs automatically when connectivity returns.</p>
+            <p class="text-sm text-muted">The app records sessions and progress locally and syncs them to this backend when connectivity returns. Legal pages sync down so the app carries a current copy.</p>
 
-            <div class="grid gap-4 md:grid-cols-2">
-                <div>
-                    <label class="mb-1 block text-sm text-muted">Sync interval (minutes)</label>
-                    <input type="number" min="5" max="120" wire:model="values.sync_interval_minutes" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                    <p class="mt-1 text-xs text-muted">How often the app checks for new exercises/content from the server while online. Lower = fresher data, higher = less bandwidth.</p>
-                </div>
-                <div>
-                    <label class="mb-1 block text-sm text-muted">Session lifetime (days)</label>
-                    <input type="number" min="1" max="365" wire:model="values.sync_session_lifetime_days" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                    <p class="mt-1 text-xs text-muted">How long users stay logged in before needing to re-authenticate. 30 days is recommended for fitness apps.</p>
-                </div>
+            <div>
+                <label class="mb-1 block text-sm text-muted">Sync interval (minutes)</label>
+                <input type="number" min="5" max="120" wire:model="values.sync_interval_minutes" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">How often the app re-syncs while it stays open. It always syncs on open and on reconnect.</p>
             </div>
 
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">

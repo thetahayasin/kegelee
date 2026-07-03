@@ -19,7 +19,6 @@ class Settings extends Component
     public $logoUpload = null;
     public $faviconUpload = null;
     public $ogUpload = null;
-    public $homeImageUpload = null;
 
     public ?string $savedMessage = null;
 
@@ -37,11 +36,9 @@ class Settings extends Component
         'circle_animation_speed' => 'float', 'circle_glow_speed' => 'float', 'circle_time_scale' => 'float',
         'sessions_per_day' => 'int', 'plan_length_days' => 'int',
         'circle_glow_enabled' => 'bool', 'haptics_enabled' => 'bool',
-        'sound_enabled' => 'bool', 'allow_extra_sessions' => 'bool', 'onboarding_enabled' => 'bool', 'app_enabled' => 'bool',
+        'onboarding_enabled' => 'bool', 'app_enabled' => 'bool',
         'inject_head' => 'html', 'inject_body_start' => 'html', 'inject_body_end' => 'html', 'custom_css' => 'html',
-        'color_accent' => 'color', 'color_accent_soft' => 'color', 'color_success' => 'color',
-        'color_bg' => 'color', 'color_surface' => 'color', 'color_surface_2' => 'color',
-        'color_text' => 'color', 'color_text_muted' => 'color', 'circle_glow_color' => 'color',
+        'color_accent' => 'color',
         'mail_port' => 'int', 'google_login_enabled' => 'bool',
         'google_play_enabled' => 'bool',
         'google_play_service_account_json' => 'html',
@@ -52,7 +49,6 @@ class Settings extends Component
         'home_steps' => 'json',
         'sync_enabled' => 'bool',
         'sync_interval_minutes' => 'int',
-        'sync_session_lifetime_days' => 'int',
     ];
 
     public function mount(SettingsService $settings): void
@@ -74,7 +70,6 @@ class Settings extends Component
             'logoUpload' => 'nullable|image|max:4096',
             'faviconUpload' => 'nullable|image|max:1024',
             'ogUpload' => 'nullable|image|max:4096',
-            'homeImageUpload' => 'nullable|image|max:4096',
         ]);
 
         if ($this->logoUpload) {
@@ -86,13 +81,10 @@ class Settings extends Component
         if ($this->ogUpload) {
             $this->values['seo_og_image'] = $this->ogUpload->store('branding', 'public');
         }
-        if ($this->homeImageUpload) {
-            $this->values['home_hero_image'] = $this->homeImageUpload->store('branding', 'public');
-        }
 
         $groups = [
-            'app_name' => 'branding', 'app_tagline' => 'branding', 'logo_path' => 'branding',
-            'favicon_path' => 'branding', 'home_hero_image' => 'branding',
+            'app_name' => 'branding', 'logo_path' => 'branding',
+            'favicon_path' => 'branding', 'color_accent' => 'branding',
             'seo_og_image' => 'seo',
             'google_play_enabled' => 'google_play',
             'google_play_package_name' => 'google_play',
@@ -110,7 +102,6 @@ class Settings extends Component
             'home_footer_tagline' => 'homepage',
             'sync_enabled' => 'sync',
             'sync_interval_minutes' => 'sync',
-            'sync_session_lifetime_days' => 'sync',
         ];
 
         foreach ($this->values as $key => $value) {
@@ -125,7 +116,7 @@ class Settings extends Component
             $settings->set($key, $value, $type, $groups[$key] ?? 'general');
         }
 
-        $this->reset(['logoUpload', 'faviconUpload', 'ogUpload', 'homeImageUpload']);
+        $this->reset(['logoUpload', 'faviconUpload', 'ogUpload']);
         $this->savedMessage = 'Settings saved.';
     }
 
@@ -136,10 +127,9 @@ class Settings extends Component
     public function removeImage(string $key, SettingsService $settings): void
     {
         $groups = [
-            'logo_path'       => 'branding',
-            'favicon_path'    => 'branding',
-            'home_hero_image' => 'branding',
-            'seo_og_image'    => 'seo',
+            'logo_path'    => 'branding',
+            'favicon_path' => 'branding',
+            'seo_og_image' => 'seo',
         ];
 
         if (! isset($groups[$key])) {
@@ -183,10 +173,9 @@ class Settings extends Component
             : null;
 
         return view('livewire.admin.settings', [
-            'logoUrl'      => $url('logo_path'),
-            'faviconUrl'   => $url('favicon_path'),
-            'homeImageUrl' => $url('home_hero_image'),
-            'ogImageUrl'   => $url('seo_og_image'),
+            'logoUrl'    => $url('logo_path'),
+            'faviconUrl' => $url('favicon_path'),
+            'ogImageUrl' => $url('seo_og_image'),
         ]);
     }
 }

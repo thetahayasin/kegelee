@@ -63,8 +63,9 @@
     {!! $settings->get('inject_body_start') !!}
 
     <div class="app-frame no-scrollbar">
-        {{-- Giant rotated app-name watermark behind the glass UI. --}}
-        <div class="app-watermark" aria-hidden="true"><span>{{ $settings->get('app_name') }}</span></div>
+        {{-- Giant rotated brand watermark behind the glass UI - built into the
+             app, never loaded from the backend. --}}
+        <div class="app-watermark" aria-hidden="true"><span>Kegelee</span></div>
 
         <div class="relative z-10">
             {{ $slot }}

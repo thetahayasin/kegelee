@@ -22,7 +22,7 @@ class BackendClient
     public const SYNC_BUILD = 'offapp-hardcoded-catalog-v1';
 
     /**
-     * True when this install should pull/push against a remote backend — i.e.
+     * True when this install should pull/push against a remote backend - i.e.
      * it is the native device app, not the backend itself.
      *
      * Gated on the NativePHP runtime flag (true only inside the device app) so
@@ -38,7 +38,7 @@ class BackendClient
 
     /**
      * Whether we are running inside the packaged NativePHP device app (vs. the
-     * backend serving ke.downloadh.com).
+     * backend serving kegelee.com).
      *
      * Primary signal is the REQUEST HOST: the native C bridge serves the app
      * from 127.0.0.1 (it hard-sets HTTP_HOST/SERVER_NAME), which can never
@@ -56,7 +56,7 @@ class BackendClient
             return true;
         }
 
-        // 2) Request host differs from the backend host → we are the device.
+        // 2) Request host differs from the backend host - we are the device.
         $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
         $reqHost = strtolower(preg_replace('/:\d+$/', '', (string) $reqHost));
         $backendHost = strtolower((string) parse_url((string) config('app.content_sync_url'), PHP_URL_HOST));
@@ -64,7 +64,7 @@ class BackendClient
         return $reqHost !== '' && $backendHost !== '' && $reqHost !== $backendHost;
     }
 
-    /** Diagnostic snapshot — surfaced to the device so failures are visible. */
+    /** Diagnostic snapshot - surfaced to the device so failures are visible. */
     public static function diagnostics(): array
     {
         $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? null;
@@ -81,7 +81,7 @@ class BackendClient
     }
 
     /**
-     * The API base, e.g. https://ke.downloadh.com/api — normalised from the
+     * The API base, e.g. https://kegelee.com/api - normalised from the
      * CONTENT_SYNC_URL setting (which may point at .../api/v1/content).
      */
     public static function base(): ?string

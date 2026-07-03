@@ -17,7 +17,7 @@ class ContentSyncTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        config(['app.sync_api_key' => $this->apiKey, 'app.url' => 'https://ke.downloadh.com']);
+        config(['app.sync_api_key' => $this->apiKey, 'app.url' => 'https://kegelee.com']);
     }
 
     public function test_content_returns_pages_only(): void
@@ -69,11 +69,11 @@ class ContentSyncTest extends TestCase
     public function test_device_pull_ingests_page_titles_and_content(): void
     {
         // Act like the device: a sync target whose host differs from the request.
-        config(['app.content_sync_url' => 'https://ke.downloadh.com/api/v1/content']);
+        config(['app.content_sync_url' => 'https://kegelee.com/api/v1/content']);
         $_SERVER['HTTP_HOST'] = '127.0.0.1';
 
         Http::fake([
-            'ke.downloadh.com/api/v1/content' => Http::response([
+            'kegelee.com/api/v1/content' => Http::response([
                 'pages' => [[
                     'id' => 1, 'slug' => 'privacy-policy', 'title' => 'Privacy Policy',
                     'content' => '<p>Fresh policy.</p>', 'sort_order' => 0,

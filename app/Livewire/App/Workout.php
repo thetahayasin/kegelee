@@ -140,7 +140,6 @@ class Workout extends Component
     {
         return view('livewire.app.workout', [
             'glowEnabled' => (bool) $settings->get('circle_glow_enabled'),
-            'glowColor' => $settings->get('circle_glow_color'),
             'circleSize' => (int) $settings->get('circle_size'),
             'trackWidth' => (int) $settings->get('circle_track_width'),
             'haptics' => (bool) $settings->get('haptics_enabled'),

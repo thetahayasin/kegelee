@@ -19,7 +19,7 @@ class AuthSyncFlowTest extends TestCase
         parent::setUp();
         config([
             'app.sync_api_key' => 'Y5PqnYAf8MIW1tM8XDTNLUMmRAxRuiRBkCA8BY6kBFt12Uuo',
-            'app.content_sync_url' => 'https://ke.downloadh.com/api/v1/content',
+            'app.content_sync_url' => 'https://kegelee.com/api/v1/content',
         ]);
         // Set client mode
         $_SERVER['HTTP_HOST'] = '127.0.0.1';
@@ -32,7 +32,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_login_success_replicates_user_locally(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/login' => Http::response([
+            'kegelee.com/api/v1/auth/login' => Http::response([
                 'user' => [
                     'id' => 45,
                     'name' => 'Remote User',
@@ -64,7 +64,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_login_failure_reports_credentials_error(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/login' => Http::response([
+            'kegelee.com/api/v1/auth/login' => Http::response([
                 'error' => 'These credentials do not match our records.'
             ], 401),
         ]);
@@ -79,7 +79,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_login_unreachable_reports_connection_error(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/login' => Http::response([
+            'kegelee.com/api/v1/auth/login' => Http::response([
                 'error' => 'Invalid API key.'
             ], 401),
         ]);
@@ -94,7 +94,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_registration_validation_errors(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/register' => Http::response([
+            'kegelee.com/api/v1/auth/register' => Http::response([
                 'message' => 'The email has already been taken.',
                 'errors' => [
                     'email' => ['The email has already been taken.']
@@ -114,7 +114,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_verification_success(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/verify' => Http::response([
+            'kegelee.com/api/v1/auth/verify' => Http::response([
                 'user' => [
                     'id' => 99,
                     'name' => 'Verified User',
@@ -147,7 +147,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_verification_not_found(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/verify' => Http::response([
+            'kegelee.com/api/v1/auth/verify' => Http::response([
                 'error' => 'User not found.'
             ], 404),
         ]);
@@ -163,7 +163,7 @@ class AuthSyncFlowTest extends TestCase
     public function test_remote_resend_rate_limiting(): void
     {
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/resend' => Http::response([
+            'kegelee.com/api/v1/auth/resend' => Http::response([
                 'error' => 'Too many requests.'
             ], 429),
         ]);
@@ -184,7 +184,7 @@ class AuthSyncFlowTest extends TestCase
 
         // Mock remote server to be offline / throw connection exception
         Http::fake([
-            'ke.downloadh.com/api/v1/auth/login' => function () {
+            'kegelee.com/api/v1/auth/login' => function () {
                 throw new \Illuminate\Http\Client\ConnectionException('Connection refused');
             }
         ]);
@@ -216,7 +216,7 @@ class AuthSyncFlowTest extends TestCase
         ]);
 
         Http::fake([
-            'ke.downloadh.com/api/v1/user/pull' => Http::response([
+            'kegelee.com/api/v1/user/pull' => Http::response([
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,

@@ -28,38 +28,27 @@ class SettingsService
         return [
             // Branding
             'app_name' => 'Kegelee',
-            'app_tagline' => 'Train your pelvic floor',
             'logo_path' => null,
             'favicon_path' => null,
             'home_hero_image' => null,
 
-            // Theme / colours
+            // Accent used by transactional emails.
             'color_accent' => '#E8202A',
-            'color_accent_soft' => '#FF4D57',
-            'color_success' => '#22C55E',
-            'color_bg' => '#0C0D11',
-            'color_surface' => '#16181F',
-            'color_surface_2' => '#1E2128',
-            'color_text' => '#FFFFFF',
-            'color_text_muted' => '#8A8F98',
 
-            // Workout circle UI
+            // Workout circle UI (read from the DEVICE's local settings; these
+            // defaults ship with the app and are not editable from the backend).
             'circle_size' => 220,
             'circle_track_width' => 9,
             'circle_glow_enabled' => true,
-            'circle_glow_color' => '#E8202A',
             'circle_animation_speed' => 0.12,
             'circle_glow_speed' => 0.45,
             // Playback tempo: 1 = real time, lower = slower (the count, beats and
             // glow all stretch together). 0.7 ≈ runs about 40% slower.
             'circle_time_scale' => 0.7,
-            'circle_start_phase' => 'contract',
             'haptics_enabled' => true,
-            'sound_enabled' => true,
 
             // Progression rules
             'sessions_per_day' => 2,
-            'allow_extra_sessions' => true,
             'plan_length_days' => 30,
 
             // App access
@@ -126,7 +115,6 @@ class SettingsService
             // Offline sync
             'sync_enabled' => true,
             'sync_interval_minutes' => 15,
-            'sync_session_lifetime_days' => 30,
 
             // Arbitrary code injection
             'inject_head' => '',
