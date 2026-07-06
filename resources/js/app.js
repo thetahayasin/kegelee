@@ -286,6 +286,8 @@ async function refreshConnectivity() {
         window.dispatchEvent(new CustomEvent('app-offline'));
         _wasOffline = true;
     }
+
+    return online;
 }
 
 // Instant OS signals plus a periodic real probe (captive portals, dropped radios).
@@ -293,6 +295,21 @@ window.addEventListener('offline', () => { showOfflineBanner(); _wasOffline = tr
 window.addEventListener('online', refreshConnectivity);
 setInterval(refreshConnectivity, 20000);
 setTimeout(refreshConnectivity, 2500);
+
+// Returning to the foreground after the screen was off for a while: Android may
+// still report the radio as down for a moment, the 'online' event is unreliable,
+// and the 20s probe can be far away - which left a stale "No internet" banner up
+// until it fired. Re-probe on resume and retry with backoff until the network is
+// actually back, so the banner clears within a second or two of waking.
+async function recheckOnResume(attempt) {
+    if (document.visibilityState !== 'visible' || window.__loggingOut) return;
+    const online = await refreshConnectivity();
+    if (!online && attempt < 4) {
+        setTimeout(() => recheckOnResume(attempt + 1), [1000, 2000, 4000, 8000][attempt]);
+    }
+}
+document.addEventListener('visibilitychange', () => recheckOnResume(0));
+window.addEventListener('focus', () => recheckOnResume(0));
 
 // Promise<boolean> helper screens can await before doing online-only work.
 window.appOnline = () => (window.kegelSync ? window.kegelSync.probeOnline() : Promise.resolve(navigator.onLine));

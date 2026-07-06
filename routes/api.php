@@ -32,10 +32,22 @@ Route::prefix('v1')->middleware('sync.key')->group(function () {
     Route::post('/auth/verify', [SyncController::class, 'remoteVerify']);
     Route::post('/auth/resend', [SyncController::class, 'remoteResend']);
 
+    // Password reset (emailed code) — no session needed, the code proves identity.
+    Route::post('/auth/reset-code', [SyncController::class, 'remoteResetCode']);
+    Route::post('/auth/reset', [SyncController::class, 'remoteReset']);
+
+    // Native Google sign-in: the device redeems the one-time token minted by the
+    // Custom Tab callback for the account payload to mirror + sign in.
+    Route::post('/auth/google/redeem', [SyncController::class, 'googleRedeem']);
+
     // User-specific data — requires auth session cookie.
     Route::middleware('auth')->group(function () {
         Route::post('/user/push', [SyncController::class, 'push']);
         Route::get('/user/pull', [SyncController::class, 'pull']);
         Route::post('/user/reset', [SyncController::class, 'reset']);
+
+        // Account deletion (emailed code confirmation).
+        Route::post('/user/delete-code', [SyncController::class, 'deleteCode']);
+        Route::post('/user/delete', [SyncController::class, 'deleteAccount']);
     });
 });

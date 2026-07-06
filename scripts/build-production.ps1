@@ -145,6 +145,20 @@ if ($missing.Count -gt 0) {
     exit 1
 }
 
+# Put the JDK's bin (keytool, jarsigner) on PATH so NativePHP's signing
+# pre-flight can validate the keystore. Without it keytool isn't found and you
+# get the harmless "Could not validate keystore/alias combination" warning
+# (Gradle still signs with the same JDK). Resolved from NATIVEPHP_GRADLE_PATH,
+# then JAVA_HOME, then the Android Studio default.
+$JdkHome = Get-DotEnvValue 'NATIVEPHP_GRADLE_PATH'
+if (-not $JdkHome) { $JdkHome = $env:JAVA_HOME }
+if (-not $JdkHome) { $JdkHome = 'C:\Program Files\Android\Android Studio\jbr' }
+$JdkBin = Join-Path $JdkHome 'bin'
+if ((Test-Path (Join-Path $JdkBin 'keytool.exe')) -and ($env:PATH -notlike "*$JdkBin*")) {
+    $env:PATH = "$JdkBin;$env:PATH"
+    Write-Host "Using JDK for signing tools: $JdkBin" -ForegroundColor DarkGray
+}
+
 # 1. Clean caches / temp build artifacts
 Write-Step "Clearing Laravel caches"
 Invoke-Checked 'php' @('artisan', 'optimize:clear')
@@ -162,6 +176,18 @@ if ($BumpVersion) {
     Write-Step "Bumping app version (native:release)"
     Invoke-Checked 'php' @('artisan', 'native:release')
 }
+
+# 4b. Warm every boot cache the device reads instead of recompiling on the
+# first cold request (the main cold-start cost, since the embedded opcache is
+# memory-only and starts empty on each launch). config:cache is included: this
+# app never calls Laravel's env() at runtime (verified - it uses getenv()/
+# $_SERVER), and NativePHP reads its own settings via config(), so freezing the
+# config is safe and collapses ~30 config files into one.
+Write-Step "Warming production caches (config/route/view/event) for faster cold start"
+Invoke-Checked 'php' @('artisan', 'config:cache')
+Invoke-Checked 'php' @('artisan', 'route:cache')
+Invoke-Checked 'php' @('artisan', 'view:cache')
+Invoke-Checked 'php' @('artisan', 'event:cache')
 
 # 5. Package signed Android artifact(s). 'both' produces APK + AAB.
 $types = if ($BuildType -eq 'both') { @('release', 'bundle') } else { @($BuildType) }
@@ -209,6 +235,19 @@ if (-not $artifacts) {
 Write-Host "`nProduction build complete." -ForegroundColor Green
 Write-Host "Artifacts written to: $Output"
 $artifacts | ForEach-Object { Write-Host ("  {0}  ({1:N1} MB)" -f $_.Name, ($_.Length / 1MB)) }
+
+# Report the packaged Laravel bundle size too. If this is large (100s of MB),
+# something non-app (dist/, node_modules, media) is being swept in - check
+# cleanup_exclude_files in config/nativephp.php.
+$bundle = Join-Path $ProjectRoot 'nativephp\android\app\src\main\assets\laravel_bundle.zip'
+if (Test-Path $bundle) {
+    $bundleMb = (Get-Item $bundle).Length / 1MB
+    $color = if ($bundleMb -gt 120) { 'Yellow' } else { 'Gray' }
+    Write-Host ("  laravel_bundle.zip  ({0:N1} MB)" -f $bundleMb) -ForegroundColor $color
+    if ($bundleMb -gt 120) {
+        Write-Host "  ^ bundle looks heavy - verify cleanup_exclude_files excludes dist/, node_modules, media." -ForegroundColor Yellow
+    }
+}
 if ($UploadToPlayStore) {
     Write-Host "Uploaded AAB to Play Store track: $PlayStoreTrack"
 }

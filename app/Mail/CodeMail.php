@@ -16,7 +16,7 @@ class CodeMail extends Mailable
         public string $code,
         public string $purpose,
         public string $appName,
-        public string $accent = '#6ef2f0',
+        public string $accent = '#c1ff72',
     ) {
     }
 

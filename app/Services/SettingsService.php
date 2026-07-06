@@ -33,7 +33,7 @@ class SettingsService
             'home_hero_image' => null,
 
             // Accent used by transactional emails.
-            'color_accent' => '#E8202A',
+            'color_accent' => '#c1ff72',
 
             // Workout circle UI (read from the DEVICE's local settings; these
             // defaults ship with the app and are not editable from the backend).
@@ -47,9 +47,8 @@ class SettingsService
             'circle_time_scale' => 0.7,
             'haptics_enabled' => true,
 
-            // Progression rules
-            'sessions_per_day' => 2,
-            'plan_length_days' => 30,
+            // Progression rules (sessions-per-day, plan length) and the offline
+            // sync interval are baked into the app - see App\Support\AppConfig.
 
             // App access
             'app_enabled' => true,
@@ -111,10 +110,6 @@ class SettingsService
             'seo_description' => 'Strengthen your pelvic floor muscles with guided Kegel exercises, daily training plans and progress tracking.',
             'seo_keywords' => 'kegel, pelvic floor, exercises, training',
             'seo_og_image' => null,
-
-            // Offline sync
-            'sync_enabled' => true,
-            'sync_interval_minutes' => 15,
 
             // Arbitrary code injection
             'inject_head' => '',

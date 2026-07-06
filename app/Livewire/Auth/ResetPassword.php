@@ -26,14 +26,15 @@ class ResetPassword extends Component
         $this->validate([
             'email' => 'required|email|max:190',
             'code' => 'required|digits:6',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|regex:/[0-9]/',
         ], [
             'email.required'    => 'Email is required.',
             'email.email'       => 'Enter a valid email address.',
             'code.required'     => 'Enter the code from your email.',
             'code.digits'       => 'The code should be 6 digits.',
             'password.required' => 'Password is required.',
-            'password.min'      => 'Password must be at least 6 characters.',
+            'password.min'      => 'Password must be at least 6 characters and include a number.',
+            'password.regex'    => 'Password must be at least 6 characters and include a number.',
         ]);
 
         $email = strtolower($this->email);
@@ -70,7 +71,8 @@ class ResetPassword extends Component
             }
         }
 
-        return $this->redirectRoute('home', navigate: true);
+        // Admins recover straight into the backend; everyone else into the app.
+        return $this->redirectRoute($user->is_admin ? 'admin.dashboard' : 'home', navigate: true);
     }
 
     public function render()

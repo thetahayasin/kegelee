@@ -215,7 +215,7 @@ return [
 
     'progress_bar' => [
         'enabled' => (bool) env('MOBILE_SPLASHSCREEN_PROGRESS_BAR', false),
-        'color' => env('MOBILE_SPLASHSCREEN_PROGRESS_BAR_COLOR', '#FFFFFF'),
+        'color' => env('MOBILE_SPLASHSCREEN_PROGRESS_BAR_COLOR', '#c1ff72'),
         'direction' => env('MOBILE_SPLASHSCREEN_PROGRESS_BAR_DIRECTION', 'ltr'),
     ],
 

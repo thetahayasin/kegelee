@@ -27,7 +27,7 @@ class SubscriptionCanceledMail extends Mailable
     {
         $settings = app(SettingsService::class);
         $appName  = $settings->get('app_name', 'Kegel Trainer');
-        $accent   = $settings->get('color_accent', '#E8202A');
+        $accent   = $settings->get('color_accent', '#c1ff72');
         $endsAt   = $this->subscription->ends_at;
 
         return new Content(view: 'emails.subscription', with: [

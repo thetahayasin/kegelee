@@ -27,7 +27,7 @@ class SubscriptionStartedMail extends Mailable
     {
         $settings  = app(SettingsService::class);
         $appName   = $settings->get('app_name', 'Kegel Trainer');
-        $accent    = $settings->get('color_accent', '#E8202A');
+        $accent    = $settings->get('color_accent', '#c1ff72');
         $plan      = $this->subscription->plan;
         $endsAt    = $this->subscription->ends_at;
         $isTrial   = $this->subscription->status === 'trialing';

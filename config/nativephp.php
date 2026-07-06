@@ -177,10 +177,28 @@ return [
     */
 
     'cleanup_exclude_files' => [
+        // Framework caches / logs - never needed in the shipped app.
         'storage/framework/sessions',
         'storage/framework/cache',
         'storage/framework/testing',
-        'storage/logs/laravel.log',
+        'storage/logs',
+
+        // Build artifacts + tooling - the real APK bloat. dist/ alone holds
+        // hundreds of MB of previously-built .apk/.aab files, and node_modules /
+        // the nativephp build workspace have no place inside the app bundle.
+        'dist',
+        'node_modules',
+        'nativephp',
+        'tests',
+        'scripts',
+        '.git',
+        '.github',
+        '.idea',
+        '.env.example',
+        'phpunit.xml',
+        '.phpunit.result.cache',
+        'README.md',
+        'kegelee-release.keystore',
     ],
 
     /*
@@ -276,8 +294,10 @@ return [
             'shrink_resources' => env('NATIVEPHP_ANDROID_SHRINK_RESOURCES', false),
             'obfuscate' => env('NATIVEPHP_ANDROID_OBFUSCATE', false),
 
-            // Debug Symbol Configuration - currently enabled
-            'debug_symbols' => env('NATIVEPHP_ANDROID_DEBUG_SYMBOLS', 'FULL'),
+            // Debug Symbol Configuration - stripped for release size. Set
+            // NATIVEPHP_ANDROID_DEBUG_SYMBOLS=FULL if you need native crash
+            // symbolication for a debugging build.
+            'debug_symbols' => env('NATIVEPHP_ANDROID_DEBUG_SYMBOLS', 'NONE'),
             'generate_mapping_files' => env('NATIVEPHP_ANDROID_MAPPING_FILES', false),
             'mapping_file_path' => env('NATIVEPHP_ANDROID_MAPPING_PATH', 'build/outputs/mapping/release/'),
 

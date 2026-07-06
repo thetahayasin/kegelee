@@ -19,7 +19,7 @@
                     </tr>
                     <tr>
                         <td style="padding:24px 32px;">
-                            <div style="background:rgba(110,242,240,0.10);border:1px solid {{ $accent }};border-radius:14px;padding:18px;text-align:center;">
+                            <div style="background:rgba(193,255,114,0.10);border:1px solid {{ $accent }};border-radius:14px;padding:18px;text-align:center;">
                                 <span style="font-size:38px;font-weight:800;letter-spacing:.35em;color:{{ $accent }};">{{ $code }}</span>
                             </div>
                         </td>

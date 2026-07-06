@@ -89,4 +89,45 @@ class User extends Authenticatable
     {
         return (bool) $this->activeSubscription();
     }
+
+    /**
+     * True once the user has completed every "Learn the basics" lesson. The
+     * basics are the only active knowledge lessons (see App\Support\BasicsLessons
+     * / KnowledgeSeeder), so this is simply "all active lessons completed".
+     * With no active lessons, there is nothing to gate on.
+     */
+    public function hasCompletedBasics(): bool
+    {
+        $active = KnowledgeLesson::where('is_active', true)->count();
+
+        if ($active === 0) {
+            return true;
+        }
+
+        $done = $this->completedLessons()
+            ->where('is_active', true)
+            ->wherePivotNotNull('completed_at')
+            ->count();
+
+        return $done >= $active;
+    }
+
+    /**
+     * Permanently remove this account and everything it owns. Irreversible.
+     * Used by "Delete account" on both the backend and the device (which also
+     * purges its local mirror). Does NOT touch Google Play billing - Google
+     * owns subscriptions, so the user is warned to cancel there separately.
+     */
+    public function deleteWithData(): void
+    {
+        $this->workoutSessions()->delete();
+        $this->trainingDays()->delete();
+        $this->measurements()->delete();
+        $this->reminders()->delete();
+        $this->subscriptions()->delete();
+        $this->completedLessons()->detach();
+        EmailCode::where('email', $this->email)->delete();
+
+        $this->delete();
+    }
 }

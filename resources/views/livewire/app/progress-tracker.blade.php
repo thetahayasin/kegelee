@@ -73,13 +73,15 @@
                     }
                 }
                 
+                // Match the server label format exactly (translatedFormat j M
+                // gives e.g. 5 Nov; month M gives Nov). Building it manually keeps
+                // the day-then-month order so the labels do not reflow when this
+                // client recalculation replaces the server-rendered bars.
                 let label = '';
-                if (unit === 'day') {
-                    label = start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-                } else if (unit === 'month') {
+                if (unit === 'month') {
                     label = start.toLocaleDateString(undefined, { month: 'short' });
                 } else {
-                    label = start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                    label = start.getDate() + ' ' + start.toLocaleDateString(undefined, { month: 'short' });
                 }
                 
                 bars.push({ label, value: val });
@@ -136,21 +138,25 @@
                 </div>
             </template>
 
-            {{-- bars --}}
-            <div class="absolute inset-0 flex items-end justify-between gap-2 pr-14">
+            {{-- bars: a CSS grid of N equal (minmax 0,1fr) columns so the
+                 spacing is identical for every count and never depends on label
+                 width or flex-distribution timing when the mode changes. --}}
+            <div class="absolute inset-0 grid items-end gap-2 pr-14"
+                 :style="'grid-template-columns: repeat(' + (bars ? bars.length : 1) + ', minmax(0, 1fr))'">
                 <template x-for="(bar, index) in bars" :key="index">
-                    <div class="flex h-full flex-1 flex-col items-center justify-end">
-                        <div class="w-7 rounded-md bg-accent transition-all"
+                    <div class="flex h-full min-w-0 flex-col items-center justify-end">
+                        <div class="w-7 max-w-full rounded-md bg-accent transition-[height] duration-300"
                              :style="'height: ' + (bar.value > 0 ? Math.min(100, Math.max(4, bar.value / maxScale * 100)) : 0) + '%'"></div>
                     </div>
                 </template>
             </div>
         </div>
 
-        {{-- x labels --}}
-        <div class="mt-2 flex justify-between gap-2 pr-14">
+        {{-- x labels: same grid template as the bars so they stay aligned. --}}
+        <div class="mt-2 grid gap-2 pr-14"
+             :style="'grid-template-columns: repeat(' + (bars ? bars.length : 1) + ', minmax(0, 1fr))'">
             <template x-for="(bar, index) in bars" :key="index">
-                <span class="flex-1 text-center text-[10px] text-muted" x-text="bar.label"></span>
+                <span class="min-w-0 truncate text-center text-[10px] text-muted" x-text="bar.label"></span>
             </template>
         </div>
     </section>

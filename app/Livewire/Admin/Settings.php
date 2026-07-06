@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Services\SettingsService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -22,6 +23,12 @@ class Settings extends Component
 
     public ?string $savedMessage = null;
 
+    public string $adminEmail = '';
+
+    public string $emailCurrentPassword = '';
+
+    public ?string $emailMessage = null;
+
     public string $currentPassword = '';
 
     public string $adminNewPassword = '';
@@ -34,7 +41,6 @@ class Settings extends Component
     public const TYPES = [
         'circle_size' => 'int', 'circle_track_width' => 'int',
         'circle_animation_speed' => 'float', 'circle_glow_speed' => 'float', 'circle_time_scale' => 'float',
-        'sessions_per_day' => 'int', 'plan_length_days' => 'int',
         'circle_glow_enabled' => 'bool', 'haptics_enabled' => 'bool',
         'onboarding_enabled' => 'bool', 'app_enabled' => 'bool',
         'inject_head' => 'html', 'inject_body_start' => 'html', 'inject_body_end' => 'html', 'custom_css' => 'html',
@@ -47,12 +53,12 @@ class Settings extends Component
         'home_stats' => 'json',
         'home_features' => 'json',
         'home_steps' => 'json',
-        'sync_enabled' => 'bool',
-        'sync_interval_minutes' => 'int',
     ];
 
     public function mount(SettingsService $settings): void
     {
+        $this->adminEmail = (string) auth()->user()->email;
+
         foreach (SettingsService::defaults() as $key => $default) {
             $value = $settings->get($key, $default);
             // JSON fields decoded to arrays by SettingsService — re-encode as
@@ -100,8 +106,6 @@ class Settings extends Component
             'home_features' => 'homepage',
             'home_steps' => 'homepage',
             'home_footer_tagline' => 'homepage',
-            'sync_enabled' => 'sync',
-            'sync_interval_minutes' => 'sync',
         ];
 
         foreach ($this->values as $key => $value) {
@@ -146,11 +150,34 @@ class Settings extends Component
         $this->savedMessage = 'Image removed.';
     }
 
+    public function changeAdminEmail(): void
+    {
+        $user = auth()->user();
+
+        $this->validate([
+            'adminEmail' => ['required', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
+            'emailCurrentPassword' => 'required',
+        ]);
+
+        if (! Hash::check($this->emailCurrentPassword, $user->password)) {
+            $this->addError('emailCurrentPassword', 'Current password is incorrect.');
+            return;
+        }
+
+        $user->update(['email' => strtolower($this->adminEmail)]);
+
+        $this->reset('emailCurrentPassword');
+        $this->emailMessage = 'Email updated.';
+    }
+
     public function changeAdminPassword(): void
     {
         $this->validate([
             'currentPassword' => 'required',
-            'adminNewPassword' => 'required|string|min:6|confirmed',
+            'adminNewPassword' => 'required|string|min:6|regex:/[0-9]/|confirmed',
+        ], [
+            'adminNewPassword.min' => 'Password must be at least 6 characters and include a number.',
+            'adminNewPassword.regex' => 'Password must be at least 6 characters and include a number.',
         ]);
 
         $user = auth()->user();

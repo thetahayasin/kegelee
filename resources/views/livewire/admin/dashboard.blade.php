@@ -9,7 +9,7 @@
         <div class="flex items-center gap-2">
             <a href="{{ route('admin.subscriptions') }}"
                class="flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold tap"
-               style="color:#042024">
+               style="color:#0c1a00">
                 <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                 Grant sub
             </a>
@@ -103,7 +103,7 @@
                                 </div>
                             @endif
                             <div class="chart-bar w-full rounded-t"
-                                 style="height:{{ $pct }}%;background:linear-gradient(180deg,rgba(110,242,240,.9) 0%,rgba(110,242,240,.4) 100%)">
+                                 style="height:{{ $pct }}%;background:linear-gradient(180deg,rgba(193,255,114,.9) 0%,rgba(193,255,114,.4) 100%)">
                             </div>
                         </div>
                         <span class="text-[9px] text-muted tabular-nums">{{ $bar['label'] }}</span>

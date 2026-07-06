@@ -14,11 +14,11 @@
                 Log out
             </button>
         @endif
-        <h1 class="text-xl font-bold">{{ $subscribed ? 'Manage Plan' : 'Go Premium' }}</h1>
+        <h1 class="text-xl font-bold">{{ $subscribed ? 'Manage Plan' : 'Premium' }}</h1>
     </header>
 
     <div class="px-6 pt-2 text-center">
-        <h2 class="text-2xl font-bold leading-tight">Unlock the full programme</h2>
+        <h2 class="text-2xl font-bold leading-tight">{{ $subscribed ? 'Unlock the full programme' : 'Start your transformation journey now' }}</h2>
     </div>
 
     <div class="mt-6 space-y-3 px-4">
@@ -87,13 +87,16 @@
                 @elseif ($selectedIsFree)
                     Continue with Free
                 @else
-                    {{ $trialDays > 0 ? "Start {$trialDays}-day free trial" : 'Start now' }}
+                    Continue
                 @endif
             </span>
         </button>
         @if (! $selectedIsFree && ! $purchasing)
-            <p class="mt-2 text-center text-xs text-muted">
-                Billed via Google Play &bull; Cancel anytime
+            <p class="mt-2 text-center text-[11px] leading-relaxed text-muted">
+                Payment is charged to your Google&nbsp;Play account on confirmation. Your subscription renews automatically at the price shown until you cancel it in Google&nbsp;Play; uninstalling the app does not cancel or refund it. By continuing you agree to our
+                <a href="{{ route('page.show', 'terms') }}" class="text-accent underline">Terms</a>
+                and the
+                <a href="https://play.google.com/about/play-terms/" target="_blank" rel="noopener" class="text-accent underline">Google&nbsp;Play Terms</a>.
             </p>
         @endif
         @if ($message && $selectedIsFree)

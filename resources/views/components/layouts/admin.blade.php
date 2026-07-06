@@ -4,8 +4,9 @@
 @endphp
 <!DOCTYPE html>
 <html lang="en" class="dark" style="
+    background-color: #0a0b0f;
     --c-bg: #0a0b0f; --c-surface: #13151b; --c-surface-2: #1a1d25;
-    --c-accent: #6ef2f0; --c-accent-soft: #9bf7f5; --c-glow: #6ef2f0;
+    --c-accent: #c1ff72; --c-accent-soft: #d6ffa1; --c-glow: #c1ff72;
     --c-success: #22c55e; --c-text: #fff; --c-text-muted: #8a8f98;
 ">
 <head>
@@ -29,7 +30,7 @@
         }
         .admin-nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
         .admin-nav-item.active {
-            background: rgba(110,242,240,.1);
+            background: rgba(193,255,114,.1);
             color: var(--c-accent);
             font-weight: 600;
             box-shadow: inset 3px 0 0 var(--c-accent);
@@ -97,12 +98,12 @@
                 <a href="{{ route('admin.dashboard') }}"
                    class="flex items-center gap-3 px-4 py-5 border-b border-white/5">
                     <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-black text-sm"
-                          style="background:linear-gradient(135deg,var(--c-accent),color-mix(in srgb,var(--c-accent) 60%,#fff));color:#042024;">
+                          style="background:linear-gradient(135deg,var(--c-accent),color-mix(in srgb,var(--c-accent) 60%,#fff));color:#0c1a00;">
                         {{ strtoupper(substr($appName, 0, 1)) }}
                     </span>
                     <div class="min-w-0">
                         <p class="truncate text-sm font-bold leading-tight">{{ $appName }}</p>
-                        <p class="text-[10px] font-medium text-muted" style="color:rgba(110,242,240,.5)">Admin Panel</p>
+                        <p class="text-[10px] font-medium text-muted" style="color:rgba(193,255,114,.5)">Admin Panel</p>
                     </div>
                 </a>
 
@@ -177,7 +178,7 @@
                     {{-- Mobile brand (hidden on desktop) --}}
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 md:hidden">
                         <span class="grid h-8 w-8 place-items-center rounded-lg font-black text-xs"
-                              style="background:var(--c-accent);color:#042024">
+                              style="background:var(--c-accent);color:#0c1a00">
                             {{ strtoupper(substr($appName, 0, 1)) }}
                         </span>
                     </a>
@@ -267,7 +268,7 @@
                 <div class="mb-4 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <span class="grid h-8 w-8 place-items-center rounded-xl font-black text-xs"
-                              style="background:var(--c-accent);color:#042024">
+                              style="background:var(--c-accent);color:#0c1a00">
                             {{ strtoupper(substr($appName, 0, 1)) }}
                         </span>
                         <span class="font-bold text-sm">{{ $appName }}</span>

@@ -1,10 +1,10 @@
 <div class="flex min-h-[100dvh] flex-col items-center justify-center px-5"
-     style="background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(110,242,240,.07) 0%,transparent 70%),#0a0b0f">
+     style="background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(193,255,114,.07) 0%,transparent 70%),#0a0b0f">
 
     {{-- Brand mark --}}
     <div class="mb-8 flex flex-col items-center gap-3">
         <div class="grid h-14 w-14 place-items-center rounded-2xl font-black text-xl shadow-lg shadow-accent/20"
-             style="background:linear-gradient(135deg,var(--c-accent),color-mix(in srgb,var(--c-accent) 60%,#fff));color:#042024">
+             style="background:linear-gradient(135deg,var(--c-accent),color-mix(in srgb,var(--c-accent) 60%,#fff));color:#0c1a00">
             {{ strtoupper(substr(app(\App\Services\SettingsService::class)->get('app_name', 'K'), 0, 1)) }}
         </div>
         <div class="text-center">
@@ -37,7 +37,7 @@
             </div>
             <button type="submit"
                     class="relative mt-2 grid h-11 w-full place-items-center rounded-xl font-semibold text-sm shadow-lg shadow-accent/15 tap transition-opacity hover:opacity-90"
-                    style="background:var(--c-accent);color:#042024">
+                    style="background:var(--c-accent);color:#0c1a00">
                 <span wire:loading.remove wire:target="authenticate">Sign in</span>
                 <span wire:loading wire:target="authenticate" class="flex items-center gap-2">
                     <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -49,6 +49,10 @@
             </button>
         </form>
 
-        <p class="mt-6 text-center text-xs text-muted">Authorised personnel only.</p>
+        <p class="mt-4 text-center text-sm">
+            <a href="{{ route('password.forgot') }}" wire:navigate class="text-muted transition-colors hover:text-accent-soft">Forgot password?</a>
+        </p>
+
+        <p class="mt-4 text-center text-xs text-muted">Authorised personnel only.</p>
     </div>
 </div>

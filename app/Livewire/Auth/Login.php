@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Livewire\Concerns\HandlesGoogleAuth;
 use App\Models\User;
 use App\Services\CodeSender;
 use App\Services\SettingsService;
@@ -14,6 +15,8 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Login extends Component
 {
+    use HandlesGoogleAuth;
+
     public string $email = '';
     public string $password = '';
     public bool $remember = true;

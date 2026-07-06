@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Livewire\Concerns\HandlesGoogleAuth;
 use App\Models\Level;
 use App\Models\User;
 use App\Services\CodeSender;
@@ -14,6 +15,8 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Register extends Component
 {
+    use HandlesGoogleAuth;
+
     public string $name = '';
     public string $email = '';
     public string $password = '';
@@ -39,13 +42,14 @@ class Register extends Component
         $this->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6|regex:/[0-9]/|confirmed',
         ], [
             'name.required'      => 'Name is required.',
             'email.required'     => 'Email is required.',
             'email.email'        => 'Enter a valid email address.',
             'password.required'  => 'Password is required.',
-            'password.min'       => 'Password must be at least 6 characters.',
+            'password.min'       => 'Password must be at least 6 characters and include a number.',
+            'password.regex'     => 'Password must be at least 6 characters and include a number.',
             'password.confirmed' => "Passwords don't match.",
         ]);
 

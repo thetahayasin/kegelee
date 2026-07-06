@@ -59,7 +59,10 @@ class Users extends Component
         $data = $this->validate([
             'newName'         => 'required|string|max:255',
             'newEmail'        => 'required|email|max:255|unique:users,email',
-            'newUserPassword' => 'required|string|min:6',
+            'newUserPassword' => 'required|string|min:6|regex:/[0-9]/',
+        ], [
+            'newUserPassword.min' => 'Password must be at least 6 characters and include a number.',
+            'newUserPassword.regex' => 'Password must be at least 6 characters and include a number.',
         ]);
 
         $user = User::create([
@@ -90,7 +93,10 @@ class Users extends Component
 
     public function resetPassword(): void
     {
-        $this->validate(['newPassword' => 'required|string|min:6']);
+        $this->validate(['newPassword' => 'required|string|min:6|regex:/[0-9]/'], [
+            'newPassword.min' => 'Password must be at least 6 characters and include a number.',
+            'newPassword.regex' => 'Password must be at least 6 characters and include a number.',
+        ]);
 
         $user = User::findOrFail($this->editingUserId);
         $user->update(['password' => Hash::make($this->newPassword)]);

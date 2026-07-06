@@ -372,6 +372,45 @@ class SyncController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Email a one-time code so the signed-in user can confirm deleting their
+     * account. The device calls this before showing the code field.
+     */
+    public function deleteCode(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        \App\Services\CodeSender::send($user->email, 'delete');
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Permanently delete the signed-in user and everything they own, after
+     * verifying the emailed code. Irreversible. Google Play subscriptions are
+     * unaffected (Google owns billing) - the app warns the user separately.
+     */
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['error' => 'Unauthenticated.'], 401);
+        }
+
+        $data = $request->validate(['code' => 'required|digits:6']);
+
+        if (! \App\Models\EmailCode::verify($user->email, $data['code'], 'delete')) {
+            return response()->json(['error' => 'That code is invalid or has expired.'], 422);
+        }
+
+        $user->deleteWithData();
+
+        return response()->json(['success' => true]);
+    }
+
     public function remoteLogin(Request $request): JsonResponse
     {
         $credentials = $request->validate([
@@ -412,7 +451,7 @@ class SyncController extends Controller
         $data = $request->validate([
             'email' => 'required|email',
             'current_password' => 'required|string',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|regex:/[0-9]/',
         ]);
 
         $user = \App\Models\User::where('email', strtolower($data['email']))->first();
@@ -436,7 +475,7 @@ class SyncController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|regex:/[0-9]/',
         ]);
 
         $user = \App\Models\User::create([
@@ -515,5 +554,106 @@ class SyncController extends Controller
         \App\Services\CodeSender::send($data['email'], 'verify');
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Email a password-reset code. Always reports success (no account
+     * enumeration); only actually sends when the account exists.
+     */
+    public function remoteResetCode(Request $request): JsonResponse
+    {
+        $data = $request->validate(['email' => 'required|email']);
+        $email = strtolower($data['email']);
+
+        $key = 'reset-code:'.$email;
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 3)) {
+            return response()->json(['error' => 'Too many requests. Try again later.'], 429);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 900);
+
+        if (\App\Models\User::where('email', $email)->exists()) {
+            \App\Services\CodeSender::send($email, 'reset');
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Verify a reset code and set the new password. Returns the account so the
+     * device can mirror the fresh hash and stay signed in.
+     */
+    public function remoteReset(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|digits:6',
+            'password' => 'required|string|min:6|regex:/[0-9]/',
+        ]);
+        $email = strtolower($data['email']);
+
+        if (! \App\Models\EmailCode::verify($email, $data['code'], 'reset')) {
+            return response()->json(['error' => 'That code is invalid or has expired.'], 422);
+        }
+
+        $user = \App\Models\User::where('email', $email)->first();
+        if (! $user) {
+            return response()->json(['error' => 'Account not found.'], 404);
+        }
+
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'email_verified_at' => $user->email_verified_at ?? now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+                'password_hash' => $user->password,
+                'is_admin' => (bool) $user->is_admin,
+                'level_id' => $user->level_id,
+                'level_started_days' => (int) $user->level_started_days,
+                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+                'timezone' => $user->timezone,
+            ],
+        ]);
+    }
+
+    /**
+     * Redeem the one-time token minted by the native Google callback and hand
+     * back the account so the device can mirror it and sign in. Single use.
+     */
+    public function googleRedeem(Request $request): JsonResponse
+    {
+        $data = $request->validate(['token' => 'required|string']);
+
+        $userId = \Illuminate\Support\Facades\Cache::pull('goauth:'.$data['token']);
+        if (! $userId) {
+            return response()->json(['error' => 'That sign-in link has expired.'], 422);
+        }
+
+        $user = \App\Models\User::find($userId);
+        if (! $user) {
+            return response()->json(['error' => 'Account not found.'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+                'password_hash' => $user->password,
+                'is_admin' => (bool) $user->is_admin,
+                'level_id' => $user->level_id,
+                'level_started_days' => (int) $user->level_started_days,
+                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+                'timezone' => $user->timezone,
+            ],
+        ]);
     }
 }

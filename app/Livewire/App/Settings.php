@@ -13,6 +13,11 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Settings extends Component
 {
+    /** Delete-account modal step: 'warn' (confirm) → 'code' (enter emailed code). */
+    public string $deleteStep = 'warn';
+
+    public string $deleteCode = '';
+
     public function resetProgress()
     {
         $user = auth()->user();
@@ -63,6 +68,87 @@ class Settings extends Component
         // A full reload also clears the wire:navigate cache, so pressing Back
         // cleanly re-requests the prior page (which redirects guests to landing).
         return redirect('/welcome?auth_prompt=1&auth_mode=login');
+    }
+
+    /**
+     * Email the signed-in user a code to confirm account deletion. Online only:
+     * on the device this goes to the backend (which owns accounts + email), and
+     * on the backend it sends directly. Advances the modal to the code step.
+     */
+    public function sendDeleteCode()
+    {
+        $user = auth()->user();
+
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            try {
+                $response = \App\Services\Sync\BackendClient::request()
+                    ->withHeaders(\App\Services\Sync\BackendClient::userHeaders($user))
+                    ->post(\App\Services\Sync\BackendClient::base().'/v1/user/delete-code');
+            } catch (\Throwable $e) {
+                $this->addError('delete', 'No internet connection. Connect to the internet and try again.');
+                return;
+            }
+
+            if (! $response->successful()) {
+                $this->addError('delete', 'Could not send the code right now. Please try again.');
+                return;
+            }
+        } else {
+            \App\Services\CodeSender::send($user->email, 'delete');
+        }
+
+        $this->resetErrorBag('delete');
+        $this->deleteStep = 'code';
+    }
+
+    /**
+     * Permanently delete the account after verifying the emailed code. On the
+     * device the backend deletes the authoritative copy first, then the local
+     * mirror is purged so it can't sync back. Irreversible.
+     */
+    public function deleteAccount()
+    {
+        $this->validate(
+            ['deleteCode' => 'required|digits:6'],
+            ['deleteCode.required' => 'Enter the code from your email.', 'deleteCode.digits' => 'The code should be 6 digits.'],
+        );
+
+        $user = auth()->user();
+
+        if (\App\Services\Sync\BackendClient::isClient()) {
+            try {
+                $response = \App\Services\Sync\BackendClient::request()
+                    ->withHeaders(\App\Services\Sync\BackendClient::userHeaders($user))
+                    ->post(\App\Services\Sync\BackendClient::base().'/v1/user/delete', ['code' => $this->deleteCode]);
+            } catch (\Throwable $e) {
+                $this->addError('delete', 'No internet connection. Connect to the internet and try again.');
+                return;
+            }
+
+            if ($response->status() === 422) {
+                $this->addError('deleteCode', 'That code is invalid or has expired.');
+                return;
+            }
+            if (! $response->successful()) {
+                $this->addError('delete', 'Could not delete the account right now. Please try again.');
+                return;
+            }
+        } elseif (! \App\Models\EmailCode::verify($user->email, $this->deleteCode, 'delete')) {
+            $this->addError('deleteCode', 'That code is invalid or has expired.');
+            return;
+        }
+
+        // Wipe the local copy (authoritative on the backend, mirror on device).
+        $user->deleteWithData();
+
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        // Clear the device's offline caches so nothing can re-push.
+        $this->dispatch('progress-reset');
+
+        return redirect('/welcome');
     }
 
     public function render(ProgressionService $progression, SettingsService $settings)

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\App;
 
+use App\Livewire\Concerns\HandlesGoogleAuth;
 use App\Mail\SubscriptionStartedMail;
 use App\Models\Level;
 use App\Models\Plan;
@@ -23,6 +24,8 @@ use Native\Mobile\Facades\InAppPurchase;
  */
 class SubscribeSheet extends Component
 {
+    use HandlesGoogleAuth;
+
     public bool $showSheet  = false;
     public string $step     = 'plans'; // 'plans' | 'auth'
     public string $authMode = 'register';
@@ -30,14 +33,35 @@ class SubscribeSheet extends Component
     public bool $purchasing = false;
     public ?string $message = null;
 
+    /** Where to send the user if they dismiss the sheet (e.g. onboarding sends
+     *  them to the basics). Null keeps the current "just hide" behaviour. */
+    public ?string $closeTo = null;
+
+    /** The sticky "Subscribe" CTA bar shown when the sheet is closed. On the
+     *  knowledge sales pages it's the funnel; onboarding hides it and opens the
+     *  sheet from its own final CTA instead. */
+    public bool $showBar = true;
+
+    public function mount(bool $showBar = true): void
+    {
+        $this->showBar = $showBar;
+    }
+
     // Auth fields
     public string $name     = '';
     public string $email    = '';
     public string $password = '';
+    public string $password_confirmation = '';
+
+    public function getGoogleEnabledProperty(): bool
+    {
+        return (bool) app(SettingsService::class)->get('google_login_enabled');
+    }
 
     #[On('open-subscribe-sheet')]
-    public function open(): void
+    public function open(?string $closeTo = null): void
     {
+        $this->closeTo      = $closeTo;
         $this->showSheet    = true;
         $this->step         = 'plans';
         $this->message      = null;
@@ -45,13 +69,20 @@ class SubscribeSheet extends Component
             ?? Plan::where('is_active', true)->where('price', '>', 0)->orderBy('sort_order')->value('id');
     }
 
-    public function close(): void
+    public function close()
     {
         $this->showSheet  = false;
         $this->purchasing = false;
         $this->message    = null;
-        $this->reset(['name', 'email', 'password']);
+        $this->reset(['name', 'email', 'password', 'password_confirmation']);
         $this->resetValidation();
+
+        // Opened from onboarding: dismissing the plans goes to the basics.
+        if ($this->closeTo) {
+            $target = $this->closeTo;
+            $this->closeTo = null;
+            return $this->redirect($target, navigate: true);
+        }
     }
 
     public function selectPlan(int $planId): void
@@ -78,13 +109,15 @@ class SubscribeSheet extends Component
         $this->validate([
             'name'     => 'required|string|max:120',
             'email'    => 'required|email|max:190',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|regex:/[0-9]/|confirmed',
         ], [
-            'name.required'     => 'Name is required.',
-            'email.required'    => 'Email is required.',
-            'email.email'       => 'Enter a valid email address.',
-            'password.required' => 'Password is required.',
-            'password.min'      => 'Password must be at least 6 characters.',
+            'name.required'      => 'Name is required.',
+            'email.required'     => 'Email is required.',
+            'email.email'        => 'Enter a valid email address.',
+            'password.required'  => 'Password is required.',
+            'password.min'       => 'Password must be at least 6 characters and include a number.',
+            'password.regex'     => 'Password must be at least 6 characters and include a number.',
+            'password.confirmed' => "Passwords don't match.",
         ]);
 
         // On the device the backend owns accounts: register there first, then

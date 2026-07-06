@@ -1,6 +1,6 @@
 @php($settings = app(\App\Services\SettingsService::class))
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark" style="background-color:#060810">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
@@ -22,8 +22,8 @@
         }
     ?>
     <meta name="sync-api-base" content="{{ $syncBase }}">
-    <meta name="sync-enabled" content="{{ $settings->get('sync_enabled', true) ? '1' : '0' }}">
-    <meta name="sync-interval" content="{{ (int) $settings->get('sync_interval_minutes', 15) }}">
+    <meta name="sync-enabled" content="{{ \App\Support\AppConfig::SYNC_ENABLED ? '1' : '0' }}">
+    <meta name="sync-interval" content="{{ \App\Support\AppConfig::SYNC_INTERVAL_MINUTES }}">
     <meta name="sync-debug" content="{{ $settings->get('sync_debug', false) ? '1' : '0' }}">
     @auth
         <meta name="user-email" content="{{ auth()->user()->email }}">
@@ -59,7 +59,7 @@
         <style>{!! $settings->get('custom_css') !!}</style>
     @endif
 </head>
-<body class="antialiased bg-bg text-content selection:bg-accent/30">
+<body class="antialiased bg-bg text-content selection:bg-accent/30" style="background-color:#060810">
     {!! $settings->get('inject_body_start') !!}
 
     <div class="app-frame no-scrollbar">

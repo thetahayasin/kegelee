@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
             'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,
+            'basics' => \App\Http\Middleware\EnsureBasicsCompleted::class,
             'app.enabled' => \App\Http\Middleware\EnsureAppEnabled::class,
             'sync.key' => \App\Http\Middleware\VerifySyncApiKey::class,
         ]);

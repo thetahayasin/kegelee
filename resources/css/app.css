@@ -24,20 +24,20 @@
     --color-muted: var(--c-text-muted);
 }
 
-/* Fixed frosted-glass palette: cyan text on deep dark, translucent surfaces. */
+/* Fixed frosted-glass palette: lime text on deep dark, translucent surfaces. */
 :root {
     --c-bg: #060810;
     --c-surface: rgba(255, 255, 255, 0.14);
     --c-surface-2: rgba(255, 255, 255, 0.22);
-    --c-accent: #6ef2f0;
-    --c-accent-soft: #9bf7f5;
-    --c-glow: #e8202a;
+    --c-accent: #c1ff72;
+    --c-accent-soft: #d6ffa1;
+    --c-glow: #c1ff72;
     /* Success follows the theme accent so "completed"/success messages match. */
     --c-success: var(--c-accent);
-    --c-text: #6ef2f0;
-    --c-text-muted: rgba(110, 242, 240, 0.5);
-    /* Dark ink for text/icons sitting on the cyan accent. */
-    --c-on-accent: #042024;
+    --c-text: #c1ff72;
+    --c-text-muted: rgba(193, 255, 114, 0.5);
+    /* Dark ink for text/icons sitting on the lime accent. */
+    --c-on-accent: #0c1a00;
 }
 
 [x-cloak] {
@@ -62,8 +62,8 @@ body {
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(135% 90% at 50% -10%, #0d1a26 0%, transparent 55%),
-        radial-gradient(120% 80% at 50% 112%, #1a070b 0%, transparent 55%),
+        radial-gradient(135% 90% at 50% -10%, #102612 0%, transparent 55%),
+        radial-gradient(120% 80% at 50% 112%, #0a1705 0%, transparent 55%),
         #060810;
     box-shadow: 0 0 80px rgba(0, 0, 0, 0.6);
 }
@@ -107,20 +107,27 @@ body {
 /* Liquid glass: very transparent, heavy blur, luminous edge + top highlight,
    so the watermark behind reads through. Circle (rounded-full) keeps its ring. */
 [class*='bg-surface'] {
-    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
-    backdrop-filter: blur(12px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(7px) !important;
+    backdrop-filter: blur(7px) !important;
 }
 [class*='bg-surface']:not(.rounded-full) {
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+/* Android WebView renders a backdrop-filter as a square when the element's
+   overflow is visible - it ignores the border-radius, leaving a squarish glow
+   around frosted circles. Clipping the round elements keeps the blur inside
+   their shape. (Desktop already clips correctly; this only matters on-device.) */
+[class*='bg-surface'].rounded-full {
+    overflow: hidden;
 }
 
 /* Overlay bars (bottom nav, sticky CTA strips) are dark liquid glass too, so
    content scrolls under them blurred instead of behind a near-solid bar. */
 .bg-bg\/95 {
     background-color: color-mix(in srgb, var(--c-bg) 55%, transparent) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
-    backdrop-filter: blur(12px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(7px) !important;
+    backdrop-filter: blur(7px) !important;
 }
 
 /* Hide scrollbars for the native-app feel while keeping scroll. */
@@ -328,4 +335,32 @@ label {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
     animation: day-draw-tick 0.35s ease-out 1.5s both;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion polish
+--------------------------------------------------------------------------- */
+
+/* Promote animated surfaces to their own compositor layer so modal open/close
+   and the workout pulse stay smooth (transform/opacity only - already GPU
+   friendly, this just avoids first-frame jank). */
+.modal-panel,
+.contract-glow {
+    will-change: transform, opacity;
+}
+
+/* Modal panels grow from their own centre for a natural pop. */
+.modal-panel {
+    transform-origin: center;
+}
+
+/* Honour the OS "reduce motion" preference for DECORATIVE transitions (modal
+   open/close, hovers, slide changes). Keyframe animations that convey real
+   information - the workout circle timing, completion ticks - keep running. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
 }

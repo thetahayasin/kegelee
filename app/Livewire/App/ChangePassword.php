@@ -19,11 +19,12 @@ class ChangePassword extends Component
     {
         $this->validate([
             'current'  => 'required',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6|regex:/[0-9]/|confirmed',
         ], [
             'current.required'   => 'Current password is required.',
             'password.required'  => 'New password is required.',
-            'password.min'       => 'New password must be at least 6 characters.',
+            'password.min'       => 'New password must be at least 6 characters and include a number.',
+            'password.regex'     => 'New password must be at least 6 characters and include a number.',
             'password.confirmed' => "Passwords don't match.",
         ]);
 

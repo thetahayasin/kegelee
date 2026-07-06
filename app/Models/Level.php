@@ -24,6 +24,6 @@ class Level extends Model
     public function effectiveSessionsPerDay(): int
     {
         return $this->sessions_per_day
-            ?? (int) app(\App\Services\SettingsService::class)->get('sessions_per_day', 2);
+            ?? \App\Support\AppConfig::SESSIONS_PER_DAY;
     }
 }

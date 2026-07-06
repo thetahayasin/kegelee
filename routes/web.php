@@ -78,6 +78,11 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google');
     Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+
+    // Native (device) Google flow: opened in a Custom Tab, returns via deeplink.
+    Route::get('/auth/google/native', [GoogleAuthController::class, 'nativeRedirect'])->name('auth.google.native');
+    Route::get('/auth/google/native/callback', [GoogleAuthController::class, 'nativeCallback'])->name('auth.google.native.callback');
+    Route::get('/auth/google/finish', [GoogleAuthController::class, 'finish'])->name('auth.google.finish');
 });
 
 /*
@@ -94,7 +99,10 @@ Route::middleware(['auth', 'app.enabled'])->group(function () {
     // a signed-up user subscribes (or signs out) before touching anything else.
     Route::get('/upgrade', App\Paywall::class)->name('paywall');
 
-    Route::middleware('subscribed')->group(function () {
+    // 'basics' gates the training app behind the "Learn the basics" lessons.
+    // The knowledge routes are public (defined above), so a gated user is sent
+    // there to finish the basics without a redirect loop.
+    Route::middleware(['subscribed', 'basics'])->group(function () {
         Route::get('/app', App\Home::class)->name('home');
 
         Route::get('/profile', App\Profile::class)->name('profile');

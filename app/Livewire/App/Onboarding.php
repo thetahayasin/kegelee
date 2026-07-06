@@ -2,6 +2,7 @@
 
 namespace App\Livewire\App;
 
+use App\Livewire\Concerns\HandlesGoogleAuth;
 use App\Services\SettingsService;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -11,6 +12,8 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class Onboarding extends Component
 {
+    use HandlesGoogleAuth;
+
     #[Url]
     public ?string $auth_prompt = null;
 
@@ -174,13 +177,14 @@ class Onboarding extends Component
         $this->validate([
             'name'     => 'required|string|max:120',
             'email'    => 'required|email|max:190',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6|regex:/[0-9]/|confirmed',
         ], [
             'name.required'      => 'Name is required.',
             'email.required'     => 'Email is required.',
             'email.email'        => 'Enter a valid email address.',
             'password.required'  => 'Password is required.',
-            'password.min'       => 'Password must be at least 6 characters.',
+            'password.min'       => 'Password must be at least 6 characters and include a number.',
+            'password.regex'     => 'Password must be at least 6 characters and include a number.',
             'password.confirmed' => "Passwords don't match.",
         ]);
 
@@ -245,13 +249,17 @@ class Onboarding extends Component
 
         if ($user) {
             $user->update(['onboarded_at' => now()]);
-            return $this->redirectRoute('home', navigate: true);
+
+            if ($user->isSubscribed()) {
+                return $this->redirectRoute('home', navigate: true);
+            }
         }
 
-        // Guests finish by opening the auth modal
-        $this->showAuthModal = true;
-        $this->authMode = 'login';
-        $this->wasAutoOpened = true;
+        // Guests and unsubscribed users end on the Google Play plans. The sheet
+        // handles inline register/login + purchase; dismissing it drops them to
+        // the free basics preview (closeTo). Pass a RELATIVE path so Livewire's
+        // navigate follows it (a full URL is treated as external and ignored).
+        $this->dispatch('open-subscribe-sheet', closeTo: route('knowledge.index', absolute: false));
     }
 
     public function closeAuthModal(): void

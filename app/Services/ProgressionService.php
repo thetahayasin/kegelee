@@ -13,9 +13,8 @@ use Illuminate\Support\Carbon;
 /**
  * Owns every rule about how a user moves through the programme:
  * how many sessions count as a completed day, how completed days unlock
- * exercises and levels, and what "today" looks like. All thresholds come
- * from the level or from {@see SettingsService}, so behaviour is fully
- * tunable from the backend without code changes.
+ * exercises and levels, and what "today" looks like. Thresholds come from the
+ * user's level where set, otherwise from the built-in {@see \App\Support\AppConfig}.
  */
 class ProgressionService
 {
@@ -29,13 +28,13 @@ class ProgressionService
     public function requiredSessionsPerDay(User $user): int
     {
         return $user->level?->effectiveSessionsPerDay()
-            ?? (int) $this->settings->get('sessions_per_day', 2);
+            ?? \App\Support\AppConfig::SESSIONS_PER_DAY;
     }
 
     public function planLength(User $user): int
     {
         return $user->level?->days_to_complete
-            ?? (int) $this->settings->get('plan_length_days', 30);
+            ?? \App\Support\AppConfig::PLAN_LENGTH_DAYS;
     }
 
     /** Total fully completed training days for the user (memoized per request). */

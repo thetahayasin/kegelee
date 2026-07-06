@@ -6,7 +6,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'progression' => 'Progression', 'sync' => 'Offline sync', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -49,37 +49,6 @@
                     <input type="file" wire:model="faviconUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
                     @error('faviconUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
                 </div>
-            </div>
-        </div>
-
-        {{-- PROGRESSION --}}
-        <div x-show="tab === 'progression'" class="grid gap-4 rounded-2xl bg-surface p-5 md:grid-cols-2">
-            <p class="md:col-span-2 text-sm text-muted">These drive how the backend counts a completed training day when syncing sessions. The workout circle, exercises and onboarding are built into the app itself.</p>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Sessions per day (counts as a completed day)</label>
-                <input type="number" wire:model="values.sessions_per_day" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-            </div>
-            <div>
-                <label class="mb-1 block text-sm text-muted">Plan length (days per month)</label>
-                <input type="number" wire:model="values.plan_length_days" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-            </div>
-        </div>
-
-        {{-- OFFLINE SYNC --}}
-        <div x-show="tab === 'sync'" class="space-y-4 rounded-2xl bg-surface p-5">
-            <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.sync_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Enable offline sync</span></label>
-            <p class="text-sm text-muted">The app records sessions and progress locally and syncs them to this backend when connectivity returns. Legal pages sync down so the app carries a current copy.</p>
-
-            <div>
-                <label class="mb-1 block text-sm text-muted">Sync interval (minutes)</label>
-                <input type="number" min="5" max="120" wire:model="values.sync_interval_minutes" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">How often the app re-syncs while it stays open. It always syncs on open and on reconnect.</p>
-            </div>
-
-            <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
-                <p class="font-semibold text-content">Sync API endpoint</p>
-                <p class="mt-1 font-mono text-xs break-all">{{ url('/api/v1/content') }}</p>
-                <p class="mt-2">Secured by <code class="text-content">SYNC_API_KEY</code> in your <code>.env</code>. The app passes this automatically — no user action needed.</p>
             </div>
         </div>
 
@@ -297,6 +266,23 @@
                     <p class="mt-2 text-xs font-semibold text-accent-soft">⚠ App is currently closed — web users will see the landing page.</p>
                 @endunless
             </div>
+
+            {{-- Admin login email --}}
+            <p class="text-sm font-semibold text-muted">Admin email</p>
+            <p class="text-xs text-muted">The address you sign in with (and where password-reset codes are sent).</p>
+            <div><label class="mb-1 block text-sm text-muted">Email address</label>
+                <input type="email" wire:model="adminEmail" autocomplete="username" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('adminEmail') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+            <div><label class="mb-1 block text-sm text-muted">Current password</label>
+                <input type="password" wire:model="emailCurrentPassword" autocomplete="current-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('emailCurrentPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+            <button type="button" wire:click="changeAdminEmail" class="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold tap">
+                <span wire:loading.remove wire:target="changeAdminEmail">Update email</span>
+                <span wire:loading wire:target="changeAdminEmail">Updating...</span>
+            </button>
+            @if ($emailMessage) <p class="text-sm font-semibold text-success">{{ $emailMessage }}</p> @endif
+
+            <hr class="border-white/5">
 
             <p class="text-sm font-semibold text-muted">Admin password</p>
             <div><label class="mb-1 block text-sm text-muted">Current password</label>
