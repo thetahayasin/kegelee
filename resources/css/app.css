@@ -364,3 +364,14 @@ label {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* While the soft keyboard animates (adjustResize resizes the window every
+   frame), re-rendering the live backdrop blurs is what makes the keyboard
+   crawl on mid-range GPUs. app.js flags <html> with .vv-resizing during the
+   resize; pause every blur source for those frames and restore right after. */
+.vv-resizing [class*='bg-surface'],
+.vv-resizing .bg-bg\/95,
+.vv-resizing [class*='backdrop-blur'] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}

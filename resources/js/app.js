@@ -316,6 +316,26 @@ window.appOnline = () => (window.kegelSync ? window.kegelSync.probeOnline() : Pr
 if (!navigator.onLine) showOfflineBanner();
 
 // ---------------------------------------------------------------------------
+// Keyboard performance
+// ---------------------------------------------------------------------------
+// The Android window uses adjustResize: while the soft keyboard animates open,
+// the WebView re-lays-out and re-renders EVERY frame - and re-rendering the
+// live backdrop-filter glass layers each frame is what makes the keyboard
+// crawl on mid-range GPUs (Pixels hide it). While the visual viewport is
+// actively resizing we flag <html> with .vv-resizing, which the CSS uses to
+// pause all backdrop blur; it returns as soon as the resize settles.
+(function () {
+    let timer = null;
+    const el = document.documentElement;
+    function onViewportResize() {
+        el.classList.add('vv-resizing');
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => el.classList.remove('vv-resizing'), 450);
+    }
+    (window.visualViewport || window).addEventListener('resize', onViewportResize);
+})();
+
+// ---------------------------------------------------------------------------
 // Toast helper
 // ---------------------------------------------------------------------------
 function showToast(msg) {
