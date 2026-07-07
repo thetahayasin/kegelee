@@ -47,6 +47,11 @@ class SyncController extends Controller
 
         return response()->json([
             'pages'     => $pages,
+            // Feature flags the device UI reads locally (synced into its own
+            // settings store; see ContentSyncService::applySettings).
+            'settings'  => [
+                'google_login_enabled' => (bool) app(\App\Services\SettingsService::class)->get('google_login_enabled'),
+            ],
             'synced_at' => now()->toIso8601String(),
         ]);
     }

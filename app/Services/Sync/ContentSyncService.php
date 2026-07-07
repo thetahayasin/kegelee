@@ -49,6 +49,7 @@ class ContentSyncService
 
             try {
                 $this->applyPages($data['pages'] ?? []);
+                $this->applySettings($data['settings'] ?? []);
                 $this->report['ok'] = true;
             } catch (\Throwable $e) {
                 $this->report['error'] = $e->getMessage();
@@ -97,6 +98,25 @@ class ContentSyncService
             }
 
             Page::updateOrCreate(['slug' => $row['slug']], $attributes);
+        }
+    }
+
+    /**
+     * Feature flags the backend controls but the device UI reads locally.
+     * Without this the device keeps its seeded default (e.g. the Google
+     * sign-in button stays hidden even though the backend has it enabled).
+     *
+     * @param array<string, mixed> $settings
+     */
+    private function applySettings(array $settings): void
+    {
+        if (array_key_exists('google_login_enabled', $settings)) {
+            app(\App\Services\SettingsService::class)->set(
+                'google_login_enabled',
+                (bool) $settings['google_login_enabled'],
+                'bool',
+                'google',
+            );
         }
     }
 }

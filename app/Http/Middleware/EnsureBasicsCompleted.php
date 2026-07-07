@@ -31,7 +31,9 @@ class EnsureBasicsCompleted
             && ! $user->hasCompletedBasics()
             && ! $user->workoutSessions()->exists()
         ) {
-            return redirect()->route('knowledge.index');
+            // Direct RedirectResponse: redirect() returns Livewire's Redirector
+            // during Livewire requests, which violates the Response return type.
+            return new \Illuminate\Http\RedirectResponse(route('knowledge.index'));
         }
 
         return $next($request);

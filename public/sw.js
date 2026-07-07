@@ -1,12 +1,11 @@
-const CACHE_NAME = 'kegel-v6';
+const CACHE_NAME = 'kegel-v7';
 
 const PRECACHE = [
-    '/welcome',
     '/offline.html',
 ];
 
 // ---------------------------------------------------------------------------
-// INSTALL — pre-cache onboarding + offline fallback.
+// INSTALL — pre-cache the offline fallback.
 // ---------------------------------------------------------------------------
 self.addEventListener('install', (e) => {
     e.waitUntil(
@@ -70,22 +69,19 @@ self.addEventListener('fetch', (e) => {
         return;
     }
 
-    // ----- HTML pages: network-first, cache fallback, offline shell last resort -----
+    // ----- HTML pages: network ONLY (with one retry), never cached. -----
+    // The PHP server is local on the device, so "offline" still serves pages;
+    // cached HTML carries stale sessions/CSRF (raw "Unauthenticated" JSON),
+    // stale data (level/time frozen until restart) and ghost screens (the
+    // /welcome shell replacing other routes). The only real failure mode is
+    // the cold-start race while the local server boots - retry covers that.
     if (e.request.headers.get('accept')?.includes('text/html')) {
         e.respondWith(
-            fetch(e.request)
-                .then(resp => {
-                    if (resp.ok) {
-                        const clone = resp.clone();
-                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                    }
-                    return resp;
-                })
-                .catch(() =>
-                    caches.match(e.request)
-                        .then(c => c || caches.match('/welcome'))
-                        .then(c => c || caches.match('/offline.html'))
-                )
+            fetch(e.request).catch(() =>
+                new Promise(resolve => setTimeout(resolve, 600))
+                    .then(() => fetch(e.request))
+                    .catch(() => caches.match('/offline.html'))
+            )
         );
         return;
     }

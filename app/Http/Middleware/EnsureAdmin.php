@@ -12,7 +12,9 @@ class EnsureAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check() || ! Auth::user()->is_admin) {
-            return redirect()->route('admin.login');
+            // Direct RedirectResponse: redirect() returns Livewire's Redirector
+            // during Livewire requests, which violates the Response return type.
+            return new \Illuminate\Http\RedirectResponse(route('admin.login'));
         }
 
         return $next($request);

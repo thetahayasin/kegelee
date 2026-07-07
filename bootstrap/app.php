@@ -45,19 +45,27 @@ return Application::configure(basePath: dirname(__DIR__))
             : route('landing'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Livewire update requests must get JSON errors — otherwise the client
-        // receives an HTML stack trace and the whole SPA breaks.
+        // Livewire component updates (POST /livewire/update) must get JSON
+        // errors — otherwise the client receives an HTML stack trace and the
+        // SPA breaks. But GET page navigations (including wire:navigate loads,
+        // which also carry Livewire headers) must NEVER get a JSON body: it
+        // replaces the page with raw {"message":"Unauthenticated."} text.
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*')
                 || str_starts_with($request->path(), 'livewire-')
-                || $request->headers->has('X-Livewire'),
+                || $request->is('livewire/*')
+                || ($request->headers->has('X-Livewire') && $request->isMethod('POST')),
         );
 
         // A signed-out user navigating to the app must land on login, not a
-        // raw {"message":"Unauthenticated."} body. API and Livewire requests
-        // keep their JSON 401 so the client-side hooks can handle them.
+        // raw {"message":"Unauthenticated."} body. API and Livewire update
+        // requests keep their JSON 401 so the client-side hooks handle them.
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
-            if (! $request->is('api/*') && ! $request->headers->has('X-Livewire')) {
+            $isJsonSurface = $request->is('api/*')
+                || $request->is('livewire/*')
+                || ($request->headers->has('X-Livewire') && $request->isMethod('POST'));
+
+            if (! $isJsonSurface) {
                 return redirect()->guest($request->is('admin*')
                     ? route('admin.login')
                     : route('landing'));

@@ -142,7 +142,8 @@
                  spacing is identical for every count and never depends on label
                  width or flex-distribution timing when the mode changes. --}}
             <div class="absolute inset-0 grid items-end gap-2 pr-14"
-                 :style="'grid-template-columns: repeat(' + (bars ? bars.length : 1) + ', minmax(0, 1fr))'">
+                 style="grid-template-columns: repeat({{ max(1, count($bars)) }}, minmax(0, 1fr))"
+                 :style="'grid-template-columns: repeat(' + Math.max(1, (bars || []).length) + ', minmax(0, 1fr))'">
                 <template x-for="(bar, index) in bars" :key="index">
                     <div class="flex h-full min-w-0 flex-col items-center justify-end">
                         <div class="w-7 max-w-full rounded-md bg-accent transition-[height] duration-300"
@@ -154,7 +155,8 @@
 
         {{-- x labels: same grid template as the bars so they stay aligned. --}}
         <div class="mt-2 grid gap-2 pr-14"
-             :style="'grid-template-columns: repeat(' + (bars ? bars.length : 1) + ', minmax(0, 1fr))'">
+             style="grid-template-columns: repeat({{ max(1, count($bars)) }}, minmax(0, 1fr))"
+             :style="'grid-template-columns: repeat(' + Math.max(1, (bars || []).length) + ', minmax(0, 1fr))'">
             <template x-for="(bar, index) in bars" :key="index">
                 <span class="min-w-0 truncate text-center text-[10px] text-muted" x-text="bar.label"></span>
             </template>

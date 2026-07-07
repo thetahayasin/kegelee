@@ -23,8 +23,10 @@ class EnsureSubscribed
         $user = $request->user();
 
         if ($user && ! $user->is_admin && ! $user->isSubscribed()) {
-            // Livewire navigation requests need a redirect they can follow.
-            return redirect()->route('paywall');
+            // Construct the response directly: during Livewire requests the
+            // redirect() helper returns Livewire's Redirector (not a Symfony
+            // Response), which fatals against this method's return type.
+            return new \Illuminate\Http\RedirectResponse(route('paywall'));
         }
 
         return $next($request);

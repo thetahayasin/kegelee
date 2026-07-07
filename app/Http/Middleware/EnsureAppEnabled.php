@@ -14,7 +14,11 @@ class EnsureAppEnabled
     public function handle(Request $request, Closure $next): Response
     {
         if (! $this->settings->get('app_enabled', true)) {
-            return redirect()->route('landing')->with('app_disabled', true);
+            // Direct RedirectResponse: redirect() returns Livewire's Redirector
+            // during Livewire requests, which violates the Response return type.
+            $request->session()->flash('app_disabled', true);
+
+            return new \Illuminate\Http\RedirectResponse(route('landing'));
         }
 
         return $next($request);

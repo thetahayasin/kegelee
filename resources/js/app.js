@@ -316,6 +316,28 @@ window.appOnline = () => (window.kegelSync ? window.kegelSync.probeOnline() : Pr
 if (!navigator.onLine) showOfflineBanner();
 
 // ---------------------------------------------------------------------------
+// Blank-page self-heal
+// ---------------------------------------------------------------------------
+// A wire:navigate back/forward restore (or an interrupted navigation) can
+// occasionally rebuild the page without its Livewire content, leaving just
+// the watermark on an empty frame. When the content root is empty after any
+// navigation or history restore, hard-reload the current URL - the server
+// render is always correct.
+function healBlankPage() {
+    if (window.__loggingOut) return;
+    const root = document.querySelector('.app-frame > .relative');
+    const empty = root
+        ? root.children.length === 0 || root.innerHTML.trim() === ''
+        : !document.querySelector('[wire\\:id]') && !!document.querySelector('.app-frame');
+    if (empty) {
+        window.location.reload();
+    }
+}
+document.addEventListener('livewire:navigated', () => setTimeout(healBlankPage, 150));
+window.addEventListener('pageshow', (e) => { if (e.persisted) setTimeout(healBlankPage, 150); });
+window.addEventListener('popstate', () => setTimeout(healBlankPage, 250));
+
+// ---------------------------------------------------------------------------
 // Keyboard performance
 // ---------------------------------------------------------------------------
 // The Android window uses adjustResize: while the soft keyboard animates open,
