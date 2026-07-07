@@ -187,6 +187,11 @@ return [
         'storage/framework/testing',
         'storage/logs',
 
+        // The DEV database - contains real secrets saved via the local admin
+        // panel (SMTP password, tokens). The device never uses it: it creates
+        // its own SQLite in app storage and migrates on first boot.
+        'database/database.sqlite',
+
         // Build artifacts + tooling - the real APK bloat. dist/ alone holds
         // hundreds of MB of previously-built .apk/.aab files, and node_modules /
         // the nativephp build workspace have no place inside the app bundle.
