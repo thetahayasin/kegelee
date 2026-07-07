@@ -18,7 +18,7 @@ class AuthSyncFlowTest extends TestCase
     {
         parent::setUp();
         config([
-            'app.sync_api_key' => 'Y5PqnYAf8MIW1tM8XDTNLUMmRAxRuiRBkCA8BY6kBFt12Uuo',
+            'app.sync_api_key' => 'testing-key-not-a-real-secret',
             'app.content_sync_url' => 'https://kegelee.com/api/v1/content',
         ]);
         // Set client mode

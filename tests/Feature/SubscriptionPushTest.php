@@ -18,7 +18,7 @@ class SubscriptionPushTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $apiKey = 'Y5PqnYAf8MIW1tM8XDTNLUMmRAxRuiRBkCA8BY6kBFt12Uuo';
+    private string $apiKey = 'testing-key-not-a-real-secret';
 
     private User $user;
 
