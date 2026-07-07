@@ -98,6 +98,7 @@ class RemoteAuth
             'name' => $remoteUser['name'],
             'email_verified_at' => ! empty($remoteUser['email_verified_at']) ? now()->parse($remoteUser['email_verified_at']) : null,
             'password' => $remoteUser['password_hash'],
+            'api_token' => $remoteUser['api_token'] ?? null,
             'is_admin' => (bool) ($remoteUser['is_admin'] ?? false),
             'level_id' => $remoteUser['level_id'] ?? null,
             'level_started_days' => (int) ($remoteUser['level_started_days'] ?? 0),

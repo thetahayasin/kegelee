@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
     <meta name="theme-color" content="#060810">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="sync-api-key" content="{{ config('app.sync_api_key') }}">
     <?php
         $syncBase = config('app.content_sync_url');
         if (empty($syncBase)) {
@@ -27,7 +26,7 @@
     <meta name="sync-debug" content="{{ $settings->get('sync_debug', false) ? '1' : '0' }}">
     @auth
         <meta name="user-email" content="{{ auth()->user()->email }}">
-        <meta name="user-hash" content="{{ auth()->user()->password }}">
+        <meta name="user-token" content="{{ auth()->user()->api_token }}">
         {{-- Drives the hardware back hierarchy (the paywall is the app's root
              while unsubscribed). --}}
         <meta name="app-subscribed" content="{{ auth()->user()->isSubscribed() ? '1' : '0' }}">

@@ -32,8 +32,7 @@ class BackendClient
     public static function isClient(): bool
     {
         return self::isDevice()
-            && ! empty(config('app.content_sync_url'))
-            && ! empty(config('app.sync_api_key'));
+            && ! empty(config('app.content_sync_url'));
     }
 
     /**
@@ -76,7 +75,7 @@ class BackendClient
             'request_host'     => $reqHost,
             'backend_base'     => self::base(),
             'native_flag'      => $_SERVER['NATIVEPHP_RUNNING'] ?? $_ENV['NATIVEPHP_RUNNING'] ?? getenv('NATIVEPHP_RUNNING') ?: null,
-            'has_api_key'      => ! empty(config('app.sync_api_key')),
+            'has_user_token'   => ! empty(auth()->user()?->api_token),
         ];
     }
 
@@ -102,12 +101,13 @@ class BackendClient
         return $url;
     }
 
-    /** A pre-configured HTTP request carrying the API key. */
+    /** A pre-configured HTTP request for the backend API. Public endpoints need
+     *  no shared secret (they are throttled and credential-checked server-side);
+     *  user endpoints add the per-user token via userHeaders(). */
     public static function request(int $timeout = 6): PendingRequest
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer '.config('app.sync_api_key'),
-            'Accept'        => 'application/json',
+            'Accept' => 'application/json',
         ])->timeout($timeout)->connectTimeout(3);
     }
 
@@ -132,16 +132,15 @@ class BackendClient
     }
 
     /**
-     * Headers that identify the acting user to the backend's VerifySyncApiKey
-     * middleware (stateless auth via email + stored password hash).
+     * Headers that identify the acting user to the backend's ResolveApiUser
+     * middleware (stateless auth via the per-user API token issued at login).
      *
      * @return array<string, string>
      */
     public static function userHeaders(\App\Models\User $user): array
     {
         return [
-            'X-User-Email'         => $user->email,
-            'X-User-Password-Hash' => (string) $user->password,
+            'X-User-Token' => (string) $user->api_token,
         ];
     }
 }

@@ -25,7 +25,7 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 /*
 |--------------------------------------------------------------------------
 | Web deploy tasks for hosts without shell access - migrations and
-| production caches. Guarded by SYNC_API_KEY + throttle.
+| production caches. Guarded by DEPLOY_KEY (server-only) + throttle.
 |--------------------------------------------------------------------------
 */
 Route::get('/deploy', \App\Http\Controllers\DeployController::class)

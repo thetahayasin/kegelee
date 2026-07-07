@@ -163,6 +163,10 @@ return [
         '*_SECRET',
         'DB_PASSWORD',
         'DB_USERNAME',
+        // Server-only secrets - must never ship inside the APK.
+        'DEPLOY_KEY',
+        'ADMIN_PASSWORD',
+        'MAIL_PASSWORD',
     ],
 
     /*

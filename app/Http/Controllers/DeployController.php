@@ -12,17 +12,17 @@ use Illuminate\Support\Facades\Artisan;
  * symlink (the public disk writes straight into the webroot), so this is
  * everything a deploy requires.
  *
- * Guarded by the SYNC_API_KEY (the same long random secret the app uses),
+ * Guarded by DEPLOY_KEY (a server-only secret - it never ships in the app),
  * plus a throttle. Hit it once after every file upload:
  *
- *   https://kegelee.com/deploy?key=YOUR_SYNC_API_KEY
+ *   https://kegelee.com/deploy?key=YOUR_DEPLOY_KEY
  */
 class DeployController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
         $key = (string) ($request->query('key') ?: $request->bearerToken());
-        $expected = (string) config('app.sync_api_key');
+        $expected = (string) config('app.deploy_key');
 
         abort_unless($expected !== '' && $key !== '' && hash_equals($expected, $key), 403);
 

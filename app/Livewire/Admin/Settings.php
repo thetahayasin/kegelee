@@ -37,6 +37,10 @@ class Settings extends Component
 
     public ?string $passwordMessage = null;
 
+    public ?string $smtpMessage = null;
+
+    public bool $smtpOk = false;
+
     /** Field type map: drives both rendering and persistence. */
     public const TYPES = [
         'circle_size' => 'int', 'circle_track_width' => 'int',
@@ -148,6 +152,55 @@ class Settings extends Component
         $this->values[$key] = null;
         $settings->set($key, null, 'string', $groups[$key]);
         $this->savedMessage = 'Image removed.';
+    }
+
+    /**
+     * Send a test email to the signed-in admin using the SMTP values currently
+     * in the form (no need to save first), so credentials can be verified
+     * before going live. With a blank host the server default mailer is used
+     * (the log driver in local dev).
+     */
+    public function testSmtp(): void
+    {
+        $v = $this->values;
+        $host = trim((string) ($v['mail_host'] ?? ''));
+
+        config([
+            'mail.from.address' => ($v['mail_from_address'] ?? '') ?: ('no-reply@'.(parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost')),
+            'mail.from.name' => ($v['mail_from_name'] ?? '') ?: ($v['app_name'] ?? 'App'),
+        ]);
+
+        if ($host !== '') {
+            $encryption = $v['mail_encryption'] ?? 'tls';
+            config([
+                'mail.default' => 'smtp',
+                'mail.mailers.smtp.host' => $host,
+                'mail.mailers.smtp.port' => (int) ($v['mail_port'] ?? 587),
+                'mail.mailers.smtp.username' => ($v['mail_username'] ?? '') ?: null,
+                'mail.mailers.smtp.password' => ($v['mail_password'] ?? '') ?: null,
+                'mail.mailers.smtp.encryption' => $encryption === 'none' ? null : $encryption,
+                // Fail fast instead of hanging the request on a bad host/port.
+                'mail.mailers.smtp.timeout' => 10,
+            ]);
+        }
+
+        $to = auth()->user()->email;
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                "This is a test email from your Kegelee admin panel.\n\nIf you are reading it, the SMTP settings work.",
+                fn ($message) => $message->to($to)->subject('Kegelee SMTP test'),
+            );
+
+            $this->smtpOk = true;
+            $this->smtpMessage = $host !== ''
+                ? "Test email sent to {$to} via {$host}. Check the inbox (and spam)."
+                : "Test email dispatched to {$to} using the server default mailer (log driver in local dev - check storage/logs).";
+        } catch (\Throwable $e) {
+            report($e);
+            $this->smtpOk = false;
+            $this->smtpMessage = 'Sending failed: '.$e->getMessage();
+        }
     }
 
     public function changeAdminEmail(): void

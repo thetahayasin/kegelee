@@ -125,15 +125,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Sync API Key
+    | Deploy Key
     |--------------------------------------------------------------------------
     |
-    | Used by the VerifySyncApiKey middleware to secure the offline-first
-    | content sync API. Clients must send this as a Bearer token.
+    | Server-only secret guarding the /deploy endpoint. It never ships in the
+    | app (stripped from bundled builds via nativephp.cleanup_env_keys). The
+    | sync API itself uses per-user tokens - no shared key.
     |
     */
 
-    'sync_api_key' => env('SYNC_API_KEY'),
+    'deploy_key' => env('DEPLOY_KEY'),
 
     'content_sync_url' => env('CONTENT_SYNC_URL'),
 

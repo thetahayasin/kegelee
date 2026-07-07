@@ -10,8 +10,9 @@ namespace App\Support;
  *   - Progression rules (how many sessions count as a completed day, and how
  *     long a plan runs) are fixed. Per-level overrides on the `levels` table
  *     still win where set; these are the fallbacks.
- *   - Offline sync is always on. The endpoint + key come from the build-time
- *     .env (CONTENT_SYNC_URL / SYNC_API_KEY); the interval is fixed here.
+ *   - Offline sync is always on. The endpoint comes from the build-time .env
+ *     (CONTENT_SYNC_URL); auth is the per-user token issued at sign-in; the
+ *     interval is fixed here.
  */
 final class AppConfig
 {

@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone', 'api_token'])]
+#[Hidden(['password', 'remember_token', 'api_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -110,6 +110,20 @@ class User extends Authenticatable
             ->count();
 
         return $done >= $active;
+    }
+
+    /**
+     * The user's sync-API token, created on first use. Stable (not rotated per
+     * login) so the same account keeps working across multiple devices; null it
+     * to revoke access everywhere and force a fresh sign-in.
+     */
+    public function apiToken(): string
+    {
+        if (! $this->api_token) {
+            $this->forceFill(['api_token' => \Illuminate\Support\Str::random(64)])->save();
+        }
+
+        return $this->api_token;
     }
 
     /**

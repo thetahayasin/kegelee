@@ -5,16 +5,16 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Sync API — secured by SYNC_API_KEY (Bearer token)
+| Sync API — per-user token auth (X-User-Token)
 |--------------------------------------------------------------------------
 |
-| These endpoints power the offline-first sync engine. The client stores
-| content in IndexedDB and pushes queued user data when connectivity
-| returns. All routes require a valid API key; user-specific routes
-| additionally require an authenticated session.
+| These endpoints power the offline-first sync engine. Public endpoints
+| (content, auth) are open but throttled + credential-checked, exactly like
+| the website's own forms. User endpoints require the per-user API token the
+| backend issues at sign-in; there is no shared app key to leak or rotate.
 |
 */
-Route::prefix('v1')->middleware('sync.key')->group(function () {
+Route::prefix('v1')->middleware('api.user')->group(function () {
 
     // Backend-managed content: knowledge lessons + legal page titles.
     // Exercises, levels, onboarding and plans are hardcoded in the app.
@@ -25,20 +25,24 @@ Route::prefix('v1')->middleware('sync.key')->group(function () {
     // current version.
     Route::get('/pages/{slug}', [SyncController::class, 'page']);
 
-    // Remote authentication endpoints (accessed by NativePHP clients/app)
-    Route::post('/auth/login', [SyncController::class, 'remoteLogin']);
-    Route::post('/auth/register', [SyncController::class, 'remoteRegister']);
-    Route::post('/auth/change-password', [SyncController::class, 'remoteChangePassword']);
-    Route::post('/auth/verify', [SyncController::class, 'remoteVerify']);
-    Route::post('/auth/resend', [SyncController::class, 'remoteResend']);
+    // Remote authentication endpoints (accessed by NativePHP clients/app).
+    // Throttled: the API key ships inside the APK (extractable), so these
+    // endpoints must not be brute-forceable even with a valid key.
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::post('/auth/login', [SyncController::class, 'remoteLogin']);
+        Route::post('/auth/register', [SyncController::class, 'remoteRegister']);
+        Route::post('/auth/change-password', [SyncController::class, 'remoteChangePassword']);
+        Route::post('/auth/verify', [SyncController::class, 'remoteVerify']);
+        Route::post('/auth/resend', [SyncController::class, 'remoteResend']);
 
-    // Password reset (emailed code) — no session needed, the code proves identity.
-    Route::post('/auth/reset-code', [SyncController::class, 'remoteResetCode']);
-    Route::post('/auth/reset', [SyncController::class, 'remoteReset']);
+        // Password reset (emailed code) — no session needed, the code proves identity.
+        Route::post('/auth/reset-code', [SyncController::class, 'remoteResetCode']);
+        Route::post('/auth/reset', [SyncController::class, 'remoteReset']);
 
-    // Native Google sign-in: the device redeems the one-time token minted by the
-    // Custom Tab callback for the account payload to mirror + sign in.
-    Route::post('/auth/google/redeem', [SyncController::class, 'googleRedeem']);
+        // Native Google sign-in: the device redeems the one-time token minted by
+        // the Custom Tab callback for the account payload to mirror + sign in.
+        Route::post('/auth/google/redeem', [SyncController::class, 'googleRedeem']);
+    });
 
     // User-specific data — requires auth session cookie.
     Route::middleware('auth')->group(function () {

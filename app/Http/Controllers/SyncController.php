@@ -14,10 +14,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * Secure API for the offline-first sync engine.
+ * API for the offline-first sync engine.
  *
- * All endpoints sit behind the VerifySyncApiKey middleware.
- * User-specific endpoints additionally require auth (session cookie).
+ * The ResolveApiUser middleware authenticates requests carrying the per-user
+ * X-User-Token; public endpoints (content, auth) are throttled and
+ * credential-checked, and user endpoints require the token (or a session).
  */
 class SyncController extends Controller
 {
@@ -288,7 +289,7 @@ class SyncController extends Controller
                 'id'        => $user->id,
                 'name'      => $user->name,
                 'email'     => $user->email,
-                'password_hash' => $user->password,
+                'api_token' => $user->apiToken(),
                 'level_id'  => $user->level_id,
                 'timezone'  => $user->timezone,
                 'onboarded' => (bool) $user->onboarded_at,
@@ -426,18 +427,7 @@ class SyncController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
-                'password_hash' => $user->password,
-                'is_admin' => (bool) $user->is_admin,
-                'level_id' => $user->level_id,
-                'level_started_days' => (int) $user->level_started_days,
-                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
-                'timezone' => $user->timezone,
-            ]
+            'user' => $this->remoteUserPayload($user),
         ]);
     }
 
@@ -489,18 +479,7 @@ class SyncController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
-                'password_hash' => $user->password,
-                'is_admin' => (bool) $user->is_admin,
-                'level_id' => $user->level_id,
-                'level_started_days' => (int) $user->level_started_days,
-                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
-                'timezone' => $user->timezone,
-            ]
+            'user' => $this->remoteUserPayload($user),
         ]);
     }
 
@@ -524,18 +503,7 @@ class SyncController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
-                'password_hash' => $user->password,
-                'is_admin' => (bool) $user->is_admin,
-                'level_id' => $user->level_id,
-                'level_started_days' => (int) $user->level_started_days,
-                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
-                'timezone' => $user->timezone,
-            ]
+            'user' => $this->remoteUserPayload($user),
         ]);
     }
 
@@ -607,18 +575,7 @@ class SyncController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
-                'password_hash' => $user->password,
-                'is_admin' => (bool) $user->is_admin,
-                'level_id' => $user->level_id,
-                'level_started_days' => (int) $user->level_started_days,
-                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
-                'timezone' => $user->timezone,
-            ],
+            'user' => $this->remoteUserPayload($user),
         ]);
     }
 
@@ -642,18 +599,31 @@ class SyncController extends Controller
 
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at?->toIso8601String(),
-                'password_hash' => $user->password,
-                'is_admin' => (bool) $user->is_admin,
-                'level_id' => $user->level_id,
-                'level_started_days' => (int) $user->level_started_days,
-                'onboarded_at' => $user->onboarded_at?->toIso8601String(),
-                'timezone' => $user->timezone,
-            ],
+            'user' => $this->remoteUserPayload($user),
         ]);
+    }
+
+    /**
+     * The account payload every auth endpoint returns so the device can mirror
+     * the user locally (password_hash enables offline login on the device) and
+     * authenticate future sync calls (api_token).
+     *
+     * @return array<string, mixed>
+     */
+    private function remoteUserPayload(\App\Models\User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+            'password_hash' => $user->password,
+            'api_token' => $user->apiToken(),
+            'is_admin' => (bool) $user->is_admin,
+            'level_id' => $user->level_id,
+            'level_started_days' => (int) $user->level_started_days,
+            'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+            'timezone' => $user->timezone,
+        ];
     }
 }

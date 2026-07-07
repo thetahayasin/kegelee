@@ -14,8 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The token resolver must run BEFORE 'auth' so the user it sets
+        // satisfies the auth check on the /v1/user/* routes.
         $middleware->priority([
-            \App\Http\Middleware\VerifySyncApiKey::class,
+            \App\Http\Middleware\ResolveApiUser::class,
             \Illuminate\Auth\Middleware\Authenticate::class,
             \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
         ]);
@@ -25,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,
             'basics' => \App\Http\Middleware\EnsureBasicsCompleted::class,
             'app.enabled' => \App\Http\Middleware\EnsureAppEnabled::class,
-            'sync.key' => \App\Http\Middleware\VerifySyncApiKey::class,
+            'api.user' => \App\Http\Middleware\ResolveApiUser::class,
         ]);
 
         $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);

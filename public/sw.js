@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kegel-v5';
+const CACHE_NAME = 'kegel-v6';
 
 const PRECACHE = [
     '/welcome',

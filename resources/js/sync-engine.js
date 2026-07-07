@@ -15,12 +15,6 @@
 
 import db from './offline-db.js';
 
-// Read the API key from the meta tag injected in the layout.
-function apiKey() {
-    const el = document.querySelector('meta[name="sync-api-key"]');
-    return el ? el.content : '';
-}
-
 function apiBase() {
     const el = document.querySelector('meta[name="sync-api-base"]');
     return el ? el.content : '';
@@ -60,32 +54,29 @@ async function probeOnline(maxAgeMs = 6000) {
     return online;
 }
 
-async function authHeaders(key) {
+// Identify the acting user via the per-user API token issued at sign-in
+// (meta tag on the page, falling back to the cached profile). Same-origin
+// requests also carry the session cookie, so the web works even without it.
+async function authHeaders() {
     const headers = {
-        'Authorization': `Bearer ${key}`,
         'Accept': 'application/json',
     };
 
-    const emailEl = document.querySelector('meta[name="user-email"]');
-    const hashEl = document.querySelector('meta[name="user-hash"]');
+    const tokenEl = document.querySelector('meta[name="user-token"]');
+    let token = tokenEl ? tokenEl.content : '';
 
-    let email = emailEl ? emailEl.content : '';
-    let hash = hashEl ? hashEl.content : '';
-
-    if (!email || !hash) {
+    if (!token) {
         try {
             const profile = await db.get('sync_meta', 'user_profile');
-            if (profile && profile.value) {
-                if (!email && profile.value.email) email = profile.value.email;
-                if (!hash && profile.value.password_hash) hash = profile.value.password_hash;
+            if (profile && profile.value && profile.value.api_token) {
+                token = profile.value.api_token;
             }
         } catch (e) {
             // DB not ready yet or read failed
         }
     }
 
-    if (email) headers['X-User-Email'] = email;
-    if (hash) headers['X-User-Password-Hash'] = hash;
+    if (token) headers['X-User-Token'] = token;
 
     return headers;
 }
@@ -95,12 +86,11 @@ async function authHeaders(key) {
 // ---------------------------------------------------------------------------
 async function pullContent() {
     const base = apiBase();
-    const key = apiKey();
-    if (!base || !key) return;
+    if (!base) return;
 
     try {
         const res = await fetch(`${base}/v1/content`, {
-            headers: { 'Authorization': `Bearer ${key}`, 'Accept': 'application/json' },
+            headers: { 'Accept': 'application/json' },
             credentials: 'same-origin',
         });
 
@@ -120,8 +110,7 @@ async function pullContent() {
 async function pushUserData() {
     if (halted()) return;
     const base = apiBase();
-    const key = apiKey();
-    if (!base || !key) return;
+    if (!base) return;
 
     // Gather unsynced workout sessions.
     const allSessions = await db.getAll('workout_sessions');
@@ -140,7 +129,7 @@ async function pushUserData() {
     }
 
     try {
-        const headers = await authHeaders(key);
+        const headers = await authHeaders();
         headers['Content-Type'] = 'application/json';
         headers['X-CSRF-TOKEN'] = csrfToken();
 
@@ -192,11 +181,10 @@ async function pushUserData() {
 // ---------------------------------------------------------------------------
 async function pullUserData() {
     const base = apiBase();
-    const key = apiKey();
-    if (!base || !key) return;
+    if (!base) return;
 
     try {
-        const headers = await authHeaders(key);
+        const headers = await authHeaders();
         const res = await fetch(`${base}/v1/user/pull`, {
             headers: headers,
             credentials: 'same-origin',

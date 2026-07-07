@@ -8,7 +8,7 @@
 #   public_html/   the webroot (built assets + index.php wired to ../kegelee)
 #
 # Upload both folders into the hosting account's home directory (so they sit
-# side by side), then open  https://kegelee.com/deploy?key=SYNC_API_KEY  once
+# side by side), then open  https://kegelee.com/deploy?key=DEPLOY_KEY  once
 # to build the production caches. Admin credentials are written to
 # dist\ADMIN-CREDENTIALS.txt on first package.
 
@@ -121,7 +121,7 @@ Write-Host '==> Zipping' -ForegroundColor Cyan
 $zip = Join-Path $dist 'kegelee-live.zip'
 Compress-Archive -Path $appDir, $webDir -DestinationPath $zip -Force
 
-$syncKey = (Select-String -Path (Join-Path $appDir '.env') -Pattern '^SYNC_API_KEY=(.+)$').Matches[0].Groups[1].Value
+$syncKey = (Select-String -Path (Join-Path $appDir '.env') -Pattern '^DEPLOY_KEY=(.+)$').Matches[0].Groups[1].Value
 
 @"
 Kegelee live package

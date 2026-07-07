@@ -71,6 +71,20 @@
                 <input wire:model="values.mail_from_name" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <div class="md:col-span-2"><label class="mb-1 block text-sm text-muted">From address</label>
                 <input type="email" wire:model="values.mail_from_address" placeholder="no-reply@yourapp.com" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+
+            {{-- Send a test using the values in the form (no save needed). --}}
+            <div class="md:col-span-2 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4">
+                <button type="button" wire:click="testSmtp" wire:loading.attr="disabled" wire:target="testSmtp"
+                        class="rounded-xl bg-surface-2 px-5 py-2.5 text-sm font-semibold tap disabled:opacity-60">
+                    <span wire:loading.remove wire:target="testSmtp">Send test email</span>
+                    <span wire:loading wire:target="testSmtp">Sending&hellip;</span>
+                </button>
+                <span class="text-xs text-muted">Sends to {{ auth()->user()->email }} using the values above.</span>
+                @if ($smtpMessage)
+                    <p wire:loading.remove wire:target="testSmtp"
+                       class="w-full text-sm font-medium {{ $smtpOk ? 'text-success' : 'text-accent-soft' }}">{{ $smtpMessage }}</p>
+                @endif
+            </div>
         </div>
 
         {{-- GOOGLE LOGIN --}}
