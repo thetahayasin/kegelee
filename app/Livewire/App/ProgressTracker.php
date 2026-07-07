@@ -75,7 +75,9 @@ class ProgressTracker extends Component
                 ->whereBetween('measured_at', [$start, $end])
                 ->max('seconds') ?? 0;
 
-            return ['label' => $start->translatedFormat($format), 'value' => (float) $value];
+            // Whole seconds, rounded DOWN - matches the floored best/last
+            // figures so a 4.6s hold reads as 4s everywhere.
+            return ['label' => $start->translatedFormat($format), 'value' => (int) floor($value)];
         });
     }
 

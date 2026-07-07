@@ -84,7 +84,7 @@
                     label = start.getDate() + ' ' + start.toLocaleDateString(undefined, { month: 'short' });
                 }
                 
-                bars.push({ label, value: val });
+                bars.push({ label, value: Math.floor(val) });
                 if (val > maxVal) maxVal = val;
             }
             
@@ -131,7 +131,7 @@
 
         <div class="relative mt-5 h-44">
             {{-- gridlines --}}
-            <template x-for="gVal in [maxScale, Math.round(maxScale * 2/3), Math.round(maxScale * 1/3), 0]" :key="gVal">
+            <template x-for="gVal in [maxScale, Math.floor(maxScale * 2/3), Math.floor(maxScale * 1/3), 0]" :key="gVal">
                 <div class="absolute inset-x-0 flex items-center" :style="'top: ' + ((1 - gVal / maxScale) * 100) + '%'">
                     <div class="h-px flex-1 bg-white/5"></div>
                     <span class="ml-2 w-12 text-right text-[10px] text-muted" x-text="gVal + ' sec'"></span>
@@ -209,13 +209,13 @@
                         class="relative grid h-40 w-40 select-none place-items-center rounded-full bg-accent text-center text-lg font-bold text-[color:var(--c-on-accent)] shadow-[0_10px_40px_color-mix(in_srgb,var(--c-accent)_45%,transparent)] transition-transform"
                         x-bind:style="holding ? 'transform: scale(1.12)' : 'transform: scale(1)'">
                         <span x-show="!holding">Press<br>&amp; Hold</span>
-                        <span x-show="holding" x-text="Math.round(elapsed) + 's'" class="text-3xl"></span>
+                        <span x-show="holding" x-text="Math.floor(elapsed) + 's'" class="text-3xl"></span>
                     </button>
 
                     {{-- Result of the hold (shown after release) --}}
                     <div x-show="done" x-cloak class="grid h-40 w-40 place-items-center rounded-full bg-surface text-center">
                         <div>
-                            <p class="text-5xl font-bold tabular-nums" x-text="Math.round(result) + 's'"></p>
+                            <p class="text-5xl font-bold tabular-nums" x-text="Math.floor(result) + 's'"></p>
                             <p class="mt-1 text-xs text-muted">your hold</p>
                         </div>
                     </div>
