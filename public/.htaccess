@@ -3,69 +3,60 @@
         Options -MultiViews -Indexes
     </IfModule>
 
-```
-RewriteEngine On
+    RewriteEngine On
 
-# ------------------------------------------------------------------
-# Canonical Host (www -> non-www)
-# ------------------------------------------------------------------
-RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L,NE]
+    # ------------------------------------------------------------------
+    # Canonical Host (www -> non-www)
+    # ------------------------------------------------------------------
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L,NE]
 
-# ------------------------------------------------------------------
-# Force HTTPS
-# ------------------------------------------------------------------
-RewriteCond %{HTTPS} !=on
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
+    # ------------------------------------------------------------------
+    # Force HTTPS
+    # ------------------------------------------------------------------
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
 
-# ------------------------------------------------------------------
-# Authorization Headers
-# ------------------------------------------------------------------
-RewriteCond %{HTTP:Authorization} .
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    # ------------------------------------------------------------------
+    # Authorization Headers
+    # ------------------------------------------------------------------
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-RewriteCond %{HTTP:x-xsrf-token} .
-RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
-# ------------------------------------------------------------------
-# Remove Trailing Slashes
-# ------------------------------------------------------------------
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} (.+)/$
-RewriteRule ^ %1 [R=301,L]
+    # ------------------------------------------------------------------
+    # Remove Trailing Slashes
+    # ------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [R=301,L]
 
-# ------------------------------------------------------------------
-# Laravel Front Controller
-# ------------------------------------------------------------------
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [L]
-```
-
+    # ------------------------------------------------------------------
+    # Laravel Front Controller
+    # ------------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
 </IfModule>
 
 # ----------------------------------------------------------------------
-
 # Compression
-
 # ----------------------------------------------------------------------
-
 <IfModule mod_brotli.c>
     BrotliCompressionQuality 6
 
-```
-AddOutputFilterByType BROTLI_COMPRESS text/plain
-AddOutputFilterByType BROTLI_COMPRESS text/html
-AddOutputFilterByType BROTLI_COMPRESS text/css
-AddOutputFilterByType BROTLI_COMPRESS text/javascript
-AddOutputFilterByType BROTLI_COMPRESS application/javascript
-AddOutputFilterByType BROTLI_COMPRESS application/json
-AddOutputFilterByType BROTLI_COMPRESS application/xml
-AddOutputFilterByType BROTLI_COMPRESS application/rss+xml
-AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
-AddOutputFilterByType BROTLI_COMPRESS application/manifest+json
-```
-
+    AddOutputFilterByType BROTLI_COMPRESS text/plain
+    AddOutputFilterByType BROTLI_COMPRESS text/html
+    AddOutputFilterByType BROTLI_COMPRESS text/css
+    AddOutputFilterByType BROTLI_COMPRESS text/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/json
+    AddOutputFilterByType BROTLI_COMPRESS application/xml
+    AddOutputFilterByType BROTLI_COMPRESS application/rss+xml
+    AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+    AddOutputFilterByType BROTLI_COMPRESS application/manifest+json
 </IfModule>
 
 <IfModule mod_deflate.c>
@@ -82,61 +73,48 @@ AddOutputFilterByType BROTLI_COMPRESS application/manifest+json
 </IfModule>
 
 # ----------------------------------------------------------------------
-
 # Browser Caching
-
 # ----------------------------------------------------------------------
-
 <IfModule mod_expires.c>
     ExpiresActive On
 
-```
-ExpiresByType text/css "access plus 1 year"
-ExpiresByType application/javascript "access plus 1 year"
-ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
 
-ExpiresByType font/woff "access plus 1 year"
-ExpiresByType font/woff2 "access plus 1 year"
-ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
 
-ExpiresByType image/jpeg "access plus 1 month"
-ExpiresByType image/png "access plus 1 month"
-ExpiresByType image/webp "access plus 1 month"
-ExpiresByType image/avif "access plus 1 month"
-ExpiresByType image/svg+xml "access plus 1 month"
-ExpiresByType image/gif "access plus 1 month"
-ExpiresByType image/x-icon "access plus 1 month"
-```
-
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/avif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
 </IfModule>
 
 <IfModule mod_headers.c>
+    # Long-term cache for static assets
+    <FilesMatch "\.(css|js|mjs|woff|woff2|ttf|otf|eot|svg|png|jpg|jpeg|gif|webp|avif|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
 
-```
-# Long-term cache for static assets
-<FilesMatch "\.(css|js|mjs|woff|woff2|ttf|otf|eot|svg|png|jpg|jpeg|gif|webp|avif|ico)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
-</FilesMatch>
+    # Security Headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+    Header always set X-XSS-Protection "1; mode=block"
 
-# Security Headers
-Header always set X-Content-Type-Options "nosniff"
-Header always set X-Frame-Options "SAMEORIGIN"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
-Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
-Header always set X-XSS-Protection "1; mode=block"
-
-# HSTS (HTTPS only)
-Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
-```
-
+    # HSTS (HTTPS only)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
 </IfModule>
 
 # ----------------------------------------------------------------------
-
 # Disable ETags
-
 # ----------------------------------------------------------------------
-
 <IfModule mod_headers.c>
     Header unset ETag
 </IfModule>
@@ -144,18 +122,13 @@ Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains
 FileETag None
 
 # ----------------------------------------------------------------------
-
 # Protect Sensitive Files
+# ----------------------------------------------------------------------
+<FilesMatch "^(\.env|artisan|composer\.(json|lock)|package(-lock)?\.json|vite\.config\..*|phpunit\.xml)$">
+    Require all denied
+</FilesMatch>
 
 # ----------------------------------------------------------------------
-
-<FilesMatch "^(.env|artisan|composer.json|composer.lock|package.json|package-lock.json|vite.config..*|phpunit.xml)$">
-Require all denied </FilesMatch>
-
-# ----------------------------------------------------------------------
-
 # Disable Directory Browsing
-
 # ----------------------------------------------------------------------
-
 Options -Indexes
