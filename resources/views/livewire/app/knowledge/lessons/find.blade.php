@@ -44,7 +44,7 @@
     {{-- Step dots --}}
     <div class="mt-4 flex items-center justify-center gap-1.5">
         <template x-for="i in (last + 1)" :key="i">
-            <div class="h-1.5 rounded-full transition-all duration-300" :class="(i - 1) <= step ? 'w-6 bg-accent' : 'w-1.5 bg-white/15'"></div>
+            <div class="h-1.5 rounded-full transition-[width,background-color] duration-300" :class="(i - 1) <= step ? 'w-6 bg-accent' : 'w-1.5 bg-white/15'"></div>
         </template>
     </div>
 
@@ -105,7 +105,7 @@
         <div class="relative mt-8 grid h-52 w-52 select-none place-items-center"
              @pointerdown.prevent="startHold()" @pointerup="stopHold()" @pointercancel="stopHold()" @pointerleave="stopHold()">
             {{-- Glow that swells while holding --}}
-            <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_30%,transparent),transparent_70%)] transition-all duration-300"
+            <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_30%,transparent),transparent_70%)] transition-[transform,opacity] duration-300"
                  :style="'opacity:' + (holding || doneHold ? 1 : 0.25) + '; transform: scale(' + (holding || doneHold ? 1.15 : 0.9) + ')'"></div>
 
             <div class="relative grid h-44 w-44 place-items-center rounded-full bg-surface ring-2 ring-white/15 transition-transform duration-300"
@@ -115,7 +115,7 @@
                     <circle cx="60" cy="60" r="54" fill="none" stroke="var(--c-accent)" stroke-width="8" stroke-linecap="round"
                             stroke-dasharray="339.3"
                             :stroke-dashoffset="339.3 * (1 - held / goal)"
-                            style="transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c-accent) 55%, transparent));"/>
+                            style="transition: stroke-dashoffset 0.1s linear;"/>
                 </svg>
                 <div class="text-center" x-show="!doneHold">
                     <p class="text-lg font-bold" x-text="holding ? 'Squeeze!' : 'Press & hold'"></p>

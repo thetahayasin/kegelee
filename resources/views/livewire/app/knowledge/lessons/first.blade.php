@@ -67,7 +67,7 @@
     {{-- Step dots --}}
     <div class="mt-4 flex items-center justify-center gap-1.5">
         <template x-for="n in (last + 1)" :key="n">
-            <div class="h-1.5 rounded-full transition-all duration-300" :class="(n - 1) <= step ? 'w-6 bg-accent' : 'w-1.5 bg-white/15'"></div>
+            <div class="h-1.5 rounded-full transition-[width,background-color] duration-300" :class="(n - 1) <= step ? 'w-6 bg-accent' : 'w-1.5 bg-white/15'"></div>
         </template>
     </div>
 
@@ -80,7 +80,7 @@
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="{{ $trackWidth }}"/>
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                             stroke-linecap="round" stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $circ * 0.35 }}"
-                            style="filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
+                           />
                 </svg>
                 <div class="text-center">
                     <p class="text-5xl font-bold tabular-nums">12</p>
@@ -110,7 +110,7 @@
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                             stroke-linecap="round" stroke-dasharray="{{ $circ }}"
                             x-bind:stroke-dashoffset="{{ $circ }} * (1 - pct)"
-                            style="transition: stroke-dashoffset 0.12s linear; filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
+                            style="transition: stroke-dashoffset 0.12s linear;"/>
                 </svg>
                 <div class="text-center">
                     <p class="text-5xl font-bold tabular-nums" x-text="count"></p>
@@ -142,7 +142,7 @@
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                             stroke-linecap="round" stroke-dasharray="{{ $circ }}"
                             x-bind:stroke-dashoffset="{{ $circ }} * (1 - pct)"
-                            style="transition: stroke-dashoffset 0.12s linear; filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
+                            style="transition: stroke-dashoffset 0.12s linear;"/>
                 </svg>
                 <button x-show="!playing && !tried" @click="startTry()"
                         class="relative z-10 grid h-24 w-24 place-items-center rounded-full bg-accent text-lg font-bold text-white shadow-lg shadow-accent/30 tap">Start</button>

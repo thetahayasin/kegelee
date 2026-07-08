@@ -4,7 +4,7 @@
          onboarding, which opens the sheet from its own final CTA). --}}
     @if ($showBar)
         @unless ($showSheet)
-            <div class="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[440px] border-t border-white/10 bg-bg/80 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-xl">
+            <div class="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-[440px] border-t border-white/10 bg-bg/95 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                 <button type="button" wire:click="open"
                         class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-bold text-white shadow-lg shadow-accent/20 tap">
                     Subscribe

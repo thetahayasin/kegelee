@@ -395,7 +395,7 @@
                             <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="#ffffff" stroke-width="{{ $trackWidth }}"
                                     stroke-linecap="round" stroke-dasharray="{{ $circ }}"
                                     x-bind:stroke-dashoffset="{{ $circ }} * (1 - blockPct)"
-                                    style="transition: stroke-dashoffset {{ $animationSpeed }}s linear; filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));"/>
+                                    style="transition: stroke-dashoffset {{ $animationSpeed }}s linear;"/>
                         </svg>
                         <div class="text-center">
                             <p class="text-5xl font-bold tabular-nums" x-text="blockRemaining"></p>
@@ -525,8 +525,7 @@
                         <circle cx="104" cy="104" r="98" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="12"/>
                         <circle cx="104" cy="104" r="98" fill="none" stroke="var(--c-accent)" stroke-width="12"
                                 stroke-linecap="round" class="completion-ring"
-                                stroke-dasharray="615.75" :stroke-dashoffset="615.75 * (1 - (offlineResult ? Math.min(1, offlineResult.progress.done / offlineResult.progress.required) : 1))"
-                                style="filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c-accent) 45%, transparent));"/>
+                                stroke-dasharray="615.75" :stroke-dashoffset="615.75 * (1 - (offlineResult ? Math.min(1, offlineResult.progress.done / offlineResult.progress.required) : 1))"/>
                     </svg>
                     <svg viewBox="0 0 24 24" class="absolute h-24 w-24 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 13l4 4L19 7" pathLength="1" class="completion-tick"/>
@@ -618,7 +617,7 @@
                             <circle cx="{{ $csize/2 }}" cy="{{ $csize/2 }}" r="{{ $cr }}" fill="none" stroke="var(--c-accent)" stroke-width="{{ $cstroke }}"
                                     stroke-linecap="round" class="completion-ring"
                                     stroke-dasharray="{{ $ccirc }}" stroke-dashoffset="{{ $coff }}"
-                                    style="--ring-start: {{ $ccirc }}; --ring-end: {{ $coff }}; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--c-accent) 45%, transparent));"/>
+                                    style="--ring-start: {{ $ccirc }}; --ring-end: {{ $coff }};"/>
                         </svg>
                         <svg viewBox="0 0 24 24" class="absolute h-24 w-24 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M5 13l4 4L19 7" pathLength="1" class="completion-tick"/>

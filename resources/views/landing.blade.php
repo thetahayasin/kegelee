@@ -163,8 +163,8 @@
 {{-- ============================================================
      NAV
 ============================================================ --}}
-<nav class="sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl"
-     style="background: color-mix(in srgb, var(--c-bg) 88%, transparent)">
+<nav class="sticky top-0 z-50 border-b border-white/5"
+     style="background: color-mix(in srgb, var(--c-bg) 96%, #fff 2%)">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
         <a href="/" class="flex items-center gap-2.5 font-bold text-lg" aria-label="{{ $appName }} home">
             @if ($logo)

@@ -124,7 +124,7 @@
                         <form wire:submit="login" class="space-y-4" autocomplete="on">
                             <div>
                                 <label for="login-email" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email Address</label>
-                                <input type="email" id="login-email" name="login-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="name@example.com" required>
+                                <input type="email" id="login-email" name="login-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" placeholder="name@example.com" required>
                                 @error('email') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
@@ -133,7 +133,7 @@
                                     <label for="login-password" class="block text-xs font-semibold text-muted uppercase tracking-wider">Password</label>
                                     <button type="button" @click="Livewire.dispatch('open-reset-modal', { email: $wire.email })" class="text-xs font-semibold text-accent tap">Forgot password?</button>
                                 </div>
-                                <input type="password" id="login-password" name="login-password" autocomplete="current-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="••••••••" required>
+                                <input type="password" id="login-password" name="login-password" autocomplete="current-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" placeholder="••••••••" required>
                                 @error('password') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
@@ -176,25 +176,25 @@
                         <form wire:submit="register" class="space-y-4" autocomplete="on">
                             <div>
                                 <label for="register-name" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Full Name</label>
-                                <input type="text" id="register-name" name="register-name" autocomplete="name" wire:model="name" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Your Name" required>
+                                <input type="text" id="register-name" name="register-name" autocomplete="name" wire:model="name" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" placeholder="Your Name" required>
                                 @error('name') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label for="register-email" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Email Address</label>
-                                <input type="email" id="register-email" name="register-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="name@example.com" required>
+                                <input type="email" id="register-email" name="register-email" autocomplete="email" wire:model="email" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" placeholder="name@example.com" required>
                                 @error('email') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label for="register-password" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Password</label>
-                                <input type="password" id="register-password" name="register-password" autocomplete="new-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="6+ characters, 1 number" required>
+                                <input type="password" id="register-password" name="register-password" autocomplete="new-password" wire:model="password" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" placeholder="6+ characters, 1 number" required>
                                 @error('password') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
                             <div>
                                 <label for="register-password-confirm" class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">Confirm Password</label>
-                                <input type="password" id="register-password-confirm" name="register-password-confirm" autocomplete="new-password" wire:model="password_confirmation" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all" placeholder="Repeat your password" required>
+                                <input type="password" id="register-password-confirm" name="register-password-confirm" autocomplete="new-password" wire:model="password_confirmation" class="h-12 w-full rounded-xl bg-surface-2 border border-white/5 px-4 text-sm text-content focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors" placeholder="Repeat your password" required>
                                 @error('password_confirmation') <span class="text-xs text-accent-soft mt-1 block">{{ $message }}</span> @enderror
                             </div>
 

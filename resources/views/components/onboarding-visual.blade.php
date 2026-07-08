@@ -120,7 +120,6 @@
                 <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
                 <circle cx="50" cy="50" r="42" fill="none" stroke="var(--c-accent)" stroke-width="8" stroke-linecap="round"
                         stroke-dasharray="264" stroke-dashoffset="264"
-                        style="filter: drop-shadow(0 0 7px color-mix(in srgb, var(--c-accent) 60%, transparent));"
                         class="animate-[ob-dial-sweep_3.2s_linear_infinite]"/>
             </svg>
 

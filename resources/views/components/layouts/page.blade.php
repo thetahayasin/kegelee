@@ -29,7 +29,7 @@
     {!! $settings->get('inject_body_start') !!}
 
     {{-- Public header — always reachable, no app/auth dependency. --}}
-    <header class="sticky top-0 z-40 border-b border-white/5 bg-bg/85 backdrop-blur-xl">
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-bg/95">
         <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-5 py-3.5">
             <a href="{{ route('landing') }}" class="flex items-center gap-2.5 font-bold tap" aria-label="{{ $settings->get('app_name') }} home">
                 @if ($settings->get('logo_path'))

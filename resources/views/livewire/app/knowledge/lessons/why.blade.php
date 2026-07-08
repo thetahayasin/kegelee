@@ -16,7 +16,7 @@
     {{-- Step dots --}}
     <div class="mt-4 flex items-center justify-center gap-1.5">
         <template x-for="i in (last + 1)" :key="i">
-            <div class="h-1.5 rounded-full transition-all duration-300" :class="(i - 1) <= step ? 'w-6 bg-accent' : 'w-1.5 bg-white/15'"></div>
+            <div class="h-1.5 rounded-full transition-[width,background-color] duration-300" :class="(i - 1) <= step ? 'w-6 bg-accent' : 'w-1.5 bg-white/15'"></div>
         </template>
     </div>
 

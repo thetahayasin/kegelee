@@ -104,30 +104,18 @@ body {
     color: var(--c-on-accent) !important;
 }
 
-/* Liquid glass: very transparent, heavy blur, luminous edge + top highlight,
-   so the watermark behind reads through. Circle (rounded-full) keeps its ring. */
-[class*='bg-surface'] {
-    -webkit-backdrop-filter: blur(7px) !important;
-    backdrop-filter: blur(7px) !important;
-}
+/* Glass look WITHOUT backdrop blur. Live backdrop-filters were the app's
+   biggest render cost on mid-range Android GPUs (every scroll frame, every
+   keyboard frame, every animation frame re-rendered the blur). Translucent
+   fills + luminous edges keep the depth; nothing is blurred at runtime. */
 [class*='bg-surface']:not(.rounded-full) {
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.28);
 }
-/* Android WebView renders a backdrop-filter as a square when the element's
-   overflow is visible - it ignores the border-radius, leaving a squarish glow
-   around frosted circles. Clipping the round elements keeps the blur inside
-   their shape. (Desktop already clips correctly; this only matters on-device.) */
-[class*='bg-surface'].rounded-full {
-    overflow: hidden;
-}
 
-/* Overlay bars (bottom nav, sticky CTA strips) are dark liquid glass too, so
-   content scrolls under them blurred instead of behind a near-solid bar. */
+/* Overlay bars (bottom nav, sticky CTA strips): near-solid dark, no blur. */
 .bg-bg\/95 {
-    background-color: color-mix(in srgb, var(--c-bg) 55%, transparent) !important;
-    -webkit-backdrop-filter: blur(7px) !important;
-    backdrop-filter: blur(7px) !important;
+    background-color: color-mix(in srgb, var(--c-bg) 92%, #ffffff 2%) !important;
 }
 
 /* Hide scrollbars for the native-app feel while keeping scroll. */
@@ -372,13 +360,5 @@ label {
     }
 }
 
-/* While the soft keyboard animates (adjustResize resizes the window every
-   frame), re-rendering the live backdrop blurs is what makes the keyboard
-   crawl on mid-range GPUs. app.js flags <html> with .vv-resizing during the
-   resize; pause every blur source for those frames and restore right after. */
-.vv-resizing [class*='bg-surface'],
-.vv-resizing .bg-bg\/95,
-.vv-resizing [class*='backdrop-blur'] {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-}
+/* App surfaces carry no backdrop-filter at all (see the glass block above),
+   so the keyboard/resize path has nothing expensive left to re-render. */
