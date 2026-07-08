@@ -13,7 +13,10 @@ return [
     |
     */
 
-    'version' => env('NATIVEPHP_APP_VERSION', 'DEBUG'),
+    // versionName tracks the build number so every release bumps automatically:
+    // version_code 1 => "1.0.0", 2 => "1.0.1", 3 => "1.0.2", ... Set an explicit
+    // NATIVEPHP_APP_VERSION in .env only if you want a fixed marketing string.
+    'version' => env('NATIVEPHP_APP_VERSION') ?: ('1.0.'.max(0, ((int) env('NATIVEPHP_APP_VERSION_CODE', 1)) - 1)),
 
     /*
     |--------------------------------------------------------------------------

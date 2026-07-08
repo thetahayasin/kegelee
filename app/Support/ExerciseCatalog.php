@@ -132,16 +132,15 @@ final class ExerciseCatalog
 
         $definitions = [
             [
-                // Quick flick: snap up then straight back down, with NO hold at
-                // full contraction (a dwell at the top made it feel like a hold,
-                // not a flick). Starts relaxed.
+                // Contract up over 0.7s, then relax straight back down over 0.3s -
+                // no hold/dwell at full contraction. Starts relaxed.
                 'name' => 'Trembling',
                 'slug' => 'trembling',
                 'unlock_after_days' => 0,
                 'summary' => 'Quick flicks, on and off',
                 'description' => 'Rapid on and off squeezes that make the muscle tremble and wake up its fast response.',
-                'how_to' => 'Squeeze quickly, then let go right away. Follow the circle as it flicks on and off. Keep the flicks light and fast.',
-                'pattern' => [$hold(0.4, 0, 'Relax'), $s(0.2, 0, 1, 'Contract'), $s(0.4, 1, 0, 'Relax')],
+                'how_to' => 'Squeeze up over about a second, then let go quickly. Follow the circle as it swells and drops. Keep the movement light.',
+                'pattern' => [$s(0.7, 0, 1, 'Contract'), $s(0.3, 1, 0, 'Relax')],
             ],
             [
                 // One continuous hold for the whole round. Shorter than the

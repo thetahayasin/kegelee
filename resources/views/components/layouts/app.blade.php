@@ -7,18 +7,20 @@
     <meta name="theme-color" content="#060810">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Boot/transition loader. Covers the brief parse-to-paint gap on FULL page
-         loads (cold start, and hard redirects like the Google sign-in finish and
-         the progress-tracker save) so the user sees a spinner, never the bare
-         watermark. wire:navigate keeps its own #nav-loader. Inlined in <head> so
-         it is styled and active before the body paints a single pixel. --}}
+    {{-- Recovery loader. Only shown when the page comes up with the content
+         frame EMPTY (the occasional Livewire wire:navigate morph glitch that
+         left just the watermark). It is NOT shown on normal loads. The spinner
+         covers the empty frame while healBlankPage() reloads for a clean render.
+         --}}
     <style>
         #app-boot-loader{position:fixed;inset:0;z-index:9999;display:none;place-items:center;background:#060810;transition:opacity .3s ease}
         html.app-loading #app-boot-loader{display:grid}
         #app-boot-loader .ring{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#c1ff72;animation:app-boot-spin .7s linear infinite}
         @keyframes app-boot-spin{to{transform:rotate(360deg)}}
     </style>
-    <script>document.documentElement.classList.add('app-loading');</script>
+    {{-- Show the spinner immediately on a heal reload only (flag set by
+         healBlankPage before it reloads), so a normal load never flashes it. --}}
+    <script>try{if(sessionStorage.getItem('kegelBlankHeal'))document.documentElement.classList.add('app-loading');}catch(e){}</script>
     <?php
         $syncBase = config('app.content_sync_url');
         if (empty($syncBase)) {
