@@ -301,45 +301,26 @@ return [
         |
         */
         'build' => [
-            // R8/ProGuard "safer" profile: shrink + obfuscate CODE, but DO NOT
-            // shrink resources and DO NOT run the aggressive optimizer (see
-            // -dontoptimize in proguard-rules.pro) - those were the likely cause
-            // of the earlier release-only crash. The whole app + plugin packages
-            // are kept in proguard-rules.pro, so only library code is touched.
-            // This project's Android sources are REGENERATED from this config on
-            // every build, so these flags are the source of truth.
-            // MUST smoke-test a release AAB on a device before uploading.
-            'minify_enabled' => env('NATIVEPHP_ANDROID_MINIFY_ENABLED', true),
-            'shrink_resources' => env('NATIVEPHP_ANDROID_SHRINK_RESOURCES', false),
-            'obfuscate' => env('NATIVEPHP_ANDROID_OBFUSCATE', true),
+            // R8/ProGuard is OFF. Even the "safer" minify+obfuscate profile crashed
+            // the release WebView/PHP bridge - a failure that can't be reproduced on
+            // the dev host - so it stays disabled. Hardcoded false (not env-toggled)
+            // so it can never be switched on by accident. Native debug symbols below
+            // are a separate, safe feature and remain on. This project's Android
+            // sources are regenerated from this config on every build.
+            'minify_enabled' => false,
+            'shrink_resources' => false,
+            'obfuscate' => false,
 
             // Native debug symbols bundled into the AAB (not the delivered APK) so
             // Play can symbolicate native crashes/ANRs from the PHP runtime.
             'debug_symbols' => env('NATIVEPHP_ANDROID_DEBUG_SYMBOLS', 'FULL'),
-            'generate_mapping_files' => env('NATIVEPHP_ANDROID_MAPPING_FILES', true),
+            'generate_mapping_files' => false,
             'mapping_file_path' => env('NATIVEPHP_ANDROID_MAPPING_PATH', 'build/outputs/mapping/release/'),
 
-            // Keep line numbers + source file so obfuscated library stack traces
-            // stay readable after deobfuscation with the mapping file.
-            'keep_line_numbers' => env('NATIVEPHP_ANDROID_KEEP_LINE_NUMBERS', true),
-            'keep_source_file' => env('NATIVEPHP_ANDROID_KEEP_SOURCE_FILE', true),
-            // The critical keeps, in the COMMITTED config so they survive a full
-            // project regeneration (native:install rewrites proguard-rules.pro from
-            // a template and injects these). Without them, obfuscation renames the
-            // WebView/PHP bridge + native plugins and the release build crashes.
-            'custom_proguard_rules' => env('NATIVEPHP_ANDROID_CUSTOM_PROGUARD_RULES', [
-                '-dontoptimize',
-                '-keep class com.nativephp.mobile.** { *; }',
-                '-keep class com.taha.androidalarms.** { *; }',
-                '-keepclasseswithmembers class * { @android.webkit.JavascriptInterface <methods>; }',
-                '-keepclasseswithmembernames class * { native <methods>; }',
-                '-keep class kotlin.Metadata { *; }',
-                '-keep class kotlinx.coroutines.** { *; }',
-                '-dontwarn kotlinx.coroutines.**',
-                '-keep class androidx.compose.** { *; }',
-                '-dontwarn androidx.compose.**',
-                '-keepattributes JavascriptInterface,SourceFile,LineNumberTable,*Annotation*,Signature,InnerClasses,EnclosingMethod',
-            ]),
+            // ProGuard rules only matter if R8/obfuscation is ever re-enabled.
+            'keep_line_numbers' => false,
+            'keep_source_file' => false,
+            'custom_proguard_rules' => env('NATIVEPHP_ANDROID_CUSTOM_PROGUARD_RULES', []),
 
             // Build Performance - using Gradle defaults
             'parallel_builds' => env('NATIVEPHP_ANDROID_PARALLEL_BUILDS', true),
