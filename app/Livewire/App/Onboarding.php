@@ -20,6 +20,10 @@ class Onboarding extends Component
     #[Url]
     public ?string $auth_mode = null;
 
+    /** Google sign-in failure code carried back from finishRedeem. */
+    #[Url]
+    public ?string $gerr = null;
+
     public int $index = 0;
     public bool $showAuthModal = false;
     public string $authMode = 'login'; // 'login', 'register'
@@ -57,6 +61,15 @@ class Onboarding extends Component
                 ? $this->auth_mode
                 : ($onboardingOff ? 'options' : 'login');
             $this->wasAutoOpened = true;
+
+            // A failed Google sign-in must say WHY, not silently land here.
+            if ($this->gerr) {
+                $this->addError('email', match ($this->gerr) {
+                    'expired' => 'That Google sign-in expired. Please tap Continue with Google again.',
+                    'network' => 'Could not reach the server. Check your internet connection and try again.',
+                    default => 'The server hit a problem completing Google sign-in. Please try again shortly.',
+                });
+            }
         }
     }
 

@@ -387,7 +387,7 @@
                              x-bind:style="{ opacity: glowOpacity, transform: 'translate(-50%, -50%) scale(' + glowScale + ')', transition: glowTransition }"></div>
                     @endif
 
-                    <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
+                    <div class="relative grid place-items-center rounded-full bg-surface ring-2 ring-white/15 [grid-area:1/1]"
                          style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
                         <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="absolute -rotate-90">
                             {{-- Prominent solid track + bright progress arc --}}

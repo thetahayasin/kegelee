@@ -290,10 +290,23 @@ async function refreshConnectivity() {
     return online;
 }
 
-// Instant OS signals plus a periodic real probe (captive portals, dropped radios).
+// Instant OS signals plus an adaptive real probe — shorter interval while
+// recovering from offline (responsive), longer while connected (battery-friendly).
 window.addEventListener('offline', () => { showOfflineBanner(); _wasOffline = true; });
 window.addEventListener('online', refreshConnectivity);
-setInterval(refreshConnectivity, 20000);
+let _probeTimer = null;
+function scheduleProbe() {
+    clearInterval(_probeTimer);
+    _probeTimer = setInterval(refreshConnectivity, _wasOffline ? 15000 : 60000);
+}
+scheduleProbe();
+// Re-schedule after every probe so the interval adapts when state changes.
+const _origRefresh = refreshConnectivity;
+refreshConnectivity = async function () {
+    const result = await _origRefresh();
+    scheduleProbe();
+    return result;
+};
 setTimeout(refreshConnectivity, 2500);
 
 // Returning to the foreground after the screen was off for a while: Android may
@@ -354,9 +367,9 @@ function showToast(msg) {
         left: '50%', transform: 'translateX(-50%)',
         padding: '10px 20px', borderRadius: '12px',
         fontSize: '13px', fontWeight: '600',
-        background: 'rgba(22,24,31,0.95)', color: '#fff',
+        background: 'rgba(22,24,31,0.97)', color: '#fff',
         border: '1px solid rgba(255,255,255,0.1)',
-        backdropFilter: 'blur(12px)', zIndex: '9999',
+        zIndex: '9999',
         transition: 'opacity 0.3s ease',
     });
     document.body.appendChild(el);

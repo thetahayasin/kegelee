@@ -80,8 +80,8 @@ class GoogleAuthController extends Controller
         return $this->deeplink('token='.$token);
     }
 
-    /** Runs on the DEVICE (opened by the deeplink): redeem the token against the
-     *  backend, mirror the account locally, and sign in. */
+    /** Runs on the DEVICE (opened by the deeplink): show a loading screen while
+     *  the token is redeemed in the background. */
     public function finish(Request $request)
     {
         $token = (string) $request->query('token');
@@ -90,15 +90,47 @@ class GoogleAuthController extends Controller
             return redirect('/welcome?auth_prompt=1&auth_mode=login');
         }
 
-        try {
-            $response = BackendClient::request()
-                ->post(BackendClient::base().'/v1/auth/google/redeem', ['token' => $token]);
-        } catch (\Throwable $e) {
+        // Render a branded loading page. Its JS navigates to finishRedeem()
+        // which does the actual network call + login + redirect.
+        return response()->view('auth-loading', ['token' => $token]);
+    }
+
+    /** Runs on the DEVICE (called by the loading page form POST): redeem the
+     *  token against the backend, mirror the account locally, and sign in.
+     *  Failures are NEVER silent - each lands on the login prompt with a
+     *  specific message (a silent bounce reads as "nothing happened"). */
+    public function finishRedeem(Request $request)
+    {
+        $token = (string) $request->input('token');
+
+        if ($token === '' || ! BackendClient::isClient()) {
             return redirect('/welcome?auth_prompt=1&auth_mode=login');
         }
 
+        // One retry: returning from the external browser can catch the radio
+        // mid-wake, so a single transient failure shouldn't kill the sign-in.
+        $response = null;
+        foreach ([0, 800] as $delayMs) {
+            if ($delayMs) {
+                usleep($delayMs * 1000);
+            }
+            try {
+                $response = BackendClient::request()
+                    ->post(BackendClient::base().'/v1/auth/google/redeem', ['token' => $token]);
+                break;
+            } catch (\Throwable $e) {
+                $response = null;
+            }
+        }
+
+        if (! $response) {
+            return $this->finishFailed('network');
+        }
+        if ($response->status() === 422) {
+            return $this->finishFailed('expired');
+        }
         if (! $response->successful() || ! $response->json('user')) {
-            return redirect('/welcome?auth_prompt=1&auth_mode=login');
+            return $this->finishFailed('server');
         }
 
         $user = RemoteAuth::mirror($response->json('user'));
@@ -108,6 +140,12 @@ class GoogleAuthController extends Controller
         RemoteAuth::syncAfterLogin($user);
 
         return $this->postAuthRedirect($user);
+    }
+
+    /** Land on the login prompt with a specific Google sign-in error. */
+    private function finishFailed(string $why)
+    {
+        return redirect('/welcome?auth_prompt=1&auth_mode=login&gerr='.$why);
     }
 
     // --- Shared helpers ------------------------------------------------------

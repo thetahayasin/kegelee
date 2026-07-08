@@ -14,7 +14,14 @@
         @foreach ($levels as $level)
             @php($selected = $level->id === $currentId)
             <button wire:click="select({{ $level->id }})"
-                    class="flex w-full items-center gap-4 rounded-2xl px-4 py-4 text-left tap {{ $selected ? 'bg-accent' : 'bg-surface' }}">
+                    wire:loading.attr="disabled"
+                    wire:target="select"
+                    class="relative flex w-full items-center gap-4 rounded-2xl px-4 py-4 text-left tap {{ $selected ? 'bg-accent' : 'bg-surface' }} disabled:opacity-60">
+                {{-- Loading overlay --}}
+                <span wire:loading wire:target="select({{ $level->id }})"
+                      class="absolute inset-0 z-10 grid place-items-center rounded-2xl bg-black/40">
+                    <svg class="h-6 w-6 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                </span>
                 {{-- Laurel badge --}}
                 <span class="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-black/30">
                     <svg viewBox="0 0 48 48" class="h-10 w-10">

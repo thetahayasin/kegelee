@@ -26,7 +26,7 @@
                 <a href="{{ route('knowledge.show', $lesson) }}" wire:navigate
                    class="relative block overflow-hidden rounded-3xl border {{ $row['done'] ? 'border-accent/35' : 'border-white/10' }} bg-surface p-5 shadow-lg tap">
             @else
-                <div class="relative block overflow-hidden rounded-3xl border border-white/5 bg-surface/60 p-5 opacity-55">
+                <div class="relative block overflow-hidden rounded-3xl border border-white/5 bg-surface p-5 opacity-55">
             @endif
                 {{-- Soft corner glow --}}
                 <div class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_14%,transparent),transparent_70%)]"></div>

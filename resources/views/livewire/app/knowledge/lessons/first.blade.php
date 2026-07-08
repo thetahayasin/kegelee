@@ -74,7 +74,7 @@
     {{-- Step 1: how the circle works --}}
     <div x-show="step === 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-3" x-transition:enter-end="opacity-100 translate-y-0" class="flex flex-1 flex-col items-center justify-center text-center">
         <div class="relative grid place-items-center" style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
-            <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
+            <div class="relative grid place-items-center rounded-full bg-surface ring-2 ring-white/15 [grid-area:1/1]"
                  style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
                 <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="absolute -rotate-90">
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="{{ $trackWidth }}"/>
@@ -103,7 +103,7 @@
                      style="width: {{ $glowSize }}px; height: {{ $glowSize }}px;"
                      x-bind:style="{ opacity: glowOpacity, transform: 'translate(-50%, -50%) scale(' + glowScale + ')', transition: glowTransition }"></div>
             @endif
-            <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
+            <div class="relative grid place-items-center rounded-full bg-surface ring-2 ring-white/15 [grid-area:1/1]"
                  style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
                 <svg width="{{ $circleSize }}" height="{{ $circleSize }}" viewBox="0 0 {{ $circleSize }} {{ $circleSize }}" class="pointer-events-none absolute -rotate-90">
                     <circle cx="{{ $circleSize / 2 }}" cy="{{ $circleSize / 2 }}" r="{{ $r }}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="{{ $trackWidth }}"/>
@@ -133,7 +133,7 @@
                      style="width: {{ $glowSize }}px; height: {{ $glowSize }}px;"
                      x-bind:style="{ opacity: glowOpacity, transform: 'translate(-50%, -50%) scale(' + glowScale + ')', transition: glowTransition }"></div>
             @endif
-            <div class="relative grid place-items-center rounded-full bg-surface/80 ring-2 ring-white/15 [grid-area:1/1]"
+            <div class="relative grid place-items-center rounded-full bg-surface ring-2 ring-white/15 [grid-area:1/1]"
                  style="width: {{ $circleSize }}px; height: {{ $circleSize }}px;">
                 {{-- pointer-events-none: the positioned svg paints above the
                      static button and would swallow the tap otherwise. --}}

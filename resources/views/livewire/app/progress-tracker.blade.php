@@ -125,7 +125,7 @@
     <div wire:key="bars-{{ $mode }}" x-init="if (!localList || !localList.length) { bars = @js($bars); maxScale = @js($maxScale); }" hidden></div>
 
     {{-- Chart --}}
-    <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface/40 p-4">
+    <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface p-4">
         <p class="font-semibold text-white">{{ $rangeLabel }}</p>
         <p class="text-sm text-muted">top result: <span x-text="best ? best + ' sec' : '0 sec'"></span></p>
 

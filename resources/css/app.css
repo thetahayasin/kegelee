@@ -24,11 +24,14 @@
     --color-muted: var(--c-text-muted);
 }
 
-/* Fixed frosted-glass palette: lime text on deep dark, translucent surfaces. */
+/* Fixed dark palette: lime text on deep dark. Surfaces are fully OPAQUE
+   solids - translucent fills forced the compositor to blend every card
+   against the layers beneath it on every frame; solid colors are the
+   cheapest thing a GPU can draw. */
 :root {
     --c-bg: #060810;
-    --c-surface: rgba(255, 255, 255, 0.14);
-    --c-surface-2: rgba(255, 255, 255, 0.22);
+    --c-surface: #161b26;
+    --c-surface-2: #212836;
     --c-accent: #c1ff72;
     --c-accent-soft: #d6ffa1;
     --c-glow: #c1ff72;

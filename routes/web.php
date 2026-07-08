@@ -83,6 +83,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google/native', [GoogleAuthController::class, 'nativeRedirect'])->name('auth.google.native');
     Route::get('/auth/google/native/callback', [GoogleAuthController::class, 'nativeCallback'])->name('auth.google.native.callback');
     Route::get('/auth/google/finish', [GoogleAuthController::class, 'finish'])->name('auth.google.finish');
+    Route::post('/auth/google/finish/redeem', [GoogleAuthController::class, 'finishRedeem'])->name('auth.google.finish.redeem');
 });
 
 /*
