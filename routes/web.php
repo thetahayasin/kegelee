@@ -82,9 +82,17 @@ Route::middleware('guest')->group(function () {
     // Native (device) Google flow: opened in a Custom Tab, returns via deeplink.
     Route::get('/auth/google/native', [GoogleAuthController::class, 'nativeRedirect'])->name('auth.google.native');
     Route::get('/auth/google/native/callback', [GoogleAuthController::class, 'nativeCallback'])->name('auth.google.native.callback');
-    Route::get('/auth/google/finish', [GoogleAuthController::class, 'finish'])->name('auth.google.finish');
-    Route::post('/auth/google/finish/redeem', [GoogleAuthController::class, 'finishRedeem'])->name('auth.google.finish.redeem');
 });
+
+// Native Google OAuth finish — OUTSIDE the guest group. The deeplink return can
+// arrive when the user has a stale session, and the guest middleware would
+// redirect to / (onboarding) before the token is redeemed. These routes handle
+// any auth state: already-authenticated users are logged out first.
+Route::get('/auth/google/finish', [GoogleAuthController::class, 'finish'])->name('auth.google.finish');
+// GET (not POST): the device redeems by navigating to this URL from the loading
+// page. A GET needs no CSRF token and no WebView POST-body replay, so the token
+// can never be lost in transit the way a native form POST can.
+Route::get('/auth/google/finish/redeem', [GoogleAuthController::class, 'finishRedeem'])->name('auth.google.finish.redeem');
 
 /*
 |--------------------------------------------------------------------------

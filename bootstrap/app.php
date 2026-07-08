@@ -43,6 +43,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin*')
             ? route('admin.login')
             : route('landing'));
+
+        // Authenticated users hitting guest-only routes (login, register) land
+        // on the main app screen instead of the unpredictable / → LandingController chain.
+        $middleware->redirectUsersTo('/app');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Livewire component updates (POST /livewire/update) must get JSON

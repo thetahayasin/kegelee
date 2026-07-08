@@ -27,18 +27,17 @@
         <p class="sub">This will only take a moment</p>
     </div>
 
-    {{-- Hidden form POSTs the token to finishRedeem so it never appears in
-         browser history or server access logs as a query string. --}}
-    <form id="redeem-form" method="POST" action="{{ route('auth.google.finish.redeem') }}">
-        @csrf
-        <input type="hidden" name="token" value="{{ $token }}">
-    </form>
-
     <script>
-    // Give the loading screen a beat to paint, then submit the form.
+    // Redeem via a plain GET navigation (not a form POST). Inside the NativePHP
+    // WebView a native form POST depends on a fragile capture-and-replay of the
+    // request body; if the auto-submit wins the race against that interceptor the
+    // token arrives empty and the sign-in silently bounces to onboarding. A GET
+    // carries the one-time token in the URL and needs no body replay or CSRF, so
+    // it lands reliably. Use replace() so the token URL never enters history.
+    var redeemUrl = @js(route('auth.google.finish.redeem', ['token' => $token], false));
     setTimeout(function () {
-        document.getElementById('redeem-form').submit();
-    }, 300);
+        window.location.replace(redeemUrl);
+    }, 250);
     </script>
 </body>
 </html>

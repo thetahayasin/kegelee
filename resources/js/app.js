@@ -297,7 +297,7 @@ window.addEventListener('online', refreshConnectivity);
 let _probeTimer = null;
 function scheduleProbe() {
     clearInterval(_probeTimer);
-    _probeTimer = setInterval(refreshConnectivity, _wasOffline ? 15000 : 60000);
+    _probeTimer = setInterval(refreshConnectivity, _wasOffline ? 15000 : 120000);
 }
 scheduleProbe();
 // Re-schedule after every probe so the interval adapts when state changes.
@@ -343,7 +343,18 @@ function healBlankPage() {
         ? root.children.length === 0 || root.innerHTML.trim() === ''
         : !document.querySelector('[wire\\:id]') && !!document.querySelector('.app-frame');
     if (empty) {
+        // Raise the boot spinner over the bare watermark immediately, then reload
+        // for a clean server render. Guard against an infinite reload loop in the
+        // unlikely event the server itself returns empty content.
+        let tries = 0;
+        try { tries = parseInt(sessionStorage.getItem('kegelBlankHeal') || '0', 10) || 0; } catch (e) {}
+        if (tries >= 3) return; // give up; the layout's 6s safety reveals the page
+        try { sessionStorage.setItem('kegelBlankHeal', String(tries + 1)); } catch (e) {}
+        document.documentElement.classList.add('app-loading');
         window.location.reload();
+    } else {
+        // Content is here — clear the retry counter for the next time.
+        try { sessionStorage.removeItem('kegelBlankHeal'); } catch (e) {}
     }
 }
 document.addEventListener('livewire:navigated', () => setTimeout(healBlankPage, 150));

@@ -85,9 +85,12 @@ class User extends Authenticatable
             ->first();
     }
 
+    /** @var bool|null Per-request cache for isSubscribed(). */
+    private ?bool $_subscribed = null;
+
     public function isSubscribed(): bool
     {
-        return (bool) $this->activeSubscription();
+        return $this->_subscribed ??= (bool) $this->activeSubscription();
     }
 
     /**
@@ -96,12 +99,19 @@ class User extends Authenticatable
      * / KnowledgeSeeder), so this is simply "all active lessons completed".
      * With no active lessons, there is nothing to gate on.
      */
+    /** @var bool|null Per-request cache for hasCompletedBasics(). */
+    private ?bool $_basicsCompleted = null;
+
     public function hasCompletedBasics(): bool
     {
+        if ($this->_basicsCompleted !== null) {
+            return $this->_basicsCompleted;
+        }
+
         $active = KnowledgeLesson::where('is_active', true)->count();
 
         if ($active === 0) {
-            return true;
+            return $this->_basicsCompleted = true;
         }
 
         $done = $this->completedLessons()
@@ -109,7 +119,7 @@ class User extends Authenticatable
             ->wherePivotNotNull('completed_at')
             ->count();
 
-        return $done >= $active;
+        return $this->_basicsCompleted = $done >= $active;
     }
 
     /**

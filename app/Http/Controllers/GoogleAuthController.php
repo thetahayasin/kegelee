@@ -75,7 +75,7 @@ class GoogleAuthController extends Controller
         $user = $this->findOrCreate($g);
 
         $token = Str::random(48);
-        Cache::put('goauth:'.$token, $user->id, 120); // one-time, 2 min TTL
+        Cache::put('goauth:'.$token, $user->id, 300); // one-time, 5 min TTL
 
         return $this->deeplink('token='.$token);
     }
@@ -90,6 +90,15 @@ class GoogleAuthController extends Controller
             return redirect('/welcome?auth_prompt=1&auth_mode=login');
         }
 
+        // Clear any stale session so the new Google account takes over cleanly.
+        // The deeplink can arrive while a previous login's session is still alive;
+        // without this the old auth state leaks into the new sign-in.
+        if (Auth::check()) {
+            Auth::logout();
+            session()->invalidate();
+            session()->regenerateToken();
+        }
+
         // Render a branded loading page. Its JS navigates to finishRedeem()
         // which does the actual network call + login + redirect.
         return response()->view('auth-loading', ['token' => $token]);
@@ -101,10 +110,21 @@ class GoogleAuthController extends Controller
      *  specific message (a silent bounce reads as "nothing happened"). */
     public function finishRedeem(Request $request)
     {
-        $token = (string) $request->input('token');
+        // Redeemed via GET: the token rides in the query string (see the note on
+        // the route). Accept the POST body too so an old bundled loading page
+        // still works after an update.
+        $token = (string) ($request->query('token') ?: $request->input('token'));
 
         if ($token === '' || ! BackendClient::isClient()) {
             return redirect('/welcome?auth_prompt=1&auth_mode=login');
+        }
+
+        // Clear any stale session left over from a previous login so the new
+        // Google account doesn't collide with old auth state.
+        if (Auth::check()) {
+            Auth::logout();
+            session()->invalidate();
+            session()->regenerateToken();
         }
 
         // One retry: returning from the external browser can catch the radio
@@ -167,10 +187,14 @@ class GoogleAuthController extends Controller
                 'level_id' => Level::where('is_active', true)->orderBy('number')->value('id'),
                 'onboarded_at' => now(),
             ]);
-        } elseif (! $user->google_id) {
+        } elseif (! $user->google_id || ! $user->onboarded_at) {
+            // Linking Google to an existing account (or a pre-existing one that
+            // never finished onboarding): a Google sign-in IS a completed
+            // sign-up, so mark them onboarded to skip the intro slides.
             $user->update([
                 'google_id' => $g->getId(),
                 'email_verified_at' => $user->email_verified_at ?? now(),
+                'onboarded_at' => $user->onboarded_at ?? now(),
             ]);
         }
 
@@ -178,14 +202,15 @@ class GoogleAuthController extends Controller
     }
 
     /** New/unsubscribed users land on the subscription screen; subscribers and
-     *  admins go straight into the app. */
+     *  admins go straight into the app. Uses url() not route() so the redirect
+     *  works reliably from the standalone auth-loading page (no Livewire shell). */
     private function postAuthRedirect(User $user)
     {
         if (! $user->is_admin && ! $user->isSubscribed()) {
-            return redirect()->route('paywall');
+            return redirect('/upgrade');
         }
 
-        return redirect()->route('home');
+        return redirect('/app');
     }
 
     /** Redirect to the app via its deeplink scheme (returns from the Custom Tab). */

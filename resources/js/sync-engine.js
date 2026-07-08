@@ -460,7 +460,7 @@ async function boot() {
     }
 
     // Initial sync shortly after load — fullSync() self-gates on real connectivity.
-    setTimeout(() => fullSync(), 2000);
+    setTimeout(() => fullSync(), 4000);
 
     // Sync when connectivity returns (force a fresh probe first).
     window.addEventListener('online', () => {

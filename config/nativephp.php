@@ -298,19 +298,25 @@ return [
         |
         */
         'build' => [
-            // R8/ProGuard Configuration - currently disabled
+            // R8/ProGuard is OFF. This project's Android sources (build.gradle.kts,
+            // MainActivity.kt, ...) are REGENERATED from this config on every build,
+            // so these flags are the real source of truth. Enabling R8 here shrinks
+            // the app but risks release-only crashes in the WebView/PHP bridge that
+            // can't be reproduced on the dev host — leave off unless a release AAB
+            // has been smoke-tested on a device. The deobfuscation warning in Play
+            // is only informational while obfuscation is off.
             'minify_enabled' => env('NATIVEPHP_ANDROID_MINIFY_ENABLED', false),
             'shrink_resources' => env('NATIVEPHP_ANDROID_SHRINK_RESOURCES', false),
             'obfuscate' => env('NATIVEPHP_ANDROID_OBFUSCATE', false),
 
-            // Debug Symbol Configuration - stripped for release size. Set
-            // NATIVEPHP_ANDROID_DEBUG_SYMBOLS=FULL if you need native crash
-            // symbolication for a debugging build.
-            'debug_symbols' => env('NATIVEPHP_ANDROID_DEBUG_SYMBOLS', 'NONE'),
+            // Native debug symbols bundled into the AAB (not the delivered APK) so
+            // Play can symbolicate native crashes/ANRs from the PHP runtime. This is
+            // safe with R8 off and resolves the "no debug symbols" warning on its own.
+            'debug_symbols' => env('NATIVEPHP_ANDROID_DEBUG_SYMBOLS', 'FULL'),
             'generate_mapping_files' => env('NATIVEPHP_ANDROID_MAPPING_FILES', false),
             'mapping_file_path' => env('NATIVEPHP_ANDROID_MAPPING_PATH', 'build/outputs/mapping/release/'),
 
-            // ProGuard Rules - currently disabled
+            // ProGuard rules (only relevant once obfuscation is enabled).
             'keep_line_numbers' => env('NATIVEPHP_ANDROID_KEEP_LINE_NUMBERS', false),
             'keep_source_file' => env('NATIVEPHP_ANDROID_KEEP_SOURCE_FILE', false),
             'custom_proguard_rules' => env('NATIVEPHP_ANDROID_CUSTOM_PROGUARD_RULES', []),

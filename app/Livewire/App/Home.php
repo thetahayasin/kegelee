@@ -41,6 +41,7 @@ class Home extends Component
     public function render(ProgressionService $progression, SettingsService $settings)
     {
         $user = auth()->user();
+        $user->loadMissing('level');
         $position = $progression->position($user);
         $today = $progression->todayProgress($user);
 

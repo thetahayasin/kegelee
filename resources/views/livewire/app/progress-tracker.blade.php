@@ -1,99 +1,18 @@
+@php
+    $bestInt = $best ? (int) floor($best) : 0;
+    $lastSecs = $last ? (int) floor($last->seconds) : 0;
+    $lastLabel = $last ? ($last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans()) : '-';
+    $barCount = max(1, count($bars));
+    $scale = max(1, $maxScale);
+@endphp
+{{-- Progress chart is rendered ENTIRELY server-side from the local database.
+     On the device that DB is the synced source of truth, so there is no need
+     for a parallel Alpine/IndexedDB recalculation — and removing it kills the
+     bug where toggling the range made bars vanish (three competing writers to
+     the same `bars` array racing on each mode toggle). Each range button is a
+     Livewire $set that re-renders these bars deterministically. --}}
 <div class="min-h-[100dvh] pb-[calc(11rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]"
-     x-data="{
-        best: @js($best ? (int) floor($best) : 0),
-        lastSecs: @js($last ? (int) floor($last->seconds) : 0),
-        lastLabel: @js($last ? ($last->measured_at->isToday() ? 'Today' : $last->measured_at->diffForHumans()) : '-'),
-        bars: @js($bars),
-        maxScale: @js($maxScale),
-        mode: @entangle('mode'),
-        localList: [],
-        async init() {
-            if (window.kegelSync) {
-                try {
-                    const list = await window.kegelSync.db.getAll('measurements');
-                    if (list && list.length) {
-                        this.localList = list;
-                        this.recalculate();
-                    }
-                } catch(e) {}
-            }
-        },
-        recalculate() {
-            if (!this.localList || !this.localList.length) return;
-            const secs = this.localList.map(m => m.seconds);
-            this.best = Math.floor(Math.max(...secs));
-            
-            const sorted = [...this.localList].sort((a, b) => new Date(b.measured_at_iso || b.measured_at) - new Date(a.measured_at_iso || a.measured_at));
-            this.lastSecs = Math.floor(sorted[0].seconds);
-            this.lastLabel = 'Today';
-            
-            this.calculateOfflineBars(this.localList);
-        },
-        calculateOfflineBars(list) {
-            let count = this.mode === 'days' ? 7 : 6;
-            let unit = this.mode === 'days' ? 'day' : (this.mode === 'months' ? 'month' : 'week');
-            
-            let bars = [];
-            let maxVal = 0;
-            
-            for (let i = count - 1; i >= 0; i--) {
-                let start = new Date();
-                if (unit === 'day') {
-                    start.setDate(start.getDate() - i);
-                    start.setHours(0,0,0,0);
-                } else if (unit === 'month') {
-                    start.setMonth(start.getMonth() - i);
-                    start.setDate(1);
-                    start.setHours(0,0,0,0);
-                } else {
-                    start.setDate(start.getDate() - i * 7);
-                    let day = start.getDay();
-                    let diff = start.getDate() - day + (day === 0 ? -6 : 1);
-                    start.setDate(diff);
-                    start.setHours(0,0,0,0);
-                }
-                
-                let end = new Date(start);
-                if (unit === 'day') {
-                    end.setHours(23,59,59,999);
-                } else if (unit === 'month') {
-                    end.setMonth(end.getMonth() + 1);
-                    end.setDate(0);
-                    end.setHours(23,59,59,999);
-                } else {
-                    end.setDate(end.getDate() + 6);
-                    end.setHours(23,59,59,999);
-                }
-                
-                let val = 0;
-                for (const m of list) {
-                    let d = new Date(m.measured_at_iso || m.measured_at);
-                    if (d >= start && d <= end) {
-                        if (m.seconds > val) val = m.seconds;
-                    }
-                }
-                
-                // Match the server label format exactly (translatedFormat j M
-                // gives e.g. 5 Nov; month M gives Nov). Building it manually keeps
-                // the day-then-month order so the labels do not reflow when this
-                // client recalculation replaces the server-rendered bars.
-                let label = '';
-                if (unit === 'month') {
-                    label = start.toLocaleDateString(undefined, { month: 'short' });
-                } else {
-                    label = start.getDate() + ' ' + start.toLocaleDateString(undefined, { month: 'short' });
-                }
-                
-                bars.push({ label, value: Math.floor(val) });
-                if (val > maxVal) maxVal = val;
-            }
-            
-            this.bars = bars;
-            this.maxScale = Math.max(6, Math.ceil(maxVal / 2) * 2);
-        }
-     }"
-     x-effect="recalculate()"
-     @progress-reset.window="best = 0; lastSecs = 0; lastLabel = '-'; bars = bars.map(b => ({...b, value: 0})); maxScale = 6; localList = [];">
+     x-data="{}" @progress-reset.window="window.location.reload()">
     <header class="relative flex items-center justify-center px-5 py-4">
         <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
@@ -109,57 +28,48 @@
             </span>
             <div>
                 <p class="text-xs text-muted">best result</p>
-                <p class="font-bold text-white" x-text="best > 0 ? best + ' sec' : '-'"></p>
+                <p class="font-bold text-white">{{ $bestInt > 0 ? $bestInt.' sec' : '-' }}</p>
             </div>
         </div>
         <div class="text-right">
             <p class="text-xs text-muted">last measurement</p>
-            <p class="font-bold text-white" x-text="lastSecs > 0 ? lastSecs + ' sec (' + lastLabel + ')' : '-'"></p>
+            <p class="font-bold text-white">{{ $lastSecs > 0 ? $lastSecs.' sec ('.$lastLabel.')' : '-' }}</p>
         </div>
     </div>
 
-    {{-- Re-seed Alpine from the freshly server-rendered bars whenever the range
-         changes. The wire:key forces this element to re-init on each mode toggle,
-         so the chart updates even when there is no offline (IndexedDB) data yet.
-         When offline data IS present, x-effect/recalculate() overrides it. --}}
-    <div wire:key="bars-{{ $mode }}" x-init="if (!localList || !localList.length) { bars = @js($bars); maxScale = @js($maxScale); }" hidden></div>
-
     {{-- Chart --}}
-    <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface p-4">
+    <section class="mx-4 mt-5 rounded-2xl border border-white/5 bg-surface p-4" wire:key="chart-{{ $mode }}">
         <p class="font-semibold text-white">{{ $rangeLabel }}</p>
-        <p class="text-sm text-muted">top result: <span x-text="best ? best + ' sec' : '0 sec'"></span></p>
+        <p class="text-sm text-muted">top result: {{ $bestInt.' sec' }}</p>
 
         <div class="relative mt-5 h-44">
             {{-- gridlines --}}
-            <template x-for="gVal in [maxScale, Math.floor(maxScale * 2/3), Math.floor(maxScale * 1/3), 0]" :key="gVal">
-                <div class="absolute inset-x-0 flex items-center" :style="'top: ' + ((1 - gVal / maxScale) * 100) + '%'">
+            @foreach ([$maxScale, (int) floor($maxScale * 2 / 3), (int) floor($maxScale / 3), 0] as $gVal)
+                <div class="absolute inset-x-0 flex items-center" style="top: {{ (1 - $gVal / $scale) * 100 }}%">
                     <div class="h-px flex-1 bg-white/5"></div>
-                    <span class="ml-2 w-12 text-right text-[10px] text-muted" x-text="gVal + ' sec'"></span>
+                    <span class="ml-2 w-12 text-right text-[10px] text-muted">{{ $gVal }} sec</span>
                 </div>
-            </template>
+            @endforeach
 
-            {{-- bars: a CSS grid of N equal (minmax 0,1fr) columns so the
-                 spacing is identical for every count and never depends on label
-                 width or flex-distribution timing when the mode changes. --}}
+            {{-- bars: a CSS grid of N equal (minmax 0,1fr) columns so spacing is
+                 identical for every count and never depends on label width. --}}
             <div class="absolute inset-0 grid items-end gap-2 pr-14"
-                 style="grid-template-columns: repeat({{ max(1, count($bars)) }}, minmax(0, 1fr))"
-                 :style="'grid-template-columns: repeat(' + Math.max(1, (bars || []).length) + ', minmax(0, 1fr))'">
-                <template x-for="(bar, index) in bars" :key="index">
+                 style="grid-template-columns: repeat({{ $barCount }}, minmax(0, 1fr))">
+                @foreach ($bars as $bar)
                     <div class="flex h-full min-w-0 flex-col items-center justify-end">
                         <div class="w-7 max-w-full rounded-md bg-accent transition-[height] duration-300"
-                             :style="'height: ' + (bar.value > 0 ? Math.min(100, Math.max(4, bar.value / maxScale * 100)) : 0) + '%'"></div>
+                             style="height: {{ $bar['value'] > 0 ? min(100, max(4, $bar['value'] / $scale * 100)) : 0 }}%"></div>
                     </div>
-                </template>
+                @endforeach
             </div>
         </div>
 
         {{-- x labels: same grid template as the bars so they stay aligned. --}}
         <div class="mt-2 grid gap-2 pr-14"
-             style="grid-template-columns: repeat({{ max(1, count($bars)) }}, minmax(0, 1fr))"
-             :style="'grid-template-columns: repeat(' + Math.max(1, (bars || []).length) + ', minmax(0, 1fr))'">
-            <template x-for="(bar, index) in bars" :key="index">
-                <span class="min-w-0 truncate text-center text-[10px] text-muted" x-text="bar.label"></span>
-            </template>
+             style="grid-template-columns: repeat({{ $barCount }}, minmax(0, 1fr))">
+            @foreach ($bars as $bar)
+                <span class="min-w-0 truncate text-center text-[10px] text-muted">{{ $bar['label'] }}</span>
+            @endforeach
         </div>
     </section>
 

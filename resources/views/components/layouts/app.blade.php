@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
     <meta name="theme-color" content="#060810">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Boot/transition loader. Covers the brief parse-to-paint gap on FULL page
+         loads (cold start, and hard redirects like the Google sign-in finish and
+         the progress-tracker save) so the user sees a spinner, never the bare
+         watermark. wire:navigate keeps its own #nav-loader. Inlined in <head> so
+         it is styled and active before the body paints a single pixel. --}}
+    <style>
+        #app-boot-loader{position:fixed;inset:0;z-index:9999;display:none;place-items:center;background:#060810;transition:opacity .3s ease}
+        html.app-loading #app-boot-loader{display:grid}
+        #app-boot-loader .ring{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#c1ff72;animation:app-boot-spin .7s linear infinite}
+        @keyframes app-boot-spin{to{transform:rotate(360deg)}}
+    </style>
+    <script>document.documentElement.classList.add('app-loading');</script>
     <?php
         $syncBase = config('app.content_sync_url');
         if (empty($syncBase)) {
@@ -59,6 +72,49 @@
     @endif
 </head>
 <body class="antialiased bg-bg text-content selection:bg-accent/30" style="background-color:#060810">
+    {{-- Shown (via html.app-loading, set in <head>) until the page has painted. --}}
+    <div id="app-boot-loader" aria-hidden="true"><div class="ring"></div></div>
+    <script>
+    (function () {
+        if (window.__bootLoaderInit) return;
+        window.__bootLoaderInit = true;
+        var html = document.documentElement;
+
+        // The page's real content lives in `.app-frame > .relative`. Standalone
+        // pages (auth-loading, etc.) have no frame, so there is nothing to guard.
+        function contentPresent() {
+            var root = document.querySelector('.app-frame > .relative');
+            if (!root) return true;
+            return root.children.length > 0 && root.innerHTML.trim() !== '';
+        }
+        function hideLoader() {
+            var el = document.getElementById('app-boot-loader');
+            if (el) el.style.opacity = '0';
+            setTimeout(function () {
+                if (contentPresent()) html.classList.remove('app-loading');
+                if (el) el.style.opacity = '';
+            }, 300);
+        }
+        // Content present  -> drop the spinner.
+        // Content missing  -> RAISE the spinner, so the empty "just the watermark"
+        //                     frame is never shown. app.js's healBlankPage() then
+        //                     reloads for a clean server render.
+        function settle() {
+            if (window.__loggingOut) { html.classList.remove('app-loading'); return; }
+            if (contentPresent()) hideLoader();
+            else html.classList.add('app-loading');
+        }
+        function whenReady() { requestAnimationFrame(function () { requestAnimationFrame(settle); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', whenReady);
+        else whenReady();
+        window.addEventListener('load', settle);
+        document.addEventListener('livewire:navigated', settle);
+        window.addEventListener('pageshow', settle);
+        window.addEventListener('popstate', function () { setTimeout(settle, 60); });
+        // Hard safety: never let the overlay trap the user on a stuck page.
+        setTimeout(function () { html.classList.remove('app-loading'); }, 6000);
+    })();
+    </script>
     {!! $settings->get('inject_body_start') !!}
 
     <div class="app-frame no-scrollbar">
