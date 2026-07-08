@@ -132,15 +132,15 @@ final class ExerciseCatalog
 
         $definitions = [
             [
-                // Contract up over 0.6s, then relax straight back down over 0.4s -
-                // no hold/dwell at full contraction. Starts relaxed.
+                // Snap to full contraction at once (instant, no ramp), hold for
+                // 0.6s, then relax back down over 0.4s. Starts relaxed.
                 'name' => 'Trembling',
                 'slug' => 'trembling',
                 'unlock_after_days' => 0,
                 'summary' => 'Quick flicks, on and off',
                 'description' => 'Rapid on and off squeezes that make the muscle tremble and wake up its fast response.',
-                'how_to' => 'Squeeze up smoothly, then let go. Follow the circle as it swells and drops. Keep the movement light.',
-                'pattern' => [$s(0.6, 0, 1, 'Contract'), $s(0.4, 1, 0, 'Relax')],
+                'how_to' => 'Squeeze all at once, hold for a moment, then let go smoothly. Follow the circle as it snaps up and eases down.',
+                'pattern' => [$hold(0.6, 1, 'Contract'), $s(0.4, 1, 0, 'Relax')],
             ],
             [
                 // One continuous hold for the whole round. Shorter than the
