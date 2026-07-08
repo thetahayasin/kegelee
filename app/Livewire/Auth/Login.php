@@ -52,11 +52,11 @@ class Login extends Component
                 $user = \App\Services\RemoteAuth::mirror($result['user']);
             } else {
                 RateLimiter::hit($key, 300);
-                if (($result['reason'] ?? '') === 'invalid') {
-                    $this->addError('email', 'Email or password is incorrect.');
-                } else {
-                    $this->addError('email', 'Could not reach the server. Check your internet connection and try again.');
-                }
+                $this->addError('email', match ($result['reason'] ?? '') {
+                    'invalid' => 'Email or password is incorrect.',
+                    'server' => 'The server hit a problem. Please try again in a moment.',
+                    default => 'Could not reach the server. Check your internet connection and try again.',
+                });
                 return;
             }
         } else {

@@ -11,7 +11,7 @@
 
     {{-- Bottom sheet --}}
     <div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
-         class="relative mx-auto w-full max-w-[440px] rounded-t-3xl border-t border-white/10 bg-surface px-6 pt-5 pb-[calc(1.75rem+env(safe-area-inset-bottom))]">
+         class="modal-panel relative mx-auto w-full max-w-[440px] rounded-t-3xl border-t border-white/10 bg-surface px-6 pt-5 pb-[calc(1.75rem+env(safe-area-inset-bottom))]">
         <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
 
         <div class="flex items-center justify-between">

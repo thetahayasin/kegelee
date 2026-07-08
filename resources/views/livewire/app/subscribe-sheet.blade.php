@@ -15,7 +15,7 @@
 
     {{-- Bottom sheet --}}
     @if ($showSheet)
-        <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm"
+        <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/60"
              x-data="{
                  _backOff: null,
                  init() { this._backOff = window.appBack?.register(() => this.$wire.close()); },
@@ -25,7 +25,7 @@
             <div class="absolute inset-0" wire:click="close"></div>
 
             {{-- Sheet panel --}}
-            <div class="relative z-10 w-full max-w-[440px] rounded-t-[2.5rem] border-t border-white/10 bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl animate-[slide-up_300ms_ease]">
+            <div class="modal-panel relative z-10 w-full max-w-[440px] rounded-t-[2.5rem] border-t border-white/10 bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl animate-[slide-up_300ms_ease]">
                 <div class="mx-auto mb-5 h-1.5 w-12 rounded-full bg-white/10"></div>
 
                 {{-- Plans step --}}

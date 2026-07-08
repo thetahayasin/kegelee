@@ -349,9 +349,16 @@ label {
     will-change: transform, opacity;
 }
 
-/* Modal panels grow from their own centre for a natural pop. */
+/* Modal panels grow from their own centre for a natural pop, and are fully
+   OPAQUE - no backdrop blur at all. A focused input inside a modal is exactly
+   when the soft keyboard animates, and a live blur there is the biggest
+   keyboard-jank source on mid-range GPUs. A solid surface keeps the look
+   without the per-frame render cost. */
 .modal-panel {
     transform-origin: center;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background-color: #151a23 !important;
 }
 
 /* Honour the OS "reduce motion" preference for DECORATIVE transitions (modal

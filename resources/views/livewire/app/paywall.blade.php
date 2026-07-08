@@ -107,7 +107,7 @@
     {{-- Auto-renewal notice after purchase --}}
     @if ($showAutoRenewalNotice)
         <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/70">
-            <div class="w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl animate-[scale-in_200ms_ease]">
+            <div class="modal-panel w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl animate-[scale-in_200ms_ease]">
                 <div class="mx-auto mb-4 h-1.5 w-12 rounded-full bg-white/10"></div>
                 <div class="mb-5 flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-success/15">
                     <svg viewBox="0 0 24 24" class="h-7 w-7 text-success" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>

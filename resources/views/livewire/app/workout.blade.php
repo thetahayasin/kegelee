@@ -426,7 +426,7 @@
                     <div x-show="showHelp"
                          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
                          x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
-                         class="relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                         class="modal-panel relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                         <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
                         <div class="mt-2 space-y-3">
                             <button @click="showHelp = false; paused = false"
@@ -497,7 +497,7 @@
                     <div x-show="showQuit"
                          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
                          x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
-                         class="relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+                         class="modal-panel relative w-full max-w-[440px] rounded-t-3xl bg-surface border-t border-white/10 px-6 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                         <div class="mx-auto mb-5 h-1 w-10 rounded-full bg-white/20"></div>
                         <p class="text-center text-lg font-bold">Leave training?</p>
                         <p class="mt-2 text-center text-sm text-muted">If you leave, this session will not be counted towards your daily progress.</p>

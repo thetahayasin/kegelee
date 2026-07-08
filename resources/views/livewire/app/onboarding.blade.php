@@ -70,7 +70,7 @@
             <div class="absolute inset-0" wire:click="closeAuthModal"></div>
 
             {{-- Sheet panel --}}
-            <div class="relative w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl z-10"
+            <div class="modal-panel relative w-full max-w-[440px] rounded-t-[2.5rem] bg-surface border-t border-white/10 p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl z-10"
                  x-show="show"
                  x-transition:enter="transform transition-transform ease-out duration-300"
                  x-transition:enter-start="translate-y-full"

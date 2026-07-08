@@ -38,14 +38,13 @@ class RemoteAuth
 
             // 401/422 = the backend rejected the credentials.
             if (in_array($response->status(), [401, 422], true)) {
-                if ($response->json('error') === 'Invalid API key.') {
-                    return ['reason' => 'unreachable'];
-                }
-
                 return ['reason' => 'invalid'];
             }
 
-            return ['reason' => 'unreachable'];
+            // The server responded but errored (5xx, 429, ...): NOT a
+            // connectivity problem - don't tell the user to check their
+            // internet when the backend itself is broken/out of date.
+            return ['reason' => 'server'];
         } catch (\Throwable $e) {
             return ['reason' => 'unreachable'];
         }
@@ -79,7 +78,8 @@ class RemoteAuth
                 return ['error' => $message ?: 'Validation failed.'];
             }
 
-            return ['error' => 'Could not reach the server. Check your internet connection and try again.'];
+            // Server responded but errored - distinct from being offline.
+            return ['error' => 'The server hit a problem. Please try again in a moment.'];
         } catch (\Throwable $e) {
             return ['error' => 'Could not reach the server. Check your internet connection and try again.'];
         }

@@ -114,7 +114,7 @@
                      x-transition:leave="transition ease-in duration-150"
                      x-transition:leave-start="opacity-100 scale-100"
                      x-transition:leave-end="opacity-0 scale-95"
-                     class="relative w-full max-w-sm rounded-3xl bg-surface border border-white/10 p-6 text-center shadow-2xl">
+                     class="modal-panel relative w-full max-w-sm rounded-3xl bg-surface border border-white/10 p-6 text-center shadow-2xl">
 
                     <h2 class="text-lg font-bold text-content">Reset progress?</h2>
                     <p class="mt-2 text-sm text-muted leading-relaxed">This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.</p>

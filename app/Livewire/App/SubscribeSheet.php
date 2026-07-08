@@ -163,9 +163,11 @@ class SubscribeSheet extends Component
             $result = \App\Services\RemoteAuth::login(strtolower($this->email), $this->password);
 
             if (empty($result['user'])) {
-                $this->addError('email', ($result['reason'] ?? '') === 'invalid'
-                    ? 'Email or password is incorrect.'
-                    : 'Could not reach the server. Check your internet connection and try again.');
+                $this->addError('email', match ($result['reason'] ?? '') {
+                    'invalid' => 'Email or password is incorrect.',
+                    'server' => 'The server hit a problem. Please try again in a moment.',
+                    default => 'Could not reach the server. Check your internet connection and try again.',
+                });
                 return;
             }
 
