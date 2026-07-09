@@ -220,25 +220,29 @@ if (Test-Path $phpBridge) {
     Write-Host "    php_bridge.c not found (run native:install first) - skipping" -ForegroundColor Yellow
 }
 
-# 4e. Keyboard-open smoothness on mid-range (non-Pixel) GPUs. NativePHP pads the
-# WebView by the ANIMATED WindowInsets.ime, so the WebView is resized on every
-# frame of the keyboard slide and the whole page reflows ~60x - janky on slower
-# GPUs. imeAnimationTarget snaps the WebView to the final keyboard size in a
-# single reflow, then the keyboard slides up over it. Patched in the generated
-# file AND the vendor stub, because native:package regenerates MainActivity.kt
-# from the stub. Idempotent.
-Write-Step "Smoothing keyboard open (imeAnimationTarget instead of animated ime)"
+# 4e. Two MainActivity fixes that must survive native:package regenerating the
+# file from the vendor stub, so patch BOTH the generated file and the stub:
+#  (1) imeAnimationTarget - pad the WebView by the FINAL keyboard size, not the
+#      animated one, so the page reflows once instead of ~60x (keyboard jank on
+#      non-Pixel GPUs).
+#  (2) dark WebView background (#060810) - the gap between the splash dismissing
+#      and the first paint was a WHITE flash; painting the WebView dark hides it.
+# Both replacements are idempotent.
+Write-Step "Patching MainActivity (keyboard jank + white-flash on launch)"
 @(
     (Join-Path $ProjectRoot 'nativephp\android\app\src\main\java\com\nativephp\mobile\ui\MainActivity.kt'),
     (Join-Path $ProjectRoot 'vendor\nativephp\mobile\resources\androidstudio\app\src\main\java\com\nativephp\mobile\ui\MainActivity.kt')
 ) | ForEach-Object {
-    if (Test-Path $_) {
-        $src = [System.IO.File]::ReadAllText($_)
-        $patched = $src -replace 'windowInsetsPadding\(WindowInsets\.ime\)', 'windowInsetsPadding(WindowInsets.imeAnimationTarget)'
-        if ($patched -ne $src) {
-            [System.IO.File]::WriteAllText($_, $patched)
-            Write-Host "    Patched -> imeAnimationTarget: $_" -ForegroundColor DarkGray
-        }
+    if (-not (Test-Path $_)) { return }
+    $src = [System.IO.File]::ReadAllText($_)
+    $orig = $src
+    $src = $src -replace 'windowInsetsPadding\(WindowInsets\.ime\)', 'windowInsetsPadding(WindowInsets.imeAnimationTarget)'
+    if ($src -notmatch 'setBackgroundColor\(0xFF060810') {
+        $src = $src -replace '(settings\.mediaPlaybackRequiresUserGesture = false)', "`$1`r`n            setBackgroundColor(0xFF060810.toInt())"
+    }
+    if ($src -ne $orig) {
+        [System.IO.File]::WriteAllText($_, $src)
+        Write-Host "    Patched MainActivity: $_" -ForegroundColor DarkGray
     }
 }
 
