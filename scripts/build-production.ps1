@@ -188,37 +188,9 @@ Invoke-Checked 'php' @('artisan', 'route:cache')
 Invoke-Checked 'php' @('artisan', 'view:cache')
 Invoke-Checked 'php' @('artisan', 'event:cache')
 
-# 4c. Authoritative optimized class map: the on-device autoloader resolves every
-# class from a single precomputed map with no per-class filesystem stat()
-# fallback, trimming syscalls on each cold boot. Skipped (non-fatal) if composer
-# is not on PATH.
-if (Get-Command composer -ErrorAction SilentlyContinue) {
-    Write-Step "Dumping an authoritative optimized autoloader"
-    Invoke-Checked 'composer' @('dump-autoload', '--optimize', '--classmap-authoritative')
-} else {
-    Write-Host "==> Skipping authoritative autoloader (composer not on PATH)" -ForegroundColor Yellow
-}
-
-# 4d. Persist the on-device OPcache in files/ instead of cache/. NativePHP's
-# php_bridge.c points opcache.file_cache at the app's cache/ dir, which Android
-# evicts under storage pressure and after the app sits idle - wiping the compiled
-# bytecode so the next launch recompiles all of Laravel ("slow after some time").
-# files/ is never auto-cleared. Idempotent, and survives a native:install that
-# regenerates php_bridge.c from the vendor stub.
-Write-Step "Pinning OPcache file cache to files/ (persistent cold-start cache)"
-$phpBridge = Join-Path $ProjectRoot 'nativephp\android\app\src\main\cpp\php_bridge.c'
-if (Test-Path $phpBridge) {
-    $src = [System.IO.File]::ReadAllText($phpBridge)
-    $patched = $src -replace '(opcache\.file_cache=/data/data/[^/]+/)cache/opcache', '${1}files/opcache'
-    if ($patched -ne $src) {
-        [System.IO.File]::WriteAllText($phpBridge, $patched)
-        Write-Host "    Patched opcache.file_cache -> files/ (was cache/)" -ForegroundColor DarkGray
-    } else {
-        Write-Host "    opcache.file_cache already pinned to files/" -ForegroundColor DarkGray
-    }
-} else {
-    Write-Host "    php_bridge.c not found (run native:install first) - skipping" -ForegroundColor Yellow
-}
+# (Reverted: the OPcache-in-files/ move and the authoritative autoloader were
+# removed - on-device they made cold start SLOWER and were tied to blank-screen
+# reports. Back to NativePHP's default opcache config.)
 
 # 4e. Two MainActivity fixes that must survive native:package regenerating the
 # file from the vendor stub, so patch BOTH the generated file and the stub:
