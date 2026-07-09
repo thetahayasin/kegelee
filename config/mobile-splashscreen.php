@@ -147,8 +147,11 @@ return [
     */
 
     'timing' => [
+        // Keep the splash padding minimal: it only exists to cover the cold-start
+        // boot, so a long fade-in just makes a fast (warm-opcache) launch feel
+        // slower than it is. No delay before or after.
         'delay_before' => (int) env('MOBILE_SPLASHSCREEN_DELAY_BEFORE', 0),
-        'fade_in' => (int) env('MOBILE_SPLASHSCREEN_FADE_IN', 600),
+        'fade_in' => (int) env('MOBILE_SPLASHSCREEN_FADE_IN', 250),
         'delay_after' => (int) env('MOBILE_SPLASHSCREEN_DELAY_AFTER', 0),
     ],
 
