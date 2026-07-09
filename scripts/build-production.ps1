@@ -220,6 +220,28 @@ if (Test-Path $phpBridge) {
     Write-Host "    php_bridge.c not found (run native:install first) - skipping" -ForegroundColor Yellow
 }
 
+# 4e. Keyboard-open smoothness on mid-range (non-Pixel) GPUs. NativePHP pads the
+# WebView by the ANIMATED WindowInsets.ime, so the WebView is resized on every
+# frame of the keyboard slide and the whole page reflows ~60x - janky on slower
+# GPUs. imeAnimationTarget snaps the WebView to the final keyboard size in a
+# single reflow, then the keyboard slides up over it. Patched in the generated
+# file AND the vendor stub, because native:package regenerates MainActivity.kt
+# from the stub. Idempotent.
+Write-Step "Smoothing keyboard open (imeAnimationTarget instead of animated ime)"
+@(
+    (Join-Path $ProjectRoot 'nativephp\android\app\src\main\java\com\nativephp\mobile\ui\MainActivity.kt'),
+    (Join-Path $ProjectRoot 'vendor\nativephp\mobile\resources\androidstudio\app\src\main\java\com\nativephp\mobile\ui\MainActivity.kt')
+) | ForEach-Object {
+    if (Test-Path $_) {
+        $src = [System.IO.File]::ReadAllText($_)
+        $patched = $src -replace 'windowInsetsPadding\(WindowInsets\.ime\)', 'windowInsetsPadding(WindowInsets.imeAnimationTarget)'
+        if ($patched -ne $src) {
+            [System.IO.File]::WriteAllText($_, $patched)
+            Write-Host "    Patched -> imeAnimationTarget: $_" -ForegroundColor DarkGray
+        }
+    }
+}
+
 # 5. Package signed Android artifact(s). 'both' produces APK + AAB.
 $types = if ($BuildType -eq 'both') { @('release', 'bundle') } else { @($BuildType) }
 $buildStart = Get-Date
