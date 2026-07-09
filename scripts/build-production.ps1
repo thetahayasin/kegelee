@@ -178,16 +178,47 @@ if ($BumpVersion) {
 }
 
 # 4b. Warm every boot cache the device reads instead of recompiling on the
-# first cold request (the main cold-start cost, since the embedded opcache is
-# memory-only and starts empty on each launch). config:cache is included: this
-# app never calls Laravel's env() at runtime (verified - it uses getenv()/
-# $_SERVER), and NativePHP reads its own settings via config(), so freezing the
-# config is safe and collapses ~30 config files into one.
+# first cold request. config:cache is included: this app never calls Laravel's
+# env() at runtime (verified - it uses getenv()/$_SERVER), and NativePHP reads
+# its own settings via config(), so freezing the config is safe and collapses
+# ~30 config files into one.
 Write-Step "Warming production caches (config/route/view/event) for faster cold start"
 Invoke-Checked 'php' @('artisan', 'config:cache')
 Invoke-Checked 'php' @('artisan', 'route:cache')
 Invoke-Checked 'php' @('artisan', 'view:cache')
 Invoke-Checked 'php' @('artisan', 'event:cache')
+
+# 4c. Authoritative optimized class map: the on-device autoloader resolves every
+# class from a single precomputed map with no per-class filesystem stat()
+# fallback, trimming syscalls on each cold boot. Skipped (non-fatal) if composer
+# is not on PATH.
+if (Get-Command composer -ErrorAction SilentlyContinue) {
+    Write-Step "Dumping an authoritative optimized autoloader"
+    Invoke-Checked 'composer' @('dump-autoload', '--optimize', '--classmap-authoritative')
+} else {
+    Write-Host "==> Skipping authoritative autoloader (composer not on PATH)" -ForegroundColor Yellow
+}
+
+# 4d. Persist the on-device OPcache in files/ instead of cache/. NativePHP's
+# php_bridge.c points opcache.file_cache at the app's cache/ dir, which Android
+# evicts under storage pressure and after the app sits idle - wiping the compiled
+# bytecode so the next launch recompiles all of Laravel ("slow after some time").
+# files/ is never auto-cleared. Idempotent, and survives a native:install that
+# regenerates php_bridge.c from the vendor stub.
+Write-Step "Pinning OPcache file cache to files/ (persistent cold-start cache)"
+$phpBridge = Join-Path $ProjectRoot 'nativephp\android\app\src\main\cpp\php_bridge.c'
+if (Test-Path $phpBridge) {
+    $src = [System.IO.File]::ReadAllText($phpBridge)
+    $patched = $src -replace '(opcache\.file_cache=/data/data/[^/]+/)cache/opcache', '${1}files/opcache'
+    if ($patched -ne $src) {
+        [System.IO.File]::WriteAllText($phpBridge, $patched)
+        Write-Host "    Patched opcache.file_cache -> files/ (was cache/)" -ForegroundColor DarkGray
+    } else {
+        Write-Host "    opcache.file_cache already pinned to files/" -ForegroundColor DarkGray
+    }
+} else {
+    Write-Host "    php_bridge.c not found (run native:install first) - skipping" -ForegroundColor Yellow
+}
 
 # 5. Package signed Android artifact(s). 'both' produces APK + AAB.
 $types = if ($BuildType -eq 'both') { @('release', 'bundle') } else { @($BuildType) }
