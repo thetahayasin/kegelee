@@ -113,7 +113,14 @@ class Show extends Component
             return;
         }
 
-        $this->dispatch('navigate-replace', url: route('knowledge.index'));
+        // A signed-in user who reaches the LAST lesson has now completed every
+        // basics tutorial (each one unlocks only after the previous), and mount()
+        // guarantees they are subscribed - so the "basics" gate is now open. Drop
+        // them straight into the training app instead of back onto the lesson
+        // list, so finishing the basics flows seamlessly into the app with no
+        // restart. Full-page replace so the gate middleware re-reads the just-
+        // written completion and native Back won't return to the finished lesson.
+        $this->dispatch('navigate-replace', url: route('home'));
     }
 
     public function render(\App\Services\SettingsService $settings)
