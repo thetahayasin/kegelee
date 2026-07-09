@@ -147,10 +147,13 @@ return [
     */
 
     'timing' => [
-        // Keep the splash padding minimal: it only exists to cover the cold-start
-        // boot, so a long fade-in just makes a fast (warm-opcache) launch feel
-        // slower than it is. No delay before or after.
-        'delay_before' => (int) env('MOBILE_SPLASHSCREEN_DELAY_BEFORE', 0),
+        // delay_before is the "skip the splash on fast launches" lever: the splash
+        // animation only fades in AFTER this delay, so if the app is ready sooner
+        // (a warm subsequent cold start) it dismisses first and the animation never
+        // shows - the user just sees the dark background briefly, then the app. A
+        // genuinely slow launch (first install / extraction) still shows the splash.
+        // Tune via MOBILE_SPLASHSCREEN_DELAY_BEFORE if subsequent boots are slower.
+        'delay_before' => (int) env('MOBILE_SPLASHSCREEN_DELAY_BEFORE', 700),
         'fade_in' => (int) env('MOBILE_SPLASHSCREEN_FADE_IN', 250),
         'delay_after' => (int) env('MOBILE_SPLASHSCREEN_DELAY_AFTER', 0),
     ],
