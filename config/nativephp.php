@@ -301,25 +301,24 @@ return [
         |
         */
         'build' => [
-            // R8/ProGuard is OFF. Even the "safer" minify+obfuscate profile crashed
-            // the release WebView/PHP bridge - a failure that can't be reproduced on
-            // the dev host - so it stays disabled. Hardcoded false (not env-toggled)
-            // so it can never be switched on by accident. Native debug symbols below
-            // are a separate, safe feature and remain on. This project's Android
-            // sources are regenerated from this config on every build.
-            'minify_enabled' => false,
-            'shrink_resources' => false,
-            'obfuscate' => false,
+            // R8 enabled: shrink + obfuscate library code for Play Store optimization.
+            // The -dontoptimize flag in proguard-rules.pro skips aggressive inlining
+            // and class-merging (the previous crash cause) while keeping size and
+            // obfuscation benefits. App code is preserved via -keep rules.
+            'minify_enabled' => true,
+            'shrink_resources' => true,
+            'obfuscate' => true,
 
             // Native debug symbols bundled into the AAB (not the delivered APK) so
             // Play can symbolicate native crashes/ANRs from the PHP runtime.
             'debug_symbols' => env('NATIVEPHP_ANDROID_DEBUG_SYMBOLS', 'FULL'),
-            'generate_mapping_files' => false,
+            'generate_mapping_files' => true,
             'mapping_file_path' => env('NATIVEPHP_ANDROID_MAPPING_PATH', 'build/outputs/mapping/release/'),
 
-            // ProGuard rules only matter if R8/obfuscation is ever re-enabled.
-            'keep_line_numbers' => false,
-            'keep_source_file' => false,
+            // Keep line numbers and source file names in stack traces for crash
+            // debugging, even with obfuscation enabled.
+            'keep_line_numbers' => true,
+            'keep_source_file' => true,
             'custom_proguard_rules' => env('NATIVEPHP_ANDROID_CUSTOM_PROGUARD_RULES', []),
 
             // Build Performance - using Gradle defaults
