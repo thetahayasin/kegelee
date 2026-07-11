@@ -108,7 +108,7 @@
 
             <div class="flex flex-1 items-center justify-center">
                 <div class="relative grid place-items-center">
-                    @foreach ([320, 250, 180] as $ring)
+                    @foreach ([380, 300, 230] as $ring)
                         <div class="absolute rounded-full border border-white/5" style="width: {{ $ring }}px; height: {{ $ring }}px;"></div>
                     @endforeach
 
@@ -116,14 +116,14 @@
                     <button x-show="!done"
                         @pointerdown="begin($event)" @pointerup="end()" @pointerleave="end()"
                         @contextmenu.prevent
-                        class="relative grid h-40 w-40 select-none place-items-center rounded-full bg-accent text-center text-lg font-bold text-[color:var(--c-on-accent)] shadow-[0_10px_40px_color-mix(in_srgb,var(--c-accent)_45%,transparent)] transition-transform"
-                        x-bind:style="holding ? 'transform: scale(1.12)' : 'transform: scale(1)'">
+                        class="relative grid h-52 w-52 select-none place-items-center rounded-full bg-accent text-center text-xl font-bold text-[color:var(--c-on-accent)] shadow-[0_10px_40px_color-mix(in_srgb,var(--c-accent)_45%,transparent)] transition-transform"
+                        x-bind:style="holding ? 'transform: scale(1.08)' : 'transform: scale(1)'">
                         <span x-show="!holding">Press<br>&amp; Hold</span>
                         <span x-show="holding" x-text="Math.floor(elapsed) + 's'" class="text-3xl"></span>
                     </button>
 
                     {{-- Result of the hold (shown after release) --}}
-                    <div x-show="done" x-cloak class="grid h-40 w-40 place-items-center rounded-full bg-surface text-center">
+                    <div x-show="done" x-cloak class="grid h-52 w-52 place-items-center rounded-full bg-surface text-center">
                         <div>
                             <p class="text-5xl font-bold tabular-nums" x-text="Math.floor(result) + 's'"></p>
                             <p class="mt-1 text-xs text-muted">your hold</p>

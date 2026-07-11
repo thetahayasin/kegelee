@@ -102,19 +102,19 @@
         <p class="mt-3 max-w-sm text-lg leading-relaxed text-muted" x-show="!doneHold">Press and hold the circle. While you hold it, squeeze those muscles. Let go together.</p>
         <p class="mt-3 max-w-sm text-lg leading-relaxed text-muted" x-show="doneHold" x-cloak>That squeeze and release is all a Kegel is. You are ready for your first exercise.</p>
 
-        <div class="relative mt-8 grid h-52 w-52 select-none place-items-center"
+        <div class="relative mt-8 grid h-60 w-60 select-none place-items-center"
              @pointerdown.prevent="startHold()" @pointerup="stopHold()" @pointercancel="stopHold()" @pointerleave="stopHold()">
             {{-- Glow that swells while holding --}}
             <div class="absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--c-accent)_30%,transparent),transparent_70%)] transition-[transform,opacity] duration-300"
                  :style="'opacity:' + (holding || doneHold ? 1 : 0.25) + '; transform: scale(' + (holding || doneHold ? 1.15 : 0.9) + ')'"></div>
 
-            <div class="relative grid h-44 w-44 place-items-center rounded-full bg-surface ring-2 ring-white/15 transition-transform duration-300"
+            <div class="relative grid h-52 w-52 place-items-center rounded-full bg-surface ring-2 ring-white/15 transition-transform duration-300"
                  :class="holding ? 'scale-95' : ''">
-                <svg viewBox="0 0 120 120" class="absolute inset-0 h-full w-full -rotate-90">
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8"/>
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="var(--c-accent)" stroke-width="8" stroke-linecap="round"
-                            stroke-dasharray="339.3"
-                            :stroke-dashoffset="339.3 * (1 - held / goal)"
+                <svg viewBox="0 0 140 140" class="absolute inset-0 h-full w-full -rotate-90">
+                    <circle cx="70" cy="70" r="63" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8"/>
+                    <circle cx="70" cy="70" r="63" fill="none" stroke="var(--c-accent)" stroke-width="8" stroke-linecap="round"
+                            stroke-dasharray="395.8"
+                            :stroke-dashoffset="395.8 * (1 - held / goal)"
                             style="transition: stroke-dashoffset 0.1s linear;"/>
                 </svg>
                 <div class="text-center" x-show="!doneHold">
