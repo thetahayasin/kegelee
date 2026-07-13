@@ -1,0 +1,240 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
+import { COLORS } from '../../theme/colors';
+import { api } from '../../services/api';
+import { Watermark } from '../../components/Watermark';
+
+type RouteParams = {
+  VerifyEmail: {
+    email: string;
+  };
+};
+
+export const VerifyEmailScreen = () => {
+  const route = useRoute<RouteProp<RouteParams, 'VerifyEmail'>>();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const { updateUserFields } = useAuth();
+  
+  const email = route.params?.email || '';
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState('');
+
+  const handleVerify = async () => {
+    setError('');
+    if (code.length !== 6) {
+      setError('Please enter a 6-digit verification code.');
+      return;
+    }
+
+    setLoading(true);
+    const res = await api.verifyEmail({ email, code });
+    setLoading(false);
+
+    if (res.ok && res.data?.success) {
+      // Update local state that user is verified
+      const userPayload = res.data.user;
+      await updateUserFields({
+        id: userPayload.id,
+        name: userPayload.name,
+        email: userPayload.email,
+        is_admin: !!userPayload.is_admin,
+        level_id: userPayload.level_id,
+        level_started_days: userPayload.level_started_days,
+        onboarded: !!userPayload.onboarded_at,
+        timezone: userPayload.timezone || null,
+      });
+      // Navigation will automatically update to tab navigator because user context changes
+    } else {
+      setError(res.error || 'Verification failed. Please try again.');
+    }
+  };
+
+  const handleResend = async () => {
+    setResendSuccess('');
+    setError('');
+    setResendLoading(true);
+    const res = await api.resendVerification({ email });
+    setResendLoading(false);
+
+    if (res.ok) {
+      setResendSuccess('Verification code resent successfully!');
+    } else {
+      setError(res.error || 'Failed to resend code.');
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Watermark />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.inner}>
+          <Text style={styles.logo}>KEGELEE</Text>
+          <Text style={styles.title}>Verify Email</Text>
+          <Text style={styles.subtitle}>
+            We've sent a 6-digit verification code to {'\n'}
+            <Text style={styles.emailHighlight}>{email}</Text>
+          </Text>
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {resendSuccess ? <Text style={styles.successText}>{resendSuccess}</Text> : null}
+
+          <View style={styles.form}>
+            <TextInput
+              style={styles.codeInput}
+              placeholder="000000"
+              placeholderTextColor={COLORS.textMuted}
+              value={code}
+              onChangeText={(val) => setCode(val.replace(/[^0-9]/g, ''))}
+              keyboardType="number-pad"
+              maxLength={6}
+              autoFocus
+            />
+
+            <TouchableOpacity style={styles.btn} onPress={handleVerify} disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color={COLORS.onAccent} />
+              ) : (
+                <Text style={styles.btnText}>Verify Code</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={styles.resendContainer}
+            onPress={handleResend}
+            disabled={resendLoading}
+          >
+            {resendLoading ? (
+              <ActivityIndicator color={COLORS.accent} />
+            ) : (
+              <Text style={styles.resendText}>Didn't receive the code? Resend</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.backContainer}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.backText}>Back to Log In</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  inner: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  logo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.accent,
+    textAlign: 'center',
+    letterSpacing: 4,
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: COLORS.whiteMuted,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  emailHighlight: {
+    color: COLORS.accent,
+    fontWeight: 'semibold',
+  },
+  form: {
+    marginBottom: 20,
+  },
+  codeInput: {
+    height: 60,
+    backgroundColor: COLORS.surface,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderRadius: 12,
+    color: COLORS.white,
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    letterSpacing: 12,
+    marginBottom: 24,
+  },
+  btn: {
+    backgroundColor: COLORS.accent,
+    height: 52,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.onAccent,
+  },
+  resendContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  resendText: {
+    color: COLORS.accent,
+    fontSize: 14,
+    fontWeight: 'semibold',
+  },
+  backContainer: {
+    marginTop: 32,
+    alignItems: 'center',
+  },
+  backText: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+  },
+  errorText: {
+    color: COLORS.danger,
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  successText: {
+    color: COLORS.accent,
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 16,
+  },
+});

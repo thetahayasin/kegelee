@@ -152,7 +152,7 @@ if ($missing.Count -gt 0) {
 # then JAVA_HOME, then the Android Studio default.
 $JdkHome = Get-DotEnvValue 'NATIVEPHP_GRADLE_PATH'
 if (-not $JdkHome) { $JdkHome = $env:JAVA_HOME }
-if (-not $JdkHome) { $JdkHome = 'C:\Program Files\Android\Android Studio\jbr' }
+if (-not $JdkHome) { $JdkHome = 'D:\Android\Android Studio\jbr' }
 $JdkBin = Join-Path $JdkHome 'bin'
 if ((Test-Path (Join-Path $JdkBin 'keytool.exe')) -and ($env:PATH -notlike "*$JdkBin*")) {
     $env:PATH = "$JdkBin;$env:PATH"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Native launch splash: KE logo centered on the brand background (#060810).
+  Shown by the OS from cold start until the first React frame draws, so the
+  transition into App.tsx's identical dark loading screen is seamless.
+  android:width/height on the logo item requires API 23+ (minSdk is 24).
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_bg" />
+    <item
+        android:width="140dp"
+        android:height="140dp"
+        android:gravity="center"
+        android:drawable="@drawable/splash_logo" />
+</layer-list>
