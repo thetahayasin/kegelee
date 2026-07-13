@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import notifee from '@notifee/react-native';
 import { api, setApiToken } from '../services/api';
 import { getDBUser, saveDBUser, clearUserData } from '../db/queries';
+import { syncNow } from '../services/sync';
 
 export interface User {
   id: number;
@@ -116,11 +118,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     setUser(localUser);
+
+    // Request notification permission and trigger background sync
+    try {
+      await notifee.requestPermission();
+    } catch (e) {
+      console.warn('Failed to request Notifee notification permission', e);
+    }
+    syncNow(userPayload.id).catch(e => {
+      console.error('Failed to run initial sync on login', e);
+    });
   };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    const res = await api.login({ email, password });
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const res = await api.login({ email, password, timezone: tz });
     setIsLoading(false);
 
     if (res.ok && res.data?.success) {
@@ -132,7 +145,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
-    const res = await api.register({ name, email, password });
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const res = await api.register({ name, email, password, timezone: tz });
     setIsLoading(false);
 
     if (res.ok && res.data?.success) {
@@ -144,7 +158,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const redeemGoogleLogin = async (googleRedeemToken: string) => {
     setIsLoading(true);
-    const res = await api.googleRedeem(googleRedeemToken);
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const res = await api.googleRedeem(googleRedeemToken, tz);
     setIsLoading(false);
 
     if (res.ok && res.data?.success) {

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Modal,
   Alert,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
@@ -248,113 +249,119 @@ export const ScheduleScreen = () => {
         transparent
         onRequestClose={() => setRemindersModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <SafeAreaView style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity
-                style={styles.modalCloseBtn}
-                onPress={() => setRemindersModalVisible(false)}
-              >
-                <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-                  <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
-                </Svg>
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>Reminders</Text>
-              <View style={{ width: 32 }} />
-            </View>
-
-            <ScrollView contentContainerStyle={styles.modalScroll}>
-              {/* Repeat on weekdays */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionLabel}>Repeat on</Text>
-                <View style={styles.weekdayRow}>
-                  {WEEKDAYS.map((label, i) => {
-                    const active = selectedDays.includes(i);
-                    return (
-                      <TouchableOpacity
-                        key={i}
-                        style={[styles.weekdayBtn, active && styles.weekdayBtnActive]}
-                        onPress={() => toggleDay(i)}
-                      >
-                        <Text style={[styles.weekdayBtnText, active && styles.weekdayBtnTextActive]}>
-                          {label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setRemindersModalVisible(false)}
+        >
+          <TouchableWithoutFeedback>
+            <SafeAreaView style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <TouchableOpacity
+                  style={styles.modalCloseBtn}
+                  onPress={() => setRemindersModalVisible(false)}
+                >
+                  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                    <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
+                  </Svg>
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Reminders</Text>
+                <View style={{ width: 32 }} />
               </View>
 
-              {/* Times */}
-              <View style={styles.sectionCard}>
-                <Text style={styles.sectionLabel}>Session times</Text>
-                <View style={styles.timesList}>
-                  {times.map((time, idx) => (
-                    <View key={idx} style={styles.timeRow}>
-                      <Text style={styles.timeRowLabel}>Session {idx + 1}</Text>
-                      
-                      <TouchableOpacity
-                        style={styles.timeInputContainer}
-                        onPress={async () => {
-                          const picked = await showTimePicker(time);
-                          if (picked) {
-                            updateTimeValue(idx, picked);
-                          }
-                        }}
-                      >
-                        <Svg
-                          width={16}
-                          height={16}
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          style={styles.timePrefixIcon}
-                        >
-                          <Circle cx={12} cy={12} r={9} stroke={COLORS.accent} strokeWidth={1.7} />
-                          <Path
-                            d="M12 7.5V12l3 1.8"
-                            stroke={COLORS.accent}
-                            strokeWidth={1.7}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </Svg>
-                        <Text style={styles.timeInputText}>{time}</Text>
-                      </TouchableOpacity>
-
-                      {times.length > 1 && (
+              <ScrollView contentContainerStyle={styles.modalScroll}>
+                {/* Repeat on weekdays */}
+                <View style={styles.sectionCard}>
+                  <Text style={styles.sectionLabel}>Repeat on</Text>
+                  <View style={styles.weekdayRow}>
+                    {WEEKDAYS.map((label, i) => {
+                      const active = selectedDays.includes(i);
+                      return (
                         <TouchableOpacity
-                          style={styles.timeRemoveBtn}
-                          onPress={() => removeTime(idx)}
+                          key={i}
+                          style={[styles.weekdayBtn, active && styles.weekdayBtnActive]}
+                          onPress={() => toggleDay(i)}
                         >
-                          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                            <Path d="M6 12h12" stroke={COLORS.danger} strokeWidth={2} strokeLinecap="round" />
-                          </Svg>
+                          <Text style={[styles.weekdayBtnText, active && styles.weekdayBtnTextActive]}>
+                            {label}
+                          </Text>
                         </TouchableOpacity>
-                      )}
-                    </View>
-                  ))}
-
-                  <TouchableOpacity style={styles.addTimeBtn} onPress={addTime}>
-                    <Text style={styles.addTimeText}>+ Add time</Text>
-                  </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                 </View>
-              </View>
 
-              {/* Action Button */}
-              <TouchableOpacity
-                style={styles.saveActionBtn}
-                onPress={handleSaveReminders}
-                disabled={savingReminders}
-              >
-                {savingReminders ? (
-                  <ActivityIndicator color={COLORS.onAccent} />
-                ) : (
-                  <Text style={styles.saveActionBtnText}>Save & Add Reminders</Text>
-                )}
-              </TouchableOpacity>
-            </ScrollView>
-          </SafeAreaView>
-        </View>
+                {/* Times */}
+                <View style={styles.sectionCard}>
+                  <Text style={styles.sectionLabel}>Session times</Text>
+                  <View style={styles.timesList}>
+                    {times.map((time, idx) => (
+                      <View key={idx} style={styles.timeRow}>
+                        <Text style={styles.timeRowLabel}>Session {idx + 1}</Text>
+                        
+                        <TouchableOpacity
+                          style={styles.timeInputContainer}
+                          onPress={async () => {
+                            const picked = await showTimePicker(time);
+                            if (picked) {
+                              updateTimeValue(idx, picked);
+                            }
+                          }}
+                        >
+                          <Svg
+                            width={16}
+                            height={16}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            style={styles.timePrefixIcon}
+                          >
+                            <Circle cx={12} cy={12} r={9} stroke={COLORS.accent} strokeWidth={1.7} />
+                            <Path
+                              d="M12 7.5V12l3 1.8"
+                              stroke={COLORS.accent}
+                              strokeWidth={1.7}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </Svg>
+                          <Text style={styles.timeInputText}>{time}</Text>
+                        </TouchableOpacity>
+
+                        {times.length > 1 && (
+                          <TouchableOpacity
+                            style={styles.timeRemoveBtn}
+                            onPress={() => removeTime(idx)}
+                          >
+                            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                              <Path d="M6 12h12" stroke={COLORS.danger} strokeWidth={2} strokeLinecap="round" />
+                            </Svg>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    ))}
+
+                    <TouchableOpacity style={styles.addTimeBtn} onPress={addTime}>
+                      <Text style={styles.addTimeText}>+ Add time</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Action Button */}
+                <TouchableOpacity
+                  style={styles.saveActionBtn}
+                  onPress={handleSaveReminders}
+                  disabled={savingReminders}
+                >
+                  {savingReminders ? (
+                    <ActivityIndicator color={COLORS.onAccent} />
+                  ) : (
+                    <Text style={styles.saveActionBtnText}>Save & Add Reminders</Text>
+                  )}
+                </TouchableOpacity>
+              </ScrollView>
+            </SafeAreaView>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );

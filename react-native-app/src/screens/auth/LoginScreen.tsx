@@ -11,6 +11,7 @@ import {
   Platform,
   Linking,
   Alert,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -242,69 +243,75 @@ export const LoginScreen = () => {
         transparent
         onRequestClose={closeResetModal}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Reset Password</Text>
-            {resetError ? <Text style={styles.errorText}>{resetError}</Text> : null}
-            {resetSuccess ? <Text style={styles.successText}>{resetSuccess}</Text> : null}
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={closeResetModal}
+        >
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Reset Password</Text>
+              {resetError ? <Text style={styles.errorText}>{resetError}</Text> : null}
+              {resetSuccess ? <Text style={styles.successText}>{resetSuccess}</Text> : null}
 
-            {!resetCodeSent ? (
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                placeholderTextColor={COLORS.textMuted}
-                value={resetEmail}
-                onChangeText={setResetEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            ) : (
-              <>
+              {!resetCodeSent ? (
                 <TextInput
                   style={styles.input}
-                  placeholder="6-digit code"
+                  placeholder="Enter your email"
                   placeholderTextColor={COLORS.textMuted}
-                  value={resetCode}
-                  onChangeText={setResetCode}
-                  keyboardType="number-pad"
-                  maxLength={6}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="New password"
-                  placeholderTextColor={COLORS.textMuted}
-                  value={resetNewPassword}
-                  onChangeText={setResetNewPassword}
-                  secureTextEntry
+                  value={resetEmail}
+                  onChangeText={setResetEmail}
+                  keyboardType="email-address"
                   autoCapitalize="none"
                 />
-              </>
-            )}
+              ) : (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="6-digit code"
+                    placeholderTextColor={COLORS.textMuted}
+                    value={resetCode}
+                    onChangeText={setResetCode}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="New password"
+                    placeholderTextColor={COLORS.textMuted}
+                    value={resetNewPassword}
+                    onChangeText={setResetNewPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                  />
+                </>
+              )}
 
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalCloseBtn]}
-                onPress={closeResetModal}
-              >
-                <Text style={styles.modalCloseBtnText}>Close</Text>
-              </TouchableOpacity>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.modalCloseBtn]}
+                  onPress={closeResetModal}
+                >
+                  <Text style={styles.modalCloseBtnText}>Close</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalActionBtn]}
-                onPress={resetCodeSent ? handleResetPassword : handleRequestResetCode}
-                disabled={resetLoading}
-              >
-                {resetLoading ? (
-                  <ActivityIndicator color={COLORS.onAccent} />
-                ) : (
-                  <Text style={styles.modalActionBtnText}>
-                    {resetCodeSent ? 'Reset Password' : 'Send Code'}
-                  </Text>
-                )}
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.modalActionBtn]}
+                  onPress={resetCodeSent ? handleResetPassword : handleRequestResetCode}
+                  disabled={resetLoading}
+                >
+                  {resetLoading ? (
+                    <ActivityIndicator color={COLORS.onAccent} />
+                  ) : (
+                    <Text style={styles.modalActionBtnText}>
+                      {resetCodeSent ? 'Reset Password' : 'Send Code'}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );

@@ -97,7 +97,7 @@ export const api = {
   resendVerification: (body: any) => request('/auth/resend', 'POST', body),
   requestResetPasswordCode: (body: any) => request('/auth/reset-code', 'POST', body),
   resetPassword: (body: any) => request('/auth/reset', 'POST', body),
-  googleRedeem: (token: string) => request('/auth/google/redeem', 'POST', { token }),
+  googleRedeem: (token: string, timezone?: string) => request('/auth/google/redeem', 'POST', { token, timezone }),
 
   // User actions
   deleteAccountCode: () => request('/user/delete-code', 'POST'),

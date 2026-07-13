@@ -193,7 +193,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#060810',
+    backgroundColor: COLORS.bg,
   },
   header: {
     flexDirection: 'row',
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#c1ff72',
+    color: COLORS.accent,
     letterSpacing: 2,
   },
   skipButton: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   skipText: {
-    color: 'rgba(193, 255, 114, 0.6)',
+    color: COLORS.textMuted,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: COLORS.white,
     textAlign: 'center',
     marginBottom: 12,
     lineHeight: 36,
   },
   body: {
     fontSize: 17,
-    color: 'rgba(193, 255, 114, 0.5)',
+    color: COLORS.textMuted,
     lineHeight: 24,
     textAlign: 'center',
     paddingHorizontal: 8,
@@ -264,14 +264,14 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     width: 20,
-    backgroundColor: '#c1ff72',
+    backgroundColor: COLORS.accent,
   },
   inactiveDot: {
     width: 8,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: COLORS.whiteFaint,
   },
   ctaButton: {
-    backgroundColor: '#c1ff72',
+    backgroundColor: COLORS.accent,
     height: 56,
     borderRadius: 28,
     justifyContent: 'center',
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#0c1a00',
+    color: COLORS.onAccent,
   },
   headerBtn: {
     width: 36,
@@ -305,12 +305,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginLinkText: {
-    color: 'rgba(255,255,255,0.6)',
+    color: COLORS.whiteMuted,
     fontSize: 14,
   },
   loginLinkStrong: {
     color: COLORS.accent,
     fontWeight: 'bold',
+    paddingLeft: 4,
   },
 });
 export default OnboardingScreen;

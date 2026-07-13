@@ -204,6 +204,24 @@ class SyncController extends Controller
             $synced['reminders']++;
         }
 
+        // --- Completed Basics Lessons ---
+        $completedSlugs = $request->input('completed_lessons', []);
+        $slugToOrder = ['why' => 0, 'find' => 1, 'first' => 2];
+        $orders = [];
+        foreach ($completedSlugs as $slug) {
+            if (isset($slugToOrder[$slug])) {
+                $orders[] = $slugToOrder[$slug];
+            }
+        }
+        if (! empty($orders)) {
+            $lessons = \App\Models\KnowledgeLesson::whereIn('sort_order', $orders)->get();
+            $syncData = [];
+            foreach ($lessons as $lesson) {
+                $syncData[$lesson->id] = ['completed_at' => now()];
+            }
+            $user->completedLessons()->syncWithoutDetaching($syncData);
+        }
+
         // --- Subscriptions (Google Play purchases complete on the device) ---
         // The device reports the purchase token; the backend VERIFIES it with
         // the Play Developer API before storing anything, so a forged token
@@ -352,6 +370,16 @@ class SyncController extends Controller
                 'canceled_at'          => $s->canceled_at?->toIso8601String(),
                 'auto_renewing'        => (bool) $s->auto_renewing,
             ]),
+            'completed_lessons' => $user->completedLessons()
+                ->wherePivotNotNull('completed_at')
+                ->get()
+                ->map(function ($lesson) {
+                    $orderToSlug = [0 => 'why', 1 => 'find', 2 => 'first'];
+                    return $orderToSlug[$lesson->sort_order] ?? null;
+                })
+                ->filter()
+                ->values()
+                ->all(),
             'synced_at' => now()->toIso8601String(),
         ]);
     }
@@ -430,6 +458,12 @@ class SyncController extends Controller
 
         $user = auth()->user();
 
+        // Update timezone if provided
+        $tz = (string) $request->input('timezone', '');
+        if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true) && $user->timezone !== $tz) {
+            $user->update(['timezone' => $tz]);
+        }
+
         return response()->json([
             'success' => true,
             'user' => $this->remoteUserPayload($user),
@@ -473,11 +507,15 @@ class SyncController extends Controller
             'password' => 'required|string|min:6|regex:/[0-9]/',
         ]);
 
+        $tz = (string) $request->input('timezone', '');
+        $validTz = ($tz !== '' && in_array($tz, timezone_identifiers_list(), true)) ? $tz : null;
+
         $user = \App\Models\User::create([
             'name' => trim($data['name']),
             'email' => strtolower($data['email']),
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
             'level_id' => Level::where('is_active', true)->orderBy('number')->value('id'),
+            'timezone' => $validTz,
         ]);
 
         \App\Services\CodeSender::send($user->email, 'verify');
@@ -600,6 +638,12 @@ class SyncController extends Controller
         $user = \App\Models\User::find($userId);
         if (! $user) {
             return response()->json(['error' => 'Account not found.'], 404);
+        }
+
+        // Update timezone if provided
+        $tz = (string) $request->input('timezone', '');
+        if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true) && $user->timezone !== $tz) {
+            $user->update(['timezone' => $tz]);
         }
 
         return response()->json([

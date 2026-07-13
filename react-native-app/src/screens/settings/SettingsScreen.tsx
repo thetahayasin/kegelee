@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Linking,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
@@ -255,36 +256,42 @@ export const SettingsScreen = () => {
         transparent
         onRequestClose={() => setResetModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Reset progress?</Text>
-            <Text style={styles.modalBody}>
-              This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.
-            </Text>
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalCancelBtn]}
-                onPress={() => setResetModalVisible(false)}
-                disabled={resetLoading}
-              >
-                <Text style={styles.modalCancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setResetModalVisible(false)}
+        >
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Reset progress?</Text>
+              <Text style={styles.modalBody}>
+                This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.
+              </Text>
+              
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.modalCancelBtn]}
+                  onPress={() => setResetModalVisible(false)}
+                  disabled={resetLoading}
+                >
+                  <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalConfirmBtn]}
-                onPress={handleResetProgress}
-                disabled={resetLoading}
-              >
-                {resetLoading ? (
-                  <ActivityIndicator color={COLORS.onAccent} />
-                ) : (
-                  <Text style={styles.modalConfirmBtnText}>Reset</Text>
-                )}
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.modalConfirmBtn]}
+                  onPress={handleResetProgress}
+                  disabled={resetLoading}
+                >
+                  {resetLoading ? (
+                    <ActivityIndicator color={COLORS.onAccent} />
+                  ) : (
+                    <Text style={styles.modalConfirmBtnText}>Reset</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </Modal>
 
       {/* Delete Account Modal */}
@@ -294,85 +301,91 @@ export const SettingsScreen = () => {
         transparent
         onRequestClose={() => setDeleteModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {deleteStep === 'warn' ? (
-              <>
-                <Text style={styles.modalTitle}>Delete account?</Text>
-                <Text style={styles.modalBody}>
-                  This permanently deletes your account and all of your data — training days, sessions, measurements and progress. This <Text style={{ fontWeight: 'bold', color: COLORS.white }}>cannot be undone</Text>.
-                </Text>
-                <View style={styles.warningBox}>
-                  <Text style={styles.warningText}>
-                    This does <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your Google Play subscription. Cancel it in Google Play first to stop being billed.
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setDeleteModalVisible(false)}
+        >
+          <TouchableWithoutFeedback>
+            <View style={styles.modalContent}>
+              {deleteStep === 'warn' ? (
+                <>
+                  <Text style={styles.modalTitle}>Delete account?</Text>
+                  <Text style={styles.modalBody}>
+                    This permanently deletes your account and all of your data — training days, sessions, measurements and progress. This <Text style={{ fontWeight: 'bold', color: COLORS.white }}>cannot be undone</Text>.
                   </Text>
-                </View>
+                  <View style={styles.warningBox}>
+                    <Text style={styles.warningText}>
+                      This does <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your Google Play subscription. Cancel it in Google Play first to stop being billed.
+                    </Text>
+                  </View>
 
-                <View style={styles.modalButtons}>
-                  <TouchableOpacity
-                    style={[styles.modalBtn, styles.modalCancelBtn]}
-                    onPress={() => setDeleteModalVisible(false)}
-                    disabled={deleteLoading}
-                  >
-                    <Text style={styles.modalCancelBtnText}>Cancel</Text>
-                  </TouchableOpacity>
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      style={[styles.modalBtn, styles.modalCancelBtn]}
+                      onPress={() => setDeleteModalVisible(false)}
+                      disabled={deleteLoading}
+                    >
+                      <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.modalBtn, styles.modalDeleteBtn]}
-                    onPress={handleSendDeleteCode}
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? (
-                      <ActivityIndicator color={COLORS.white} />
-                    ) : (
-                      <Text style={styles.modalDeleteBtnText}>Send code</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
-              <>
-                <Text style={styles.modalTitle}>Enter the code</Text>
-                <Text style={styles.modalBody}>
-                  We emailed a 6-digit code to <Text style={{ fontWeight: 'bold', color: COLORS.white }}>{user?.email}</Text>. Enter it to permanently delete your account.
-                </Text>
+                    <TouchableOpacity
+                      style={[styles.modalBtn, styles.modalDeleteBtn]}
+                      onPress={handleSendDeleteCode}
+                      disabled={deleteLoading}
+                    >
+                      {deleteLoading ? (
+                        <ActivityIndicator color={COLORS.white} />
+                      ) : (
+                        <Text style={styles.modalDeleteBtnText}>Send code</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.modalTitle}>Enter the code</Text>
+                  <Text style={styles.modalBody}>
+                    We emailed a 6-digit code to <Text style={{ fontWeight: 'bold', color: COLORS.white }}>{user?.email}</Text>. Enter it to permanently delete your account.
+                  </Text>
 
-                <TextInput
-                  style={styles.deleteInput}
-                  value={deleteCode}
-                  placeholder="000000"
-                  placeholderTextColor={COLORS.textMuted}
-                  onChangeText={(val) => setDeleteCode(val.replace(/[^0-9]/g, ''))}
-                  keyboardType="number-pad"
-                  maxLength={6}
-                  autoFocus
-                />
+                  <TextInput
+                    style={styles.deleteInput}
+                    value={deleteCode}
+                    placeholder="000000"
+                    placeholderTextColor={COLORS.textMuted}
+                    onChangeText={(val) => setDeleteCode(val.replace(/[^0-9]/g, ''))}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                    autoFocus
+                  />
 
-                <View style={styles.modalButtons}>
-                  <TouchableOpacity
-                    style={[styles.modalBtn, styles.modalCancelBtn]}
-                    onPress={() => setDeleteModalVisible(false)}
-                    disabled={deleteLoading}
-                  >
-                    <Text style={styles.modalCancelBtnText}>Cancel</Text>
-                  </TouchableOpacity>
+                  <View style={styles.modalButtons}>
+                    <TouchableOpacity
+                      style={[styles.modalBtn, styles.modalCancelBtn]}
+                      onPress={() => setDeleteModalVisible(false)}
+                      disabled={deleteLoading}
+                    >
+                      <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[styles.modalBtn, styles.modalConfirmDeleteBtn]}
-                    onPress={handleDeleteAccount}
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? (
-                      <ActivityIndicator color={COLORS.white} />
-                    ) : (
-                      <Text style={styles.modalConfirmDeleteBtnText}>Delete permanently</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </View>
-        </View>
+                    <TouchableOpacity
+                      style={[styles.modalBtn, styles.modalConfirmDeleteBtn]}
+                      onPress={handleDeleteAccount}
+                      disabled={deleteLoading}
+                    >
+                      {deleteLoading ? (
+                        <ActivityIndicator color={COLORS.white} />
+                      ) : (
+                        <Text style={styles.modalConfirmDeleteBtnText}>Delete permanently</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );

@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import notifee, { TriggerType, RepeatFrequency, TimestampTrigger } from '@notifee/react-native';
 
 const { AlarmModule } = NativeModules;
 
@@ -8,36 +9,88 @@ export interface ReminderConfig {
   isEnabled: boolean;
 }
 
-// JS weekday (0=Sun..6=Sat) -> Android Calendar day constant (SUNDAY=1..SATURDAY=7).
-const toCalendarDay = (weekday: number) => weekday + 1;
-
 /**
- * Create native system Clock alarms for the enabled reminder days/times - the
- * same "native reminders" behaviour as the original app (real alarms in the
- * device Clock app, not notifications). One recurring alarm per time, repeating
- * weekly on every enabled weekday.
+ * Calculates the next trigger date/time for a given weekday, hour, and minute.
  */
-export const scheduleReminders = async (configs: ReminderConfig[]) => {
-  if (Platform.OS !== 'android' || !AlarmModule) {
-    return;
+export const getNextTriggerDate = (weekday: number, hour: number, minute: number): Date => {
+  const now = new Date();
+  const candidate = new Date();
+  candidate.setHours(hour, minute, 0, 0);
+
+  let daysDiff = weekday - now.getDay();
+  if (daysDiff < 0) {
+    daysDiff += 7;
+  } else if (daysDiff === 0 && candidate.getTime() <= now.getTime()) {
+    daysDiff = 7;
   }
 
-  const enabled = configs.filter(c => c.isEnabled);
-  const days = enabled.map(c => toCalendarDay(c.weekday));
-  const uniqueTimes = Array.from(
-    new Set(enabled.flatMap(c => c.times)),
-  ).filter(Boolean);
+  candidate.setDate(candidate.getDate() + daysDiff);
+  return candidate;
+};
 
-  for (const time of uniqueTimes) {
-    const [h, m] = time.split(':').map(n => parseInt(n, 10));
-    if (Number.isNaN(h) || Number.isNaN(m)) {
-      continue;
+/**
+ * Schedules recurring weekly local notifications using Notifee for enabled reminders.
+ */
+export const scheduleReminders = async (configs: ReminderConfig[]) => {
+  try {
+    // 1. Cancel any previously scheduled reminder notifications
+    const ids = await notifee.getTriggerNotificationIds();
+    const reminderIds = ids.filter(id => id.startsWith('reminder_'));
+    if (reminderIds.length > 0) {
+      await notifee.cancelTriggerNotifications(reminderIds);
     }
-    try {
-      await AlarmModule.setAlarm(h, m, 'Time for your Kegel session', days);
-    } catch (e) {
-      console.warn('Failed to set alarm', time, e);
+
+    // 2. Request permission (highly recommended before scheduling triggers)
+    await notifee.requestPermission();
+
+    // 3. Create/retrieve Android notification channel (ignored on iOS)
+    const channelId = await notifee.createChannel({
+      id: 'reminders',
+      name: 'Training Reminders',
+      importance: 4, // high
+    });
+
+    // 4. Schedule trigger notifications for enabled days and times
+    for (const config of configs) {
+      if (!config.isEnabled) {
+        continue;
+      }
+
+      for (const time of config.times) {
+        const [hStr, mStr] = time.split(':');
+        const h = parseInt(hStr, 10);
+        const m = parseInt(mStr, 10);
+        if (isNaN(h) || isNaN(m)) {
+          continue;
+        }
+
+        const nextTrigger = getNextTriggerDate(config.weekday, h, m);
+        const notificationId = `reminder_${config.weekday}_${hStr}_${mStr}`;
+
+        const trigger: TimestampTrigger = {
+          type: TriggerType.TIMESTAMP,
+          timestamp: nextTrigger.getTime(),
+          repeatFrequency: RepeatFrequency.WEEKLY,
+        };
+
+        await notifee.createTriggerNotification(
+          {
+            id: notificationId,
+            title: 'Kegel Training',
+            body: "It's time for your daily Kegel session!",
+            android: {
+              channelId,
+              pressAction: {
+                id: 'default',
+              },
+            },
+          },
+          trigger
+        );
+      }
     }
+  } catch (e) {
+    console.error('Failed to schedule Notifee reminders', e);
   }
 };
 
@@ -67,7 +120,7 @@ export const showTimePicker = async (
   }
 };
 
-/** Open the system Clock app so the user can review/remove their alarms. */
+/** Open the system Clock app (no longer used for scheduling, kept for backwards compatibility). */
 export const openAlarms = async () => {
   try {
     await AlarmModule?.openAlarms();

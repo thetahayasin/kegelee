@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from './api';
+import { scheduleReminders } from './reminders';
 import {
   getUnsyncedWorkoutSessions,
   getUnsyncedMeasurements,
@@ -32,11 +34,21 @@ export const syncNow = async (userId: number): Promise<{ success: boolean; error
     // Get system timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
+    // Retrieve locally completed basics lessons from AsyncStorage
+    let localBasicsDone: string[] = [];
+    try {
+      const raw = await AsyncStorage.getItem('@basics_done');
+      if (raw) {
+        localBasicsDone = JSON.parse(raw);
+      }
+    } catch (e) {}
+
     // Build push payload
     const pushPayload = {
       timezone,
       level_id: user.level_id,
       level_started_days: user.level_started_days,
+      completed_lessons: localBasicsDone,
       workout_sessions: unsyncedSessions.map((s) => ({
         exercise_slug: s.exercise_slug,
         duration_seconds: s.duration_seconds,
@@ -130,6 +142,23 @@ export const syncNow = async (userId: number): Promise<{ success: boolean; error
     for (const r of data.reminders || []) {
       await saveReminder(userId, r.weekday, r.times, r.is_enabled ? 1 : 0, 1);
     }
+
+    // Schedule reminders locally using Notifee
+    if (data.reminders) {
+      const reminderConfigs = data.reminders.map((r: any) => ({
+        weekday: r.weekday,
+        times: r.times,
+        isEnabled: !!r.is_enabled,
+      }));
+      await scheduleReminders(reminderConfigs);
+    }
+
+    // Merge completed basics lessons from backend with local completed basics
+    const remoteBasicsDone = data.completed_lessons || [];
+    const mergedBasicsDone = Array.from(new Set([...localBasicsDone, ...remoteBasicsDone]));
+    try {
+      await AsyncStorage.setItem('@basics_done', JSON.stringify(mergedBasicsDone));
+    } catch (e) {}
 
     // Re-hydrate subscriptions
     for (const s of data.subscriptions || []) {

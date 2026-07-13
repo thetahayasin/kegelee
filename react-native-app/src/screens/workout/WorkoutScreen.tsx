@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   BackHandler,
   Easing,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect } from '@react-navigation/native';
@@ -62,6 +63,14 @@ export const WorkoutScreen = () => {
   // Animated values for smooth glow/pulsing contraction indicator
   const glowScale = useRef(new Animated.Value(0.58)).current;
   const glowOpacity = useRef(new Animated.Value(0.08)).current;
+
+  // Stable refs to prevent back button loops and stale state in callback
+  const showHelpRef = useRef(false);
+  const showQuitModalRef = useRef(false);
+  showHelpRef.current = showHelp;
+  showQuitModalRef.current = showQuitModal;
+
+  const handleQuitRef = useRef<() => void>(() => {});
 
   // Refs for tracking timer states
   const timerRef = useRef<any | null>(null);
@@ -287,6 +296,7 @@ export const WorkoutScreen = () => {
     KeepAwake.deactivate();
     navigation.goBack();
   };
+  handleQuitRef.current = handleQuit;
 
   const currentStep = playlist[index];
 
@@ -341,17 +351,25 @@ export const WorkoutScreen = () => {
   useFocusEffect(
     useCallback(() => {
       const onBack = () => {
+        if (showHelpRef.current) {
+          setShowHelp(false);
+          return true;
+        }
         // A trial/tutorial run isn't a real training session - just exit it.
         if (isTrial) {
-          handleQuit();
+          handleQuitRef.current();
+          return true;
+        }
+        if (showQuitModalRef.current) {
+          setShowQuitModal(false);
         } else {
-          setShowQuitModal(open => !open);
+          setShowQuitModal(true);
         }
         return true;
       };
       const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
       return () => sub.remove();
-    }, [isTrial, handleQuit])
+    }, [isTrial])
   );
 
   // Helper functions for circular ring percentage representation
@@ -642,67 +660,81 @@ export const WorkoutScreen = () => {
 
       {/* Help / tutorial bottom sheet */}
       {showHelp && (
-        <View style={styles.modalOverlay}>
-          <SafeAreaView style={styles.modalContent}>
-            <View style={styles.handleBar} />
-            <Text style={styles.modalTitle}>{currentStep.exerciseName}</Text>
-            <Text style={styles.modalBody}>
-              Watch the quick tutorial for this exercise, then come back to your session.
-            </Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.quitBtn]}
-                onPress={() => {
-                  setShowHelp(false);
-                  navigation.navigate('ExerciseDetail', {
-                    slug: currentStep.slug,
-                    unlocked: true,
-                    daysLeft: 0,
-                  });
-                }}
-              >
-                <Text style={styles.quitBtnText}>Watch tutorial</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.backToTrainingBtn]}
-                onPress={() => {
-                  setShowHelp(false);
-                  pausedRef.current = false;
-                  setPaused(false);
-                }}
-              >
-                <Text style={styles.backToTrainingBtnText}>Resume</Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </View>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => {
+            setShowHelp(false);
+          }}
+        >
+          <TouchableWithoutFeedback>
+            <SafeAreaView style={styles.modalContent}>
+              <View style={styles.handleBar} />
+              <Text style={styles.modalTitle}>{currentStep.exerciseName}</Text>
+              <Text style={styles.modalBody}>
+                Watch the quick tutorial for this exercise, then come back to your session.
+              </Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.quitBtn]}
+                  onPress={() => {
+                    setShowHelp(false);
+                    navigation.navigate('ExerciseDetail', {
+                      slug: currentStep.slug,
+                      unlocked: true,
+                      daysLeft: 0,
+                    });
+                  }}
+                >
+                  <Text style={styles.quitBtnText}>Watch tutorial</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.backToTrainingBtn]}
+                  onPress={() => {
+                    setShowHelp(false);
+                    pausedRef.current = false;
+                    setPaused(false);
+                  }}
+                >
+                  <Text style={styles.backToTrainingBtnText}>Resume</Text>
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
       )}
 
       {/* Quit Confirmation Modal */}
       {showQuitModal && (
-        <View style={styles.modalOverlay}>
-          <SafeAreaView style={styles.modalContent}>
-            <View style={styles.handleBar} />
-            <Text style={styles.modalTitle}>Leave training?</Text>
-            <Text style={styles.modalBody}>
-              If you leave, this session will not be counted towards your daily progress.
-            </Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.quitBtn]}
-                onPress={handleQuit}
-              >
-                <Text style={styles.quitBtnText}>Yes, quit training</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.backToTrainingBtn]}
-                onPress={() => setShowQuitModal(false)}
-              >
-                <Text style={styles.backToTrainingBtnText}>No, go back</Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </View>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowQuitModal(false)}
+        >
+          <TouchableWithoutFeedback>
+            <SafeAreaView style={styles.modalContent}>
+              <View style={styles.handleBar} />
+              <Text style={styles.modalTitle}>Leave training?</Text>
+              <Text style={styles.modalBody}>
+                If you leave, this session will not be counted towards your daily progress.
+              </Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.quitBtn]}
+                  onPress={handleQuit}
+                >
+                  <Text style={styles.quitBtnText}>Yes, quit training</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.backToTrainingBtn]}
+                  onPress={() => setShowQuitModal(false)}
+                >
+                  <Text style={styles.backToTrainingBtnText}>No, go back</Text>
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
       )}
     </SafeAreaView>
   );
