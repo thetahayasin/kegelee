@@ -39,6 +39,69 @@ type RouteParams = {
   };
 };
 
+type RingDisplay = { count: number; pct: number };
+
+/**
+ * The only part of the screen that must repaint on every 50ms tick: the
+ * counter, phase label and progress ring. It subscribes to the timer via
+ * `register` instead of receiving props, so the tick re-renders just this
+ * ~8-element subtree instead of the whole workout screen 20x per second.
+ */
+const LiveProgressRing = React.memo(
+  ({
+    label,
+    register,
+  }: {
+    label: string;
+    register: (fn: (d: RingDisplay) => void) => () => void;
+  }) => {
+    const [d, setD] = useState<RingDisplay>({ count: 0, pct: 0 });
+    useEffect(() => register(setD), [register]);
+    const dashoffset = CIRCUMFERENCE * (1 - d.pct);
+    return (
+      <View style={styles.progressRing}>
+        <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE} viewBox={`0 0 ${CIRCLE_SIZE} ${CIRCLE_SIZE}`}>
+          <Circle
+            cx={CIRCLE_SIZE / 2}
+            cy={CIRCLE_SIZE / 2}
+            r={R}
+            fill="none"
+            stroke="rgba(255,255,255,0.12)"
+            strokeWidth={TRACK_WIDTH}
+          />
+          <Circle
+            cx={CIRCLE_SIZE / 2}
+            cy={CIRCLE_SIZE / 2}
+            r={R}
+            fill="none"
+            stroke={COLORS.white}
+            strokeWidth={TRACK_WIDTH}
+            strokeLinecap="round"
+            strokeDasharray={`${CIRCUMFERENCE} ${CIRCUMFERENCE}`}
+            strokeDashoffset={dashoffset}
+            // transform to start draw from top (12 o'clock)
+            origin={`${CIRCLE_SIZE / 2}, ${CIRCLE_SIZE / 2}`}
+            rotation={-90}
+          />
+        </Svg>
+        <View style={styles.ringLabelContainer}>
+          <Text style={styles.counterText}>{d.count}</Text>
+          <Text style={styles.phaseLabel}>{label}</Text>
+        </View>
+      </View>
+    );
+  },
+);
+
+/** Header "Xm left" label - subscribes to the timer, updates at most 1x/sec. */
+const LiveTimeLabel = React.memo(
+  ({ register }: { register: (fn: (s: string) => void) => () => void }) => {
+    const [label, setLabel] = useState('');
+    useEffect(() => register(setLabel), [register]);
+    return <Text style={styles.timeText}>{label}</Text>;
+  },
+);
+
 export const WorkoutScreen = () => {
   const route = useRoute<RouteProp<RouteParams, 'Workout'>>();
   const navigation = useNavigation<NavigationProp<any>>();
@@ -50,8 +113,9 @@ export const WorkoutScreen = () => {
   const [playlist, setPlaylist] = useState<PlaylistStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
-  const [remaining, setRemaining] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
+  // remaining/elapsed live ONLY in refs: the 50ms tick pushes display values to
+  // the LiveProgressRing / LiveTimeLabel subscribers, so ticking never re-renders
+  // this (large) screen component.
   const [paused, setPaused] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
   // Help sheet (per-exercise tutorial) shown during a real session.
@@ -80,12 +144,16 @@ export const WorkoutScreen = () => {
   const elapsedRef = useRef(0);
   const pausedRef = useRef(false);
 
-  // Keep ref sync
+  // Keep ref sync (remaining/elapsed are ref-only, owned by the tick)
   playlistRef.current = playlist;
   indexRef.current = index;
-  remainingRef.current = remaining;
-  elapsedRef.current = elapsed;
   pausedRef.current = paused;
+
+  // Tick display subscribers (ring + header time label) and change-detection so
+  // we only push when something visible actually changed.
+  const ringSubRef = useRef<((d: RingDisplay) => void) | null>(null);
+  const timeSubRef = useRef<((s: string) => void) | null>(null);
+  const lastPushedRef = useRef({ count: -1, pct: -1, time: '' });
 
   const hapticOptions = {
     enableVibrateFallback: true,
@@ -120,8 +188,9 @@ export const WorkoutScreen = () => {
           return;
         }
 
+        remainingRef.current = session.steps[0].seconds;
+        elapsedRef.current = 0;
         setPlaylist(session.steps);
-        setRemaining(session.steps[0].seconds);
         setLoading(false);
       } catch (e) {
         console.error(e);
@@ -137,7 +206,46 @@ export const WorkoutScreen = () => {
     };
   }, []);
 
-  // Main high-performance countdown timer loop (runs every 50ms)
+  // Push the tick-driven display values to the ring / time-label subscribers.
+  // Skips pushes that would not change anything visible (int counter, ~0.2% ring
+  // movement, same label string) so long steps update well below 20fps.
+  const pushTickDisplays = (force = false) => {
+    const count = getBlockRemaining();
+    const pct = getBlockPct();
+    const time = getTimeLabel();
+    const last = lastPushedRef.current;
+    if (force || count !== last.count || Math.abs(pct - last.pct) > 0.002) {
+      last.count = count;
+      last.pct = pct;
+      ringSubRef.current?.({ count, pct });
+    }
+    if (force || time !== last.time) {
+      last.time = time;
+      timeSubRef.current?.(time);
+    }
+  };
+
+  // Stable registration callbacks for the subscriber components. Hydrate the
+  // subscriber immediately so its first frame shows real values, not zeros.
+  const registerRing = useCallback((fn: (d: RingDisplay) => void) => {
+    ringSubRef.current = fn;
+    fn({ count: getBlockRemaining(), pct: getBlockPct() });
+    return () => {
+      if (ringSubRef.current === fn) ringSubRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const registerTime = useCallback((fn: (s: string) => void) => {
+    timeSubRef.current = fn;
+    fn(getTimeLabel());
+    return () => {
+      if (timeSubRef.current === fn) timeSubRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Main high-performance countdown timer loop (runs every 50ms). Works purely
+  // on refs + subscriber pushes: no React state updates in the hot path.
   useEffect(() => {
     if (loading || playlist.length === 0) return;
 
@@ -145,19 +253,14 @@ export const WorkoutScreen = () => {
       if (pausedRef.current) return;
 
       const dt = 0.05; // 50ms step size
-      const newRemaining = Math.max(0, remainingRef.current - dt);
-      const newElapsed = elapsedRef.current + dt;
-
-      remainingRef.current = newRemaining;
-      elapsedRef.current = newElapsed;
-
-      setRemaining(newRemaining);
-      setElapsed(newElapsed);
+      remainingRef.current = Math.max(0, remainingRef.current - dt);
+      elapsedRef.current = elapsedRef.current + dt;
 
       // Perform smooth glow updates
       updateGlowAnimation();
+      pushTickDisplays();
 
-      if (newRemaining <= 0.0001) {
+      if (remainingRef.current <= 0.0001) {
         advanceStep();
       }
     }, 50);
@@ -165,6 +268,7 @@ export const WorkoutScreen = () => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, playlist]);
 
   const advanceStep = () => {
@@ -173,9 +277,10 @@ export const WorkoutScreen = () => {
       finishWorkout();
     } else {
       const nextStep = playlistRef.current[nextIdx];
-      setIndex(nextIdx);
+      indexRef.current = nextIdx;
       remainingRef.current = nextStep.seconds;
-      setRemaining(nextStep.seconds);
+      setIndex(nextIdx);
+      pushTickDisplays(true);
 
       // Trigger cues with Haptics based on current target transition
       try {
@@ -225,16 +330,23 @@ export const WorkoutScreen = () => {
     const targetScale = 0.58 + intensity * 0.42;
     const targetOpacity = cur.slug === 'rest' ? 0 : 0.08 + intensity * 0.92;
 
-    // Direct animate calls with native driver for fluid 60FPS transitions
+    // Smooth-pursuit toward the target on the native driver. The tick restarts
+    // this every 50ms, so a 240ms eased timing acts as a low-pass filter:
+    // gradual ramps (e.g. "Contract slowly") track with negligible lag, while
+    // step-boundary jumps (e.g. Front Clamp's full squeeze -> instant "Release")
+    // ease out over ~a quarter second instead of snapping in a single tick -
+    // matching the web app's CSS transition on .contract-glow.
     Animated.parallel([
       Animated.timing(glowScale, {
         toValue: targetScale,
-        duration: 50,
+        duration: 240,
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(glowOpacity, {
         toValue: targetOpacity,
-        duration: 50,
+        duration: 240,
+        easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
     ]).start();
@@ -282,12 +394,11 @@ export const WorkoutScreen = () => {
     elapsedRef.current = 0;
     pausedRef.current = false;
     setIndex(0);
-    setRemaining(session.steps[0].seconds);
-    setElapsed(0);
     setPaused(false);
     setTrialDone(false);
     // New array reference re-runs the timer effect and starts a fresh loop.
     setPlaylist([...session.steps]);
+    pushTickDisplays(true);
     KeepAwake.activate();
   };
 
@@ -372,50 +483,61 @@ export const WorkoutScreen = () => {
     }, [isTrial])
   );
 
-  // Helper functions for circular ring percentage representation
+  // Helper functions for circular ring percentage representation. These read
+  // refs (not state) so the 50ms tick can call them without the screen
+  // re-rendering, and registration-time hydration gets current values too.
   const getBlockRemaining = () => {
-    if (!currentStep) return 0;
-    if (currentStep.slug === 'rest') return Math.max(0, Math.ceil(remaining));
+    const pl = playlistRef.current;
+    const idx = indexRef.current;
+    const cur = pl[idx];
+    if (!cur) return 0;
+    if (cur.slug === 'rest') return Math.max(0, Math.ceil(remainingRef.current));
 
-    let rem = remaining;
-    for (let k = index + 1; k < playlist.length; k++) {
-      const s = playlist[k];
-      if (s.slug === 'rest' || s.exerciseName !== currentStep.exerciseName) break;
+    let rem = remainingRef.current;
+    for (let k = idx + 1; k < pl.length; k++) {
+      const s = pl[k];
+      if (s.slug === 'rest' || s.exerciseName !== cur.exerciseName) break;
       rem += s.seconds;
     }
     return Math.max(0, Math.ceil(rem));
   };
 
   const getBlockRemainingRaw = () => {
-    if (!currentStep) return 0;
-    if (currentStep.slug === 'rest') return Math.max(0, remaining);
+    const pl = playlistRef.current;
+    const idx = indexRef.current;
+    const cur = pl[idx];
+    if (!cur) return 0;
+    if (cur.slug === 'rest') return Math.max(0, remainingRef.current);
 
-    let rem = remaining;
-    for (let k = index + 1; k < playlist.length; k++) {
-      const s = playlist[k];
-      if (s.slug === 'rest' || s.exerciseName !== currentStep.exerciseName) break;
+    let rem = remainingRef.current;
+    for (let k = idx + 1; k < pl.length; k++) {
+      const s = pl[k];
+      if (s.slug === 'rest' || s.exerciseName !== cur.exerciseName) break;
       rem += s.seconds;
     }
     return Math.max(0, rem);
   };
 
   const getBlockTotal = () => {
-    if (!currentStep) return 1;
-    if (currentStep.slug === 'rest') return Math.max(1, currentStep.seconds);
+    const pl = playlistRef.current;
+    const idx = indexRef.current;
+    const cur = pl[idx];
+    if (!cur) return 1;
+    if (cur.slug === 'rest') return Math.max(1, cur.seconds);
 
-    let start = index;
+    let start = idx;
     while (
       start > 0 &&
-      playlist[start - 1].slug !== 'rest' &&
-      playlist[start - 1].exerciseName === currentStep.exerciseName
+      pl[start - 1].slug !== 'rest' &&
+      pl[start - 1].exerciseName === cur.exerciseName
     ) {
       start--;
     }
 
     let total = 0;
-    for (let k = start; k < playlist.length; k++) {
-      const s = playlist[k];
-      if (s.slug === 'rest' || s.exerciseName !== currentStep.exerciseName) break;
+    for (let k = start; k < pl.length; k++) {
+      const s = pl[k];
+      if (s.slug === 'rest' || s.exerciseName !== cur.exerciseName) break;
       total += s.seconds;
     }
     return Math.max(1, total);
@@ -428,9 +550,10 @@ export const WorkoutScreen = () => {
   };
 
   const getTotalRemaining = () => {
-    let rem = remaining;
-    for (let k = index + 1; k < playlist.length; k++) {
-      rem += playlist[k].seconds;
+    const pl = playlistRef.current;
+    let rem = remainingRef.current;
+    for (let k = indexRef.current + 1; k < pl.length; k++) {
+      rem += pl[k].seconds;
     }
     return Math.ceil(rem);
   };
@@ -442,9 +565,6 @@ export const WorkoutScreen = () => {
     }
     return `${s}s left`;
   };
-
-  // Determine center circle offset
-  const strokeDashoffset = CIRCUMFERENCE * (1 - getBlockPct());
 
   if (loading || !currentStep) {
     return (
@@ -491,7 +611,7 @@ export const WorkoutScreen = () => {
               <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
             </Svg>
           </TouchableOpacity>
-          <Text style={styles.timeText}>{getTimeLabel()}</Text>
+          <LiveTimeLabel register={registerTime} />
           <View style={{ width: 36 }} />
         </View>
       )}
@@ -529,37 +649,8 @@ export const WorkoutScreen = () => {
             </Svg>
           </Animated.View>
 
-          {/* Central progress ring */}
-          <View style={styles.progressRing}>
-            <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE} viewBox={`0 0 ${CIRCLE_SIZE} ${CIRCLE_SIZE}`}>
-              <Circle
-                cx={CIRCLE_SIZE / 2}
-                cy={CIRCLE_SIZE / 2}
-                r={R}
-                fill="none"
-                stroke="rgba(255,255,255,0.12)"
-                strokeWidth={TRACK_WIDTH}
-              />
-              <Circle
-                cx={CIRCLE_SIZE / 2}
-                cy={CIRCLE_SIZE / 2}
-                r={R}
-                fill="none"
-                stroke={COLORS.white}
-                strokeWidth={TRACK_WIDTH}
-                strokeLinecap="round"
-                strokeDasharray={`${CIRCUMFERENCE} ${CIRCUMFERENCE}`}
-                strokeDashoffset={strokeDashoffset}
-                // transform to start draw from top (12 o'clock)
-                origin={`${CIRCLE_SIZE / 2}, ${CIRCLE_SIZE / 2}`}
-                rotation={-90}
-              />
-            </Svg>
-            <View style={styles.ringLabelContainer}>
-              <Text style={styles.counterText}>{getBlockRemaining()}</Text>
-              <Text style={styles.phaseLabel}>{currentStep.label}</Text>
-            </View>
-          </View>
+          {/* Central progress ring: tick-subscribed so only it repaints */}
+          <LiveProgressRing label={currentStep.label} register={registerRing} />
         </View>
       </View>
 

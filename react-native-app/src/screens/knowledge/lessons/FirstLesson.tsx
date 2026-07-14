@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { COLORS, GLASS } from '../../../theme/colors';
 import { getSteps } from '../../../constants/catalogues';
@@ -112,9 +112,11 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     const targetScale = 0.58 + intensity * 0.42;
     const targetOpacity = 0.08 + intensity * 0.92;
 
+    // 240ms eased pursuit (restarted every tick) so instant relax steps ease out
+    // instead of snapping - same low-pass treatment as the workout screen glow.
     Animated.parallel([
-      Animated.timing(glowScale, { toValue: targetScale, duration: 50, useNativeDriver: true }),
-      Animated.timing(glowOpacity, { toValue: targetOpacity, duration: 50, useNativeDriver: true }),
+      Animated.timing(glowScale, { toValue: targetScale, duration: 240, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(glowOpacity, { toValue: targetOpacity, duration: 240, easing: Easing.out(Easing.quad), useNativeDriver: true }),
     ]).start();
   }, [remaining, playing, i, glowScale, glowOpacity]);
 
@@ -195,15 +197,12 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     );
   }
 
-  // Step 1: live Trembling demo (looping)
+  // Step 1: live Trembling demo (looping). Circle sits ABOVE the copy so the
+  // pulsing glow never overlaps the text.
   if (step === 1) {
     return (
       <View style={styles.center}>
-        <Text style={styles.h1}>This is Trembling</Text>
-        <Text style={styles.p}>
-          Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.
-        </Text>
-        <View style={styles.circleWrap}>
+        <View style={styles.circleWrapTop}>
           {glowNode}
           <View style={styles.circle}>
             <Ring offset={CIRC * (1 - pct)} />
@@ -213,22 +212,19 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
           </View>
         </View>
+        <Text style={styles.h1Below}>This is Trembling</Text>
+        <Text style={styles.p}>
+          Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.
+        </Text>
       </View>
     );
   }
 
-  // Step 2: guided try
+  // Step 2: guided try. Circle above the copy, same as step 1, so the glow has
+  // clear space above it and never covers the instructions.
   return (
     <View style={styles.center}>
-      <Text style={styles.h1}>{tried ? 'Nice work!' : 'Now you try'}</Text>
-      <Text style={styles.p}>
-        {tried
-          ? 'That was a real exercise. Every session works exactly like this, one circle at a time.'
-          : playing
-          ? 'Follow the circle. Squeeze... and relax.'
-          : 'Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?'}
-      </Text>
-      <View style={styles.circleWrap}>
+      <View style={styles.circleWrapTop}>
         {glowNode}
         <View style={styles.circle}>
           <Ring offset={CIRC * (1 - pct)} />
@@ -248,6 +244,14 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           )}
         </View>
       </View>
+      <Text style={styles.h1Below}>{tried ? 'Nice work!' : 'Now you try'}</Text>
+      <Text style={styles.p}>
+        {tried
+          ? 'That was a real exercise. Every session works exactly like this, one circle at a time.'
+          : playing
+          ? 'Follow the circle. Squeeze... and relax.'
+          : 'Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?'}
+      </Text>
     </View>
   );
 };
@@ -255,12 +259,22 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   h1: { marginTop: 24, fontSize: 28, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', lineHeight: 34 },
+  // Heading when it sits BELOW the pulsing circle (steps 1 & 2). The top margin
+  // clears the glow halo (which reaches ~GLOW/2 - SIZE/2 px past the circle edge)
+  // so the pulse never bleeds onto the copy.
+  h1Below: { marginTop: 72, fontSize: 28, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', lineHeight: 34 },
   p: { marginTop: 12, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
-  // Extra top margin so the glow halo clears the copy above it instead of
-  // bleeding over the last line of text.
+  // Step 0 keeps the circle above the copy with a static (non-glowing) ring.
   circleWrap: { marginTop: 60, width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
+  // Pulse steps (1 & 2) put the circle up top; the glow radiates into the empty
+  // space above it (below the step dots) rather than over the reading copy below.
+  circleWrapTop: { marginTop: 24, width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   glow: {
     position: 'absolute',
+    // Centre the oversized glow box on the circle (concentric) so its halo
+    // radiates evenly instead of biasing toward a corner.
+    top: (SIZE - GLOW) / 2,
+    left: (SIZE - GLOW) / 2,
     width: GLOW,
     height: GLOW,
     alignItems: 'center',

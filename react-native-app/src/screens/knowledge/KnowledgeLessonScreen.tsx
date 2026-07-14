@@ -13,7 +13,7 @@ import Svg, { Path } from 'react-native-svg';
 import { COLORS, GLASS } from '../../theme/colors';
 import { BASICS_LESSONS } from '../../constants/basics';
 import { RootStackParamList } from '../../navigation/AppNavigator';
-import { BASICS_DONE_KEY } from './KnowledgeScreen';
+
 import { WhyLesson } from './lessons/WhyLesson';
 import { FindLesson } from './lessons/FindLesson';
 import { FirstLesson } from './lessons/FirstLesson';
@@ -26,7 +26,7 @@ const LAST = 2;
 export const KnowledgeLessonScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'KnowledgeLesson'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields } = useAuth();
+  const { isAuthenticated, updateUserFields, user } = useAuth();
   const { slug, index } = route.params;
 
   const [step, setStep] = useState(0);
@@ -37,11 +37,12 @@ export const KnowledgeLessonScreen = () => {
 
   const complete = async () => {
     try {
-      const raw = await AsyncStorage.getItem(BASICS_DONE_KEY);
+      const key = user ? `@basics_done_${user.id}` : '@basics_done_guest';
+      const raw = await AsyncStorage.getItem(key);
       const done: string[] = raw ? JSON.parse(raw) : [];
       if (!done.includes(slug)) {
         done.push(slug);
-        await AsyncStorage.setItem(BASICS_DONE_KEY, JSON.stringify(done));
+        await AsyncStorage.setItem(key, JSON.stringify(done));
       }
     } catch (e) {}
     if (isLastLesson) {
@@ -49,7 +50,10 @@ export const KnowledgeLessonScreen = () => {
         await updateUserFields({ onboarded: true });
         navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
       } else {
-        navigation.goBack();
+        // Guest completed learn the basics -> go to Login. This screen also lives
+        // in the guest AuthStack (which has a Login route), so cast past the
+        // RootStack param list the same way KnowledgeScreen does.
+        (navigation as any).navigate('Login');
       }
     } else {
       // Match the original's `navigate-replace`: REPLACE this lesson with the

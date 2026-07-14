@@ -5,6 +5,7 @@ import {
   getUnsyncedWorkoutSessions,
   getUnsyncedMeasurements,
   getUnsyncedReminders,
+  getReminders,
   markWorkoutSessionsSynced,
   markMeasurementsSynced,
   markRemindersSynced,
@@ -37,7 +38,7 @@ export const syncNow = async (userId: number): Promise<{ success: boolean; error
     // Retrieve locally completed basics lessons from AsyncStorage
     let localBasicsDone: string[] = [];
     try {
-      const raw = await AsyncStorage.getItem('@basics_done');
+      const raw = await AsyncStorage.getItem(`@basics_done_${userId}`);
       if (raw) {
         localBasicsDone = JSON.parse(raw);
       }
@@ -143,21 +144,26 @@ export const syncNow = async (userId: number): Promise<{ success: boolean; error
       await saveReminder(userId, r.weekday, r.times, r.is_enabled ? 1 : 0, 1);
     }
 
-    // Schedule reminders locally using Notifee
-    if (data.reminders) {
-      const reminderConfigs = data.reminders.map((r: any) => ({
+    // Schedule reminders locally using Notifee - from the merged LOCAL DB state,
+    // not the raw pull payload. The login-time sync runs in the background; if
+    // the user saves reminders on the Schedule screen while a pull with no (or
+    // stale) server reminders is still in flight, scheduling from the payload
+    // would cancel and wipe what they just set. The local table already holds
+    // pulled + locally saved reminders at this point, so it is the truth.
+    const mergedReminders = await getReminders(userId);
+    await scheduleReminders(
+      mergedReminders.map((r) => ({
         weekday: r.weekday,
         times: r.times,
-        isEnabled: !!r.is_enabled,
-      }));
-      await scheduleReminders(reminderConfigs);
-    }
+        isEnabled: r.is_enabled === 1,
+      }))
+    );
 
     // Merge completed basics lessons from backend with local completed basics
     const remoteBasicsDone = data.completed_lessons || [];
     const mergedBasicsDone = Array.from(new Set([...localBasicsDone, ...remoteBasicsDone]));
     try {
-      await AsyncStorage.setItem('@basics_done', JSON.stringify(mergedBasicsDone));
+      await AsyncStorage.setItem(`@basics_done_${userId}`, JSON.stringify(mergedBasicsDone));
     } catch (e) {}
 
     // Re-hydrate subscriptions

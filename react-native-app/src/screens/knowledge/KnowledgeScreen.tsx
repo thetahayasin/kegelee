@@ -20,7 +20,6 @@ import { Watermark } from '../../components/Watermark';
 import { BASICS_LESSONS } from '../../constants/basics';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
-export const BASICS_DONE_KEY = '@basics_done';
 
 // Lesson glyphs (heart / drop / play), matching knowledge/index.blade.
 const lessonIconPath = (i: number) =>
@@ -32,15 +31,16 @@ const lessonIconPath = (i: number) =>
 
 export const KnowledgeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields } = useAuth();
+  const { isAuthenticated, updateUserFields, user } = useAuth();
   const [done, setDone] = useState<string[]>([]);
 
   useFocusEffect(
     useCallback(() => {
-      AsyncStorage.getItem(BASICS_DONE_KEY)
+      const key = user ? `@basics_done_${user.id}` : '@basics_done_guest';
+      AsyncStorage.getItem(key)
         .then(v => setDone(v ? JSON.parse(v) : []))
         .catch(() => {});
-    }, []),
+    }, [user]),
   );
 
   const allCompleted = done.includes('why') && done.includes('find') && done.includes('first');
@@ -106,7 +106,9 @@ export const KnowledgeScreen = () => {
           );
         })}
 
-        {isAuthenticated && allCompleted && (
+        {/* Only during onboarding: once the user is onboarded this screen is a
+            review page (opened from Training), where the button is noise. */}
+        {isAuthenticated && allCompleted && user && !user.onboarded && (
           <TouchableOpacity
             style={styles.continueBtn}
             onPress={async () => {

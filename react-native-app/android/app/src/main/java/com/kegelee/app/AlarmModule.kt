@@ -3,6 +3,7 @@ package com.kegelee.app
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.provider.AlarmClock
+import android.text.format.DateFormat
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -86,7 +87,7 @@ class AlarmModule(reactContext: ReactApplicationContext) :
                     },
                     hour,
                     minute,
-                    true, // 24-hour view
+                    DateFormat.is24HourFormat(activity),
                 )
                 dialog.setOnCancelListener {
                     if (!settled) {

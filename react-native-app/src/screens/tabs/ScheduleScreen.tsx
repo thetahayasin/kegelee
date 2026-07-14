@@ -21,7 +21,7 @@ import {
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
-import { scheduleReminders, showTimePicker, ReminderConfig } from '../../services/reminders';
+import { scheduleReminders, showTimePicker, isExactAlarmAllowed, openExactAlarmSettings, ReminderConfig } from '../../services/reminders';
 import { syncNow } from '../../services/sync';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 
@@ -77,7 +77,9 @@ export const ScheduleScreen = () => {
       setActiveRemindersCount(enabledCount);
 
       // Populate config state
-      const activeDays = localReminders.filter((r) => r.is_enabled === 1).map((r) => r.weekday);
+      const activeDays = localReminders
+        .filter((r) => r.is_enabled === 1)
+        .map((r) => (r.weekday === 6 ? 0 : r.weekday + 1));
       setSelectedDays(activeDays);
       
       // Find default times
@@ -135,26 +137,46 @@ export const ScheduleScreen = () => {
       for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
         const isEnabled = selectedDays.includes(dayIndex);
         
+        // Convert JS/UI index (0 = Sunday) to DB index (0 = Monday)
+        const dbWeekday = dayIndex === 0 ? 6 : dayIndex - 1;
+        
         // Save to SQLite
-        await saveReminder(user.id, dayIndex, times, isEnabled ? 1 : 0, 0); // synced = 0
+        await saveReminder(user.id, dbWeekday, times, isEnabled ? 1 : 0, 0); // synced = 0
 
         reminderConfigs.push({
-          weekday: dayIndex,
+          weekday: dbWeekday,
           times,
           isEnabled,
         });
       }
 
-      // Schedule alarms using Notifee helper
+      // Schedule alarms using Notifee helper (exact when permitted, else inexact).
+      const exactOk = await isExactAlarmAllowed();
       await scheduleReminders(reminderConfigs);
 
       setRemindersModalVisible(false);
       await loadData();
-      
+
       // Trigger background sync to backup to Laravel backend
       syncNow(user.id).catch(() => {});
 
-      Alert.alert('Reminders Saved', 'Your weekly training alarms are scheduled.');
+      if (exactOk) {
+        Alert.alert(
+          'Reminders Saved',
+          'Your weekly training reminders are scheduled.'
+        );
+      } else {
+        // Android 12+ needs the "Alarms & reminders" special access for on-time
+        // delivery. Reminders still fire without it, just a few minutes late.
+        Alert.alert(
+          'Allow exact reminders',
+          'Your reminders are set.\n\nTo fire them at the exact time, allow "Alarms & reminders" for Kegelee - otherwise they may arrive a few minutes late.',
+          [
+            { text: 'Not now', style: 'cancel' },
+            { text: 'Open settings', onPress: () => openExactAlarmSettings() },
+          ],
+        );
+      }
     } catch (e) {
       console.error(e);
       Alert.alert('Error', 'Failed to save reminders.');

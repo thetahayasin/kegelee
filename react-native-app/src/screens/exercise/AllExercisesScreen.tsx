@@ -64,14 +64,17 @@ export const AllExercisesScreen = () => {
           .sort((a, b) => a.sort_order - b.sort_order)
           .map((ex) => {
             const threshold = ex.unlock_after_days;
-            const unlocked = completedDays >= threshold;
+            // Admins bypass the day-gating and get the full catalogue.
+            const unlocked = user.is_admin || completedDays >= threshold;
             const completed = Math.min(completedDays, threshold);
-            const pct = threshold > 0 ? Math.min(100, Math.round((completed / threshold) * 100)) : 100;
+            const pct = unlocked
+              ? 100
+              : threshold > 0 ? Math.min(100, Math.round((completed / threshold) * 100)) : 100;
             return {
               slug: ex.slug,
               name: ex.name,
               unlocked,
-              daysLeft: Math.max(0, threshold - completedDays),
+              daysLeft: unlocked ? 0 : Math.max(0, threshold - completedDays),
               completed,
               threshold,
               pct,

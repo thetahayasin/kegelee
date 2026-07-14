@@ -6,6 +6,14 @@
          matching the original app (not notifications). -->
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Local training reminders are delivered by Notifee via AlarmManager.
+         SCHEDULE_EXACT_ALARM lets them fire at the exact time (the app requests the
+         "Alarms & reminders" special access at runtime on Android 12+); without it
+         Notifee falls back to an inexact alarm. RECEIVE_BOOT_COMPLETED re-arms them
+         after a reboot. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
       android:name=".MainApplication"

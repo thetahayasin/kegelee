@@ -17,6 +17,7 @@ import { COLORS } from '../../theme/colors';
 import { getWebBaseUrl } from '../../services/api';
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
+import { GoogleLogo } from '../../components/GoogleLogo';
 
 export const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -25,13 +26,14 @@ export const RegisterScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleRegister = async () => {
     setError('');
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields.');
       return;
     }
@@ -42,6 +44,10 @@ export const RegisterScreen = () => {
     // simple regex to check for a digit in password matching laravel validation
     if (!/\d/.test(password)) {
       setError('Password must contain at least one number.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
 
@@ -73,14 +79,16 @@ export const RegisterScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Watermark />
-      <TouchableOpacity
-        style={styles.closeBtn}
-        onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] })}
-      >
-        <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-          <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
-        </Svg>
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.closeBtn}
+          onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] })}
+        >
+          <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+            <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
+          </Svg>
+        </TouchableOpacity>
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -121,6 +129,16 @@ export const RegisterScreen = () => {
               autoCapitalize="none"
             />
 
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm password"
+              placeholderTextColor={COLORS.textMuted}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+
             <TouchableOpacity style={styles.btn} onPress={handleRegister} disabled={loading}>
               {loading ? (
                 <ActivityIndicator color={COLORS.onAccent} />
@@ -144,7 +162,10 @@ export const RegisterScreen = () => {
             {googleLoading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.googleBtnText}>Continue with Google</Text>
+              <>
+                <GoogleLogo size={20} />
+                <Text style={styles.googleBtnText}>Continue with Google</Text>
+              </>
             )}
           </TouchableOpacity>
 
@@ -167,15 +188,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg,
   },
+  header: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    alignItems: 'flex-start',
+  },
   closeBtn: {
-    position: 'absolute',
-    top: 8,
-    left: 12,
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
   },
   keyboardView: {
     flex: 1,
@@ -248,6 +270,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   googleBtn: {
+    flexDirection: 'row',
     height: 52,
     borderRadius: 12,
     borderWidth: 1,
@@ -260,6 +283,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.white,
+    marginLeft: 12,
   },
   errorText: {
     color: COLORS.danger,

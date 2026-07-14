@@ -72,10 +72,10 @@ export const TrainingScreen = () => {
       const best = await getMaxMeasurement(user.id);
       setBestMeasurement(best > 0 ? best : null);
 
-      // Map exercises
+      // Map exercises. Admins bypass the day-gating and get the full catalogue.
       const exList = Object.values(EXERCISES).map((ex) => {
-        const unlocked = pos.completed >= ex.unlock_after_days;
-        const daysLeft = Math.max(0, ex.unlock_after_days - pos.completed);
+        const unlocked = user.is_admin || pos.completed >= ex.unlock_after_days;
+        const daysLeft = unlocked ? 0 : Math.max(0, ex.unlock_after_days - pos.completed);
         return {
           ...ex,
           unlocked,
@@ -269,6 +269,7 @@ export const TrainingScreen = () => {
           {exerciseItems.slice(0, 8).map((ex) => (
             <TouchableOpacity
               key={ex.slug}
+              disabled={!ex.unlocked}
               style={[styles.exerciseCard, !ex.unlocked && styles.exerciseCardLocked]}
               onPress={() =>
                 navigation.navigate('ExerciseDetail', {

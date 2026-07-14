@@ -96,6 +96,10 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        // Mount tabs on first visit only, and freeze (suspend re-rendering of)
+        // blurred tabs so background tabs cost nothing while training.
+        lazy: true,
+        freezeOnBlur: true,
         tabBarIcon: ({ color }) => <TabIcon name={route.name} color={color} />,
         tabBarActiveTintColor: COLORS.accent,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',

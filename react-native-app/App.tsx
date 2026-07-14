@@ -22,6 +22,7 @@ import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { initDB } from './src/db/sqlite';
 import { COLORS } from './src/theme/colors';
 
@@ -88,15 +89,17 @@ const App = () => {
           backgroundColor="transparent"
           translucent
         />
-        {dbReady ? (
-          <AuthProvider>
-            <NavigationContainer theme={navTheme}>
-              <Root />
-            </NavigationContainer>
-          </AuthProvider>
-        ) : (
-          <SplashLoading />
-        )}
+        <ErrorBoundary>
+          {dbReady ? (
+            <AuthProvider>
+              <NavigationContainer theme={navTheme}>
+                <Root />
+              </NavigationContainer>
+            </AuthProvider>
+          ) : (
+            <SplashLoading />
+          )}
+        </ErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -16,8 +16,9 @@ import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress, getLocalDateString } from '../../services/progression';
 import { EXERCISES, LEVELS } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
+import { EquipmentIcon } from '../../components/EquipmentIcon';
 
 const { width } = Dimensions.get('window');
 const COMPLETED_CIRCLE_SIZE = 208;
@@ -293,32 +294,20 @@ export const WorkoutCompleteScreen = () => {
           </View>
         </View>
 
-        {/* New exercise unlocked indicator */}
-        {unlockedNow.length > 0 && (
+        {/* New exercise unlocked indicator (admins have everything unlocked) */}
+        {!user?.is_admin && unlockedNow.length > 0 && (
           <View style={styles.unlockCard}>
             <Text style={styles.unlockText}>Unlocked: {unlockedNow.join(', ')}</Text>
           </View>
         )}
 
-        {/* Next exercise unlock progress */}
-        {nextUnlock && unlockedNow.length === 0 && (
+        {/* Next exercise to unlock: its real icon + progress toward the unlock */}
+        {!user?.is_admin && nextUnlock && (
           <View style={styles.nextUnlockCard}>
-            <View style={styles.unlockIconPlaceholder}>
-              <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-                <Rect x={4} y={10} width={16} height={10} rx={1.5} stroke={COLORS.accent} strokeWidth={1.7} />
-                <Rect x={3} y={7} width={18} height={3.5} rx={1} stroke={COLORS.accent} strokeWidth={1.7} />
-                <Path d="M12 7v13" stroke={COLORS.accent} strokeWidth={1.7} />
-                <Path
-                  d="M12 7C11 4.5 9.5 4 8.6 4.6 7.2 5.5 8.2 7 9.7 7H12zM12 7c1-2.5 2.4-3 3.4-2.4C16.8 5.5 15.8 7 14.3 7H12z"
-                  stroke={COLORS.accent}
-                  strokeWidth={1.4}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
-            </View>
+            <EquipmentIcon slug={nextUnlock.slug} size={44} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.unlockNameText}>Unlock '{nextUnlock.name}'</Text>
+              <Text style={styles.unlockNextLabel}>Next to unlock</Text>
+              <Text style={styles.unlockNameText}>{nextUnlock.name}</Text>
               <View style={styles.progressBarBg}>
                 <View style={[styles.progressBarFill, { width: `${unlockPct}%` }]} />
               </View>
@@ -529,13 +518,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  unlockIconPlaceholder: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  unlockNextLabel: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: COLORS.textMuted,
+    marginBottom: 2,
   },
   unlockNameText: {
     fontSize: 14,

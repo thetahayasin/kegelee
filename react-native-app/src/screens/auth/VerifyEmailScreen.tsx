@@ -25,7 +25,7 @@ type RouteParams = {
 export const VerifyEmailScreen = () => {
   const route = useRoute<RouteProp<RouteParams, 'VerifyEmail'>>();
   const navigation = useNavigation<NavigationProp<any>>();
-  const { updateUserFields } = useAuth();
+  const { completeAuth } = useAuth();
   
   const email = route.params?.email || '';
   const [code, setCode] = useState('');
@@ -46,19 +46,10 @@ export const VerifyEmailScreen = () => {
     setLoading(false);
 
     if (res.ok && res.data?.success) {
-      // Update local state that user is verified
-      const userPayload = res.data.user;
-      await updateUserFields({
-        id: userPayload.id,
-        name: userPayload.name,
-        email: userPayload.email,
-        is_admin: !!userPayload.is_admin,
-        level_id: userPayload.level_id,
-        level_started_days: userPayload.level_started_days,
-        onboarded: !!userPayload.onboarded_at,
-        timezone: userPayload.timezone || null,
-      });
-      // Navigation will automatically update to tab navigator because user context changes
+      // Code accepted: establish the session now (register deliberately does not
+      // sign in, so the verify screen stays mounted until this point). The
+      // navigator switches automatically once the auth context is populated.
+      await completeAuth(res.data);
     } else {
       setError(res.error || 'Verification failed. Please try again.');
     }

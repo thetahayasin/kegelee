@@ -15,7 +15,9 @@ const { width, height } = Dimensions.get('window');
 const FONT = Math.round(height * 0.215);
 const systemFont = Platform.OS === 'android' ? 'sans-serif-black' : 'System';
 
-export const Watermark = () => (
+// Memoized: it takes no props and is rendered on every screen, so parent
+// re-renders should never re-reconcile this full-screen SVG.
+export const Watermark = React.memo(() => (
   <View style={styles.wrap} pointerEvents="none">
     <Svg style={StyleSheet.absoluteFill} width={width} height={height}>
       <Defs>
@@ -74,7 +76,7 @@ export const Watermark = () => (
       </Text>
     </Svg>
   </View>
-);
+));
 
 const styles = StyleSheet.create({
   wrap: {
