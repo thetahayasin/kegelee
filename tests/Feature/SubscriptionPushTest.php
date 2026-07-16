@@ -44,9 +44,7 @@ class SubscriptionPushTest extends TestCase
     private function push(array $subscription)
     {
         return $this->withHeaders([
-            'Authorization' => 'Bearer '.$this->apiKey,
-            'X-User-Email' => $this->user->email,
-            'X-User-Password-Hash' => $this->user->password,
+            'X-User-Token' => $this->user->apiToken(),
         ])->postJson('/api/v1/user/push', ['subscriptions' => [$subscription]]);
     }
 

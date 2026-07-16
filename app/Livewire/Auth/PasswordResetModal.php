@@ -131,6 +131,9 @@ class PasswordResetModal extends Component
             $user->update([
                 'password' => Hash::make($this->password),
                 'email_verified_at' => $user->email_verified_at ?? now(),
+                // A reset is account recovery: kill every previously issued
+                // app token. Devices get a fresh one at their next sign-in.
+                'api_token' => null,
             ]);
         }
 

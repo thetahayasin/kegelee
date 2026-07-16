@@ -626,6 +626,10 @@ class SyncController extends Controller
         $user->update([
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
             'email_verified_at' => $user->email_verified_at ?? now(),
+            // Rotate the API token: a reset is the account-recovery moment, so
+            // every previously issued token dies here. The payload below
+            // regenerates a fresh one, keeping the resetting device signed in.
+            'api_token' => null,
         ]);
 
         return response()->json([

@@ -55,6 +55,14 @@ class ResetPassword extends Component
             'email_verified_at' => $user->email_verified_at ?? now(),
         ]);
 
+        // A reset is account recovery: kill every previously issued app token
+        // (devices re-issue at next sign-in). Backend only - on a NativePHP
+        // device this component updates the local MIRROR, whose stored token
+        // must survive so the device can keep syncing.
+        if (! \App\Services\Sync\BackendClient::isClient()) {
+            $user->update(['api_token' => null]);
+        }
+
         Auth::login($user, true);
         session()->regenerate();
         session()->forget('reset_email');

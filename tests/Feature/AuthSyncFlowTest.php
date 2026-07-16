@@ -78,11 +78,12 @@ class AuthSyncFlowTest extends TestCase
 
     public function test_remote_login_unreachable_reports_connection_error(): void
     {
-        Http::fake([
-            'kegelee.com/api/v1/auth/login' => Http::response([
-                'error' => 'Invalid API key.'
-            ], 401),
-        ]);
+        // A genuinely unreachable backend throws a connection exception. (The
+        // old fake used a 401 "Invalid API key." - a legacy error that no
+        // longer exists, and 401 now correctly maps to invalid CREDENTIALS.)
+        Http::fake(function () {
+            throw new \Illuminate\Http\Client\ConnectionException('Connection refused');
+        });
 
         Livewire::test(\App\Livewire\App\Onboarding::class)
             ->set('email', 'remote@example.com')

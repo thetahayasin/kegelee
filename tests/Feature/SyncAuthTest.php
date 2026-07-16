@@ -4,78 +4,69 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
+/**
+ * The sync API authenticates with the per-user X-User-Token issued at
+ * sign-in (ResolveApiUser). There is deliberately no shared app key, and the
+ * legacy email/password-hash header scheme must never authenticate anything.
+ */
 class SyncAuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $apiKey = 'testing-key-not-a-real-secret';
-
-    protected function setUp(): void
+    public function test_pull_requires_a_token(): void
     {
-        parent::setUp();
-        config(['app.sync_api_key' => $this->apiKey]);
+        $this->getJson('/api/v1/user/pull')->assertStatus(401);
     }
 
-    public function test_sync_requires_valid_api_key(): void
+    public function test_legacy_header_scheme_does_not_authenticate(): void
     {
-        $response = $this->getJson('/api/v1/user/pull');
-        $response->assertStatus(401);
+        $user = User::factory()->create();
 
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer INVALID_KEY',
-        ])->getJson('/api/v1/user/pull');
-        $response->assertStatus(401);
-    }
-
-    public function test_sync_fails_without_user_headers(): void
-    {
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-        ])->getJson('/api/v1/user/pull');
-
-        $response->assertStatus(401);
-    }
-
-    public function test_sync_fails_with_invalid_password_hash(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
-        ]);
-
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
+        $this->withHeaders([
+            'Authorization' => 'Bearer some-old-app-key',
             'X-User-Email' => $user->email,
-            'X-User-Password-Hash' => 'wrong_hash_here',
-        ])->getJson('/api/v1/user/pull');
-
-        $response->assertStatus(401);
+            'X-User-Password-Hash' => $user->password,
+        ])->getJson('/api/v1/user/pull')->assertStatus(401);
     }
 
-    public function test_sync_succeeds_with_valid_api_key_and_user_headers(): void
+    public function test_wrong_token_does_not_authenticate(): void
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
-        ]);
+        User::factory()->create();
 
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'X-User-Email' => $user->email,
-            'X-User-Password-Hash' => $user->password, // Send the actual hash
-        ])->getJson('/api/v1/user/pull');
+        $this->withHeaders(['X-User-Token' => str_repeat('x', 64)])
+            ->getJson('/api/v1/user/pull')
+            ->assertStatus(401);
+    }
+
+    public function test_valid_token_pulls_the_owning_users_state(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeaders(['X-User-Token' => $user->apiToken()])
+            ->getJson('/api/v1/user/pull');
 
         $response->assertStatus(200);
+        $response->assertJsonPath('user.id', $user->id);
         $response->assertJsonStructure([
-            'user' => ['id', 'name', 'email', 'password_hash'],
+            'user' => ['id', 'name', 'email', 'level_id', 'onboarded'],
             'workout_sessions',
             'measurements',
             'reminders',
             'training_days',
             'subscriptions',
         ]);
+    }
+
+    public function test_unverified_accounts_token_is_rejected(): void
+    {
+        // register hands out a token before the email code is confirmed; the
+        // API must still refuse it until the account verifies (ResolveApiUser).
+        $user = User::factory()->unverified()->create();
+
+        $this->withHeaders(['X-User-Token' => $user->apiToken()])
+            ->getJson('/api/v1/user/pull')
+            ->assertStatus(401);
     }
 }
