@@ -11,17 +11,17 @@
         <div>
             <input wire:model="name" type="text" placeholder="Name" autocomplete="name"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('name') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('name') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <div>
             <input wire:model="email" type="email" placeholder="Email" autocomplete="email"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('email') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('email') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <div>
             <input wire:model="password" type="password" placeholder="Password (6+ characters, 1 number)" autocomplete="new-password"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('password') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('password') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <div>
             <input wire:model="password_confirmation" type="password" placeholder="Confirm password" autocomplete="new-password"

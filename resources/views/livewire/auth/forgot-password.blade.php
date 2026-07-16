@@ -12,7 +12,7 @@
         <div>
             <input wire:model="email" type="email" placeholder="Email" autocomplete="email"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('email') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('email') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <button type="submit" wire:loading.attr="disabled" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap disabled:opacity-60">
             <span wire:loading.remove>Send reset code</span>

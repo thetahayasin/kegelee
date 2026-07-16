@@ -37,13 +37,13 @@ class SubscriptionStartedMail extends Mailable
             'accent'    => $accent,
             'headline'  => "You're now a Premium member!",
             'body'      => $isTrial
-                ? "Your {$plan->name} free trial is active. Full access is yours — enjoy every feature."
-                : "Your {$plan->name} subscription is active. Full access is yours — enjoy every feature.",
+                ? "Your {$plan->name} free trial is active. Full access is yours, enjoy every feature."
+                : "Your {$plan->name} subscription is active. Full access is yours, enjoy every feature.",
             'detail'    => $endsAt
                 ? ($isTrial
                     ? "Trial ends on {$endsAt->format('F j, Y')}. After that, your subscription renews automatically unless cancelled."
                     : "Your subscription renews on {$endsAt->format('F j, Y')}. You can manage billing anytime via Google Play.")
-                : "Your lifetime access is active — no renewal needed.",
+                : "Your lifetime access is active, with no renewal needed.",
             'ctaLabel'  => 'Open the App',
         ]);
     }

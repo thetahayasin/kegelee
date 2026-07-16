@@ -40,7 +40,7 @@
                             <div>
                                 <input type="email" autocomplete="email" wire:model="email" placeholder="name@example.com"
                                        class="h-12 w-full rounded-xl border border-white/10 bg-surface-2 px-4 text-sm text-content focus:border-accent focus:outline-none">
-                                @error('email') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <button type="submit" x-bind:disabled="offline" wire:loading.attr="disabled" wire:target="sendCode"
                                     class="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent font-semibold tap disabled:opacity-60">
@@ -51,17 +51,17 @@
                         </form>
                     @else
                         <p class="mt-2 text-sm text-muted leading-relaxed">Enter the code sent to <strong class="text-content">{{ $email }}</strong> and choose a new password.</p>
-
+ 
                         <form wire:submit="submit" class="mt-4 space-y-3">
                             <div>
                                 <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" wire:model="code" placeholder="000000"
                                        class="h-12 w-full rounded-xl border border-white/10 bg-surface-2 text-center text-lg font-bold tracking-[0.3em] text-content focus:border-accent focus:outline-none">
-                                @error('code') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('code') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <input type="password" autocomplete="new-password" wire:model="password" placeholder="New password (6+ characters, 1 number)"
                                        class="h-12 w-full rounded-xl border border-white/10 bg-surface-2 px-4 text-sm text-content focus:border-accent focus:outline-none">
-                                @error('password') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('password') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <button type="submit" x-bind:disabled="offline" wire:loading.attr="disabled" wire:target="submit"
                                     class="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent font-semibold tap disabled:opacity-60">

@@ -3,9 +3,41 @@ import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee from '@notifee/react-native';
 import { api, setApiToken } from '../services/api';
-import { getDBUser, saveDBUser, clearUserData } from '../db/queries';
+import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount } from '../db/queries';
 import { syncNow } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
+import { googleNativeSignOut } from '../services/googleAuth';
+import { BASICS_LESSONS } from '../constants/basics';
+
+const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
+
+// Durable "gate is open" marker per account. Written when the user finishes
+// the basics on this device AND when a sign-in payload says the account
+// already cleared them (basics_completed) - so the gate is right immediately
+// and across cold starts, without waiting for a sync. Named under the
+// @basics_done_ prefix so logout's key sweep clears it with the lesson data.
+const basicsGateKey = (userId: number) => `@basics_done_gate_${userId}`;
+
+// Whether this account is past "Learn the basics": the persisted gate marker,
+// all three lessons recorded locally (kept in step with the backend's
+// completed_lessons by every sync), local training history, or admin. This is
+// the ONLY gate signal - deliberately NOT the backend onboarded_at, which is
+// set on Google sign-up before the lessons are ever done.
+const computeBasicsDone = async (userId: number, isAdmin: boolean): Promise<boolean> => {
+  if (isAdmin) return true;
+  try {
+    if ((await AsyncStorage.getItem(basicsGateKey(userId))) === '1') return true;
+  } catch (e) {}
+  try {
+    const raw = await AsyncStorage.getItem(`@basics_done_${userId}`);
+    const done: string[] = raw ? JSON.parse(raw) : [];
+    if (REQUIRED_LESSON_SLUGS.every((s) => done.includes(s))) return true;
+  } catch (e) {}
+  try {
+    if ((await getWorkoutSessionsCount(userId)) > 0) return true;
+  } catch (e) {}
+  return false;
+};
 
 export interface User {
   id: number;
@@ -25,11 +57,16 @@ interface AuthContextType {
   isLoading: boolean;
   onboarded: boolean;
   setOnboarded: (val: boolean) => Promise<void>;
+  // Gate for the authenticated app: false = user is held on "Learn the basics"
+  // until they finish it, true = the main app is unlocked.
+  basicsDone: boolean;
+  markBasicsDone: () => void;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   completeAuth: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   redeemGoogleLogin: (token: string) => Promise<{ success: boolean; error?: string }>;
+  googleNativeLogin: (idToken: string) => Promise<{ success: boolean; error?: string }>;
   updateUserFields: (fields: Partial<User>) => Promise<void>;
 }
 
@@ -39,7 +76,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [onboarded, setOnboardedState] = useState<boolean>(false);
+  const [basicsDone, setBasicsDone] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const markBasicsDone = () => {
+    setBasicsDone(true);
+    // Persist the gate marker and the full lesson set, so the next cold
+    // start's computeBasicsDone agrees with this decision even if one lesson's
+    // own AsyncStorage write was missed. This is what keeps a finished user
+    // going STRAIGHT to Training on every app open - never back to the list.
+    if (user) {
+      AsyncStorage.setItem(basicsGateKey(user.id), '1').catch(() => {});
+      AsyncStorage.setItem(
+        `@basics_done_${user.id}`,
+        JSON.stringify(REQUIRED_LESSON_SLUGS),
+      ).catch(() => {});
+    }
+  };
 
   // Initialize Auth State from storage & DB
   useEffect(() => {
@@ -68,6 +121,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               onboarded: cachedUser.onboarded_at !== null,
               timezone: cachedUser.timezone,
             });
+            // Decide the basics gate before we drop the splash, so a restored
+            // session lands on the right screen with no dashboard flash.
+            setBasicsDone(await computeBasicsDone(cachedUser.id, cachedUser.is_admin === 1));
           }
         }
       } catch (e) {
@@ -130,7 +186,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timezone: userPayload.timezone || null,
     };
 
+    // Decide the basics gate BEFORE revealing the authenticated navigator. The
+    // sign-in payload's basics_completed (admin / lessons done / training
+    // history, computed server-side) is authoritative for a RETURNING account;
+    // honoring it here sends the user straight to Training. A fresh account (or
+    // an older backend without the field) falls back to the local compute,
+    // which for a new user is correctly false. Persist the marker so cold
+    // starts agree even before the first sync lands.
+    let nextBasicsDone: boolean;
+    if (userPayload.basics_completed === true) {
+      try {
+        await AsyncStorage.setItem(basicsGateKey(localUser.id), '1');
+      } catch (e) {}
+      nextBasicsDone = true;
+    } else {
+      nextBasicsDone = await computeBasicsDone(localUser.id, localUser.is_admin);
+    }
+
+    // Reveal the app. setUser flips isAuthenticated to true; pairing it with the
+    // gate value in the SAME tick (no await between the two setState calls)
+    // batches them into ONE render, so the authenticated navigator mounts
+    // directly on the correct stack - no "Learn the basics" flash behind the
+    // notification permission dialog while basicsDone catches up.
+    setBasicsDone(nextBasicsDone);
     setUser(localUser);
+
+    // Migrate guest basics lessons progress to the logged-in user
+    AsyncStorage.getItem('@basics_done_guest')
+      .then(async guestProgress => {
+        if (guestProgress) {
+          const userProgressKey = `@basics_done_${localUser.id}`;
+          const existingUserProgress = await AsyncStorage.getItem(userProgressKey);
+          if (!existingUserProgress) {
+            await AsyncStorage.setItem(userProgressKey, guestProgress);
+          } else {
+            const guestLessons: string[] = JSON.parse(guestProgress);
+            const userLessons: string[] = JSON.parse(existingUserProgress);
+            const merged = Array.from(new Set([...userLessons, ...guestLessons]));
+            await AsyncStorage.setItem(userProgressKey, JSON.stringify(merged));
+          }
+        }
+      })
+      .catch(e => console.warn('Failed to migrate guest progress:', e));
 
     // Request notification permission and trigger background sync
     try {
@@ -145,18 +242,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // user never inherits the previous person's notifications.
     await cancelAllReminders();
 
-    syncNow(userPayload.id).catch(e => {
-      console.error('Failed to run initial sync on login', e);
-    });
+    syncNow(userPayload.id)
+      .catch(e => {
+        console.error('Failed to run initial sync on login', e);
+      })
+      .finally(async () => {
+        // Once this account's completed lessons / training history have landed
+        // locally, re-evaluate the gate so a returning user who already finished
+        // the basics unlocks the app without having to reopen it. RAISE-only:
+        // never set false here - the user may have completed the basics on this
+        // device while the sync was in flight (markBasicsDone already opened
+        // the app), and lowering the gate would yank them back to the lessons.
+        try {
+          if (await computeBasicsDone(localUser.id, localUser.is_admin)) {
+            setBasicsDone(true);
+          }
+        } catch (e) {}
+      });
   };
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
+    // Do NOT toggle the global isLoading here. Root renders the whole
+    // AppNavigator behind isLoading, so flipping it mid-call unmounts and
+    // remounts the auth stack, discarding any navigation the calling screen
+    // does next (e.g. Login -> VerifyEmail for an unverified account) and
+    // snapping back to the initial route. The screens own their button spinners.
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const res = await api.login({ email, password, timezone: tz });
-    setIsLoading(false);
 
     if (res.ok && res.data?.success) {
+      // Client-side guard: never sign in an account whose email isn't verified,
+      // even if the backend handed back a session. This holds the verify-first
+      // rule on-device regardless of the server, then routes to the code screen
+      // (making sure a fresh code is sent since we're not using the 403 path).
+      if (!res.data.user?.email_verified_at) {
+        try {
+          await api.resendVerification({ email });
+        } catch (e) {}
+        return { success: false, error: 'unverified' };
+      }
       await handleAuthResponse(res.data);
       return { success: true };
     }
@@ -164,10 +288,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string) => {
-    setIsLoading(true);
+    // See login(): never toggle the global isLoading here. Doing so remounts the
+    // auth navigator during signup, throwing away the RegisterScreen's
+    // navigate('VerifyEmail') and dumping the user back on the Login screen with
+    // no verification step. RegisterScreen shows its own button spinner.
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const res = await api.register({ name, email, password, timezone: tz });
-    setIsLoading(false);
 
     if (res.ok && res.data?.success) {
       // Deliberately do NOT authenticate yet. Signing in here would swap the
@@ -185,6 +311,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // accepted.
   const completeAuth = async (data: any) => {
     await handleAuthResponse(data);
+  };
+
+  // Fully native Google sign-in: the screen obtained an ID token from the
+  // native account picker; the backend verifies it and returns the standard
+  // auth payload. No global isLoading toggle (see login()) - the screens own
+  // their spinners, and the keyed container swaps phases once authed.
+  const googleNativeLogin = async (idToken: string) => {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const res = await api.googleToken(idToken, tz);
+
+    if (res.ok && res.data?.success) {
+      await handleAuthResponse(res.data);
+      return { success: true };
+    }
+    return { success: false, error: res.error || 'Google sign-in failed' };
   };
 
   const redeemGoogleLogin = async (googleRedeemToken: string) => {
@@ -207,6 +348,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // does not inherit the previous account's notifications.
     await cancelAllReminders();
 
+    // Drop the native Google session so the next sign-in shows the account
+    // picker instead of silently reusing this account.
+    await googleNativeSignOut();
+
     // Drop every cached "learn the basics" progress key (per-user and guest) so a
     // different account signing in on this device always starts the basics fresh
     // instead of showing another user's lessons as already completed.
@@ -223,6 +368,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
     setApiToken(null);
     setUser(null);
+    setBasicsDone(false);
 
     // Clear SQLite tables
     await clearUserData();
@@ -273,11 +419,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         onboarded,
         setOnboarded,
+        basicsDone,
+        markBasicsDone,
         login,
         register,
         completeAuth,
         logout,
         redeemGoogleLogin,
+        googleNativeLogin,
         updateUserFields,
       }}
     >

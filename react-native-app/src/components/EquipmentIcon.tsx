@@ -200,7 +200,10 @@ const Glyph = ({ glyph, g }: { glyph: string; g: string }) => {
 
 let _uid = 0;
 
-export const EquipmentIcon = ({
+// Memoized: rendered per-row in the Training rail and All Exercises list with
+// primitive props, so parent re-renders (focus reloads, sync refreshes) should
+// never re-reconcile these SVG trees.
+export const EquipmentIcon = React.memo(({
   slug,
   size = 56,
   bare = false,
@@ -240,7 +243,7 @@ export const EquipmentIcon = ({
       </Svg>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   tile: {

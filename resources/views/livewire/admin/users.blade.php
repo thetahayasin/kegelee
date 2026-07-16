@@ -25,17 +25,17 @@
             <div>
                 <label class="mb-1 block text-xs text-muted">Name</label>
                 <input type="text" wire:model="newName" class="h-10 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
-                @error('newName') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                @error('newName') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="mb-1 block text-xs text-muted">Email</label>
                 <input type="email" wire:model="newEmail" autocomplete="off" class="h-10 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
-                @error('newEmail') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                @error('newEmail') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="mb-1 block text-xs text-muted">Password</label>
                 <input type="text" wire:model="newUserPassword" autocomplete="off" class="h-10 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
-                @error('newUserPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                @error('newUserPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div class="flex items-end">
                 <button type="submit" class="h-10 w-full rounded-xl bg-accent font-semibold text-[var(--c-on-accent)] tap">Create &amp; verify</button>
@@ -132,13 +132,13 @@
                             <label class="mb-1 block text-sm text-muted">Name</label>
                             <input type="text" wire:model="editName" autocomplete="off"
                                    class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                            @error('editName') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                            @error('editName') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                         </div>
                         <div>
                             <label class="mb-1 block text-sm text-muted">Email</label>
                             <input type="email" wire:model="editEmail" autocomplete="off"
                                    class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                            @error('editEmail') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                            @error('editEmail') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                         </div>
                         <div class="flex gap-3">
                             <button type="button" @click="showEditModal = false" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>
@@ -168,7 +168,7 @@
                             <label class="mb-1 block text-sm text-muted">New password</label>
                             <input type="password" wire:model="newPassword" autocomplete="new-password"
                                    class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                            @error('newPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                            @error('newPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                         </div>
                         <div class="flex gap-3">
                             <button type="button" @click="showPwModal = false" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>

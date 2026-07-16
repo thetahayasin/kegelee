@@ -22,7 +22,7 @@
                     <a href="{{ $manageUrl }}" target="_blank" rel="noopener" class="flex items-center justify-between px-5 py-4 tap">
                         <div>
                             <p class="font-semibold">Cancel subscription</p>
-                            <p class="mt-0.5 text-sm text-muted">Opens Google Play — the only place to cancel or turn off auto-renew.</p>
+                            <p class="mt-0.5 text-sm text-muted">Opens Google Play (the only place to cancel or turn off auto-renew).</p>
                         </div>
                         <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
                     </a>
@@ -122,13 +122,13 @@
                     <div x-show="offline" x-cloak class="mt-3 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-medium text-accent-soft">
                         No internet connection. Connect to reset your progress.
                     </div>
-                    @error('reset') <p class="mt-3 text-sm text-accent-soft">{{ $message }}</p> @enderror
+                    @error('reset') <p class="mt-3 text-sm text-red-400">{{ $message }}</p> @enderror
 
                     <div class="mt-6 flex gap-3">
                         <button @click="showReset = false"
                                 class="h-12 flex-1 rounded-xl bg-white/5 font-semibold text-content tap">Cancel</button>
                         <button wire:click="resetProgress" x-bind:disabled="offline" wire:loading.attr="disabled" wire:target="resetProgress"
-                                class="h-12 flex-1 rounded-xl bg-accent font-semibold text-white tap disabled:opacity-60">
+                                class="h-12 flex-1 rounded-xl bg-red-500 font-semibold text-white tap disabled:opacity-60">
                             <span x-show="offline">No internet</span>
                             <span x-show="!offline" wire:loading.remove wire:target="resetProgress">Reset</span>
                             <span x-show="!offline" wire:loading wire:target="resetProgress">Resetting...</span>
@@ -157,7 +157,7 @@
 
                     @if ($deleteStep === 'warn')
                         <h2 class="text-lg font-bold text-content">Delete account?</h2>
-                        <p class="mt-2 text-sm text-muted leading-relaxed">This permanently deletes your account and all of your data — training days, sessions, measurements and progress. This <strong class="text-content">cannot be undone</strong>.</p>
+                        <p class="mt-2 text-sm text-muted leading-relaxed">This permanently deletes your account and all of your data: training days, sessions, measurements, and progress. This <strong class="text-content">cannot be undone</strong>.</p>
 
                         <div class="mt-3 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-left text-xs font-medium leading-relaxed text-red-300">
                             This does <strong>not</strong> cancel your Google Play subscription. Cancel it in Google Play first to stop being billed.

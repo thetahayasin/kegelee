@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   ScrollView,
   Dimensions,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
@@ -47,8 +48,11 @@ export const WorkoutCompleteScreen = () => {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   // Unlocks
-  const [unlockedNow, setUnlockedNow] = useState<string[]>([]);
+  const [unlockedNow, setUnlockedNow] = useState<any[]>([]);
   const [nextUnlock, setNextUnlock] = useState<any>(null);
+  // "Try the new exercise" prompt, shown when Continue is pressed on the
+  // session that just unlocked something.
+  const [showUnlockPrompt, setShowUnlockPrompt] = useState(false);
 
   const loadData = async () => {
     if (!user) return;
@@ -94,9 +98,9 @@ export const WorkoutCompleteScreen = () => {
 
       // 3. Unlocks checks
       // Newly unlocked at the current completed days count
-      const newlyUnlocked = Object.values(EXERCISES)
-        .filter((ex) => ex.unlock_after_days === pos.completed)
-        .map((ex) => ex.name);
+      const newlyUnlocked = Object.values(EXERCISES).filter(
+        (ex) => ex.unlock_after_days === pos.completed,
+      );
       setUnlockedNow(newlyUnlocked);
 
       // Next unlock candidate
@@ -297,7 +301,9 @@ export const WorkoutCompleteScreen = () => {
         {/* New exercise unlocked indicator (admins have everything unlocked) */}
         {!user?.is_admin && unlockedNow.length > 0 && (
           <View style={styles.unlockCard}>
-            <Text style={styles.unlockText}>Unlocked: {unlockedNow.join(', ')}</Text>
+            <Text style={styles.unlockText}>
+              Unlocked: {unlockedNow.map((ex) => ex.name).join(', ')}
+            </Text>
           </View>
         )}
 
@@ -323,11 +329,75 @@ export const WorkoutCompleteScreen = () => {
       <View style={styles.ctaContainer}>
         <TouchableOpacity
           style={styles.continueBtn}
-          onPress={() => navigation.navigate('MainTabs')}
+          onPress={() => {
+            // If THIS session completed the day that unlocked a new exercise
+            // (day completes on exactly the required session - extra sessions
+            // and the next day's sessions don't re-trigger), offer to try it
+            // before heading back to the dashboard.
+            if (
+              !user?.is_admin &&
+              unlockedNow.length > 0 &&
+              progress.complete &&
+              progress.done === progress.required
+            ) {
+              setShowUnlockPrompt(true);
+            } else {
+              navigation.navigate('MainTabs');
+            }
+          }}
         >
           <Text style={styles.continueBtnText}>Continue</Text>
         </TouchableOpacity>
       </View>
+
+      {/* New-exercise prompt: told it's unlocked, offered a first try. The
+          trial runs the single-exercise session, same as Try it now on the
+          exercise detail screen. */}
+      <Modal
+        visible={showUnlockPrompt}
+        animationType="fade"
+        transparent
+        onRequestClose={() => {
+          setShowUnlockPrompt(false);
+          navigation.navigate('MainTabs');
+        }}
+      >
+        <View style={styles.unlockOverlay}>
+          <View style={styles.unlockModal}>
+            <View style={styles.unlockIconTile}>
+              {unlockedNow[0] && <EquipmentIcon slug={unlockedNow[0].slug} size={44} />}
+            </View>
+            <Text style={styles.unlockModalTitle}>New exercise unlocked!</Text>
+            <Text style={styles.unlockModalBody}>
+              You've unlocked{' '}
+              <Text style={styles.unlockModalName}>
+                {unlockedNow.map((ex) => ex.name).join(', ')}
+              </Text>
+              . Want to give it a try right now?
+            </Text>
+            <View style={styles.unlockModalButtons}>
+              <TouchableOpacity
+                style={[styles.unlockModalBtn, styles.unlockLaterBtn]}
+                onPress={() => {
+                  setShowUnlockPrompt(false);
+                  navigation.navigate('MainTabs');
+                }}
+              >
+                <Text style={styles.unlockLaterBtnText}>Not now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.unlockModalBtn, styles.unlockTryBtn]}
+                onPress={() => {
+                  setShowUnlockPrompt(false);
+                  navigation.navigate('Workout', { trialSlug: unlockedNow[0].slug });
+                }}
+              >
+                <Text style={styles.unlockTryBtnText}>Try it now</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -546,6 +616,75 @@ const styles = StyleSheet.create({
   unlockRatioText: {
     fontSize: 12,
     color: COLORS.textMuted,
+  },
+  unlockOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  unlockModal: {
+    backgroundColor: COLORS.surface,
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+  },
+  unlockIconTile: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: 'rgba(193,255,114,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  unlockModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    textAlign: 'center',
+  },
+  unlockModalBody: {
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  unlockModalName: {
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  unlockModalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+    alignSelf: 'stretch',
+  },
+  unlockModalBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  unlockLaterBtn: {
+    backgroundColor: COLORS.surface2,
+  },
+  unlockLaterBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  unlockTryBtn: {
+    backgroundColor: COLORS.accent,
+  },
+  unlockTryBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.onAccent,
   },
   ctaContainer: {
     position: 'absolute',

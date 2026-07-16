@@ -35,12 +35,12 @@
             <div>
                 <input wire:model="current" type="password" placeholder="Current password" autocomplete="current-password"
                        class="h-12 w-full rounded-xl border border-white/10 bg-bg px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-                @error('current') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+                @error('current') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <input wire:model="password" type="password" placeholder="New password (6+ characters, 1 number)" autocomplete="new-password"
                        class="h-12 w-full rounded-xl border border-white/10 bg-bg px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-                @error('password') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+                @error('password') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <input wire:model="password_confirmation" type="password" placeholder="Confirm new password" autocomplete="new-password"

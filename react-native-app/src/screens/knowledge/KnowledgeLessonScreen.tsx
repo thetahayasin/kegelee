@@ -26,7 +26,7 @@ const LAST = 2;
 export const KnowledgeLessonScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'KnowledgeLesson'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields, user } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
   const { slug, index } = route.params;
 
   const [step, setStep] = useState(0);
@@ -47,8 +47,21 @@ export const KnowledgeLessonScreen = () => {
     } catch (e) {}
     if (isLastLesson) {
       if (isAuthenticated) {
-        await updateUserFields({ onboarded: true });
-        navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+        if (basicsDone) {
+          // Reviewing after onboarding (opened from Training): the gate is
+          // already open, so flipping it again is a no-op - just return to the
+          // basics list.
+          navigation.goBack();
+        } else {
+          // Flip the basics gate FIRST - that remounts the keyed
+          // NavigationContainer into the main-app phase (landing on MainTabs)
+          // immediately, so no manual navigation is needed here (and 'MainTabs'
+          // isn't even part of the gated navigator this screen is mounted in).
+          // The onboarded marker persists in the background: a slow or failing
+          // DB write must never leave the Done button doing nothing.
+          markBasicsDone();
+          updateUserFields({ onboarded: true }).catch(() => {});
+        }
       } else {
         // Guest completed learn the basics -> go to Login. This screen also lives
         // in the guest AuthStack (which has a Login route), so cast past the

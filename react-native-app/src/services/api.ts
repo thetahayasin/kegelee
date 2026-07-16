@@ -33,6 +33,11 @@ export const initApi = async () => {
   }
 };
 
+// Hard cap per request: fetch has NO timeout of its own, so on a dead
+// connection a request (and everything serialized behind it, like the sync
+// engine's in-flight lock) would otherwise hang indefinitely.
+const REQUEST_TIMEOUT_MS = 20000;
+
 const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => {
   const url = `${activeApiBase}/v1${endpoint}`;
   const headers: Record<string, string> = {
@@ -44,9 +49,13 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
     headers['X-User-Token'] = activeToken;
   }
 
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   const options: RequestInit = {
     method,
     headers,
+    signal: controller.signal,
   };
 
   if (body) {
@@ -83,8 +92,13 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
     return {
       ok: false,
       status: 0,
-      error: error.message || 'Network request failed',
+      error:
+        error?.name === 'AbortError'
+          ? 'Request timed out. Check your internet connection and try again.'
+          : error.message || 'Network request failed',
     };
+  } finally {
+    clearTimeout(timer);
   }
 };
 
@@ -98,6 +112,10 @@ export const api = {
   requestResetPasswordCode: (body: any) => request('/auth/reset-code', 'POST', body),
   resetPassword: (body: any) => request('/auth/reset', 'POST', body),
   googleRedeem: (token: string, timezone?: string) => request('/auth/google/redeem', 'POST', { token, timezone }),
+  // Fully native Google sign-in: post the ID token from the native account
+  // picker; the backend verifies it and returns the standard auth payload.
+  googleToken: (idToken: string, timezone?: string) =>
+    request('/auth/google/token', 'POST', { id_token: idToken, timezone }),
 
   // User actions
   deleteAccountCode: () => request('/user/delete-code', 'POST'),

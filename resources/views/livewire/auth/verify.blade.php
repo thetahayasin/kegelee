@@ -7,7 +7,7 @@
     <form wire:submit="verify" class="space-y-4">
         <input wire:model="code" inputmode="numeric" maxlength="6" placeholder="------"
                class="h-16 w-full rounded-2xl border border-white/10 bg-surface text-center text-3xl font-bold tracking-[0.5em] placeholder:text-muted focus:border-accent focus:outline-none">
-        @error('code') <p class="text-center text-sm text-accent-soft">{{ $message }}</p> @enderror
+        @error('code') <p class="text-center text-sm text-red-400">{{ $message }}</p> @enderror
         <p class="text-center text-xs text-muted">Code expires in 15 minutes</p>
         <button type="submit" wire:loading.attr="disabled" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap disabled:opacity-60">
             <span wire:loading.remove>Verify</span>

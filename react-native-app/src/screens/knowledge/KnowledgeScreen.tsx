@@ -31,7 +31,7 @@ const lessonIconPath = (i: number) =>
 
 export const KnowledgeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields, user } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
   const [done, setDone] = useState<string[]>([]);
 
   useFocusEffect(
@@ -106,17 +106,21 @@ export const KnowledgeScreen = () => {
           );
         })}
 
-        {/* Only during onboarding: once the user is onboarded this screen is a
-            review page (opened from Training), where the button is noise. */}
-        {isAuthenticated && allCompleted && user && !user.onboarded && (
+        {/* Only while still gated: once basics are done this screen is a review
+            page (opened from Training), where the button is noise. */}
+        {isAuthenticated && allCompleted && !basicsDone && (
           <TouchableOpacity
             style={styles.continueBtn}
-            onPress={async () => {
-              await updateUserFields({ onboarded: true });
-              navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+            onPress={() => {
+              // Flip the gate FIRST - that swaps the navigator to the main app
+              // (MainTabs) immediately; no manual reset needed (MainTabs isn't
+              // in this gated navigator anyway). Persist in the background so a
+              // slow/failing DB write can't make the button do nothing.
+              markBasicsDone();
+              updateUserFields({ onboarded: true }).catch(() => {});
             }}
           >
-            <Text style={styles.continueBtnText}>Continue to Dashboard</Text>
+            <Text style={styles.continueBtnText}>Continue to Training</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

@@ -19,13 +19,14 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
 import Svg, { Path } from 'react-native-svg';
 import { api, getWebBaseUrl } from '../../services/api';
+import { nativeGoogleSignIn } from '../../services/googleAuth';
 import { getAppSetting } from '../../db/queries';
 import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
 
 export const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { login } = useAuth();
+  const { login, googleNativeLogin } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -74,7 +75,11 @@ export const LoginScreen = () => {
     const res = await login(email.trim().toLowerCase(), password);
     setLoading(false);
     if (!res.success) {
-      setError(res.error || 'Invalid credentials.');
+      if (res.error === 'unverified') {
+        navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
+      } else {
+        setError(res.error || 'Invalid credentials.');
+      }
     }
   };
 
@@ -82,15 +87,26 @@ export const LoginScreen = () => {
     setError('');
     setGoogleLoading(true);
     try {
-      // Open the backend's Google OAuth start in the system browser. Google
-      // blocks OAuth inside embedded WebViews, so this must be a real browser.
-      // It returns to the app via the kegelee://auth/google/finish deeplink,
-      // which AuthContext redeems - the app then navigates itself once signed in.
-      const url = `${getWebBaseUrl()}/auth/google/native`;
-      const opened = await Linking.openURL(url);
-      // openURL resolves once the browser is handed the URL; the app is now
-      // backgrounded until the deeplink returns.
-      void opened;
+      // Native first: the system Google account picker, no browser. The
+      // backend verifies the resulting ID token and signs the account in.
+      const native = await nativeGoogleSignIn();
+      if (native.status === 'success') {
+        const res = await googleNativeLogin(native.idToken);
+        if (!res.success) {
+          setError(res.error || 'Google sign-in failed. Please try again.');
+        }
+        // On success the auth context is populated and the keyed navigator
+        // swaps phases by itself - nothing to do here.
+        return;
+      }
+      if (native.status === 'cancelled') {
+        return;
+      }
+
+      // Native unavailable (no Play Services, client id not configured, ...):
+      // fall back to the browser Custom-Tab flow. It returns via the
+      // kegelee://auth/google/finish deeplink, which AuthContext redeems.
+      await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch (err: any) {
       setError('Could not open Google sign-in. Please try again.');
     } finally {
@@ -163,7 +179,20 @@ export const LoginScreen = () => {
         <View style={styles.inner}>
           <Text style={styles.title}>Log In</Text>
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
+                  stroke={COLORS.accent}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
 
           <View style={styles.form}>
             <TextInput
@@ -257,8 +286,34 @@ export const LoginScreen = () => {
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Reset Password</Text>
-              {resetError ? <Text style={styles.errorText}>{resetError}</Text> : null}
-              {resetSuccess ? <Text style={styles.successText}>{resetSuccess}</Text> : null}
+              {resetError ? (
+                <View style={styles.errorContainer}>
+                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
+                      stroke={COLORS.accent}
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                  <Text style={styles.errorText}>{resetError}</Text>
+                </View>
+              ) : null}
+              {resetSuccess ? (
+                <View style={styles.successContainer}>
+                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"
+                      stroke={COLORS.accent}
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                  <Text style={styles.successText}>{resetSuccess}</Text>
+                </View>
+              ) : null}
 
               {!resetCodeSent ? (
                 <TextInput
@@ -331,7 +386,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 12,
     paddingTop: 8,
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
   },
   closeBtn: {
     width: 40,
@@ -432,17 +487,41 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontWeight: 'bold',
   },
-  errorText: {
-    color: COLORS.danger,
-    textAlign: 'center',
-    fontSize: 14,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+    borderColor: 'rgba(193, 255, 114, 0.25)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     marginBottom: 16,
+    gap: 10,
+  },
+  errorText: {
+    flex: 1,
+    color: COLORS.accent,
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  successContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+    borderColor: 'rgba(193, 255, 114, 0.25)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 16,
+    gap: 10,
   },
   successText: {
+    flex: 1,
     color: COLORS.accent,
-    textAlign: 'center',
     fontSize: 14,
-    marginBottom: 16,
+    lineHeight: 18,
   },
   modalOverlay: {
     flex: 1,

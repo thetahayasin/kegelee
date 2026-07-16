@@ -112,25 +112,25 @@
                             <div>
                                 <input type="text" wire:model="name" placeholder="Full name" autocomplete="name"
                                        class="h-12 w-full rounded-xl border border-white/5 bg-surface-2 px-4 text-sm focus:border-accent focus:outline-none">
-                                @error('name') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('name') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <input type="email" wire:model="email" placeholder="Email address" autocomplete="email"
                                        class="h-12 w-full rounded-xl border border-white/5 bg-surface-2 px-4 text-sm focus:border-accent focus:outline-none">
-                                @error('email') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <input type="password" wire:model="password" placeholder="Password (6+ characters, 1 number)" autocomplete="new-password"
                                        class="h-12 w-full rounded-xl border border-white/5 bg-surface-2 px-4 text-sm focus:border-accent focus:outline-none">
-                                @error('password') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('password') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <input type="password" wire:model="password_confirmation" placeholder="Confirm password" autocomplete="new-password"
                                        class="h-12 w-full rounded-xl border border-white/5 bg-surface-2 px-4 text-sm focus:border-accent focus:outline-none">
-                                @error('password_confirmation') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('password_confirmation') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             @if ($message && ! $errors->any())
-                                <p class="text-sm text-accent-soft">{{ $message }}</p>
+                                <p class="text-sm text-red-400">{{ $message }}</p>
                             @endif
                             <button type="submit" class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-bold text-white tap">
                                 <span wire:loading.remove wire:target="register">Create account &amp; subscribe</span>
@@ -157,15 +157,15 @@
                             <div>
                                 <input type="email" wire:model="email" placeholder="Email address" autocomplete="email"
                                        class="h-12 w-full rounded-xl border border-white/5 bg-surface-2 px-4 text-sm focus:border-accent focus:outline-none">
-                                @error('email') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <input type="password" wire:model="password" placeholder="Password" autocomplete="current-password"
                                        class="h-12 w-full rounded-xl border border-white/5 bg-surface-2 px-4 text-sm focus:border-accent focus:outline-none">
-                                @error('password') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('password') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             @if ($message && ! $errors->any())
-                                <p class="text-sm text-accent-soft">{{ $message }}</p>
+                                <p class="text-sm text-red-400">{{ $message }}</p>
                             @endif
                             <button type="submit" class="grid h-14 w-full place-items-center rounded-2xl bg-accent font-bold text-white tap">
                                 <span wire:loading.remove wire:target="login">Sign in &amp; subscribe</span>

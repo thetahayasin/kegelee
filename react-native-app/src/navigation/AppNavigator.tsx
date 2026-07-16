@@ -22,6 +22,7 @@ import { KnowledgeScreen } from '../screens/knowledge/KnowledgeScreen';
 import { KnowledgeLessonScreen } from '../screens/knowledge/KnowledgeLessonScreen';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PlatformPressable } from '@react-navigation/elements';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 import { COLORS } from '../theme/colors';
 
@@ -101,6 +102,15 @@ const TabNavigator = () => {
         lazy: true,
         freezeOnBlur: true,
         tabBarIcon: ({ color }) => <TabIcon name={route.name} color={color} />,
+        // The default tab button's Android ripple is borderless with no
+        // radius, so a tap floods the whole tab slot with a huge circle.
+        // Bound it to a compact icon-hugging circle (Material 3 style).
+        tabBarButton: (props) => (
+          <PlatformPressable
+            {...props}
+            android_ripple={{ borderless: true, radius: 28 }}
+          />
+        ),
         tabBarActiveTintColor: COLORS.accent,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarStyle: {
@@ -125,7 +135,7 @@ const TabNavigator = () => {
 };
 
 export const AppNavigator = () => {
-  const { isAuthenticated, onboarded, setOnboarded, user } = useAuth();
+  const { isAuthenticated, onboarded, setOnboarded, basicsDone } = useAuth();
 
   if (!isAuthenticated) {
     // Guests share ONE stack. New guests start on the onboarding slides; once
@@ -149,10 +159,33 @@ export const AppNavigator = () => {
     );
   }
 
+  // Authenticated but not yet past "Learn the basics": hold the user on the
+  // lessons. Only Knowledge + KnowledgeLesson are reachable, so there is no way
+  // to slip into the app early. Finishing the last lesson flips basicsDone in
+  // context, which swaps this navigator for the main app below - the transition
+  // is driven by state, so it happens live, with no dashboard flash and without
+  // needing to reopen the app.
+  if (!basicsDone) {
+    return (
+      // key: this branch and the main stack below render the SAME Stack.Navigator
+      // component type, so without distinct keys React updates the mounted
+      // navigator in place when basicsDone flips - and React Navigation then
+      // keeps its current state (KnowledgeLesson exists in both screen sets;
+      // initialRouteName only applies on first mount), leaving the user stuck on
+      // the finished lesson. Distinct keys force a remount, which is what
+      // actually swaps to MainTabs the moment the basics are completed.
+      <Stack.Navigator key="basics-gate" screenOptions={{ headerShown: false }} initialRouteName="Knowledge">
+        <Stack.Screen name="Knowledge" component={KnowledgeScreen} />
+        <Stack.Screen name="KnowledgeLesson" component={KnowledgeLessonScreen} />
+      </Stack.Navigator>
+    );
+  }
+
   return (
     <Stack.Navigator
+      key="main-app"
       screenOptions={{ headerShown: false }}
-      initialRouteName={user?.onboarded ? 'MainTabs' : 'Knowledge'}
+      initialRouteName="MainTabs"
     >
       <Stack.Screen name="MainTabs" component={TabNavigator} />
       <Stack.Screen name="Workout" component={WorkoutScreen} />

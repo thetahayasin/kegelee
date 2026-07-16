@@ -11,6 +11,14 @@ export const getDBConnection = async () => {
 
 export const initDB = async () => {
   const db = await getDBConnection();
+
+  // Write-ahead logging: readers never block on the sync engine's writes, and
+  // bursts of inserts hit disk once instead of per-statement. Best-effort - the
+  // journal mode persists in the db file, and a failure just keeps the default.
+  try {
+    await db.executeSql('PRAGMA journal_mode=WAL;');
+  } catch (e) {}
+
   await db.transaction((tx: any) => {
     // 1. Users table
     tx.executeSql(`
@@ -120,6 +128,16 @@ export const initDB = async () => {
       );
     `);
     
+    // Indexes for the hot query paths: every screen filters by user_id (often
+    // ordered by the time column), and the sync engine scans for synced = 0.
+    // IF NOT EXISTS keeps re-runs free.
+    tx.executeSql('CREATE INDEX IF NOT EXISTS idx_ws_user_completed ON workout_sessions (user_id, completed_at);');
+    tx.executeSql('CREATE INDEX IF NOT EXISTS idx_ws_user_synced ON workout_sessions (user_id, synced);');
+    tx.executeSql('CREATE INDEX IF NOT EXISTS idx_m_user_measured ON measurements (user_id, measured_at);');
+    tx.executeSql('CREATE INDEX IF NOT EXISTS idx_m_user_synced ON measurements (user_id, synced);');
+    tx.executeSql('CREATE INDEX IF NOT EXISTS idx_sub_user ON subscriptions (user_id);');
+    tx.executeSql('CREATE INDEX IF NOT EXISTS idx_sub_token ON subscriptions (purchase_token);');
+
     // Seed default settings if empty
     tx.executeSql(`
       INSERT OR IGNORE INTO app_settings (key, value, type) VALUES 

@@ -109,7 +109,10 @@ const buildExercises = (): Record<string, ExerciseDef> => {
       summary: 'Squeeze up slowly, let go at once',
       description: 'A slow, focused squeeze of the front pelvic floor with a quick clean release.',
       how_to: 'Tighten slowly over 3 seconds as the circle fills. When it empties, let go all at once. Then start the next slow squeeze.',
-      pattern: [seg(3, 0, 1, 'Contract slowly'), hold(1, 0, 'Release')],
+      // Release is a 0.3s beat, not a full second: just enough for the drop
+      // cue + haptic to register, then the next slow squeeze starts instantly
+      // (deliberate divergence from the web's 1s hold - it read as dead time).
+      pattern: [seg(3, 0, 1, 'Contract slowly'), hold(0.3, 0, 'Release')],
     },
     {
       name: 'Reverse Clamp',

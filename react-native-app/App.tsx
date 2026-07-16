@@ -55,13 +55,29 @@ const SplashLoading = () => (
   </View>
 );
 
-/** Waits for the session restore before revealing the navigator. */
+/**
+ * Waits for the session restore before revealing the navigator.
+ *
+ * The NavigationContainer is keyed by the auth phase (guest / basics gate /
+ * main app). Navigation STATE lives in the container, not in the navigators:
+ * when AppNavigator swaps stacks on a phase change, a fresh navigator adopts
+ * the container's previous state whenever the old route names also exist in
+ * the new stack (Knowledge/KnowledgeLesson live in both), so completing the
+ * basics re-showed the just-finished lesson instead of landing on MainTabs.
+ * Re-keying the container guarantees each phase starts with a clean tree at
+ * its own initialRouteName.
+ */
 const Root = () => {
-  const { isLoading } = useAuth();
+  const { isLoading, isAuthenticated, basicsDone } = useAuth();
   if (isLoading) {
     return <SplashLoading />;
   }
-  return <AppNavigator />;
+  const phase = !isAuthenticated ? 'guest' : basicsDone ? 'app' : 'gate';
+  return (
+    <NavigationContainer key={phase} theme={navTheme}>
+      <AppNavigator />
+    </NavigationContainer>
+  );
 };
 
 const App = () => {
@@ -92,9 +108,7 @@ const App = () => {
         <ErrorBoundary>
           {dbReady ? (
             <AuthProvider>
-              <NavigationContainer theme={navTheme}>
-                <Root />
-              </NavigationContainer>
+              <Root />
             </AuthProvider>
           ) : (
             <SplashLoading />

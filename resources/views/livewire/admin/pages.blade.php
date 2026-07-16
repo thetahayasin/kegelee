@@ -33,12 +33,12 @@
                 <div>
                     <label class="mb-1 block text-sm text-muted">Title</label>
                     <input wire:model="title" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                    @error('title') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+                    @error('title') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="mb-1 block text-sm text-muted">Slug</label>
                     <input wire:model="slug" placeholder="auto from title" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                    @error('slug') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+                    @error('slug') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
                 </div>
             </div>
 

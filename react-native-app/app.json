@@ -1,4 +1,9 @@
 {
   "name": "Kegelee",
-  "displayName": "Kegelee"
+  "displayName": "Kegelee",
+  "extra": {
+    "eas": {
+      "projectId": "f8da3605-3f98-460b-900a-f37b4c4ff12d"
+    }
+  }
 }

@@ -1,0 +1,105 @@
+Found 104 occurrences:
+app\Http\Controllers\SyncController.php:108 -> // --- Level (chosen difficulty) — so a level change persists server-side. ---
+app\Http\Controllers\SyncController.php:388 -> * POST /api/v1/user/reset — wipe the acting user's progress on the backend
+app\Http\Middleware\SyncWithBackend.php:17 -> * CRITICAL: the sync runs in terminate() — AFTER the response is sent — never in
+app\Http\Middleware\SyncWithBackend.php:34 -> // Never sync here — rendering must not wait on the network.
+app\Http\Middleware\SyncWithBackend.php:103 -> // Only on top-level page navigations — skip XHR, Livewire updates,
+app\Livewire\Admin\Settings.php:68 -> // JSON fields decoded to arrays by SettingsService — re-encode as
+app\Livewire\Admin\Users.php:77 -> $this->statusMessage = "User {$user->email} created and verified — they can log in now.";
+app\Livewire\App\ChangePassword.php:34 -> // internet). Only mirror the new hash locally once the server confirms —
+app\Livewire\App\Levels.php:30 -> // Best-effort — the periodic sync will catch it.
+app\Livewire\App\Onboarding.php:50 -> // register link, or logout) — and ALSO when onboarding is disabled, so a
+app\Livewire\App\Paywall.php:26 -> *   then start the new (cheaper) plan — the user keeps what they paid for.
+app\Livewire\App\Paywall.php:84 -> // mode by direction — upgrades switch now, downgrades defer to period end
+app\Livewire\App\Paywall.php:174 -> // expiryTimeMillis — no manual day-carry. Just retire our old record;
+app\Livewire\App\Reminders.php:16 -> /** Selected weekdays (ints 0-6, 0 = Monday) — shared across all times. */
+app\Livewire\App\Reminders.php:32 -> /** True after a reschedule — old alarms can't be auto-deleted via the Clock API. */
+app\Livewire\App\Reminders.php:213 -> /** Real device with a Clock app — uses the runtime bridge, never cached config. */
+app\Livewire\App\Settings.php:159 -> // Google Play subscription centre deep link — the only place Play allows
+app\Livewire\App\Workout.php:68 -> /** One full cycle (contract + relax) — or 5s for a sustained hold. */
+app\Mail\SubscriptionStartedMail.php:40 -> ? "Your {$plan->name} free trial is active. Full access is yours — enjoy every feature."
+app\Mail\SubscriptionStartedMail.php:41 -> : "Your {$plan->name} subscription is active. Full access is yours — enjoy every feature.",
+app\Mail\SubscriptionStartedMail.php:46 -> : "Your lifetime access is active — no renewal needed.",
+app\Services\SettingsService.php:84 -> 'home_subheadline' => 'Science-backed Kegel training with guided exercises, real-time coaching, and daily progress tracking — all in one beautiful app.',
+app\Services\SettingsService.php:103 -> ['number' => '02', 'title' => 'Follow the circle', 'desc' => 'The animated ring tells you exactly when to squeeze and when to relax — no guessing.'],
+app\Services\Sync\UserSyncService.php:127 -> // device is the writer for those — it changes them locally and
+bootstrap\app.php:53 -> // errors — otherwise the client receives an HTML stack trace and the
+config\mobile-splashscreen.php:12 -> | handling — no animation, background, or progress bar from this package.
+config\mobile-splashscreen.php:41 -> |              Supports both dotLottie v1 and v2 — v2 is auto-converted
+config\mobile-splashscreen.php:274 -> | The schedule is evaluated at runtime on the device — no rebuild needed.
+config\mobile-splashscreen.php:295 -> | Date format — two styles, mix freely:
+config\mobile-splashscreen.php:300 -> | wins — so you can override a season for one particular year.
+config\nativephp.php:106 -> | always wins — useful when multiple plugins claim the same key (e.g.
+config\nativephp.php:136 -> | in their nativephp.json — app-level entries win on key collisions.
+config\nativephp.php:360 -> // Default off — the terminal renders a scannable QR. Pass --browser
+packages\taha\nativephp-android-alarms\README.md:7 -> alarm engine of its own** — no `AlarmManager`, no `BroadcastReceiver`, no boot
+packages\taha\nativephp-android-alarms\README.md:16 -> `USE_EXACT_ALARM` — the Clock app handles exactness.
+packages\taha\nativephp-android-alarms\README.md:22 -> The only permission is `com.android.alarm.permission.SET_ALARM` — a **normal,
+packages\taha\nativephp-android-alarms\README.md:42 -> `BridgeRegistration.kt` / `PluginBridgeFunctionRegistration.kt` — the build tool
+packages\taha\nativephp-android-alarms\README.md:78 -> ## Scheduling logic — fewest intents
+packages\taha\nativephp-android-alarms\README.md:98 -> > `ActivityNotFoundException` when firing — alarms work without a `<queries>`
+packages\taha\nativephp-android-alarms\README.md:101 -> ## The one real limitation — deletion
+packages\taha\nativephp-android-alarms\README.md:108 -> Handle it honestly — don't pretend to "replace". On reschedule:
+packages\taha\nativephp-android-alarms\README.md:120 -> - **Identical alarms may be re-used by the Clock app** rather than duplicated —
+packages\taha\nativephp-android-alarms\README.md:138 -> surprising — the user is explicitly told the app adds alarms to their Clock app.
+public\offline.html:7 -> <title>Offline — Kegel Trainer</title>
+public\offline.html:49 -> <p>Don't worry — your training data is saved locally. Connect to the internet to sync your progress.</p>
+public\sw.js:8 -> // INSTALL — pre-cache the offline fallback.
+public\sw.js:19 -> // ACTIVATE — clean old caches, claim clients immediately.
+public\sw.js:30 -> // FETCH — strategy depends on the request type.
+public\sw.js:41 -> // Skip API routes — the sync engine handles these directly.
+public\sw.js:44 -> // Skip auth-related routes — these must always be fresh.
+react-native-app\src\screens\exercise\AllExercisesScreen.tsx:32 -> // Full catalogue with per-exercise unlock progress bars — mirrors the web
+react-native-app\src\screens\settings\SettingsScreen.tsx:186 -> Opens Google Play — the only place to cancel or turn off auto-renew.
+react-native-app\src\screens\settings\SettingsScreen.tsx:315 -> This permanently deletes your account and all of your data — training days, sessions, measurements and progress. This <Text style={{ fontWeight: 'bold', color: COLORS.white }}>cannot be undone</Text>.
+resources\css\app.css:94 -> /* lvh = large viewport height — stays constant while keyboard is open. */
+resources\js\app.js:6 -> // Offline-first sync engine — IndexedDB + server two-way sync
+resources\js\app.js:40 -> // Back/forward can restore a stale page from the browser's bfcache — e.g. the
+resources\js\app.js:50 -> // The Home (training), Profile and Difficulty screens show level-derived data —
+resources\js\app.js:191 -> // Signing out: a hard redirect is in flight — abandon quietly, never
+resources\js\app.js:263 -> // Reconcile the banner with REAL connectivity — the OS online flag lies, so we
+resources\js\app.js:293 -> // Instant OS signals plus an adaptive real probe — shorter interval while
+resources\js\app.js:356 -> // Content is here — clear the retry counter for the next time.
+resources\js\offline-db.js:2 -> * Kegelee Offline Database — IndexedDB wrapper.
+resources\js\offline-db.js:19 -> // User data — queued for push
+resources\js\sync-engine.js:2 -> * Kegelee Sync Engine — two-way offline-first sync.
+resources\js\sync-engine.js:85 -> // PULL — note the last successful content check (pages sync server-side).
+resources\js\sync-engine.js:103 -> // Network error — silently skip.
+resources\js\sync-engine.js:108 -> // PUSH — send queued user data (sessions, measurements) to the server.
+resources\js\sync-engine.js:155 -> // Auth expired — keep data, retry after login.
+resources\js\sync-engine.js:175 -> // Network error — keep data, retry later.
+resources\js\sync-engine.js:180 -> // PULL user data — re-hydrate IndexedDB from server (fresh install).
+resources\js\sync-engine.js:197 -> // Store server sessions — deduplicate by completed_at timestamp against
+resources\js\sync-engine.js:222 -> // Store server measurements — same deduplication.
+resources\js\sync-engine.js:270 -> // Queue helpers — called from Livewire/Alpine when user completes an action.
+resources\js\sync-engine.js:329 -> // Server-side sync — asks the LOCAL device server to pull fresh backend
+resources\js\sync-engine.js:422 -> // Boot — initialize the sync engine.
+resources\js\sync-engine.js:462 -> // Initial sync shortly after load — fullSync() self-gates on real connectivity.
+resources\views\components\layouts\page.blade.php:31 -> {{-- Public header — always reachable, no app/auth dependency. --}}
+resources\views\livewire\admin\settings.blade.php:130 -> <p class="mt-1 text-xs text-muted">Paste the full contents of the downloaded <code>.json</code> key file. Stored encrypted at rest — never exposed to the app.</p>
+resources\views\livewire\admin\settings.blade.php:143 -> <p class="mt-1 text-xs text-muted">Set to 0 to disable trials. Applies to every plan — there are no per-plan trial periods.</p>
+resources\views\livewire\admin\settings.blade.php:280 -> <p class="mt-2 text-xs font-semibold text-accent-soft">⚠ App is currently closed — web users will see the landing page.</p>
+resources\views\livewire\admin\subscriptions.blade.php:65 -> <p class="font-medium">{{ $sub->user?->name ?? '—' }}</p>
+resources\views\livewire\admin\subscriptions.blade.php:69 -> <td class="p-4">{{ $sub->plan?->name ?? '—' }}</td>
+resources\views\livewire\admin\subscriptions.blade.php:83 -> <td class="p-4 capitalize text-muted">{{ str_replace('_', ' ', $sub->store ?? '—') }}</td>
+resources\views\livewire\admin\subscriptions.blade.php:134 -> <div><span class="text-muted">Started</span><span class="ml-2">{{ $sub->started_at?->format('j M Y') ?? '—' }}</span></div>
+resources\views\livewire\admin\subscriptions.blade.php:135 -> <div><span class="text-muted">Trial ends</span><span class="ml-2">{{ $sub->trial_ends_at?->format('j M Y') ?? '—' }}</span></div>
+resources\views\livewire\admin\subscriptions.blade.php:136 -> <div><span class="text-muted">Canceled at</span><span class="ml-2">{{ $sub->canceled_at?->format('j M Y H:i') ?? '—' }}</span></div>
+resources\views\livewire\admin\subscriptions.blade.php:137 -> <div><span class="text-muted">Order ID</span><span class="ml-2 font-mono text-xs">{{ $sub->google_order_id ?? $sub->store_transaction_id ?? '—' }}</span></div>
+resources\views\livewire\admin\subscriptions.blade.php:138 -> <div class="sm:col-span-3 break-all"><span class="text-muted">Purchase token</span><span class="ml-2 font-mono text-xs">{{ $sub->purchase_token ? substr($sub->purchase_token, 0, 60).'…' : '—' }}</span></div>
+resources\views\livewire\admin\subscriptions.blade.php:192 -> <option value="{{ $p->id }}">{{ $p->name }} — ${{ number_format($p->price, 2) }}/{{ $p->interval }}</option>
+resources\views\livewire\admin\subscriptions.blade.php:279 -> <option value="{{ $p->id }}">{{ $p->name }} — ${{ number_format($p->price,2) }}/{{ $p->interval }}</option>
+resources\views\livewire\app\home.blade.php:13 -> // (We no longer override from IndexedDB — that showed a stale 'null/2'
+resources\views\livewire\app\progress-tracker.blade.php:10 -> for a parallel Alpine/IndexedDB recalculation — and removing it kills the
+resources\views\livewire\app\progress-tracker.blade.php:115 -> {{-- Press & hold — captures a result on release (no auto-save) --}}
+resources\views\livewire\app\settings.blade.php:25 -> <p class="mt-0.5 text-sm text-muted">Opens Google Play — the only place to cancel or turn off auto-renew.</p>
+resources\views\livewire\app\settings.blade.php:160 -> <p class="mt-2 text-sm text-muted leading-relaxed">This permanently deletes your account and all of your data — training days, sessions, measurements and progress. This <strong class="text-content">cannot be undone</strong>.</p>
+resources\views\livewire\app\workout.blade.php:258 -> // Raw (non-ceiled) remaining for the current exercise block — used for smooth circle progress.
+resources\views\livewire\app\workout.blade.php:444 -> {{-- Exercise carousel — auto-centres on the active item; not user-scrollable; full text on one line --}}
+routes\api.php:8 -> | Sync API — per-user token auth (X-User-Token)
+routes\api.php:38 -> // Password reset (emailed code) — no session needed, the code proves identity.
+routes\api.php:47 -> // User-specific data — requires auth session cookie.
+routes\web.php:37 -> | On-demand sync — the device app calls this when connectivity returns so
+routes\web.php:47 -> | Public marketing homepage — shown at / when homepage_enabled is true.
+routes\web.php:59 -> // Legal / policy pages — always public so they work even when the web app is
+routes\web.php:87 -> // Native Google OAuth finish — OUTSIDE the guest group. The deeplink return can

@@ -29,7 +29,7 @@ type Row = {
   pct: number;
 };
 
-// Full catalogue with per-exercise unlock progress bars — mirrors the web
+// Full catalogue with per-exercise unlock progress bars, mirroring the web
 // exercises/index page reached from the Training rail's "See All".
 export const AllExercisesScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();

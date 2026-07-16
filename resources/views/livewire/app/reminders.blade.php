@@ -27,7 +27,7 @@
                         ])>{{ $label }}</button>
             @endforeach
         </div>
-        @error('selectedDays') <p class="mt-2 text-sm text-accent-soft">{{ $message }}</p> @enderror
+        @error('selectedDays') <p class="mt-2 text-sm text-red-400">{{ $message }}</p> @enderror
     </section>
 
     {{-- Times: every session time fires on every selected day --}}
@@ -48,7 +48,7 @@
                 </div>
             @endforeach
 
-            @error('times.*') <p class="px-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('times.*') <p class="px-1 text-sm text-red-400">{{ $message }}</p> @enderror
 
             <button wire:click="addTime" type="button"
                     class="flex w-full items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold text-accent tap">

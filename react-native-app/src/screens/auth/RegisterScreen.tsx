@@ -15,13 +15,14 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
 import { getWebBaseUrl } from '../../services/api';
+import { nativeGoogleSignIn } from '../../services/googleAuth';
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
 
 export const RegisterScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const { register } = useAuth();
+  const { register, googleNativeLogin } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -67,7 +68,21 @@ export const RegisterScreen = () => {
     setError('');
     setGoogleLoading(true);
     try {
-      // Same backend Custom-Tab flow as login; Google finds-or-creates the user.
+      // Native first (system account picker); Google finds-or-creates the
+      // user server-side, so sign-up and sign-in are the same call.
+      const native = await nativeGoogleSignIn();
+      if (native.status === 'success') {
+        const res = await googleNativeLogin(native.idToken);
+        if (!res.success) {
+          setError(res.error || 'Google sign-up failed. Please try again.');
+        }
+        return;
+      }
+      if (native.status === 'cancelled') {
+        return;
+      }
+
+      // Fallback: the backend Custom-Tab flow (returns via deeplink).
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch (e) {
       setError('Could not open Google sign-up. Please try again.');
@@ -96,7 +111,20 @@ export const RegisterScreen = () => {
         <View style={styles.inner}>
           <Text style={styles.title}>Create Account</Text>
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
+                  stroke={COLORS.accent}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
 
           <View style={styles.form}>
             <TextInput
@@ -191,7 +219,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 12,
     paddingTop: 8,
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
   },
   closeBtn: {
     width: 40,
@@ -285,10 +313,22 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     marginLeft: 12,
   },
-  errorText: {
-    color: COLORS.danger,
-    textAlign: 'center',
-    fontSize: 14,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+    borderColor: 'rgba(193, 255, 114, 0.25)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     marginBottom: 16,
+    gap: 10,
+  },
+  errorText: {
+    flex: 1,
+    color: COLORS.accent,
+    fontSize: 14,
+    lineHeight: 18,
   },
 });

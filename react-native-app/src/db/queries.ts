@@ -270,6 +270,141 @@ export const getUnsyncedMeasurements = async (userId: number): Promise<DBMeasure
   return query('SELECT * FROM measurements WHERE user_id = ? AND synced = 0', [userId]);
 };
 
+// --- Server-authoritative rehydration (used by sync) ---
+// The /user/pull endpoint returns the last 200 sessions / 100 measurements in
+// FULL on every sync, so a plain INSERT would pile up a fresh copy of every row
+// each time. These bulk upserts read the existing time keys ONCE, then insert
+// only the missing rows inside a single transaction - one write-lock and one
+// disk sync per sync run instead of two bridge round-trips per row.
+
+// Normalise a timestamp to its whole second for identity comparison: a locally
+// recorded row ("...:00.123Z") and its server-pulled copy ("...:00+00:00") are
+// the same instant in different ISO formats. The backend de-dupes within a 5s
+// window, so the whole second uniquely identifies a row for a given user.
+const timeBucket = (t: string): string => {
+  const parsed = Date.parse(t);
+  return isNaN(parsed) ? String(t) : String(Math.floor(parsed / 1000));
+};
+
+export const bulkUpsertPulledWorkoutSessions = async (
+  userId: number,
+  rows: DBWorkoutSession[]
+): Promise<void> => {
+  if (rows.length === 0) return;
+  const db = await getDBConnection();
+  const [res] = await db.executeSql(
+    'SELECT completed_at FROM workout_sessions WHERE user_id = ?',
+    [userId]
+  );
+  const existing = new Set<string>();
+  for (let i = 0; i < res.rows.length; i++) {
+    existing.add(timeBucket(res.rows.item(i).completed_at));
+  }
+  const missing = rows.filter((s) => {
+    const key = timeBucket(s.completed_at);
+    if (existing.has(key)) return false;
+    existing.add(key); // also guards against duplicates within the batch
+    return true;
+  });
+  if (missing.length === 0) return;
+  await db.transaction((tx: any) => {
+    for (const s of missing) {
+      tx.executeSql(
+        `INSERT INTO workout_sessions (user_id, exercise_id, exercise_slug, level_id, duration_seconds, is_extra, started_at, completed_at, synced)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          s.user_id,
+          s.exercise_id,
+          s.exercise_slug,
+          s.level_id,
+          s.duration_seconds,
+          s.is_extra,
+          s.started_at,
+          s.completed_at,
+          s.synced ?? 1,
+        ]
+      );
+    }
+  });
+};
+
+export const bulkUpsertPulledMeasurements = async (
+  userId: number,
+  rows: { seconds: number; measured_at: string }[]
+): Promise<void> => {
+  if (rows.length === 0) return;
+  const db = await getDBConnection();
+  const [res] = await db.executeSql(
+    'SELECT measured_at FROM measurements WHERE user_id = ?',
+    [userId]
+  );
+  const existing = new Set<string>();
+  for (let i = 0; i < res.rows.length; i++) {
+    existing.add(timeBucket(res.rows.item(i).measured_at));
+  }
+  const missing = rows.filter((m) => {
+    const key = timeBucket(m.measured_at);
+    if (existing.has(key)) return false;
+    existing.add(key);
+    return true;
+  });
+  if (missing.length === 0) return;
+  await db.transaction((tx: any) => {
+    for (const m of missing) {
+      tx.executeSql(
+        'INSERT INTO measurements (user_id, seconds, measured_at, synced) VALUES (?, ?, ?, 1)',
+        [userId, m.seconds, m.measured_at]
+      );
+    }
+  });
+};
+
+// Server-authoritative day rows: replace them all in one transaction.
+export const bulkSaveTrainingDays = async (days: DBTrainingDay[]): Promise<void> => {
+  if (days.length === 0) return;
+  const db = await getDBConnection();
+  await db.transaction((tx: any) => {
+    for (const day of days) {
+      tx.executeSql(
+        `INSERT OR REPLACE INTO training_days (user_id, date, sessions_count, required_sessions, completed_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [day.user_id, day.date, day.sessions_count, day.required_sessions, day.completed_at]
+      );
+    }
+  });
+};
+
+// Idempotent heal for databases already bloated by the pre-fix
+// duplicate-on-every-pull behaviour: collapse duplicate rows (same user, same
+// completion time) down to the earliest one. Matching is done on the whole
+// second in JS rather than on the raw string, because a locally recorded row
+// ("...:00.123Z") and its server-pulled copy ("...:00+00:00") describe the same
+// instant in different ISO formats. Runs cheaply as a no-op once tables are
+// clean. Measurements recorded before the fix carried a now() timestamp and are
+// indistinguishable from real ones, so they are intentionally left untouched.
+const dedupeBySecond = async (table: 'workout_sessions' | 'measurements', timeCol: string): Promise<void> => {
+  const db = await getDBConnection();
+  const [res] = await db.executeSql(`SELECT id, user_id, ${timeCol} AS t FROM ${table} ORDER BY id ASC`);
+  const seen = new Set<string>();
+  const dupIds: number[] = [];
+  for (let i = 0; i < res.rows.length; i++) {
+    const row = res.rows.item(i);
+    const key = `${row.user_id}:${timeBucket(row.t)}`;
+    if (seen.has(key)) {
+      dupIds.push(row.id);
+    } else {
+      seen.add(key);
+    }
+  }
+  if (dupIds.length > 0) {
+    const placeholders = dupIds.map(() => '?').join(',');
+    await db.executeSql(`DELETE FROM ${table} WHERE id IN (${placeholders})`, dupIds);
+  }
+};
+
+export const dedupeWorkoutSessions = (): Promise<void> => dedupeBySecond('workout_sessions', 'completed_at');
+export const dedupeMeasurements = (): Promise<void> => dedupeBySecond('measurements', 'measured_at');
+
 export const markMeasurementsSynced = async (ids: number[]): Promise<void> => {
   if (ids.length === 0) return;
   const db = await getDBConnection();
@@ -409,9 +544,12 @@ export const recordCompletedSession = async (
 
   const userRows = await query('SELECT level_id FROM users WHERE id = ? LIMIT 1', [userId]);
   const lvlId = userRows.length > 0 ? userRows[0].level_id : levelId;
-  
-  const levelsInfo: Record<number, number> = { 1: 3, 2: 3, 3: 4, 4: 5, 5: 6 };
-  const required = levelsInfo[lvlId] || 2;
+
+  // FIXED at 2 sessions/day (backend AppConfig::SESSIONS_PER_DAY) - the level
+  // changes session length, never the per-day count. A level-based map here
+  // once made the local day never complete (no tick, no "Training Day
+  // Complete!") until the backend's own row synced down.
+  const required = 2;
 
   const tdRows = await query('SELECT * FROM training_days WHERE user_id = ? AND date = ?', [userId, dateStr]);
   let sessionsCount = 0;
@@ -447,9 +585,12 @@ export const recordCompletedSession = async (
     ? (tdRows.length > 0 ? tdRows[0].completed_at || new Date().toISOString() : new Date().toISOString())
     : null;
 
+  // required_sessions is written too, healing any row created while the old
+  // level-based requirement map was in effect (it stored 3-6 and made
+  // progress read "1/3" until the backend row synced over it).
   await db.executeSql(
-    'UPDATE training_days SET sessions_count = ?, completed_at = ? WHERE user_id = ? AND date = ?',
-    [newCount, completedAt, userId, dateStr]
+    'UPDATE training_days SET sessions_count = ?, required_sessions = ?, completed_at = ? WHERE user_id = ? AND date = ?',
+    [newCount, required, completedAt, userId, dateStr]
   );
 };
 
