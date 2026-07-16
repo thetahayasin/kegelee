@@ -8,12 +8,12 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "node scripts/patch-jcenter.js",
+    "postinstall": "node scripts/patch-jcenter.js && node scripts/patch-rniap.js",
     "build:debug": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-debug.ps1",
     "build:release": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1",
     "build:aab": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1 -Aab",
-    "build:test": "node scripts/patch-jcenter.js && cd android && gradlew.bat -g E:\\.gradle_home assembleDebug",
-    "build:prod": "node scripts/patch-jcenter.js && node scripts/bump-version.js && cd android && gradlew.bat -g E:\\.gradle_home assembleRelease"
+    "build:test": "node scripts/patch-jcenter.js && node scripts/patch-rniap.js && cd android && gradlew.bat -g E:\\.gradle_home assembleDebug",
+    "build:prod": "node scripts/patch-jcenter.js && node scripts/patch-rniap.js && node scripts/bump-version.js && cd android && gradlew.bat -g E:\\.gradle_home assembleRelease"
   },
   "dependencies": {
     "@notifee/react-native": "^9.1.8",

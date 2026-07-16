@@ -49,6 +49,10 @@ Write-Step "Patching jcenter() -> mavenCentral() in node_modules"
 node (Join-Path $ScriptDir 'patch-jcenter.js')
 if ($LASTEXITCODE -ne 0) { throw "patch-jcenter.js failed" }
 
+Write-Step "Patching react-native-iap for RN 0.86"
+node (Join-Path $ScriptDir 'patch-rniap.js')
+if ($LASTEXITCODE -ne 0) { throw "patch-rniap.js failed" }
+
 $gradleArgs = @()
 if (Test-Path $GradleHome) {
     $gradleArgs += @('-g', $GradleHome)

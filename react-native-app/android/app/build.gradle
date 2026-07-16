@@ -109,8 +109,8 @@ android {
         applicationId "com.kegelee.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 60
-        versionName "1.0.48"
+        versionCode 64
+        versionName "1.0.52"
 
         // CMake arguments:
         //  - CMAKE_OBJECT_PATH_MAX: belt-and-suspenders cap on New-Arch codegen

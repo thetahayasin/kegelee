@@ -19,3 +19,20 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// react-native-iap ships play + amazon store flavors and we only consume play
+// (missingDimensionStrategy in app/build.gradle). The amazon flavor's Kotlin does
+// not compile against RN 0.86, and a root assembleRelease would otherwise try to
+// build it, so disable every amazon variant of the library.
+subprojects { subproject ->
+    if (subproject.name == 'react-native-iap') {
+        subproject.plugins.withId('com.android.library') {
+            def components = subproject.extensions.getByName('androidComponents')
+            components.beforeVariants(components.selector().all()) { builder ->
+                if (builder.productFlavors.any { it.second == 'amazon' }) {
+                    builder.enable = false
+                }
+            }
+        }
+    }
+}
