@@ -64,9 +64,6 @@
                                             <span class="text-xs text-muted">{{ $intervalLabel }}</span>
                                         </div>
                                     </div>
-                                    @if ($trialDays > 0)
-                                        <p class="mt-1 text-xs font-semibold text-success">{{ $trialDays }}-day free trial</p>
-                                    @endif
                                 </div>
                                 @if ($plan->is_featured)
                                     <span class="absolute -top-2.5 right-4 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase text-white">Best value</span>

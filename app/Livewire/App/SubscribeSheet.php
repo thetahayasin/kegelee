@@ -362,7 +362,6 @@ class SubscribeSheet extends Component
     {
         return view('livewire.app.subscribe-sheet', [
             'plans'     => Plan::where('is_active', true)->where('price', '>', 0)->orderBy('sort_order')->get(),
-            'trialDays' => (int) app(SettingsService::class)->get('subscription_trial_days', 0),
         ]);
     }
 }

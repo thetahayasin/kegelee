@@ -22,7 +22,6 @@ import { nativeGoogleSignIn } from '../services/googleAuth';
 import { setPendingPlan } from '../services/billing';
 import {
   PLANS,
-  TRIAL_DAYS,
   featuredPlan,
   sheetIntervalLabel,
 } from '../constants/plans';
@@ -297,9 +296,6 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                                 <Text style={styles.planInterval}>{sheetIntervalLabel(plan)}</Text>
                               </View>
                             </View>
-                            {TRIAL_DAYS > 0 && (
-                              <Text style={styles.trialText}>{TRIAL_DAYS}-day free trial</Text>
-                            )}
                           </View>
                           {plan.is_featured && (
                             <View style={styles.featuredBadge}>
@@ -636,12 +632,6 @@ const styles = StyleSheet.create({
   planInterval: {
     fontSize: 12,
     color: COLORS.textMuted,
-  },
-  trialText: {
-    marginTop: 4,
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.success,
   },
   featuredBadge: {
     position: 'absolute',

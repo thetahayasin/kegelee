@@ -18,7 +18,6 @@ import { getActiveSubscription, DBSubscription } from '../../db/queries';
 import {
   PLANS,
   PlanDef,
-  TRIAL_DAYS,
   featuredPlan,
   planBySlug,
   paywallIntervalLabel,
@@ -275,9 +274,6 @@ export const PaywallScreen = () => {
                     <Text style={styles.planInterval}>{paywallIntervalLabel(plan)}</Text>
                   </View>
                 </View>
-                {TRIAL_DAYS > 0 && (
-                  <Text style={styles.trialText}>{TRIAL_DAYS}-day free trial</Text>
-                )}
               </TouchableOpacity>
             );
           })}
@@ -515,12 +511,6 @@ const styles = StyleSheet.create({
   planInterval: {
     fontSize: 12,
     color: COLORS.textMuted,
-  },
-  trialText: {
-    marginTop: 8,
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.success,
   },
   message: {
     marginHorizontal: 16,

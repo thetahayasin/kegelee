@@ -57,13 +57,6 @@ export const PLANS: PlanDef[] = [
   },
 ];
 
-/**
- * Free-trial length shown on the plan cards. The backend's
- * subscription_trial_days setting defaults to 0 (real trial offers are
- * configured in Google Play, not here); 0 hides the trial line.
- */
-export const TRIAL_DAYS = 0;
-
 export const featuredPlan = (): PlanDef =>
   PLANS.find((p) => p.is_featured) ?? PLANS[0];
 

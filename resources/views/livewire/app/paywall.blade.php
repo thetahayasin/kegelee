@@ -53,9 +53,6 @@
                         @endif
                     </div>
                 </div>
-                @if ($trialDays > 0 && ! $isFree)
-                    <p class="mt-2 text-xs font-semibold text-success">{{ $trialDays }}-day free trial</p>
-                @endif
             </button>
         @endforeach
     </div>

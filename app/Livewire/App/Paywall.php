@@ -280,11 +280,10 @@ class Paywall extends Component
         return $subscription;
     }
 
-    public function render(SettingsService $settings)
+    public function render()
     {
         return view('livewire.app.paywall', [
             'plans'      => Plan::where('is_active', true)->orderBy('sort_order')->get(),
-            'trialDays'  => (int) $settings->get('subscription_trial_days', 0),
             'activeSub'  => auth()->user()?->activeSubscription(),
         ]);
     }

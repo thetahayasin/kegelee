@@ -180,10 +180,8 @@ export const SettingsScreen = () => {
           {subscription ? (
             <View style={styles.subRow}>
               <Text style={styles.menuText}>Subscription</Text>
-              <View style={[styles.badge, subscription.status === 'trialing' ? styles.badgeTrial : styles.badgeActive]}>
-                <Text style={[styles.badgeText, subscription.status === 'trialing' ? styles.badgeTextTrial : styles.badgeTextActive]}>
-                  {subscription.status === 'trialing' ? 'Free trial' : 'Active'}
-                </Text>
+              <View style={[styles.badge, styles.badgeActive]}>
+                <Text style={[styles.badgeText, styles.badgeTextActive]}>Active</Text>
               </View>
             </View>
           ) : (
@@ -536,18 +534,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  badgeTrial: {
-    backgroundColor: 'rgba(193, 255, 114, 0.15)',
-  },
   badgeActive: {
-    backgroundColor: 'rgba(193, 255, 114, 0.15)', // Same accent styling
+    backgroundColor: 'rgba(193, 255, 114, 0.15)',
   },
   badgeText: {
     fontSize: 11,
     fontWeight: 'bold',
-  },
-  badgeTextTrial: {
-    color: COLORS.accentSoft,
   },
   badgeTextActive: {
     color: COLORS.accent,

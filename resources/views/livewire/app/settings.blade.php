@@ -13,9 +13,7 @@
         @if ($subscription)
             <div class="flex items-center justify-between gap-3 px-5 py-4">
                 <p class="font-semibold">Subscription</p>
-                <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold {{ $subscription->status === 'trialing' ? 'bg-accent/15 text-accent-soft' : 'bg-success/15 text-success' }}">
-                    {{ $subscription->status === 'trialing' ? 'Free trial' : 'Active' }}
-                </span>
+                <span class="shrink-0 rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success">Active</span>
             </div>
             @if ($manageUrl)
                 <div class="border-t border-white/5">
