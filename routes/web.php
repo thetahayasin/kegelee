@@ -19,8 +19,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handle'])
-    ->name('webhooks.google-play')
-    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    ->name('webhooks.google-play');
 
 /*
 |--------------------------------------------------------------------------

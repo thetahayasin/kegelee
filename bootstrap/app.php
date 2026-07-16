@@ -30,6 +30,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.user' => \App\Http\Middleware\ResolveApiUser::class,
         ]);
 
+        // Google Play RTDN pushes (Pub/Sub -> /webhooks/google-play) carry no
+        // CSRF token. The exemption must live HERE: the web group registers
+        // PreventRequestForgery, so a route-level withoutMiddleware() naming
+        // the deprecated VerifyCsrfToken subclass matches nothing and the
+        // push still 419s.
+        $middleware->preventRequestForgery(except: [
+            'webhooks/google-play',
+        ]);
+
         $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
 
         // Device app only: pull backend content + two-way sync user data on
