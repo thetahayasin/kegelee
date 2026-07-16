@@ -771,6 +771,15 @@ class SyncController extends Controller
             'level_id' => $user->level_id,
             'level_started_days' => (int) $user->level_started_days,
             'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+            // Whether the account is past "Learn the basics" (admin, lessons
+            // done, or existing training history - the same condition as the
+            // web's EnsureBasicsCompleted gate). The app seeds its gate from
+            // this at sign-in, so a returning user lands straight on Training
+            // instead of being held on the basics list (with a visible flash)
+            // until the first sync pulls their history down.
+            'basics_completed' => (bool) $user->is_admin
+                || $user->hasCompletedBasics()
+                || $user->workoutSessions()->exists(),
             'timezone' => $user->timezone,
         ];
     }
