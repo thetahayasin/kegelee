@@ -368,12 +368,8 @@ export const WorkoutCompleteScreen = () => {
               {unlockedNow[0] && <EquipmentIcon slug={unlockedNow[0].slug} size={44} />}
             </View>
             <Text style={styles.unlockModalTitle}>New exercise unlocked!</Text>
-            <Text style={styles.unlockModalBody}>
-              You've unlocked{' '}
-              <Text style={styles.unlockModalName}>
-                {unlockedNow.map((ex) => ex.name).join(', ')}
-              </Text>
-              . Want to give it a try right now?
+            <Text style={styles.unlockModalExercise}>
+              {unlockedNow.map((ex) => ex.name).join(', ')}
             </Text>
             <View style={styles.unlockModalButtons}>
               <TouchableOpacity
@@ -389,7 +385,10 @@ export const WorkoutCompleteScreen = () => {
                 style={[styles.unlockModalBtn, styles.unlockTryBtn]}
                 onPress={() => {
                   setShowUnlockPrompt(false);
-                  navigation.navigate('Workout', { trialSlug: unlockedNow[0].slug });
+                  // replace, not navigate: the completion screen leaves the
+                  // stack, so quitting/finishing the trial lands back on the
+                  // training tab instead of this page.
+                  (navigation as any).replace('Workout', { trialSlug: unlockedNow[0].slug });
                 }}
               >
                 <Text style={styles.unlockTryBtnText}>Try it now</Text>
@@ -646,16 +645,12 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     textAlign: 'center',
   },
-  unlockModalBody: {
-    marginTop: 8,
-    fontSize: 14,
-    lineHeight: 20,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-  },
-  unlockModalName: {
+  unlockModalExercise: {
+    marginTop: 6,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: COLORS.accent,
+    textAlign: 'center',
   },
   unlockModalButtons: {
     flexDirection: 'row',
