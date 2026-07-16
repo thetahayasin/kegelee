@@ -63,9 +63,13 @@ class GooglePlayWebhookController extends Controller
                 'productId' => $productId,
                 'error' => $e->getMessage(),
             ]);
+
+            // Non-2xx makes Pub/Sub redeliver, so a transient failure (e.g. the
+            // Play API being briefly down during a renewal) heals on retry
+            // instead of leaving the row stale until the next event.
+            return response('handler failed', 500);
         }
 
-        // Always return 200 so Pub/Sub does not keep retrying
         return response('ok');
     }
 
@@ -81,8 +85,11 @@ class GooglePlayWebhookController extends Controller
             self::SUBSCRIPTION_RENEWED,
             self::SUBSCRIPTION_RESTARTED => $this->renew($sub, $billing, $productId, $purchaseToken),
 
-            self::SUBSCRIPTION_CANCELED,
-            self::SUBSCRIPTION_REVOKED => $this->cancel($sub),
+            self::SUBSCRIPTION_CANCELED => $this->cancel($sub),
+
+            // Revocation (refund) removes access immediately, unlike a
+            // cancellation which keeps it until the paid period ends.
+            self::SUBSCRIPTION_REVOKED => $this->cancel($sub, immediately: true),
 
             self::SUBSCRIPTION_ON_HOLD,
             self::SUBSCRIPTION_IN_GRACE_PERIOD => $sub?->update(['status' => 'past_due']),
@@ -125,12 +132,15 @@ class GooglePlayWebhookController extends Controller
         }
     }
 
-    private function cancel(?Subscription $sub): void
+    private function cancel(?Subscription $sub, bool $immediately = false): void
     {
         if (! $sub) {
             return;
         }
-        $sub->update(['status' => 'canceled', 'canceled_at' => now(), 'auto_renewing' => false]);
+        $sub->update(array_merge(
+            ['status' => 'canceled', 'canceled_at' => now(), 'auto_renewing' => false],
+            $immediately ? ['ends_at' => now()] : [],
+        ));
         try {
             Mail::to($sub->user)->send(new SubscriptionCanceledMail($sub));
         } catch (\Throwable $e) {
