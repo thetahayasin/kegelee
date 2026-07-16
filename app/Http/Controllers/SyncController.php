@@ -45,12 +45,18 @@ class SyncController extends Controller
                 'updated_at' => $p->updated_at?->toIso8601String(),
             ]);
 
+        $settings = app(\App\Services\SettingsService::class);
+
         return response()->json([
             'pages'     => $pages,
             // Feature flags the device UI reads locally (synced into its own
             // settings store; see ContentSyncService::applySettings).
             'settings'  => [
-                'google_login_enabled' => (bool) app(\App\Services\SettingsService::class)->get('google_login_enabled'),
+                'google_login_enabled' => (bool) $settings->get('google_login_enabled'),
+                // The OAuth web client id, needed by the device's NATIVE Google
+                // sign-in (it pins the ID token audience). Client ids are
+                // public by design - only the client secret stays server-side.
+                'google_web_client_id' => (string) $settings->get('google_client_id'),
             ],
             'synced_at' => now()->toIso8601String(),
         ]);
@@ -458,6 +464,12 @@ class SyncController extends Controller
 
         $user = auth()->user();
 
+        if (! $user->email_verified_at) {
+            auth()->logout();
+            \App\Services\CodeSender::send($user->email, 'verify');
+            return response()->json(['error' => 'unverified'], 403);
+        }
+
         // Update timezone if provided
         $tz = (string) $request->input('timezone', '');
         if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true) && $user->timezone !== $tz) {
@@ -615,6 +627,89 @@ class SyncController extends Controller
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
             'email_verified_at' => $user->email_verified_at ?? now(),
         ]);
+
+        return response()->json([
+            'success' => true,
+            'user' => $this->remoteUserPayload($user),
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/google/token — fully native Google sign-in (no
+     * browser). The device's Google account picker hands the app an ID token;
+     * Google's tokeninfo endpoint validates its signature and expiry, and we
+     * additionally pin the audience to OUR client id (a token minted for any
+     * other app must not sign in here), the Google issuer, and a verified
+     * email. Then find-or-create exactly like the web OAuth callback: a
+     * Google sign-in IS a completed, verified sign-up.
+     */
+    public function googleToken(Request $request): JsonResponse
+    {
+        $data = $request->validate(['id_token' => 'required|string']);
+
+        $settings = app(\App\Services\SettingsService::class);
+        $clientId = (string) $settings->get('google_client_id');
+
+        if (! $clientId || ! $settings->get('google_login_enabled')) {
+            return response()->json(['error' => 'Google sign-in is not available.'], 422);
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->get('https://oauth2.googleapis.com/tokeninfo', ['id_token' => $data['id_token']]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Could not verify the Google sign-in. Please try again.'], 502);
+        }
+
+        if (! $response->ok()) {
+            return response()->json(['error' => 'That Google sign-in is invalid or has expired.'], 422);
+        }
+
+        $claims = $response->json();
+
+        $sub = (string) ($claims['sub'] ?? '');
+        $email = strtolower((string) ($claims['email'] ?? ''));
+        $emailVerified = ($claims['email_verified'] ?? null);
+        $emailVerified = $emailVerified === true || $emailVerified === 'true';
+
+        if (($claims['aud'] ?? null) !== $clientId
+            || ! in_array($claims['iss'] ?? '', ['accounts.google.com', 'https://accounts.google.com'], true)
+            || $sub === ''
+            || $email === ''
+            || ! $emailVerified
+        ) {
+            return response()->json(['error' => 'That Google sign-in is invalid or has expired.'], 422);
+        }
+
+        $user = \App\Models\User::where('google_id', $sub)
+            ->orWhere('email', $email)
+            ->first();
+
+        if (! $user) {
+            $user = \App\Models\User::create([
+                'name' => ((string) ($claims['name'] ?? '')) ?: 'Member',
+                'email' => $email,
+                'google_id' => $sub,
+                'email_verified_at' => now(), // Google accounts are pre-verified
+                'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(40)),
+                'level_id' => Level::where('is_active', true)->orderBy('number')->value('id'),
+                'onboarded_at' => now(),
+            ]);
+        } elseif (! $user->google_id || ! $user->onboarded_at || ! $user->email_verified_at) {
+            // Linking Google to an existing account (or one that never finished
+            // signing up): a Google sign-in IS a completed, verified sign-up.
+            $user->update([
+                'google_id' => $user->google_id ?: $sub,
+                'email_verified_at' => $user->email_verified_at ?? now(),
+                'onboarded_at' => $user->onboarded_at ?? now(),
+            ]);
+        }
+
+        // Per-device timezone, like remoteLogin (last write wins).
+        $tz = (string) $request->input('timezone', '');
+        if ($tz !== '' && in_array($tz, timezone_identifiers_list(), true) && $user->timezone !== $tz) {
+            $user->update(['timezone' => $tz]);
+        }
 
         return response()->json([
             'success' => true,

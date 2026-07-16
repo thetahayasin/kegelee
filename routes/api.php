@@ -42,6 +42,10 @@ Route::prefix('v1')->middleware('api.user')->group(function () {
         // Native Google sign-in: the device redeems the one-time token minted by
         // the Custom Tab callback for the account payload to mirror + sign in.
         Route::post('/auth/google/redeem', [SyncController::class, 'googleRedeem']);
+
+        // Fully native Google sign-in (no browser): the device posts the ID
+        // token from the Google account picker; verified server-side.
+        Route::post('/auth/google/token', [SyncController::class, 'googleToken']);
     });
 
     // User-specific data — requires auth session cookie.
