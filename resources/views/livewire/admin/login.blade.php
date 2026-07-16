@@ -26,14 +26,14 @@
                 <input type="email" wire:model="email" autocomplete="username"
                        class="h-11 w-full rounded-xl border border-white/10 bg-white/4 px-4 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-colors"
                        placeholder="admin@example.com">
-                @error('email') <p class="mt-1.5 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                @error('email') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted">Password</label>
                 <input type="password" wire:model="password" autocomplete="current-password"
                        class="h-11 w-full rounded-xl border border-white/10 bg-white/4 px-4 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/20 transition-colors"
                        placeholder="••••••••">
-                @error('password') <p class="mt-1.5 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                @error('password') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
             </div>
             <button type="submit"
                     class="relative mt-2 grid h-11 w-full place-items-center rounded-xl font-semibold text-sm shadow-lg shadow-accent/15 tap transition-opacity hover:opacity-90"

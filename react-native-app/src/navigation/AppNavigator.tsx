@@ -14,6 +14,7 @@ import { ProfileScreen } from '../screens/tabs/ProfileScreen';
 
 import { WorkoutScreen } from '../screens/workout/WorkoutScreen';
 import { WorkoutCompleteScreen } from '../screens/workout/WorkoutCompleteScreen';
+import { PaywallScreen } from '../screens/paywall/PaywallScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { LegalPageScreen } from '../screens/settings/LegalPageScreen';
 import { ExerciseDetailScreen } from '../screens/exercise/ExerciseDetailScreen';
@@ -22,6 +23,7 @@ import { KnowledgeScreen } from '../screens/knowledge/KnowledgeScreen';
 import { KnowledgeLessonScreen } from '../screens/knowledge/KnowledgeLessonScreen';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PlatformPressable } from '@react-navigation/elements';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 import { COLORS } from '../theme/colors';
 
@@ -29,6 +31,7 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Workout: { trialSlug?: string };
   WorkoutComplete: { duration: number; levelId: number };
+  Paywall: undefined;
   Settings: undefined;
   LegalPage: { slug: string; title: string };
   ExerciseDetail: { slug: string; unlocked: boolean; daysLeft: number };
@@ -42,7 +45,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   VerifyEmail: { email: string };
-  Knowledge: undefined;
+  Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
 };
 
@@ -101,6 +104,15 @@ const TabNavigator = () => {
         lazy: true,
         freezeOnBlur: true,
         tabBarIcon: ({ color }) => <TabIcon name={route.name} color={color} />,
+        // The default tab button's Android ripple is borderless with no
+        // radius, so a tap floods the whole tab slot with a huge circle.
+        // Bound it to a compact icon-hugging circle (Material 3 style).
+        tabBarButton: (props) => (
+          <PlatformPressable
+            {...props}
+            android_ripple={{ borderless: true, radius: 28 }}
+          />
+        ),
         tabBarActiveTintColor: COLORS.accent,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarStyle: {
@@ -125,7 +137,7 @@ const TabNavigator = () => {
 };
 
 export const AppNavigator = () => {
-  const { isAuthenticated, onboarded, setOnboarded, user } = useAuth();
+  const { isAuthenticated, onboarded, setOnboarded, basicsDone, subscribed } = useAuth();
 
   if (!isAuthenticated) {
     // Guests share ONE stack. New guests start on the onboarding slides; once
@@ -149,14 +161,58 @@ export const AppNavigator = () => {
     );
   }
 
+  // Signed in without an active subscription: the paywall IS the app - the
+  // only screens reachable are the subscription plans (plus the Terms page its
+  // legal footnote links to), and the only ways out are purchasing a plan or
+  // the paywall's own Log out escape hatch. This mirrors the web, where the
+  // EnsureSubscribed middleware makes /upgrade the sole route for a signed-up,
+  // unsubscribed user - and it runs BEFORE the basics gate, matching the web
+  // route middleware order ['subscribed', 'basics']. Purchasing (or a sync
+  // revealing a subscription) flips `subscribed` in context, which swaps this
+  // navigator away live; admins bypass the gate inside the context compute.
+  if (!subscribed) {
+    return (
+      <Stack.Navigator key="paywall-gate" screenOptions={{ headerShown: false }} initialRouteName="Paywall">
+        <Stack.Screen name="Paywall" component={PaywallScreen} />
+        <Stack.Screen name="LegalPage" component={LegalPageScreen} />
+      </Stack.Navigator>
+    );
+  }
+
+  // Authenticated but not yet past "Learn the basics": hold the user on the
+  // lessons. Only Knowledge + KnowledgeLesson are reachable, so there is no way
+  // to slip into the app early. Finishing the last lesson flips basicsDone in
+  // context, which swaps this navigator for the main app below - the transition
+  // is driven by state, so it happens live, with no dashboard flash and without
+  // needing to reopen the app.
+  if (!basicsDone) {
+    return (
+      // key: this branch and the main stack below render the SAME Stack.Navigator
+      // component type, so without distinct keys React updates the mounted
+      // navigator in place when basicsDone flips - and React Navigation then
+      // keeps its current state (KnowledgeLesson exists in both screen sets;
+      // initialRouteName only applies on first mount), leaving the user stuck on
+      // the finished lesson. Distinct keys force a remount, which is what
+      // actually swaps to MainTabs the moment the basics are completed.
+      <Stack.Navigator key="basics-gate" screenOptions={{ headerShown: false }} initialRouteName="Knowledge">
+        <Stack.Screen name="Knowledge" component={KnowledgeScreen} />
+        <Stack.Screen name="KnowledgeLesson" component={KnowledgeLessonScreen} />
+      </Stack.Navigator>
+    );
+  }
+
   return (
     <Stack.Navigator
+      key="main-app"
       screenOptions={{ headerShown: false }}
-      initialRouteName={user?.onboarded ? 'MainTabs' : 'Knowledge'}
+      initialRouteName="MainTabs"
     >
       <Stack.Screen name="MainTabs" component={TabNavigator} />
       <Stack.Screen name="Workout" component={WorkoutScreen} />
       <Stack.Screen name="WorkoutComplete" component={WorkoutCompleteScreen} />
+      {/* "Manage Plan": subscribed users (and gate-bypassing admins) reach the
+          paywall from Settings to switch plans with Play's native proration. */}
+      <Stack.Screen name="Paywall" component={PaywallScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="LegalPage" component={LegalPageScreen} />
       <Stack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} />

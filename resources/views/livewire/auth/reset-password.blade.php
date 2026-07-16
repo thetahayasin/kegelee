@@ -8,17 +8,17 @@
         <div>
             <input wire:model="email" type="email" placeholder="Email" autocomplete="email"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('email') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('email') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <div>
             <input wire:model="code" inputmode="numeric" maxlength="6" placeholder="6-digit code"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 tracking-widest placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('code') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('code') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <div>
             <input wire:model="password" type="password" placeholder="New password (6+ characters, 1 number)" autocomplete="new-password"
                    class="h-12 w-full rounded-xl border border-white/10 bg-surface px-4 placeholder:text-muted focus:border-accent focus:outline-none">
-            @error('password') <p class="mt-1 text-sm text-accent-soft">{{ $message }}</p> @enderror
+            @error('password') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
         </div>
         <button type="submit" wire:loading.attr="disabled" class="grid h-12 w-full place-items-center rounded-xl bg-accent font-semibold tap disabled:opacity-60">
             <span wire:loading.remove>Reset password</span>

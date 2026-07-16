@@ -179,7 +179,7 @@
                                 <button wire:click="findGrantUser" class="h-11 rounded-xl bg-surface-2 px-4 text-sm font-medium tap">Find</button>
                             </div>
                             @if ($grantMsg && !$grantSuccess)
-                                <p class="mt-1 text-xs {{ $grantUserId ? 'text-success' : 'text-accent-soft' }}">{{ $grantMsg }}</p>
+                                <p class="mt-1 text-xs {{ $grantUserId ? 'text-success' : 'text-red-400' }}">{{ $grantMsg }}</p>
                             @endif
                         </div>
 
@@ -189,10 +189,10 @@
                             <select wire:model="grantPlanId" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
                                 <option value="">Select a plan</option>
                                 @foreach ($plans as $p)
-                                    <option value="{{ $p->id }}">{{ $p->name }} — ${{ number_format($p->price, 2) }}/{{ $p->interval }}</option>
+                                    <option value="{{ $p->id }}">{{ $p->name }} (${{ number_format($p->price, 2) }}/{{ $p->interval }})</option>
                                 @endforeach
                             </select>
-                            @error('grantPlanId') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                            @error('grantPlanId') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                         </div>
 
                         {{-- Dates --}}
@@ -201,7 +201,7 @@
                                 <label class="mb-1 block text-sm text-muted">Start date</label>
                                 <input type="date" wire:model="grantStart"
                                        class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                                @error('grantStart') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                                @error('grantStart') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm text-muted">End date <span class="text-muted">(optional)</span></label>
@@ -222,7 +222,7 @@
                             </select>
                         </div>
 
-                        @error('grantUserId') <p class="text-xs text-accent-soft">{{ $message }}</p> @enderror
+                        @error('grantUserId') <p class="text-xs text-red-400">{{ $message }}</p> @enderror
 
                         <button wire:click="grant" @disabled(!$grantUserId || !$grantPlanId)
                                 class="w-full rounded-xl bg-accent py-3 font-semibold text-white tap disabled:opacity-50">
@@ -252,7 +252,7 @@
                     <label class="mb-1 block text-sm text-muted">New end date</label>
                     <input type="date" wire:model="extendEnd"
                            class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                    @error('extendEnd') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror
+                    @error('extendEnd') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                 </div>
                 <div class="mt-4 flex gap-3">
                     <button wire:click="$set('showExtend', false)" class="flex-1 rounded-xl bg-surface-2 py-3 text-sm font-medium tap">Cancel</button>
@@ -276,7 +276,7 @@
                 </div>
                 <select wire:model="changePlanNewId" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none">
                     @foreach ($plans as $p)
-                        <option value="{{ $p->id }}">{{ $p->name }} — ${{ number_format($p->price,2) }}/{{ $p->interval }}</option>
+                        <option value="{{ $p->id }}">{{ $p->name }} (${{ number_format($p->price,2) }}/{{ $p->interval }})</option>
                     @endforeach
                 </select>
                 <div class="mt-4 flex gap-3">

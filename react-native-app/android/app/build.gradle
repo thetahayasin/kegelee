@@ -109,8 +109,8 @@ android {
         applicationId "com.kegelee.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 42
-        versionName "1.0.30"
+        versionCode 58
+        versionName "1.0.46"
 
         // CMake arguments:
         //  - CMAKE_OBJECT_PATH_MAX: belt-and-suspenders cap on New-Arch codegen
@@ -123,6 +123,10 @@ android {
                 arguments "-DCMAKE_OBJECT_PATH_MAX=240", "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             }
         }
+
+        // react-native-iap ships Google Play and Amazon store flavors; this
+        // app bills through Google Play only.
+        missingDimensionStrategy 'store', 'play'
     }
     signingConfigs {
         debug {

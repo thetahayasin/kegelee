@@ -15,6 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
 import { api } from '../../services/api';
 import { Watermark } from '../../components/Watermark';
+import Svg, { Path } from 'react-native-svg';
 
 type RouteParams = {
   VerifyEmail: {
@@ -77,15 +78,40 @@ export const VerifyEmailScreen = () => {
         style={styles.keyboardView}
       >
         <View style={styles.inner}>
-          <Text style={styles.logo}>KEGELEE</Text>
           <Text style={styles.title}>Verify Email</Text>
           <Text style={styles.subtitle}>
             We've sent a 6-digit verification code to {'\n'}
             <Text style={styles.emailHighlight}>{email}</Text>
           </Text>
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          {resendSuccess ? <Text style={styles.successText}>{resendSuccess}</Text> : null}
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
+                  stroke={COLORS.accent}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+          {resendSuccess ? (
+            <View style={styles.successContainer}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"
+                  stroke={COLORS.accent}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+              <Text style={styles.successText}>{resendSuccess}</Text>
+            </View>
+          ) : null}
 
           <View style={styles.form}>
             <TextInput
@@ -144,14 +170,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-  },
-  logo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.accent,
-    textAlign: 'center',
-    letterSpacing: 4,
-    marginBottom: 40,
   },
   title: {
     fontSize: 28,
@@ -216,16 +234,40 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     fontSize: 14,
   },
-  errorText: {
-    color: COLORS.danger,
-    textAlign: 'center',
-    fontSize: 14,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+    borderColor: 'rgba(193, 255, 114, 0.25)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     marginBottom: 16,
+    gap: 10,
+  },
+  errorText: {
+    flex: 1,
+    color: COLORS.accent,
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  successContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+    borderColor: 'rgba(193, 255, 114, 0.25)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 16,
+    gap: 10,
   },
   successText: {
+    flex: 1,
     color: COLORS.accent,
-    textAlign: 'center',
     fontSize: 14,
-    marginBottom: 16,
+    lineHeight: 18,
   },
 });

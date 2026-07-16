@@ -35,7 +35,7 @@
                         </div>
                     @endif
                     <input type="file" wire:model="logoUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
-                    @error('logoUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
+                    @error('logoUpload')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="mb-1 block text-sm text-muted">Favicon</label>
@@ -47,7 +47,7 @@
                         </div>
                     @endif
                     <input type="file" wire:model="faviconUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
-                    @error('faviconUpload')<p class="mt-1 text-sm text-accent-soft">{{ $message }}</p>@enderror
+                    @error('faviconUpload')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@
                 <span class="text-xs text-muted">Sends to {{ auth()->user()->email }} using the values above.</span>
                 @if ($smtpMessage)
                     <p wire:loading.remove wire:target="testSmtp"
-                       class="w-full text-sm font-medium {{ $smtpOk ? 'text-success' : 'text-accent-soft' }}">{{ $smtpMessage }}</p>
+                       class="w-full text-sm font-medium {{ $smtpOk ? 'text-success' : 'text-red-400' }}">{{ $smtpMessage }}</p>
                 @endif
             </div>
         </div>
@@ -277,7 +277,7 @@
                     </label>
                 </div>
                 @unless($values['app_enabled'] ?? true)
-                    <p class="mt-2 text-xs font-semibold text-accent-soft">⚠ App is currently closed — web users will see the landing page.</p>
+                    <p class="mt-2 text-xs font-semibold text-accent-soft">⚠ App is currently closed: web users will see the landing page.</p>
                 @endunless
             </div>
 
@@ -286,10 +286,10 @@
             <p class="text-xs text-muted">The address you sign in with (and where password-reset codes are sent).</p>
             <div><label class="mb-1 block text-sm text-muted">Email address</label>
                 <input type="email" wire:model="adminEmail" autocomplete="username" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                @error('adminEmail') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+                @error('adminEmail') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror</div>
             <div><label class="mb-1 block text-sm text-muted">Current password</label>
                 <input type="password" wire:model="emailCurrentPassword" autocomplete="current-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                @error('emailCurrentPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+                @error('emailCurrentPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror</div>
             <button type="button" wire:click="changeAdminEmail" class="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold tap">
                 <span wire:loading.remove wire:target="changeAdminEmail">Update email</span>
                 <span wire:loading wire:target="changeAdminEmail">Updating...</span>
@@ -301,10 +301,10 @@
             <p class="text-sm font-semibold text-muted">Admin password</p>
             <div><label class="mb-1 block text-sm text-muted">Current password</label>
                 <input type="password" wire:model="currentPassword" autocomplete="current-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                @error('currentPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+                @error('currentPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror</div>
             <div><label class="mb-1 block text-sm text-muted">New password</label>
                 <input type="password" wire:model="adminNewPassword" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                @error('adminNewPassword') <p class="mt-1 text-xs text-accent-soft">{{ $message }}</p> @enderror</div>
+                @error('adminNewPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror</div>
             <div><label class="mb-1 block text-sm text-muted">Confirm new password</label>
                 <input type="password" wire:model="adminNewPassword_confirmation" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <button type="button" wire:click="changeAdminPassword" class="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold tap">

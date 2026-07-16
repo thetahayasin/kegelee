@@ -17,7 +17,8 @@ import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/n
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
 import { api } from '../../services/api';
-import { getAppSetting, clearUserData } from '../../db/queries';
+import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/queries';
+import { planBySlug } from '../../constants/plans';
 import { getDBConnection } from '../../db/sqlite';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
@@ -35,11 +36,25 @@ export const SettingsScreen = () => {
   // Modals state
   const [resetModalVisible, setResetModalVisible] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteStep, setDeleteStep] = useState<'warn' | 'code'>('warn');
   const [deleteCode, setDeleteCode] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const closeResetModal = () => {
+    setResetModalVisible(false);
+    setResetError('');
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
+    setDeleteError('');
+    setDeleteCode('');
+    setDeleteStep('warn');
+  };
 
   const loadData = async () => {
     if (!user) return;
@@ -56,21 +71,23 @@ export const SettingsScreen = () => {
       }
       setPages(pagesList);
 
-      // 2. Fetch subscription status
-      const subRes = await db.executeSql(
-        'SELECT * FROM subscriptions WHERE user_id = ? ORDER BY id DESC LIMIT 1',
-        [user.id]
-      );
-      if (subRes[0].rows.length > 0) {
-        const sub = subRes[0].rows.item(0);
-        setSubscription(sub);
+      // 2. Fetch subscription status - the ACTIVE subscription (an entitled
+      // trialing/active one, or a canceled one whose paid period hasn't
+      // ended), exactly like the web Settings' activeSubscription().
+      const sub = await getActiveSubscription(user.id);
+      setSubscription(sub);
 
-        if (sub.status === 'active' || sub.status === 'trialing') {
-          const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
-          setManageUrl(`https://play.google.com/store/account/subscriptions?package=${packageName}`);
-        }
+      // Google Play subscription centre deep link - the only place Play
+      // allows users to turn off auto-renew / cancel. Pre-fills the product
+      // when known.
+      if (sub && sub.store === 'google_play') {
+        const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
+        const sku = planBySlug(sub.plan_slug)?.store_product_id;
+        setManageUrl(
+          'https://play.google.com/store/account/subscriptions' +
+            (sku && packageName ? `?sku=${sku}&package=${packageName}` : ''),
+        );
       } else {
-        setSubscription(null);
         setManageUrl(null);
       }
     } catch (e) {
@@ -87,6 +104,7 @@ export const SettingsScreen = () => {
   }, [isFocused]);
 
   const handleResetProgress = async () => {
+    setResetError('');
     setResetLoading(true);
     // Call server to reset first
     const res = await api.resetProgress();
@@ -99,24 +117,26 @@ export const SettingsScreen = () => {
       navigation.navigate('MainTabs');
     } else {
       setResetLoading(false);
-      Alert.alert('Error', res.error || 'Failed to reset progress. Please check internet connection.');
+      setResetError(res.error || 'Failed to reset progress. Please check internet connection.');
     }
   };
 
   const handleSendDeleteCode = async () => {
+    setDeleteError('');
     setDeleteLoading(true);
     const res = await api.deleteAccountCode();
     setDeleteLoading(false);
     if (res.ok) {
       setDeleteStep('code');
     } else {
-      Alert.alert('Error', res.error || 'Failed to send delete code. Please check internet connection.');
+      setDeleteError(res.error || 'Failed to send delete code. Please check internet connection.');
     }
   };
 
   const handleDeleteAccount = async () => {
+    setDeleteError('');
     if (!deleteCode || deleteCode.length !== 6) {
-      Alert.alert('Validation Error', 'Please enter the 6-digit code.');
+      setDeleteError('Please enter the 6-digit code.');
       return;
     }
     setDeleteLoading(true);
@@ -128,7 +148,7 @@ export const SettingsScreen = () => {
       setDeleteModalVisible(false);
       Alert.alert('Deleted', 'Your account has been permanently deleted.');
     } else {
-      Alert.alert('Error', res.error || 'Failed to delete account.');
+      setDeleteError(res.error || 'Failed to delete account.');
     }
   };
 
@@ -159,7 +179,7 @@ export const SettingsScreen = () => {
         <View style={styles.menuContainer}>
           {subscription ? (
             <View style={styles.subRow}>
-              <Text style={styles.menuText}>Subscription Status</Text>
+              <Text style={styles.menuText}>Subscription</Text>
               <View style={[styles.badge, subscription.status === 'trialing' ? styles.badgeTrial : styles.badgeActive]}>
                 <Text style={[styles.badgeText, subscription.status === 'trialing' ? styles.badgeTextTrial : styles.badgeTextActive]}>
                   {subscription.status === 'trialing' ? 'Free trial' : 'Active'}
@@ -167,10 +187,16 @@ export const SettingsScreen = () => {
               </View>
             </View>
           ) : (
-            <TouchableOpacity style={styles.menuRow}>
-              <Text style={styles.menuText}>No active subscription</Text>
-              <View style={styles.badgeActive}>
-                <Text style={styles.badgeTextActive}>Subscribe</Text>
+            <TouchableOpacity
+              style={styles.menuRow}
+              onPress={() => navigation.navigate('Paywall')}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuText}>No active subscription</Text>
+                <Text style={styles.menuSubtext}>Subscribe to unlock full access</Text>
+              </View>
+              <View style={styles.subscribePill}>
+                <Text style={styles.subscribePillText}>Subscribe</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -183,7 +209,7 @@ export const SettingsScreen = () => {
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>Cancel subscription</Text>
                 <Text style={styles.menuSubtext}>
-                  Opens Google Play — the only place to cancel or turn off auto-renew.
+                  Opens Google Play (the only place to cancel or turn off auto-renew).
                 </Text>
               </View>
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -223,10 +249,13 @@ export const SettingsScreen = () => {
         {/* Standalone actions */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => setResetModalVisible(true)}
+            style={[styles.actionBtn, styles.deleteBtn]}
+            onPress={() => {
+              setResetError('');
+              setResetModalVisible(true);
+            }}
           >
-            <Text style={styles.actionBtnText}>Reset progress</Text>
+            <Text style={styles.deleteBtnText}>Reset progress</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -239,6 +268,7 @@ export const SettingsScreen = () => {
           <TouchableOpacity
             style={[styles.actionBtn, styles.deleteBtn]}
             onPress={() => {
+              setDeleteError('');
               setDeleteStep('warn');
               setDeleteCode('');
               setDeleteModalVisible(true);
@@ -254,16 +284,32 @@ export const SettingsScreen = () => {
         visible={resetModalVisible}
         animationType="fade"
         transparent
-        onRequestClose={() => setResetModalVisible(false)}
+        onRequestClose={closeResetModal}
       >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => setResetModalVisible(false)}
+          onPress={closeResetModal}
         >
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Reset progress?</Text>
+
+              {resetError ? (
+                <View style={styles.errorContainer}>
+                  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
+                      stroke={COLORS.danger}
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                  <Text style={styles.errorText}>{resetError}</Text>
+                </View>
+              ) : null}
+
               <Text style={styles.modalBody}>
                 This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.
               </Text>
@@ -271,21 +317,21 @@ export const SettingsScreen = () => {
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalBtn, styles.modalCancelBtn]}
-                  onPress={() => setResetModalVisible(false)}
+                  onPress={closeResetModal}
                   disabled={resetLoading}
                 >
                   <Text style={styles.modalCancelBtnText}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.modalBtn, styles.modalConfirmBtn]}
+                  style={[styles.modalBtn, styles.modalConfirmDeleteBtn]}
                   onPress={handleResetProgress}
                   disabled={resetLoading}
                 >
                   {resetLoading ? (
-                    <ActivityIndicator color={COLORS.onAccent} />
+                    <ActivityIndicator color={COLORS.white} />
                   ) : (
-                    <Text style={styles.modalConfirmBtnText}>Reset</Text>
+                    <Text style={styles.modalConfirmDeleteBtnText}>Reset</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -299,20 +345,36 @@ export const SettingsScreen = () => {
         visible={deleteModalVisible}
         animationType="slide"
         transparent
-        onRequestClose={() => setDeleteModalVisible(false)}
+        onRequestClose={closeDeleteModal}
       >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => setDeleteModalVisible(false)}
+          onPress={closeDeleteModal}
         >
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Delete account?</Text>
+
+              {deleteError ? (
+                <View style={styles.errorContainer}>
+                  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
+                      stroke={COLORS.danger}
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                  <Text style={styles.errorText}>{deleteError}</Text>
+                </View>
+              ) : null}
+
               {deleteStep === 'warn' ? (
                 <>
-                  <Text style={styles.modalTitle}>Delete account?</Text>
                   <Text style={styles.modalBody}>
-                    This permanently deletes your account and all of your data — training days, sessions, measurements and progress. This <Text style={{ fontWeight: 'bold', color: COLORS.white }}>cannot be undone</Text>.
+                    This permanently deletes your account and all of your data: training days, sessions, measurements, and progress. This <Text style={{ fontWeight: 'bold', color: COLORS.white }}>cannot be undone</Text>.
                   </Text>
                   <View style={styles.warningBox}>
                     <Text style={styles.warningText}>
@@ -323,7 +385,7 @@ export const SettingsScreen = () => {
                   <View style={styles.modalButtons}>
                     <TouchableOpacity
                       style={[styles.modalBtn, styles.modalCancelBtn]}
-                      onPress={() => setDeleteModalVisible(false)}
+                      onPress={closeDeleteModal}
                       disabled={deleteLoading}
                     >
                       <Text style={styles.modalCancelBtnText}>Cancel</Text>
@@ -344,7 +406,6 @@ export const SettingsScreen = () => {
                 </>
               ) : (
                 <>
-                  <Text style={styles.modalTitle}>Enter the code</Text>
                   <Text style={styles.modalBody}>
                     We emailed a 6-digit code to <Text style={{ fontWeight: 'bold', color: COLORS.white }}>{user?.email}</Text>. Enter it to permanently delete your account.
                   </Text>
@@ -363,7 +424,7 @@ export const SettingsScreen = () => {
                   <View style={styles.modalButtons}>
                     <TouchableOpacity
                       style={[styles.modalBtn, styles.modalCancelBtn]}
-                      onPress={() => setDeleteModalVisible(false)}
+                      onPress={closeDeleteModal}
                       disabled={deleteLoading}
                     >
                       <Text style={styles.modalCancelBtnText}>Cancel</Text>
@@ -491,6 +552,17 @@ const styles = StyleSheet.create({
   badgeTextActive: {
     color: COLORS.accent,
   },
+  subscribePill: {
+    backgroundColor: COLORS.accent,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  subscribePillText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.onAccent,
+  },
   actionsContainer: {
     marginTop: 36,
     paddingHorizontal: 20,
@@ -517,8 +589,8 @@ const styles = StyleSheet.create({
     color: COLORS.onAccent,
   },
   deleteBtn: {
-    backgroundColor: 'rgba(239, 68, 68, 0.05)',
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    backgroundColor: 'rgba(255, 77, 77, 0.05)',
+    borderColor: 'rgba(255, 77, 77, 0.3)',
     borderWidth: 1,
   },
   deleteBtnText: {
@@ -556,8 +628,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   warningBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderColor: 'rgba(239, 68, 68, 0.25)',
+    backgroundColor: 'rgba(255, 77, 77, 0.1)',
+    borderColor: 'rgba(255, 77, 77, 0.25)',
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
@@ -595,9 +667,14 @@ const styles = StyleSheet.create({
   },
   modalDeleteBtn: {
     backgroundColor: COLORS.danger,
+    shadowColor: COLORS.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
   },
   modalDeleteBtnText: {
-    color: COLORS.white,
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   deleteInput: {
@@ -615,9 +692,32 @@ const styles = StyleSheet.create({
   },
   modalConfirmDeleteBtn: {
     backgroundColor: COLORS.danger,
+    shadowColor: COLORS.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
   },
   modalConfirmDeleteBtnText: {
-    color: COLORS.white,
+    color: '#ffffff',
     fontWeight: 'bold',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 77, 77, 0.1)',
+    borderColor: 'rgba(255, 77, 77, 0.25)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 16,
+    gap: 10,
+  },
+  errorText: {
+    flex: 1,
+    color: COLORS.danger,
+    fontSize: 14,
+    lineHeight: 18,
   },
 });

@@ -19,7 +19,7 @@ import {
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress, getLocalDateString } from '../../services/progression';
 import { EXERCISES, LEVELS } from '../../constants/catalogues';
-import { syncNow } from '../../services/sync';
+import { syncNow, syncIfStale } from '../../services/sync';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
@@ -46,12 +46,15 @@ export const TrainingScreen = () => {
     if (!user) return;
     try {
       const db = await getDBConnection();
-      
-      // Load training days
-      const daysRes = await db.executeSql(
-        'SELECT * FROM training_days WHERE user_id = ? ORDER BY date DESC',
-        [user.id]
-      );
+
+      // Training days and best hold are independent reads - run them together.
+      const [daysRes, best] = await Promise.all([
+        db.executeSql(
+          'SELECT * FROM training_days WHERE user_id = ? ORDER BY date DESC',
+          [user.id]
+        ),
+        getMaxMeasurement(user.id),
+      ]);
       const trainingDays = [];
       for (let i = 0; i < daysRes[0].rows.length; i++) {
         trainingDays.push(daysRes[0].rows.item(i));
@@ -68,8 +71,6 @@ export const TrainingScreen = () => {
       setDay(pos.day);
       setCompletedDays(pos.completed);
 
-      // Load best hold
-      const best = await getMaxMeasurement(user.id);
       setBestMeasurement(best > 0 ? best : null);
 
       // Map exercises. Admins bypass the day-gating and get the full catalogue.
@@ -90,12 +91,14 @@ export const TrainingScreen = () => {
     }
   };
 
-  // Sync with backend in background
+  // Sync with backend in background. Focus-triggered, so use the staleness
+  // window: hopping between tabs within a minute costs zero network and zero
+  // DB churn. Pull-to-refresh below still forces a full sync.
   const triggerSync = async () => {
     if (!user) return;
     try {
-      const res = await syncNow(user.id);
-      if (res.success) {
+      const res = await syncIfStale(user.id);
+      if (res.success && !res.skipped) {
         await loadData();
       }
     } catch (e) {

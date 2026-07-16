@@ -780,6 +780,13 @@ class SyncController extends Controller
             'basics_completed' => (bool) $user->is_admin
                 || $user->hasCompletedBasics()
                 || $user->workoutSessions()->exists(),
+            // Whether the account holds an active subscription (same rule as
+            // the web's EnsureSubscribed gate). The app seeds its subscription
+            // gate from this at sign-in - the local subscriptions table is
+            // still empty until the first sync pulls the rows down - so a
+            // subscribed returning user goes straight in and an unsubscribed
+            // one lands on the paywall with no flash in between.
+            'is_subscribed' => $user->isSubscribed(),
             'timezone' => $user->timezone,
         ];
     }

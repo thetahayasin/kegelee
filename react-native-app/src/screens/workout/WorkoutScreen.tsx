@@ -246,13 +246,25 @@ export const WorkoutScreen = () => {
 
   // Main high-performance countdown timer loop (runs every 50ms). Works purely
   // on refs + subscriber pushes: no React state updates in the hot path.
+  const lastTickAtRef = useRef(0);
   useEffect(() => {
     if (loading || playlist.length === 0) return;
 
+    lastTickAtRef.current = Date.now();
     timerRef.current = setInterval(() => {
-      if (pausedRef.current) return;
+      if (pausedRef.current) {
+        // Keep the clock anchored while paused so resuming doesn't jump.
+        lastTickAtRef.current = Date.now();
+        return;
+      }
 
-      const dt = 0.05; // 50ms step size
+      // Wall-clock step, not a fixed 50ms: setInterval drifts under JS-thread
+      // load, and assuming 50ms per tick made real sessions run LONGER than the
+      // displayed time. Clamp the step so a long stall (app backgrounded, GC
+      // pause) advances at most 250ms instead of skipping half an exercise.
+      const now = Date.now();
+      const dt = Math.min(0.25, Math.max(0, (now - lastTickAtRef.current) / 1000));
+      lastTickAtRef.current = now;
       remainingRef.current = Math.max(0, remainingRef.current - dt);
       elapsedRef.current = elapsedRef.current + dt;
 
@@ -331,21 +343,25 @@ export const WorkoutScreen = () => {
     const targetOpacity = cur.slug === 'rest' ? 0 : 0.08 + intensity * 0.92;
 
     // Smooth-pursuit toward the target on the native driver. The tick restarts
-    // this every 50ms, so a 240ms eased timing acts as a low-pass filter:
-    // gradual ramps (e.g. "Contract slowly") track with negligible lag, while
+    // this every 50ms, so the eased timing acts as a low-pass filter: gradual
+    // ramps (e.g. "Contract slowly") track with negligible lag, while
     // step-boundary jumps (e.g. Front Clamp's full squeeze -> instant "Release")
-    // ease out over ~a quarter second instead of snapping in a single tick -
-    // matching the web app's CSS transition on .contract-glow.
+    // ease out instead of snapping in a single tick. The pursuit scales with
+    // the step length: long ramps keep the smooth 240ms chase, but sub-second
+    // moves (Reverse Clamp's 0.3s squeeze, Front Clamp's release beat, Flash
+    // flicks) get a faster one - a fixed 240ms filter swallowed most of a 0.3s
+    // step, which read as a dead pause between reps.
+    const pursuitMs = Math.min(240, Math.max(80, total * 400));
     Animated.parallel([
       Animated.timing(glowScale, {
         toValue: targetScale,
-        duration: 240,
+        duration: pursuitMs,
         easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
       Animated.timing(glowOpacity, {
         toValue: targetOpacity,
-        duration: 240,
+        duration: pursuitMs,
         easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }),
@@ -603,18 +619,21 @@ export const WorkoutScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Watermark />
-      {/* Top header - hidden in trial/tutorial mode */}
-      {!isTrial && (
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.closeBtn} onPress={() => setShowQuitModal(true)}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
-            </Svg>
-          </TouchableOpacity>
-          <LiveTimeLabel register={registerTime} />
-          <View style={{ width: 36 }} />
-        </View>
-      )}
+      {/* Top header. Real sessions: X opens the quit confirmation + live time
+          label. Trials/tutorials: just the X, exiting immediately - a trial
+          records nothing, so there is nothing to confirm. */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.closeBtn}
+          onPress={() => (isTrial ? handleQuit() : setShowQuitModal(true))}
+        >
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+            <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
+          </Svg>
+        </TouchableOpacity>
+        {!isTrial && <LiveTimeLabel register={registerTime} />}
+        <View style={{ width: 36 }} />
+      </View>
 
       {/* Main Circular Player View */}
       <View style={styles.playerContainer}>

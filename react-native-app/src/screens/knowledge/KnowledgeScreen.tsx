@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,15 +10,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   useNavigation,
   useFocusEffect,
+  useRoute,
   NavigationProp,
+  RouteProp,
 } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { COLORS, GLASS } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { Watermark } from '../../components/Watermark';
+import { SubscribeSheet } from '../../components/SubscribeSheet';
 import { BASICS_LESSONS } from '../../constants/basics';
-import { RootStackParamList } from '../../navigation/AppNavigator';
+import { RootStackParamList, AuthStackParamList } from '../../navigation/AppNavigator';
 
 
 // Lesson glyphs (heart / drop / play), matching knowledge/index.blade.
@@ -31,8 +34,10 @@ const lessonIconPath = (i: number) =>
 
 export const KnowledgeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields, user } = useAuth();
+  const route = useRoute<RouteProp<AuthStackParamList, 'Knowledge'>>();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
   const [done, setDone] = useState<string[]>([]);
+  const [sheetVisible, setSheetVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -42,6 +47,18 @@ export const KnowledgeScreen = () => {
         .catch(() => {});
     }, [user]),
   );
+
+  // Arriving with { subscribe: true } (a guest just finished the last free
+  // lesson) opens the subscription sheet on load - the web's
+  // knowledge.index?subscribe=1 funnel, including its 350ms settle delay.
+  const promptSubscribe = !isAuthenticated && route.params?.subscribe === true;
+  useEffect(() => {
+    if (!promptSubscribe) return;
+    navigation.setParams({ subscribe: undefined } as any);
+    const t = setTimeout(() => setSheetVisible(true), 350);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptSubscribe]);
 
   const allCompleted = done.includes('why') && done.includes('find') && done.includes('first');
 
@@ -65,7 +82,13 @@ export const KnowledgeScreen = () => {
         ) : null}
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          // Clear the sticky Subscribe bar on the guest funnel.
+          !isAuthenticated && { paddingBottom: 120 },
+        ]}
+      >
         {BASICS_LESSONS.map((lesson, i) => {
           const isDone = done.includes(lesson.slug);
           const locked = i > 0 && !done.includes(BASICS_LESSONS[i - 1].slug);
@@ -106,20 +129,37 @@ export const KnowledgeScreen = () => {
           );
         })}
 
-        {/* Only during onboarding: once the user is onboarded this screen is a
-            review page (opened from Training), where the button is noise. */}
-        {isAuthenticated && allCompleted && user && !user.onboarded && (
+        {/* Only while still gated: once basics are done this screen is a review
+            page (opened from Training), where the button is noise. */}
+        {isAuthenticated && allCompleted && !basicsDone && (
           <TouchableOpacity
             style={styles.continueBtn}
-            onPress={async () => {
-              await updateUserFields({ onboarded: true });
-              navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+            onPress={() => {
+              // Flip the gate FIRST - that swaps the navigator to the main app
+              // (MainTabs) immediately; no manual reset needed (MainTabs isn't
+              // in this gated navigator anyway). Persist in the background so a
+              // slow/failing DB write can't make the button do nothing.
+              markBasicsDone();
+              updateUserFields({ onboarded: true }).catch(() => {});
             }}
           >
-            <Text style={styles.continueBtnText}>Continue to Dashboard</Text>
+            <Text style={styles.continueBtnText}>Continue to Training</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
+
+      {/* Guest sales funnel: sticky Subscribe bar + plans/auth bottom sheet
+          (web: @livewire('app.subscribe-sheet') on knowledge.index). */}
+      {!isAuthenticated && (
+        <SubscribeSheet
+          visible={sheetVisible}
+          onOpen={() => setSheetVisible(true)}
+          onClose={() => setSheetVisible(false)}
+          onNavigateToVerify={(email) =>
+            (navigation as any).navigate('VerifyEmail', { email })
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };

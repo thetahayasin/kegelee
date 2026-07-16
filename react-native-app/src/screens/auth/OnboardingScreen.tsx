@@ -16,6 +16,7 @@ import type { AuthStackParamList } from '../../navigation/AppNavigator';
 import { COLORS } from '../../theme/colors';
 import { HeartVisual, StopwatchVisual, ProgressVisual, HabitVisual } from '../../components/OnboardingVisuals';
 import { Watermark } from '../../components/Watermark';
+import { SubscribeSheet } from '../../components/SubscribeSheet';
 
 const { width } = Dimensions.get('window');
 
@@ -52,19 +53,37 @@ interface OnboardingScreenProps {
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [sheetVisible, setSheetVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
-  // Finishing / skipping onboarding drops the guest onto Learn the basics as the
-  // stack root (the browse funnel). "Log in" instead opens sign-in on top of it,
-  // so closing sign-in falls back to the basics.
+  // Finishing / skipping the slides ends on the Google Play plans (the web
+  // Onboarding::finish() dispatching open-subscribe-sheet). The sheet handles
+  // plan pick + inline register/login; DISMISSING it drops the guest to the
+  // free basics preview (the sheet's closeTo), which becomes the stack root.
+  // "Log in" instead opens sign-in on top of the basics, so closing sign-in
+  // falls back to them.
+  const finish = () => {
+    onComplete();
+    setSheetVisible(true);
+  };
   const finishToBasics = () => {
+    setSheetVisible(false);
     onComplete();
     navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] });
   };
   const goToLogin = () => {
     onComplete();
     navigation.reset({ index: 1, routes: [{ name: 'Knowledge' }, { name: 'Login' }] });
+  };
+  // Registering (or an unverified sign-in) from the sheet continues on the
+  // email-code screen, stacked over the basics so backing out lands there.
+  const goToVerify = (email: string) => {
+    onComplete();
+    navigation.reset({
+      index: 1,
+      routes: [{ name: 'Knowledge' }, { name: 'VerifyEmail', params: { email } }],
+    });
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -80,7 +99,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         animated: true,
       });
     } else {
-      finishToBasics();
+      finish();
     }
   };
 
@@ -123,7 +142,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         ) : (
           <View style={styles.headerBtn} />
         )}
-        <TouchableOpacity onPress={finishToBasics} style={styles.headerBtn}>
+        <TouchableOpacity onPress={finish} style={styles.headerBtn}>
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
             <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
           </Svg>
@@ -186,6 +205,15 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Google Play plans shown after the slides; dismissing goes to the
+          basics (web: <livewire:app.subscribe-sheet :show-bar="false" />). */}
+      <SubscribeSheet
+        visible={sheetVisible}
+        showBar={false}
+        onClose={finishToBasics}
+        onNavigateToVerify={goToVerify}
+      />
     </SafeAreaView>
   );
 };
