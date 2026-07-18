@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { StyleSheet, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { OnboardingScreen } from '../screens/auth/OnboardingScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
@@ -94,6 +95,45 @@ const TabIcon = ({ name, color }: { name: string; color: string }) => {
   }
 };
 
+// Tab bar button: the press effect hugs the ICON only, never the label. A
+// native ripple can't do that (its hotspot follows the finger anywhere in the
+// tab slot), so it is hidden and a circle is drawn behind the icon while
+// pressed instead.
+const TabButton = ({ children, ...props }: BottomTabBarButtonProps) => {
+  const [pressed, setPressed] = React.useState(false);
+  return (
+    <PlatformPressable
+      {...props}
+      pressColor="transparent"
+      onPressIn={(e) => {
+        setPressed(true);
+        props.onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        setPressed(false);
+        props.onPressOut?.(e);
+      }}
+    >
+      {pressed && <View style={tabStyles.iconPress} />}
+      {children}
+    </PlatformPressable>
+  );
+};
+
+const tabStyles = StyleSheet.create({
+  // 40pt circle centered on the 31x28 icon box (the tab button has 5pt padding,
+  // so the icon's vertical center sits 19pt from the button top).
+  iconPress: {
+    position: 'absolute',
+    top: -1,
+    alignSelf: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+});
+
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
   return (
@@ -104,15 +144,7 @@ const TabNavigator = () => {
         lazy: true,
         freezeOnBlur: true,
         tabBarIcon: ({ color }) => <TabIcon name={route.name} color={color} />,
-        // The default tab button's Android ripple is borderless with no
-        // radius, so a tap floods the whole tab slot with a huge circle.
-        // Bound it to a compact icon-hugging circle (Material 3 style).
-        tabBarButton: (props) => (
-          <PlatformPressable
-            {...props}
-            android_ripple={{ borderless: true, radius: 28 }}
-          />
-        ),
+        tabBarButton: (props) => <TabButton {...props} />,
         tabBarActiveTintColor: COLORS.accent,
         tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarStyle: {
