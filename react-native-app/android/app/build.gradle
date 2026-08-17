@@ -123,10 +123,6 @@ android {
                 arguments "-DCMAKE_OBJECT_PATH_MAX=240", "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             }
         }
-
-        // react-native-iap ships Google Play and Amazon store flavors; this
-        // app bills through Google Play only.
-        missingDimensionStrategy 'store', 'play'
     }
     signingConfigs {
         debug {
