@@ -213,12 +213,28 @@ class GoogleAuthController extends Controller
         return redirect('/app');
     }
 
-    /** Redirect to the app via its deeplink scheme (returns from the Custom Tab). */
+    /** Redirect to the app via its deeplink scheme (returns from the Custom Tab / browser). */
     private function deeplink(string $query)
     {
         $scheme = config('nativephp.deeplink_scheme', 'kegelee');
+        $url = $scheme.'://auth/google/finish?'.$query;
 
-        return redirect()->away($scheme.'://auth/google/finish?'.$query);
+        return response(
+            '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Opening Kegelee...</title>'
+            .'<meta name="viewport" content="width=device-width, initial-scale=1">'
+            .'<style>body{background:#060810;color:#f3f4f6;font-family:system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box;text-align:center;}'
+            .'h2{margin:0 0 8px;font-size:22px;color:#fff;}'
+            .'p{color:#9ca3af;font-size:14px;margin:0 0 24px;}'
+            .'.btn{display:inline-block;padding:14px 32px;background:#c1ff72;color:#060810;font-weight:700;font-size:15px;text-decoration:none;border-radius:14px;box-shadow:0 4px 14px rgba(193,255,114,0.3);}'
+            .'</style></head><body>'
+            .'<h2>Returning to Kegelee...</h2>'
+            .'<p>If the app does not open automatically, tap the button below:</p>'
+            .'<a class="btn" href="'.e($url).'">Open App</a>'
+            .'<script>'
+            .'setTimeout(function(){ window.location.href = '.json_encode($url).'; }, 100);'
+            .'</script>'
+            .'</body></html>'
+        )->header('Content-Type', 'text/html');
     }
 
     /** Apply the admin-configured Google credentials to Socialite at runtime. */
