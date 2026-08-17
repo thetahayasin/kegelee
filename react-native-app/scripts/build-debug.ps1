@@ -47,8 +47,14 @@ if (-not $env:JAVA_HOME -or -not (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.
 
 Write-Step "Patching jcenter() -> mavenCentral() in node_modules"
 node (Join-Path $ScriptDir 'patch-jcenter.js')
-if ($LASTEXITCODE -ne 0) { throw "patch-jcenter.js failed" }
+Write-Step "Bundling offline JS bundle into APK assets"
+$assetsDir = Join-Path $RootDir 'android\app\src\main\assets'
+if (-not (Test-Path $assetsDir)) { New-Item -ItemType Directory -Force -Path $assetsDir | Out-Null }
+$resDir = Join-Path $RootDir 'android\app\src\main\res'
+$bundleOut = Join-Path $assetsDir 'index.android.bundle'
 
+npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output $bundleOut --assets-dest $resDir
+if ($LASTEXITCODE -ne 0) { throw "JS bundle generation failed" }
 
 $gradleArgs = @()
 if (Test-Path $GradleHome) {
