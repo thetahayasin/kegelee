@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -88,7 +88,8 @@ export const PaywallScreen = () => {
         setShowAutoRenewalNotice(true);
       } catch (e: any) {
         if (!e?.userCancelled) {
-          setMessage(e?.message || 'Purchase failed. Please try again.');
+          const detail = e?.underlyingErrorMessage ? ` (${e.underlyingErrorMessage})` : '';
+          setMessage((e?.message || 'Purchase failed. Please try again.') + detail);
         }
       } finally {
         setPurchasing(false);
