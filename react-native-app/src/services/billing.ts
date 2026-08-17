@@ -62,11 +62,15 @@ export const initBilling = async (userId?: number | string | null): Promise<bool
     try {
       const apiKey = await configuredApiKey();
       if (!configuredAppUserId) {
-        Purchases.setLogLevel(Purchases.LOG_LEVEL.WARN).catch(() => {});
+        try {
+          if ((Purchases as any)?.LOG_LEVEL?.WARN) {
+            Purchases.setLogLevel((Purchases as any).LOG_LEVEL.WARN);
+          }
+        } catch (e) {}
         Purchases.configure({ apiKey, appUserID: appUserId || undefined });
         configuredAppUserId = appUserId;
       } else if (appUserId && configuredAppUserId !== appUserId) {
-        await Purchases.logIn(appUserId);
+        await Purchases.logIn(appUserId).catch(() => {});
         configuredAppUserId = appUserId;
       }
       return true;
@@ -207,9 +211,13 @@ export const restoreRevenueCatPurchases = async (userId: number): Promise<Comple
 };
 
 export const getRevenueCatManagementUrl = async (userId: number): Promise<string | null> => {
-  if (!(await initBilling(userId))) return null;
-  const customerInfo = await Purchases.getCustomerInfo();
-  return customerInfo?.managementURL || null;
+  try {
+    if (!(await initBilling(userId))) return null;
+    const customerInfo = await Purchases.getCustomerInfo();
+    return customerInfo?.managementURL || null;
+  } catch (e) {
+    return null;
+  }
 };
 
 export type RecordResult = 'recorded' | 'duplicate' | 'unmatched';
