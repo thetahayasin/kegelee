@@ -316,22 +316,15 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                   </TouchableOpacity>
 
                   <Text style={styles.legalText}>
-                    Payment is charged to your Google Play account on confirmation. Your
+                    Payment is processed securely through RevenueCat and the app store on confirmation. Your
                     subscription renews automatically at the price shown until you cancel it
-                    in Google Play; uninstalling the app does not cancel or refund it. By
+                    in your subscription settings; uninstalling the app does not cancel or refund it. By
                     continuing you agree to our{' '}
                     <Text
                       style={styles.legalLink}
                       onPress={() => Linking.openURL(`${getWebBaseUrl()}/p/terms`)}
                     >
                       Terms
-                    </Text>{' '}
-                    and the{' '}
-                    <Text
-                      style={styles.legalLink}
-                      onPress={() => Linking.openURL('https://play.google.com/about/play-terms/')}
-                    >
-                      Google Play Terms
                     </Text>
                     .
                   </Text>

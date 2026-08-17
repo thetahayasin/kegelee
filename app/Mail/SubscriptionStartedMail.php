@@ -42,7 +42,7 @@ class SubscriptionStartedMail extends Mailable
             'detail'    => $endsAt
                 ? ($isTrial
                     ? "Trial ends on {$endsAt->format('F j, Y')}. After that, your subscription renews automatically unless cancelled."
-                    : "Your subscription renews on {$endsAt->format('F j, Y')}. You can manage billing anytime via Google Play.")
+                    : "Your subscription renews on {$endsAt->format('F j, Y')}. You can manage billing anytime in your subscription settings.")
                 : "Your lifetime access is active, with no renewal needed.",
             'ctaLabel'  => 'Open the App',
         ]);

@@ -64,8 +64,8 @@ export const KnowledgeLessonScreen = () => {
         }
       } else {
         // Guest finished the free lessons: return to the lesson list and open
-        // the subscription sheet (pick a plan, create the account, purchase
-        // through Google Play) - the web's knowledge.index?subscribe=1 funnel.
+        // the subscription sheet (pick a plan, create the account, purchase)
+        // - the web's knowledge.index?subscribe=1 funnel.
         // Knowledge is this stack's root, so navigate pops back to it with the
         // param set; cast past the RootStack param list the same way
         // KnowledgeScreen does.

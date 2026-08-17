@@ -19,6 +19,7 @@ import { COLORS } from '../../theme/colors';
 import { api } from '../../services/api';
 import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/queries';
 import { planBySlug } from '../../constants/plans';
+import { getRevenueCatManagementUrl } from '../../services/billing';
 import { getDBConnection } from '../../db/sqlite';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
@@ -77,16 +78,21 @@ export const SettingsScreen = () => {
       const sub = await getActiveSubscription(user.id);
       setSubscription(sub);
 
-      // Google Play subscription centre deep link - the only place Play
-      // allows users to turn off auto-renew / cancel. Pre-fills the product
-      // when known.
-      if (sub && sub.store === 'google_play') {
-        const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
-        const sku = planBySlug(sub.plan_slug)?.store_product_id;
-        setManageUrl(
-          'https://play.google.com/store/account/subscriptions' +
-            (sku && packageName ? `?sku=${sku}&package=${packageName}` : ''),
-        );
+      // Subscription management deep link (RevenueCat customer management URL or store deep link)
+      if (sub) {
+        const rcUrl = await getRevenueCatManagementUrl(user.id).catch(() => null);
+        if (rcUrl) {
+          setManageUrl(rcUrl);
+        } else if (sub.store === 'google_play') {
+          const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
+          const sku = planBySlug(sub.plan_slug)?.store_product_id;
+          setManageUrl(
+            'https://play.google.com/store/account/subscriptions' +
+              (sku && packageName ? `?sku=${sku}&package=${packageName}` : ''),
+          );
+        } else {
+          setManageUrl('https://play.google.com/store/account/subscriptions');
+        }
       } else {
         setManageUrl(null);
       }
@@ -207,7 +213,7 @@ export const SettingsScreen = () => {
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>Cancel subscription</Text>
                 <Text style={styles.menuSubtext}>
-                  Opens Google Play (the only place to cancel or turn off auto-renew).
+                  Opens subscription settings to cancel or turn off auto-renew.
                 </Text>
               </View>
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -376,7 +382,7 @@ export const SettingsScreen = () => {
                   </Text>
                   <View style={styles.warningBox}>
                     <Text style={styles.warningText}>
-                      This does <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your Google Play subscription. Cancel it in Google Play first to stop being billed.
+                      This does <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your active app store or RevenueCat subscription. Cancel it in your subscription settings first to stop being billed.
                     </Text>
                   </View>
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GooglePlayWebhookController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ReminderIcsController;
+use App\Http\Controllers\RevenueCatWebhookController;
 use App\Http\Controllers\TimezoneController;
 use App\Livewire\Admin;
 use App\Livewire\App;
@@ -14,7 +15,16 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Google Play Real-Time Developer Notifications (RTDN)
+| RevenueCat Webhooks
+| RevenueCat server events push here; no CSRF / auth needed.
+|--------------------------------------------------------------------------
+*/
+Route::post('/webhooks/revenuecat', [RevenueCatWebhookController::class, 'handle'])
+    ->name('webhooks.revenuecat');
+
+/*
+|--------------------------------------------------------------------------
+| Google Play Real-Time Developer Notifications (RTDN - legacy)
 | Pub/Sub pushes to this endpoint; no CSRF / auth needed.
 |--------------------------------------------------------------------------
 */

@@ -70,7 +70,15 @@ class SettingsService
             'google_client_id' => '',
             'google_client_secret' => '',
 
-            // Google Play Billing
+            // RevenueCat Billing
+            'revenuecat_enabled' => true,
+            'revenuecat_api_key' => '',
+            'revenuecat_webhook_secret' => '',
+            'revenuecat_android_public_sdk_key' => '',
+            'revenuecat_ios_public_sdk_key' => '',
+            'revenuecat_entitlement_id' => 'premium',
+
+            // Google Play Billing (legacy fallback)
             'google_play_enabled' => false,
             'google_play_package_name' => 'com.kegeltrainer.app',
             'google_play_service_account_json' => '',

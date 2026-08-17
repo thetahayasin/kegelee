@@ -121,15 +121,9 @@
                     </div>
                     <p class="mt-2 text-xs text-muted">
                         {{ $autoRenewing
-                            ? 'Your subscription renews automatically. You can turn this off anytime in Google Play.'
+                            ? 'Your subscription renews automatically. You can turn this off anytime in your subscription settings.'
                             : 'Auto-renewal is off. Your access will end at the expiry date.' }}
                     </p>
-                    @if ($autoRenewing)
-                        <a href="https://play.google.com/store/account/subscriptions" target="_blank"
-                           class="mt-3 flex h-10 w-full items-center justify-center rounded-xl bg-white/5 text-sm font-medium text-muted tap">
-                            Manage in Google Play
-                        </a>
-                    @endif
                 </div>
 
                 <button wire:click="continueToApp" class="mt-4 grid h-14 w-full place-items-center rounded-2xl bg-accent font-semibold text-white tap">

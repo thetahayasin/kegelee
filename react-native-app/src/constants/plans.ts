@@ -1,9 +1,8 @@
-/**
+﻿/**
  * The three fixed subscription tiers - the exact catalogue the backend seeds
- * (database/seeders/PlanSeeder.php). Google Play owns billing, renewals,
- * cancellations and proration; these entries only map Play product IDs to
- * plans and drive the paywall display. The Play Console holds matching
- * subscription products with these IDs.
+ * (database/seeders/PlanSeeder.php). RevenueCat owns the purchase flow,
+ * renewals, cancellations, product changes and entitlement state; these
+ * entries map RevenueCat/Store product IDs to plans and drive the paywall.
  */
 export interface PlanDef {
   name: string;
@@ -14,6 +13,7 @@ export interface PlanDef {
   interval_count: number;
   description: string;
   store_product_id: string;
+  revenuecat_package_id: string;
   is_featured: boolean;
   sort_order: number;
 }
@@ -28,6 +28,7 @@ export const PLANS: PlanDef[] = [
     interval_count: 1,
     description: 'Full access, billed monthly.',
     store_product_id: 'premium_monthly',
+    revenuecat_package_id: '$rc_monthly',
     is_featured: false,
     sort_order: 1,
   },
@@ -40,6 +41,7 @@ export const PLANS: PlanDef[] = [
     interval_count: 3,
     description: 'Save 11%, billed every 3 months.',
     store_product_id: 'premium_quarterly',
+    revenuecat_package_id: '$rc_three_month',
     is_featured: true,
     sort_order: 2,
   },
@@ -52,6 +54,7 @@ export const PLANS: PlanDef[] = [
     interval_count: 1,
     description: 'One payment for the whole year.',
     store_product_id: 'premium_yearly',
+    revenuecat_package_id: '$rc_annual',
     is_featured: false,
     sort_order: 3,
   },
@@ -63,8 +66,13 @@ export const featuredPlan = (): PlanDef =>
 export const planBySlug = (slug: string | null | undefined): PlanDef | null =>
   PLANS.find((p) => p.slug === slug) ?? null;
 
-export const planByProductId = (productId: string): PlanDef | null =>
-  PLANS.find((p) => p.store_product_id === productId) ?? null;
+export const normalizeStoreProductId = (productId: string | null | undefined): string =>
+  (productId || '').split(':')[0];
+
+export const planByProductId = (productId: string | null | undefined): PlanDef | null => {
+  const normalized = normalizeStoreProductId(productId);
+  return PLANS.find((p) => p.store_product_id === normalized) ?? null;
+};
 
 /** Interval label as the subscribe sheet renders it (subscribe-sheet.blade.php). */
 export const sheetIntervalLabel = (plan: PlanDef): string => {
@@ -88,10 +96,8 @@ export const paywallIntervalLabel = (plan: PlanDef): string => {
 };
 
 /**
- * Local expiry estimate for an instant-access record right after a purchase
- * (the same interval math as createSubscription() on the web). The backend's
- * verified copy - with Google's real expiryTimeMillis - replaces it on the
- * next pull.
+ * Local expiry estimate for an instant-access record right after a purchase.
+ * RevenueCat's verified webhook/API copy replaces it on the next pull.
  */
 export const computeEndsAt = (plan: PlanDef, fromIso?: string): string | null => {
   const d = fromIso ? new Date(fromIso) : new Date();
@@ -109,7 +115,7 @@ export const computeEndsAt = (plan: PlanDef, fromIso?: string): string | null =>
       d.setFullYear(d.getFullYear() + plan.interval_count);
       break;
     default:
-      return null; // lifetime: no expiry
+      return null;
   }
   return d.toISOString();
 };

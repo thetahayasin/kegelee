@@ -156,14 +156,15 @@ class Settings extends Component
         $user = auth()->user();
         $subscription = $user->activeSubscription();
 
-        // Google Play subscription centre deep link — the only place Play allows
-        // users to turn off auto-renew / cancel. Pre-fills the product when known.
+        // Store / RevenueCat subscription management deep link.
         $manageUrl = null;
         if ($subscription?->isGooglePlay()) {
             $package = $settings->get('google_play_package_name');
             $sku = $subscription->plan?->store_product_id;
             $manageUrl = 'https://play.google.com/store/account/subscriptions'
                 .($sku && $package ? "?sku={$sku}&package={$package}" : '');
+        } elseif ($subscription?->isRevenueCat() || $subscription) {
+            $manageUrl = 'https://play.google.com/store/account/subscriptions';
         }
 
         return view('livewire.app.settings', [

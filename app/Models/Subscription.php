@@ -44,6 +44,11 @@ class Subscription extends Model
             && (! $this->ends_at || $this->ends_at->isFuture());
     }
 
+    public function isRevenueCat(): bool
+    {
+        return $this->store === 'revenuecat';
+    }
+
     public function isGooglePlay(): bool
     {
         return $this->store === 'google_play';

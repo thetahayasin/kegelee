@@ -124,17 +124,23 @@ const runSync = async (userId: number): Promise<SyncResult> => {
         times: r.times,
         is_enabled: r.is_enabled === 1,
       })),
-      // Google Play purchases complete on the DEVICE, so the backend only
-      // learns about them here. Every local Play token is re-sent each sync
+      // In-app purchases (RevenueCat / store) complete on the DEVICE, so the backend
+      // learns about them here. Every local purchase token is re-sent each sync
       // (the backend ignores tokens it already verified), which is what
       // delivers a purchase made offline - same as the web UserSyncService.
       subscriptions: localSubs
-        .filter((s) => s.store === 'google_play' && !!s.purchase_token)
+        .filter((s) => !!s.purchase_token)
         .map((s) => ({
+          store: s.store || 'revenuecat',
+          revenuecat_app_user_id: String(userId),
           purchase_token: s.purchase_token,
           plan_slug: s.plan_slug,
           google_order_id: s.google_order_id,
+          store_transaction_id: s.google_order_id,
+          status: s.status,
           started_at: s.started_at,
+          ends_at: s.ends_at,
+          auto_renewing: s.auto_renewing === 1,
         })),
     };
 

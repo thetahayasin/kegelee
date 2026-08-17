@@ -36,7 +36,7 @@ class SubscriptionRenewedMail extends Mailable
             'headline' => 'Subscription renewed',
             'body'     => "Your {$this->subscription->plan->name} subscription has been renewed successfully. Enjoy uninterrupted access to all features.",
             'detail'   => $endsAt
-                ? "Your next renewal date is {$endsAt->format('F j, Y')}. Manage billing anytime in Google Play."
+                ? "Your next renewal date is {$endsAt->format('F j, Y')}. Manage billing anytime in your subscription settings."
                 : null,
             'ctaLabel' => 'Open the App',
         ]);

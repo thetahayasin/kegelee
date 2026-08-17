@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -24,8 +24,9 @@ import {
 } from '../../constants/plans';
 import {
   initBilling,
-  listenForPurchases,
   requestPlanPurchase,
+  restoreRevenueCatPurchases,
+  getRevenueCatManagementUrl,
   recordCompletedPurchase,
   takePendingPlan,
   WITH_TIME_PRORATION,
@@ -40,9 +41,8 @@ import { Watermark } from '../../components/Watermark';
  * For a signed-in user WITHOUT a subscription this is the whole app - the
  * navigator's subscription gate mounts it as the root, and the only way out
  * is purchasing a plan or signing out. For subscribed users (reached from
- * Settings) it is "Manage Plan": switching plans uses Google Play's native
- * proration - upgrades switch immediately with time credit, downgrades defer
- * to the end of the paid period.
+ * Settings) it is "Manage Plan": switching plans uses RevenueCat's product-change flow - upgrades switch
+ * immediately with time credit, downgrades defer to the end of the paid period.
  */
 export const PaywallScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -57,8 +57,8 @@ export const PaywallScreen = () => {
   const [loggingOut, setLoggingOut] = useState(false);
   const insets = useSafeAreaInsets();
 
-  // The listener callback closes over state; keep the live subscription in a
-  // ref so a completion arriving after a re-render still sees the truth.
+  // Keep the live subscription in a ref so CTA presses after a re-render still
+  // use the current subscription when switching plans.
   const activeSubRef = useRef<DBSubscription | null>(null);
 
   const subscribed = !!activeSub;
@@ -68,34 +68,33 @@ export const PaywallScreen = () => {
       setMessage(null);
       setPurchasing(true);
       try {
-        // Switching from an existing Google Play subscription uses Play's
-        // native proration: hand Google the old purchase token + replacement
-        // mode and it credits/charges and replaces the old subscription
-        // itself. Mode by direction (absolute price, so monthly->yearly is an
-        // upgrade), matching Google's recommended behaviour. A first-time
-        // subscriber just buys fresh.
-        if (
-          current &&
-          current.store === 'google_play' &&
-          current.purchase_token &&
-          current.plan_slug !== plan.slug
-        ) {
-          const currentPlan = planBySlug(current.plan_slug);
-          const isUpgrade = !currentPlan || plan.price >= currentPlan.price;
-          await requestPlanPurchase(plan, {
-            oldPurchaseToken: current.purchase_token,
-            replacementMode: isUpgrade ? WITH_TIME_PRORATION : DEFERRED,
-          });
-        } else {
-          await requestPlanPurchase(plan);
+        // Switching from an existing RevenueCat subscription passes the old
+        // product id plus a replacement mode. Mode is chosen by absolute
+        // price, so monthly->yearly is treated as an upgrade.
+        if (!user) throw new Error('Sign in before subscribing.');
+        const currentPlan = current ? planBySlug(current.plan_slug) : null;
+        const switching = !!currentPlan && currentPlan.slug !== plan.slug;
+        const purchase = await requestPlanPurchase(user.id, plan, switching ? {
+          oldProductId: currentPlan.store_product_id,
+          replacementMode: plan.price >= currentPlan.price ? WITH_TIME_PRORATION : DEFERRED,
+        } : undefined);
+
+        const result = await recordCompletedPurchase(user.id, purchase);
+        if (result === 'unmatched') {
+          setMessage('Purchase received but plan could not be matched. Contact support.');
+          return;
         }
-        // Success/cancel/failure arrives through the purchase listeners.
-      } catch (e) {
+        setAutoRenewing(purchase.autoRenewing);
+        setShowAutoRenewalNotice(true);
+      } catch (e: any) {
+        if (!e?.userCancelled) {
+          setMessage(e?.message || 'Purchase failed. Please try again.');
+        }
+      } finally {
         setPurchasing(false);
-        setMessage('Purchase failed. Please try again.');
       }
     },
-    [],
+    [user],
   );
 
   // Mount: warm the billing connection, load the current subscription,
@@ -106,7 +105,7 @@ export const PaywallScreen = () => {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      initBilling();
+      if (user) initBilling(user.id);
       // A subscription can renew (or be bought on another device) while the
       // app is closed, leaving the local rows stale - and no other screen is
       // reachable behind the gate to trigger a sync. Pull here; when the pull
@@ -137,37 +136,6 @@ export const PaywallScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The web's native:InAppPurchase.purchaseCompleted / purchaseFailed /
-  // purchaseCancelled handlers.
-  useEffect(() => {
-    if (!user) return;
-    const off = listenForPurchases(
-      async ({ purchaseToken, productId, orderId }) => {
-        setPurchasing(false);
-        const result = await recordCompletedPurchase(user.id, {
-          purchaseToken,
-          productId,
-          orderId,
-        });
-        if (result === 'unmatched') {
-          setMessage('Purchase received but plan could not be matched. Contact support.');
-          return;
-        }
-        // 'duplicate' is a re-delivered completion for a token we already
-        // recorded - show the notice again rather than duplicating anything.
-        setAutoRenewing(true);
-        setShowAutoRenewalNotice(true);
-      },
-      (userCancelled) => {
-        setPurchasing(false);
-        if (!userCancelled) {
-          setMessage('Purchase failed. Please try again.');
-        }
-      },
-    );
-    return off;
-  }, [user]);
-
   const continueToApp = () => {
     setShowAutoRenewalNotice(false);
     // Opens the subscription gate; when this screen is the gate's root the
@@ -191,6 +159,29 @@ export const PaywallScreen = () => {
     }
   };
 
+  const handleRestore = async () => {
+    if (!user) return;
+    setMessage(null);
+    setPurchasing(true);
+    try {
+      const purchase = await restoreRevenueCatPurchases(user.id);
+      if (!purchase) {
+        setMessage('No active subscription was found to restore.');
+        return;
+      }
+      const result = await recordCompletedPurchase(user.id, purchase);
+      if (result === 'unmatched') {
+        setMessage('Restored purchase could not be matched to a plan. Contact support.');
+        return;
+      }
+      setAutoRenewing(purchase.autoRenewing);
+      setShowAutoRenewalNotice(true);
+    } catch (e: any) {
+      setMessage(e?.message || 'Restore failed. Please try again.');
+    } finally {
+      setPurchasing(false);
+    }
+  };
   const selectedPlanDef = planBySlug(selectedPlan);
   const isUpgrade =
     !!activeSub && !!selectedPlan && activeSub.plan_slug !== selectedPlan;
@@ -299,9 +290,9 @@ export const PaywallScreen = () => {
         </TouchableOpacity>
         {!purchasing && (
           <Text style={styles.legalText}>
-            Payment is charged to your Google Play account on confirmation. Your
+            Payment is processed securely through RevenueCat and the app store on confirmation. Your
             subscription renews automatically at the price shown until you cancel
-            it in Google Play; uninstalling the app does not cancel or refund it.
+            it; uninstalling the app does not cancel or refund it.
             By continuing you agree to our{' '}
             <Text
               style={styles.legalLink}
@@ -309,14 +300,7 @@ export const PaywallScreen = () => {
             >
               Terms
             </Text>{' '}
-            and the{' '}
-            <Text
-              style={styles.legalLink}
-              onPress={() => Linking.openURL('https://play.google.com/about/play-terms/')}
-            >
-              Google Play Terms
-            </Text>
-            .
+            and the app store terms.
           </Text>
         )}
       </View>
@@ -361,17 +345,17 @@ export const PaywallScreen = () => {
               </View>
               <Text style={styles.noticeBoxHint}>
                 {autoRenewing
-                  ? 'Your subscription renews automatically. You can turn this off anytime in Google Play.'
+                  ? 'Your subscription renews automatically. You can manage or turn this off anytime from your subscription settings.'
                   : 'Auto-renewal is off. Your access will end at the expiry date.'}
               </Text>
               {autoRenewing && (
                 <TouchableOpacity
                   style={styles.manageBtn}
                   onPress={() =>
-                    Linking.openURL('https://play.google.com/store/account/subscriptions')
+                    user ? getRevenueCatManagementUrl(user.id).then((url) => url && Linking.openURL(url)) : undefined
                   }
                 >
-                  <Text style={styles.manageBtnText}>Manage in Google Play</Text>
+                  <Text style={styles.manageBtnText}>Manage subscription</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -544,7 +528,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.onAccent,
   },
-  legalText: {
+  restoreBtn: {
+    marginTop: 10,
+    alignSelf: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  restoreBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    textDecorationLine: 'underline',
+  },  legalText: {
     marginTop: 8,
     fontSize: 11,
     lineHeight: 16,
@@ -652,3 +647,7 @@ const styles = StyleSheet.create({
     color: COLORS.onAccent,
   },
 });
+
+
+
+

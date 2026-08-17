@@ -50,6 +50,7 @@ class Settings extends Component
         'inject_head' => 'html', 'inject_body_start' => 'html', 'inject_body_end' => 'html', 'custom_css' => 'html',
         'color_accent' => 'color',
         'mail_port' => 'int', 'google_login_enabled' => 'bool',
+        'revenuecat_enabled' => 'bool',
         'google_play_enabled' => 'bool',
         'google_play_service_account_json' => 'html',
         'subscription_trial_days' => 'int',

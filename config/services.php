@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    'revenuecat' => [
+        'api_key' => env('REVENUECAT_API_KEY', ''),
+        'webhook_secret' => env('REVENUECAT_WEBHOOK_SECRET', ''),
+        'entitlement_id' => env('REVENUECAT_ENTITLEMENT_ID', 'premium'),
+    ],
+
     'google_play' => [
         // Your app's package name as registered on the Play Console
         'package_name' => env('GOOGLE_PLAY_PACKAGE_NAME', 'com.kegeltrainer.app'),

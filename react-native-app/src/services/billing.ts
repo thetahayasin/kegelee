@@ -1,149 +1,223 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+﻿import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
+import Purchases from 'react-native-purchases';
 import { api } from './api';
 import {
   getActiveSubscription,
   getSubscriptionByToken,
   saveSubscription,
 } from '../db/queries';
-import { PlanDef, planByProductId, computeEndsAt } from '../constants/plans';
+import { getAppSetting } from '../db/queries';
+import {
+  PlanDef,
+  planByProductId,
+  normalizeStoreProductId,
+} from '../constants/plans';
 
 /**
- * Google Play Billing for the subscription paywall, mirroring the web app's
- * App\Livewire\App\Paywall / SubscribeSheet purchase flow:
+ * RevenueCat-backed subscriptions for the mobile paywall.
  *
- * - The device launches the Play purchase sheet and, on completion, records
- *   the subscription locally for INSTANT access.
- * - The purchase token is reported to the backend, which verifies it with the
- *   Play Developer API (and acknowledges it) before storing its authoritative
- *   copy - a forged token can never grant server-side access. Offline at that
- *   moment is fine: the sync engine pushes every local Play token until the
- *   backend knows it.
- * - Google keeps re-delivering an unacknowledged purchase on app start; the
- *   known-token check makes that idempotent, exactly like the web handlers.
+ * RevenueCat owns transaction validation, acknowledgement, renewals,
+ * cancellations and product changes. The app keeps the existing local
+ * subscription mirror for instant access; Laravel verifies RevenueCat state
+ * and remains authoritative after sync/webhooks.
  */
+const REVENUECAT_ENTITLEMENT_ID = 'premium';
+const REVENUECAT_ANDROID_PUBLIC_SDK_KEY = 'REVENUECAT_ANDROID_PUBLIC_SDK_KEY';
+const REVENUECAT_IOS_PUBLIC_SDK_KEY = 'REVENUECAT_IOS_PUBLIC_SDK_KEY';
 
-// react-native-iap is a native module; require lazily so a bundle running
-// against a binary built before the module was added still boots - purchases
-// then fail with the standard failure message instead of crashing at import.
-let iap: any = null;
-try {
-  iap = require('react-native-iap');
-} catch (e) {
-  iap = null;
-}
+export const WITH_TIME_PRORATION = Purchases.STORE_REPLACEMENT_MODE.WITH_TIME_PRORATION;
+export const DEFERRED = Purchases.STORE_REPLACEMENT_MODE.DEFERRED;
 
-/**
- * Google Play replacement modes for plan switches (Billing Library values).
- * - WITH_TIME_PRORATION (upgrade): switch immediately and credit the unused
- *   portion of the old plan as extra time on the new one.
- * - DEFERRED (downgrade): keep the current plan until the paid period ends,
- *   then start the new (cheaper) plan - the user keeps what they paid for.
- */
-export const WITH_TIME_PRORATION = 1;
-export const DEFERRED = 6;
+type CustomerInfo = any;
+type PurchasesPackage = any;
 
-let connected = false;
+let configuredAppUserId: string | null = null;
+let configurePromise: Promise<boolean> | null = null;
 
-export const initBilling = async (): Promise<boolean> => {
-  if (!iap) return false;
-  if (connected) return true;
-  try {
-    await iap.initConnection();
-    connected = true;
-    return true;
-  } catch (e) {
-    return false;
+const configuredApiKey = async (): Promise<string> => {
+  const keyName = Platform.OS === 'ios'
+    ? 'revenuecat_ios_public_sdk_key'
+    : 'revenuecat_android_public_sdk_key';
+  const fallback = Platform.OS === 'ios'
+    ? REVENUECAT_IOS_PUBLIC_SDK_KEY
+    : REVENUECAT_ANDROID_PUBLIC_SDK_KEY;
+  const key = (await getAppSetting(keyName, fallback).catch(() => fallback)).trim();
+
+  if (!key || key === fallback || key.startsWith('REVENUECAT_')) {
+    throw new Error('RevenueCat API key is not configured.');
   }
+
+  return key;
+};
+
+export const initBilling = async (userId?: number | string | null): Promise<boolean> => {
+  const appUserId = userId ? String(userId) : null;
+
+  if (configurePromise && (!appUserId || configuredAppUserId === appUserId)) {
+    return configurePromise;
+  }
+
+  configurePromise = (async () => {
+    try {
+      const apiKey = await configuredApiKey();
+      if (!configuredAppUserId) {
+        Purchases.setLogLevel(Purchases.LOG_LEVEL.WARN).catch(() => {});
+        Purchases.configure({ apiKey, appUserID: appUserId || undefined });
+        configuredAppUserId = appUserId;
+      } else if (appUserId && configuredAppUserId !== appUserId) {
+        await Purchases.logIn(appUserId);
+        configuredAppUserId = appUserId;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  })();
+
+  return configurePromise;
 };
 
 export interface CompletedPurchase {
-  purchaseToken: string;
+  revenuecatAppUserId: string;
   productId: string;
-  orderId: string | null;
+  storeTransactionId: string | null;
+  managementURL: string | null;
+  startedAt: string;
+  endsAt: string | null;
+  autoRenewing: boolean;
+  periodType: string | null;
 }
 
-/**
- * Wire the Play purchase listeners; returns a cleanup function. The screens
- * treat these as the web's native:InAppPurchase.purchaseCompleted /
- * purchaseFailed / purchaseCancelled events.
- */
-export const listenForPurchases = (
-  onCompleted: (purchase: CompletedPurchase) => void,
-  onError: (userCancelled: boolean) => void,
-): (() => void) => {
-  if (!iap) return () => {};
+const activeEntitlement = (customerInfo: CustomerInfo, productId?: string) => {
+  const active = customerInfo?.entitlements?.active || {};
+  const premium = active[REVENUECAT_ENTITLEMENT_ID];
+  if (premium && (!productId || sameProduct(premium.productIdentifier, productId))) {
+    return premium;
+  }
 
-  const updateSub = iap.purchaseUpdatedListener((purchase: any) => {
-    const purchaseToken: string =
-      purchase?.purchaseToken || purchase?.purchaseTokenAndroid || '';
-    const productId: string =
-      purchase?.productId || purchase?.productIds?.[0] || '';
-    if (purchaseToken && productId) {
-      onCompleted({
-        purchaseToken,
-        productId,
-        orderId: purchase?.transactionId || null,
-      });
-    }
-  });
+  return Object.values(active).find((ent: any) =>
+    !productId || sameProduct(ent?.productIdentifier, productId),
+  ) as any;
+};
 
-  const errorSub = iap.purchaseErrorListener((e: any) => {
-    onError(e?.code === 'E_USER_CANCELLED');
-  });
+const sameProduct = (left?: string | null, right?: string | null): boolean =>
+  normalizeStoreProductId(left) === normalizeStoreProductId(right);
 
-  return () => {
-    try {
-      updateSub?.remove();
-      errorSub?.remove();
-    } catch (e) {}
+const subscriptionInfoFor = (customerInfo: CustomerInfo, productId: string) => {
+  const subscriptions = customerInfo?.subscriptionsByProductIdentifier || {};
+  return subscriptions[productId]
+    || subscriptions[normalizeStoreProductId(productId)]
+    || Object.values(subscriptions).find((sub: any) => sameProduct(sub?.productIdentifier, productId))
+    || null;
+};
+
+const packageProductId = (pkg: PurchasesPackage): string =>
+  pkg?.product?.defaultOption?.storeProductId
+    || pkg?.product?.identifier
+    || '';
+
+const packageForPlan = async (plan: PlanDef): Promise<PurchasesPackage> => {
+  const offerings = await Purchases.getOfferings();
+  const packages = offerings?.current?.availablePackages || [];
+  const found = packages.find((pkg: PurchasesPackage) =>
+    pkg?.identifier === plan.revenuecat_package_id
+      || pkg?.identifier === plan.slug
+      || sameProduct(packageProductId(pkg), plan.store_product_id),
+  );
+
+  if (!found) {
+    throw new Error(`RevenueCat package for ${plan.name} is not configured.`);
+  }
+
+  return found;
+};
+
+const completedFromCustomerInfo = (
+  customerInfo: CustomerInfo,
+  fallbackProductId?: string,
+): CompletedPurchase | null => {
+  const entitlement = activeEntitlement(customerInfo, fallbackProductId);
+  const productId = entitlement?.productIdentifier || fallbackProductId;
+  if (!productId) return null;
+
+  const subInfo: any = subscriptionInfoFor(customerInfo, productId);
+  const transactionId = subInfo?.storeTransactionId
+    || `${customerInfo?.originalAppUserId || configuredAppUserId || 'unknown'}:${normalizeStoreProductId(productId)}`;
+
+  return {
+    revenuecatAppUserId: String(customerInfo?.originalAppUserId || configuredAppUserId || ''),
+    productId,
+    storeTransactionId: transactionId,
+    managementURL: subInfo?.managementURL || customerInfo?.managementURL || null,
+    startedAt: subInfo?.originalPurchaseDate
+      || subInfo?.purchaseDate
+      || entitlement?.originalPurchaseDate
+      || entitlement?.latestPurchaseDate
+      || new Date().toISOString(),
+    endsAt: entitlement?.expirationDate || subInfo?.expiresDate || customerInfo?.latestExpirationDate || null,
+    autoRenewing: Boolean(entitlement?.willRenew ?? subInfo?.willRenew ?? true),
+    periodType: entitlement?.periodType || subInfo?.periodType || null,
   };
 };
 
 /**
- * Launch the Google Play purchase sheet for a plan. For a plan SWITCH pass
- * the current subscription's purchase token: Play then prorates natively
- * (credits/charges and replaces the old subscription itself) using the given
- * replacement mode, the same choice the web Paywall makes. A first-time
- * subscriber just buys fresh.
+ * Launch RevenueCat's purchase flow for a plan. For a plan switch, pass the
+ * current store product id so RevenueCat/Google can apply the requested
+ * replacement mode.
  */
 export const requestPlanPurchase = async (
+  userId: number,
   plan: PlanDef,
-  opts?: { oldPurchaseToken?: string; replacementMode?: number },
-): Promise<void> => {
-  if (!(await initBilling())) {
-    throw new Error('Google Play Billing is unavailable on this device.');
+  opts?: { oldProductId?: string; replacementMode?: string },
+): Promise<CompletedPurchase> => {
+  if (!(await initBilling(userId))) {
+    throw new Error('RevenueCat billing is unavailable on this device.');
   }
 
-  const sku = plan.store_product_id;
+  const rcPackage = await packageForPlan(plan);
+  const productChangeInfo = opts?.oldProductId
+    ? {
+        oldProductIdentifier: opts.oldProductId,
+        replacementMode: opts.replacementMode ?? WITH_TIME_PRORATION,
+      }
+    : null;
 
-  // Billing 5+ products carry offers; the purchase call needs the base-plan
-  // offer token. Missing catalog data surfaces as a purchase failure below.
-  let offerToken: string | undefined;
-  try {
-    const subs = await iap.getSubscriptions({ skus: [sku] });
-    offerToken = subs?.[0]?.subscriptionOfferDetails?.[0]?.offerToken;
-  } catch (e) {}
+  const { customerInfo, productIdentifier } = await Purchases.purchasePackage(
+    rcPackage,
+    null,
+    productChangeInfo,
+  );
 
-  await iap.requestSubscription({
-    sku,
-    ...(offerToken ? { subscriptionOffers: [{ sku, offerToken }] } : {}),
-    ...(opts?.oldPurchaseToken
-      ? {
-          purchaseTokenAndroid: opts.oldPurchaseToken,
-          replacementModeAndroid: opts.replacementMode ?? WITH_TIME_PRORATION,
-          prorationModeAndroid: opts.replacementMode ?? WITH_TIME_PRORATION,
-        }
-      : {}),
-  });
+  const completed = completedFromCustomerInfo(customerInfo, productIdentifier || packageProductId(rcPackage));
+  if (!completed || !activeEntitlement(customerInfo, completed.productId)) {
+    throw new Error('RevenueCat did not return an active entitlement for this purchase.');
+  }
+
+  return completed;
+};
+
+export const restoreRevenueCatPurchases = async (userId: number): Promise<CompletedPurchase | null> => {
+  if (!(await initBilling(userId))) {
+    throw new Error('RevenueCat billing is unavailable on this device.');
+  }
+
+  const customerInfo = await Purchases.restorePurchases();
+  return completedFromCustomerInfo(customerInfo);
+};
+
+export const getRevenueCatManagementUrl = async (userId: number): Promise<string | null> => {
+  if (!(await initBilling(userId))) return null;
+  const customerInfo = await Purchases.getCustomerInfo();
+  return customerInfo?.managementURL || null;
 };
 
 export type RecordResult = 'recorded' | 'duplicate' | 'unmatched';
 
 /**
- * Handle a completed Play purchase the way the web onPurchaseCompleted does:
- * match the plan, ignore re-delivered tokens, retire the old record on a plan
- * switch, store the subscription locally for instant access, and report the
- * token so the backend can verify it with Google.
+ * Store a completed RevenueCat purchase locally for instant access, then push
+ * the RevenueCat identifiers so Laravel can verify the customer before saving
+ * its authoritative subscription row.
  */
 export const recordCompletedPurchase = async (
   userId: number,
@@ -152,15 +226,13 @@ export const recordCompletedPurchase = async (
   const plan = planByProductId(purchase.productId);
   if (!plan) return 'unmatched';
 
-  // Idempotency: a re-delivered completion for a token we already recorded
-  // must not create a duplicate subscription.
-  if (await getSubscriptionByToken(purchase.purchaseToken)) {
+  const token = purchase.storeTransactionId
+    || `revenuecat:${purchase.revenuecatAppUserId}:${normalizeStoreProductId(purchase.productId)}`;
+
+  if (await getSubscriptionByToken(token)) {
     return 'duplicate';
   }
 
-  // Plan switch: Play has already replaced the old subscription server-side
-  // (native proration); just retire our local record. The backend also learns
-  // about it through the RTDN webhooks.
   const current = await getActiveSubscription(userId).catch(() => null);
   if (current && current.purchase_token && current.plan_slug !== plan.slug) {
     await saveSubscription(userId, {
@@ -171,31 +243,35 @@ export const recordCompletedPurchase = async (
     });
   }
 
-  const startedAt = new Date().toISOString();
+  const startedAt = purchase.startedAt || new Date().toISOString();
   await saveSubscription(userId, {
-    plan_id: null, // backend numeric id lands with the next pull; slug is the mapping key
+    plan_id: null,
     plan_slug: plan.slug,
-    status: 'active',
-    store: 'google_play',
-    purchase_token: purchase.purchaseToken,
-    google_order_id: purchase.orderId,
-    trial_ends_at: null,
+    status: purchase.periodType === 'TRIAL' ? 'trialing' : 'active',
+    store: 'revenuecat',
+    purchase_token: token,
+    google_order_id: purchase.storeTransactionId,
+    trial_ends_at: purchase.periodType === 'TRIAL' ? purchase.endsAt : null,
     started_at: startedAt,
-    ends_at: computeEndsAt(plan, startedAt),
+    ends_at: purchase.endsAt,
     canceled_at: null,
-    auto_renewing: 1,
+    auto_renewing: purchase.autoRenewing ? 1 : 0,
   });
 
-  // Report the token; the backend verifies it with Google before storing its
-  // authoritative copy. Offline right now - the background sync delivers it.
   try {
     await api.pushState({
       subscriptions: [
         {
-          purchase_token: purchase.purchaseToken,
+          store: 'revenuecat',
+          revenuecat_app_user_id: purchase.revenuecatAppUserId || String(userId),
+          revenuecat_product_id: purchase.productId,
+          purchase_token: token,
           plan_slug: plan.slug,
-          google_order_id: purchase.orderId,
+          google_order_id: purchase.storeTransactionId,
+          store_transaction_id: purchase.storeTransactionId,
           started_at: startedAt,
+          ends_at: purchase.endsAt,
+          auto_renewing: purchase.autoRenewing,
         },
       ],
     });
@@ -206,10 +282,8 @@ export const recordCompletedPurchase = async (
 
 /**
  * Plan chosen in the subscribe sheet before authentication interrupted the
- * purchase (register -> email code -> sign in). The paywall - the first
- * screen an authenticated, unsubscribed user reaches - takes it and launches
- * the Play purchase immediately, which is the web sheet's triggerPurchase()
- * continuing after auth.
+ * purchase. The authenticated paywall takes it and starts the RevenueCat
+ * purchase flow immediately after verification/sign-in.
  */
 const PENDING_PLAN_KEY = '@pending_plan_slug';
 

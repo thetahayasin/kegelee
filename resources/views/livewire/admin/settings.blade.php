@@ -6,7 +6,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'email' => 'Email', 'google' => 'Google login', 'google_play' => 'Google Play', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'email' => 'Email', 'google' => 'Google login', 'revenuecat' => 'RevenueCat & Billing', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -97,51 +97,63 @@
                 <input type="password" wire:model="values.google_client_secret" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
         </div>
 
-        {{-- GOOGLE PLAY BILLING --}}
-        <div x-show="tab === 'google_play'" class="space-y-4 rounded-2xl bg-surface p-5">
+        {{-- REVENUECAT & BILLING --}}
+        <div x-show="tab === 'revenuecat'" class="space-y-4 rounded-2xl bg-surface p-5">
             <label class="flex items-center gap-3">
-                <input type="checkbox" wire:model="values.google_play_enabled" class="h-5 w-5 accent-[var(--c-accent)]">
-                <span>Enable Google Play Billing</span>
+                <input type="checkbox" wire:model="values.revenuecat_enabled" class="h-5 w-5 accent-[var(--c-accent)]">
+                <span>Enable RevenueCat In-App Subscriptions</span>
             </label>
 
             <p class="text-sm text-muted">
-                Create a service account in
-                <strong class="text-content">Google Cloud Console</strong> with the
-                <em>Android Publisher</em> role, download its JSON key, and paste the full
-                contents below. Also add the service account email to your
-                <strong class="text-content">Play Console &rarr; Users &amp; permissions</strong>
-                with <em>View financial data</em> + <em>Manage orders</em> access.
+                RevenueCat manages in-app purchases across iOS &amp; Android. Configure your Products, Offerings (<code class="text-content">default</code>), and Entitlement (<code class="text-content">premium</code>) in the RevenueCat dashboard.
             </p>
 
-            <div>
-                <label class="mb-1 block text-sm text-muted">Android package name</label>
-                <input wire:model="values.google_play_package_name"
-                       placeholder="com.yourapp.id"
-                       class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">Must match the Application ID in your Play Console listing.</p>
-            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-sm text-muted">RevenueCat Secret API Key (V1/V2)</label>
+                    <input type="password" wire:model="values.revenuecat_api_key" autocomplete="new-password"
+                           placeholder="sk_..."
+                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                    <p class="mt-1 text-xs text-muted">Used server-side to verify entitlements with RevenueCat REST API.</p>
+                </div>
 
-            <div>
-                <label class="mb-1 block text-sm text-muted">Service account JSON key</label>
-                <textarea wire:model="values.google_play_service_account_json"
-                          rows="10"
-                          placeholder='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"-----BEGIN RSA PRIVATE KEY-----\n...","client_email":"...@....iam.gserviceaccount.com",...}'
-                          class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs leading-relaxed focus:border-accent focus:outline-none"></textarea>
-                <p class="mt-1 text-xs text-muted">Paste the full contents of the downloaded <code>.json</code> key file. Stored encrypted at rest — never exposed to the app.</p>
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Webhook Authorization Header Secret</label>
+                    <input wire:model="values.revenuecat_webhook_secret"
+                           placeholder="your_custom_webhook_secret"
+                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                    <p class="mt-1 text-xs text-muted">Value set in RevenueCat Dashboard &rarr; Integrations &rarr; Webhooks &rarr; Authorization Header.</p>
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm text-muted">Android Public SDK Key</label>
+                    <input wire:model="values.revenuecat_android_public_sdk_key"
+                           placeholder="goog_..."
+                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="mb-1 block text-sm text-muted">iOS Public SDK Key</label>
+                    <input wire:model="values.revenuecat_ios_public_sdk_key"
+                           placeholder="appl_..."
+                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                </div>
             </div>
 
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
-                <p class="font-semibold text-content">Pub/Sub webhook URL</p>
-                <p class="mt-1 font-mono text-xs break-all">{{ url('/webhooks/google-play') }}</p>
-                <p class="mt-2">Configure this as the push endpoint in your Google Cloud Pub/Sub subscription so Play sends real-time renewal and cancellation events.</p>
+                <p class="font-semibold text-content">RevenueCat Webhook URL</p>
+                <p class="mt-1 font-mono text-xs break-all text-accent">{{ url('/webhooks/revenuecat') }}</p>
+                <p class="mt-2">Paste this URL into RevenueCat Dashboard &rarr; Project Settings &rarr; Integrations &rarr; Webhooks.</p>
             </div>
 
             <div>
-                <label class="mb-1 block text-sm text-muted">Free trial days (all plans)</label>
-                <input type="number" min="0" wire:model="values.subscription_trial_days"
-                       class="h-11 w-32 rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">Set to 0 to disable trials. Applies to every plan — there are no per-plan trial periods.</p>
+                <label class="mb-1 block text-sm text-muted">Entitlement Identifier</label>
+                <input wire:model="values.revenuecat_entitlement_id"
+                       placeholder="premium"
+                       class="h-11 w-48 rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                <p class="mt-1 text-xs text-muted">Default is <code>premium</code>.</p>
             </div>
+        </div>
 
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
                 <p class="font-semibold text-content">Subscription products</p>

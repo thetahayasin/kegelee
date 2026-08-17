@@ -228,11 +228,10 @@ class SyncController extends Controller
             $user->completedLessons()->syncWithoutDetaching($syncData);
         }
 
-        // --- Subscriptions (Google Play purchases complete on the device) ---
-        // The device reports the purchase token; the backend VERIFIES it with
-        // the Play Developer API before storing anything, so a forged token
-        // can never grant access. Known tokens are ignored here - the backend
-        // record is authoritative and kept current by the RTDN webhooks.
+        // --- Subscriptions (RevenueCat / Store purchases complete on the device) ---
+        // The device reports the purchase token or RevenueCat identifiers; the backend
+        // verifies with RevenueCat API when available before storing. Known tokens are
+        // ignored here — the backend record is authoritative and kept current by webhooks.
         $synced['subscriptions'] = 0;
         foreach ($request->input('subscriptions', []) as $s) {
             $token = (string) ($s['purchase_token'] ?? '');
@@ -248,45 +247,99 @@ class SyncController extends Controller
                 ? \App\Models\Plan::where('slug', $s['plan_slug'])->first()
                 : null;
 
-            if (! $plan || empty($plan->store_product_id)) {
+            if (! $plan) {
                 continue;
             }
 
-            try {
-                $billing = app(\App\Services\GooglePlayBillingService::class);
-                $data = $billing->verifySubscription($plan->store_product_id, $token);
+            $store = (string) ($s['store'] ?? 'revenuecat');
 
-                // 1 = paid, 2 = free trial. Anything else is not a valid purchase.
-                if (! in_array($data['paymentState'] ?? -1, [1, 2], true)) {
-                    continue;
+            if ($store === 'revenuecat') {
+                $rcAppUserId = (string) ($s['revenuecat_app_user_id'] ?? $user->id);
+                $rcService = app(\App\Services\RevenueCatService::class);
+                $isTrial = ($s['status'] ?? '') === 'trialing';
+                $expiresAt = ! empty($s['ends_at']) ? \Carbon\Carbon::parse($s['ends_at']) : null;
+                $startedAt = ! empty($s['started_at']) ? \Carbon\Carbon::parse($s['started_at']) : now();
+                $autoRenewing = (bool) ($s['auto_renewing'] ?? true);
+
+                try {
+                    $subscriber = $rcService->getSubscriber($rcAppUserId);
+                    if (! empty($subscriber)) {
+                        $entitlement = $rcService->getActiveEntitlement($subscriber);
+                        if ($entitlement) {
+                            $expiresAt = ! empty($entitlement['expires_date'])
+                                ? \Carbon\Carbon::parse($entitlement['expires_date'])
+                                : $expiresAt;
+                            $isTrial = ($entitlement['period_type'] ?? '') === 'TRIAL';
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::info('RevenueCat subscriber API lookup in push skipped/failed', [
+                        'user_id' => $user->id,
+                        'error'   => $e->getMessage(),
+                    ]);
                 }
 
-                $billing->acknowledgeSubscription($plan->store_product_id, $token);
-
-                $expiresAt = isset($data['expiryTimeMillis'])
-                    ? \Carbon\Carbon::createFromTimestampMs((int) $data['expiryTimeMillis'])
-                    : null;
-                $isTrial = ($data['paymentState'] ?? 0) === 2;
-
-                \App\Models\Subscription::create([
-                    'user_id'         => $user->id,
-                    'plan_id'         => $plan->id,
-                    'status'          => $isTrial ? 'trialing' : 'active',
-                    'store'           => 'google_play',
-                    'purchase_token'  => $token,
-                    'google_order_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
-                    'store_transaction_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
-                    'trial_ends_at'   => $isTrial ? $expiresAt : null,
-                    'started_at'      => ! empty($s['started_at']) ? \Carbon\Carbon::parse($s['started_at']) : now(),
-                    'ends_at'         => $expiresAt,
-                    'auto_renewing'   => (bool) ($data['autoRenewing'] ?? true),
+                $sub = \App\Models\Subscription::create([
+                    'user_id'              => $user->id,
+                    'plan_id'              => $plan->id,
+                    'status'               => $isTrial ? 'trialing' : 'active',
+                    'store'                => 'revenuecat',
+                    'purchase_token'       => $token,
+                    'google_order_id'      => $s['google_order_id'] ?? null,
+                    'store_transaction_id' => $s['store_transaction_id'] ?? ($s['google_order_id'] ?? $token),
+                    'trial_ends_at'        => $isTrial ? $expiresAt : null,
+                    'started_at'           => $startedAt,
+                    'ends_at'              => $expiresAt,
+                    'auto_renewing'        => $autoRenewing,
                 ]);
+
+                try {
+                    \Illuminate\Support\Facades\Mail::to($user)->send(new \App\Mail\SubscriptionStartedMail($sub));
+                } catch (\Throwable $e) {}
+
                 $synced['subscriptions']++;
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Pushed purchase token failed verification', [
-                    'user_id' => $user->id,
-                    'error'   => $e->getMessage(),
-                ]);
+            } elseif ($store === 'google_play' && ! empty($plan->store_product_id)) {
+                try {
+                    $billing = app(\App\Services\GooglePlayBillingService::class);
+                    $data = $billing->verifySubscription($plan->store_product_id, $token);
+
+                    // 1 = paid, 2 = free trial. Anything else is not a valid purchase.
+                    if (! in_array($data['paymentState'] ?? -1, [1, 2], true)) {
+                        continue;
+                    }
+
+                    $billing->acknowledgeSubscription($plan->store_product_id, $token);
+
+                    $expiresAt = isset($data['expiryTimeMillis'])
+                        ? \Carbon\Carbon::createFromTimestampMs((int) $data['expiryTimeMillis'])
+                        : null;
+                    $isTrial = ($data['paymentState'] ?? 0) === 2;
+
+                    $sub = \App\Models\Subscription::create([
+                        'user_id'         => $user->id,
+                        'plan_id'         => $plan->id,
+                        'status'          => $isTrial ? 'trialing' : 'active',
+                        'store'           => 'google_play',
+                        'purchase_token'  => $token,
+                        'google_order_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
+                        'store_transaction_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
+                        'trial_ends_at'   => $isTrial ? $expiresAt : null,
+                        'started_at'      => ! empty($s['started_at']) ? \Carbon\Carbon::parse($s['started_at']) : now(),
+                        'ends_at'         => $expiresAt,
+                        'auto_renewing'   => (bool) ($data['autoRenewing'] ?? true),
+                    ]);
+
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($user)->send(new \App\Mail\SubscriptionStartedMail($sub));
+                    } catch (\Throwable $e) {}
+
+                    $synced['subscriptions']++;
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Pushed purchase token failed verification', [
+                        'user_id' => $user->id,
+                        'error'   => $e->getMessage(),
+                    ]);
+                }
             }
         }
 

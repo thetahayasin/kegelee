@@ -57,7 +57,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   const flatListRef = useRef<FlatList>(null);
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
-  // Finishing / skipping the slides ends on the Google Play plans (the web
+  // Finishing / skipping the slides ends on the subscription plans (the web
   // Onboarding::finish() dispatching open-subscribe-sheet). The sheet handles
   // plan pick + inline register/login; DISMISSING it drops the guest to the
   // free basics preview (the sheet's closeTo), which becomes the stack root.
