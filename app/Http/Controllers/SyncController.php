@@ -52,11 +52,12 @@ class SyncController extends Controller
             // Feature flags the device UI reads locally (synced into its own
             // settings store; see ContentSyncService::applySettings).
             'settings'  => [
-                'google_login_enabled' => (bool) $settings->get('google_login_enabled'),
-                // The OAuth web client id, needed by the device's NATIVE Google
-                // sign-in (it pins the ID token audience). Client ids are
-                // public by design - only the client secret stays server-side.
-                'google_web_client_id' => (string) $settings->get('google_client_id'),
+                'google_login_enabled'               => (bool) $settings->get('google_login_enabled'),
+                'google_web_client_id'               => (string) $settings->get('google_client_id'),
+                'revenuecat_enabled'                  => (bool) $settings->get('revenuecat_enabled', true),
+                'revenuecat_android_public_sdk_key' => (string) $settings->get('revenuecat_android_public_sdk_key'),
+                'revenuecat_ios_public_sdk_key'     => (string) $settings->get('revenuecat_ios_public_sdk_key'),
+                'revenuecat_entitlement_id'         => (string) $settings->get('revenuecat_entitlement_id', 'premium'),
             ],
             'synced_at' => now()->toIso8601String(),
         ]);

@@ -42,7 +42,18 @@ const configuredApiKey = async (): Promise<string> => {
   const fallback = Platform.OS === 'ios'
     ? REVENUECAT_IOS_PUBLIC_SDK_KEY
     : REVENUECAT_ANDROID_PUBLIC_SDK_KEY;
-  const key = (await getAppSetting(keyName, fallback).catch(() => fallback)).trim();
+  let key = (await getAppSetting(keyName, fallback).catch(() => fallback)).trim();
+
+  if (!key || key === fallback || key.startsWith('REVENUECAT_')) {
+    try {
+      const res = await api.pullContent();
+      const fetched = res.ok ? String(res.data?.settings?.[keyName] || '').trim() : '';
+      if (fetched) {
+        await saveAppSetting(keyName, fetched, 'string').catch(() => {});
+        key = fetched;
+      }
+    } catch (e) {}
+  }
 
   if (!key || key === fallback || key.startsWith('REVENUECAT_')) {
     throw new Error('RevenueCat API key is not configured.');
