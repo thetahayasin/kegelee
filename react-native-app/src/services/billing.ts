@@ -1,4 +1,4 @@
-﻿import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import Purchases from 'react-native-purchases';
 import { api } from './api';
@@ -26,8 +26,8 @@ const REVENUECAT_ENTITLEMENT_ID = 'premium';
 const REVENUECAT_ANDROID_PUBLIC_SDK_KEY = 'REVENUECAT_ANDROID_PUBLIC_SDK_KEY';
 const REVENUECAT_IOS_PUBLIC_SDK_KEY = 'REVENUECAT_IOS_PUBLIC_SDK_KEY';
 
-export const WITH_TIME_PRORATION = Purchases.STORE_REPLACEMENT_MODE.WITH_TIME_PRORATION;
-export const DEFERRED = Purchases.STORE_REPLACEMENT_MODE.DEFERRED;
+export const WITH_TIME_PRORATION = (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITH_TIME_PRORATION ?? 1;
+export const DEFERRED = (Purchases as any)?.STORE_REPLACEMENT_MODE?.DEFERRED ?? 6;
 
 type CustomerInfo = any;
 type PurchasesPackage = any;
