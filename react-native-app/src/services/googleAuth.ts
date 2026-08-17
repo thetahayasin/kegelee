@@ -70,7 +70,14 @@ export const nativeGoogleSignIn = async (): Promise<NativeGoogleResult> => {
       return { status: 'cancelled' };
     }
 
-    const idToken = response.data?.idToken;
+    let idToken = response.data?.idToken || (response as any)?.idToken;
+    if (!idToken) {
+      try {
+        const tokens = await GoogleSignin.getTokens();
+        idToken = tokens?.idToken;
+      } catch (e) {}
+    }
+
     if (!idToken) {
       console.warn('[googleAuth] signIn succeeded but returned no idToken');
       return { status: 'unavailable', reason: 'no-id-token' };
