@@ -51,6 +51,7 @@ export const PaywallScreen = () => {
   const [activeSub, setActiveSub] = useState<DBSubscription | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null); // plan slug
   const [purchasing, setPurchasing] = useState(false);
+  const [billingReady, setBillingReady] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
@@ -106,7 +107,13 @@ export const PaywallScreen = () => {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      if (user) initBilling(user.id);
+      if (user) {
+        const ready = await initBilling(user.id);
+        if (mounted && !ready) {
+          setBillingReady(false);
+          setMessage('Billing is not available on this device. You can restore a previous purchase below.');
+        }
+      }
       // A subscription can renew (or be bought on another device) while the
       // app is closed, leaving the local rows stale - and no other screen is
       // reachable behind the gate to trigger a sync. Pull here; when the pull
@@ -277,8 +284,8 @@ export const PaywallScreen = () => {
       {/* Fixed bottom CTA bar */}
       <View style={[styles.bottomBar, { paddingBottom: 16 + insets.bottom }]}>
         <TouchableOpacity
-          style={[styles.continueBtn, (!selectedPlan || purchasing) && styles.continueBtnDisabled]}
-          disabled={!selectedPlan || purchasing}
+          style={[styles.continueBtn, (!selectedPlan || purchasing || !billingReady) && styles.continueBtnDisabled]}
+          disabled={!selectedPlan || purchasing || !billingReady}
           onPress={() => selectedPlanDef && subscribe(selectedPlanDef, activeSubRef.current)}
         >
           {purchasing ? (
@@ -290,19 +297,30 @@ export const PaywallScreen = () => {
           )}
         </TouchableOpacity>
         {!purchasing && (
-          <Text style={styles.legalText}>
-            Payment is processed securely through RevenueCat and the app store on confirmation. Your
-            subscription renews automatically at the price shown until you cancel
-            it; uninstalling the app does not cancel or refund it.
-            By continuing you agree to our{' '}
-            <Text
-              style={styles.legalLink}
-              onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: 'Terms' })}
-            >
-              Terms
-            </Text>{' '}
-            and the app store terms.
-          </Text>
+          <>
+            <Text style={styles.legalText}>
+              Payment is processed securely through RevenueCat and the app store on confirmation. Your
+              subscription renews automatically at the price shown until you cancel
+              it; uninstalling the app does not cancel or refund it.
+              By continuing you agree to our{' '}
+              <Text
+                style={styles.legalLink}
+                onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: 'Terms' })}
+              >
+                Terms
+              </Text>{' '}
+              and the app store terms.
+            </Text>
+            {!subscribed && (
+              <TouchableOpacity
+                style={styles.restoreBtn}
+                onPress={handleRestore}
+                disabled={purchasing}
+              >
+                <Text style={styles.restoreBtnText}>Restore purchases</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
 

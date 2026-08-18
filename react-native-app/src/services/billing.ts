@@ -6,8 +6,9 @@ import {
   getActiveSubscription,
   getSubscriptionByToken,
   saveSubscription,
+  getAppSetting,
+  saveAppSetting,
 } from '../db/queries';
-import { getAppSetting } from '../db/queries';
 import {
   PlanDef,
   planByProductId,

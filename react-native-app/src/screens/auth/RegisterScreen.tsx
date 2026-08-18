@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -79,10 +80,12 @@ export const RegisterScreen = () => {
         return;
       }
       if (native.status === 'cancelled') {
+        // User closed/cancelled account picker: stay on screen, do not open browser.
         return;
       }
 
-      // Fallback: the backend Custom-Tab flow (returns via deeplink).
+      // Native unavailable (no Play Services, client id not configured, etc.):
+      // Fallback directly to the backend Custom-Tab flow (returns via deeplink).
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch (e) {
       setError('Could not open Google sign-up. Please try again.');

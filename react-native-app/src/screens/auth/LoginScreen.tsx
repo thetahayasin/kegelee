@@ -100,12 +100,12 @@ export const LoginScreen = () => {
         return;
       }
       if (native.status === 'cancelled') {
+        // User closed/cancelled account picker: stay on screen, do not open browser.
         return;
       }
 
-      // Native unavailable (no Play Services, client id not configured, ...):
-      // fall back to the browser Custom-Tab flow. It returns via the
-      // kegelee://auth/google/finish deeplink, which AuthContext redeems.
+      // Native unavailable (no Play Services, client id not configured, etc.):
+      // Fallback directly to the browser Custom-Tab flow.
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch (err: any) {
       setError('Could not open Google sign-in. Please try again.');
