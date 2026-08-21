@@ -94,7 +94,7 @@
                 <a href="{{ route('admin.dashboard') }}"
                    class="flex items-center gap-3 px-4 py-5 border-b border-white/5">
                     @if ($adminLogo)
-                        <img src="{{ IlluminateSupportFacadesStorage::url($adminLogo) }}"
+                        <img src="{{ \Illuminate\Support\Facades\Storage::url($adminLogo) }}"
                              alt="{{ $appName }}" class="h-9 w-9 shrink-0 rounded-xl object-contain">
                     @else
                         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-black text-sm"
