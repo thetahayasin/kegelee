@@ -20,23 +20,35 @@ import { getAppSetting, saveAppSetting } from '../db/queries';
 
 let configuredWithId: string | null = null;
 
+/**
+ * Compiled-in fallback for the backend's OAuth *web* client id. A client id is
+ * public by design (it ships in every OAuth request), and baking it means a
+ * device that has never synced - or one that cannot reach the content endpoint
+ * while Google itself is reachable - can still use the native picker instead of
+ * silently degrading to the Custom-Tab browser flow.
+ */
+const GOOGLE_WEB_CLIENT_ID = '692228818665-5jbf66ps860i983p1mndba11af9f9het.apps.googleusercontent.com';
+
 const resolveWebClientId = async (): Promise<string | null> => {
   try {
-    const cached = await getAppSetting('google_web_client_id', '');
+    const cached = (await getAppSetting('google_web_client_id', '')).trim();
     if (cached) {
       return cached;
     }
-  } catch (e) {}
+  } catch {}
 
-  const res = await api.pullContent();
-  const id = res.ok ? String(res.data?.settings?.google_web_client_id || '') : '';
-  if (id) {
-    try {
-      await saveAppSetting('google_web_client_id', id, 'string');
-    } catch (e) {}
-    return id;
-  }
-  return null;
+  try {
+    const res = await api.pullContent();
+    const id = res.ok ? String(res.data?.settings?.google_web_client_id || '').trim() : '';
+    if (id) {
+      try {
+        await saveAppSetting('google_web_client_id', id, 'string');
+      } catch {}
+      return id;
+    }
+  } catch {}
+
+  return GOOGLE_WEB_CLIENT_ID || null;
 };
 
 export type NativeGoogleResult =
@@ -63,7 +75,7 @@ export const nativeGoogleSignIn = async (): Promise<NativeGoogleResult> => {
     // no way to sign in with a different one.
     try {
       await GoogleSignin.signOut();
-    } catch (e) {}
+    } catch {}
 
     const response = await GoogleSignin.signIn();
     if (response.type === 'cancelled') {
@@ -75,7 +87,7 @@ export const nativeGoogleSignIn = async (): Promise<NativeGoogleResult> => {
       try {
         const tokens = await GoogleSignin.getTokens();
         idToken = tokens?.idToken;
-      } catch (e) {}
+      } catch {}
     }
 
     if (!idToken) {
@@ -104,5 +116,5 @@ export const googleNativeSignOut = async (): Promise<void> => {
     if (configuredWithId) {
       await GoogleSignin.signOut();
     }
-  } catch (e) {}
+  } catch {}
 };

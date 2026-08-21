@@ -34,6 +34,8 @@ local.properties
 *.keystore
 !debug.keystore
 keystore.properties
+# Holds the release keystore password in plaintext - never commit.
+credentials.json
 .kotlin/
 
 # node.js
@@ -74,3 +76,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Google Play Developer API service account key used by "eas submit".
+# Grants release-publishing rights on the Play account - never commit.
+play-service-account.json

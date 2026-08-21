@@ -41,7 +41,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => '1 Year',
                 'slug' => 'premium-yearly',
-                'price' => 65.99,
+                'price' => 59.99,
                 'interval' => 'year',
                 'interval_count' => 1,
                 'description' => 'One payment for the whole year.',

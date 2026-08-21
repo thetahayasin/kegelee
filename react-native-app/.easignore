@@ -7,3 +7,15 @@ android/build/
 ios/Pods/
 ios/build/
 *.log
+android/.gradle_home/
+android/.gradle/
+android/.kotlin/
+android/app/.cxx/
+.gradle_home/
+**/build/intermediates/
+**/build/outputs/
+*.apk
+*.aab
+*.keystore.bak
+android/local.properties
+play-service-account.json

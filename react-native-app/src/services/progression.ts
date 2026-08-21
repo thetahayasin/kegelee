@@ -1,3 +1,8 @@
+import { getLocalDateString } from '../utils/localDate';
+
+// Re-exported so existing callers keep importing it from here.
+export { getLocalDateString };
+
 import { User } from '../context/AuthContext';
 import { DBTrainingDay } from '../db/queries';
 
@@ -7,34 +12,10 @@ export const getRequiredSessionsPerDay = (_user: User | null): number => {
   return 2;
 };
 
-export const getPlanLength = (user: User | null): number => {
+export const getPlanLength = (_user: User | null): number => {
   return 30; // Fallback or standard plan length
 };
 
-export const getLocalDateString = (timezone?: string | null): string => {
-  try {
-    const options: Intl.DateTimeFormatOptions = {
-      timeZone: timezone || undefined,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    };
-    // format as YYYY-MM-DD
-    const formatter = new Intl.DateTimeFormat('en-US', options);
-    const parts = formatter.formatToParts(new Date());
-    const year = parts.find((p) => p.type === 'year')?.value;
-    const month = parts.find((p) => p.type === 'month')?.value;
-    const day = parts.find((p) => p.type === 'day')?.value;
-    return `${year}-${month}-${day}`;
-  } catch (e) {
-    // Fallback to local system time format
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-};
 
 export const currentDayNumber = (user: User | null, trainingDays: DBTrainingDay[]): number => {
   if (!user) return 1;

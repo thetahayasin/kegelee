@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+} from 'react-native';
+import { TouchableOpacity } from './Touchable';
 import { COLORS } from '../theme/colors';
 
 interface Props {
@@ -25,7 +31,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: unknown) {
     if (__DEV__) {
-      // eslint-disable-next-line no-console
       console.error('Uncaught error in React tree', error);
     }
     // When a crash reporter (Sentry / Crashlytics) is added, report it here.

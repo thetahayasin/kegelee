@@ -7,6 +7,7 @@ import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiv
 import { syncNow, onSyncComplete } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
+import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement } from '../services/billing';
 import { BASICS_LESSONS } from '../constants/basics';
 
 const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
@@ -27,15 +28,15 @@ const computeBasicsDone = async (userId: number, isAdmin: boolean): Promise<bool
   if (isAdmin) return true;
   try {
     if ((await AsyncStorage.getItem(basicsGateKey(userId))) === '1') return true;
-  } catch (e) {}
+  } catch {}
   try {
     const raw = await AsyncStorage.getItem(`@basics_done_${userId}`);
     const done: string[] = raw ? JSON.parse(raw) : [];
     if (REQUIRED_LESSON_SLUGS.every((s) => done.includes(s))) return true;
-  } catch (e) {}
+  } catch {}
   try {
     if ((await getWorkoutSessionsCount(userId)) > 0) return true;
-  } catch (e) {}
+  } catch {}
   return false;
 };
 
@@ -48,7 +49,7 @@ const computeSubscribed = async (userId: number, isAdmin: boolean): Promise<bool
   if (isAdmin) return true;
   try {
     return !!(await getActiveSubscription(userId));
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -190,7 +191,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const onboardedAt = userPayload.onboarded_at || null;
     try {
       await AsyncStorage.removeItem('@basics_done_guest');
-    } catch (e) {}
+    } catch {}
 
     // Save to SQLite
     await saveDBUser({
@@ -228,7 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (userPayload.basics_completed === true) {
       try {
         await AsyncStorage.setItem(basicsGateKey(localUser.id), '1');
-      } catch (e) {}
+      } catch {}
       nextBasicsDone = true;
     } else {
       nextBasicsDone = await computeBasicsDone(localUser.id, localUser.is_admin);
@@ -297,7 +298,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (await computeBasicsDone(localUser.id, localUser.is_admin)) {
             setBasicsDone(true);
           }
-        } catch (e) {}
+        } catch {}
         // Subscription gate: the pull just landed the account's subscription
         // rows in SQLite, so recompute from them. RAISE-only, like the basics
         // gate above: a purchase completed on the paywall while this sync was
@@ -308,7 +309,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (await computeSubscribed(localUser.id, localUser.is_admin)) {
             setSubscribed(true);
           }
-        } catch (e) {}
+        } catch {}
       });
   };
 
@@ -329,7 +330,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!res.data.user?.email_verified_at) {
         try {
           await api.resendVerification({ email });
-        } catch (e) {}
+        } catch {}
         return { success: false, error: 'unverified' };
       }
       await handleAuthResponse(res.data);
@@ -403,6 +404,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // picker instead of silently reusing this account.
     await googleNativeSignOut();
 
+    // Drop the RevenueCat identity too, so the next account on this device is
+    // never read against the previous customer's cached entitlements.
+    await logoutBilling();
+
     // Drop every cached "learn the basics" progress key (per-user and guest) so a
     // different account signing in on this device always starts the basics fresh
     // instead of showing another user's lessons as already completed.
@@ -412,7 +417,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (basicsKeys.length > 0) {
         await AsyncStorage.removeMany(basicsKeys);
       }
-    } catch (e) {}
+    } catch {}
 
     // Clear storage keys
     await AsyncStorage.removeItem('@api_token');
@@ -454,6 +459,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       computeSubscribed(user.id, user.is_admin)
         .then(setSubscribed)
         .catch(() => {});
+    });
+    return off;
+  }, [user]);
+
+  // RevenueCat pushes a new CustomerInfo whenever entitlements change -
+  // renewal, expiry, a billing problem, or a purchase restored on another
+  // device. Without this the app only learns on its next sync.
+  //
+  // Deliberately asymmetric: an active entitlement opens the gate immediately
+  // (RevenueCat has already verified the purchase, so making the user wait for
+  // a sync would be wrong), but we never CLOSE the gate from here. Revocation
+  // stays with the backend-confirmed path in onSyncComplete, so a transient
+  // RevenueCat blip can't yank access from a paying user. Triggering a sync
+  // here means a genuine expiry is still picked up promptly.
+  useEffect(() => {
+    if (!user) return;
+    const off = onCustomerInfoChange((customerInfo) => {
+      if (hasActiveEntitlement(customerInfo)) {
+        setSubscribed(true);
+      }
+      syncNow(user.id).catch(() => {});
     });
     return off;
   }, [user]);

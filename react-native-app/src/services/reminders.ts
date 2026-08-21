@@ -66,7 +66,7 @@ export const isExactAlarmAllowed = async (): Promise<boolean> => {
   try {
     const settings = await notifee.getNotificationSettings();
     return settings.android.alarm !== AndroidNotificationSetting.DISABLED;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -105,7 +105,7 @@ export const scheduleReminders = async (configs: ReminderConfig[]) => {
     // Drop the old silent channel so it doesn't linger in system settings.
     try {
       await notifee.deleteChannel('reminders');
-    } catch (e) {}
+    } catch {}
 
     // Fire exactly on time when "Alarms & reminders" access is granted; otherwise
     // fall back to an inexact (Doze-batched, up to ~10 min late) alarm so the
@@ -192,7 +192,7 @@ export const showTimePicker = async (
     const hh = String(res.hour).padStart(2, '0');
     const mm = String(res.minute).padStart(2, '0');
     return `${hh}:${mm}`;
-  } catch (e) {
+  } catch {
     return null;
   }
 };

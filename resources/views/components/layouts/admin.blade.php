@@ -1,6 +1,7 @@
 @php
     $settings = app(\App\Services\SettingsService::class);
     $appName = $settings->get('app_name', 'Kegel Trainer');
+    $adminLogo = $settings->get('logo_path');
 @endphp
 <!DOCTYPE html>
 <html lang="en" class="dark" style="
@@ -72,18 +73,13 @@
     @auth
         @if (auth()->user()->is_admin)
         @php
+        // Flat list: four destinations do not need section headers. The labels
+        // took more vertical space than the groups they introduced.
         $nav = [
-            'content' => [
-                ['admin.pages', 'Pages', '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>'],
-            ],
-            'billing' => [
-                ['admin.subscriptions', 'Subscriptions', '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'],
-            ],
-            'people' => [
-                ['admin.users', 'Users', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
-            ],
+            ['admin.users', 'Users', '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+            ['admin.subscriptions', 'Subscriptions', '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'],
+            ['admin.pages', 'Pages', '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>'],
         ];
-        $sectionLabels = ['content' => 'Content', 'billing' => 'Billing', 'people' => 'People'];
         @endphp
 
         <div class="flex min-h-screen" x-data="{ mobileNav: false }">
@@ -97,10 +93,15 @@
                 {{-- Brand --}}
                 <a href="{{ route('admin.dashboard') }}"
                    class="flex items-center gap-3 px-4 py-5 border-b border-white/5">
-                    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-black text-sm"
-                          style="background:linear-gradient(135deg,var(--c-accent),color-mix(in srgb,var(--c-accent) 60%,#fff));color:#0c1a00;">
-                        {{ strtoupper(substr($appName, 0, 1)) }}
-                    </span>
+                    @if ($adminLogo)
+                        <img src="{{ IlluminateSupportFacadesStorage::url($adminLogo) }}"
+                             alt="{{ $appName }}" class="h-9 w-9 shrink-0 rounded-xl object-contain">
+                    @else
+                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl font-black text-sm"
+                              style="background:linear-gradient(135deg,var(--c-accent),color-mix(in srgb,var(--c-accent) 60%,#fff));color:#0c1a00;">
+                            {{ strtoupper(substr($appName, 0, 1)) }}
+                        </span>
+                    @endif
                     <div class="min-w-0">
                         <p class="truncate text-sm font-bold leading-tight">{{ $appName }}</p>
                         <p class="text-[10px] font-medium text-muted" style="color:rgba(193,255,114,.5)">Admin Panel</p>
@@ -119,21 +120,18 @@
                     </a>
                 </div>
 
-                {{-- Grouped nav --}}
-                @foreach ($nav as $section => $items)
-                    <p class="admin-section-label">{{ $sectionLabels[$section] }}</p>
-                    <div class="px-2 space-y-0.5">
-                        @foreach ($items as [$route, $label, $svgPaths])
-                            <a href="{{ route($route) }}"
-                               class="admin-nav-item {{ request()->routeIs($route.'*') ? 'active' : '' }}">
-                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    {!! $svgPaths !!}
-                                </svg>
-                                {{ $label }}
-                            </a>
-                        @endforeach
-                    </div>
-                @endforeach
+                {{-- Flat nav --}}
+                <div class="px-2 pt-1 space-y-0.5">
+                    @foreach ($nav as [$route, $label, $svgPaths])
+                        <a href="{{ route($route) }}"
+                           class="admin-nav-item {{ request()->routeIs($route.'*') ? 'active' : '' }}">
+                            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8">
+                                {!! $svgPaths !!}
+                            </svg>
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </div>
 
                 <div class="mt-auto border-t border-white/5 px-2 py-3 space-y-0.5">
                     <a href="{{ route('admin.settings') }}"
@@ -215,16 +213,6 @@
                                 Pages
                             </a>
                             <div class="border-t border-white/5">
-                                <form method="POST" action="{{ route('admin.reset-progress') }}"
-                                      onsubmit="return confirm('Reset ALL app-user progress? This wipes every app user\'s training days, sessions, measurements and knowledge completions.');">
-                                    @csrf
-                                    <button type="submit" class="flex w-full items-center gap-2.5 px-4 py-3 text-left text-sm text-accent-soft hover:bg-white/5 transition-colors">
-                                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                                        Reset progress
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="border-t border-white/5">
                                 <a href="{{ route('admin.logout') }}" class="flex items-center gap-2.5 px-4 py-3 text-sm text-muted hover:bg-white/5 transition-colors">
                                     <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                                     Sign out
@@ -287,20 +275,17 @@
                     Dashboard
                 </a>
 
-                @foreach ($nav as $section => $items)
-                    <p class="admin-section-label">{{ $sectionLabels[$section] }}</p>
-                    <div class="space-y-0.5">
-                        @foreach ($items as [$route, $label, $svgPaths])
-                            <a href="{{ route($route) }}" @click="mobileNav = false"
-                               class="admin-nav-item {{ request()->routeIs($route.'*') ? 'active' : '' }}">
-                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    {!! $svgPaths !!}
-                                </svg>
-                                {{ $label }}
-                            </a>
-                        @endforeach
-                    </div>
-                @endforeach
+                <div class="space-y-0.5">
+                    @foreach ($nav as [$route, $label, $svgPaths])
+                        <a href="{{ route($route) }}" @click="mobileNav = false"
+                           class="admin-nav-item {{ request()->routeIs($route.'*') ? 'active' : '' }}">
+                            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8">
+                                {!! $svgPaths !!}
+                            </svg>
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </div>
 
                 <p class="admin-section-label">Account</p>
                 <a href="{{ route('admin.settings') }}" @click="mobileNav = false"

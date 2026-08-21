@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   ActivityIndicator,
   Alert,
@@ -12,6 +11,7 @@ import {
   Linking,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
@@ -21,7 +21,7 @@ import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/qu
 import { planBySlug } from '../../constants/plans';
 import { getRevenueCatManagementUrl } from '../../services/billing';
 import { getDBConnection } from '../../db/sqlite';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 
 export const SettingsScreen = () => {
@@ -107,6 +107,10 @@ export const SettingsScreen = () => {
     if (isFocused) {
       loadData();
     }
+    // Intentionally keyed to focus/mount only: loadData is recreated every
+    // render, so listing it here would refetch in a loop. Wrap it in
+    // useCallback before adding it to these deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
 
   const handleResetProgress = async () => {
@@ -158,6 +162,49 @@ export const SettingsScreen = () => {
     }
   };
 
+  // Present the REAL subscription state rather than a fixed "Active" badge.
+  // Every field here is synced from the backend, which derives it from
+  // RevenueCat webhooks - so a cancellation, trial or billing failure shows
+  // truthfully, and access is never implied to end before RevenueCat says so.
+  const formatSubDate = (iso: string | null): string => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d.getTime())
+      ? ''
+      : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
+  const subStatus = String(subscription?.status || '').toLowerCase();
+  const subEnds = formatSubDate(subscription?.ends_at ?? null);
+  const subRenews = Number(subscription?.auto_renewing) === 1;
+
+  let subscriptionLabel = 'Active';
+  let subscriptionDetail = '';
+
+  if (subStatus === 'trialing') {
+    subscriptionLabel = 'Trial';
+    const trialEnds = formatSubDate(subscription?.trial_ends_at ?? null) || subEnds;
+    subscriptionDetail = subRenews
+      ? trialEnds && `Free trial ends ${trialEnds}, then billing starts.`
+      : trialEnds && `Free trial ends ${trialEnds}. It will not renew.`;
+  } else if (subStatus === 'past_due') {
+    subscriptionLabel = 'Payment issue';
+    subscriptionDetail =
+      'There is an issue with your subscription payment. Please update your payment method in Google Play.';
+  } else if (subStatus === 'canceled') {
+    subscriptionLabel = 'Cancelled';
+    subscriptionDetail = subEnds
+      ? `Cancelled. Your access remains active until ${subEnds}.`
+      : 'Cancelled. Your access remains active until the end of the paid period.';
+  } else if (subStatus === 'expired') {
+    subscriptionLabel = 'Expired';
+    subscriptionDetail = 'Your subscription has ended.';
+  } else if (subEnds) {
+    subscriptionDetail = subRenews
+      ? `Renews on ${subEnds}.`
+      : `Auto-renewal is off. Access ends ${subEnds}.`;
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -184,12 +231,36 @@ export const SettingsScreen = () => {
         <Text style={styles.sectionLabel}>Subscription</Text>
         <View style={styles.menuContainer}>
           {subscription ? (
-            <View style={styles.subRow}>
-              <Text style={styles.menuText}>Subscription</Text>
-              <View style={[styles.badge, styles.badgeActive]}>
-                <Text style={[styles.badgeText, styles.badgeTextActive]}>Active</Text>
+            // Tappable so a subscriber can reach the plan switcher. The paywall
+            // doubles as "Manage Plan" and owns the RevenueCat product-change
+            // flow (upgrade prorates immediately, downgrade defers to period
+            // end). Without this route that flow is unreachable in-app and the
+            // only way to change plan is leaving for Google Play.
+            <TouchableOpacity
+              style={styles.subRow}
+              onPress={() => navigation.navigate('Paywall')}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuText}>Subscription</Text>
+                <Text style={styles.menuSubtext}>
+                  {subscriptionDetail ? subscriptionDetail + ' - tap to change plan' : 'Tap to change plan'}
+                </Text>
               </View>
-            </View>
+              <View style={[styles.badge, styles.badgeActive]}>
+                <Text style={[styles.badgeText, styles.badgeTextActive]}>
+                  {subscriptionLabel}
+                </Text>
+              </View>
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" style={styles.subRowChevron}>
+                <Path
+                  d="M9 18l6-6-6-6"
+                  stroke={COLORS.textMuted}
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={styles.menuRow}
@@ -211,9 +282,11 @@ export const SettingsScreen = () => {
               onPress={() => Linking.openURL(manageUrl)}
             >
               <View style={{ flex: 1 }}>
-                <Text style={styles.menuText}>Cancel subscription</Text>
+                <Text style={styles.menuText}>Manage subscription</Text>
                 <Text style={styles.menuSubtext}>
-                  Opens subscription settings to cancel or turn off auto-renew.
+                  {subStatus === 'past_due'
+                    ? 'Update your payment method in Google Play.'
+                    : 'Opens Google Play to change plan, cancel, or turn off auto-renew.'}
                 </Text>
               </View>
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -250,18 +323,12 @@ export const SettingsScreen = () => {
           </>
         )}
 
-        {/* Standalone actions */}
+        {/* Standalone actions, ordered by consequence: the routine one first,
+            the irreversible one last and visually set apart. Previously Log out
+            was the loudest button on the page (solid accent, the app's primary
+            CTA colour) sitting between two identical red buttons, so "clear my
+            progress" and "destroy my account" read as the same weight. */}
         <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={[styles.actionBtn, styles.deleteBtn]}
-            onPress={() => {
-              setResetError('');
-              setResetModalVisible(true);
-            }}
-          >
-            <Text style={styles.deleteBtnText}>Reset progress</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
             style={[styles.actionBtn, styles.logoutBtn]}
             onPress={logout}
@@ -270,7 +337,17 @@ export const SettingsScreen = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionBtn, styles.deleteBtn]}
+            style={[styles.actionBtn, styles.resetBtn]}
+            onPress={() => {
+              setResetError('');
+              setResetModalVisible(true);
+            }}
+          >
+            <Text style={styles.resetBtnText}>Reset progress</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.deleteBtn, styles.deleteBtnSpaced]}
             onPress={() => {
               setDeleteError('');
               setDeleteStep('warn');
@@ -514,6 +591,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 18,
   },
+  subRowChevron: {
+    marginLeft: 8,
+  },
   subRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -578,13 +658,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.white,
   },
+  // Neutral, not the accent CTA: signing out is routine, not the thing the
+  // page most wants you to do.
   logoutBtn: {
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.surface2,
   },
   logoutBtnText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.onAccent,
+    color: COLORS.white,
+  },
+  // Cautionary, not destructive: progress can be rebuilt, an account cannot.
+  resetBtn: {
+    backgroundColor: 'transparent',
+    borderColor: COLORS.whiteFaint,
+    borderWidth: 1,
+  },
+  resetBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.whiteMuted,
+  },
+  // Extra air above the only irreversible action on the screen.
+  deleteBtnSpaced: {
+    marginTop: 8,
   },
   deleteBtn: {
     backgroundColor: 'rgba(255, 77, 77, 0.05)',

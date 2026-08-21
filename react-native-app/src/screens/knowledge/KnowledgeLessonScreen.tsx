@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+} from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   useRoute,
@@ -44,7 +49,7 @@ export const KnowledgeLessonScreen = () => {
         done.push(slug);
         await AsyncStorage.setItem(key, JSON.stringify(done));
       }
-    } catch (e) {}
+    } catch {}
     if (isLastLesson) {
       if (isAuthenticated) {
         if (basicsDone) {

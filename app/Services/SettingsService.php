@@ -80,7 +80,7 @@ class SettingsService
 
             // Google Play Billing (legacy fallback)
             'google_play_enabled' => false,
-            'google_play_package_name' => 'com.kegeltrainer.app',
+            'google_play_package_name' => 'com.kegelee.app',
             'google_play_service_account_json' => '',
             'subscription_trial_days' => 0,
 

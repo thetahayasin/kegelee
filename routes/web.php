@@ -146,7 +146,7 @@ Route::middleware(['auth', 'app.enabled'])->group(function () {
 | Admin backend
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('mystic')->name('admin.')->group(function () {
     Route::get('login', Admin\Login::class)->name('login');
 
     Route::middleware('admin')->group(function () {
@@ -159,7 +159,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');
 
-        Route::post('reset-progress', [AdminMaintenanceController::class, 'resetProgress'])->name('reset-progress');
         Route::get('logout', [AdminMaintenanceController::class, 'logout'])->name('logout');
     });
 });

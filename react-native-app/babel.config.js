@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ['module:@react-native/babel-preset'],
+  presets: ['babel-preset-expo'],
   env: {
     // Metro compiles release bundles with envName "production": strip console
     // calls there (they write to logcat via the bridge for no user benefit),

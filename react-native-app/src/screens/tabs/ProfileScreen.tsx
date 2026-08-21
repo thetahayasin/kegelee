@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Modal,
   ScrollView,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -16,7 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS, GLASS } from '../../theme/colors';
 import { LEVELS } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 export const ProfileScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();

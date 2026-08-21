@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Animated,
+  Easing,
   Pressable,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -20,6 +21,10 @@ const SIZE = 220;
 const R = (SIZE - 16) / 2;
 const CIRC = 2 * Math.PI * R;
 
+// Animating strokeDashoffset directly on the SVG circle, rather than feeding it
+// from React state, is what makes the ring sweep smoothly.
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 const FLOW = [
   { icon: 'M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z', label: 'You pee' },
   { icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4 13H8V9h8v6z', label: 'Stop midway' },
@@ -27,36 +32,50 @@ const FLOW = [
 ];
 
 export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
-  const [held, setHeld] = useState(0);
   const [holding, setHolding] = useState(false);
   const [doneHold, setDoneHold] = useState(false);
-  const timer = useRef<any>(null);
-  const heldRef = useRef(0);
+  // Hold progress as 0..1. Previously this was React state ticked by a 100ms
+  // setInterval, so the ring only moved 10 times a second - one visible jump
+  // every 6 frames at 60Hz, which is the stepping this replaces. An
+  // Animated.Value interpolates every frame and writes the prop directly,
+  // without re-rendering the component 30 times per hold.
+  const progress = useRef(new Animated.Value(0)).current;
+  // Mirrors `progress` so a released-and-resumed hold continues from where it
+  // stopped instead of restarting, matching the previous behaviour.
+  const progressRef = useRef(0);
   const glow = useRef(new Animated.Value(0.25)).current;
   const glowScale = useRef(new Animated.Value(0.9)).current;
 
   const stopHold = () => {
     setHolding(false);
-    if (timer.current) {
-      clearInterval(timer.current);
-      timer.current = null;
-    }
+    progress.stopAnimation((value) => {
+      progressRef.current = value;
+    });
   };
 
   const startHold = () => {
-    if (doneHold || timer.current) {
+    if (doneHold) {
       return;
     }
     setHolding(true);
-    timer.current = setInterval(() => {
-      heldRef.current = Math.min(GOAL, heldRef.current + 0.1);
-      setHeld(heldRef.current);
-      if (heldRef.current >= GOAL) {
-        stopHold();
-        setDoneHold(true);
-        onFinished();
+    Animated.timing(progress, {
+      toValue: 1,
+      // Only the time still owed, so resuming a partial hold does not restart.
+      duration: Math.max(0, GOAL * 1000 * (1 - progressRef.current)),
+      easing: Easing.linear,
+      // strokeDashoffset is an SVG attribute, not a transform or opacity, so
+      // the native driver cannot carry it. Animated still drives it per frame,
+      // which is the fix; the old code was frame-starved, not thread-starved.
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (!finished) {
+        return;
       }
-    }, 100);
+      progressRef.current = 1;
+      setHolding(false);
+      setDoneHold(true);
+      onFinished();
+    });
   };
 
   useEffect(() => {
@@ -66,7 +85,10 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
     ]).start();
   }, [holding, doneHold, glow, glowScale]);
 
-  useEffect(() => () => stopHold(), []);
+  // Stop the animation itself on unmount rather than calling stopHold, which
+  // would also setState on an unmounted component. Depending only on the
+  // Animated.Value keeps this effect stable across renders.
+  useEffect(() => () => progress.stopAnimation(), [progress]);
 
   if (step === 0) {
     return (
@@ -148,7 +170,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
         <View style={[styles.holdCircle, holding && { transform: [{ scale: 0.95 }] }]}>
           <Svg width={SIZE} height={SIZE} style={styles.holdRing}>
             <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={8} />
-            <Circle
+            <AnimatedCircle
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={R}
@@ -157,7 +179,10 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
               strokeWidth={8}
               strokeLinecap="round"
               strokeDasharray={CIRC}
-              strokeDashoffset={CIRC * (1 - held / GOAL)}
+              strokeDashoffset={progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [CIRC, 0],
+              })}
               transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
             />
           </Svg>

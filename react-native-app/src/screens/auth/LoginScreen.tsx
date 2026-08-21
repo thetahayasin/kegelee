@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Modal,
@@ -13,6 +12,7 @@ import {
   Alert,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
@@ -60,7 +60,7 @@ export const LoginScreen = () => {
       try {
         const flag = await getAppSetting('google_login_enabled', '1');
         setGoogleEnabled(flag === '1');
-      } catch (e) {}
+      } catch {}
     };
     checkGoogleConfig();
   }, []);
@@ -107,7 +107,7 @@ export const LoginScreen = () => {
       // Native unavailable (no Play Services, client id not configured, etc.):
       // Fallback directly to the browser Custom-Tab flow.
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
-    } catch (err: any) {
+    } catch {
       setError('Could not open Google sign-in. Please try again.');
     } finally {
       setGoogleLoading(false);

@@ -101,7 +101,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       if (basicsRaw) {
         localBasicsDone = JSON.parse(basicsRaw);
       }
-    } catch (e) {}
+    } catch {}
 
     // Build push payload
     const pushPayload = {
@@ -261,7 +261,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       const currentLocal: string[] = currentRaw ? JSON.parse(currentRaw) : [];
       const mergedBasicsDone = Array.from(new Set([...currentLocal, ...remoteBasicsDone]));
       await AsyncStorage.setItem(`@basics_done_${userId}`, JSON.stringify(mergedBasicsDone));
-    } catch (e) {}
+    } catch {}
 
     // Re-hydrate subscriptions
     for (const s of data.subscriptions || []) {
@@ -311,7 +311,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     syncCompleteListeners.forEach((cb) => {
       try {
         cb(userId);
-      } catch (e) {}
+      } catch {}
     });
     return { success: true };
   } catch (e: any) {

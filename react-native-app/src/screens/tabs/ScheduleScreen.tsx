@@ -3,13 +3,13 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Modal,
   Alert,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { useIsFocused } from '@react-navigation/native';
@@ -99,6 +99,10 @@ export const ScheduleScreen = () => {
     if (isFocused) {
       loadData();
     }
+    // Intentionally keyed to focus/mount only: loadData is recreated every
+    // render, so listing it here would refetch in a loop. Wrap it in
+    // useCallback before adding it to these deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
 
   const toggleDay = (dayIndex: number) => {

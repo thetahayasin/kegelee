@@ -17,7 +17,7 @@ export const initDB = async () => {
   // journal mode persists in the db file, and a failure just keeps the default.
   try {
     await db.executeSql('PRAGMA journal_mode=WAL;');
-  } catch (e) {}
+  } catch {}
 
   await db.transaction((tx: any) => {
     // 1. Users table

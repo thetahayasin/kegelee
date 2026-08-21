@@ -1,4 +1,4 @@
-import { EXERCISES, LEVELS, getCycleSeconds, getDurationBounds, getSteps, ExerciseSegment } from '../constants/catalogues';
+import { EXERCISES, LEVELS, getCycleSeconds, getDurationBounds, getSteps } from '../constants/catalogues';
 
 export interface PlaylistStep {
   phase: 'contract' | 'relax';

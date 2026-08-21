@@ -6,6 +6,35 @@ apply plugin: "com.facebook.react"
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
+/**
+ * Resolve a path by running node from android/, returning it as a File.
+ *
+ * Gradle's String.execute() swallows a non-zero exit status, so a failed
+ * require.resolve() yields an empty string and `new File("")` silently becomes
+ * the android/app *directory*. That then fails much later and far away, as
+ * "property 'cliFile' ... is not a file" plus a burst of unrelated
+ * implicit-dependency errors against every task writing under android/app.
+ * Failing here instead keeps the cause next to the mistake.
+ */
+def resolveNodeFile(List<String> command, String label) {
+    def stdout = new StringBuilder()
+    def stderr = new StringBuilder()
+    def proc = command.execute(null, rootDir)
+    proc.waitForProcessOutput(stdout, stderr)
+    def resolved = stdout.toString().trim()
+    if (proc.exitValue() != 0 || resolved.isEmpty()) {
+        throw new GradleException(
+            "Could not resolve ${label} from ${rootDir}. " +
+            "Run 'npm install' in react-native-app/ and try again. " + stderr)
+    }
+    def resolvedFile = new File(resolved)
+    if (!resolvedFile.isFile()) {
+        throw new GradleException(
+            "Resolved ${label} to '${resolved}', which is not a file.")
+    }
+    return resolvedFile
+}
+
 react {
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
@@ -52,6 +81,20 @@ react {
 
     /* Autolinking */
     autolinkLibrariesWithApp()
+
+    /* Bundle through the Expo CLI (added with expo modules) */
+    entryFile = resolveNodeFile(
+        ["node", "-e", "require('expo/scripts/resolveAppEntry')", rootDir.getAbsoluteFile().getParentFile().getAbsolutePath(), "android", "absolute"],
+        "the app entry point (expo/scripts/resolveAppEntry)")
+    // Resolve @expo/cli *through the expo package* rather than by bare module name.
+    // npm does not reliably hoist it: here it installs to
+    // node_modules/expo/node_modules/@expo/cli, which a bare
+    // require.resolve('@expo/cli') run from android/ cannot see. settings.gradle
+    // already resolves expo-modules-autolinking this same way.
+    cliFile = resolveNodeFile(
+        ["node", "--print", "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })"],
+        "@expo/cli")
+    bundleCommand = "export:embed"
 }
 
 /**
@@ -99,9 +142,16 @@ android {
     // Pin CMake 4.1.2 (ships ninja 1.12.1, which is long-path aware) instead of the
     // AGP default 3.22.1 / ninja 1.10.2 that rejects RN new-arch codegen paths >260
     // chars on Windows. Install via Android Studio > SDK Manager > SDK Tools > CMake.
-    externalNativeBuild {
-        cmake {
-            version "4.1.2"
+    //
+    // WINDOWS ONLY: that MAX_PATH limit does not exist on Linux, and the EAS
+    // build images ship CMake 3.22.1 - pinning 4.1.2 there fails the build with
+    // "[CXX1300] CMake '4.1.2' was not found in SDK, PATH, or by cmake.dir".
+    // So apply the pin only where it is actually needed.
+    if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        externalNativeBuild {
+            cmake {
+                version "4.1.2"
+            }
         }
     }
 
@@ -109,8 +159,8 @@ android {
         applicationId "com.kegelee.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 66
-        versionName "1.0.54"
+        versionCode 68
+        versionName "1.0.56"
 
         // CMake arguments:
         //  - CMAKE_OBJECT_PATH_MAX: belt-and-suspenders cap on New-Arch codegen
@@ -167,3 +217,4 @@ dependencies {
         implementation jscFlavor
     }
 }
+

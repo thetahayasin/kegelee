@@ -3,42 +3,31 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
   ScrollView,
-  Dimensions,
   Modal,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
 import { getDBConnection } from '../../db/sqlite';
-import { getPosition, getTodayProgress, getLocalDateString } from '../../services/progression';
+import { getPosition, getTodayProgress } from '../../services/progression';
 import { EXERCISES, LEVELS } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 
-const { width } = Dimensions.get('window');
 const COMPLETED_CIRCLE_SIZE = 208;
 const COMPLETED_R = 98;
 const COMPLETED_CIRCUMFERENCE = 2 * Math.PI * COMPLETED_R;
 
-type RouteParams = {
-  WorkoutComplete: {
-    duration: number;
-    levelId: number;
-  };
-};
-
 export const WorkoutCompleteScreen = () => {
-  const route = useRoute<RouteProp<RouteParams, 'WorkoutComplete'>>();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, updateUserFields } = useAuth();
 
-  const { duration } = route.params;
 
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState<any>(null);
@@ -75,7 +64,6 @@ export const WorkoutCompleteScreen = () => {
       setProgress(prog);
 
       // Build 7 calendar days centered around today
-      const todayStr = getLocalDateString(user.timezone);
       const startDay = Math.max(1, pos.day - 4);
       const daysList = [];
       for (let d = startDay; d <= Math.min(pos.plan_length, startDay + 6); d++) {
@@ -122,6 +110,10 @@ export const WorkoutCompleteScreen = () => {
 
   useEffect(() => {
     loadData();
+    // Intentionally keyed to focus/mount only: loadData is recreated every
+    // render, so listing it here would refetch in a loop. Wrap it in
+    // useCallback before adding it to these deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFeedback = async (feedback: 'easy' | 'fine' | 'hard') => {

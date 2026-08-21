@@ -3,24 +3,23 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
-  Image,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS } from '../../theme/colors';
+import { COLORS, GLASS, DISABLED_OPACITY } from '../../theme/colors';
 import {
   getMaxMeasurement,
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
-import { getPosition, getTodayProgress, getLocalDateString } from '../../services/progression';
+import { getPosition, getTodayProgress } from '../../services/progression';
 import { EXERCISES, LEVELS } from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 
@@ -36,7 +35,7 @@ export const TrainingScreen = () => {
   const [complete, setComplete] = useState(false);
   const [month, setMonth] = useState(1);
   const [day, setDay] = useState(1);
-  const [completedDays, setCompletedDays] = useState(0);
+  const [, setCompletedDays] = useState(0);
   const [bestMeasurement, setBestMeasurement] = useState<number | null>(null);
   
   // Exercise list with unlocked state
@@ -111,6 +110,10 @@ export const TrainingScreen = () => {
       loadData();
       triggerSync();
     }
+    // Intentionally keyed to focus/mount only: loadData is recreated every
+    // render, so listing it here would refetch in a loop. Wrap it in
+    // useCallback before adding it to these deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
 
   const handleRefresh = async () => {
@@ -163,7 +166,22 @@ export const TrainingScreen = () => {
         </View>
         {/* Today Card */}
         <View style={styles.todayCard}>
-          <View style={styles.todayCardBackgroundCircle} />
+          {/* Soft accent bloom. The old decoration was a flat 176pt circle at
+              3% white, clipped by the card, so it landed as a hard grey arc
+              cutting the corner rather than as depth. A radial gradient fading
+              to zero has no edge to catch, and carries the brand colour. */}
+          <View style={styles.todayCardGlow} pointerEvents="none">
+            <Svg width={220} height={220} viewBox="0 0 220 220">
+              <Defs>
+                <RadialGradient id="todayCardGlow" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0" stopColor={COLORS.accent} stopOpacity={0.16} />
+                  <Stop offset="0.55" stopColor={COLORS.accent} stopOpacity={0.05} />
+                  <Stop offset="1" stopColor={COLORS.accent} stopOpacity={0} />
+                </RadialGradient>
+              </Defs>
+              <Circle cx={110} cy={110} r={110} fill="url(#todayCardGlow)" />
+            </Svg>
+          </View>
           
           <View style={styles.todayCardTop}>
             {/* SVG Arc Progress Circle */}
@@ -373,14 +391,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  todayCardBackgroundCircle: {
+  todayCardGlow: {
     position: 'absolute',
-    top: -24,
-    right: -24,
-    width: 176,
-    height: 176,
-    borderRadius: 88,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    top: -78,
+    right: -78,
   },
   todayCardTop: {
     flexDirection: 'row',
@@ -504,7 +518,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   exerciseCardLocked: {
-    opacity: 0.5,
+    opacity: DISABLED_OPACITY,
   },
   exerciseIconContainer: {
     width: 64,

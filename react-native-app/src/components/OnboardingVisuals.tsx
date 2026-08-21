@@ -4,13 +4,9 @@ import Svg, { Path, Circle, Line, Defs, RadialGradient, Stop } from 'react-nativ
 
 const AnimatedPath = Animated.createAnimatedComponent(Path) as any;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedLine = Animated.createAnimatedComponent(Line);
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
 const ACCENT = '#c1ff72';
-const ACCENT_SOFT = '#d6ffa1';
 const SURFACE = '#161b26';
-const SURFACE_2 = '#212836';
 const WHITE_MUTED = 'rgba(193, 255, 114, 0.2)';
 
 // Soft accent halo (radial gradient fading to transparent). Replaces the old
@@ -40,7 +36,6 @@ interface VisualProps {
 export const HeartVisual: React.FC<VisualProps> = ({ active }) => {
   const scale = useRef(new Animated.Value(0.15)).current;
   const opacity = useRef(new Animated.Value(0.35)).current;
-  const pulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (!active) return;

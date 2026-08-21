@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Easing,
+} from 'react-native';
+import { TouchableOpacity } from '../../../components/Touchable';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
-import { COLORS, GLASS } from '../../../theme/colors';
+import { COLORS } from '../../../theme/colors';
 import { getSteps } from '../../../constants/catalogues';
 
 interface Props {
@@ -16,6 +23,27 @@ const CIRC = 2 * Math.PI * R;
 const GLOW = Math.round(SIZE * 1.7);
 const TREMBLING = getSteps('trembling', 10);
 const TOTAL = TREMBLING.reduce((s, x) => s + x.seconds, 0);
+
+// Hoisted to module scope: defining this inside FirstLesson made React see a
+// new component type on every render and remount the whole SVG subtree.
+// It only reads module-level constants, so it lifts out cleanly.
+const Ring = ({ offset }: { offset: number }) => (
+  <Svg width={SIZE} height={SIZE} style={styles.ring} pointerEvents="none">
+    <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={TRACK} />
+    <Circle
+      cx={SIZE / 2}
+      cy={SIZE / 2}
+      r={R}
+      fill="none"
+      stroke={COLORS.white}
+      strokeWidth={TRACK}
+      strokeLinecap="round"
+      strokeDasharray={CIRC}
+      strokeDashoffset={offset}
+      transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+    />
+  </Svg>
+);
 
 export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   const [i, setI] = useState(0);
@@ -157,23 +185,6 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   const count = Math.max(0, Math.ceil(rawRem));
   const pct = TOTAL > 0 ? Math.min(1, Math.max(0, (TOTAL - rawRem) / TOTAL)) : 0;
 
-  const Ring = ({ offset }: { offset: number }) => (
-    <Svg width={SIZE} height={SIZE} style={styles.ring} pointerEvents="none">
-      <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={TRACK} />
-      <Circle
-        cx={SIZE / 2}
-        cy={SIZE / 2}
-        r={R}
-        fill="none"
-        stroke={COLORS.white}
-        strokeWidth={TRACK}
-        strokeLinecap="round"
-        strokeDasharray={CIRC}
-        strokeDashoffset={offset}
-        transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
-      />
-    </Svg>
-  );
 
   // Step 0: static explainer circle
   if (step === 0) {

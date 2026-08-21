@@ -39,7 +39,9 @@ export const PLANS: PlanDef[] = [
     currency: 'USD',
     interval: 'month',
     interval_count: 3,
-    description: 'Save 11%, billed every 3 months.',
+    // No hardcoded savings percentage: Play prices are localized per market,
+    // so a fixed "Save 11%" can be plainly untrue outside the USD catalogue.
+    description: 'Billed every 3 months.',
     store_product_id: 'premium_quarterly',
     revenuecat_package_id: '$rc_three_month',
     is_featured: true,
@@ -48,7 +50,7 @@ export const PLANS: PlanDef[] = [
   {
     name: '1 Year',
     slug: 'premium-yearly',
-    price: 65.99,
+    price: 59.99,
     currency: 'USD',
     interval: 'year',
     interval_count: 1,

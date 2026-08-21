@@ -30,3 +30,12 @@ export const GLASS = {
   borderColor: 'rgba(255,255,255,0.08)',
 } as const;
 
+
+// Opacity for disabled buttons and locked cards.
+//
+// These sat at 0.5 / 0.55, which against this dark ground pushed lime text far
+// enough down that it became genuinely hard to read rather than merely
+// unavailable. 0.65 still clearly signals "you cannot use this yet" while
+// leaving the label legible - which matters most for locked exercises, where
+// the whole point is that the user can see what they are working towards.
+export const DISABLED_OPACITY = 0.65;

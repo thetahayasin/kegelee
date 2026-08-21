@@ -3,9 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   useNavigation,
@@ -16,7 +16,7 @@ import {
 } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { COLORS, GLASS } from '../../theme/colors';
+import { COLORS, GLASS, DISABLED_OPACITY } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { Watermark } from '../../components/Watermark';
 import { SubscribeSheet } from '../../components/SubscribeSheet';
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   cardDone: { borderColor: 'rgba(193,255,114,0.35)' },
-  cardLocked: { opacity: 0.55, borderColor: 'rgba(255,255,255,0.05)' },
+  cardLocked: { opacity: DISABLED_OPACITY, borderColor: 'rgba(255,255,255,0.05)' },
   tile: {
     width: 64,
     height: 64,

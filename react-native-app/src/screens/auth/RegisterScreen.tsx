@@ -3,14 +3,13 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Linking,
-  Alert,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
@@ -87,7 +86,7 @@ export const RegisterScreen = () => {
       // Native unavailable (no Play Services, client id not configured, etc.):
       // Fallback directly to the backend Custom-Tab flow (returns via deeplink).
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
-    } catch (e) {
+    } catch {
       setError('Could not open Google sign-up. Please try again.');
     } finally {
       setGoogleLoading(false);

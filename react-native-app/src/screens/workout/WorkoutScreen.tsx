@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   Animated,
   Dimensions,
   Alert,
@@ -12,6 +11,7 @@ import {
   Easing,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import KeepAwake from 'react-native-keep-awake';
@@ -32,6 +32,9 @@ const CIRCLE_SIZE = Math.min(width * 0.52, 200);
 const TRACK_WIDTH = 12;
 const R = (CIRCLE_SIZE - TRACK_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * R;
+
+// The sweep is animated, not re-rendered, so it needs an animatable Circle.
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 type RouteParams = {
   Workout: {
@@ -55,9 +58,40 @@ const LiveProgressRing = React.memo(
     label: string;
     register: (fn: (d: RingDisplay) => void) => () => void;
   }) => {
-    const [d, setD] = useState<RingDisplay>({ count: 0, pct: 0 });
-    useEffect(() => register(setD), [register]);
-    const dashoffset = CIRCUMFERENCE * (1 - d.pct);
+    // Only the counter needs React state; it changes about once a second.
+    const [count, setCount] = useState(0);
+    // The sweep does NOT. The timer pushes a new pct at most 20x a second, so
+    // binding strokeDashoffset straight to state moved the arc in 20 visible
+    // steps per second. An Animated.Value chases each pushed value across the
+    // gap until the next one arrives, filling in every frame between.
+    const pct = useRef(new Animated.Value(0)).current;
+    const lastPushAt = useRef(0);
+    useEffect(
+      () =>
+        register((next) => {
+          setCount((prev) => (prev === next.count ? prev : next.count));
+          const now = Date.now();
+          const gap = lastPushAt.current ? now - lastPushAt.current : 50;
+          lastPushAt.current = now;
+          Animated.timing(pct, {
+            toValue: next.pct,
+            // Span exactly the interval since the previous push (clamped), so
+            // the arc is still travelling when the next value lands rather
+            // than arriving early and waiting. Pushes are throttled to real
+            // movement, so that interval is not a fixed 50ms.
+            duration: Math.min(250, Math.max(50, gap)),
+            easing: Easing.linear,
+            // strokeDashoffset is an SVG attribute, so the native driver
+            // cannot carry it; the win here is per-frame interpolation.
+            useNativeDriver: false,
+          }).start();
+        }),
+      [register, pct],
+    );
+    const dashoffset = pct.interpolate({
+      inputRange: [0, 1],
+      outputRange: [CIRCUMFERENCE, 0],
+    });
     return (
       <View style={styles.progressRing}>
         <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE} viewBox={`0 0 ${CIRCLE_SIZE} ${CIRCLE_SIZE}`}>
@@ -69,7 +103,7 @@ const LiveProgressRing = React.memo(
             stroke="rgba(255,255,255,0.12)"
             strokeWidth={TRACK_WIDTH}
           />
-          <Circle
+          <AnimatedCircle
             cx={CIRCLE_SIZE / 2}
             cy={CIRCLE_SIZE / 2}
             r={R}
@@ -85,7 +119,7 @@ const LiveProgressRing = React.memo(
           />
         </Svg>
         <View style={styles.ringLabelContainer}>
-          <Text style={styles.counterText}>{d.count}</Text>
+          <Text style={styles.counterText}>{count}</Text>
           <Text style={styles.phaseLabel}>{label}</Text>
         </View>
       </View>
@@ -204,6 +238,10 @@ export const WorkoutScreen = () => {
       KeepAwake.deactivate();
       if (timerRef.current) clearInterval(timerRef.current);
     };
+    // Intentionally keyed to focus/mount only: loadData is recreated every
+    // render, so listing it here would refetch in a loop. Wrap it in
+    // useCallback before adding it to these deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Push the tick-driven display values to the ring / time-label subscribers.
@@ -301,7 +339,7 @@ export const WorkoutScreen = () => {
         } else {
           ReactNativeHapticFeedback.trigger('impactLight', hapticOptions);
         }
-      } catch (e) {}
+      } catch {}
     }
   };
 
@@ -351,7 +389,24 @@ export const WorkoutScreen = () => {
     // moves (Reverse Clamp's 0.3s squeeze, Front Clamp's release beat, Flash
     // flicks) get a faster one - a fixed 240ms filter swallowed most of a 0.3s
     // step, which read as a dead pause between reps.
-    const pursuitMs = Math.min(240, Math.max(80, total * 400));
+    // How far the circle must travel ENTERING this step. A hold has from === to,
+    // so its own span is zero, yet entering it can still be a full-scale move
+    // from wherever the previous step ended: Front Clamp builds to full over 3s
+    // then holds at zero, and the 1s "Relax" beats after a long hold do the
+    // same. Sizing the chase only by step LENGTH treated those identically to a
+    // step that barely moves, so a full-height drop collapsed in a couple of
+    // frames and then sat dead for the rest of the beat.
+    const prevStep = playlistRef.current[indexRef.current - 1];
+    const entryFrom = prevStep ? (prevStep.to ?? prevStep.from ?? 0) : 0;
+    const entryJump = Math.abs((cur.from ?? 0) - entryFrom);
+    const basePursuit = Math.min(240, Math.max(80, total * 400));
+    // Only real jumps earn extra time. The graded Upstairs / Downstairs /
+    // Elevator steps move 0.25 at a time and should stay crisp, which is the
+    // point of those exercises. Capped at 60% of the step so the circle always
+    // settles before the next one begins.
+    const settleMs =
+      entryJump > 0.3 ? Math.min(entryJump * 520, total * 1000 * 0.6) : 0;
+    const pursuitMs = Math.max(basePursuit, settleMs);
     Animated.parallel([
       Animated.timing(glowScale, {
         toValue: targetScale,

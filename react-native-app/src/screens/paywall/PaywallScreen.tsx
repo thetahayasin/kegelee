@@ -3,16 +3,15 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
   ActivityIndicator,
   Modal,
-  Linking,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
-import { COLORS } from '../../theme/colors';
+import { COLORS, DISABLED_OPACITY } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { getActiveSubscription, DBSubscription } from '../../db/queries';
 import {
@@ -26,9 +25,11 @@ import {
   initBilling,
   requestPlanPurchase,
   restoreRevenueCatPurchases,
-  getRevenueCatManagementUrl,
   recordCompletedPurchase,
   takePendingPlan,
+  getPlanPricing,
+  describePurchaseFailure,
+  PlanPricing,
   WITH_TIME_PRORATION,
   DEFERRED,
 } from '../../services/billing';
@@ -44,14 +45,77 @@ import { Watermark } from '../../components/Watermark';
  * Settings) it is "Manage Plan": switching plans uses RevenueCat's product-change flow - upgrades switch
  * immediately with time credit, downgrades defer to the end of the paid period.
  */
+/** Billable months in a plan period, or null for periods with no monthly equivalent. */
+const planMonths = (plan: PlanDef): number | null => {
+  if (plan.interval === 'year') return 12 * plan.interval_count;
+  if (plan.interval === 'month') return plan.interval_count;
+  return null;
+};
+
+/**
+ * A plan's price expressed per month, reusing the STORE's own formatting.
+ *
+ * Rather than reformatting through Intl (symbol position and decimal separator
+ * vary by locale, and Hermes ships Intl inconsistently), this swaps the numeric
+ * run inside the store's own priceString. Whatever currency symbol, placement
+ * and separator that market uses are preserved exactly as the store wrote them.
+ */
+const perMonthLabel = (pricing: PlanPricing | undefined, months: number | null): string | null => {
+  if (!pricing?.priceString || pricing.price == null || !months || months <= 1) return null;
+  const numeric = pricing.priceString.match(/d[d., s]*d|d/);
+  if (!numeric) return null;
+  const sample = numeric[0];
+  const separator = /,d{1,2}$/.test(sample) ? ',' : '.';
+  return pricing.priceString.replace(sample, (pricing.price / months).toFixed(2).replace('.', separator));
+};
+
+/**
+ * Percentage saved per month against the monthly plan, from LIVE store prices.
+ *
+ * Never derived from the catalogue: those figures are USD-only and would
+ * misstate the saving in every other market, which is exactly why plans.ts
+ * refuses to carry a hardcoded discount. Returns null unless both real prices
+ * are known, so the badge silently does not render rather than guessing.
+ */
+const savingsPercent = (
+  pricing: Record<string, PlanPricing>,
+  plan: PlanDef,
+  months: number | null,
+): number | null => {
+  const monthly = PLANS.find((p) => p.interval === 'month' && p.interval_count === 1);
+  const base = monthly ? pricing[monthly.slug]?.price : null;
+  const own = pricing[plan.slug]?.price;
+  if (!base || !own || !months || months <= 1) return null;
+  const percent = Math.round((1 - own / months / base) * 100);
+  // Anything under ~5% reads as noise and invites "that is not a saving".
+  return percent >= 5 ? percent : null;
+};
+
+/** What premium unlocks. Every line maps to something the app actually ships. */
+const PREMIUM_BENEFITS = [
+  'Every exercise and level in the programme',
+  'Guided sessions with hold and relax timing',
+  'Progress charts and full session history',
+  'The complete knowledge library',
+  'Daily training reminders',
+];
+
 export const PaywallScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, logout, markSubscribed } = useAuth();
 
   const [activeSub, setActiveSub] = useState<DBSubscription | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null); // plan slug
+  // Localized store prices + real trial eligibility, keyed by plan slug.
+  // Empty until RevenueCat offerings load (or when they can't - offline, store
+  // unavailable), in which case the catalogue USD price shows and no trial is
+  // ever advertised.
+  const [pricing, setPricing] = useState<Record<string, PlanPricing>>({});
   const [purchasing, setPurchasing] = useState(false);
   const [billingReady, setBillingReady] = useState(true);
+  // True once offerings have loaded and matched no plan - purchasing is
+  // impossible until the store/RevenueCat catalogue is fixed.
+  const [offeringsUnavailable, setOfferingsUnavailable] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
@@ -61,8 +125,26 @@ export const PaywallScreen = () => {
   // Keep the live subscription in a ref so CTA presses after a re-render still
   // use the current subscription when switching plans.
   const activeSubRef = useRef<DBSubscription | null>(null);
+  // Same reason as activeSubRef: `subscribe` is memoised on [user], so it must
+  // read live store prices rather than the `pricing` captured at creation.
+  const pricingRef = useRef<Record<string, PlanPricing>>({});
+  // `subscribe` is memoised on [user] but needs to trigger a restore when the
+  // store reports the plan is already owned. Reaching it through a ref keeps
+  // that call pointed at the current handler instead of the one captured when
+  // the callback was created.
+  const handleRestoreRef = useRef<(() => Promise<void>) | null>(null);
 
   const subscribed = !!activeSub;
+  // Whether this screen was pushed onto an existing stack (Settings -> Manage
+  // Plan), or IS the subscription gate's root.
+  //
+  // Deliberately derived from real navigation history rather than from
+  // `subscribed`: the navigator mounts the gate using AuthContext's value,
+  // while this screen computes its own from the local subscriptions row. When
+  // those two disagree the header used to show a close button on the gate root,
+  // where goBack() silently does nothing - a dead X, and no Log out escape
+  // either, because the X replaced it.
+  const canClose = navigation.canGoBack();
 
   const subscribe = useCallback(
     async (plan: PlanDef, current: DBSubscription | null) => {
@@ -75,9 +157,16 @@ export const PaywallScreen = () => {
         if (!user) throw new Error('Sign in before subscribing.');
         const currentPlan = current ? planBySlug(current.plan_slug) : null;
         const switching = !!currentPlan && currentPlan.slug !== plan.slug;
+        // Rank the two plans by their REAL store prices where we have them.
+        // The catalogue price is only an offline fallback: it is USD-only and
+        // can drift from Play, which would otherwise pick the wrong
+        // replacement mode (charging immediately on what is really a
+        // downgrade, or deferring a genuine upgrade).
+        const priceOf = (p: PlanDef) => pricingRef.current[p.slug]?.price ?? p.price;
         const purchase = await requestPlanPurchase(user.id, plan, switching ? {
           oldProductId: currentPlan.store_product_id,
-          replacementMode: plan.price >= currentPlan.price ? WITH_TIME_PRORATION : DEFERRED,
+          replacementMode:
+            priceOf(plan) >= priceOf(currentPlan) ? WITH_TIME_PRORATION : DEFERRED,
         } : undefined);
 
         const result = await recordCompletedPurchase(user.id, purchase);
@@ -88,9 +177,19 @@ export const PaywallScreen = () => {
         setAutoRenewing(purchase.autoRenewing);
         setShowAutoRenewalNotice(true);
       } catch (e: any) {
-        if (!e?.userCancelled) {
-          const detail = e?.underlyingErrorMessage ? ` (${e.underlyingErrorMessage})` : '';
-          setMessage((e?.message || 'Purchase failed. Please try again.') + detail);
+        const failure = describePurchaseFailure(e);
+        if (failure.cancelled) {
+          // They backed out of the store sheet. Saying anything at all here
+          // reads as an error they did not cause.
+          return;
+        }
+        // The raw code and SDK string are for us, not for the customer.
+        console.warn('[billing] purchase failed', failure.code, failure.detail);
+        setMessage(failure.message);
+        if (failure.restorable) {
+          // They already own it. Restoring is the fix; asking them to buy
+          // again would take a second payment for the same thing.
+          await handleRestoreRef.current?.();
         }
       } finally {
         setPurchasing(false);
@@ -112,6 +211,23 @@ export const PaywallScreen = () => {
         if (mounted && !ready) {
           setBillingReady(false);
           setMessage('Billing is not available on this device. You can restore a previous purchase below.');
+        }
+        if (ready) {
+          getPlanPricing(user.id)
+            .then((p) => {
+              if (!mounted) return;
+              setPricing(p);
+              pricingRef.current = p;
+              // No package matched any plan: the store or RevenueCat has no
+              // purchasable products for this build (empty/misconfigured
+              // offering, wrong SDK key, product not live). Say so and block
+              // the CTA rather than showing catalogue prices behind a button
+              // that can only fail once tapped.
+              setOfferingsUnavailable(Object.keys(p).length === 0);
+            })
+            .catch(() => {
+              if (mounted) setOfferingsUnavailable(true);
+            });
         }
       }
       // A subscription can renew (or be bought on another device) while the
@@ -185,14 +301,36 @@ export const PaywallScreen = () => {
       setAutoRenewing(purchase.autoRenewing);
       setShowAutoRenewalNotice(true);
     } catch (e: any) {
-      setMessage(e?.message || 'Restore failed. Please try again.');
+      const failure = describePurchaseFailure(e);
+      if (!failure.cancelled) {
+        console.warn('[billing] restore failed', failure.code, failure.detail);
+        setMessage(failure.message);
+      }
     } finally {
       setPurchasing(false);
     }
   };
+  handleRestoreRef.current = handleRestore;
   const selectedPlanDef = planBySlug(selectedPlan);
   const isUpgrade =
     !!activeSub && !!selectedPlan && activeSub.plan_slug !== selectedPlan;
+  const selectedPricing = selectedPlanDef ? pricing[selectedPlanDef.slug] : undefined;
+  // Advertise a trial only when the store actually serves one to THIS customer
+  // (see getPlanPricing) and there is no current subscription - a plan switch
+  // is a product change, never a new trial.
+  const trialDays = !activeSub ? selectedPricing?.freeTrialDays ?? null : null;
+  // The trial is the same on every plan, so it is stated once above the cards
+  // rather than badged on each. Read from live store data like every other
+  // trial claim here: if the offer is withdrawn, or this customer has
+  // subscribed before and is therefore ineligible, Play returns no free phase
+  // and this simply does not render. We never advertise a trial the store
+  // will not actually grant.
+  const anyTrialDays = !activeSub
+    ? PLANS.map((plan) => pricing[plan.slug]?.freeTrialDays).find((days) => !!days) ?? null
+    : null;
+  const selectedPriceLabel = selectedPlanDef
+    ? `${selectedPricing?.priceString || `$${selectedPlanDef.price.toFixed(2)}`}${paywallIntervalLabel(selectedPlanDef)}`
+    : '';
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -200,7 +338,7 @@ export const PaywallScreen = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        {subscribed ? (
+        {canClose ? (
           <TouchableOpacity
             style={styles.headerLeftBtn}
             onPress={() => navigation.goBack()}
@@ -237,15 +375,62 @@ export const PaywallScreen = () => {
       >
         <Text style={styles.heading}>
           {subscribed
-            ? 'Unlock the full programme'
+            ? 'Change your plan'
             : 'Start your transformation journey now'}
         </Text>
+
+        {anyTrialDays ? (
+          <View style={styles.trialBanner}>
+            <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M12 6v6l4 2"
+                stroke={COLORS.accent}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <Path
+                d="M12 3a9 9 0 1 0 9 9"
+                stroke={COLORS.accent}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+              />
+            </Svg>
+            <Text style={styles.trialBannerText}>
+              {`Every plan starts with a ${anyTrialDays}-day free trial`}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* What premium unlocks. Hidden for subscribers, who reach this screen
+            as "Manage Plan" and are being asked to switch, not to buy in. */}
+        {!subscribed && (
+          <View style={styles.benefits}>
+            {PREMIUM_BENEFITS.map((benefit) => (
+              <View key={benefit} style={styles.benefitRow}>
+                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M20 6L9 17l-5-5"
+                    stroke={COLORS.accent}
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+                <Text style={styles.benefitText}>{benefit}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Plan cards */}
         <View style={styles.plansWrap}>
           {PLANS.map((plan) => {
             const selected = selectedPlan === plan.slug;
             const isCurrentPlan = activeSub?.plan_slug === plan.slug;
+            const months = planMonths(plan);
+            const perMonth = perMonthLabel(pricing[plan.slug], months);
+            const savings = savingsPercent(pricing, plan, months);
             return (
               <TouchableOpacity
                 key={plan.slug}
@@ -267,10 +452,21 @@ export const PaywallScreen = () => {
                   <View style={styles.planInfo}>
                     <Text style={styles.planName}>{plan.name}</Text>
                     <Text style={styles.planDescription}>{plan.description}</Text>
+                    {savings ? (
+                      <View style={styles.savingsPill}>
+                        <Text style={styles.savingsPillText}>SAVE {savings}%</Text>
+                      </View>
+                    ) : null}
                   </View>
                   <View style={styles.planPriceWrap}>
-                    <Text style={styles.planPrice}>${plan.price.toFixed(2)}</Text>
+                    <Text style={styles.planPrice}>
+                      {pricing[plan.slug]?.priceString
+                        || (offeringsUnavailable ? '--' : `$${plan.price.toFixed(2)}`)}
+                    </Text>
                     <Text style={styles.planInterval}>{paywallIntervalLabel(plan)}</Text>
+                    {perMonth ? (
+                      <Text style={styles.planPerMonth}>{perMonth}/mo</Text>
+                    ) : null}
                   </View>
                 </View>
               </TouchableOpacity>
@@ -278,36 +474,67 @@ export const PaywallScreen = () => {
           })}
         </View>
 
+        {offeringsUnavailable ? (
+          <Text style={styles.message}>
+            Subscriptions aren't available on this device right now. Please try again
+            later, or restore a previous purchase below.
+          </Text>
+        ) : null}
+
         {message ? <Text style={styles.message}>{message}</Text> : null}
       </ScrollView>
 
       {/* Fixed bottom CTA bar */}
       <View style={[styles.bottomBar, { paddingBottom: 16 + insets.bottom }]}>
         <TouchableOpacity
-          style={[styles.continueBtn, (!selectedPlan || purchasing || !billingReady) && styles.continueBtnDisabled]}
-          disabled={!selectedPlan || purchasing || !billingReady}
+          style={[
+            styles.continueBtn,
+            (!selectedPlan || purchasing || !billingReady || offeringsUnavailable) &&
+              styles.continueBtnDisabled,
+          ]}
+          disabled={!selectedPlan || purchasing || !billingReady || offeringsUnavailable}
           onPress={() => selectedPlanDef && subscribe(selectedPlanDef, activeSubRef.current)}
         >
           {purchasing ? (
             <ActivityIndicator color={COLORS.onAccent} />
           ) : (
             <Text style={styles.continueBtnText}>
-              {isUpgrade ? `Switch to ${selectedPlanDef?.name}` : 'Continue'}
+              {isUpgrade
+                ? `Switch to ${selectedPlanDef?.name}`
+                : trialDays
+                  ? `Start ${trialDays}-Day Free Trial`
+                  : 'Subscribe'}
             </Text>
           )}
         </TouchableOpacity>
         {!purchasing && (
           <>
+            {selectedPlanDef && !offeringsUnavailable ? (
+              <Text style={styles.renewalText}>
+                {trialDays
+                  ? `${trialDays}-day free trial, then ${selectedPriceLabel}. Renews automatically unless you cancel before the trial ends.`
+                  : `${selectedPriceLabel}, renews automatically until cancelled.`}{' '}
+                Manage or cancel anytime in Google Play.
+              </Text>
+            ) : null}
             <Text style={styles.legalText}>
-              Payment is processed securely through RevenueCat and the app store on confirmation. Your
-              subscription renews automatically at the price shown until you cancel
-              it; uninstalling the app does not cancel or refund it.
+              Payment is processed securely through RevenueCat and the app store on confirmation.
+              Uninstalling the app does not cancel or refund a subscription.
               By continuing you agree to our{' '}
               <Text
                 style={styles.legalLink}
                 onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: 'Terms' })}
               >
                 Terms
+              </Text>
+              {', '}
+              <Text
+                style={styles.legalLink}
+                onPress={() =>
+                  navigation.navigate('LegalPage', { slug: 'privacy-policy', title: 'Privacy Policy' })
+                }
+              >
+                Privacy Policy
               </Text>{' '}
               and the app store terms.
             </Text>
@@ -367,16 +594,12 @@ export const PaywallScreen = () => {
                   ? 'Your subscription renews automatically. You can manage or turn this off anytime from your subscription settings.'
                   : 'Auto-renewal is off. Your access will end at the expiry date.'}
               </Text>
-              {autoRenewing && (
-                <TouchableOpacity
-                  style={styles.manageBtn}
-                  onPress={() =>
-                    user ? getRevenueCatManagementUrl(user.id).then((url) => url && Linking.openURL(url)) : undefined
-                  }
-                >
-                  <Text style={styles.manageBtnText}>Manage subscription</Text>
-                </TouchableOpacity>
-              )}
+              {/* No management shortcut here on purpose: this panel fires in the
+                  seconds after a successful purchase, where offering a cancel
+                  route is odd UX. Managing and cancelling stay one tap away in
+                  Settings, and in Google Play itself. The auto-renewal wording
+                  above STAYS: Play policy requires the renewal terms be
+                  disclosed at purchase, so it is not ours to remove. */}
             </View>
 
             <TouchableOpacity style={styles.noticeContinueBtn} onPress={continueToApp}>
@@ -442,6 +665,57 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 16,
     gap: 12,
+  },
+  trialBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    gap: 7,
+    marginTop: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: COLORS.whiteFaint,
+  },
+  trialBannerText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.accent,
+  },
+  benefits: {
+    marginTop: 20,
+    paddingHorizontal: 24,
+    gap: 10,
+  },
+  benefitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  benefitText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 19,
+    color: COLORS.whiteMuted,
+  },
+  savingsPill: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    borderRadius: 999,
+    backgroundColor: COLORS.whiteFaint,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  savingsPillText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.3,
+    color: COLORS.accent,
+  },
+  planPerMonth: {
+    marginTop: 2,
+    fontSize: 11,
+    color: COLORS.textMuted,
   },
   planCard: {
     borderWidth: 2,
@@ -540,7 +814,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   continueBtnDisabled: {
-    opacity: 0.5,
+    opacity: DISABLED_OPACITY,
   },
   continueBtnText: {
     fontSize: 16,
@@ -558,7 +832,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.textMuted,
     textDecorationLine: 'underline',
-  },  legalText: {
+  },
+  renewalText: {
+    marginTop: 10,
+    fontSize: 12,
+    lineHeight: 17,
+    textAlign: 'center',
+    color: COLORS.white,
+    opacity: 0.85,
+  },
+  legalText: {
     marginTop: 8,
     fontSize: 11,
     lineHeight: 16,
@@ -637,19 +920,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 12,
     lineHeight: 17,
-    color: COLORS.textMuted,
-  },
-  manageBtn: {
-    marginTop: 12,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  manageBtnText: {
-    fontSize: 13,
-    fontWeight: '500',
     color: COLORS.textMuted,
   },
   noticeContinueBtn: {

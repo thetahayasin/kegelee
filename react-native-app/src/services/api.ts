@@ -69,7 +69,7 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
     if (text) {
       try {
         json = JSON.parse(text);
-      } catch (e) {
+      } catch {
         json = { error: 'Invalid server response' };
       }
     }

@@ -1,4 +1,5 @@
 import { getDBConnection } from './sqlite';
+import { getLocalDateString } from '../utils/localDate';
 
 export interface DBUser {
   id: number;
@@ -541,14 +542,15 @@ export const recordCompletedSession = async (
 ): Promise<void> => {
   const db = await getDBConnection();
   
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const dateStr = `${year}-${month}-${day}`;
-
-  const userRows = await query('SELECT level_id FROM users WHERE id = ? LIMIT 1', [userId]);
+  const userRows = await query('SELECT level_id, timezone FROM users WHERE id = ? LIMIT 1', [userId]);
   const lvlId = userRows.length > 0 ? userRows[0].level_id : levelId;
+
+  // The user's timezone, NOT the device clock. Every reader of training_days
+  // (getTodayProgress, currentDayNumber, the Progress tab) keys off
+  // getLocalDateString(user.timezone); building the date differently here
+  // wrote the session to one date row while the app looked for it under
+  // another, so the day never showed as complete and no tick appeared.
+  const dateStr = getLocalDateString(userRows.length > 0 ? userRows[0].timezone : null);
 
   // FIXED at 2 sessions/day (backend AppConfig::SESSIONS_PER_DAY) - the level
   // changes session length, never the per-day count. A level-based map here

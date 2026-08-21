@@ -163,10 +163,12 @@ const buildExercises = (): Record<string, ExerciseDef> => {
       name: 'Short Holding',
       slug: 'short-holding',
       unlock_after_days: 36,
-      summary: 'Squeeze up, hold 4 seconds, let go',
-      description: 'A slow squeeze into a strong 4 second hold with a quick release.',
-      how_to: 'Tighten slowly for one second, then hold at full strength for four seconds. Let go at once and go again.',
-      pattern: [seg(1, 0, 1, 'Contract'), hold(4, 1, 'Hold'), hold(1, 0, 'Relax')],
+      summary: 'Hold 4 seconds, then ease down',
+      description: 'A strong 4 second hold released slowly rather than dropped. Letting go under control is a skill in its own right, and most people find it harder than the hold.',
+      how_to: 'Tighten over one second, hold at full strength for four, then release gradually as the circle sinks. Do not let it collapse - stay with it all the way down.',
+      // Distinct from Steady Clamp (same ramp and hold, but a sharp release):
+      // this one trains the controlled descent instead.
+      pattern: [seg(1, 0, 1, 'Contract'), hold(4, 1, 'Hold'), seg(2, 1, 0, 'Ease down')],
     },
     {
       name: 'Waves',
@@ -178,13 +180,20 @@ const buildExercises = (): Record<string, ExerciseDef> => {
       pattern: [seg(2, 0, 1, 'Contract slowly'), seg(2, 1, 0, 'Relax slowly')],
     },
     {
-      name: 'Pulsation',
+      name: 'Double Pulse',
+      // Slug unchanged: session history and progression rows reference it.
       slug: 'pulsation',
       unlock_after_days: 50,
-      summary: 'Fast half second pulses',
-      description: 'Rhythmic pulses that build stamina and timing.',
-      how_to: 'Squeeze and release in a fast steady rhythm with the circle. Keep every pulse the same strength.',
-      pattern: [seg(0.5, 0, 1, 'Contract'), seg(0.5, 1, 0, 'Relax')],
+      summary: 'Two fast pulses, then a full reset',
+      description: 'Two quick squeezes back to back, then a complete release. Trains squeezing again before you have fully recovered, and letting go properly between efforts.',
+      how_to: 'Squeeze and release twice in quick succession with the circle, then let everything go completely while it rests. The full release matters as much as the pulses.',
+      pattern: [
+        seg(0.3, 0, 1, 'Pulse 1'),
+        seg(0.3, 1, 0, 'Release'),
+        seg(0.3, 0, 1, 'Pulse 2'),
+        seg(0.3, 1, 0, 'Release'),
+        hold(0.8, 0, 'Reset'),
+      ],
     },
     {
       name: 'Push',

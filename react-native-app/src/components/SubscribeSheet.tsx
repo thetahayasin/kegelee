@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   TextInput,
   Modal,
   ScrollView,
@@ -12,9 +11,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { TouchableOpacity } from './Touchable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
-import { COLORS } from '../theme/colors';
+import { COLORS, DISABLED_OPACITY } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 import { getAppSetting } from '../db/queries';
 import { getWebBaseUrl } from '../services/api';
@@ -208,7 +208,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       // kegelee://auth/google/finish deeplink, which AuthContext redeems -
       // the pending plan then continues on the paywall like every other path.
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
-    } catch (err) {
+    } catch {
       setMessage('Could not open Google sign-in. Please try again.');
     } finally {
       setGoogleLoading(false);
@@ -650,7 +650,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnDisabled: {
-    opacity: 0.5,
+    opacity: DISABLED_OPACITY,
   },
   continueBtnText: {
     fontSize: 16,

@@ -3,15 +3,15 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS } from '../../theme/colors';
+import { COLORS, GLASS, DISABLED_OPACITY } from '../../theme/colors';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
 import { EXERCISES } from '../../constants/catalogues';
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  rowLocked: { opacity: 0.5 },
+  rowLocked: { opacity: DISABLED_OPACITY },
   rowInner: {
     flexDirection: 'row',
     alignItems: 'center',

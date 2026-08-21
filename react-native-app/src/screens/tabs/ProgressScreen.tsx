@@ -3,12 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
   Modal,
   Animated,
-  Platform,
 } from 'react-native';
+import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { useIsFocused } from '@react-navigation/native';
@@ -20,7 +19,7 @@ import {
 } from '../../db/queries';
 import { getLocalDateString } from '../../services/progression';
 import { syncNow } from '../../services/sync';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 export const ProgressScreen = () => {
   const isFocused = useIsFocused();
@@ -90,6 +89,10 @@ export const ProgressScreen = () => {
     if (isFocused) {
       loadData();
     }
+    // Intentionally keyed to focus/mount only: loadData is recreated every
+    // render, so listing it here would refetch in a loop. Wrap it in
+    // useCallback before adding it to these deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused, mode]);
 
   const calculateBuckets = (measurements: any[], currentMode: 'days' | 'weeks' | 'months') => {
@@ -105,7 +108,6 @@ export const ProgressScreen = () => {
     }
 
     const barsList = [];
-    const nowMs = today.getTime();
 
     for (let i = count - 1; i >= 0; i--) {
       let bucketStart: Date;
@@ -280,7 +282,7 @@ export const ProgressScreen = () => {
 
         <View style={styles.chartArea}>
           {/* Y Axis Gridlines */}
-          {[maxScale, Math.floor(maxScale * 2 / 3), Math.floor(maxScale / 3), 0].map((gVal, idx) => {
+          {[maxScale, Math.floor(maxScale * 2 / 3), Math.floor(maxScale / 3), 0].map((gVal) => {
             const topPct = `${(1 - gVal / maxScale) * 100}%`;
             return (
               <View key={gVal} style={[styles.gridlineRow, { top: topPct as any }]}>

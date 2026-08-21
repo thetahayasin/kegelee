@@ -1,11 +1,16 @@
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { getDefaultConfig } = require('expo/metro-config');
 
 /**
  * Metro configuration
- * https://reactnative.dev/docs/metro
+ * https://docs.expo.dev/guides/customizing-metro/
  *
- * @type {import('@react-native/metro-config').MetroConfig}
+ * Expo SDK 57 bundles its own Metro fork (@expo/metro). Pulling mergeConfig in
+ * from @react-native/metro-config resolves the plain `metro` copy instead and
+ * the two disagree about the transformer, so the whole config comes from
+ * expo/metro-config here.
+ *
+ * @type {import('expo/metro-config').MetroConfig}
  */
-const config = {};
+const config = getDefaultConfig(__dirname);
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+module.exports = config;
