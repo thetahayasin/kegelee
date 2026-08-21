@@ -251,7 +251,7 @@ export const SettingsScreen = () => {
                   {subscriptionLabel}
                 </Text>
               </View>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" style={styles.subRowChevron}>
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M9 18l6-6-6-6"
                   stroke={COLORS.textMuted}
@@ -590,9 +590,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 18,
-  },
-  subRowChevron: {
-    marginLeft: 8,
+    // The label column is flex:1, so without a gap it grows until it touches
+    // the trailing chevron / external-link icon.
+    gap: 14,
   },
   subRow: {
     flexDirection: 'row',
@@ -600,6 +600,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 18,
+    gap: 14,
   },
   borderTop: {
     borderTopWidth: 1,

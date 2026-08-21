@@ -120,6 +120,12 @@ export const PaywallScreen = () => {
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  // Measured height of the fixed bottom bar, used as the scroll view's bottom
+  // padding. It was a hardcoded 200, which the bar outgrew as soon as the CTA
+  // disclosure wrapped to more lines ("3-day free trial, then ... unless you
+  // cancel before the trial ends"), so the last plan card slid underneath it.
+  // 200 stays as the first-render estimate until onLayout reports the truth.
+  const [bottomBarHeight, setBottomBarHeight] = useState(200);
   const insets = useSafeAreaInsets();
 
   // Keep the live subscription in a ref so CTA presses after a re-render still
@@ -370,7 +376,7 @@ export const PaywallScreen = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: 200 + insets.bottom }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: bottomBarHeight + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.heading}>
@@ -485,7 +491,10 @@ export const PaywallScreen = () => {
       </ScrollView>
 
       {/* Fixed bottom CTA bar */}
-      <View style={[styles.bottomBar, { paddingBottom: 16 + insets.bottom }]}>
+      <View
+        style={[styles.bottomBar, { paddingBottom: 16 + insets.bottom }]}
+        onLayout={(e) => setBottomBarHeight(e.nativeEvent.layout.height)}
+      >
         <TouchableOpacity
           style={[
             styles.continueBtn,

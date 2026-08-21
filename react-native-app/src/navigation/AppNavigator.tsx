@@ -102,11 +102,20 @@ const TabIcon = ({ name, color }: { name: string; color: string }) => {
 
 // Tab bar button.
 const TabButton = ({ children, ...props }: BottomTabBarButtonProps) => (
-  // No ripple and no highlight behind the icon. A filled 40pt circle appearing
-  // instantly on a near-black bar reads as a flare rather than as feedback, and
-  // it fired on every tab press. The tint change between active and inactive
-  // already signals the result of the tap, which is the part that matters.
-  <PlatformPressable {...props} pressColor="transparent">
+  // No press effect at all on the tab bar. The tint change between active and
+  // inactive already signals the result of the tap.
+  //
+  // pressColor alone was NOT enough: it only tints the Android ripple, so the
+  // ripple was still drawn - and PlatformPressable's default is borderless,
+  // which bleeds a circle out past the icon. That is the flare. radius 0 with
+  // borderless false stops it being drawn, and pressOpacity 1 stops the
+  // non-ripple fallback (older Android, web) fading the whole tab instead.
+  <PlatformPressable
+    {...props}
+    pressColor="transparent"
+    pressOpacity={1}
+    android_ripple={{ color: 'transparent', borderless: false, radius: 0 }}
+  >
     {children}
   </PlatformPressable>
 );
