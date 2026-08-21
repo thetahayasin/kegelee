@@ -108,7 +108,10 @@ class SyncWithBackend
         if ($request->ajax() || $request->headers->has('X-Livewire')) {
             return false;
         }
-        if ($request->is('api/*', 'admin/*', 'livewire/*', 'storage/*', 'sync/*')) {
+        // 'mystic/*' is the admin prefix (route names are still admin.*), so it
+        // must be listed by PATH here or every admin page would trigger a
+        // backend content sync it has no use for.
+        if ($request->is('api/*', 'mystic/*', 'livewire/*', 'storage/*', 'sync/*')) {
             return false;
         }
         if (! $request->acceptsHtml()) {

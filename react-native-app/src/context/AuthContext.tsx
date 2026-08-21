@@ -3,7 +3,7 @@ import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee from '@notifee/react-native';
 import { api, setApiToken } from '../services/api';
-import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription } from '../db/queries';
+import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions } from '../db/queries';
 import { syncNow, onSyncComplete } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
@@ -456,9 +456,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     const off = onSyncComplete((syncedUserId) => {
       if (syncedUserId !== user.id) return;
-      computeSubscribed(user.id, user.is_admin)
-        .then(setSubscribed)
-        .catch(() => {});
+      (async () => {
+        if (await computeSubscribed(user.id, user.is_admin)) {
+          setSubscribed(true);
+          return;
+        }
+        // Only LOWER the gate on positive evidence. "No ACTIVE subscription"
+        // and "no subscription rows at all" are different things: the second
+        // happens whenever a pull lands before the backend knows about a
+        // purchase, and treating it as a revocation yanks a paying user to the
+        // paywall. The next sync then raises the gate again - that flapping is
+        // what shows up as the app flickering between the subscription page
+        // and a half-mounted blank screen, since each flip remounts a
+        // different navigator stack.
+        //
+        // With rows present but none active, the expiry is real: close it.
+        const rows = await getSubscriptions(user.id).catch(() => []);
+        if (rows.length > 0) {
+          setSubscribed(false);
+        }
+      })().catch(() => {});
     });
     return off;
   }, [user]);

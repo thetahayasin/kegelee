@@ -30,13 +30,18 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.user' => \App\Http\Middleware\ResolveApiUser::class,
         ]);
 
-        // Google Play RTDN pushes (Pub/Sub -> /webhooks/google-play) carry no
-        // CSRF token. The exemption must live HERE: the web group registers
+        // Server-to-server webhooks carry no CSRF token: Google Play RTDN comes
+        // from Pub/Sub, RevenueCat posts from its own backend. Both authenticate
+        // themselves instead (RevenueCat via the Authorization header checked in
+        // RevenueCatWebhookController).
+        //
+        // The exemption must live HERE: the web group registers
         // PreventRequestForgery, so a route-level withoutMiddleware() naming
         // the deprecated VerifyCsrfToken subclass matches nothing and the
         // push still 419s.
         $middleware->preventRequestForgery(except: [
             'webhooks/google-play',
+            'webhooks/revenuecat',
         ]);
 
         $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
@@ -49,7 +54,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Guests hitting the app land on the public homepage (or onboarding when
         // the homepage is disabled). Admin routes redirect to the admin login.
-        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin*')
+        // The admin prefix is 'mystic', not 'admin' - only the route NAMES are
+        // still admin.*, so matching on 'admin*' here sent signed-out admins to
+        // the landing page instead of the login form.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('mystic*')
             ? route('admin.login')
             : route('landing'));
 
@@ -79,7 +87,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 || ($request->headers->has('X-Livewire') && $request->isMethod('POST'));
 
             if (! $isJsonSurface) {
-                return redirect()->guest($request->is('admin*')
+                return redirect()->guest($request->is('mystic*')
                     ? route('admin.login')
                     : route('landing'));
             }
