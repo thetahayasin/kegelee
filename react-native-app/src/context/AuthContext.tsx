@@ -45,6 +45,21 @@ const computeBasicsDone = async (userId: number, isAdmin: boolean): Promise<bool
 // local subscriptions table, kept current by every sync. Admins bypass the
 // gate so they can preview the app - the same rule as the web's
 // EnsureSubscribed middleware.
+// How long an optimistic, server-unconfirmed purchase keeps access.
+//
+// recordCompletedPurchase grants immediately, so nobody waits on a round trip
+// to start training. The backend acknowledges through the sync push and the
+// RevenueCat webhook, and an acknowledged row comes back from the pull with a
+// plan_id set.
+//
+// 72h is far beyond any legitimate acknowledgement delay - the push goes out
+// seconds after the purchase - while bounding a grant the server never
+// recognises to three days instead of the twelve months a yearly plan's
+// ends_at would otherwise allow. Erring long is deliberate: the cost of
+// waiting is a few free days, the cost of being early is locking out someone
+// who actually paid.
+const UNVERIFIED_GRACE_MS = 72 * 60 * 60 * 1000;
+
 const computeSubscribed = async (userId: number, isAdmin: boolean): Promise<boolean> => {
   if (isAdmin) return true;
   try {
@@ -457,20 +472,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const off = onSyncComplete((syncedUserId) => {
       if (syncedUserId !== user.id) return;
       (async () => {
-        if (await computeSubscribed(user.id, user.is_admin)) {
+        // Reaching this listener AT ALL is the "successful server response"
+        // the revocation rule requires: it only fires once a push and a pull
+        // have both come back clean. A network failure returns early in
+        // syncNow and never gets here, so a connectivity problem can never
+        // cost anyone access.
+        if (user.is_admin) {
           setSubscribed(true);
           return;
         }
-        // Only LOWER the gate on positive evidence. "No ACTIVE subscription"
-        // and "no subscription rows at all" are different things: the second
-        // happens whenever a pull lands before the backend knows about a
-        // purchase, and treating it as a revocation yanks a paying user to the
-        // paywall. The next sync then raises the gate again - that flapping is
-        // what shows up as the app flickering between the subscription page
-        // and a half-mounted blank screen, since each flip remounts a
-        // different navigator stack.
-        //
-        // With rows present but none active, the expiry is real: close it.
+
+        const active = await getActiveSubscription(user.id).catch(() => null);
+
+        if (active) {
+          // A row the backend has acknowledged comes back from the pull with a
+          // plan_id. recordCompletedPurchase writes plan_id: null, so a null
+          // one is still nothing but our own optimistic grant.
+          const serverConfirmed = active.plan_id != null;
+          const grantedAt = Date.parse(active.started_at || '');
+          const stillInGrace =
+            !Number.isFinite(grantedAt) ||
+            Date.now() - grantedAt < UNVERIFIED_GRACE_MS;
+
+          // Keep access while the backend agrees, and keep it while the
+          // purchase has not yet had a fair chance to reach the backend.
+          if (serverConfirmed || stillInGrace) {
+            setSubscribed(true);
+            return;
+          }
+
+          // Unconfirmed, and well past the point where a working purchase
+          // would have been acknowledged - across at least one successful
+          // round trip. Only now is this a purchase the server does not
+          // recognise rather than one it has not seen yet.
+          setSubscribed(false);
+          return;
+        }
+
+        // No active row. Lower only on positive evidence: rows present but
+        // none active is a real expiry. NO rows at all is absence of
+        // information, and treating that as revocation is what used to yank
+        // paying users to the paywall and flicker the navigator between
+        // stacks.
         const rows = await getSubscriptions(user.id).catch(() => []);
         if (rows.length > 0) {
           setSubscribed(false);
