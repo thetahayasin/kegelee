@@ -40,8 +40,15 @@ const REVENUECAT_ENTITLEMENT_ID = 'premium';
 const REVENUECAT_ANDROID_PUBLIC_SDK_KEY = 'goog_mOSmpWsMRRLEZoLcWvRqOencyMq';
 const REVENUECAT_IOS_PUBLIC_SDK_KEY = '';
 
-export const WITH_TIME_PRORATION = (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITH_TIME_PRORATION ?? 1;
-export const DEFERRED = (Purchases as any)?.STORE_REPLACEMENT_MODE?.DEFERRED ?? 6;
+// STORE_REPLACEMENT_MODE members are STRINGS ("WITH_TIME_PRORATION", "DEFERRED").
+// These previously fell back to 1 and 6 - values from the long-deprecated
+// numeric PRORATION_MODE enum. Whenever the SDK static was not populated at
+// module-eval time, the app sent a number where Play expects a mode name and
+// the product change was rejected, which is what broke downgrades.
+export const WITH_TIME_PRORATION =
+  (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITH_TIME_PRORATION ?? 'WITH_TIME_PRORATION';
+export const DEFERRED =
+  (Purchases as any)?.STORE_REPLACEMENT_MODE?.DEFERRED ?? 'DEFERRED';
 
 // Real SDK types rather than `any`: this file decides who is entitled and what
 // gets charged, so it is the last place that should opt out of type checking.

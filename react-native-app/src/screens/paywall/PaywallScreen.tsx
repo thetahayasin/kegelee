@@ -93,11 +93,10 @@ const savingsPercent = (
 
 /** What premium unlocks. Every line maps to something the app actually ships. */
 const PREMIUM_BENEFITS = [
-  'Every exercise and level in the programme',
-  'Guided sessions with hold and relax timing',
-  'Progress charts and full session history',
-  'The complete knowledge library',
-  'Daily training reminders',
+  'Build real pelvic floor strength',
+  'Measure your progress',
+  'Set reminders that fit your day',
+  'Feel the difference',
 ];
 
 export const PaywallScreen = () => {
@@ -250,7 +249,16 @@ export const PaywallScreen = () => {
       if (!mounted) return;
       setActiveSub(current);
       activeSubRef.current = current;
-      setSelectedPlan(current?.plan_slug || featuredPlan().slug);
+      // Never preselect the plan they already own: subscribe() decides it is
+      // not a switch when old and new slugs match, and re-buys it instead.
+      // A subscriber lands on the featured plan, or the first one that is not
+      // theirs if the featured plan IS theirs.
+      const notCurrent = PLANS.filter((p) => p.slug !== current?.plan_slug);
+      setSelectedPlan(
+        current
+          ? (notCurrent.find((p) => p.is_featured) ?? notCurrent[0])?.slug ?? null
+          : featuredPlan().slug,
+      );
 
       const pendingSlug = await takePendingPlan();
       if (!mounted) return;
@@ -431,9 +439,14 @@ export const PaywallScreen = () => {
 
         {/* Plan cards */}
         <View style={styles.plansWrap}>
-          {PLANS.map((plan) => {
+          {(activeSub
+            // Managing a plan: show only what they can move TO. Rendering the
+            // plan they already own as a purchasable card invites a tap that
+            // cannot succeed.
+            ? PLANS.filter((plan) => plan.slug !== activeSub.plan_slug)
+            : PLANS
+          ).map((plan) => {
             const selected = selectedPlan === plan.slug;
-            const isCurrentPlan = activeSub?.plan_slug === plan.slug;
             const months = planMonths(plan);
             const perMonth = perMonthLabel(pricing[plan.slug], months);
             const savings = savingsPercent(pricing, plan, months);
@@ -447,11 +460,6 @@ export const PaywallScreen = () => {
                 {plan.is_featured && (
                   <View style={styles.featuredBadge}>
                     <Text style={styles.featuredBadgeText}>BEST VALUE</Text>
-                  </View>
-                )}
-                {isCurrentPlan && (
-                  <View style={styles.currentBadge}>
-                    <Text style={styles.currentBadgeText}>CURRENT PLAN</Text>
                   </View>
                 )}
                 <View style={styles.planRow}>
@@ -750,21 +758,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     color: COLORS.onAccent,
-    letterSpacing: 0.5,
-  },
-  currentBadge: {
-    position: 'absolute',
-    top: -10,
-    left: 16,
-    backgroundColor: 'rgba(193,255,114,0.20)',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-  },
-  currentBadgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: COLORS.success,
     letterSpacing: 0.5,
   },
   planRow: {
