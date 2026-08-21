@@ -19,7 +19,12 @@ use Illuminate\Support\Facades\Route;
 | RevenueCat server events push here; no CSRF / auth needed.
 |--------------------------------------------------------------------------
 */
+// Throttled generously: real event volume is a trickle, but the endpoint mints
+// subscriptions from its request body, so an attacker who learns the bearer
+// secret must not be able to hammer it. 120/min is far above anything
+// RevenueCat sends, including retry bursts.
 Route::post('/webhooks/revenuecat', [RevenueCatWebhookController::class, 'handle'])
+    ->middleware('throttle:120,1')
     ->name('webhooks.revenuecat');
 
 /*
@@ -29,6 +34,7 @@ Route::post('/webhooks/revenuecat', [RevenueCatWebhookController::class, 'handle
 |--------------------------------------------------------------------------
 */
 Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handle'])
+    ->middleware('throttle:120,1')
     ->name('webhooks.google-play');
 
 /*

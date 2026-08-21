@@ -154,11 +154,16 @@ export const logoutBilling = async (): Promise<void> => {
   }
 };
 
-/** Whether this CustomerInfo carries a live premium entitlement. */
-export const hasActiveEntitlement = (customerInfo: CustomerInfo): boolean => {
-  const active = customerInfo?.entitlements?.active || {};
-  return Boolean(active[REVENUECAT_ENTITLEMENT_ID]) || Object.keys(active).length > 0;
-};
+/**
+ * Whether this CustomerInfo carries a live premium entitlement.
+ *
+ * Checks the NAMED entitlement only. This previously also returned true for any
+ * active entitlement at all (`|| Object.keys(active).length > 0`), which made
+ * the entitlement id decorative: the moment a second entitlement exists for
+ * anything else, holding it would silently unlock premium.
+ */
+export const hasActiveEntitlement = (customerInfo: CustomerInfo): boolean =>
+  Boolean(customerInfo?.entitlements?.active?.[REVENUECAT_ENTITLEMENT_ID]);
 
 /**
  * Subscribe to RevenueCat's own entitlement pushes. RevenueCat emits a fresh
