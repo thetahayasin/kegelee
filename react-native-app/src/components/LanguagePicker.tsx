@@ -6,6 +6,7 @@ import Svg, { Path } from 'react-native-svg';
 import { TouchableOpacity } from './Touchable';
 import { COLORS } from '../theme/colors';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES, setLanguage } from '../i18n';
+import { refreshContentForCurrentLocale } from '../services/sync';
 
 interface Props {
   visible: boolean;
@@ -36,6 +37,11 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
       return;
     }
     const { needsRestart } = await setLanguage(tag);
+    // Legal pages live on the backend, so the new language's copies have to be
+    // pulled - the bundled strings switch instantly but Terms would otherwise
+    // stay in the old language until the next sync. Not awaited: it is a
+    // background refresh and the picker should close immediately.
+    refreshContentForCurrentLocale();
     if (needsRestart) {
       // Switching between LTR and RTL flips the whole layout, and
       // I18nManager cannot do that to a running bundle. Say so rather than

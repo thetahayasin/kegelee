@@ -4,6 +4,7 @@ namespace App\Livewire\App\Page;
 
 use App\Models\Page;
 use App\Services\Sync\BackendClient;
+use App\Support\Locales;
 use Livewire\Component;
 
 /**
@@ -27,6 +28,14 @@ class Show extends Component
 
     public bool $offline = false;
 
+    /** Language actually being shown, which is English unless a translation exists. */
+    public string $locale = Locales::BASE;
+
+    public bool $isRtl = false;
+
+    /** What the URL asked for, passed through to the live backend fetch. */
+    public ?string $requestedLocale = null;
+
     public function mount()
     {
         if (! $this->page->is_published && ! optional(auth()->user())->is_admin) {
@@ -35,10 +44,26 @@ class Show extends Component
 
         $this->isDevice = BackendClient::isClient();
 
-        if ($this->isDevice) {
-            $this->fetch();
+        // ?locale=de on the public URL. There is no language switcher on the
+        // website yet, so this is here for deep links (and for the Play
+        // listing's policy URL, which can point at a translated copy).
+        $requested = Locales::resolve(request()->query('locale'));
+
+        if (! $this->isDevice) {
+            $localized = $this->page->localized($requested);
+            $this->locale = $localized['locale'];
+            $this->isRtl = Locales::isRtl($this->locale);
+            // Render the translated copy rather than the base row.
+            $this->page->title = $localized['title'];
+            $this->page->content = $localized['content'];
+
+            return;
         }
+
+        $this->requestedLocale = $requested;
+        $this->fetch();
     }
+
 
     /** Load the live page content from the backend. Also used by the Retry button. */
     public function fetch(): void
@@ -48,11 +73,15 @@ class Show extends Component
 
         try {
             $response = BackendClient::request()
-                ->get(BackendClient::base().'/v1/pages/'.$this->page->slug);
+                ->get(BackendClient::base().'/v1/pages/'.$this->page->slug, array_filter([
+                    'locale' => $this->requestedLocale,
+                ]));
 
             if ($response->successful()) {
                 $this->remoteContent = (string) $response->json('content');
                 $this->remoteUpdatedAt = $response->json('updated_at');
+                $this->locale = (string) ($response->json('locale') ?: Locales::BASE);
+                $this->isRtl = Locales::isRtl($this->locale);
 
                 return;
             }

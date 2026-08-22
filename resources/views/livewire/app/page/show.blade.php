@@ -32,7 +32,8 @@
                 @if ($remoteUpdatedAt)
                     <p class="text-xs text-muted">Last updated {{ \Carbon\Carbon::parse($remoteUpdatedAt)->translatedFormat('j M Y') }}</p>
                 @endif
-                <article class="prose-page mt-4 rounded-2xl bg-surface p-5 leading-relaxed text-muted">
+                <article lang="{{ $locale }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}"
+                         class="prose-page mt-4 rounded-2xl bg-surface p-5 leading-relaxed text-muted">
                     {!! $remoteContent !!}
                 </article>
             </div>
@@ -49,7 +50,8 @@
         <h1 class="text-2xl font-bold">{{ $page->title }}</h1>
         <p class="mt-1 text-xs text-muted">Last updated {{ $page->updated_at?->translatedFormat('j M Y') }}</p>
 
-        <article class="prose-page mt-6 rounded-2xl bg-surface p-5 leading-relaxed text-muted">
+        <article lang="{{ $locale }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}"
+                 class="prose-page mt-6 rounded-2xl bg-surface p-5 leading-relaxed text-muted">
             {!! $page->content !!}
         </article>
     </div>

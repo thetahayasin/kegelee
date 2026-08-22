@@ -1,0 +1,60 @@
+<?php
+
+/** Polish legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Polityka prywatności',
+        'blocks' => [
+            'Ta polityka prywatności wyjaśnia, jakie dane zbiera Kegelee, jak są wykorzystywane i jakie masz możliwości wyboru. Piszemy krótko i prostym językiem.',
+            'Co zbieramy',
+            'Gdy zakładasz konto, zapisujemy Twoje imię, adres e-mail oraz bezpiecznie zahaszowane hasło. Jeśli logujesz się przez Google, otrzymujemy od Google Twoje imię i adres e-mail.',
+            'Podczas treningu aplikacja zapisuje Twoje sesje, ukończone dni treningowe, pomiary wytrzymałości, wybrany poziom trudności i godziny przypomnień. Te dane o postępach są najpierw zapisywane na Twoim urządzeniu i synchronizowane z naszym serwerem, żebyś mógł je odzyskać po ponownej instalacji lub zmianie telefonu.',
+            'Czego nie zbieramy',
+            'Nie zbieramy Twojej lokalizacji, kontaktów, zdjęć ani żadnych danych zdrowotnych wykraczających poza opisane wyżej postępy treningowe. Nie wyświetlamy reklam i nigdy nikomu nie sprzedajemy Twoich danych.',
+            'Płatności',
+            'Za subskrypcje rozlicza Google Play. Nigdy nie widzimy ani nie przechowujemy danych Twojej karty. Od Google otrzymujemy potwierdzenie zakupu, żeby odblokować subskrypcję i utrzymać ją aktywną na wszystkich Twoich urządzeniach.',
+            'Jak wykorzystujemy Twoje dane',
+            'Twoje dane służą wyłącznie do działania aplikacji: logowania, zapisywania postępów, synchronizacji między urządzeniami, wysyłania e-maili weryfikacyjnych i resetujących hasło oraz obsługi subskrypcji. Nic więcej.',
+            'Gdzie znajdują się Twoje dane',
+            'Twoje postępy znajdują się na Twoim urządzeniu i są synchronizowane z naszym serwerem przez szyfrowane połączenie. Dostęp do serwera jest ograniczony i chroniony.',
+            'Usuwanie danych',
+            'W ustawieniach aplikacji możesz w każdej chwili zresetować postępy treningowe, co usuwa je również z naszego serwera. Aby usunąć konto i wszystkie powiązane z nim dane, napisz do nas na adres podany niżej, a je skasujemy.',
+            'Kontakt',
+            'Masz pytania o prywatność? Napisz na support@kegelee.com.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'Polityka zwrotów',
+        'blocks' => [
+            'Subskrypcje Kegelee kupuje się i rozlicza przez Google Play, więc zwroty obsługuje Google zgodnie z polityką zwrotów Google Play.',
+            'Jak poprosić o zwrot',
+            'Otwórz Sklep Google Play, przejdź do swojego konta, wybierz Płatności i subskrypcje, zaznacz zakup Kegelee i poproś o zwrot. W przypadku niedawnych zakupów Google zwykle rozpatruje wnioski w ciągu jednego lub dwóch dni.',
+            'Anulowanie',
+            'Subskrypcję możesz anulować w dowolnym momencie w Google Play. Zachowujesz pełny dostęp do końca opłaconego okresu, a po nim nie zostaniesz obciążony ponownie.',
+            'Potrzebujesz pomocy?',
+            'Jeśli masz problem z zakupem lub zwrotem, napisz na support@kegelee.com, a zrobimy, co w naszej mocy, żeby pomóc.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Regulamin',
+        'blocks' => [
+            'Witamy w Kegelee. Zakładając konto lub korzystając z aplikacji, akceptujesz ten regulamin. Przeczytaj go, proszę; jest krótki.',
+            'Czym jest Kegelee',
+            'Kegelee to aplikacja do prowadzonego treningu mięśni dna miednicy. Oferuje plany ćwiczeń, śledzenie postępów i przypomnienia. To narzędzie fitness, a nie wyrób medyczny.',
+            'To nie jest porada medyczna',
+            'Kegelee nie udziela porad medycznych, nie stawia diagnoz ani nie prowadzi leczenia. Jeśli masz problem zdrowotny, wracasz do formy po operacji, jesteś w ciąży lub odczuwasz ból podczas ćwiczeń, przerwij i skonsultuj się z lekarzem, zanim będziesz kontynuować. Zawsze słuchaj swojego ciała.',
+            'Twoje konto',
+            'Odpowiadasz za bezpieczeństwo swoich danych logowania i za to, co dzieje się na Twoim koncie. Przy rejestracji musisz podać prawdziwe informacje.',
+            'Subskrypcje',
+            'Pełny trening wymaga subskrypcji kupionej przez Google Play. Ceny są pokazywane w aplikacji przed zakupem. Subskrypcje odnawiają się automatycznie, chyba że anulujesz je w Google Play; po anulowaniu zachowujesz dostęp do końca opłaconego okresu. Zwroty odbywają się zgodnie z naszą polityką zwrotów i zasadami Google Play.',
+            'Uczciwe korzystanie',
+            'Nie próbuj kopiować, odsprzedawać, łamać ani nadużywać aplikacji lub jej usług. Konta, które to robią, możemy zawiesić.',
+            'Odpowiedzialność',
+            'Kegelee jest udostępniane w stanie, w jakim jest. W zakresie dozwolonym przez prawo nie ponosimy odpowiedzialności za urazy ani straty wynikające z korzystania z aplikacji. Trenuj rozsądnie i w granicach swoich możliwości.',
+            'Zmiany',
+            'Możemy aktualizować ten regulamin w miarę rozwoju aplikacji. Istotne zmiany pojawią się na tej stronie wraz z datą podaną powyżej.',
+            'Kontakt',
+            'Masz pytania do regulaminu? Napisz na support@kegelee.com.',
+        ],
+    ],
+];

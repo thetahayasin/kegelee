@@ -1,0 +1,60 @@
+<?php
+
+/** Italian legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Informativa sulla privacy',
+        'blocks' => [
+            'Questa informativa sulla privacy spiega quali dati raccoglie Kegelee, come vengono usati e quali scelte hai a disposizione. La teniamo breve e in linguaggio semplice.',
+            'Cosa raccogliamo',
+            'Quando crei un account salviamo il tuo nome, il tuo indirizzo email e una password protetta tramite hash. Se accedi con Google, riceviamo da Google il tuo nome e il tuo indirizzo email.',
+            'Durante gli allenamenti l\'app registra le tue sessioni, i giorni di allenamento completati, le misurazioni di resistenza, il livello di difficoltà scelto e gli orari dei promemoria. Questi dati di progresso vengono salvati prima sul tuo dispositivo e poi sincronizzati con il nostro server, così puoi recuperarli se reinstalli l\'app o cambi telefono.',
+            'Cosa non raccogliamo',
+            'Non raccogliamo la tua posizione, i contatti, le foto né alcun dato sanitario oltre al progresso di allenamento descritto sopra. Non mostriamo pubblicità e non vendiamo mai i tuoi dati a nessuno.',
+            'Pagamenti',
+            'Gli abbonamenti sono fatturati da Google Play. Non vediamo né conserviamo mai i dati della tua carta. Riceviamo da Google una conferma d\'acquisto per poter attivare il tuo abbonamento e mantenerlo attivo su tutti i tuoi dispositivi.',
+            'Come vengono usati i tuoi dati',
+            'I tuoi dati servono solo a far funzionare l\'app: farti accedere, salvare i tuoi progressi, sincronizzarli tra i dispositivi, inviare le email di verifica e di reimpostazione della password e gestire il tuo abbonamento. Nient\'altro.',
+            'Dove risiedono i tuoi dati',
+            'I tuoi progressi risiedono sul tuo dispositivo e vengono sincronizzati con il nostro server tramite una connessione cifrata. L\'accesso al nostro server è limitato e protetto.',
+            'Eliminare i tuoi dati',
+            'Puoi azzerare i tuoi progressi dalle impostazioni dell\'app in qualsiasi momento: così vengono cancellati anche dal nostro server. Per eliminare il tuo account e tutti i dati collegati, scrivici all\'indirizzo qui sotto e provvederemo a rimuoverli.',
+            'Contatti',
+            'Domande sulla privacy? Scrivici a support@kegelee.com.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'Politica di rimborso',
+        'blocks' => [
+            'Gli abbonamenti Kegelee vengono acquistati e fatturati tramite Google Play, quindi i rimborsi sono gestiti da Google secondo la politica di rimborso di Google Play.',
+            'Come richiedere un rimborso',
+            'Apri il Google Play Store, vai al tuo account, scegli Pagamenti e abbonamenti, seleziona l\'acquisto Kegelee e richiedi il rimborso. Per gli acquisti recenti Google di solito risolve le richieste in uno o due giorni.',
+            'Disdetta',
+            'Puoi disdire il tuo abbonamento in qualsiasi momento da Google Play. Mantieni l\'accesso completo fino alla fine del periodo già pagato e dopo non ti verrà addebitato altro.',
+            'Ti serve aiuto?',
+            'Se hai problemi con un acquisto o un rimborso, scrivici a support@kegelee.com e faremo il possibile per aiutarti.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Termini di servizio',
+        'blocks' => [
+            'Benvenuto o benvenuta in Kegelee. Creando un account o usando l\'app accetti questi termini. Ti chiediamo di leggerli: sono brevi.',
+            'Che cos\'è Kegelee',
+            'Kegelee è un\'app di allenamento guidato del pavimento pelvico. Offre programmi di esercizi, monitoraggio dei progressi e promemoria. È uno strumento di fitness, non un dispositivo medico.',
+            'Non è un parere medico',
+            'Kegelee non fornisce pareri medici, diagnosi o terapie. Se soffri di una patologia, ti stai riprendendo da un intervento, sei in gravidanza o senti dolore mentre ti alleni, fermati e parla con un medico prima di continuare. Ascolta sempre il tuo corpo.',
+            'Il tuo account',
+            'Sei responsabile della sicurezza delle tue credenziali e di quanto avviene con il tuo account. Al momento della registrazione devi fornire informazioni corrette.',
+            'Abbonamenti',
+            'L\'esperienza di allenamento completa richiede un abbonamento acquistato tramite Google Play. I prezzi sono mostrati nell\'app prima dell\'acquisto. Gli abbonamenti si rinnovano automaticamente salvo disdetta su Google Play; dopo la disdetta mantieni l\'accesso fino alla fine del periodo pagato. I rimborsi seguono la nostra Politica di rimborso e le regole di Google Play.',
+            'Uso corretto',
+            'Non tentare di copiare, rivendere, manomettere o abusare dell\'app o dei suoi servizi. Possiamo sospendere gli account che lo fanno.',
+            'Responsabilità',
+            'Kegelee è fornito così com\'è. Nei limiti consentiti dalla legge, non siamo responsabili per lesioni o danni derivanti dall\'uso dell\'app. Allenati con buon senso e nei tuoi limiti.',
+            'Modifiche',
+            'Possiamo aggiornare questi termini man mano che l\'app evolve. Le modifiche rilevanti saranno riportate in questa pagina con la data indicata sopra.',
+            'Contatti',
+            'Domande su questi termini? Scrivici a support@kegelee.com.',
+        ],
+    ],
+];

@@ -29,38 +29,91 @@
                 @if ($savedMessage)<span class="text-sm font-semibold text-success">{{ $savedMessage }}</span>@endif
             </div>
 
+            {{-- Language tabs. Only once the page exists: a translation needs
+                 something to hang off, and English is what everything falls
+                 back to, so it has to be written first. --}}
+            @if ($editingId)
+                <div class="rounded-xl bg-surface-2 p-3">
+                    <div class="mb-2 flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-muted">Language</span>
+                        <span class="flex items-center gap-3 text-[11px] text-muted">
+                            <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-success"></span> reviewed</span>
+                            <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-accent/60"></span> draft</span>
+                            <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-white/20"></span> falls back to English</span>
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach ($locales as $tag => $name)
+                            @php($state = $localeStates[$tag] ?? 'missing')
+                            <button type="button" wire:click="switchLocale('{{ $tag }}')"
+                                    title="{{ $name }}"
+                                    class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs tap {{ $locale === $tag ? 'bg-accent/20 font-semibold text-content' : 'bg-surface text-muted' }}">
+                                <span class="h-2 w-2 shrink-0 rounded-full {{ $state === 'done' ? 'bg-success' : ($state === 'draft' ? 'bg-accent/60' : 'bg-white/20') }}"></span>
+                                {{ $tag }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @unless ($this->isBase())
+                <p class="rounded-xl bg-accent/10 px-4 py-3 text-sm text-muted">
+                    Editing the <span class="font-semibold text-content">{{ $locales[$locale] }}</span> translation.
+                    Slug, publish state and order belong to the page itself and are edited on the English tab.
+                    Leave the body empty and this language falls back to English.
+                </p>
+            @endunless
+
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label class="mb-1 block text-sm text-muted">Title</label>
-                    <input wire:model="title" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                    <input wire:model="title" @if($isRtl) dir="rtl" @endif
+                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
                     @error('title') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
                 </div>
-                <div>
-                    <label class="mb-1 block text-sm text-muted">Slug</label>
-                    <input wire:model="slug" placeholder="auto from title" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                    @error('slug') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
-                </div>
+                @if ($this->isBase())
+                    <div>
+                        <label class="mb-1 block text-sm text-muted">Slug</label>
+                        <input wire:model="slug" placeholder="auto from title" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
+                        @error('slug') <p class="mt-1 text-sm text-red-400">{{ $message }}</p> @enderror
+                    </div>
+                @endif
             </div>
 
-            <div wire:key="page-content-{{ $editingId ?? 'new' }}">
+            {{-- wire:key includes the locale so switching tabs actually swaps
+                 the editor's contents; without it Livewire reuses the same
+                 DOM node and the previous language's text stays on screen. --}}
+            <div wire:key="page-content-{{ $editingId ?? 'new' }}-{{ $locale }}" @if($isRtl) dir="rtl" @endif>
                 <label class="mb-1 block text-sm text-muted">Content</label>
                 <x-wysiwyg model="content" placeholder="Write the page content..." />
             </div>
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-5">
-                    <label class="flex items-center gap-2"><input type="checkbox" wire:model="is_published" class="h-5 w-5 accent-[var(--c-accent)]"> <span class="text-sm">Published</span></label>
-                    <label class="flex items-center gap-2 text-sm text-muted">Order <input type="number" wire:model="sort_order" class="h-9 w-16 rounded-lg border border-white/10 bg-surface-2 px-2"></label>
+                    @if ($this->isBase())
+                        <label class="flex items-center gap-2"><input type="checkbox" wire:model="is_published" class="h-5 w-5 accent-[var(--c-accent)]"> <span class="text-sm">Published</span></label>
+                        <label class="flex items-center gap-2 text-sm text-muted">Order <input type="number" wire:model="sort_order" class="h-9 w-16 rounded-lg border border-white/10 bg-surface-2 px-2"></label>
+                    @else
+                        {{-- Machine translations land unreviewed. Legal text has
+                             consequences, so the tab strip has to show which
+                             languages a person has actually read. --}}
+                        <label class="flex items-center gap-2"><input type="checkbox" wire:model="is_reviewed" class="h-5 w-5 accent-[var(--c-accent)]"> <span class="text-sm">Reviewed by a human</span></label>
+                    @endif
                 </div>
                 @if ($editingId)
-                    <a href="{{ route('page.show', $slug) }}" target="_blank" class="text-sm text-accent-soft">Preview ↗</a>
+                    <a href="{{ route('page.show', $slug) }}{{ $this->isBase() ? '' : '?locale='.$locale }}" target="_blank" class="text-sm text-accent-soft">Preview ↗</a>
                 @endif
             </div>
 
             <div class="flex gap-3">
-                <button type="submit" class="rounded-xl bg-accent px-6 py-3 font-semibold tap">Save page</button>
-                @if ($editingId)
-                    <button type="button" wire:click="delete({{ $editingId }})" wire:confirm="Delete this page?" class="rounded-xl bg-surface-2 px-6 py-3 font-semibold text-muted tap">Delete</button>
+                <button type="submit" class="rounded-xl bg-accent px-6 py-3 font-semibold tap">
+                    {{ $this->isBase() ? 'Save page' : 'Save translation' }}
+                </button>
+                @if ($editingId && ! $this->isBase())
+                    <button type="button" wire:click="deleteTranslation" wire:confirm="Remove the {{ $locales[$locale] }} translation? The page will fall back to English." class="rounded-xl bg-surface-2 px-6 py-3 font-semibold text-muted tap">Remove translation</button>
+                @endif
+                @if ($editingId && $this->isBase())
+                    <button type="button" wire:click="delete({{ $editingId }})" wire:confirm="Delete this page and all its translations?" class="rounded-xl bg-surface-2 px-6 py-3 font-semibold text-muted tap">Delete</button>
                 @endif
             </div>
         </form>
