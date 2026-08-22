@@ -17,28 +17,61 @@
     --color-bg: var(--c-bg);
     --color-surface: var(--c-surface);
     --color-surface-2: var(--c-surface-2);
+    --color-surface-3: var(--c-surface-3);
     --color-accent: var(--c-accent);
     --color-accent-soft: var(--c-accent-soft);
     --color-success: var(--c-success);
+    --color-danger: var(--c-danger);
     --color-content: var(--c-text);
     --color-muted: var(--c-text-muted);
+    --color-dim: var(--c-text-dim);
+    --color-line: var(--c-border);
 }
 
-/* Fixed dark palette: lime text on deep dark. Surfaces are fully OPAQUE
-   solids - translucent fills forced the compositor to blend every card
-   against the layers beneath it on every frame; solid colors are the
-   cheapest thing a GPU can draw. */
+/* ---------------------------------------------------------------------------
+   Palette
+
+   The accent used to BE the text colour (--c-text was #c1ff72, muted was the
+   same lime at 62%). With every element in the accent hue there was no
+   emphasis left to spend — which is why 71 hand-written `text-white` classes
+   had accumulated across the views, each one fighting the token to claw back
+   a readable neutral.
+
+   Now there is a real neutral ramp, and lime carries one job: act here /
+   in progress / done. The background is unchanged (#060810) so the shipped
+   splash screen and store screenshots still line up.
+
+   Surfaces stay fully OPAQUE solids — translucent fills forced the compositor
+   to blend every card against the layers beneath it on every frame; solid
+   colours are the cheapest thing a GPU can draw.
+--------------------------------------------------------------------------- */
 :root {
     --c-bg: #060810;
-    --c-surface: #161b26;
-    --c-surface-2: #212836;
+
+    /* Elevation ramp. Each step is a solid, and lightens as it comes forward. */
+    --c-surface: #12151d;
+    --c-surface-2: #1a1f29;
+    --c-surface-3: #232937;
+
+    /* Hairlines. Every card used to carry a 14%-white outline, which read as
+       wireframe rather than product. These are deliberately quieter; depth
+       comes from the surface ramp instead of from drawn borders. */
+    --c-border: rgba(255, 255, 255, 0.065);
+    --c-border-strong: rgba(255, 255, 255, 0.12);
+
+    /* Accent — now genuinely accent-only. */
     --c-accent: #c1ff72;
     --c-accent-soft: #d6ffa1;
     --c-glow: #c1ff72;
-    /* Success follows the theme accent so "completed"/success messages match. */
     --c-success: var(--c-accent);
-    --c-text: #c1ff72;
-    --c-text-muted: rgba(193, 255, 114, 0.5);
+    --c-danger: #ff6b6b;
+
+    /* Neutral text ramp, very slightly warm-green so it sits with the lime
+       rather than reading as a separate cold grey. */
+    --c-text: #f2f5ee;
+    --c-text-muted: #9aa39a;
+    --c-text-dim: #6e766e;
+
     /* Dark ink for text/icons sitting on the lime accent. */
     --c-on-accent: #0c1a00;
 }
@@ -65,8 +98,8 @@ body {
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(135% 90% at 50% -10%, #102612 0%, transparent 55%),
-        radial-gradient(120% 80% at 50% 112%, #0a1705 0%, transparent 55%),
+        radial-gradient(120% 70% at 50% -12%, rgba(193, 255, 114, 0.055) 0%, transparent 58%),
+        radial-gradient(110% 60% at 50% 112%, rgba(193, 255, 114, 0.03) 0%, transparent 60%),
         #060810;
     box-shadow: 0 0 80px rgba(0, 0, 0, 0.6);
 }
@@ -97,7 +130,7 @@ body {
     text-transform: uppercase;
     white-space: nowrap;
     color: var(--c-text);
-    opacity: 0.06;
+    opacity: 0.028;
     user-select: none;
 }
 
@@ -112,8 +145,14 @@ body {
    keyboard frame, every animation frame re-rendered the blur). Translucent
    fills + luminous edges keep the depth; nothing is blurred at runtime. */
 [class*='bg-surface']:not(.rounded-full) {
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), 0 10px 30px rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--c-border);
+    /* A whisper of a top highlight (light comes from above) plus a real cast
+       shadow. The old rule drew an 18%-white inset line on every card, which
+       is what made each one look outlined rather than raised. */
+    box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.055),
+        0 1px 2px rgba(0, 0, 0, 0.35),
+        0 8px 24px -8px rgba(0, 0, 0, 0.5);
 }
 
 /* Overlay bars (bottom nav, sticky CTA strips): near-solid dark, no blur. */
@@ -365,3 +404,183 @@ label {
 
 /* App surfaces carry no backdrop-filter at all (see the glass block above),
    so the keyboard/resize path has nothing expensive left to re-render. */
+
+/* ===========================================================================
+   Design system — typography, focus, controls
+   Everything below is deliberately cascade-driven: it targets element types
+   and utility classes already present in the markup, so the refinements reach
+   all 47 views without touching each one. Same performance rules as above
+   apply — transform/opacity only, no backdrop-filter, no per-frame blends.
+=========================================================================== */
+
+/* --- Type scale ---------------------------------------------------------
+   Headings tighten as they grow (optical correction: large text needs less
+   tracking to look evenly set). Numerals go tabular so counters like "1/2"
+   and timers don't jitter their width as digits change. */
+h1, h2, h3, h4 {
+    letter-spacing: -0.021em;
+    text-wrap: balance;
+}
+h1 { letter-spacing: -0.028em; }
+
+/* Stats, timers, counters: fixed-width digits so nothing reflows mid-count. */
+.stat,
+[x-text*="done"],
+[x-text*="count"],
+[x-text*="sec"] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+}
+
+/* Long prose keeps a comfortable measure and doesn't leave orphans. */
+p { text-wrap: pretty; }
+
+/* --- Focus -------------------------------------------------------------
+   The app had no visible focus anywhere outside a handful of form inputs.
+   :focus-visible only paints for keyboard/AT navigation, so pointer users
+   see no change while keyboard users get an unmissable lime ring. */
+:where(a, button, [role="button"], [role="tab"], summary, input, select, textarea):focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+}
+/* On the accent fill itself a lime ring would vanish — invert to dark ink. */
+.bg-accent:focus-visible {
+    outline-color: var(--c-on-accent);
+    outline-offset: 3px;
+}
+
+/* --- Controls ----------------------------------------------------------
+   `.bg-accent` is the app's primary button surface (already colour-locked
+   above). These add the states it was missing: hover lift, pressed, and a
+   genuinely disabled look that also blocks the pointer. */
+.bg-accent {
+    transition: filter 0.15s ease, transform 0.08s ease;
+}
+.bg-accent:hover:not(:disabled):not([aria-disabled="true"]) {
+    filter: brightness(1.07);
+}
+.bg-accent:active:not(:disabled) {
+    filter: brightness(0.94);
+}
+.bg-accent:disabled,
+.bg-accent[aria-disabled="true"] {
+    filter: grayscale(0.55) brightness(0.7);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Interactive surfaces get a subtle edge lift on hover — reads as "this is
+   pressable" without adding a new colour to the palette. */
+a[class*="bg-surface"]:hover,
+button[class*="bg-surface"]:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+/* --- Motion ------------------------------------------------------------
+   `.tap` is the press-scale used app-wide. Keyframe animations that carry
+   real information still run under reduce-motion (see the media query at the
+   end of the block above); this decorative squeeze does not. */
+@media (prefers-reduced-motion: reduce) {
+    .tap:active { transform: none; }
+    .animate-float,
+    .animate-pulse-glow { animation: none; }
+}
+
+/* --- Bottom navigation -------------------------------------------------
+   Active state used to be carried by colour alone (lime vs faded lime),
+   which is both a weak affordance and a WCAG 1.4.1 "colour as the sole
+   indicator" problem. The capsule adds shape as a second channel, and it
+   grows from the icon so the transition reads as the tab receiving focus
+   rather than a separate object appearing. */
+.nav-tab {
+    position: relative;
+    min-height: 48px;
+}
+.nav-tab-icon-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 1.875rem;
+}
+.nav-tab-icon-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: var(--c-accent);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+.nav-tab[aria-current='page'] .nav-tab-icon-wrap::before {
+    opacity: 0.14;
+    transform: scale(1);
+}
+.nav-tab-icon {
+    position: relative;
+    transition: stroke-width 0.2s ease;
+}
+.nav-tab[aria-current='page'] .nav-tab-icon {
+    stroke-width: 2.3;
+}
+
+/* --- Locked content ----------------------------------------------------
+   Locked cards were plain `opacity-50`, which reads as "broken" rather than
+   "not yet earned". The cross-hatch makes the state deliberate. */
+.is-locked {
+    position: relative;
+}
+.is-locked::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+        -45deg,
+        transparent 0 6px,
+        rgba(255, 255, 255, 0.028) 6px 12px
+    );
+    pointer-events: none;
+}
+
+/* --- Scroll rails ------------------------------------------------------
+   Horizontal card rails snap so a card never rests half-cut off-screen. */
+.snap-rail {
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 1rem;
+}
+.snap-rail > * {
+    scroll-snap-align: start;
+}
+
+/* --- Section headings --------------------------------------------------
+   Consistent rhythm for the "Exercises" / "Training for Today" row headings. */
+.section-head {
+    font-size: 1.0625rem;
+    font-weight: 650;
+    letter-spacing: -0.019em;
+}
+
+/* --- Icon rendering ----------------------------------------------------
+   196 inline SVGs across the app, and most set only `stroke-width` — leaving
+   mitred corners and blunt line ends, which is what makes hand-rolled icon
+   sets read as unfinished next to a real icon library. Rounding caps/joins
+   here fixes every icon at once; the :not() guards let any icon that sets
+   the attribute explicitly keep its own choice. */
+svg[stroke]:not([stroke-linecap]) { stroke-linecap: round; }
+svg[stroke]:not([stroke-linejoin]) { stroke-linejoin: round; }
+
+/* --- Selection & overscroll -------------------------------------------- */
+::selection {
+    background: color-mix(in srgb, var(--c-accent) 30%, transparent);
+    color: var(--c-text);
+}
+
+/* --- Dividers ----------------------------------------------------------
+   Hairlines that hold up on 2x/3x screens without going muddy. */
+hr {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.10);
+}

@@ -1,6 +1,6 @@
 <div class="min-h-[100dvh] pb-24 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center px-5 py-4">
-        <a href="{{ route('profile') }}" wire:navigate class="grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
+        <a href="{{ route('profile') }}" wire:navigate class="grid h-11 w-11 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
         </a>
     </header>

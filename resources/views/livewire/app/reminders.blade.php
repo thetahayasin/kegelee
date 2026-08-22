@@ -1,7 +1,7 @@
 <div class="min-h-[100dvh] pb-28 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
         <a href="{{ route('schedule') }}" wire:navigate
-           class="absolute left-3 grid h-9 w-9 place-items-center rounded-full bg-surface text-content tap" aria-label="Back">
+           class="absolute left-2 grid h-11 w-11 place-items-center rounded-full bg-surface text-content tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
         </a>
         <h1 class="text-xl font-bold">Reminders</h1>
@@ -41,7 +41,7 @@
                            class="flex-1 rounded-lg border border-white/10 bg-bg px-3 py-2 text-sm font-medium text-content focus:border-accent focus:outline-none">
                     @if (count($times) > 1)
                         <button wire:click="removeTime({{ $j }})" type="button"
-                                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-2 text-muted tap">
+                                class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-2 text-muted tap">
                             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/></svg>
                         </button>
                     @endif

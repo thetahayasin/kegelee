@@ -2,7 +2,7 @@
     @php($subscribed = auth()->user()?->isSubscribed())
     <header class="relative flex items-center justify-center px-5 py-4">
         @if ($subscribed || ! auth()->check())
-            <a href="{{ $subscribed ? route('home') : route('knowledge.index') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Close">
+            <a href="{{ $subscribed ? route('home') : route('knowledge.index') }}" wire:navigate class="absolute left-3 grid h-11 w-11 place-items-center rounded-full text-muted tap" aria-label="Close">
                 <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
             </a>
         @else

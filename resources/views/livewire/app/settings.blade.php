@@ -1,6 +1,6 @@
 <div class="min-h-[100dvh] pb-16 pt-[calc(0.5rem+env(safe-area-inset-top))]">
     <header class="relative flex items-center justify-center px-5 py-4">
-        <a href="{{ route('profile') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
+        <a href="{{ route('profile') }}" wire:navigate class="absolute left-3 grid h-11 w-11 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
         </a>
         <h1 class="text-2xl font-bold">Settings</h1>
@@ -19,7 +19,7 @@
             </div>
             @if ($manageUrl)
                 <div class="border-t border-white/5">
-                    <a href="{{ $manageUrl }}" target="_blank" rel="noopener" class="flex items-center justify-between px-5 py-4 tap">
+                    <a href="{{ $manageUrl }}" target="_blank" rel="noopener" class="flex min-h-[3.25rem] items-center justify-between gap-3 px-5 py-4 tap">
                         <div>
                             <p class="font-semibold">Cancel subscription</p>
                             <p class="mt-0.5 text-sm text-muted">Opens Google Play (the only place to cancel or turn off auto-renew).</p>
@@ -29,7 +29,7 @@
                 </div>
             @endif
         @else
-            <a href="{{ route('paywall') }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
+            <a href="{{ route('paywall') }}" wire:navigate class="flex min-h-[3.25rem] items-center justify-between gap-3 px-5 py-4 tap">
                 <div>
                     <p class="font-semibold">No active subscription</p>
                     <p class="mt-0.5 text-sm text-muted">Subscribe to unlock full access</p>
@@ -47,9 +47,9 @@
          @app-offline.window="offline = true" @app-online.window="offline = false">
         <a href="{{ route('app.change-password') }}" wire:navigate
            x-bind:class="offline ? 'pointer-events-none opacity-50' : ''"
-           class="flex items-center justify-between px-5 py-4 tap">
+           class="flex min-h-[3.25rem] items-center justify-between gap-3 px-5 py-4 tap">
             <span>Change password <span x-show="offline" x-cloak class="ml-1 text-xs text-muted">(needs internet)</span></span>
-            <span class="text-muted">›</span>
+            <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
         </a>
     </div>
 
@@ -58,8 +58,8 @@
         <p class="px-6 pb-2 pt-6 text-xs font-semibold uppercase tracking-wide text-muted">Terms</p>
         <div class="mx-4 divide-y divide-white/5 overflow-hidden rounded-2xl bg-surface">
             @foreach ($pages as $p)
-                <a href="{{ route('page.show', $p) }}" wire:navigate class="flex items-center justify-between px-5 py-4 tap">
-                    <span>{{ $p->title }}</span><span class="text-muted">›</span>
+                <a href="{{ route('page.show', $p) }}" wire:navigate class="flex min-h-[3.25rem] items-center justify-between gap-3 px-5 py-4 tap">
+                    <span>{{ $p->title }}</span><svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
                 </a>
             @endforeach
         </div>
