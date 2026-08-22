@@ -86,7 +86,7 @@ export const resolveLanguage = (tag: string | null | undefined): LanguageTag => 
  * startup path would cost every user memory for strings 27 of them never read.
  */
 const bundles: Partial<Record<LanguageTag, () => any>> = {
-  // No translations yet; English is imported statically above.
+  de: () => require('./locales/de.json'),
 };
 
 const ensureBundle = (tag: LanguageTag) => {
