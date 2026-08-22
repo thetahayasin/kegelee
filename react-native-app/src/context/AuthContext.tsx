@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee from '@notifee/react-native';
@@ -117,7 +117,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Instant access right after a Play purchase completes (the local
   // subscription row is already written): flip the gate without waiting for
   // a sync round-trip, like the web's local-record-then-redirect.
-  const markSubscribed = () => setSubscribed(true);
+  // Stable identity: PaywallScreen calls this from a useCallback-memoised
+  // purchase handler, and a fresh function every render would either
+  // invalidate that memo or sit in the deps array as a lint error.
+  const markSubscribed = useCallback(() => setSubscribed(true), []);
 
   const markBasicsDone = () => {
     setBasicsDone(true);

@@ -63,10 +63,10 @@ const planMonths = (plan: PlanDef): number | null => {
  */
 const perMonthLabel = (pricing: PlanPricing | undefined, months: number | null): string | null => {
   if (!pricing?.priceString || pricing.price == null || !months || months <= 1) return null;
-  const numeric = pricing.priceString.match(/d[d., s]*d|d/);
+  const numeric = pricing.priceString.match(/\d[\d.,\s]*\d|\d/);
   if (!numeric) return null;
   const sample = numeric[0];
-  const separator = /,d{1,2}$/.test(sample) ? ',' : '.';
+  const separator = /,\d{1,2}$/.test(sample) ? ',' : '.';
   return pricing.priceString.replace(sample, (pricing.price / months).toFixed(2).replace('.', separator));
 };
 
@@ -181,6 +181,22 @@ export const PaywallScreen = () => {
           setMessage('Purchase received but plan could not be matched. Contact support.');
           return;
         }
+        // Open the gate the moment the purchase is on disk, NOT when the
+        // auto-renewal notice is acknowledged.
+        //
+        // Hanging the flip off that one tap meant any path that skipped it -
+        // backing out of the notice, the notice failing to mount, the screen
+        // being torn down first - left someone who had just paid staring at
+        // the paywall until the next cold start recomputed the gate from
+        // SQLite. That is the "it unblocks after a restart" report. The row
+        // is the same evidence the restart would use, so act on it now.
+        //
+        // On the gate root this swaps the navigator and the notice below
+        // never renders; that is fine, the pre-purchase disclosure under the
+        // CTA and Play's own sheet both already stated the renewal terms.
+        // Reached from Settings the navigator does not move, so the notice
+        // still shows as the confirmation it was written to be.
+        markSubscribed();
         setAutoRenewing(purchase.autoRenewing);
         setShowAutoRenewalNotice(true);
       } catch (e: any) {
@@ -202,7 +218,9 @@ export const PaywallScreen = () => {
         setPurchasing(false);
       }
     },
-    [user],
+    // markSubscribed is useCallback-stable in AuthContext, so listing it does
+    // not re-create this handler on every render.
+    [user, markSubscribed],
   );
 
   // Mount: warm the billing connection, load the current subscription,
@@ -314,6 +332,9 @@ export const PaywallScreen = () => {
         setMessage('Restored purchase could not be matched to a plan. Contact support.');
         return;
       }
+      // Same as the purchase path: the entitlement is real and on disk, so
+      // the gate opens now rather than on a tap that may never come.
+      markSubscribed();
       setAutoRenewing(purchase.autoRenewing);
       setShowAutoRenewalNotice(true);
     } catch (e: any) {

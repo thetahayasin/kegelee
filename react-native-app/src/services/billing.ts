@@ -295,6 +295,65 @@ const freeTrialDaysFor = (pkg: PurchasesPackage): number | null => {
   return null;
 };
 
+// INTRO_ELIGIBILITY_STATUS, pinned rather than imported.
+//
+// Same reason as the RC error-code map above: the enum is re-exported through
+// the native module, so reading it off the SDK object before native init
+// yields undefined and every comparison silently becomes false - which here
+// would mean "unknown" for everyone.
+const INTRO_UNKNOWN = 0;
+const INTRO_INELIGIBLE = 1;
+const INTRO_ELIGIBLE = 2;
+const INTRO_NO_OFFER = 3;
+
+/**
+ * Whether this customer has ever bought anything in this app.
+ *
+ * Deliberately reads only entitlement and purchase history. `originalPurchaseDate`
+ * looks like the obvious signal but RevenueCat falls it back to the first-seen
+ * date on Android, so it is non-null for people who have never paid a cent -
+ * using it would hide the trial from every new user, which is the opposite
+ * mistake and a much more expensive one.
+ */
+const hasEverPurchased = async (): Promise<boolean> => {
+  try {
+    const info = await Purchases.getCustomerInfo();
+    // entitlements.all includes lapsed ones, which is the case that matters:
+    // someone who took the trial, cancelled, and came back.
+    if (Object.keys(info?.entitlements?.all || {}).length > 0) return true;
+    return Object.values(info?.allPurchaseDates || {}).some(Boolean);
+  } catch {
+    // Can't tell. Promising a trial the store then refuses is worse than
+    // staying quiet about one, so assume it has been used.
+    return true;
+  }
+};
+
+/**
+ * Free-phase eligibility per store product, for THIS customer.
+ *
+ * A free pricing phase on the offer is not proof the person in front of us
+ * gets it. Play returns an offer's phases whether or not they have already
+ * used the trial, so a returning subscriber who cancelled was still shown
+ * "3 days free" and then charged at once. Ask the store about the customer
+ * instead of reading the product's shape.
+ */
+const introEligibility = async (
+  productIds: string[],
+): Promise<Record<string, number>> => {
+  if (productIds.length === 0) return {};
+  try {
+    const res = await Purchases.checkTrialOrIntroductoryPriceEligibility(productIds);
+    const out: Record<string, number> = {};
+    for (const [id, entry] of Object.entries(res || {})) {
+      out[id] = Number((entry as any)?.status ?? INTRO_UNKNOWN);
+    }
+    return out;
+  } catch {
+    return {};
+  }
+};
+
 /**
  * Localized store pricing (and real trial eligibility) for every plan the
  * paywall lists, keyed by plan slug. Missing entries mean the store/RevenueCat
@@ -310,15 +369,36 @@ export const getPlanPricing = async (
   const packages = offerings?.current?.availablePackages || [];
   const out: Record<string, PlanPricing> = {};
 
-  for (const plan of PLANS) {
-    const pkg = findPackageForPlan(packages, plan);
-    const priceString = pkg?.product?.priceString;
-    if (!pkg || !priceString) continue;
+  const matched = PLANS
+    .map((plan) => ({ plan, pkg: findPackageForPlan(packages, plan) }))
+    .filter((m): m is { plan: PlanDef; pkg: PurchasesPackage } => !!m.pkg?.product?.priceString);
+
+  const productIds = Array.from(
+    new Set(matched.map((m) => packageProductId(m.pkg)).filter(Boolean) as string[]),
+  );
+  // One eligibility call and at most one customer-info read for the whole
+  // paywall, not one per plan.
+  const eligibility = await introEligibility(productIds);
+  const everPurchased = Object.values(eligibility).some((s) => s === INTRO_UNKNOWN)
+    ? await hasEverPurchased()
+    : false;
+
+  for (const { plan, pkg } of matched) {
+    const status = eligibility[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN;
+    // UNKNOWN is the usual answer on Android, where Play gives RevenueCat
+    // little to go on - fall back to the customer's own purchase history.
+    const trialAllowed =
+      status === INTRO_ELIGIBLE
+        ? true
+        : status === INTRO_INELIGIBLE || status === INTRO_NO_OFFER
+          ? false
+          : !everPurchased;
+
     out[plan.slug] = {
-      priceString,
+      priceString: pkg.product.priceString,
       price: typeof pkg.product?.price === 'number' ? pkg.product.price : null,
       currencyCode: pkg.product?.currencyCode || null,
-      freeTrialDays: freeTrialDaysFor(pkg),
+      freeTrialDays: trialAllowed ? freeTrialDaysFor(pkg) : null,
     };
   }
 
