@@ -97,3 +97,14 @@ jest.mock('react-native-haptic-feedback', () => ({
   default: { trigger: jest.fn() },
   trigger: jest.fn(),
 }));
+
+// expo-localization reaches into expo-modules-core for the native locale, which
+// has no implementation under Jest. A fixed English locale keeps initI18n
+// deterministic: tests should not change behaviour with the CI machine's
+// regional settings.
+jest.mock('expo-localization', () => ({
+  getLocales: () => [
+    { languageTag: 'en-US', languageCode: 'en', regionCode: 'US', textDirection: 'ltr' },
+  ],
+  getCalendars: () => [{ timeZone: 'UTC' }],
+}));

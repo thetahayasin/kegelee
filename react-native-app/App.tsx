@@ -24,6 +24,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { initDB } from './src/db/sqlite';
+import { initI18n } from './src/i18n';
 import { COLORS } from './src/theme/colors';
 
 const navTheme = {
@@ -81,17 +82,24 @@ const Root = () => {
 };
 
 const App = () => {
-  const [dbReady, setDbReady] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    initDB()
-      .catch(e => console.error('DB init failed', e))
-      .finally(() => {
-        if (mounted) {
-          setDbReady(true);
-        }
-      });
+    // Translations load alongside the schema, and BOTH gate the first render.
+    // Mounting before i18n resolves would paint one frame of raw keys, then
+    // swap - visible as a flash of English (or of key names) on a device set
+    // to another language. Neither rejects: initI18n swallows a bad locale
+    // file and falls back to English, so a translation problem can never stop
+    // the app from starting.
+    Promise.all([
+      initDB().catch(e => console.error('DB init failed', e)),
+      initI18n().catch(e => console.error('i18n init failed', e)),
+    ]).finally(() => {
+      if (mounted) {
+        setReady(true);
+      }
+    });
     return () => {
       mounted = false;
     };
@@ -106,7 +114,7 @@ const App = () => {
           translucent
         />
         <ErrorBoundary>
-          {dbReady ? (
+          {ready ? (
             <AuthProvider>
               <Root />
             </AuthProvider>

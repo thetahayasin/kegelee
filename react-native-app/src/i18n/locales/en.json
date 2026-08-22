@@ -1,0 +1,203 @@
+{
+  "allExercises": {
+    "available": "Available",
+    "exercises": "Exercises"
+  },
+  "errorBoundary": {
+    "somethingWentWrong": "Something went wrong",
+    "theAppHitAnUnexpected": "The app hit an unexpected error. Please try again.",
+    "tryAgain": "Try again"
+  },
+  "exerciseDetail": {
+    "exerciseNotFound": "Exercise not found.",
+    "tryItNow": "Try it now"
+  },
+  "find": {
+    "keepGoing": "Keep going...",
+    "onlyDoThePeeTest": "Only do the pee test once",
+    "squeezeOnlyThoseMuscles": "Squeeze only those muscles",
+    "thatExactSqueezeIsThe": "That exact squeeze is the move you will train.",
+    "theEasiestWayToFind": "The easiest way to find them",
+    "twoQuickRules": "Two quick rules"
+  },
+  "first": {
+    "contract": "Contract",
+    "start": "Start",
+    "theCircleIsYourGuide": "The circle is your guide",
+    "thisIsTrembling": "This is Trembling",
+    "yourFirstExerciseQuickFlicks": "Your first exercise: quick flicks. Squeeze on Contract, let go on Relax."
+  },
+  "knowledge": {
+    "continueToTraining": "Continue to Training",
+    "learnTheBasics": "Learn the basics",
+    "logIn": "Log in"
+  },
+  "login": {
+    "6DigitCode": "6-digit code",
+    "close": "Close",
+    "continueWithGoogle": "Continue with Google",
+    "createAccount": "Create account",
+    "email": "Email",
+    "enterYourEmail": "Enter your email",
+    "forgotPassword": "Forgot password?",
+    "logIn": "Log In",
+    "logIn2": "Log in",
+    "newHere": "New here?",
+    "newPassword": "New password",
+    "password": "Password",
+    "passwordReset": "Password reset",
+    "resetPassword": "Reset Password"
+  },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Already have an account?",
+    "logIn": "Log in"
+  },
+  "paywall": {
+    "autoRenewal": "Auto-renewal",
+    "billingIsNotAvailableOn": "Billing is not available on this device. You can restore a previous purchase below.",
+    "close": "Close",
+    "continueToApp": "Continue to App",
+    "logOut": "Log out",
+    "noActiveSubscriptionWasFound": "No active subscription was found to restore.",
+    "privacyPolicy": "Privacy Policy",
+    "purchaseReceivedButPlanCould": "Purchase received but plan could not be matched. Contact support.",
+    "restorePurchases": "Restore purchases",
+    "restoredPurchaseCouldNotBe": "Restored purchase could not be matched to a plan. Contact support.",
+    "subscriptionActivated": "Subscription activated!",
+    "terms": "Terms",
+    "yourSubscriptionIsNowActive": "Your subscription is now active and full access has been unlocked."
+  },
+  "profile": {
+    "currentDifficulty": "Current difficulty",
+    "difficulty": "Difficulty",
+    "error": "Error",
+    "profile": "Profile",
+    "scheduleReminders": "Schedule & reminders",
+    "setTheDifficultyOfKegel": "Set the difficulty of Kegel Training program",
+    "theHigherTheLevelThe": "The higher the level, the harder the training"
+  },
+  "progress": {
+    "continue": "Continue",
+    "holdTheButtonAndContract": "Hold the button and contract the PF muscles for as long as possible.",
+    "progressTracker": "Progress Tracker",
+    "takeMeasurement": "Take measurement",
+    "tryAgain": "Try again"
+  },
+  "register": {
+    "alreadyHaveAnAccount": "Already have an account?",
+    "confirmPassword": "Confirm password",
+    "continueWithGoogle": "Continue with Google",
+    "createAccount": "Create Account",
+    "createAccount2": "Create account",
+    "email": "Email",
+    "logIn": "Log in",
+    "name": "Name",
+    "password": "Password"
+  },
+  "schedule": {
+    "active": "Active",
+    "allowExactReminders": "Allow exact reminders",
+    "error": "Error",
+    "limitReached": "Limit reached",
+    "reminders": "Reminders",
+    "remindersSaved": "Reminders Saved",
+    "repeatOn": "Repeat on",
+    "saveAddReminders": "Save & Add Reminders",
+    "schedule": "Schedule",
+    "sessionTimes": "Session times"
+  },
+  "settings": {
+    "cancel": "Cancel",
+    "deleteAccount": "Delete account",
+    "deleteAccount2": "Delete account?",
+    "deletePermanently": "Delete permanently",
+    "deleted": "Deleted",
+    "logOut": "Log out",
+    "manageSubscription": "Manage subscription",
+    "noActiveSubscription": "No active subscription",
+    "reset": "Reset",
+    "resetProgress": "Reset progress",
+    "resetProgress2": "Reset progress?",
+    "resetSuccessful": "Reset Successful",
+    "sendCode": "Send code",
+    "settings": "Settings",
+    "subscribe": "Subscribe",
+    "subscribeToUnlockFullAccess": "Subscribe to unlock full access",
+    "subscription": "Subscription",
+    "terms": "Terms",
+    "thisDoes": "This does",
+    "weEmailedA6Digit": "We emailed a 6-digit code to"
+  },
+  "subscribeSheet": {
+    "alreadyHaveAnAccountSign": "Already have an account? Sign in",
+    "back": "Back",
+    "close": "Close",
+    "confirmPassword": "Confirm password",
+    "continue": "Continue",
+    "continueWithGoogle": "Continue with Google",
+    "couldNotOpenGoogleSign": "Could not open Google sign-in. Please try again.",
+    "createAccountSubscribe": "Create account & subscribe",
+    "creatingAccount": "Creating account…",
+    "emailAddress": "Email address",
+    "fullName": "Full name",
+    "noAccountYetCreateOne": "No account yet? Create one",
+    "password": "Password",
+    "password6Characters1Number": "Password (6+ characters, 1 number)",
+    "signInSubscribe": "Sign in & subscribe",
+    "signingIn": "Signing in…",
+    "startYourTransformationJourneyNow": "Start your transformation journey now",
+    "subscribe": "Subscribe",
+    "terms": "Terms"
+  },
+  "training": {
+    "exercises": "Exercises",
+    "progressTracker": "Progress Tracker",
+    "seeAll": "See All",
+    "startWorkout": "Start workout",
+    "training": "Training"
+  },
+  "verifyEmail": {
+    "backToLogIn": "Back to Log In",
+    "didnTReceiveTheCode": "Didn't receive the code? Resend",
+    "verifyCode": "Verify Code",
+    "verifyEmail": "Verify Email"
+  },
+  "why": {
+    "aMuscleYouCanTrain": "A muscle you can train",
+    "andYouCanDoIt": "And you can do it anywhere, anytime. Sitting, standing, on the bus. Nobody can tell.",
+    "doingItRightIsEverything": "Doing it right is everything",
+    "learnItOnceAndEvery": "Learn it once, and every minute you train actually counts.",
+    "squeezeTheWrongMusclesAnd": "Squeeze the wrong muscles and you get nothing back.",
+    "theNextLessonShowsYou": "The next lesson shows you exactly where your muscles are.",
+    "thenYouDoYourFirst": "Then you do your first real exercise, guided by the circle.",
+    "whatYouGain": "What you gain",
+    "worthTwoMinutesOfYour": "Worth two minutes of your time"
+  },
+  "workout": {
+    "back": "Back",
+    "exerciseTutorial": "Exercise tutorial",
+    "greatJob": "Great job!",
+    "ifYouLeaveThisSession": "If you leave, this session will not be counted towards your daily progress.",
+    "leaveTraining": "Leave training?",
+    "noExercises": "No Exercises",
+    "noGoBack": "No, go back",
+    "pause": "Pause",
+    "resume": "Resume",
+    "skip": "Skip",
+    "tryAgain": "Try again",
+    "watchTheQuickTutorialFor": "Watch the quick tutorial for this exercise, then come back to your session.",
+    "watchTutorial": "Watch tutorial",
+    "yesQuitTraining": "Yes, quit training"
+  },
+  "workoutComplete": {
+    "continue": "Continue",
+    "howWasThat": "How was that?",
+    "justRight": "Just right",
+    "newExerciseUnlocked": "New exercise unlocked!",
+    "nextToUnlock": "Next to unlock",
+    "notNow": "Not now",
+    "tooEasy": "Too easy",
+    "tooHard": "Too hard",
+    "tryItNow": "Try it now"
+  }
+}
