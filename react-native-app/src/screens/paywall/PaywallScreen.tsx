@@ -92,13 +92,18 @@ const savingsPercent = (
   return percent >= 5 ? percent : null;
 };
 
-/** What premium unlocks. Every line maps to something the app actually ships. */
-const PREMIUM_BENEFITS = [
-  'Build real pelvic floor strength',
-  'Measure your progress',
-  'Set reminders that fit your day',
-  'Feel the difference',
-];
+/**
+ * What premium unlocks. Every line maps to something the app actually ships.
+ *
+ * Keys rather than literals: this list is the sales pitch, and it was the last
+ * fully English block on the screen people are asked to pay on.
+ */
+const PREMIUM_BENEFIT_KEYS = [
+  'paywall.benefitStrength',
+  'paywall.benefitMeasure',
+  'paywall.benefitReminders',
+  'paywall.benefitFeel',
+] as const;
 
 export const PaywallScreen = () => {
   const { t } = useTranslation();
@@ -161,7 +166,7 @@ export const PaywallScreen = () => {
         // Switching from an existing RevenueCat subscription passes the old
         // product id plus a replacement mode. Mode is chosen by absolute
         // price, so monthly->yearly is treated as an upgrade.
-        if (!user) throw new Error('Sign in before subscribing.');
+        if (!user) throw new Error(t('paywall.signInFirst'));
         const currentPlan = current ? planBySlug(current.plan_slug) : null;
         const switching = !!currentPlan && currentPlan.slug !== plan.slug;
         // Rank the two plans by their REAL store prices where we have them.
@@ -178,7 +183,7 @@ export const PaywallScreen = () => {
 
         const result = await recordCompletedPurchase(user.id, purchase);
         if (result === 'unmatched') {
-          setMessage('Purchase received but plan could not be matched. Contact support.');
+          setMessage(t('paywall.purchaseReceivedButPlanCould'));
           return;
         }
         // Open the gate the moment the purchase is on disk, NOT when the
@@ -220,7 +225,7 @@ export const PaywallScreen = () => {
     },
     // markSubscribed is useCallback-stable in AuthContext, so listing it does
     // not re-create this handler on every render.
-    [user, markSubscribed],
+    [user, markSubscribed, t],
   );
 
   // Mount: warm the billing connection, load the current subscription,
@@ -235,7 +240,7 @@ export const PaywallScreen = () => {
         const ready = await initBilling(user.id);
         if (mounted && !ready) {
           setBillingReady(false);
-          setMessage('Billing is not available on this device. You can restore a previous purchase below.');
+          setMessage(t('paywall.billingIsNotAvailableOn'));
         }
         if (ready) {
           getPlanPricing(user.id)
@@ -324,12 +329,12 @@ export const PaywallScreen = () => {
     try {
       const purchase = await restoreRevenueCatPurchases(user.id);
       if (!purchase) {
-        setMessage('No active subscription was found to restore.');
+        setMessage(t('paywall.noActiveSubscriptionWasFound'));
         return;
       }
       const result = await recordCompletedPurchase(user.id, purchase);
       if (result === 'unmatched') {
-        setMessage('Restored purchase could not be matched to a plan. Contact support.');
+        setMessage(t('paywall.restoredPurchaseCouldNotBe'));
         return;
       }
       // Same as the purchase path: the entitlement is real and on disk, so
@@ -403,7 +408,9 @@ export const PaywallScreen = () => {
             )}
           </TouchableOpacity>
         )}
-        <Text style={styles.headerTitle}>{subscribed ? 'Manage Plan' : 'Premium'}</Text>
+        <Text style={styles.headerTitle}>
+          {subscribed ? t('paywall.managePlan') : t('paywall.premium')}
+        </Text>
       </View>
 
       <ScrollView
@@ -411,9 +418,7 @@ export const PaywallScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.heading}>
-          {subscribed
-            ? 'Change your plan'
-            : 'Start your transformation journey now'}
+          {subscribed ? t('paywall.changeYourPlan') : t('paywall.startYourJourney')}
         </Text>
 
         {anyTrialDays ? (
@@ -434,7 +439,7 @@ export const PaywallScreen = () => {
               />
             </Svg>
             <Text style={styles.trialBannerText}>
-              {`Every plan starts with a ${anyTrialDays}-day free trial`}
+              {t('paywall.everyPlanStartsWithTrial', { count: anyTrialDays })}
             </Text>
           </View>
         ) : null}
@@ -443,7 +448,7 @@ export const PaywallScreen = () => {
             as "Manage Plan" and are being asked to switch, not to buy in. */}
         {!subscribed && (
           <View style={styles.benefits}>
-            {PREMIUM_BENEFITS.map((benefit) => (
+            {PREMIUM_BENEFIT_KEYS.map((benefit) => (
               <View key={benefit} style={styles.benefitRow}>
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                   <Path
@@ -454,7 +459,7 @@ export const PaywallScreen = () => {
                     strokeLinejoin="round"
                   />
                 </Svg>
-                <Text style={styles.benefitText}>{benefit}</Text>
+                <Text style={styles.benefitText}>{t(benefit)}</Text>
               </View>
             ))}
           </View>
@@ -540,10 +545,10 @@ export const PaywallScreen = () => {
           ) : (
             <Text style={styles.continueBtnText}>
               {isUpgrade
-                ? `Switch to ${selectedPlanDef?.name}`
+                ? t('paywall.switchToPlan', { plan: selectedPlanDef?.name })
                 : trialDays
-                  ? `Start ${trialDays}-Day Free Trial`
-                  : 'Subscribe'}
+                  ? t('paywall.startFreeTrialCta', { count: trialDays })
+                  : t('paywall.subscribe')}
             </Text>
           )}
         </TouchableOpacity>
@@ -552,18 +557,18 @@ export const PaywallScreen = () => {
             {selectedPlanDef && !offeringsUnavailable ? (
               <Text style={styles.renewalText}>
                 {trialDays
-                  ? `${trialDays}-day free trial, then ${selectedPriceLabel}. Renews automatically unless you cancel before the trial ends.`
-                  : `${selectedPriceLabel}, renews automatically until cancelled.`}{' '}
-                Manage or cancel anytime in Google Play.
+                  ? t('paywall.trialThenPrice', { count: trialDays, price: selectedPriceLabel })
+                  : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel })}{' '}
+                {t('paywall.manageOrCancelAnytime')}
               </Text>
             ) : null}
             <Text style={styles.legalText}>
-              Payment is processed securely through RevenueCat and the app store on confirmation.
-              Uninstalling the app does not cancel or refund a subscription.
-              By continuing you agree to our{' '}
+              {t('paywall.paymentProcessedSecurely')}{' '}
+              {t('paywall.uninstallingDoesNotCancel')}{' '}
+              {t('paywall.byContinuingYouAgree')}{' '}
               <Text
                 style={styles.legalLink}
-                onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: 'Terms' })}
+                onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: t('paywall.terms') })}
               >
                 {t('paywall.terms')}
               </Text>
@@ -571,7 +576,7 @@ export const PaywallScreen = () => {
               <Text
                 style={styles.legalLink}
                 onPress={() =>
-                  navigation.navigate('LegalPage', { slug: 'privacy-policy', title: 'Privacy Policy' })
+                  navigation.navigate('LegalPage', { slug: 'privacy-policy', title: t('paywall.privacyPolicy') })
                 }
               >
                 {t('paywall.privacyPolicy')}
@@ -626,13 +631,13 @@ export const PaywallScreen = () => {
                     { color: autoRenewing ? COLORS.success : COLORS.accentSoft },
                   ]}
                 >
-                  {autoRenewing ? 'On' : 'Off'}
+                  {autoRenewing ? t('paywall.on') : t('paywall.off')}
                 </Text>
               </View>
               <Text style={styles.noticeBoxHint}>
                 {autoRenewing
-                  ? 'Your subscription renews automatically. You can manage or turn this off anytime from your subscription settings.'
-                  : 'Auto-renewal is off. Your access will end at the expiry date.'}
+                  ? t('paywall.autoRenewOnHint')
+                  : t('paywall.autoRenewOffHint')}
               </Text>
               {/* No management shortcut here on purpose: this panel fires in the
                   seconds after a successful purchase, where offering a cancel
