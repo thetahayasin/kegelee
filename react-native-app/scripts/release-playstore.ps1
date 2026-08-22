@@ -163,7 +163,37 @@ Run this once, then re-run the script:
 }
 
 # ---------------------------------------------------------------------------
-# 2. Version code collision
+# 2. Build type
+# ---------------------------------------------------------------------------
+# Play refuses APKs for this app ("APKs are not allowed for this application"),
+# and that is only discovered at submit time - after the build. When the
+# production profile did not name a buildType, EAS produced APK output as a
+# .tar.gz and the submitter tried to upload it as an .apk. One line of JSON
+# checked here saves a whole build cycle.
+if (-not $SubmitOnly) {
+    Write-Step "Checking the build type"
+    try {
+        $easJson = Get-Content (Join-Path $RootDir 'eas.json') -Raw | ConvertFrom-Json
+        $buildType = $easJson.build.production.android.buildType
+    } catch {
+        Fail "Could not read eas.json: $($_.Exception.Message)"
+    }
+
+    if ($buildType -ne 'app-bundle') {
+        Fail @"
+The production profile builds '$buildType', but Play only accepts an App
+Bundle for this application.
+
+Set it in eas.json:
+
+    "production": { "android": { "buildType": "app-bundle" } }
+"@
+    }
+    Write-Ok "production builds an app-bundle"
+}
+
+# ---------------------------------------------------------------------------
+# 3. Version code collision
 # ---------------------------------------------------------------------------
 # eas.json sets appVersionSource=remote, so EAS keeps its own versionCode
 # counter - and it only knows about builds EAS made. A versionCode uploaded to
@@ -225,7 +255,7 @@ find out until after the build. Point EAS's counter past Play, then re-run:
 }
 
 # ---------------------------------------------------------------------------
-# 3. Working tree
+# 4. Working tree
 # ---------------------------------------------------------------------------
 if (-not $SubmitOnly) {
     Write-Step "Checking the working tree"
@@ -254,7 +284,7 @@ Commit them, or pass -AllowDirty if you genuinely want to ship HEAD as-is.
 }
 
 # ---------------------------------------------------------------------------
-# 4. Quality gates
+# 5. Quality gates
 # ---------------------------------------------------------------------------
 if ($SubmitOnly -or $SkipChecks) {
     Write-Step "Skipping quality gates"
@@ -285,7 +315,7 @@ if ($SubmitOnly -or $SkipChecks) {
 }
 
 # ---------------------------------------------------------------------------
-# 5. Build (and auto-submit)
+# 6. Build (and auto-submit)
 # ---------------------------------------------------------------------------
 if ($SubmitOnly) {
     Write-Step "Submitting the latest production build to the $Track track"
@@ -324,7 +354,7 @@ if ($SubmitOnly) {
 }
 
 # ---------------------------------------------------------------------------
-# 6. Done
+# 7. Done
 # ---------------------------------------------------------------------------
 Write-Host ""
 if ($DryRun) {

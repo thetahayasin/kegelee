@@ -23,7 +23,11 @@
     },
     "production": {
       "autoIncrement": true,
-      "credentialsSource": "local"
+      "credentialsSource": "local",
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {
