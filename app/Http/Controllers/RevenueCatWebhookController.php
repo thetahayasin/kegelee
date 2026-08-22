@@ -133,6 +133,20 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
+        // Retire whatever the user was on before, for the same reason as the
+        // sync push: a plan change is a product change at the store, so Play
+        // replaces the old subscription rather than running both. Creating
+        // without retiring left two 'active' rows on the account, which
+        // double-counted in the admin list and kept isSubscribed() true off
+        // the stale row after the real subscription was cancelled.
+        Subscription::where('user_id', $user->id)
+            ->where('store_transaction_id', '!=', $transactionId)
+            ->whereIn('status', ['active', 'trialing'])
+            ->update([
+                'status'        => 'expired',
+                'auto_renewing' => false,
+            ]);
+
         $sub = Subscription::create([
             'user_id'              => $user->id,
             'plan_id'              => $plan?->id,

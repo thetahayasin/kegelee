@@ -280,6 +280,27 @@ class SyncController extends Controller
                     ]);
                 }
 
+                // Retire whatever the user was on before.
+                //
+                // A plan change is a product change at the store: Play replaces
+                // the old subscription rather than running both. This code only
+                // ever CREATED rows though, so the previous one stayed 'active'
+                // with a future ends_at and the account ended up with two live
+                // subscriptions. That is the duplicate showing in the admin
+                // list, and it is also an access loophole - isSubscribed()
+                // stayed true off the stale row even after the real
+                // subscription was cancelled.
+                //
+                // Scoped to a DIFFERENT purchase_token so a repeat push of the
+                // same purchase never retires the row it is about to update.
+                \App\Models\Subscription::where('user_id', $user->id)
+                    ->where('purchase_token', '!=', $token)
+                    ->whereIn('status', ['active', 'trialing'])
+                    ->update([
+                        'status'        => 'expired',
+                        'auto_renewing' => false,
+                    ]);
+
                 $sub = \App\Models\Subscription::create([
                     'user_id'              => $user->id,
                     'plan_id'              => $plan->id,
