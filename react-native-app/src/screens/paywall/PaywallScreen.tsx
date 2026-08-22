@@ -12,7 +12,7 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
-import { COLORS, DISABLED_OPACITY } from '../../theme/colors';
+import { COLORS, DISABLED_OPACITY, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { getActiveSubscription, DBSubscription } from '../../db/queries';
 import {
@@ -645,19 +645,21 @@ const styles = StyleSheet.create({
   },
   headerLeftBtn: {
     position: 'absolute',
-    start: 16,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    start: SPACE.md,
+    // 36px sat under both the iOS HIG and Material minimum target.
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoutBtn: {
     position: 'absolute',
-    start: 16,
-    borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    start: SPACE.md,
+    minHeight: 44,
+    justifyContent: 'center',
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACE.md,
   },
   logoutText: {
     fontSize: 14,
@@ -665,17 +667,17 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...TYPE.heading,
     color: COLORS.white,
   },
   scroll: {
     paddingTop: 8,
   },
   heading: {
-    paddingHorizontal: 24,
+    paddingHorizontal: SPACE.xl,
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: -0.6,
     lineHeight: 30,
     textAlign: 'center',
     color: COLORS.white,
@@ -693,8 +695,8 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: COLORS.whiteFaint,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accentWash,
   },
   trialBannerText: {
     fontSize: 13,
@@ -715,13 +717,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     lineHeight: 19,
-    color: COLORS.whiteMuted,
+    color: COLORS.textMuted,
   },
   savingsPill: {
     alignSelf: 'flex-start',
     marginTop: 6,
-    borderRadius: 999,
-    backgroundColor: COLORS.whiteFaint,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accentWash,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
@@ -734,18 +736,26 @@ const styles = StyleSheet.create({
   planPerMonth: {
     marginTop: 2,
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: COLORS.textDim,
+    fontVariant: ['tabular-nums'],
   },
   planCard: {
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
+    // Was 2px at 10% white on every card, which read as an unfilled form field
+    // rather than a choice. The unselected state is now a quiet hairline and
+    // the selected state carries the weight.
+    borderWidth: 1,
+    borderColor: COLORS.border,
     backgroundColor: COLORS.surface,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: RADIUS.md + 2,
+    padding: SPACE.lg,
   },
   planCardSelected: {
+    borderWidth: 2,
     borderColor: COLORS.accent,
-    backgroundColor: 'rgba(193,255,114,0.10)',
+    backgroundColor: 'rgba(193,255,114,0.07)',
+    // Compensate for the extra border pixel so the card does not shift when
+    // selection moves between plans.
+    padding: SPACE.lg - 1,
   },
   featuredBadge: {
     position: 'absolute',
@@ -773,7 +783,8 @@ const styles = StyleSheet.create({
   },
   planName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    letterSpacing: -0.3,
     color: COLORS.white,
   },
   planDescription: {
@@ -785,9 +796,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   planPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: -0.4,
     color: COLORS.white,
+    // Prices sit in a right-aligned column across stacked plan cards, so the
+    // digits need to line up rather than jitter per glyph width.
+    fontVariant: ['tabular-nums'],
   },
   planInterval: {
     fontSize: 12,
@@ -805,14 +820,14 @@ const styles = StyleSheet.create({
     end: 0,
     bottom: 0,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: COLORS.border,
     backgroundColor: 'rgba(6,8,16,0.97)',
     paddingHorizontal: 20,
     paddingTop: 16,
   },
   continueBtn: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: RADIUS.md + 2,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
@@ -822,14 +837,16 @@ const styles = StyleSheet.create({
   },
   continueBtnText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: -0.2,
     color: COLORS.onAccent,
   },
   restoreBtn: {
     marginTop: 10,
     alignSelf: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.md,
   },
   restoreBtnText: {
     fontSize: 13,
@@ -842,8 +859,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 17,
     textAlign: 'center',
-    color: COLORS.white,
-    opacity: 0.85,
+    color: COLORS.textMuted,
   },
   legalText: {
     marginTop: 8,
@@ -868,8 +884,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
-    padding: 24,
+    borderTopColor: COLORS.borderStrong,
+    padding: SPACE.xl,
   },
   noticeHandle: {
     alignSelf: 'center',

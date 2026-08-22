@@ -186,7 +186,7 @@ export const LoginScreen = () => {
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
-                  stroke={COLORS.accent}
+                  stroke={COLORS.danger}
                   strokeWidth={2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -293,7 +293,7 @@ export const LoginScreen = () => {
                   <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
-                      stroke={COLORS.accent}
+                      stroke={COLORS.danger}
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   },
   googleBtnText: {
     fontSize: 16,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
     marginStart: 12,
   },
@@ -492,8 +492,10 @@ const styles = StyleSheet.create({
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(193, 255, 114, 0.1)',
-    borderColor: 'rgba(193, 255, 114, 0.25)',
+    // Errors read as errors. This was the same lime wash as the success
+    // container, so a failed attempt looked identical to a win.
+    backgroundColor: 'rgba(255, 107, 107, 0.10)',
+    borderColor: 'rgba(255, 107, 107, 0.28)',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -503,7 +505,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     flex: 1,
-    color: COLORS.accent,
+    color: COLORS.danger,
     fontSize: 14,
     lineHeight: 18,
   },
