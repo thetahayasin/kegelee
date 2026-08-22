@@ -87,11 +87,14 @@ export const resolveLanguage = (tag: string | null | undefined): LanguageTag => 
  */
 const bundles: Partial<Record<LanguageTag, () => any>> = {
   cs: () => require('./locales/cs.json'),
+  da: () => require('./locales/da.json'),
   de: () => require('./locales/de.json'),
   es: () => require('./locales/es.json'),
   'es-419': () => require('./locales/es-419.json'),
+  fi: () => require('./locales/fi.json'),
   fr: () => require('./locales/fr.json'),
   hi: () => require('./locales/hi.json'),
+  hu: () => require('./locales/hu.json'),
   id: () => require('./locales/id.json'),
   it: () => require('./locales/it.json'),
   ja: () => require('./locales/ja.json'),
@@ -99,6 +102,7 @@ const bundles: Partial<Record<LanguageTag, () => any>> = {
   nl: () => require('./locales/nl.json'),
   pl: () => require('./locales/pl.json'),
   'pt-BR': () => require('./locales/pt-BR.json'),
+  ro: () => require('./locales/ro.json'),
   ru: () => require('./locales/ru.json'),
   sk: () => require('./locales/sk.json'),
   th: () => require('./locales/th.json'),
