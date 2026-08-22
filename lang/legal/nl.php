@@ -1,0 +1,60 @@
+<?php
+
+/** Dutch legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Privacybeleid',
+        'blocks' => [
+            'Dit privacybeleid legt uit welke gegevens Kegelee verzamelt, hoe ze worden gebruikt en welke keuzes je hebt. We houden het kort en in gewone taal.',
+            'Wat we verzamelen',
+            'Wanneer je een account aanmaakt, slaan we je naam, je e-mailadres en een veilig gehasht wachtwoord op. Als je inlogt met Google, ontvangen we je naam en e-mailadres van Google.',
+            'Tijdens het trainen registreert de app je trainingssessies, voltooide trainingsdagen, uithoudingsmetingen, gekozen moeilijkheidsgraad en herinneringstijden. Deze voortgangsgegevens worden eerst op je toestel bewaard en gesynchroniseerd met onze server, zodat je ze kunt terughalen als je de app opnieuw installeert of van telefoon wisselt.',
+            'Wat we niet verzamelen',
+            'We verzamelen je locatie, contacten en foto\'s niet, en ook geen gezondheidsgegevens buiten de hierboven beschreven trainingsvoortgang. We tonen geen advertenties en verkopen je gegevens nooit aan wie dan ook.',
+            'Betalingen',
+            'Abonnementen worden gefactureerd door Google Play. We zien of bewaren je kaartgegevens nooit. Van Google krijgen we een aankoopbevestiging, zodat we je abonnement kunnen activeren en op al je toestellen actief kunnen houden.',
+            'Hoe je gegevens worden gebruikt',
+            'Je gegevens worden alleen gebruikt om de app te laten werken: je aanmelden, je voortgang bewaren, synchroniseren tussen toestellen, verificatie- en wachtwoordherstelmails versturen en je abonnement beheren. Meer niet.',
+            'Waar je gegevens staan',
+            'Je voortgang staat op je toestel en wordt via een versleutelde verbinding met onze server gesynchroniseerd. Toegang tot onze server is beperkt en beveiligd.',
+            'Je gegevens verwijderen',
+            'Je kunt je trainingsvoortgang op elk moment wissen via de app-instellingen; daarmee wordt die ook van onze server verwijderd. Wil je je account en alle bijbehorende gegevens laten verwijderen, neem dan contact op via het adres hieronder en we halen ze weg.',
+            'Contact',
+            'Vragen over privacy? Mail ons op support@kegelee.com.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'Terugbetalingsbeleid',
+        'blocks' => [
+            'Kegelee-abonnementen worden gekocht en gefactureerd via Google Play, dus terugbetalingen worden door Google afgehandeld volgens het terugbetalingsbeleid van Google Play.',
+            'Een terugbetaling aanvragen',
+            'Open de Google Play Store, ga naar je account, kies Betalingen en abonnementen, selecteer de Kegelee-aankoop en vraag een terugbetaling aan. Bij recente aankopen handelt Google verzoeken meestal binnen een dag of twee af.',
+            'Opzeggen',
+            'Je kunt je abonnement op elk moment opzeggen in Google Play. Je houdt volledige toegang tot het einde van de periode die je hebt betaald, en daarna wordt er niets meer afgeschreven.',
+            'Hulp nodig?',
+            'Loop je vast bij een aankoop of terugbetaling? Mail ons op support@kegelee.com en we doen ons best om te helpen.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Gebruiksvoorwaarden',
+        'blocks' => [
+            'Welkom bij Kegelee. Door een account aan te maken of de app te gebruiken ga je akkoord met deze voorwaarden. Lees ze even door; ze zijn kort.',
+            'Wat Kegelee is',
+            'Kegelee is een app voor begeleide bekkenbodemtraining. De app biedt oefenschema\'s, voortgangsregistratie en herinneringen. Het is een fitnesshulpmiddel, geen medisch hulpmiddel.',
+            'Geen medisch advies',
+            'Kegelee geeft geen medisch advies, geen diagnose en geen behandeling. Heb je een aandoening, herstel je van een operatie, ben je zwanger of voel je pijn tijdens het oefenen, stop dan en overleg met een arts voordat je verdergaat. Luister altijd naar je lichaam.',
+            'Je account',
+            'Je bent zelf verantwoordelijk voor het veilig bewaren van je inloggegevens en voor wat er onder je account gebeurt. Bij het aanmelden moet je juiste gegevens opgeven.',
+            'Abonnementen',
+            'De volledige trainingservaring vereist een abonnement dat via Google Play is gekocht. Prijzen worden in de app getoond voordat je koopt. Abonnementen verlengen automatisch tenzij je opzegt in Google Play; na opzegging houd je toegang tot het einde van de betaalde periode. Voor terugbetalingen gelden ons terugbetalingsbeleid en de regels van Google Play.',
+            'Redelijk gebruik',
+            'Probeer de app of de diensten niet te kopiëren, door te verkopen, te manipuleren of te misbruiken. Accounts die dat doen kunnen we opschorten.',
+            'Aansprakelijkheid',
+            'Kegelee wordt geleverd zoals het is. Voor zover de wet dat toelaat, zijn we niet aansprakelijk voor letsel of schade die voortkomt uit het gebruik van de app. Train verstandig en binnen je grenzen.',
+            'Wijzigingen',
+            'We kunnen deze voorwaarden bijwerken naarmate de app zich ontwikkelt. Belangrijke wijzigingen verschijnen op deze pagina met de datum hierboven.',
+            'Contact',
+            'Vragen over deze voorwaarden? Mail ons op support@kegelee.com.',
+        ],
+    ],
+];
