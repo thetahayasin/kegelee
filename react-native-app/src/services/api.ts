@@ -126,7 +126,13 @@ export const api = {
   pushState: (payload: any) => request('/user/push', 'POST', payload),
   pullState: () => request('/user/pull', 'GET'),
 
-  // Public content fallback
-  pullContent: () => request('/content', 'GET'),
-  pullPage: (slug: string) => request(`/pages/${slug}`, 'GET'),
+  // Public content fallback.
+  //
+  // `locale` is the device's current language. The backend serves each legal
+  // page in that language where a translation exists and falls back to English
+  // per page, so a partly-translated set never yields a blank policy.
+  pullContent: (locale?: string) =>
+    request(`/content${locale ? `?locale=${encodeURIComponent(locale)}` : ''}`, 'GET'),
+  pullPage: (slug: string, locale?: string) =>
+    request(`/pages/${slug}${locale ? `?locale=${encodeURIComponent(locale)}` : ''}`, 'GET'),
 };

@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from './api';
+import i18n from '../i18n';
 import { scheduleReminders } from './reminders';
 import {
   getUnsyncedWorkoutSessions,
@@ -46,6 +47,33 @@ export const onSyncComplete = (cb: SyncCompleteListener): (() => void) => {
   return () => {
     syncCompleteListeners.delete(cb);
   };
+};
+
+/**
+ * Re-fetch the legal pages in whatever language i18n is now set to.
+ *
+ * Called after the user picks a new language. The full sync also carries the
+ * locale, but waiting for the next one would leave Terms and the privacy
+ * policy in the previous language until something else triggered a sync -
+ * visibly stale right at the moment the user just told us what they read.
+ *
+ * Content-only and failure-tolerant: nothing here is worth interrupting a
+ * language switch over, and the next sync repeats it anyway.
+ */
+export const refreshContentForCurrentLocale = async (): Promise<void> => {
+  try {
+    const res = await api.pullContent(i18n.language);
+    if (!res.ok || !res.data) return;
+    for (const page of res.data.pages || []) {
+      await savePage({
+        slug: page.slug,
+        title: page.title,
+        content: page.content,
+        sort_order: page.sort_order,
+        is_published: 1,
+      });
+    }
+  } catch {}
 };
 
 // The duplicate-heal is a legacy cleanup for installs bloated before the
@@ -164,7 +192,14 @@ const runSync = async (userId: number): Promise<SyncResult> => {
 
     // 3. Pull user state and public content in parallel - two independent GETs,
     // so the sync takes one network round-trip instead of two in series.
-    const [pullRes, contentRes] = await Promise.all([api.pullState(), api.pullContent()]);
+    // Legal pages come back in the device's language. The `pages` table is
+    // keyed by slug, so a language switch simply overwrites each row with the
+    // new language's copy on the next sync - the device only ever needs the
+    // one it is currently showing.
+    const [pullRes, contentRes] = await Promise.all([
+      api.pullState(),
+      api.pullContent(i18n.language),
+    ]);
     await markSynced;
     if (!pullRes.ok) {
       return { success: false, error: `Pull failed: ${pullRes.error}` };

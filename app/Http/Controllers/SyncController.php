@@ -29,21 +29,34 @@ class SyncController extends Controller
      * levels, onboarding, plans and the basics tutorials are all hardcoded in
      * the app and never sync.
      */
-    public function content(): JsonResponse
+    public function content(Request $request): JsonResponse
     {
+        // ?locale= is the device's current language. Unsupported or absent
+        // means English. Each page independently falls back to English when
+        // that language has no translation, so a partly-translated set never
+        // leaves a legal page blank.
+        $locale = \App\Support\Locales::resolve($request->query('locale'));
+
         // Content ships too so the device holds a current fallback copy;
         // opening a page still fetches the live version first.
         $pages = Page::where('is_published', true)
+            ->with('translations')
             ->orderBy('sort_order')
             ->get()
-            ->map(fn (Page $p) => [
-                'id'         => $p->id,
-                'slug'       => $p->slug,
-                'title'      => $p->title,
-                'content'    => $p->content,
-                'sort_order' => (int) $p->sort_order,
-                'updated_at' => $p->updated_at?->toIso8601String(),
-            ]);
+            ->map(function (Page $p) use ($locale) {
+                $localized = $p->localized($locale);
+
+                return [
+                    'id'          => $p->id,
+                    'slug'        => $p->slug,
+                    'title'       => $localized['title'],
+                    'content'     => $localized['content'],
+                    'locale'      => $localized['locale'],
+                    'is_fallback' => $localized['is_fallback'],
+                    'sort_order'  => (int) $p->sort_order,
+                    'updated_at'  => $p->updated_at?->toIso8601String(),
+                ];
+            });
 
         $settings = app(\App\Services\SettingsService::class);
 
@@ -70,7 +83,7 @@ class SyncController extends Controller
      * always shows the current version. Legal content is online-only by
      * design and never cached on the device.
      */
-    public function page(string $slug): JsonResponse
+    public function page(Request $request, string $slug): JsonResponse
     {
         $page = Page::where('slug', $slug)->where('is_published', true)->first();
 
@@ -78,11 +91,17 @@ class SyncController extends Controller
             return response()->json(['error' => 'Page not found.'], 404);
         }
 
+        $localized = $page->localized($request->query('locale'));
+
         return response()->json([
-            'slug'       => $page->slug,
-            'title'      => $page->title,
-            'content'    => $page->content,
-            'updated_at' => $page->updated_at?->toIso8601String(),
+            'slug'    => $page->slug,
+            'title'   => $localized['title'],
+            'content' => $localized['content'],
+            // The language actually returned, which is not always the one
+            // asked for. The client needs it to set text direction.
+            'locale'      => $localized['locale'],
+            'is_fallback' => $localized['is_fallback'],
+            'updated_at'  => $page->updated_at?->toIso8601String(),
         ]);
     }
 
