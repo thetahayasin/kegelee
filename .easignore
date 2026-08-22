@@ -21,7 +21,13 @@ storage/framework/
 storage/logs/
 bootstrap/cache/
 public/build/
-public/storage/
+# No trailing slash: this is the symlink `php artisan storage:link` creates,
+# not a directory. With a slash the pattern matched nothing, eas-cli tried to
+# reproduce the symlink inside its shallow clone, and Windows refused:
+#   EPERM: operation not permitted, symlink 'E:\dev\ke\storage\app\public'
+# .gitignore had always excluded it - but this file REPLACES .gitignore for
+# EAS, so the exclusion had to be restated correctly here.
+public/storage
 database/*.sqlite
 
 # --- React Native app ------------------------------------------------------
