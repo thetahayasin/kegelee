@@ -1,0 +1,60 @@
+<?php
+
+/** Danish legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Privatlivspolitik',
+        'blocks' => [
+            'Denne privatlivspolitik forklarer, hvilke oplysninger Kegelee indsamler, hvordan de bruges, og hvilke valg du har. Vi holder den kort og i almindeligt sprog.',
+            'Hvad vi indsamler',
+            'Når du opretter en konto, gemmer vi dit navn, din e-mailadresse og en sikkert hashet adgangskode. Logger du ind med Google, modtager vi dit navn og din e-mailadresse fra Google.',
+            'Mens du træner, registrerer appen dine træningspas, gennemførte træningsdage, udholdenhedsmålinger, valgt sværhedsgrad og påmindelsestidspunkter. Disse fremgangsdata gemmes først på din enhed og synkroniseres med vores server, så du kan hente dem igen, hvis du geninstallerer appen eller skifter telefon.',
+            'Hvad vi ikke indsamler',
+            'Vi indsamler ikke din placering, dine kontakter, dine billeder eller nogen helbredsdata ud over den træningsfremgang, der er beskrevet ovenfor. Vi viser ikke reklamer, og vi sælger aldrig dine data til nogen.',
+            'Betalinger',
+            'Abonnementer faktureres af Google Play. Vi ser eller gemmer aldrig dine kortoplysninger. Vi modtager en købsbekræftelse fra Google, så vi kan aktivere dit abonnement og holde det aktivt på tværs af dine enheder.',
+            'Sådan bruges dine data',
+            'Dine data bruges udelukkende til at få appen til at fungere: at logge dig ind, gemme din fremgang, synkronisere mellem enheder, sende bekræftelses- og nulstillingsmails og administrere dit abonnement. Ikke andet.',
+            'Hvor dine data ligger',
+            'Din fremgang ligger på din enhed og synkroniseres til vores server over en krypteret forbindelse. Adgangen til vores server er begrænset og beskyttet.',
+            'Sletning af dine data',
+            'Du kan nulstille din træningsfremgang i appens indstillinger når som helst, hvilket også sletter den fra vores server. Vil du have slettet din konto og alle data, der er knyttet til den, så kontakt os på adressen nedenfor, og vi fjerner dem.',
+            'Kontakt',
+            'Spørgsmål om privatliv? Skriv til os på support@kegelee.com.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'Refusionspolitik',
+        'blocks' => [
+            'Kegelee-abonnementer købes og faktureres via Google Play, så refusioner håndteres af Google efter Google Plays refusionspolitik.',
+            'Sådan beder du om refusion',
+            'Åbn Google Play Butik, gå til din konto, vælg Betalinger og abonnementer, vælg Kegelee-købet, og anmod om refusion. Ved nylige køb behandler Google som regel anmodninger inden for en dag eller to.',
+            'Opsigelse',
+            'Du kan opsige dit abonnement når som helst i Google Play. Du beholder fuld adgang indtil udgangen af den periode, du har betalt for, og du bliver ikke opkrævet igen derefter.',
+            'Brug for hjælp?',
+            'Har du problemer med et køb eller en refusion, så skriv til os på support@kegelee.com, og vi gør vores bedste for at hjælpe.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Servicevilkår',
+        'blocks' => [
+            'Velkommen til Kegelee. Ved at oprette en konto eller bruge appen accepterer du disse vilkår. Læs dem gerne igennem; de er korte.',
+            'Hvad Kegelee er',
+            'Kegelee er en app til guidet bækkenbundstræning. Den giver træningsprogrammer, fremgangsregistrering og påmindelser. Den er et træningsværktøj, ikke et medicinsk udstyr.',
+            'Ikke lægelig rådgivning',
+            'Kegelee giver ikke lægelig rådgivning, diagnose eller behandling. Har du en sygdom, er du ved at komme dig efter en operation, er du gravid, eller mærker du smerte under træning, så stop og tal med en læge, før du fortsætter. Lyt altid til din krop.',
+            'Din konto',
+            'Du er ansvarlig for at holde dine loginoplysninger sikre og for det, der sker på din konto. Du skal give korrekte oplysninger, når du opretter dig.',
+            'Abonnementer',
+            'Den fulde træningsoplevelse kræver et abonnement købt via Google Play. Priserne vises i appen, før du køber. Abonnementer fornyes automatisk, medmindre du opsiger i Google Play, og ved opsigelse beholder du adgangen indtil udgangen af den betalte periode. Refusioner følger vores refusionspolitik og Google Plays regler.',
+            'Rimelig brug',
+            'Forsøg ikke at kopiere, videresælge, bryde eller misbruge appen eller dens tjenester. Vi kan lukke konti, der gør det.',
+            'Ansvar',
+            'Kegelee leveres som den er. I det omfang loven tillader det, er vi ikke ansvarlige for skader eller tab, der opstår ved brug af appen. Træn fornuftigt og inden for dine grænser.',
+            'Ændringer',
+            'Vi kan opdatere disse vilkår, efterhånden som appen udvikler sig. Væsentlige ændringer vil fremgå af denne side med datoen ovenfor.',
+            'Kontakt',
+            'Spørgsmål til disse vilkår? Skriv til os på support@kegelee.com.',
+        ],
+    ],
+];

@@ -1,0 +1,60 @@
+<?php
+
+/** Finnish legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Tietosuojaseloste',
+        'blocks' => [
+            'Tämä tietosuojaseloste kertoo, mitä tietoja Kegelee kerää, miten niitä käytetään ja mitä vaihtoehtoja sinulla on. Pidämme sen lyhyenä ja selkokielisenä.',
+            'Mitä keräämme',
+            'Kun luot tilin, tallennamme nimesi, sähköpostiosoitteesi ja turvallisesti tiivistetyn salasanan. Jos kirjaudut Googlella, saamme nimesi ja sähköpostiosoitteesi Googlelta.',
+            'Harjoitellessasi sovellus tallentaa harjoituskerrat, suoritetut harjoituspäivät, kestomittaukset, valitun vaikeustason ja muistutusten ajat. Nämä edistymistiedot tallennetaan ensin laitteellesi ja synkronoidaan palvelimellemme, jotta saat ne takaisin, jos asennat sovelluksen uudelleen tai vaihdat puhelinta.',
+            'Mitä emme kerää',
+            'Emme kerää sijaintiasi, yhteystietojasi, valokuviasi emmekä mitään terveystietoja yllä kuvatun harjoitusedistymisen lisäksi. Emme näytä mainoksia emmekä koskaan myy tietojasi kenellekään.',
+            'Maksut',
+            'Tilaukset laskuttaa Google Play. Emme näe emmekä tallenna korttitietojasi missään vaiheessa. Saamme Googlelta ostovahvistuksen, jotta voimme avata tilauksesi ja pitää sen voimassa kaikilla laitteillasi.',
+            'Miten tietojasi käytetään',
+            'Tietojasi käytetään vain sovelluksen toimintaan: kirjautumiseen, edistymisen tallentamiseen, laitteiden väliseen synkronointiin, vahvistus- ja salasanan palautusviestien lähettämiseen sekä tilauksesi hallintaan. Ei muuhun.',
+            'Missä tietosi sijaitsevat',
+            'Edistymisesi sijaitsee laitteellasi ja synkronoidaan palvelimellemme salatun yhteyden yli. Pääsy palvelimellemme on rajoitettu ja suojattu.',
+            'Tietojesi poistaminen',
+            'Voit nollata harjoitusedistymisesi sovelluksen asetuksista milloin tahansa, jolloin se poistuu myös palvelimeltamme. Jos haluat poistaa tilisi ja kaikki siihen liittyvät tiedot, ota yhteyttä alla olevaan osoitteeseen, niin poistamme ne.',
+            'Yhteystiedot',
+            'Kysyttävää tietosuojasta? Lähetä viesti osoitteeseen support@kegelee.com.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'Palautuskäytäntö',
+        'blocks' => [
+            'Kegelee-tilaukset ostetaan ja laskutetaan Google Playn kautta, joten palautukset hoitaa Google Google Playn palautuskäytännön mukaisesti.',
+            'Näin pyydät palautusta',
+            'Avaa Google Play Kauppa, siirry tilillesi, valitse Maksut ja tilaukset, valitse Kegelee-osto ja pyydä palautusta. Tuoreissa ostoissa Google käsittelee pyynnöt yleensä päivässä tai kahdessa.',
+            'Peruuttaminen',
+            'Voit peruuttaa tilauksesi milloin tahansa Google Playssa. Säilytät täyden käyttöoikeuden maksamasi jakson loppuun asti, eikä sinulta veloiteta enää sen jälkeen.',
+            'Tarvitsetko apua?',
+            'Jos ostossa tai palautuksessa on ongelmia, lähetä viesti osoitteeseen support@kegelee.com, niin autamme parhaamme mukaan.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Käyttöehdot',
+        'blocks' => [
+            'Tervetuloa Kegeleehen. Luomalla tilin tai käyttämällä sovellusta hyväksyt nämä ehdot. Lue ne läpi; ne ovat lyhyet.',
+            'Mikä Kegelee on',
+            'Kegelee on ohjatun lantionpohjan harjoittelun sovellus. Se tarjoaa harjoitusohjelmia, edistymisen seurantaa ja muistutuksia. Se on kuntoiluväline, ei lääkinnällinen laite.',
+            'Ei lääketieteellistä neuvontaa',
+            'Kegelee ei anna lääketieteellistä neuvontaa, diagnooseja eikä hoitoa. Jos sinulla on sairaus, toivut leikkauksesta, olet raskaana tai tunnet kipua harjoitellessasi, lopeta ja keskustele lääkärin kanssa ennen jatkamista. Kuuntele aina kehoasi.',
+            'Tilisi',
+            'Vastaat kirjautumistietojesi turvassa pitämisestä ja siitä, mitä tililläsi tapahtuu. Sinun on annettava oikeat tiedot rekisteröityessäsi.',
+            'Tilaukset',
+            'Täysi harjoituskokemus edellyttää Google Playn kautta ostettua tilausta. Hinnat näytetään sovelluksessa ennen ostoa. Tilaukset uusiutuvat automaattisesti, ellet peruuta niitä Google Playssa, ja peruutuksen jälkeen käyttöoikeus säilyy maksetun jakson loppuun. Palautuksissa noudatetaan palautuskäytäntöämme ja Google Playn sääntöjä.',
+            'Reilu käyttö',
+            'Älä yritä kopioida, jälleenmyydä, murtaa tai väärinkäyttää sovellusta tai sen palveluita. Voimme sulkea tilit, jotka näin tekevät.',
+            'Vastuu',
+            'Kegelee tarjotaan sellaisena kuin se on. Lain sallimissa rajoissa emme vastaa sovelluksen käytöstä aiheutuvista vammoista tai menetyksistä. Harjoittele järkevästi ja omien rajojesi puitteissa.',
+            'Muutokset',
+            'Voimme päivittää näitä ehtoja sovelluksen kehittyessä. Merkittävät muutokset näkyvät tällä sivulla yllä olevan päivämäärän kanssa.',
+            'Yhteystiedot',
+            'Kysyttävää näistä ehdoista? Lähetä viesti osoitteeseen support@kegelee.com.',
+        ],
+    ],
+];
