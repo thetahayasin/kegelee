@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -24,6 +25,7 @@ type RouteParams = {
 };
 
 export const VerifyEmailScreen = () => {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'VerifyEmail'>>();
   const navigation = useNavigation<NavigationProp<any>>();
   const { completeAuth } = useAuth();
@@ -78,7 +80,7 @@ export const VerifyEmailScreen = () => {
         style={styles.keyboardView}
       >
         <View style={styles.inner}>
-          <Text style={styles.title}>Verify Email</Text>
+          <Text style={styles.title}>{t('verifyEmail.verifyEmail')}</Text>
           <Text style={styles.subtitle}>
             We've sent a 6-digit verification code to {'\n'}
             <Text style={styles.emailHighlight}>{email}</Text>
@@ -129,7 +131,7 @@ export const VerifyEmailScreen = () => {
               {loading ? (
                 <ActivityIndicator color={COLORS.onAccent} />
               ) : (
-                <Text style={styles.btnText}>Verify Code</Text>
+                <Text style={styles.btnText}>{t('verifyEmail.verifyCode')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -142,7 +144,7 @@ export const VerifyEmailScreen = () => {
             {resendLoading ? (
               <ActivityIndicator color={COLORS.accent} />
             ) : (
-              <Text style={styles.resendText}>Didn't receive the code? Resend</Text>
+              <Text style={styles.resendText}>{t('verifyEmail.didnTReceiveTheCode')}</Text>
             )}
           </TouchableOpacity>
 
@@ -150,7 +152,7 @@ export const VerifyEmailScreen = () => {
             style={styles.backContainer}
             onPress={() => navigation.navigate('Login')}
           >
-            <Text style={styles.backText}>Back to Log In</Text>
+            <Text style={styles.backText}>{t('verifyEmail.backToLogIn')}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

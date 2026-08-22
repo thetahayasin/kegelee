@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -32,6 +33,7 @@ const FLOW = [
 ];
 
 export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
+  const { t } = useTranslation();
   const [holding, setHolding] = useState(false);
   const [doneHold, setDoneHold] = useState(false);
   // Hold progress as 0..1. Previously this was React state ticked by a 100ms
@@ -93,7 +95,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   if (step === 0) {
     return (
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.h1}>The easiest way to find them</Text>
+        <Text style={styles.h1}>{t('find.theEasiestWayToFind')}</Text>
         <Text style={styles.p}>
           Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor.
         </Text>
@@ -107,7 +109,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
           ))}
         </View>
-        <Text style={styles.p}>That exact squeeze is the move you will train.</Text>
+        <Text style={styles.p}>{t('find.thatExactSqueezeIsThe')}</Text>
       </ScrollView>
     );
   }
@@ -115,7 +117,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   if (step === 1) {
     return (
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.h1}>Two quick rules</Text>
+        <Text style={styles.h1}>{t('find.twoQuickRules')}</Text>
         <View style={{ gap: 12, marginTop: 22 }}>
           <View style={styles.ruleCard}>
             <View style={[styles.ruleIcon, { backgroundColor: 'rgba(255,77,77,0.15)' }]}>
@@ -124,7 +126,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
               </Svg>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.ruleTitle}>Only do the pee test once</Text>
+              <Text style={styles.ruleTitle}>{t('find.onlyDoThePeeTest')}</Text>
               <Text style={styles.ruleDesc}>
                 It is just a way to find the muscles, not an exercise. Stopping your pee often is not good
                 for your bladder.
@@ -138,7 +140,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
               </Svg>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.ruleTitle}>Squeeze only those muscles</Text>
+              <Text style={styles.ruleTitle}>{t('find.squeezeOnlyThoseMuscles')}</Text>
               <Text style={styles.ruleDesc}>
                 Another cue: squeeze as if holding back gas. Your belly, legs and buttocks stay completely
                 relaxed.
@@ -193,7 +195,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
           ) : (
             <View style={{ alignItems: 'center' }}>
               <Text style={styles.holdLabel}>{holding ? 'Squeeze!' : 'Press & hold'}</Text>
-              {holding ? <Text style={styles.holdSub}>Keep going...</Text> : null}
+              {holding ? <Text style={styles.holdSub}>{t('find.keepGoing')}</Text> : null}
             </View>
           )}
         </View>

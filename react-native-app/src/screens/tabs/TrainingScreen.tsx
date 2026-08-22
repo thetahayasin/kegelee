@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -24,6 +25,7 @@ import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 
 export const TrainingScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
   const { user } = useAuth();
@@ -152,7 +154,7 @@ export const TrainingScreen = () => {
       >
         {/* Title Row */}
         <View style={styles.titleRow}>
-          <Text style={styles.pageTitle}>Training</Text>
+          <Text style={styles.pageTitle}>{t('training.training')}</Text>
           <TouchableOpacity
             style={styles.infoBtnInline}
             onPress={() => navigation.navigate('Knowledge')}
@@ -263,19 +265,19 @@ export const TrainingScreen = () => {
               style={styles.startBtn}
               onPress={() => navigation.navigate('Workout')}
             >
-              <Text style={styles.startBtnText}>Start workout</Text>
+              <Text style={styles.startBtnText}>{t('training.startWorkout')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Exercises Section */}
         <View style={styles.railHeader}>
-          <Text style={styles.sectionTitleCompact}>Exercises</Text>
+          <Text style={styles.sectionTitleCompact}>{t('training.exercises')}</Text>
           <TouchableOpacity
             style={styles.seeAllBtn}
             onPress={() => navigation.navigate('AllExercises')}
           >
-            <Text style={styles.seeAllText}>See All</Text>
+            <Text style={styles.seeAllText}>{t('training.seeAll')}</Text>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M9 6l6 6-6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
@@ -317,7 +319,7 @@ export const TrainingScreen = () => {
           onPress={() => navigation.navigate('Progress')}
         >
           <View>
-            <Text style={styles.progressLinkTitle}>Progress Tracker</Text>
+            <Text style={styles.progressLinkTitle}>{t('training.progressTracker')}</Text>
             <Text style={styles.progressLinkDesc}>
               {bestMeasurement !== null
                 ? `Best hold: ${Math.floor(bestMeasurement)} sec`

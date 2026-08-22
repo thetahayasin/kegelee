@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -22,6 +23,7 @@ import { syncNow } from '../../services/sync';
 import Svg, { Path } from 'react-native-svg';
 
 export const ProgressScreen = () => {
+  const { t } = useTranslation();
   const isFocused = useIsFocused();
   const { user } = useAuth();
 
@@ -250,7 +252,7 @@ export const ProgressScreen = () => {
       <Watermark />
       {/* Title Row */}
       <View style={styles.titleRow}>
-        <Text style={styles.pageTitle}>Progress Tracker</Text>
+        <Text style={styles.pageTitle}>{t('progress.progressTracker')}</Text>
       </View>
 
       {/* Summary stats */}
@@ -333,7 +335,7 @@ export const ProgressScreen = () => {
       {/* Measure CTA */}
       <View style={styles.ctaContainer}>
         <TouchableOpacity style={styles.ctaBtn} onPress={() => setMeasuring(true)}>
-          <Text style={styles.ctaBtnText}>Take measurement</Text>
+          <Text style={styles.ctaBtnText}>{t('progress.takeMeasurement')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -364,7 +366,7 @@ export const ProgressScreen = () => {
                 <Path d="M15 19l-7-7 7-7" stroke={COLORS.textMuted} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </TouchableOpacity>
-            <Text style={styles.overlayHeaderTitle}>Progress Tracker</Text>
+            <Text style={styles.overlayHeaderTitle}>{t('progress.progressTracker')}</Text>
           </View>
 
           <View style={styles.overlayCenter}>
@@ -418,7 +420,7 @@ export const ProgressScreen = () => {
                   </Svg>
                 </View>
                 <Text style={styles.instructionsText}>
-                  Hold the button and contract the PF muscles for as long as possible.
+                  {t('progress.holdTheButtonAndContract')}
                 </Text>
               </View>
             ) : (
@@ -431,12 +433,12 @@ export const ProgressScreen = () => {
                   {saving ? (
                     <ActivityIndicator color={COLORS.onAccent} />
                   ) : (
-                    <Text style={styles.saveBtnText}>Continue</Text>
+                    <Text style={styles.saveBtnText}>{t('progress.continue')}</Text>
                   )}
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.retakeBtn} onPress={retake} disabled={saving}>
-                  <Text style={styles.retakeBtnText}>Try again</Text>
+                  <Text style={styles.retakeBtnText}>{t('progress.tryAgain')}</Text>
                 </TouchableOpacity>
               </View>
             )}

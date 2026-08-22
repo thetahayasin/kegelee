@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -28,6 +29,7 @@ const LockIcon = ({ color, size = 20 }: { color: string; size?: number }) => (
 );
 
 export const ExerciseDetailScreen = () => {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, 'ExerciseDetail'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { slug, unlocked, daysLeft } = route.params;
@@ -36,7 +38,7 @@ export const ExerciseDetailScreen = () => {
   if (!ex) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.description}>Exercise not found.</Text>
+        <Text style={styles.description}>{t('exerciseDetail.exerciseNotFound')}</Text>
       </SafeAreaView>
     );
   }
@@ -86,7 +88,7 @@ export const ExerciseDetailScreen = () => {
             style={styles.tryBtn}
             onPress={() => navigation.navigate('Workout', { trialSlug: slug })}
           >
-            <Text style={styles.tryBtnText}>Try it now</Text>
+            <Text style={styles.tryBtnText}>{t('exerciseDetail.tryItNow')}</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.lockedBtn}>

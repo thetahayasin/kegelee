@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -100,6 +101,7 @@ const PREMIUM_BENEFITS = [
 ];
 
 export const PaywallScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, logout, markSubscribed } = useAuth();
 
@@ -356,7 +358,7 @@ export const PaywallScreen = () => {
           <TouchableOpacity
             style={styles.headerLeftBtn}
             onPress={() => navigation.goBack()}
-            accessibilityLabel="Close"
+            accessibilityLabel={t('paywall.close')}
           >
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
               <Path
@@ -376,7 +378,7 @@ export const PaywallScreen = () => {
             {loggingOut ? (
               <ActivityIndicator size="small" color={COLORS.textMuted} />
             ) : (
-              <Text style={styles.logoutText}>Log out</Text>
+              <Text style={styles.logoutText}>{t('paywall.logOut')}</Text>
             )}
           </TouchableOpacity>
         )}
@@ -542,7 +544,7 @@ export const PaywallScreen = () => {
                 style={styles.legalLink}
                 onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: 'Terms' })}
               >
-                Terms
+                {t('paywall.terms')}
               </Text>
               {', '}
               <Text
@@ -551,7 +553,7 @@ export const PaywallScreen = () => {
                   navigation.navigate('LegalPage', { slug: 'privacy-policy', title: 'Privacy Policy' })
                 }
               >
-                Privacy Policy
+                {t('paywall.privacyPolicy')}
               </Text>{' '}
               and the app store terms.
             </Text>
@@ -561,7 +563,7 @@ export const PaywallScreen = () => {
                 onPress={handleRestore}
                 disabled={purchasing}
               >
-                <Text style={styles.restoreBtnText}>Restore purchases</Text>
+                <Text style={styles.restoreBtnText}>{t('paywall.restorePurchases')}</Text>
               </TouchableOpacity>
             )}
           </>
@@ -589,14 +591,14 @@ export const PaywallScreen = () => {
                 />
               </Svg>
             </View>
-            <Text style={styles.noticeTitle}>Subscription activated!</Text>
+            <Text style={styles.noticeTitle}>{t('paywall.subscriptionActivated')}</Text>
             <Text style={styles.noticeBody}>
-              Your subscription is now active and full access has been unlocked.
+              {t('paywall.yourSubscriptionIsNowActive')}
             </Text>
 
             <View style={styles.noticeBox}>
               <View style={styles.noticeBoxRow}>
-                <Text style={styles.noticeBoxLabel}>Auto-renewal</Text>
+                <Text style={styles.noticeBoxLabel}>{t('paywall.autoRenewal')}</Text>
                 <Text
                   style={[
                     styles.noticeBoxValue,
@@ -620,7 +622,7 @@ export const PaywallScreen = () => {
             </View>
 
             <TouchableOpacity style={styles.noticeContinueBtn} onPress={continueToApp}>
-              <Text style={styles.noticeContinueBtnText}>Continue to App</Text>
+              <Text style={styles.noticeContinueBtnText}>{t('paywall.continueToApp')}</Text>
             </TouchableOpacity>
           </View>
         </View>

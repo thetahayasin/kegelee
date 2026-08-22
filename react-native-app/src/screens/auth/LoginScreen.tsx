@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -25,6 +26,7 @@ import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
 
 export const LoginScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { login, googleNativeLogin } = useAuth();
   
@@ -177,7 +179,7 @@ export const LoginScreen = () => {
         style={styles.keyboardView}
       >
         <View style={styles.inner}>
-          <Text style={styles.title}>Log In</Text>
+          <Text style={styles.title}>{t('login.logIn')}</Text>
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -197,7 +199,7 @@ export const LoginScreen = () => {
           <View style={styles.form}>
             <TextInput
               style={styles.input}
-              placeholder="Email"
+              placeholder={t('login.email')}
               placeholderTextColor={COLORS.textMuted}
               value={email}
               onChangeText={setEmail}
@@ -208,7 +210,7 @@ export const LoginScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder={t('login.password')}
               placeholderTextColor={COLORS.textMuted}
               value={password}
               onChangeText={setPassword}
@@ -223,14 +225,14 @@ export const LoginScreen = () => {
               }}
               style={styles.forgotBtn}
             >
-              <Text style={styles.forgotText}>Forgot password?</Text>
+              <Text style={styles.forgotText}>{t('login.forgotPassword')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.btn} onPress={handleLogin} disabled={loading}>
               {loading ? (
                 <ActivityIndicator color={COLORS.onAccent} />
               ) : (
-                <Text style={styles.btnText}>Log in</Text>
+                <Text style={styles.btnText}>{t('login.logIn2')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -253,7 +255,7 @@ export const LoginScreen = () => {
                 ) : (
                   <>
                     <GoogleLogo size={20} />
-                    <Text style={styles.googleBtnText}>Continue with Google</Text>
+                    <Text style={styles.googleBtnText}>{t('login.continueWithGoogle')}</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -265,7 +267,7 @@ export const LoginScreen = () => {
             onPress={() => navigation.navigate('Register')}
           >
             <Text style={styles.switchLabel}>
-              New here? <Text style={styles.switchLink}>Create account</Text>
+              {t('login.newHere')} <Text style={styles.switchLink}>{t('login.createAccount')}</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -285,7 +287,7 @@ export const LoginScreen = () => {
         >
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Reset Password</Text>
+              <Text style={styles.modalTitle}>{t('login.resetPassword')}</Text>
               {resetError ? (
                 <View style={styles.errorContainer}>
                   <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -318,7 +320,7 @@ export const LoginScreen = () => {
               {!resetCodeSent ? (
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your email"
+                  placeholder={t('login.enterYourEmail')}
                   placeholderTextColor={COLORS.textMuted}
                   value={resetEmail}
                   onChangeText={setResetEmail}
@@ -329,7 +331,7 @@ export const LoginScreen = () => {
                 <>
                   <TextInput
                     style={styles.input}
-                    placeholder="6-digit code"
+                    placeholder={t('login.6DigitCode')}
                     placeholderTextColor={COLORS.textMuted}
                     value={resetCode}
                     onChangeText={setResetCode}
@@ -338,7 +340,7 @@ export const LoginScreen = () => {
                   />
                   <TextInput
                     style={styles.input}
-                    placeholder="New password"
+                    placeholder={t('login.newPassword')}
                     placeholderTextColor={COLORS.textMuted}
                     value={resetNewPassword}
                     onChangeText={setResetNewPassword}
@@ -353,7 +355,7 @@ export const LoginScreen = () => {
                   style={[styles.modalBtn, styles.modalCloseBtn]}
                   onPress={closeResetModal}
                 >
-                  <Text style={styles.modalCloseBtnText}>Close</Text>
+                  <Text style={styles.modalCloseBtnText}>{t('login.close')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

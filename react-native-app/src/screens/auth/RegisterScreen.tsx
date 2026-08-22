@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -21,6 +22,7 @@ import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
 
 export const RegisterScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { register, googleNativeLogin } = useAuth();
 
@@ -111,7 +113,7 @@ export const RegisterScreen = () => {
         style={styles.keyboardView}
       >
         <View style={styles.inner}>
-          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.title}>{t('register.createAccount')}</Text>
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -131,7 +133,7 @@ export const RegisterScreen = () => {
           <View style={styles.form}>
             <TextInput
               style={styles.input}
-              placeholder="Name"
+              placeholder={t('register.name')}
               placeholderTextColor={COLORS.textMuted}
               value={name}
               onChangeText={setName}
@@ -140,7 +142,7 @@ export const RegisterScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Email"
+              placeholder={t('register.email')}
               placeholderTextColor={COLORS.textMuted}
               value={email}
               onChangeText={setEmail}
@@ -151,7 +153,7 @@ export const RegisterScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder={t('register.password')}
               placeholderTextColor={COLORS.textMuted}
               value={password}
               onChangeText={setPassword}
@@ -161,7 +163,7 @@ export const RegisterScreen = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Confirm password"
+              placeholder={t('register.confirmPassword')}
               placeholderTextColor={COLORS.textMuted}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
@@ -173,7 +175,7 @@ export const RegisterScreen = () => {
               {loading ? (
                 <ActivityIndicator color={COLORS.onAccent} />
               ) : (
-                <Text style={styles.btnText}>Create account</Text>
+                <Text style={styles.btnText}>{t('register.createAccount2')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -194,7 +196,7 @@ export const RegisterScreen = () => {
             ) : (
               <>
                 <GoogleLogo size={20} />
-                <Text style={styles.googleBtnText}>Continue with Google</Text>
+                <Text style={styles.googleBtnText}>{t('register.continueWithGoogle')}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -204,7 +206,7 @@ export const RegisterScreen = () => {
             onPress={() => navigation.navigate('Login')}
           >
             <Text style={styles.switchLabel}>
-              Already have an account? <Text style={styles.switchLink}>Log in</Text>
+              {t('register.alreadyHaveAnAccount')} <Text style={styles.switchLink}>{t('register.logIn')}</Text>
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -137,6 +138,7 @@ const LiveTimeLabel = React.memo(
 );
 
 export const WorkoutScreen = () => {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'Workout'>>();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user } = useAuth();
@@ -657,14 +659,14 @@ export const WorkoutScreen = () => {
               <Path d="M22 4L12 14.01l-3-3" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </View>
-          <Text style={styles.trialDoneTitle}>Great job!</Text>
+          <Text style={styles.trialDoneTitle}>{t('workout.greatJob')}</Text>
         </View>
         <View style={styles.trialDoneCta}>
           <TouchableOpacity style={styles.tryAgainBtn} onPress={restartTrial}>
-            <Text style={styles.tryAgainBtnText}>Try again</Text>
+            <Text style={styles.tryAgainBtnText}>{t('workout.tryAgain')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.backToExerciseBtn} onPress={() => navigation.goBack()}>
-            <Text style={styles.backToExerciseBtnText}>Back</Text>
+            <Text style={styles.backToExerciseBtnText}>{t('workout.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -739,7 +741,7 @@ export const WorkoutScreen = () => {
               setPaused(true);
               setShowHelp(true);
             }}
-            accessibilityLabel="Exercise tutorial"
+            accessibilityLabel={t('workout.exerciseTutorial')}
           >
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={1.8} />
@@ -805,20 +807,20 @@ export const WorkoutScreen = () => {
               <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accent}>
                 <Path d="M8 5v14l11-7z" />
               </Svg>
-              <Text style={[styles.pauseBtnText, { color: COLORS.accent }]}>Resume</Text>
+              <Text style={[styles.pauseBtnText, { color: COLORS.accent }]}>{t('workout.resume')}</Text>
             </View>
           ) : (
             <View style={styles.playTextContainer}>
               <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.white}>
                 <Path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
               </Svg>
-              <Text style={styles.pauseBtnText}>Pause</Text>
+              <Text style={styles.pauseBtnText}>{t('workout.pause')}</Text>
             </View>
           )}
         </TouchableOpacity>
         {isTrial && (
           <TouchableOpacity style={styles.skipBtn} onPress={handleQuit}>
-            <Text style={styles.skipBtnText}>Skip</Text>
+            <Text style={styles.skipBtnText}>{t('workout.skip')}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -837,7 +839,7 @@ export const WorkoutScreen = () => {
               <View style={styles.handleBar} />
               <Text style={styles.modalTitle}>{currentStep.exerciseName}</Text>
               <Text style={styles.modalBody}>
-                Watch the quick tutorial for this exercise, then come back to your session.
+                {t('workout.watchTheQuickTutorialFor')}
               </Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity
@@ -851,7 +853,7 @@ export const WorkoutScreen = () => {
                     });
                   }}
                 >
-                  <Text style={styles.quitBtnText}>Watch tutorial</Text>
+                  <Text style={styles.quitBtnText}>{t('workout.watchTutorial')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalBtn, styles.backToTrainingBtn]}
@@ -861,7 +863,7 @@ export const WorkoutScreen = () => {
                     setPaused(false);
                   }}
                 >
-                  <Text style={styles.backToTrainingBtnText}>Resume</Text>
+                  <Text style={styles.backToTrainingBtnText}>{t('workout.resume')}</Text>
                 </TouchableOpacity>
               </View>
             </SafeAreaView>
@@ -879,22 +881,22 @@ export const WorkoutScreen = () => {
           <TouchableWithoutFeedback>
             <SafeAreaView style={styles.modalContent}>
               <View style={styles.handleBar} />
-              <Text style={styles.modalTitle}>Leave training?</Text>
+              <Text style={styles.modalTitle}>{t('workout.leaveTraining')}</Text>
               <Text style={styles.modalBody}>
-                If you leave, this session will not be counted towards your daily progress.
+                {t('workout.ifYouLeaveThisSession')}
               </Text>
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalBtn, styles.quitBtn]}
                   onPress={handleQuit}
                 >
-                  <Text style={styles.quitBtnText}>Yes, quit training</Text>
+                  <Text style={styles.quitBtnText}>{t('workout.yesQuitTraining')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalBtn, styles.backToTrainingBtn]}
                   onPress={() => setShowQuitModal(false)}
                 >
-                  <Text style={styles.backToTrainingBtnText}>No, go back</Text>
+                  <Text style={styles.backToTrainingBtnText}>{t('workout.noGoBack')}</Text>
                 </TouchableOpacity>
               </View>
             </SafeAreaView>

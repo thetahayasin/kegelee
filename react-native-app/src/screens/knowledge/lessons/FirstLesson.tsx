@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -46,6 +47,7 @@ const Ring = ({ offset }: { offset: number }) => (
 );
 
 export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
+  const { t } = useTranslation();
   const [i, setI] = useState(0);
   const [remaining, setRemaining] = useState(TREMBLING[0].seconds);
   const [playing, setPlaying] = useState(false);
@@ -195,11 +197,11 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             <Ring offset={CIRC * 0.35} />
             <View style={styles.circleCenter}>
               <Text style={styles.count}>12</Text>
-              <Text style={styles.label}>Contract</Text>
+              <Text style={styles.label}>{t('first.contract')}</Text>
             </View>
           </View>
         </View>
-        <Text style={styles.h1}>The circle is your guide</Text>
+        <Text style={styles.h1}>{t('first.theCircleIsYourGuide')}</Text>
         <Text style={styles.p}>
           Every exercise follows this circle. When it glows and swells, squeeze. When the glow fades,
           relax. The word inside always tells you what to do.
@@ -223,9 +225,9 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
           </View>
         </View>
-        <Text style={styles.h1Below}>This is Trembling</Text>
+        <Text style={styles.h1Below}>{t('first.thisIsTrembling')}</Text>
         <Text style={styles.p}>
-          Your first exercise: quick flicks. Squeeze on Contract, let go on Relax.
+          {t('first.yourFirstExerciseQuickFlicks')}
         </Text>
       </View>
     );
@@ -241,7 +243,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           <Ring offset={CIRC * (1 - pct)} />
           {!playing && !tried ? (
             <TouchableOpacity style={styles.startBtn} onPress={() => play(false)}>
-              <Text style={styles.startBtnText}>Start</Text>
+              <Text style={styles.startBtnText}>{t('first.start')}</Text>
             </TouchableOpacity>
           ) : tried ? (
             <Svg width={80} height={80} viewBox="0 0 24 24" fill="none">

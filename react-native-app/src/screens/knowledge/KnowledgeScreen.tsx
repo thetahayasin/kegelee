@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -33,6 +34,7 @@ const lessonIconPath = (i: number) =>
   ][i % 3];
 
 export const KnowledgeScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<AuthStackParamList, 'Knowledge'>>();
   const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
@@ -74,10 +76,10 @@ export const KnowledgeScreen = () => {
             </Svg>
           </TouchableOpacity>
         ) : null}
-        <Text style={styles.headerTitle}>Learn the basics</Text>
+        <Text style={styles.headerTitle}>{t('knowledge.learnTheBasics')}</Text>
         {!isAuthenticated ? (
           <TouchableOpacity style={styles.loginLink} onPress={() => (navigation as any).navigate('Login')}>
-            <Text style={styles.loginLinkText}>Log in</Text>
+            <Text style={styles.loginLinkText}>{t('knowledge.logIn')}</Text>
           </TouchableOpacity>
         ) : null}
       </View>
@@ -143,7 +145,7 @@ export const KnowledgeScreen = () => {
               updateUserFields({ onboarded: true }).catch(() => {});
             }}
           >
-            <Text style={styles.continueBtnText}>Continue to Training</Text>
+            <Text style={styles.continueBtnText}>{t('knowledge.continueToTraining')}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

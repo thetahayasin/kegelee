@@ -6,6 +6,11 @@ import {
   Image,
 } from 'react-native';
 import { TouchableOpacity } from './Touchable';
+// The i18n instance directly, not the useTranslation hook: this is a class
+// component, and it renders precisely when something has already failed - so
+// it should depend on as little React machinery as possible. i18next falls
+// back to English per key, so an i18n failure still yields readable text.
+import i18n from '../i18n';
 import { COLORS } from '../theme/colors';
 
 interface Props {
@@ -49,12 +54,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>Something went wrong</Text>
+        <Text style={styles.title}>{i18n.t('errorBoundary.somethingWentWrong')}</Text>
         <Text style={styles.body}>
-          The app hit an unexpected error. Please try again.
+          {i18n.t('errorBoundary.theAppHitAnUnexpected')}
         </Text>
         <TouchableOpacity style={styles.btn} onPress={this.reset} activeOpacity={0.85}>
-          <Text style={styles.btnText}>Try again</Text>
+          <Text style={styles.btnText}>{i18n.t('errorBoundary.tryAgain')}</Text>
         </TouchableOpacity>
       </View>
     );

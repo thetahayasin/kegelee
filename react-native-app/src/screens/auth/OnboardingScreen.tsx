@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -52,6 +53,7 @@ interface OnboardingScreenProps {
 }
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
   const [sheetVisible, setSheetVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
@@ -201,7 +203,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 
         <TouchableOpacity style={styles.loginLink} onPress={goToLogin}>
           <Text style={styles.loginLinkText}>
-            Already have an account? <Text style={styles.loginLinkStrong}>Log in</Text>
+            {t('onboarding.alreadyHaveAnAccount')} <Text style={styles.loginLinkStrong}>{t('onboarding.logIn')}</Text>
           </Text>
         </TouchableOpacity>
       </View>

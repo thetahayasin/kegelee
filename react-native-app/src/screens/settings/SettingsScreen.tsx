@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -25,6 +26,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 
 export const SettingsScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
   const { user, logout } = useAuth();
@@ -223,12 +225,12 @@ export const SettingsScreen = () => {
             <Path d="M15 19l-7-7 7-7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </TouchableOpacity>
-        <Text style={styles.pageTitle}>Settings</Text>
+        <Text style={styles.pageTitle}>{t('settings.settings')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Subscription section */}
-        <Text style={styles.sectionLabel}>Subscription</Text>
+        <Text style={styles.sectionLabel}>{t('settings.subscription')}</Text>
         <View style={styles.menuContainer}>
           {subscription ? (
             // Tappable so a subscriber can reach the plan switcher. The paywall
@@ -241,7 +243,7 @@ export const SettingsScreen = () => {
               onPress={() => navigation.navigate('Paywall')}
             >
               <View style={{ flex: 1 }}>
-                <Text style={styles.menuText}>Subscription</Text>
+                <Text style={styles.menuText}>{t('settings.subscription')}</Text>
                 <Text style={styles.menuSubtext}>
                   {subscriptionDetail ? subscriptionDetail + ' - tap to change plan' : 'Tap to change plan'}
                 </Text>
@@ -267,11 +269,11 @@ export const SettingsScreen = () => {
               onPress={() => navigation.navigate('Paywall')}
             >
               <View style={{ flex: 1 }}>
-                <Text style={styles.menuText}>No active subscription</Text>
-                <Text style={styles.menuSubtext}>Subscribe to unlock full access</Text>
+                <Text style={styles.menuText}>{t('settings.noActiveSubscription')}</Text>
+                <Text style={styles.menuSubtext}>{t('settings.subscribeToUnlockFullAccess')}</Text>
               </View>
               <View style={styles.subscribePill}>
-                <Text style={styles.subscribePillText}>Subscribe</Text>
+                <Text style={styles.subscribePillText}>{t('settings.subscribe')}</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -282,7 +284,7 @@ export const SettingsScreen = () => {
               onPress={() => Linking.openURL(manageUrl)}
             >
               <View style={{ flex: 1 }}>
-                <Text style={styles.menuText}>Manage subscription</Text>
+                <Text style={styles.menuText}>{t('settings.manageSubscription')}</Text>
                 <Text style={styles.menuSubtext}>
                   {subStatus === 'past_due'
                     ? 'Update your payment method in Google Play.'
@@ -305,7 +307,7 @@ export const SettingsScreen = () => {
         {/* Legal Pages section */}
         {pages.length > 0 && (
           <>
-            <Text style={styles.sectionLabel}>Terms</Text>
+            <Text style={styles.sectionLabel}>{t('settings.terms')}</Text>
             <View style={styles.menuContainer}>
               {pages.map((p, idx) => (
                 <TouchableOpacity
@@ -333,7 +335,7 @@ export const SettingsScreen = () => {
             style={[styles.actionBtn, styles.logoutBtn]}
             onPress={logout}
           >
-            <Text style={styles.logoutBtnText}>Log out</Text>
+            <Text style={styles.logoutBtnText}>{t('settings.logOut')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -343,7 +345,7 @@ export const SettingsScreen = () => {
               setResetModalVisible(true);
             }}
           >
-            <Text style={styles.resetBtnText}>Reset progress</Text>
+            <Text style={styles.resetBtnText}>{t('settings.resetProgress')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -355,7 +357,7 @@ export const SettingsScreen = () => {
               setDeleteModalVisible(true);
             }}
           >
-            <Text style={styles.deleteBtnText}>Delete account</Text>
+            <Text style={styles.deleteBtnText}>{t('settings.deleteAccount')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -374,7 +376,7 @@ export const SettingsScreen = () => {
         >
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Reset progress?</Text>
+              <Text style={styles.modalTitle}>{t('settings.resetProgress2')}</Text>
 
               {resetError ? (
                 <View style={styles.errorContainer}>
@@ -401,7 +403,7 @@ export const SettingsScreen = () => {
                   onPress={closeResetModal}
                   disabled={resetLoading}
                 >
-                  <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                  <Text style={styles.modalCancelBtnText}>{t('settings.cancel')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -412,7 +414,7 @@ export const SettingsScreen = () => {
                   {resetLoading ? (
                     <ActivityIndicator color={COLORS.white} />
                   ) : (
-                    <Text style={styles.modalConfirmDeleteBtnText}>Reset</Text>
+                    <Text style={styles.modalConfirmDeleteBtnText}>{t('settings.reset')}</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -435,7 +437,7 @@ export const SettingsScreen = () => {
         >
           <TouchableWithoutFeedback>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Delete account?</Text>
+              <Text style={styles.modalTitle}>{t('settings.deleteAccount2')}</Text>
 
               {deleteError ? (
                 <View style={styles.errorContainer}>
@@ -459,7 +461,7 @@ export const SettingsScreen = () => {
                   </Text>
                   <View style={styles.warningBox}>
                     <Text style={styles.warningText}>
-                      This does <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your active app store or RevenueCat subscription. Cancel it in your subscription settings first to stop being billed.
+                      {t('settings.thisDoes')} <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your active app store or RevenueCat subscription. Cancel it in your subscription settings first to stop being billed.
                     </Text>
                   </View>
 
@@ -469,7 +471,7 @@ export const SettingsScreen = () => {
                       onPress={closeDeleteModal}
                       disabled={deleteLoading}
                     >
-                      <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                      <Text style={styles.modalCancelBtnText}>{t('settings.cancel')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -480,7 +482,7 @@ export const SettingsScreen = () => {
                       {deleteLoading ? (
                         <ActivityIndicator color={COLORS.white} />
                       ) : (
-                        <Text style={styles.modalDeleteBtnText}>Send code</Text>
+                        <Text style={styles.modalDeleteBtnText}>{t('settings.sendCode')}</Text>
                       )}
                     </TouchableOpacity>
                   </View>
@@ -488,7 +490,7 @@ export const SettingsScreen = () => {
               ) : (
                 <>
                   <Text style={styles.modalBody}>
-                    We emailed a 6-digit code to <Text style={{ fontWeight: 'bold', color: COLORS.white }}>{user?.email}</Text>. Enter it to permanently delete your account.
+                    {t('settings.weEmailedA6Digit')} <Text style={{ fontWeight: 'bold', color: COLORS.white }}>{user?.email}</Text>. Enter it to permanently delete your account.
                   </Text>
 
                   <TextInput
@@ -508,7 +510,7 @@ export const SettingsScreen = () => {
                       onPress={closeDeleteModal}
                       disabled={deleteLoading}
                     >
-                      <Text style={styles.modalCancelBtnText}>Cancel</Text>
+                      <Text style={styles.modalCancelBtnText}>{t('settings.cancel')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -519,7 +521,7 @@ export const SettingsScreen = () => {
                       {deleteLoading ? (
                         <ActivityIndicator color={COLORS.white} />
                       ) : (
-                        <Text style={styles.modalConfirmDeleteBtnText}>Delete permanently</Text>
+                        <Text style={styles.modalConfirmDeleteBtnText}>{t('settings.deletePermanently')}</Text>
                       )}
                     </TouchableOpacity>
                   </View>

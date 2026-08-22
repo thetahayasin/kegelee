@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -25,6 +26,7 @@ const COMPLETED_R = 98;
 const COMPLETED_CIRCUMFERENCE = 2 * Math.PI * COMPLETED_R;
 
 export const WorkoutCompleteScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, updateUserFields } = useAuth();
 
@@ -232,16 +234,16 @@ export const WorkoutCompleteScreen = () => {
         {/* Difficulty Feedback (Only if askFeedback is true) */}
         {askFeedback && (
           <View style={styles.feedbackCard}>
-            <Text style={styles.feedbackTitle}>How was that?</Text>
+            <Text style={styles.feedbackTitle}>{t('workoutComplete.howWasThat')}</Text>
             <View style={styles.feedbackRow}>
               <TouchableOpacity style={styles.feedbackBtn} onPress={() => handleFeedback('easy')}>
-                <Text style={styles.feedbackBtnText}>Too easy</Text>
+                <Text style={styles.feedbackBtnText}>{t('workoutComplete.tooEasy')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.feedbackBtn, styles.feedbackBtnActive]} onPress={() => handleFeedback('fine')}>
-                <Text style={styles.feedbackBtnTextActive}>Just right</Text>
+                <Text style={styles.feedbackBtnTextActive}>{t('workoutComplete.justRight')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.feedbackBtn} onPress={() => handleFeedback('hard')}>
-                <Text style={styles.feedbackBtnText}>Too hard</Text>
+                <Text style={styles.feedbackBtnText}>{t('workoutComplete.tooHard')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -304,7 +306,7 @@ export const WorkoutCompleteScreen = () => {
           <View style={styles.nextUnlockCard}>
             <EquipmentIcon slug={nextUnlock.slug} size={44} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.unlockNextLabel}>Next to unlock</Text>
+              <Text style={styles.unlockNextLabel}>{t('workoutComplete.nextToUnlock')}</Text>
               <Text style={styles.unlockNameText}>{nextUnlock.name}</Text>
               <View style={styles.progressBarBg}>
                 <View style={[styles.progressBarFill, { width: `${unlockPct}%` }]} />
@@ -338,7 +340,7 @@ export const WorkoutCompleteScreen = () => {
             }
           }}
         >
-          <Text style={styles.continueBtnText}>Continue</Text>
+          <Text style={styles.continueBtnText}>{t('workoutComplete.continue')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -359,7 +361,7 @@ export const WorkoutCompleteScreen = () => {
             <View style={styles.unlockIconTile}>
               {unlockedNow[0] && <EquipmentIcon slug={unlockedNow[0].slug} size={44} />}
             </View>
-            <Text style={styles.unlockModalTitle}>New exercise unlocked!</Text>
+            <Text style={styles.unlockModalTitle}>{t('workoutComplete.newExerciseUnlocked')}</Text>
             <Text style={styles.unlockModalExercise}>
               {unlockedNow.map((ex) => ex.name).join(', ')}
             </Text>
@@ -371,7 +373,7 @@ export const WorkoutCompleteScreen = () => {
                   navigation.navigate('MainTabs');
                 }}
               >
-                <Text style={styles.unlockLaterBtnText}>Not now</Text>
+                <Text style={styles.unlockLaterBtnText}>{t('workoutComplete.notNow')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.unlockModalBtn, styles.unlockTryBtn]}
@@ -383,7 +385,7 @@ export const WorkoutCompleteScreen = () => {
                   (navigation as any).replace('Workout', { trialSlug: unlockedNow[0].slug });
                 }}
               >
-                <Text style={styles.unlockTryBtnText}>Try it now</Text>
+                <Text style={styles.unlockTryBtnText}>{t('workoutComplete.tryItNow')}</Text>
               </TouchableOpacity>
             </View>
           </View>

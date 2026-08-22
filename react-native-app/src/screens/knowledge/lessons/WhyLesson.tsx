@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, ScrollView, StyleSheet, Animated, Easing } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { COLORS, GLASS } from '../../../theme/colors';
@@ -19,6 +20,7 @@ const BENEFITS = [
 ];
 
 export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
+  const { t } = useTranslation();
   const breathe = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -46,13 +48,13 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
             <Path d={HEART} />
           </Svg>
         </Animated.View>
-        <Text style={styles.h1}>A muscle you can train</Text>
+        <Text style={styles.h1}>{t('why.aMuscleYouCanTrain')}</Text>
         <Text style={styles.p}>
           Your pelvic floor is a real muscle. Train it a few minutes a day and it gets stronger, just
           like any workout. No pills, no side effects, and the results last.
         </Text>
         <Text style={styles.p}>
-          And you can do it anywhere, anytime. Sitting, standing, on the bus. Nobody can tell.
+          {t('why.andYouCanDoIt')}
         </Text>
       </View>
     );
@@ -61,7 +63,7 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
   if (step === 1) {
     return (
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.h1}>What you gain</Text>
+        <Text style={styles.h1}>{t('why.whatYouGain')}</Text>
         <View style={{ gap: 12, marginTop: 22 }}>
           {BENEFITS.map(b => (
             <View key={b.title} style={styles.benefitCard}>
@@ -83,32 +85,32 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Doing it right is everything</Text>
+      <Text style={styles.h1}>{t('why.doingItRightIsEverything')}</Text>
       <Text style={[styles.p, { textAlign: 'center' }]}>
-        Squeeze the wrong muscles and you get nothing back.
+        {t('why.squeezeTheWrongMusclesAnd')}
       </Text>
       <View style={styles.finalCard}>
         <View style={styles.finalCardHead}>
           <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accent}>
             <Path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
           </Svg>
-          <Text style={styles.finalCardHeadText}>Worth two minutes of your time</Text>
+          <Text style={styles.finalCardHeadText}>{t('why.worthTwoMinutesOfYour')}</Text>
         </View>
         <View style={styles.finalCardBody}>
           <View style={styles.finalRow}>
             <View style={styles.numBadge}>
               <Text style={styles.numBadgeText}>2</Text>
             </View>
-            <Text style={styles.finalRowText}>The next lesson shows you exactly where your muscles are.</Text>
+            <Text style={styles.finalRowText}>{t('why.theNextLessonShowsYou')}</Text>
           </View>
           <View style={styles.finalRow}>
             <View style={styles.numBadge}>
               <Text style={styles.numBadgeText}>3</Text>
             </View>
-            <Text style={styles.finalRowText}>Then you do your first real exercise, guided by the circle.</Text>
+            <Text style={styles.finalRowText}>{t('why.thenYouDoYourFirst')}</Text>
           </View>
           <Text style={styles.finalEmphasis}>
-            Learn it once, and every minute you train actually counts.
+            {t('why.learnItOnceAndEvery')}
           </Text>
         </View>
       </View>

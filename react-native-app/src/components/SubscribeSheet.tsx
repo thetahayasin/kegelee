@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -72,6 +73,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
   showBar = true,
   onNavigateToVerify,
 }) => {
+  const { t } = useTranslation();
   const { register, login, googleNativeLogin } = useAuth();
   const insets = useSafeAreaInsets();
 
@@ -234,7 +236,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
         ) : (
           <>
             <GoogleLogo size={20} />
-            <Text style={styles.googleBtnText}>Continue with Google</Text>
+            <Text style={styles.googleBtnText}>{t('subscribeSheet.continueWithGoogle')}</Text>
           </>
         )}
       </TouchableOpacity>
@@ -248,7 +250,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       {showBar && !visible && (
         <View style={[styles.bar, { paddingBottom: 16 + insets.bottom }]}>
           <TouchableOpacity style={styles.barBtn} onPress={onOpen}>
-            <Text style={styles.barBtnText}>Subscribe</Text>
+            <Text style={styles.barBtnText}>{t('subscribeSheet.subscribe')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -268,8 +270,8 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
               {step === 'plans' ? (
                 <>
                   <View style={styles.titleRow}>
-                    <Text style={styles.title}>Start your transformation journey now</Text>
-                    <TouchableOpacity style={styles.roundBtn} onPress={close} accessibilityLabel="Close">
+                    <Text style={styles.title}>{t('subscribeSheet.startYourTransformationJourneyNow')}</Text>
+                    <TouchableOpacity style={styles.roundBtn} onPress={close} accessibilityLabel={t('subscribeSheet.close')}>
                       {closeIcon}
                     </TouchableOpacity>
                   </View>
@@ -312,7 +314,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                     disabled={!selectedPlan}
                     onPress={selectAndProceed}
                   >
-                    <Text style={styles.continueBtnText}>Continue</Text>
+                    <Text style={styles.continueBtnText}>{t('subscribeSheet.continue')}</Text>
                   </TouchableOpacity>
 
                   <Text style={styles.legalText}>
@@ -324,7 +326,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       style={styles.legalLink}
                       onPress={() => Linking.openURL(`${getWebBaseUrl()}/p/terms`)}
                     >
-                      Terms
+                      {t('subscribeSheet.terms')}
                     </Text>
                     .
                   </Text>
@@ -335,7 +337,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                     <TouchableOpacity
                       style={styles.roundBtn}
                       onPress={() => setStep('plans')}
-                      accessibilityLabel="Back"
+                      accessibilityLabel={t('subscribeSheet.back')}
                     >
                       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                         <Path d="M15 18l-6-6 6-6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
@@ -347,7 +349,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                     <TouchableOpacity
                       style={[styles.roundBtn, styles.authClose]}
                       onPress={close}
-                      accessibilityLabel="Close"
+                      accessibilityLabel={t('subscribeSheet.close')}
                     >
                       {closeIcon}
                     </TouchableOpacity>
@@ -358,7 +360,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       <View>
                         <TextInput
                           style={styles.input}
-                          placeholder="Full name"
+                          placeholder={t('subscribeSheet.fullName')}
                           placeholderTextColor={COLORS.textMuted}
                           autoComplete="name"
                           value={name}
@@ -369,7 +371,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       <View>
                         <TextInput
                           style={styles.input}
-                          placeholder="Email address"
+                          placeholder={t('subscribeSheet.emailAddress')}
                           placeholderTextColor={COLORS.textMuted}
                           autoCapitalize="none"
                           keyboardType="email-address"
@@ -382,7 +384,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       <View>
                         <TextInput
                           style={styles.input}
-                          placeholder="Password (6+ characters, 1 number)"
+                          placeholder={t('subscribeSheet.password6Characters1Number')}
                           placeholderTextColor={COLORS.textMuted}
                           secureTextEntry
                           autoComplete="new-password"
@@ -394,7 +396,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       <View>
                         <TextInput
                           style={styles.input}
-                          placeholder="Confirm password"
+                          placeholder={t('subscribeSheet.confirmPassword')}
                           placeholderTextColor={COLORS.textMuted}
                           secureTextEntry
                           autoComplete="new-password"
@@ -412,9 +414,9 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         disabled={submitting}
                       >
                         {submitting ? (
-                          <Text style={styles.submitBtnText}>Creating account…</Text>
+                          <Text style={styles.submitBtnText}>{t('subscribeSheet.creatingAccount')}</Text>
                         ) : (
-                          <Text style={styles.submitBtnText}>Create account & subscribe</Text>
+                          <Text style={styles.submitBtnText}>{t('subscribeSheet.createAccountSubscribe')}</Text>
                         )}
                       </TouchableOpacity>
                       {googleEnabled && googleButton}
@@ -425,7 +427,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                           setErrors({});
                         }}
                       >
-                        <Text style={styles.switchLinkText}>Already have an account? Sign in</Text>
+                        <Text style={styles.switchLinkText}>{t('subscribeSheet.alreadyHaveAnAccountSign')}</Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
@@ -433,7 +435,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       <View>
                         <TextInput
                           style={styles.input}
-                          placeholder="Email address"
+                          placeholder={t('subscribeSheet.emailAddress')}
                           placeholderTextColor={COLORS.textMuted}
                           autoCapitalize="none"
                           keyboardType="email-address"
@@ -446,7 +448,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       <View>
                         <TextInput
                           style={styles.input}
-                          placeholder="Password"
+                          placeholder={t('subscribeSheet.password')}
                           placeholderTextColor={COLORS.textMuted}
                           secureTextEntry
                           autoComplete="current-password"
@@ -462,9 +464,9 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         disabled={submitting}
                       >
                         {submitting ? (
-                          <Text style={styles.submitBtnText}>Signing in…</Text>
+                          <Text style={styles.submitBtnText}>{t('subscribeSheet.signingIn')}</Text>
                         ) : (
-                          <Text style={styles.submitBtnText}>Sign in & subscribe</Text>
+                          <Text style={styles.submitBtnText}>{t('subscribeSheet.signInSubscribe')}</Text>
                         )}
                       </TouchableOpacity>
                       {googleEnabled && googleButton}
@@ -475,7 +477,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                           setErrors({});
                         }}
                       >
-                        <Text style={styles.switchLinkText}>No account yet? Create one</Text>
+                        <Text style={styles.switchLinkText}>{t('subscribeSheet.noAccountYetCreateOne')}</Text>
                       </TouchableOpacity>
                     </View>
                   )}

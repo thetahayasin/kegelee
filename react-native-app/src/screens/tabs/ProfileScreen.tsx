@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -19,6 +20,7 @@ import { syncNow } from '../../services/sync';
 import Svg, { Path } from 'react-native-svg';
 
 export const ProfileScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, updateUserFields } = useAuth();
   
@@ -53,7 +55,7 @@ export const ProfileScreen = () => {
       <Watermark />
       {/* Title Row */}
       <View style={styles.titleRow}>
-        <Text style={styles.pageTitle}>Profile</Text>
+        <Text style={styles.pageTitle}>{t('profile.profile')}</Text>
         <TouchableOpacity
           style={styles.settingsBtnInline}
           onPress={() => navigation.navigate('Settings')}
@@ -85,7 +87,7 @@ export const ProfileScreen = () => {
           style={styles.menuRow}
           onPress={() => setLevelModalVisible(true)}
         >
-          <Text style={styles.menuLabel}>Difficulty</Text>
+          <Text style={styles.menuLabel}>{t('profile.difficulty')}</Text>
           <View style={styles.menuRight}>
             <Text style={styles.menuValue}>{currentLevel.name}</Text>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -98,7 +100,7 @@ export const ProfileScreen = () => {
           style={styles.menuRow}
           onPress={() => navigation.navigate('Schedule')}
         >
-          <Text style={styles.menuLabel}>Schedule & reminders</Text>
+          <Text style={styles.menuLabel}>{t('profile.scheduleReminders')}</Text>
           <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
             <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
@@ -128,8 +130,8 @@ export const ProfileScreen = () => {
 
           <ScrollView contentContainerStyle={styles.levelScroll}>
             <View style={styles.levelIntro}>
-              <Text style={styles.levelPageTitle}>Set the difficulty of Kegel Training program</Text>
-              <Text style={styles.levelPageSubtitle}>The higher the level, the harder the training</Text>
+              <Text style={styles.levelPageTitle}>{t('profile.setTheDifficultyOfKegel')}</Text>
+              <Text style={styles.levelPageSubtitle}>{t('profile.theHigherTheLevelThe')}</Text>
             </View>
 
             <View style={styles.levelList}>
@@ -155,7 +157,7 @@ export const ProfileScreen = () => {
                       <Text style={[styles.levelRowName, selected && styles.levelRowNameSelected]}>
                         {lvl.name}
                       </Text>
-                      {selected && <Text style={styles.levelRowCurrent}>Current difficulty</Text>}
+                      {selected && <Text style={styles.levelRowCurrent}>{t('profile.currentDifficulty')}</Text>}
                     </View>
 
                     {updatingLevel && selected ? (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -28,6 +29,7 @@ import Svg, { Path, Rect, Circle } from 'react-native-svg';
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const ScheduleScreen = () => {
+  const { t } = useTranslation();
   const isFocused = useIsFocused();
   const { user } = useAuth();
 
@@ -204,7 +206,7 @@ export const ScheduleScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Title Row */}
         <View style={styles.titleRow}>
-          <Text style={styles.pageTitle}>Schedule</Text>
+          <Text style={styles.pageTitle}>{t('schedule.schedule')}</Text>
         </View>
         {/* Reminders Card Link */}
         <TouchableOpacity
@@ -218,7 +220,7 @@ export const ScheduleScreen = () => {
             </Svg>
           </View>
           <View style={styles.remindersInfo}>
-            <Text style={styles.cardTitle}>Reminders</Text>
+            <Text style={styles.cardTitle}>{t('schedule.reminders')}</Text>
             <Text style={styles.cardSubtitle}>
               {activeRemindersCount > 0
                 ? `${activeRemindersCount} day${activeRemindersCount > 1 ? 's' : ''} set`
@@ -239,7 +241,7 @@ export const ScheduleScreen = () => {
             </View>
             <View style={styles.statusRow}>
               <View style={styles.statusDot} />
-              <Text style={styles.statusText}>Active</Text>
+              <Text style={styles.statusText}>{t('schedule.active')}</Text>
             </View>
           </View>
 
@@ -291,14 +293,14 @@ export const ScheduleScreen = () => {
                     <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
                   </Svg>
                 </TouchableOpacity>
-                <Text style={styles.modalTitle}>Reminders</Text>
+                <Text style={styles.modalTitle}>{t('schedule.reminders')}</Text>
                 <View style={{ width: 32 }} />
               </View>
 
               <ScrollView contentContainerStyle={styles.modalScroll}>
                 {/* Repeat on weekdays */}
                 <View style={styles.sectionCard}>
-                  <Text style={styles.sectionLabel}>Repeat on</Text>
+                  <Text style={styles.sectionLabel}>{t('schedule.repeatOn')}</Text>
                   <View style={styles.weekdayRow}>
                     {WEEKDAYS.map((label, i) => {
                       const active = selectedDays.includes(i);
@@ -319,7 +321,7 @@ export const ScheduleScreen = () => {
 
                 {/* Times */}
                 <View style={styles.sectionCard}>
-                  <Text style={styles.sectionLabel}>Session times</Text>
+                  <Text style={styles.sectionLabel}>{t('schedule.sessionTimes')}</Text>
                   <View style={styles.timesList}>
                     {times.map((time, idx) => (
                       <View key={idx} style={styles.timeRow}>
@@ -381,7 +383,7 @@ export const ScheduleScreen = () => {
                   {savingReminders ? (
                     <ActivityIndicator color={COLORS.onAccent} />
                   ) : (
-                    <Text style={styles.saveActionBtnText}>Save & Add Reminders</Text>
+                    <Text style={styles.saveActionBtnText}>{t('schedule.saveAddReminders')}</Text>
                   )}
                 </TouchableOpacity>
               </ScrollView>

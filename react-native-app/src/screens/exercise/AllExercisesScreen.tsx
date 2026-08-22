@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -32,6 +33,7 @@ type Row = {
 // Full catalogue with per-exercise unlock progress bars, mirroring the web
 // exercises/index page reached from the Training rail's "See All".
 export const AllExercisesScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const isFocused = useIsFocused();
   const { user } = useAuth();
@@ -109,7 +111,7 @@ export const AllExercisesScreen = () => {
       <View style={styles.rowInfo}>
         <Text style={styles.rowName}>{row.name}</Text>
         {row.unlocked ? (
-          <Text style={styles.rowMuted}>Available</Text>
+          <Text style={styles.rowMuted}>{t('allExercises.available')}</Text>
         ) : (
           <>
             <Text style={styles.rowMuted}>complete {row.daysLeft} training days</Text>
@@ -141,7 +143,7 @@ export const AllExercisesScreen = () => {
             <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Exercises</Text>
+        <Text style={styles.headerTitle}>{t('allExercises.exercises')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
