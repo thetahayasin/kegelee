@@ -90,6 +90,10 @@ const bundles: Partial<Record<LanguageTag, () => any>> = {
   es: () => require('./locales/es.json'),
   'es-419': () => require('./locales/es-419.json'),
   fr: () => require('./locales/fr.json'),
+  it: () => require('./locales/it.json'),
+  nl: () => require('./locales/nl.json'),
+  pl: () => require('./locales/pl.json'),
+  'pt-BR': () => require('./locales/pt-BR.json'),
 };
 
 const ensureBundle = (tag: LanguageTag) => {
