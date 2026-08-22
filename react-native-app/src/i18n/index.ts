@@ -86,10 +86,12 @@ export const resolveLanguage = (tag: string | null | undefined): LanguageTag => 
  * startup path would cost every user memory for strings 27 of them never read.
  */
 const bundles: Partial<Record<LanguageTag, () => any>> = {
+  cs: () => require('./locales/cs.json'),
   de: () => require('./locales/de.json'),
   es: () => require('./locales/es.json'),
   'es-419': () => require('./locales/es-419.json'),
   fr: () => require('./locales/fr.json'),
+  hi: () => require('./locales/hi.json'),
   id: () => require('./locales/id.json'),
   it: () => require('./locales/it.json'),
   ja: () => require('./locales/ja.json'),
@@ -98,6 +100,8 @@ const bundles: Partial<Record<LanguageTag, () => any>> = {
   pl: () => require('./locales/pl.json'),
   'pt-BR': () => require('./locales/pt-BR.json'),
   ru: () => require('./locales/ru.json'),
+  sk: () => require('./locales/sk.json'),
+  th: () => require('./locales/th.json'),
   tr: () => require('./locales/tr.json'),
   uk: () => require('./locales/uk.json'),
   vi: () => require('./locales/vi.json'),
