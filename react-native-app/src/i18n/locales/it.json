@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Disponibile", "exercises": "Esercizi" },
+  "allExercises": {
+    "available": "Disponibile",
+    "exercises": "Esercizi"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Qualcosa è andato storto",
     "theAppHitAnUnexpected": "L'app ha riscontrato un errore imprevisto. Riprova.",
     "tryAgain": "Riprova"
   },
-  "exerciseDetail": { "exerciseNotFound": "Esercizio non trovato.", "tryItNow": "Provalo ora" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Esercizio non trovato.",
+    "tryItNow": "Provalo ora"
+  },
   "find": {
     "keepGoing": "Continua così …",
     "onlyDoThePeeTest": "Fai il test durante la minzione una volta sola",
@@ -42,7 +48,10 @@
     "passwordReset": "Password reimpostata",
     "resetPassword": "Reimposta la password"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Hai già un account?", "logIn": "Accedi" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Hai già un account?",
+    "logIn": "Accedi"
+  },
   "paywall": {
     "autoRenewal": "Rinnovo automatico",
     "billingIsNotAvailableOn": "I pagamenti non sono disponibili su questo dispositivo. Puoi ripristinare un acquisto precedente qui sotto.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Eliminare l'account?",
     "deletePermanently": "Elimina definitivamente",
     "deleted": "Eliminato",
+    "gotIt": "Ho capito",
+    "language": "Lingua",
     "logOut": "Esci",
     "manageSubscription": "Gestisci abbonamento",
     "noActiveSubscription": "Nessun abbonamento attivo",
@@ -110,6 +121,8 @@
     "resetProgress": "Reimposta i progressi",
     "resetProgress2": "Reimpostare i progressi?",
     "resetSuccessful": "Reimpostazione riuscita",
+    "restartBody": "Chiudi e riapri l’app per completare il cambio di direzione del layout.",
+    "restartRequired": "Riavvio necessario",
     "sendCode": "Invia codice",
     "settings": "Impostazioni",
     "subscribe": "Abbonati",

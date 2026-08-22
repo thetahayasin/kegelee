@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Tilgjengelig", "exercises": "Øvelser" },
+  "allExercises": {
+    "available": "Tilgjengelig",
+    "exercises": "Øvelser"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Noe gikk galt",
     "theAppHitAnUnexpected": "Appen støtte på en uventet feil. Prøv igjen.",
     "tryAgain": "Prøv igjen"
   },
-  "exerciseDetail": { "exerciseNotFound": "Fant ikke øvelsen.", "tryItNow": "Prøv nå" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Fant ikke øvelsen.",
+    "tryItNow": "Prøv nå"
+  },
   "find": {
     "keepGoing": "Fortsett sånn …",
     "onlyDoThePeeTest": "Gjør tissetesten bare én gang",
@@ -42,7 +48,10 @@
     "passwordReset": "Passordet er tilbakestilt",
     "resetPassword": "Tilbakestill passord"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Har du allerede en konto?", "logIn": "Logg inn" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Har du allerede en konto?",
+    "logIn": "Logg inn"
+  },
   "paywall": {
     "autoRenewal": "Automatisk fornyelse",
     "billingIsNotAvailableOn": "Betaling er ikke tilgjengelig på denne enheten. Du kan gjenopprette et tidligere kjøp nedenfor.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Slette kontoen?",
     "deletePermanently": "Slett permanent",
     "deleted": "Slettet",
+    "gotIt": "Greit",
+    "language": "Språk",
     "logOut": "Logg ut",
     "manageSubscription": "Administrer abonnement",
     "noActiveSubscription": "Ingen aktivt abonnement",
@@ -110,6 +121,8 @@
     "resetProgress": "Tilbakestill fremgang",
     "resetProgress2": "Tilbakestille fremgangen?",
     "resetSuccessful": "Tilbakestilling fullført",
+    "restartBody": "Lukk og åpne appen på nytt for å fullføre bytte av layoutretning.",
+    "restartRequired": "Omstart kreves",
     "sendCode": "Send kode",
     "settings": "Innstillinger",
     "subscribe": "Abonner",

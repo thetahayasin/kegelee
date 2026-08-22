@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Dostupné", "exercises": "Cviky" },
+  "allExercises": {
+    "available": "Dostupné",
+    "exercises": "Cviky"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Něco se pokazilo",
     "theAppHitAnUnexpected": "V aplikaci došlo k neočekávané chybě. Zkus to prosím znovu.",
     "tryAgain": "Zkusit znovu"
   },
-  "exerciseDetail": { "exerciseNotFound": "Cvik nebyl nalezen.", "tryItNow": "Vyzkoušet hned" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Cvik nebyl nalezen.",
+    "tryItNow": "Vyzkoušet hned"
+  },
   "find": {
     "keepGoing": "Jen tak dál …",
     "onlyDoThePeeTest": "Test při močení udělej jen jednou",
@@ -42,7 +48,10 @@
     "passwordReset": "Heslo bylo obnoveno",
     "resetPassword": "Obnovit heslo"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Už máš účet?", "logIn": "Přihlásit se" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Už máš účet?",
+    "logIn": "Přihlásit se"
+  },
   "paywall": {
     "autoRenewal": "Automatické obnovení",
     "billingIsNotAvailableOn": "Na tomto zařízení nejsou platby dostupné. Níže můžeš obnovit dřívější nákup.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Smazat účet?",
     "deletePermanently": "Trvale smazat",
     "deleted": "Smazáno",
+    "gotIt": "Rozumím",
+    "language": "Jazyk",
     "logOut": "Odhlásit se",
     "manageSubscription": "Spravovat předplatné",
     "noActiveSubscription": "Žádné aktivní předplatné",
@@ -110,6 +121,8 @@
     "resetProgress": "Resetovat pokrok",
     "resetProgress2": "Resetovat pokrok?",
     "resetSuccessful": "Reset proběhl úspěšně",
+    "restartBody": "Zavři a znovu otevři aplikaci, aby se dokončila změna směru rozvržení.",
+    "restartRequired": "Vyžaduje restart",
     "sendCode": "Odeslat kód",
     "settings": "Nastavení",
     "subscribe": "Předplatit",

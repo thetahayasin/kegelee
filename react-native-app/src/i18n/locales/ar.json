@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "متاح", "exercises": "التمارين" },
+  "allExercises": {
+    "available": "متاح",
+    "exercises": "التمارين"
+  },
   "errorBoundary": {
     "somethingWentWrong": "حدث خطأ ما",
     "theAppHitAnUnexpected": "واجه التطبيق خطأً غير متوقع. يرجى المحاولة مرة أخرى.",
     "tryAgain": "إعادة المحاولة"
   },
-  "exerciseDetail": { "exerciseNotFound": "لم يتم العثور على التمرين.", "tryItNow": "جرّبه الآن" },
+  "exerciseDetail": {
+    "exerciseNotFound": "لم يتم العثور على التمرين.",
+    "tryItNow": "جرّبه الآن"
+  },
   "find": {
     "keepGoing": "واصل هكذا…",
     "onlyDoThePeeTest": "قم باختبار التبوّل مرة واحدة فقط",
@@ -42,7 +48,10 @@
     "passwordReset": "تمت إعادة تعيين كلمة المرور",
     "resetPassword": "إعادة تعيين كلمة المرور"
   },
-  "onboarding": { "alreadyHaveAnAccount": "لديك حساب بالفعل؟", "logIn": "تسجيل الدخول" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "لديك حساب بالفعل؟",
+    "logIn": "تسجيل الدخول"
+  },
   "paywall": {
     "autoRenewal": "التجديد التلقائي",
     "billingIsNotAvailableOn": "الدفع غير متاح على هذا الجهاز. يمكنك استعادة عملية شراء سابقة أدناه.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "حذف الحساب؟",
     "deletePermanently": "حذف نهائي",
     "deleted": "تم الحذف",
+    "gotIt": "حسنًا",
+    "language": "اللغة",
     "logOut": "تسجيل الخروج",
     "manageSubscription": "إدارة الاشتراك",
     "noActiveSubscription": "لا يوجد اشتراك نشط",
@@ -110,6 +121,8 @@
     "resetProgress": "إعادة تعيين التقدّم",
     "resetProgress2": "إعادة تعيين التقدّم؟",
     "resetSuccessful": "تمت إعادة التعيين بنجاح",
+    "restartBody": "أغلق التطبيق وأعد فتحه لإكمال تغيير اتجاه التخطيط.",
+    "restartRequired": "يلزم إعادة التشغيل",
     "sendCode": "إرسال الرمز",
     "settings": "الإعدادات",
     "subscribe": "اشترك",

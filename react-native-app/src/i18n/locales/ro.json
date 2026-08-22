@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Disponibil", "exercises": "Exerciții" },
+  "allExercises": {
+    "available": "Disponibil",
+    "exercises": "Exerciții"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Ceva n-a mers bine",
     "theAppHitAnUnexpected": "Aplicația a întâmpinat o eroare neașteptată. Te rugăm să încerci din nou.",
     "tryAgain": "Încearcă din nou"
   },
-  "exerciseDetail": { "exerciseNotFound": "Exercițiul nu a fost găsit.", "tryItNow": "Încearcă acum" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Exercițiul nu a fost găsit.",
+    "tryItNow": "Încearcă acum"
+  },
   "find": {
     "keepGoing": "Continuă așa …",
     "onlyDoThePeeTest": "Fă testul la urinare o singură dată",
@@ -42,7 +48,10 @@
     "passwordReset": "Parola a fost resetată",
     "resetPassword": "Resetează parola"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Ai deja un cont?", "logIn": "Autentifică-te" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Ai deja un cont?",
+    "logIn": "Autentifică-te"
+  },
   "paywall": {
     "autoRenewal": "Reînnoire automată",
     "billingIsNotAvailableOn": "Plățile nu sunt disponibile pe acest dispozitiv. Poți restaura o achiziție anterioară mai jos.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Ștergi contul?",
     "deletePermanently": "Șterge definitiv",
     "deleted": "Șters",
+    "gotIt": "Am înțeles",
+    "language": "Limbă",
     "logOut": "Deconectare",
     "manageSubscription": "Gestionează abonamentul",
     "noActiveSubscription": "Niciun abonament activ",
@@ -110,6 +121,8 @@
     "resetProgress": "Resetează evoluția",
     "resetProgress2": "Resetezi evoluția?",
     "resetSuccessful": "Resetare reușită",
+    "restartBody": "Închide și redeschide aplicația pentru a finaliza schimbarea direcției aspectului.",
+    "restartRequired": "Este necesară repornirea",
     "sendCode": "Trimite codul",
     "settings": "Setări",
     "subscribe": "Abonează-te",

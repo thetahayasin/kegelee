@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Dostępne", "exercises": "Ćwiczenia" },
+  "allExercises": {
+    "available": "Dostępne",
+    "exercises": "Ćwiczenia"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Coś poszło nie tak",
     "theAppHitAnUnexpected": "W aplikacji wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
     "tryAgain": "Spróbuj ponownie"
   },
-  "exerciseDetail": { "exerciseNotFound": "Nie znaleziono ćwiczenia.", "tryItNow": "Wypróbuj teraz" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Nie znaleziono ćwiczenia.",
+    "tryItNow": "Wypróbuj teraz"
+  },
   "find": {
     "keepGoing": "Tak trzymaj …",
     "onlyDoThePeeTest": "Test podczas oddawania moczu zrób tylko raz",
@@ -42,7 +48,10 @@
     "passwordReset": "Hasło zresetowane",
     "resetPassword": "Zresetuj hasło"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Masz już konto?", "logIn": "Zaloguj się" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Masz już konto?",
+    "logIn": "Zaloguj się"
+  },
   "paywall": {
     "autoRenewal": "Odnawianie automatyczne",
     "billingIsNotAvailableOn": "Płatności nie są dostępne na tym urządzeniu. Poniżej możesz przywrócić wcześniejszy zakup.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Usunąć konto?",
     "deletePermanently": "Usuń trwale",
     "deleted": "Usunięto",
+    "gotIt": "Rozumiem",
+    "language": "Język",
     "logOut": "Wyloguj się",
     "manageSubscription": "Zarządzaj subskrypcją",
     "noActiveSubscription": "Brak aktywnej subskrypcji",
@@ -110,6 +121,8 @@
     "resetProgress": "Zresetuj postępy",
     "resetProgress2": "Zresetować postępy?",
     "resetSuccessful": "Zresetowano pomyślnie",
+    "restartBody": "Zamknij i otwórz aplikację ponownie, aby dokończyć zmianę kierunku układu.",
+    "restartRequired": "Wymagany restart",
     "sendCode": "Wyślij kod",
     "settings": "Ustawienia",
     "subscribe": "Subskrybuj",

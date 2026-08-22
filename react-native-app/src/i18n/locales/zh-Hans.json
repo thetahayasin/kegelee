@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "可用", "exercises": "训练动作" },
+  "allExercises": {
+    "available": "可用",
+    "exercises": "训练动作"
+  },
   "errorBoundary": {
     "somethingWentWrong": "出错了",
     "theAppHitAnUnexpected": "应用遇到意外错误，请重试。",
     "tryAgain": "重试"
   },
-  "exerciseDetail": { "exerciseNotFound": "未找到该训练动作。", "tryItNow": "立即体验" },
+  "exerciseDetail": {
+    "exerciseNotFound": "未找到该训练动作。",
+    "tryItNow": "立即体验"
+  },
   "find": {
     "keepGoing": "继续保持…",
     "onlyDoThePeeTest": "排尿测试只做一次",
@@ -42,7 +48,10 @@
     "passwordReset": "密码已重置",
     "resetPassword": "重置密码"
   },
-  "onboarding": { "alreadyHaveAnAccount": "已有账号？", "logIn": "登录" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "已有账号？",
+    "logIn": "登录"
+  },
   "paywall": {
     "autoRenewal": "自动续订",
     "billingIsNotAvailableOn": "此设备无法进行支付。你可以在下方恢复之前的购买。",
@@ -103,6 +112,8 @@
     "deleteAccount2": "要删除账号吗？",
     "deletePermanently": "永久删除",
     "deleted": "已删除",
+    "gotIt": "知道了",
+    "language": "语言",
     "logOut": "退出登录",
     "manageSubscription": "管理订阅",
     "noActiveSubscription": "暂无有效订阅",
@@ -110,6 +121,8 @@
     "resetProgress": "重置进度",
     "resetProgress2": "要重置进度吗？",
     "resetSuccessful": "重置成功",
+    "restartBody": "请关闭并重新打开应用，以完成布局方向的切换。",
+    "restartRequired": "需要重启",
     "sendCode": "发送验证码",
     "settings": "设置",
     "subscribe": "订阅",

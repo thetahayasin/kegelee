@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "זמין", "exercises": "תרגילים" },
+  "allExercises": {
+    "available": "זמין",
+    "exercises": "תרגילים"
+  },
   "errorBoundary": {
     "somethingWentWrong": "משהו השתבש",
     "theAppHitAnUnexpected": "האפליקציה נתקלה בשגיאה בלתי צפויה. נסה שוב.",
     "tryAgain": "נסה שוב"
   },
-  "exerciseDetail": { "exerciseNotFound": "התרגיל לא נמצא.", "tryItNow": "נסה עכשיו" },
+  "exerciseDetail": {
+    "exerciseNotFound": "התרגיל לא נמצא.",
+    "tryItNow": "נסה עכשיו"
+  },
   "find": {
     "keepGoing": "תמשיך ככה…",
     "onlyDoThePeeTest": "בצע את בדיקת ההשתנה פעם אחת בלבד",
@@ -42,7 +48,10 @@
     "passwordReset": "הסיסמה אופסה",
     "resetPassword": "איפוס סיסמה"
   },
-  "onboarding": { "alreadyHaveAnAccount": "כבר יש לך חשבון?", "logIn": "התחבר" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "כבר יש לך חשבון?",
+    "logIn": "התחבר"
+  },
   "paywall": {
     "autoRenewal": "חידוש אוטומטי",
     "billingIsNotAvailableOn": "תשלום אינו זמין במכשיר הזה. אפשר לשחזר רכישה קודמת למטה.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "למחוק את החשבון?",
     "deletePermanently": "מחק לצמיתות",
     "deleted": "נמחק",
+    "gotIt": "הבנתי",
+    "language": "שפה",
     "logOut": "התנתק",
     "manageSubscription": "ניהול מנוי",
     "noActiveSubscription": "אין מנוי פעיל",
@@ -110,6 +121,8 @@
     "resetProgress": "איפוס ההתקדמות",
     "resetProgress2": "לאפס את ההתקדמות?",
     "resetSuccessful": "האיפוס הושלם",
+    "restartBody": "סגור ופתח מחדש את האפליקציה כדי להשלים את שינוי כיוון הפריסה.",
+    "restartRequired": "נדרשת הפעלה מחדש",
     "sendCode": "שלח קוד",
     "settings": "הגדרות",
     "subscribe": "הירשם למנוי",

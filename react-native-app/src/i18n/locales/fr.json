@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Disponible", "exercises": "Exercices" },
+  "allExercises": {
+    "available": "Disponible",
+    "exercises": "Exercices"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Une erreur est survenue",
     "theAppHitAnUnexpected": "L'application a rencontré une erreur inattendue. Merci de réessayer.",
     "tryAgain": "Réessayer"
   },
-  "exerciseDetail": { "exerciseNotFound": "Exercice introuvable.", "tryItNow": "Essayer maintenant" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Exercice introuvable.",
+    "tryItNow": "Essayer maintenant"
+  },
   "find": {
     "keepGoing": "Continue …",
     "onlyDoThePeeTest": "Ne fais le test aux toilettes qu'une seule fois",
@@ -42,7 +48,10 @@
     "passwordReset": "Mot de passe réinitialisé",
     "resetPassword": "Réinitialiser le mot de passe"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Tu as déjà un compte ?", "logIn": "Se connecter" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Tu as déjà un compte ?",
+    "logIn": "Se connecter"
+  },
   "paywall": {
     "autoRenewal": "Renouvellement automatique",
     "billingIsNotAvailableOn": "Les paiements ne sont pas disponibles sur cet appareil. Tu peux restaurer un achat précédent ci-dessous.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Supprimer le compte ?",
     "deletePermanently": "Supprimer définitivement",
     "deleted": "Supprimé",
+    "gotIt": "J’ai compris",
+    "language": "Langue",
     "logOut": "Se déconnecter",
     "manageSubscription": "Gérer l'abonnement",
     "noActiveSubscription": "Aucun abonnement actif",
@@ -110,6 +121,8 @@
     "resetProgress": "Réinitialiser les progrès",
     "resetProgress2": "Réinitialiser les progrès ?",
     "resetSuccessful": "Réinitialisation réussie",
+    "restartBody": "Ferme et rouvre l’app pour terminer le changement de sens de la mise en page.",
+    "restartRequired": "Redémarrage nécessaire",
     "sendCode": "Envoyer le code",
     "settings": "Paramètres",
     "subscribe": "S'abonner",

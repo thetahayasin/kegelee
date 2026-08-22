@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Dostupné", "exercises": "Cviky" },
+  "allExercises": {
+    "available": "Dostupné",
+    "exercises": "Cviky"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Niečo sa pokazilo",
     "theAppHitAnUnexpected": "V aplikácii nastala neočakávaná chyba. Skús to prosím znova.",
     "tryAgain": "Skúsiť znova"
   },
-  "exerciseDetail": { "exerciseNotFound": "Cvik sa nenašiel.", "tryItNow": "Vyskúšať hneď" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Cvik sa nenašiel.",
+    "tryItNow": "Vyskúšať hneď"
+  },
   "find": {
     "keepGoing": "Len tak ďalej …",
     "onlyDoThePeeTest": "Test pri močení urob iba raz",
@@ -42,7 +48,10 @@
     "passwordReset": "Heslo bolo obnovené",
     "resetPassword": "Obnoviť heslo"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Už máš účet?", "logIn": "Prihlásiť sa" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Už máš účet?",
+    "logIn": "Prihlásiť sa"
+  },
   "paywall": {
     "autoRenewal": "Automatické obnovenie",
     "billingIsNotAvailableOn": "Na tomto zariadení nie sú platby dostupné. Nižšie môžeš obnoviť skorší nákup.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Vymazať účet?",
     "deletePermanently": "Trvalo vymazať",
     "deleted": "Vymazané",
+    "gotIt": "Rozumiem",
+    "language": "Jazyk",
     "logOut": "Odhlásiť sa",
     "manageSubscription": "Spravovať predplatné",
     "noActiveSubscription": "Žiadne aktívne predplatné",
@@ -110,6 +121,8 @@
     "resetProgress": "Resetovať pokrok",
     "resetProgress2": "Resetovať pokrok?",
     "resetSuccessful": "Reset prebehol úspešne",
+    "restartBody": "Zavri a znova otvor aplikáciu, aby sa dokončila zmena smeru rozloženia.",
+    "restartRequired": "Vyžaduje reštart",
     "sendCode": "Odoslať kód",
     "settings": "Nastavenia",
     "subscribe": "Predplatiť",

@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "利用可能", "exercises": "エクササイズ" },
+  "allExercises": {
+    "available": "利用可能",
+    "exercises": "エクササイズ"
+  },
   "errorBoundary": {
     "somethingWentWrong": "問題が発生しました",
     "theAppHitAnUnexpected": "予期しないエラーが発生しました。もう一度お試しください。",
     "tryAgain": "再試行"
   },
-  "exerciseDetail": { "exerciseNotFound": "エクササイズが見つかりません。", "tryItNow": "今すぐ試す" },
+  "exerciseDetail": {
+    "exerciseNotFound": "エクササイズが見つかりません。",
+    "tryItNow": "今すぐ試す"
+  },
   "find": {
     "keepGoing": "その調子です…",
     "onlyDoThePeeTest": "排尿時のテストは一度だけにしてください",
@@ -42,7 +48,10 @@
     "passwordReset": "パスワードをリセットしました",
     "resetPassword": "パスワードをリセット"
   },
-  "onboarding": { "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？", "logIn": "ログイン" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
+    "logIn": "ログイン"
+  },
   "paywall": {
     "autoRenewal": "自動更新",
     "billingIsNotAvailableOn": "このデバイスでは購入を利用できません。下から以前の購入を復元できます。",
@@ -103,6 +112,8 @@
     "deleteAccount2": "アカウントを削除しますか？",
     "deletePermanently": "完全に削除",
     "deleted": "削除しました",
+    "gotIt": "OK",
+    "language": "言語",
     "logOut": "ログアウト",
     "manageSubscription": "サブスクリプションを管理",
     "noActiveSubscription": "有効なサブスクリプションはありません",
@@ -110,6 +121,8 @@
     "resetProgress": "進捗をリセット",
     "resetProgress2": "進捗をリセットしますか？",
     "resetSuccessful": "リセットが完了しました",
+    "restartBody": "レイアウトの方向を切り替えるため、アプリを一度終了してから開き直してください。",
+    "restartRequired": "再起動が必要です",
     "sendCode": "コードを送信",
     "settings": "設定",
     "subscribe": "登録する",

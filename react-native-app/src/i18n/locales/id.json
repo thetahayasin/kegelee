@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Tersedia", "exercises": "Latihan" },
+  "allExercises": {
+    "available": "Tersedia",
+    "exercises": "Latihan"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Terjadi kesalahan",
     "theAppHitAnUnexpected": "Aplikasi mengalami kesalahan tak terduga. Silakan coba lagi.",
     "tryAgain": "Coba lagi"
   },
-  "exerciseDetail": { "exerciseNotFound": "Latihan tidak ditemukan.", "tryItNow": "Coba sekarang" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Latihan tidak ditemukan.",
+    "tryItNow": "Coba sekarang"
+  },
   "find": {
     "keepGoing": "Terus begitu …",
     "onlyDoThePeeTest": "Lakukan tes saat buang air kecil hanya sekali",
@@ -42,7 +48,10 @@
     "passwordReset": "Kata sandi telah direset",
     "resetPassword": "Reset kata sandi"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Sudah punya akun?", "logIn": "Masuk" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Sudah punya akun?",
+    "logIn": "Masuk"
+  },
   "paywall": {
     "autoRenewal": "Perpanjangan otomatis",
     "billingIsNotAvailableOn": "Pembayaran tidak tersedia di perangkat ini. Kamu bisa memulihkan pembelian sebelumnya di bawah.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Hapus akun?",
     "deletePermanently": "Hapus permanen",
     "deleted": "Terhapus",
+    "gotIt": "Mengerti",
+    "language": "Bahasa",
     "logOut": "Keluar",
     "manageSubscription": "Kelola langganan",
     "noActiveSubscription": "Tidak ada langganan aktif",
@@ -110,6 +121,8 @@
     "resetProgress": "Reset kemajuan",
     "resetProgress2": "Reset kemajuan?",
     "resetSuccessful": "Reset berhasil",
+    "restartBody": "Tutup dan buka kembali aplikasi untuk menyelesaikan perubahan arah tata letak.",
+    "restartRequired": "Perlu dimulai ulang",
     "sendCode": "Kirim kode",
     "settings": "Pengaturan",
     "subscribe": "Berlangganan",

@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Elérhető", "exercises": "Gyakorlatok" },
+  "allExercises": {
+    "available": "Elérhető",
+    "exercises": "Gyakorlatok"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Valami hiba történt",
     "theAppHitAnUnexpected": "Az alkalmazásban váratlan hiba lépett fel. Kérjük, próbáld újra.",
     "tryAgain": "Újra"
   },
-  "exerciseDetail": { "exerciseNotFound": "A gyakorlat nem található.", "tryItNow": "Kipróbálom" },
+  "exerciseDetail": {
+    "exerciseNotFound": "A gyakorlat nem található.",
+    "tryItNow": "Kipróbálom"
+  },
   "find": {
     "keepGoing": "Így tovább …",
     "onlyDoThePeeTest": "A vizelés közbeni tesztet csak egyszer végezd el",
@@ -42,7 +48,10 @@
     "passwordReset": "A jelszó visszaállítva",
     "resetPassword": "Jelszó visszaállítása"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Van már fiókod?", "logIn": "Bejelentkezés" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Van már fiókod?",
+    "logIn": "Bejelentkezés"
+  },
   "paywall": {
     "autoRenewal": "Automatikus megújítás",
     "billingIsNotAvailableOn": "Ezen az eszközön nem érhető el a fizetés. Lent visszaállíthatod egy korábbi vásárlásod.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Törlöd a fiókot?",
     "deletePermanently": "Végleges törlés",
     "deleted": "Törölve",
+    "gotIt": "Értem",
+    "language": "Nyelv",
     "logOut": "Kijelentkezés",
     "manageSubscription": "Előfizetés kezelése",
     "noActiveSubscription": "Nincs aktív előfizetés",
@@ -110,6 +121,8 @@
     "resetProgress": "Haladás visszaállítása",
     "resetProgress2": "Visszaállítod a haladást?",
     "resetSuccessful": "Sikeres visszaállítás",
+    "restartBody": "Zárd be és nyisd meg újra az alkalmazást az elrendezés irányának váltásához.",
+    "restartRequired": "Újraindítás szükséges",
     "sendCode": "Kód küldése",
     "settings": "Beállítások",
     "subscribe": "Előfizetek",

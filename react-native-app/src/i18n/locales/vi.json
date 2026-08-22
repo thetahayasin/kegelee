@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Có sẵn", "exercises": "Bài tập" },
+  "allExercises": {
+    "available": "Có sẵn",
+    "exercises": "Bài tập"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Đã xảy ra lỗi",
     "theAppHitAnUnexpected": "Ứng dụng gặp lỗi không mong muốn. Vui lòng thử lại.",
     "tryAgain": "Thử lại"
   },
-  "exerciseDetail": { "exerciseNotFound": "Không tìm thấy bài tập.", "tryItNow": "Thử ngay" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Không tìm thấy bài tập.",
+    "tryItNow": "Thử ngay"
+  },
   "find": {
     "keepGoing": "Cứ tiếp tục …",
     "onlyDoThePeeTest": "Chỉ thử nghiệm khi đi tiểu một lần duy nhất",
@@ -42,7 +48,10 @@
     "passwordReset": "Đã đặt lại mật khẩu",
     "resetPassword": "Đặt lại mật khẩu"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Đã có tài khoản?", "logIn": "Đăng nhập" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Đã có tài khoản?",
+    "logIn": "Đăng nhập"
+  },
   "paywall": {
     "autoRenewal": "Tự động gia hạn",
     "billingIsNotAvailableOn": "Không thể thanh toán trên thiết bị này. Bạn có thể khôi phục giao dịch trước đó ở bên dưới.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Xóa tài khoản?",
     "deletePermanently": "Xóa vĩnh viễn",
     "deleted": "Đã xóa",
+    "gotIt": "Đã hiểu",
+    "language": "Ngôn ngữ",
     "logOut": "Đăng xuất",
     "manageSubscription": "Quản lý gói đăng ký",
     "noActiveSubscription": "Chưa có gói đăng ký",
@@ -110,6 +121,8 @@
     "resetProgress": "Đặt lại tiến độ",
     "resetProgress2": "Đặt lại tiến độ?",
     "resetSuccessful": "Đặt lại thành công",
+    "restartBody": "Đóng và mở lại ứng dụng để hoàn tất việc đổi hướng bố cục.",
+    "restartRequired": "Cần khởi động lại",
     "sendCode": "Gửi mã",
     "settings": "Cài đặt",
     "subscribe": "Đăng ký",

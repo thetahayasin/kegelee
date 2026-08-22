@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "उपलब्ध", "exercises": "व्यायाम" },
+  "allExercises": {
+    "available": "उपलब्ध",
+    "exercises": "व्यायाम"
+  },
   "errorBoundary": {
     "somethingWentWrong": "कुछ गड़बड़ हो गई",
     "theAppHitAnUnexpected": "ऐप में एक अनपेक्षित त्रुटि आ गई। कृपया दोबारा कोशिश करें।",
     "tryAgain": "दोबारा कोशिश करें"
   },
-  "exerciseDetail": { "exerciseNotFound": "व्यायाम नहीं मिला।", "tryItNow": "अभी आज़माएँ" },
+  "exerciseDetail": {
+    "exerciseNotFound": "व्यायाम नहीं मिला।",
+    "tryItNow": "अभी आज़माएँ"
+  },
   "find": {
     "keepGoing": "ऐसे ही करते रहें…",
     "onlyDoThePeeTest": "पेशाब वाला परीक्षण केवल एक बार करें",
@@ -42,7 +48,10 @@
     "passwordReset": "पासवर्ड रीसेट हो गया",
     "resetPassword": "पासवर्ड रीसेट करें"
   },
-  "onboarding": { "alreadyHaveAnAccount": "पहले से खाता है?", "logIn": "लॉग इन करें" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "पहले से खाता है?",
+    "logIn": "लॉग इन करें"
+  },
   "paywall": {
     "autoRenewal": "स्वतः नवीनीकरण",
     "billingIsNotAvailableOn": "इस डिवाइस पर भुगतान उपलब्ध नहीं है। आप नीचे पिछली खरीदारी बहाल कर सकते हैं।",
@@ -103,6 +112,8 @@
     "deleteAccount2": "खाता हटाएँ?",
     "deletePermanently": "हमेशा के लिए हटाएँ",
     "deleted": "हटा दिया गया",
+    "gotIt": "ठीक है",
+    "language": "भाषा",
     "logOut": "लॉग आउट करें",
     "manageSubscription": "सदस्यता प्रबंधित करें",
     "noActiveSubscription": "कोई सक्रिय सदस्यता नहीं",
@@ -110,6 +121,8 @@
     "resetProgress": "प्रगति रीसेट करें",
     "resetProgress2": "प्रगति रीसेट करें?",
     "resetSuccessful": "रीसेट सफल रहा",
+    "restartBody": "लेआउट की दिशा बदलने के लिए ऐप बंद करके दोबारा खोलें।",
+    "restartRequired": "पुनः आरंभ आवश्यक",
     "sendCode": "कोड भेजें",
     "settings": "सेटिंग्स",
     "subscribe": "सदस्यता लें",

@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Доступно", "exercises": "Вправи" },
+  "allExercises": {
+    "available": "Доступно",
+    "exercises": "Вправи"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Щось пішло не так",
     "theAppHitAnUnexpected": "У застосунку сталася неочікувана помилка. Спробуй ще раз.",
     "tryAgain": "Спробувати ще раз"
   },
-  "exerciseDetail": { "exerciseNotFound": "Вправу не знайдено.", "tryItNow": "Спробувати зараз" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Вправу не знайдено.",
+    "tryItNow": "Спробувати зараз"
+  },
   "find": {
     "keepGoing": "Так тримати …",
     "onlyDoThePeeTest": "Зроби тест під час сечовипускання лише один раз",
@@ -42,7 +48,10 @@
     "passwordReset": "Пароль скинуто",
     "resetPassword": "Скинути пароль"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Уже маєш акаунт?", "logIn": "Увійти" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Уже маєш акаунт?",
+    "logIn": "Увійти"
+  },
   "paywall": {
     "autoRenewal": "Автопродовження",
     "billingIsNotAvailableOn": "Оплата недоступна на цьому пристрої. Нижче можна відновити попередню покупку.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Видалити акаунт?",
     "deletePermanently": "Видалити назавжди",
     "deleted": "Видалено",
+    "gotIt": "Зрозуміло",
+    "language": "Мова",
     "logOut": "Вийти",
     "manageSubscription": "Керувати підпискою",
     "noActiveSubscription": "Немає активної підписки",
@@ -110,6 +121,8 @@
     "resetProgress": "Скинути прогрес",
     "resetProgress2": "Скинути прогрес?",
     "resetSuccessful": "Прогрес скинуто",
+    "restartBody": "Закрий і знову відкрий застосунок, щоб змінити напрямок інтерфейсу.",
+    "restartRequired": "Потрібен перезапуск",
     "sendCode": "Надіслати код",
     "settings": "Налаштування",
     "subscribe": "Оформити підписку",

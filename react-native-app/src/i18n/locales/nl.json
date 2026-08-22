@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Beschikbaar", "exercises": "Oefeningen" },
+  "allExercises": {
+    "available": "Beschikbaar",
+    "exercises": "Oefeningen"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Er is iets misgegaan",
     "theAppHitAnUnexpected": "De app liep tegen een onverwachte fout aan. Probeer het opnieuw.",
     "tryAgain": "Opnieuw proberen"
   },
-  "exerciseDetail": { "exerciseNotFound": "Oefening niet gevonden.", "tryItNow": "Nu uitproberen" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Oefening niet gevonden.",
+    "tryItNow": "Nu uitproberen"
+  },
   "find": {
     "keepGoing": "Ga zo door …",
     "onlyDoThePeeTest": "Doe de plastest maar één keer",
@@ -42,7 +48,10 @@
     "passwordReset": "Wachtwoord opnieuw ingesteld",
     "resetPassword": "Wachtwoord opnieuw instellen"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Heb je al een account?", "logIn": "Inloggen" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Heb je al een account?",
+    "logIn": "Inloggen"
+  },
   "paywall": {
     "autoRenewal": "Automatische verlenging",
     "billingIsNotAvailableOn": "Betalen is niet beschikbaar op dit apparaat. Je kunt hieronder een eerdere aankoop herstellen.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Account verwijderen?",
     "deletePermanently": "Definitief verwijderen",
     "deleted": "Verwijderd",
+    "gotIt": "Begrepen",
+    "language": "Taal",
     "logOut": "Uitloggen",
     "manageSubscription": "Abonnement beheren",
     "noActiveSubscription": "Geen actief abonnement",
@@ -110,6 +121,8 @@
     "resetProgress": "Voortgang resetten",
     "resetProgress2": "Voortgang resetten?",
     "resetSuccessful": "Reset gelukt",
+    "restartBody": "Sluit de app en open hem opnieuw om de layoutrichting te wijzigen.",
+    "restartRequired": "Herstart vereist",
     "sendCode": "Code versturen",
     "settings": "Instellingen",
     "subscribe": "Abonneren",

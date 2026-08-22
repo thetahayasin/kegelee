@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Tilgængelig", "exercises": "Øvelser" },
+  "allExercises": {
+    "available": "Tilgængelig",
+    "exercises": "Øvelser"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Noget gik galt",
     "theAppHitAnUnexpected": "Appen stødte på en uventet fejl. Prøv igen.",
     "tryAgain": "Prøv igen"
   },
-  "exerciseDetail": { "exerciseNotFound": "Øvelsen blev ikke fundet.", "tryItNow": "Prøv nu" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Øvelsen blev ikke fundet.",
+    "tryItNow": "Prøv nu"
+  },
   "find": {
     "keepGoing": "Bliv ved …",
     "onlyDoThePeeTest": "Lav kun tissetesten én gang",
@@ -42,7 +48,10 @@
     "passwordReset": "Adgangskoden er nulstillet",
     "resetPassword": "Nulstil adgangskode"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Har du allerede en konto?", "logIn": "Log ind" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Har du allerede en konto?",
+    "logIn": "Log ind"
+  },
   "paywall": {
     "autoRenewal": "Automatisk fornyelse",
     "billingIsNotAvailableOn": "Betaling er ikke tilgængelig på denne enhed. Du kan gendanne et tidligere køb nedenfor.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Slet kontoen?",
     "deletePermanently": "Slet permanent",
     "deleted": "Slettet",
+    "gotIt": "Forstået",
+    "language": "Sprog",
     "logOut": "Log ud",
     "manageSubscription": "Administrer abonnement",
     "noActiveSubscription": "Intet aktivt abonnement",
@@ -110,6 +121,8 @@
     "resetProgress": "Nulstil fremgang",
     "resetProgress2": "Nulstil fremgangen?",
     "resetSuccessful": "Nulstilling gennemført",
+    "restartBody": "Luk og åbn appen igen for at fuldføre skiftet af layoutretning.",
+    "restartRequired": "Genstart påkrævet",
     "sendCode": "Send kode",
     "settings": "Indstillinger",
     "subscribe": "Abonnér",

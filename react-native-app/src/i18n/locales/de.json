@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Verfügbar", "exercises": "Übungen" },
+  "allExercises": {
+    "available": "Verfügbar",
+    "exercises": "Übungen"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Etwas ist schiefgelaufen",
     "theAppHitAnUnexpected": "Die App hat einen unerwarteten Fehler festgestellt. Bitte versuche es erneut.",
     "tryAgain": "Erneut versuchen"
   },
-  "exerciseDetail": { "exerciseNotFound": "Übung nicht gefunden.", "tryItNow": "Jetzt ausprobieren" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Übung nicht gefunden.",
+    "tryItNow": "Jetzt ausprobieren"
+  },
   "find": {
     "keepGoing": "Weiter so …",
     "onlyDoThePeeTest": "Mach den Urin-Test nur einmal",
@@ -42,7 +48,10 @@
     "passwordReset": "Passwort zurückgesetzt",
     "resetPassword": "Passwort zurücksetzen"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Du hast schon ein Konto?", "logIn": "Anmelden" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Du hast schon ein Konto?",
+    "logIn": "Anmelden"
+  },
   "paywall": {
     "autoRenewal": "Automatische Verlängerung",
     "billingIsNotAvailableOn": "Zahlungen sind auf diesem Gerät nicht verfügbar. Du kannst unten einen früheren Kauf wiederherstellen.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Konto löschen?",
     "deletePermanently": "Endgültig löschen",
     "deleted": "Gelöscht",
+    "gotIt": "Verstanden",
+    "language": "Sprache",
     "logOut": "Abmelden",
     "manageSubscription": "Abo verwalten",
     "noActiveSubscription": "Kein aktives Abo",
@@ -110,6 +121,8 @@
     "resetProgress": "Fortschritt zurücksetzen",
     "resetProgress2": "Fortschritt zurücksetzen?",
     "resetSuccessful": "Erfolgreich zurückgesetzt",
+    "restartBody": "Schließe die App und öffne sie erneut, um die Layoutrichtung zu übernehmen.",
+    "restartRequired": "Neustart erforderlich",
     "sendCode": "Code senden",
     "settings": "Einstellungen",
     "subscribe": "Abonnieren",

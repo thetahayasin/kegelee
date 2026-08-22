@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Доступно", "exercises": "Упражнения" },
+  "allExercises": {
+    "available": "Доступно",
+    "exercises": "Упражнения"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Что-то пошло не так",
     "theAppHitAnUnexpected": "В приложении произошла непредвиденная ошибка. Попробуй ещё раз.",
     "tryAgain": "Повторить"
   },
-  "exerciseDetail": { "exerciseNotFound": "Упражнение не найдено.", "tryItNow": "Попробовать сейчас" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Упражнение не найдено.",
+    "tryItNow": "Попробовать сейчас"
+  },
   "find": {
     "keepGoing": "Продолжай …",
     "onlyDoThePeeTest": "Сделай тест при мочеиспускании только один раз",
@@ -42,7 +48,10 @@
     "passwordReset": "Пароль сброшен",
     "resetPassword": "Сбросить пароль"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Уже есть аккаунт?", "logIn": "Войти" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Уже есть аккаунт?",
+    "logIn": "Войти"
+  },
   "paywall": {
     "autoRenewal": "Автопродление",
     "billingIsNotAvailableOn": "Оплата недоступна на этом устройстве. Ниже можно восстановить прошлую покупку.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Удалить аккаунт?",
     "deletePermanently": "Удалить навсегда",
     "deleted": "Удалено",
+    "gotIt": "Понятно",
+    "language": "Язык",
     "logOut": "Выйти",
     "manageSubscription": "Управление подпиской",
     "noActiveSubscription": "Нет активной подписки",
@@ -110,6 +121,8 @@
     "resetProgress": "Сбросить прогресс",
     "resetProgress2": "Сбросить прогресс?",
     "resetSuccessful": "Прогресс сброшен",
+    "restartBody": "Закрой и снова открой приложение, чтобы сменить направление интерфейса.",
+    "restartRequired": "Требуется перезапуск",
     "sendCode": "Отправить код",
     "settings": "Настройки",
     "subscribe": "Оформить подписку",

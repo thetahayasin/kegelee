@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "พร้อมใช้งาน", "exercises": "ท่าฝึก" },
+  "allExercises": {
+    "available": "พร้อมใช้งาน",
+    "exercises": "ท่าฝึก"
+  },
   "errorBoundary": {
     "somethingWentWrong": "เกิดข้อผิดพลาด",
     "theAppHitAnUnexpected": "แอปพบข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
     "tryAgain": "ลองอีกครั้ง"
   },
-  "exerciseDetail": { "exerciseNotFound": "ไม่พบท่าฝึกนี้", "tryItNow": "ลองเลย" },
+  "exerciseDetail": {
+    "exerciseNotFound": "ไม่พบท่าฝึกนี้",
+    "tryItNow": "ลองเลย"
+  },
   "find": {
     "keepGoing": "ทำต่อไป…",
     "onlyDoThePeeTest": "ทดสอบตอนปัสสาวะเพียงครั้งเดียวเท่านั้น",
@@ -42,7 +48,10 @@
     "passwordReset": "รีเซ็ตรหัสผ่านแล้ว",
     "resetPassword": "รีเซ็ตรหัสผ่าน"
   },
-  "onboarding": { "alreadyHaveAnAccount": "มีบัญชีอยู่แล้ว?", "logIn": "เข้าสู่ระบบ" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "มีบัญชีอยู่แล้ว?",
+    "logIn": "เข้าสู่ระบบ"
+  },
   "paywall": {
     "autoRenewal": "ต่ออายุอัตโนมัติ",
     "billingIsNotAvailableOn": "อุปกรณ์นี้ไม่รองรับการชำระเงิน คุณสามารถกู้คืนการซื้อก่อนหน้าได้ด้านล่าง",
@@ -103,6 +112,8 @@
     "deleteAccount2": "ลบบัญชีหรือไม่?",
     "deletePermanently": "ลบถาวร",
     "deleted": "ลบแล้ว",
+    "gotIt": "เข้าใจแล้ว",
+    "language": "ภาษา",
     "logOut": "ออกจากระบบ",
     "manageSubscription": "จัดการการสมัครสมาชิก",
     "noActiveSubscription": "ไม่มีการสมัครสมาชิกที่ใช้งานอยู่",
@@ -110,6 +121,8 @@
     "resetProgress": "รีเซ็ตความคืบหน้า",
     "resetProgress2": "รีเซ็ตความคืบหน้าหรือไม่?",
     "resetSuccessful": "รีเซ็ตสำเร็จ",
+    "restartBody": "ปิดแล้วเปิดแอปอีกครั้งเพื่อเปลี่ยนทิศทางการจัดวางให้สมบูรณ์",
+    "restartRequired": "ต้องเริ่มแอปใหม่",
     "sendCode": "ส่งรหัส",
     "settings": "การตั้งค่า",
     "subscribe": "สมัครสมาชิก",

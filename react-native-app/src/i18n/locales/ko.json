@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "사용 가능", "exercises": "운동" },
+  "allExercises": {
+    "available": "사용 가능",
+    "exercises": "운동"
+  },
   "errorBoundary": {
     "somethingWentWrong": "문제가 발생했어요",
     "theAppHitAnUnexpected": "앱에 예기치 않은 오류가 발생했어요. 다시 시도해 주세요.",
     "tryAgain": "다시 시도"
   },
-  "exerciseDetail": { "exerciseNotFound": "운동을 찾을 수 없어요.", "tryItNow": "지금 해보기" },
+  "exerciseDetail": {
+    "exerciseNotFound": "운동을 찾을 수 없어요.",
+    "tryItNow": "지금 해보기"
+  },
   "find": {
     "keepGoing": "그대로 유지하세요…",
     "onlyDoThePeeTest": "소변 테스트는 한 번만 하세요",
@@ -42,7 +48,10 @@
     "passwordReset": "비밀번호가 재설정되었어요",
     "resetPassword": "비밀번호 재설정"
   },
-  "onboarding": { "alreadyHaveAnAccount": "이미 계정이 있으신가요?", "logIn": "로그인" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
+    "logIn": "로그인"
+  },
   "paywall": {
     "autoRenewal": "자동 갱신",
     "billingIsNotAvailableOn": "이 기기에서는 결제를 이용할 수 없어요. 아래에서 이전 구매를 복원할 수 있어요.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "계정을 삭제할까요?",
     "deletePermanently": "영구 삭제",
     "deleted": "삭제됨",
+    "gotIt": "알겠어요",
+    "language": "언어",
     "logOut": "로그아웃",
     "manageSubscription": "구독 관리",
     "noActiveSubscription": "활성 구독 없음",
@@ -110,6 +121,8 @@
     "resetProgress": "진행 상황 초기화",
     "resetProgress2": "진행 상황을 초기화할까요?",
     "resetSuccessful": "초기화 완료",
+    "restartBody": "레이아웃 방향을 바꾸려면 앱을 닫았다가 다시 열어 주세요.",
+    "restartRequired": "재시작이 필요해요",
     "sendCode": "코드 보내기",
     "settings": "설정",
     "subscribe": "구독하기",

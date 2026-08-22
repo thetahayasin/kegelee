@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Kullanılabilir", "exercises": "Egzersizler" },
+  "allExercises": {
+    "available": "Kullanılabilir",
+    "exercises": "Egzersizler"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Bir şeyler ters gitti",
     "theAppHitAnUnexpected": "Uygulamada beklenmeyen bir hata oluştu. Lütfen tekrar dene.",
     "tryAgain": "Tekrar dene"
   },
-  "exerciseDetail": { "exerciseNotFound": "Egzersiz bulunamadı.", "tryItNow": "Hemen dene" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Egzersiz bulunamadı.",
+    "tryItNow": "Hemen dene"
+  },
   "find": {
     "keepGoing": "Devam et …",
     "onlyDoThePeeTest": "İdrar testini yalnızca bir kez yap",
@@ -42,7 +48,10 @@
     "passwordReset": "Şifre sıfırlandı",
     "resetPassword": "Şifreyi sıfırla"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Zaten hesabın var mı?", "logIn": "Giriş yap" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Zaten hesabın var mı?",
+    "logIn": "Giriş yap"
+  },
   "paywall": {
     "autoRenewal": "Otomatik yenileme",
     "billingIsNotAvailableOn": "Bu cihazda ödeme kullanılamıyor. Aşağıdan önceki bir satın alımı geri yükleyebilirsin.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Hesap silinsin mi?",
     "deletePermanently": "Kalıcı olarak sil",
     "deleted": "Silindi",
+    "gotIt": "Anladım",
+    "language": "Dil",
     "logOut": "Çıkış yap",
     "manageSubscription": "Aboneliği yönet",
     "noActiveSubscription": "Etkin abonelik yok",
@@ -110,6 +121,8 @@
     "resetProgress": "İlerlemeyi sıfırla",
     "resetProgress2": "İlerleme sıfırlansın mı?",
     "resetSuccessful": "Sıfırlama başarılı",
+    "restartBody": "Yerleşim yönünü değiştirmeyi tamamlamak için uygulamayı kapatıp yeniden aç.",
+    "restartRequired": "Yeniden başlatma gerekli",
     "sendCode": "Kod gönder",
     "settings": "Ayarlar",
     "subscribe": "Abone ol",

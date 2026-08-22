@@ -17,6 +17,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
+import { LanguagePicker } from '../../components/LanguagePicker';
+import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
 import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/queries';
 import { planBySlug } from '../../constants/plans';
@@ -42,6 +44,7 @@ export const SettingsScreen = () => {
   const [resetError, setResetError] = useState('');
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [languagePickerVisible, setLanguagePickerVisible] = useState(false);
   const [deleteStep, setDeleteStep] = useState<'warn' | 'code'>('warn');
   const [deleteCode, setDeleteCode] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -304,6 +307,26 @@ export const SettingsScreen = () => {
           )}
         </View>
 
+        {/* Language */}
+        <Text style={styles.sectionLabel}>{t('settings.language')}</Text>
+        <View style={styles.menuContainer}>
+          <TouchableOpacity
+            style={styles.menuRow}
+            onPress={() => setLanguagePickerVisible(true)}
+          >
+            <Text style={styles.menuText}>{t('settings.language')}</Text>
+            <View style={styles.languageValue}>
+              {/* The current language in its own name, matching the picker. */}
+              <Text style={styles.menuSubtext}>
+                {SUPPORTED_LANGUAGES[i18n.language as LanguageTag] ?? i18n.language}
+              </Text>
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </View>
+          </TouchableOpacity>
+        </View>
+
         {/* Legal Pages section */}
         {pages.length > 0 && (
           <>
@@ -361,6 +384,11 @@ export const SettingsScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <LanguagePicker
+        visible={languagePickerVisible}
+        onClose={() => setLanguagePickerVisible(false)}
+      />
 
       {/* Reset Progress Modal */}
       <Modal
@@ -595,6 +623,11 @@ const styles = StyleSheet.create({
     // The label column is flex:1, so without a gap it grows until it touches
     // the trailing chevron / external-link icon.
     gap: 14,
+  },
+  languageValue: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   subRow: {
     flexDirection: 'row',

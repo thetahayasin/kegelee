@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Saatavilla", "exercises": "Harjoitukset" },
+  "allExercises": {
+    "available": "Saatavilla",
+    "exercises": "Harjoitukset"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Jokin meni pieleen",
     "theAppHitAnUnexpected": "Sovelluksessa tapahtui odottamaton virhe. Yritä uudelleen.",
     "tryAgain": "Yritä uudelleen"
   },
-  "exerciseDetail": { "exerciseNotFound": "Harjoitusta ei löytynyt.", "tryItNow": "Kokeile nyt" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Harjoitusta ei löytynyt.",
+    "tryItNow": "Kokeile nyt"
+  },
   "find": {
     "keepGoing": "Jatka samaan malliin …",
     "onlyDoThePeeTest": "Tee virtsaamistesti vain kerran",
@@ -42,7 +48,10 @@
     "passwordReset": "Salasana palautettu",
     "resetPassword": "Palauta salasana"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Onko sinulla jo tili?", "logIn": "Kirjaudu sisään" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Onko sinulla jo tili?",
+    "logIn": "Kirjaudu sisään"
+  },
   "paywall": {
     "autoRenewal": "Automaattinen uusiminen",
     "billingIsNotAvailableOn": "Maksaminen ei ole käytettävissä tällä laitteella. Voit palauttaa aiemman oston alta.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Poistetaanko tili?",
     "deletePermanently": "Poista pysyvästi",
     "deleted": "Poistettu",
+    "gotIt": "Selvä",
+    "language": "Kieli",
     "logOut": "Kirjaudu ulos",
     "manageSubscription": "Hallitse tilausta",
     "noActiveSubscription": "Ei aktiivista tilausta",
@@ -110,6 +121,8 @@
     "resetProgress": "Nollaa edistyminen",
     "resetProgress2": "Nollataanko edistyminen?",
     "resetSuccessful": "Nollaus onnistui",
+    "restartBody": "Sulje ja avaa sovellus uudelleen, jotta asettelun suunta vaihtuu.",
+    "restartRequired": "Uudelleenkäynnistys vaaditaan",
     "sendCode": "Lähetä koodi",
     "settings": "Asetukset",
     "subscribe": "Tilaa",

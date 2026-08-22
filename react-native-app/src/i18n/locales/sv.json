@@ -1,11 +1,17 @@
 {
-  "allExercises": { "available": "Tillgänglig", "exercises": "Övningar" },
+  "allExercises": {
+    "available": "Tillgänglig",
+    "exercises": "Övningar"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Något gick fel",
     "theAppHitAnUnexpected": "Appen stötte på ett oväntat fel. Försök igen.",
     "tryAgain": "Försök igen"
   },
-  "exerciseDetail": { "exerciseNotFound": "Övningen hittades inte.", "tryItNow": "Testa nu" },
+  "exerciseDetail": {
+    "exerciseNotFound": "Övningen hittades inte.",
+    "tryItNow": "Testa nu"
+  },
   "find": {
     "keepGoing": "Fortsätt så …",
     "onlyDoThePeeTest": "Gör kisstestet bara en gång",
@@ -42,7 +48,10 @@
     "passwordReset": "Lösenordet har återställts",
     "resetPassword": "Återställ lösenord"
   },
-  "onboarding": { "alreadyHaveAnAccount": "Har du redan ett konto?", "logIn": "Logga in" },
+  "onboarding": {
+    "alreadyHaveAnAccount": "Har du redan ett konto?",
+    "logIn": "Logga in"
+  },
   "paywall": {
     "autoRenewal": "Automatisk förnyelse",
     "billingIsNotAvailableOn": "Betalning är inte tillgänglig på den här enheten. Du kan återställa ett tidigare köp nedan.",
@@ -103,6 +112,8 @@
     "deleteAccount2": "Radera kontot?",
     "deletePermanently": "Radera permanent",
     "deleted": "Raderat",
+    "gotIt": "Uppfattat",
+    "language": "Språk",
     "logOut": "Logga ut",
     "manageSubscription": "Hantera prenumeration",
     "noActiveSubscription": "Ingen aktiv prenumeration",
@@ -110,6 +121,8 @@
     "resetProgress": "Återställ utveckling",
     "resetProgress2": "Återställa utvecklingen?",
     "resetSuccessful": "Återställningen lyckades",
+    "restartBody": "Stäng och öppna appen igen för att slutföra bytet av layoutriktning.",
+    "restartRequired": "Omstart krävs",
     "sendCode": "Skicka kod",
     "settings": "Inställningar",
     "subscribe": "Prenumerera",
