@@ -163,7 +163,69 @@ Run this once, then re-run the script:
 }
 
 # ---------------------------------------------------------------------------
-# 2. Working tree
+# 2. Version code collision
+# ---------------------------------------------------------------------------
+# eas.json sets appVersionSource=remote, so EAS keeps its own versionCode
+# counter - and it only knows about builds EAS made. A versionCode uploaded to
+# Play by a local Gradle build is invisible to it. That is not hypothetical:
+# 1.0.58 built for 30 minutes and then died on "Version code 69 has already
+# been used", because a local build had put 69 on Play while EAS still thought
+# it was at 68.
+#
+# Non-fatal: a Play API hiccup should not block a release. It warns and moves on.
+if (-not $SubmitOnly) {
+    Write-Step "Checking the next version code against Play"
+
+    # eas-cli prints an upgrade banner on stderr, and under
+    # ErrorActionPreference=Stop PowerShell 5.1 turns any native stderr line
+    # into a terminating error. Redirecting with 2>$null makes it worse - it
+    # wraps each line in a NativeCommandError. Drop to Continue instead, and
+    # treat "no answer" as "cannot check" rather than as failure.
+    $playHighest = $null
+    $easCurrent = $null
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $playJson = (node (Join-Path $ScriptDir 'play-version-check.js') |
+            Where-Object { $_ -match '^\s*\{' } | Select-Object -Last 1)
+        if ($playJson) {
+            try { $playHighest = (ConvertFrom-Json $playJson).highest } catch {}
+        }
+
+        $easOut = (Invoke-Eas @('build:version:get', '--platform', 'android', '--non-interactive') | Out-String)
+        if ($easOut -match 'versionCode\s*-\s*(\d+)') { $easCurrent = [int]$Matches[1] }
+    } catch {
+        # Leave both null; the caller reports "could not compare" below.
+    } finally {
+        $ErrorActionPreference = $prevEap
+    }
+
+    if ($null -eq $playHighest -or $null -eq $easCurrent) {
+        Write-Warning "Could not compare version codes (Play or EAS did not answer). Continuing."
+    } else {
+        # autoIncrement is on, so the build will use EAS's current value plus one.
+        $next = $easCurrent + 1
+        Write-Host "    Play highest: $playHighest   EAS next: $next" -ForegroundColor DarkGray
+
+        if ($next -le $playHighest) {
+            $fix = $playHighest
+            Fail @"
+Version code $next is already on Play (highest there is $playHighest).
+
+EAS would hand this build a version code Google will reject, and you would not
+find out until after the build. Point EAS's counter past Play, then re-run:
+
+    eas build:version:set --platform android --version $fix
+
+(autoIncrement adds one, so setting $fix makes the next build $($fix + 1).)
+"@
+        }
+        Write-Ok "next version code $next is free"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# 3. Working tree
 # ---------------------------------------------------------------------------
 if (-not $SubmitOnly) {
     Write-Step "Checking the working tree"
@@ -192,7 +254,7 @@ Commit them, or pass -AllowDirty if you genuinely want to ship HEAD as-is.
 }
 
 # ---------------------------------------------------------------------------
-# 3. Quality gates
+# 4. Quality gates
 # ---------------------------------------------------------------------------
 if ($SubmitOnly -or $SkipChecks) {
     Write-Step "Skipping quality gates"
@@ -223,7 +285,7 @@ if ($SubmitOnly -or $SkipChecks) {
 }
 
 # ---------------------------------------------------------------------------
-# 4. Build (and auto-submit)
+# 5. Build (and auto-submit)
 # ---------------------------------------------------------------------------
 if ($SubmitOnly) {
     Write-Step "Submitting the latest production build to the $Track track"
@@ -262,7 +324,7 @@ if ($SubmitOnly) {
 }
 
 # ---------------------------------------------------------------------------
-# 5. Done
+# 6. Done
 # ---------------------------------------------------------------------------
 Write-Host ""
 if ($DryRun) {
