@@ -877,7 +877,7 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 14,
     color: COLORS.textMuted,
-    fontWeight: 'medium',
+    fontWeight: '500',
   },
   playerContainer: {
     flex: 1,
@@ -924,7 +924,7 @@ const styles = StyleSheet.create({
   },
   phaseLabel: {
     fontSize: 15,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
     marginTop: 4,
     textAlign: 'center',

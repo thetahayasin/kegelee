@@ -27,7 +27,7 @@ export const VerifyEmailScreen = () => {
   const route = useRoute<RouteProp<RouteParams, 'VerifyEmail'>>();
   const navigation = useNavigation<NavigationProp<any>>();
   const { completeAuth } = useAuth();
-  
+
   const email = route.params?.email || '';
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   emailHighlight: {
     color: COLORS.accent,
-    fontWeight: 'semibold',
+    fontWeight: '600',
   },
   form: {
     marginBottom: 20,
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   resendText: {
     color: COLORS.accent,
     fontSize: 14,
-    fontWeight: 'semibold',
+    fontWeight: '600',
   },
   backContainer: {
     marginTop: 32,

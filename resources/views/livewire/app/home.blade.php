@@ -50,7 +50,7 @@
                  :aria-label="complete
                     ? 'Today complete — ' + done + ' of ' + required + ' sessions done'
                     : done + ' of ' + required + ' sessions done today'">
-                <svg viewBox="0 0 132 132" class="h-[132px] w-[132px] -rotate-[126deg]" aria-hidden="true">
+                <svg viewBox="0 0 132 132" class="h-[132px] w-[132px] rotate-[126deg]" aria-hidden="true">
                     <circle cx="66" cy="66" r="58" fill="none"
                             stroke="rgba(255,255,255,0.07)" stroke-width="9"
                             :stroke-dasharray="arc + ' 999'" stroke-linecap="round"/>

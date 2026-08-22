@@ -41,7 +41,7 @@ export const ProgressScreen = () => {
   const [saving, setSaving] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [result, setResult] = useState(0);
-  
+
   const timerRef = useRef<any | null>(null);
   const startRef = useRef<number>(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -50,7 +50,7 @@ export const ProgressScreen = () => {
     if (!user) return;
     try {
       const items = await getMeasurements(user.id, 500); // fetch all history to group
-      
+
       // Calculate best
       const maxSec = items.reduce((max, item) => (item.seconds > max ? item.seconds : max), 0);
       setBest(Math.floor(maxSec));
@@ -132,11 +132,11 @@ export const ProgressScreen = () => {
         const startDay = new Date(d);
         startDay.setDate(d.getDate() - dayOfWeek);
         bucketStart = new Date(startDay.getFullYear(), startDay.getMonth(), startDay.getDate(), 0, 0, 0);
-        
+
         const endDay = new Date(startDay);
         endDay.setDate(startDay.getDate() + 6);
         bucketEnd = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate(), 23, 59, 59);
-        
+
         label = bucketStart.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
       }
 
@@ -179,7 +179,7 @@ export const ProgressScreen = () => {
     setElapsed(0);
     setResult(0);
     startRef.current = Date.now();
-    
+
     Animated.timing(scaleAnim, {
       toValue: 1.08,
       duration: 150,
@@ -217,7 +217,7 @@ export const ProgressScreen = () => {
       setDone(false);
       setResult(0);
       setElapsed(0);
-      
+
       // Refresh list
       await loadData();
       // Background Sync trigger
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     fontSize: 13,
-    fontWeight: 'medium',
+    fontWeight: '500',
     color: COLORS.textMuted,
     textTransform: 'capitalize',
   },
@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
   },
   retakeBtnText: {
     fontSize: 16,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
   },
 });

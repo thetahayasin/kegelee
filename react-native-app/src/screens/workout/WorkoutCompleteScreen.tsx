@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
   },
   feedbackBtnText: {
     fontSize: 13,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
   },
   feedbackBtnTextActive: {
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   feedbackBannerText: {
     color: COLORS.accentSoft,
     fontSize: 14,
-    fontWeight: 'medium',
+    fontWeight: '500',
     textAlign: 'center',
   },
   calendarCard: {

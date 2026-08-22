@@ -81,7 +81,7 @@ export const ScheduleScreen = () => {
         .filter((r) => r.is_enabled === 1)
         .map((r) => (r.weekday === 6 ? 0 : r.weekday + 1));
       setSelectedDays(activeDays);
-      
+
       // Find default times
       if (localReminders.length > 0 && localReminders[0].times.length > 0) {
         setTimes(localReminders[0].times);
@@ -136,10 +136,10 @@ export const ScheduleScreen = () => {
       const reminderConfigs: ReminderConfig[] = [];
       for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
         const isEnabled = selectedDays.includes(dayIndex);
-        
+
         // Convert JS/UI index (0 = Sunday) to DB index (0 = Monday)
         const dbWeekday = dayIndex === 0 ? 6 : dayIndex - 1;
-        
+
         // Save to SQLite
         await saveReminder(user.id, dbWeekday, times, isEnabled ? 1 : 0, 0); // synced = 0
 
@@ -320,7 +320,7 @@ export const ScheduleScreen = () => {
                     {times.map((time, idx) => (
                       <View key={idx} style={styles.timeRow}>
                         <Text style={styles.timeRowLabel}>Session {idx + 1}</Text>
-                        
+
                         <TouchableOpacity
                           style={styles.timeInputContainer}
                           onPress={async () => {
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
   },
   grid: {

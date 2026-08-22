@@ -304,7 +304,7 @@ export const SettingsScreen = () => {
               <Text style={styles.modalBody}>
                 This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.
               </Text>
-              
+
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalBtn, styles.modalCancelBtn]}
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 15,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
   },
   menuSubtext: {
@@ -636,7 +636,7 @@ const styles = StyleSheet.create({
   },
   modalCancelBtnText: {
     color: COLORS.white,
-    fontWeight: 'semibold',
+    fontWeight: '600',
   },
   modalConfirmBtn: {
     backgroundColor: COLORS.accent,

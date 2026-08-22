@@ -27,7 +27,7 @@ import { GoogleLogo } from '../../components/GoogleLogo';
 export const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { login, googleNativeLogin } = useAuth();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   googleBtnText: {
     fontSize: 16,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
     marginLeft: 12,
   },

@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Animated, StyleSheet, Easing } from 'react-native';
 import Svg, { Path, Circle, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { COLORS } from '../theme/colors';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path) as any;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
-const ACCENT = '#c1ff72';
-const ACCENT_SOFT = '#d6ffa1';
-const SURFACE = '#161b26';
-const SURFACE_2 = '#212836';
-const WHITE_MUTED = 'rgba(193, 255, 114, 0.2)';
+// Local aliases onto the shared palette. These used to be pinned hexes, so the
+// onboarding art kept the pre-revamp surfaces after the theme moved.
+const ACCENT = COLORS.accent;
+const ACCENT_SOFT = COLORS.accentSoft;
+const SURFACE = COLORS.surface;
+const SURFACE_2 = COLORS.surface2;
+const WHITE_MUTED = 'rgba(242, 245, 238, 0.22)';
 
 // Soft accent halo (radial gradient fading to transparent). Replaces the old
 // solid, hard-edged circle whose rim peeked out from behind the rectangular
@@ -110,7 +113,7 @@ export const HeartVisual: React.FC<VisualProps> = ({ active }) => {
     <View style={styles.container}>
       {/* Background radial glow */}
       <Glow />
-      
+
       <View style={styles.circleContainer}>
         <Animated.View style={{ transform: [{ scale }] }}>
           <Svg viewBox="0 0 24 24" width={170} height={170}>
@@ -169,7 +172,7 @@ export const StopwatchVisual: React.FC<VisualProps> = ({ active }) => {
   return (
     <View style={styles.container}>
       <Glow />
-      
+
       {/* Crown */}
       <View style={styles.crownTop} />
       <View style={styles.crownRing} />
@@ -303,7 +306,7 @@ export const ProgressVisual: React.FC<VisualProps> = ({ active }) => {
   return (
     <View style={styles.container}>
       <Glow />
-      
+
       <View style={styles.cardContainer}>
         {/* Star Pop */}
         <Animated.View
@@ -389,7 +392,7 @@ export const HabitVisual: React.FC<VisualProps> = ({ active }) => {
   return (
     <View style={styles.container}>
       <Glow />
-      
+
       <View style={styles.circleContainer}>
         {/* Waves left */}
         <Animated.View

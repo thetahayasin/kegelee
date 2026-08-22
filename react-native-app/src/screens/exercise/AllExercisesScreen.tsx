@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS } from '../../theme/colors';
+import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
 import { EXERCISES } from '../../constants/catalogues';
@@ -105,15 +105,31 @@ export const AllExercisesScreen = () => {
 
   const renderRow = (row: Row) => (
     <View style={styles.rowInner}>
-      <EquipmentIcon slug={row.slug} size={56} />
+      <View style={!row.unlocked && styles.lockedArt}>
+        <EquipmentIcon slug={row.slug} size={56} />
+      </View>
       <View style={styles.rowInfo}>
-        <Text style={styles.rowName}>{row.name}</Text>
+        <Text style={[styles.rowName, !row.unlocked && styles.rowNameLocked]}>{row.name}</Text>
         {row.unlocked ? (
-          <Text style={styles.rowMuted}>Available</Text>
+          <Text style={styles.rowAvailable}>Available</Text>
         ) : (
           <>
-            <Text style={styles.rowMuted}>complete {row.daysLeft} training days</Text>
-            <View style={styles.progressBarBg}>
+            <View style={styles.lockRow}>
+              <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                <Rect x={4} y={10} width={16} height={11} rx={2.5} stroke={COLORS.textDim} strokeWidth={2.2} />
+                <Path d="M8 10V7a4 4 0 1 1 8 0v3" stroke={COLORS.textDim} strokeWidth={2.2} strokeLinecap="round" />
+              </Svg>
+              <Text style={styles.rowMuted}>
+                Complete {row.daysLeft} more training days
+              </Text>
+            </View>
+            <View
+              style={styles.progressBarBg}
+              accessible
+              accessibilityRole="progressbar"
+              accessibilityLabel={`${row.name} unlock progress`}
+              accessibilityValue={{ min: 0, max: row.threshold, now: row.completed }}
+            >
               <View style={[styles.progressBarFill, { width: `${row.pct}%` }]} />
             </View>
           </>
@@ -121,7 +137,7 @@ export const AllExercisesScreen = () => {
       </View>
       {row.unlocked ? (
         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-          <Path d="M9 6l6 6-6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          <Path d="M9 6l6 6-6 6" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
       ) : (
         <Text style={styles.rowRatio}>
@@ -136,7 +152,13 @@ export const AllExercisesScreen = () => {
       <Watermark />
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          hitSlop={8}
+          onPress={() => navigation.goBack()}
+        >
           <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
             <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
@@ -162,7 +184,7 @@ export const AllExercisesScreen = () => {
               {renderRow(row)}
             </TouchableOpacity>
           ) : (
-            <View key={row.slug} style={[styles.row, styles.rowLocked]}>
+            <View key={row.slug} style={styles.row}>
               {renderRow(row)}
             </View>
           ),
@@ -184,41 +206,47 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: SPACE.lg,
+    paddingVertical: SPACE.lg,
   },
   backBtn: {
     position: 'absolute',
-    left: 16,
-    width: 36,
-    height: 36,
+    left: SPACE.md,
+    // 36px was under both the iOS HIG and Material minimum target.
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
-  scroll: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40, gap: 12 },
+  headerTitle: { ...TYPE.title, color: COLORS.white },
+  scroll: { paddingHorizontal: SPACE.lg, paddingTop: SPACE.sm, paddingBottom: 40, gap: SPACE.md },
   row: {
     ...GLASS,
     backgroundColor: COLORS.surface,
-    borderRadius: 20,
-    paddingHorizontal: 16,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACE.lg,
     paddingVertical: 14,
   },
-  rowLocked: { opacity: 0.5 },
+  // The card keeps full opacity; only the artwork dims. A whole row at
+  // opacity 0.5 reads as broken rather than as not yet earned.
+  lockedArt: { opacity: 0.4 },
   rowInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: SPACE.lg,
   },
   rowInfo: { flex: 1, minWidth: 0 },
-  rowName: { fontSize: 18, fontWeight: 'bold', color: COLORS.white, lineHeight: 22 },
-  rowMuted: { fontSize: 13, color: COLORS.textMuted, marginTop: 2 },
+  rowName: { fontSize: 18, fontWeight: '700', letterSpacing: -0.4, color: COLORS.white, lineHeight: 22 },
+  rowNameLocked: { color: COLORS.textMuted },
+  rowAvailable: { ...TYPE.bodySm, color: COLORS.accent, fontWeight: '600', marginTop: 2 },
+  lockRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  rowMuted: { ...TYPE.bodySm, color: COLORS.textMuted },
   progressBarBg: {
     height: 6,
     width: '100%',
     backgroundColor: 'rgba(255,255,255,0.10)',
     borderRadius: 3,
-    marginTop: 8,
+    marginTop: SPACE.sm,
     overflow: 'hidden',
   },
   progressBarFill: {
@@ -229,8 +257,8 @@ const styles = StyleSheet.create({
   rowRatio: {
     alignSelf: 'flex-start',
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textMuted,
+    fontWeight: '700',
+    color: COLORS.textDim,
   },
 });
 
