@@ -14,7 +14,9 @@
     "build:release": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1",
     "build:aab": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1 -Aab",
     "build:test": "node scripts/patch-jcenter.js && cd android && gradlew.bat -g E:\\.gradle_home assembleDebug",
-    "build:prod": "node scripts/patch-jcenter.js && node scripts/bump-version.js && cd android && gradlew.bat -g E:\\.gradle_home assembleRelease"
+    "build:prod": "node scripts/patch-jcenter.js && node scripts/bump-version.js && cd android && gradlew.bat -g E:\\.gradle_home assembleRelease",
+    "release:play": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-playstore.ps1",
+    "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-playstore.ps1 -DryRun"
   },
   "dependencies": {
     "@notifee/react-native": "^9.1.8",

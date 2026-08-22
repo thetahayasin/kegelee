@@ -108,11 +108,16 @@ const App = () => {
   return (
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaProvider>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent
-        />
+        {/*
+          barStyle only. `backgroundColor` was the one deprecated edge-to-edge
+          API this app actually reached: it routes to StatusBarModule.setColor
+          -> Window.setStatusBarColor, which Android 15 deprecated. Under
+          edge-to-edge the bar is transparent anyway and RN drops the call on
+          the floor, so the prop bought nothing and cost a Play warning.
+          `translucent` is likewise a no-op once edge-to-edge is on.
+          barStyle goes through WindowInsetsController, which is current.
+        */}
+        <StatusBar barStyle="light-content" />
         <ErrorBoundary>
           {ready ? (
             <AuthProvider>
