@@ -37,3 +37,6 @@ dist/
 
 /temp
 /dev.lnk
+
+# NativePHP build output - large, regenerated, never committed.
+nativephp/

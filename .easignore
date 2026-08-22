@@ -1,0 +1,54 @@
+# What NOT to upload to EAS Build.
+#
+# This file lives at the REPO root, not in react-native-app, because that is
+# where the archive is rooted. eas.json sits in react-native-app, but the
+# project is inside this git repo and EAS archives from the repo, so the
+# Laravel side rides along: `nativephp` alone is 607 MB and is neither tracked
+# nor gitignored, which is exactly the combination EAS includes.
+#
+# The 1.0.58 builds each uploaded 1000 MB and spent over five minutes doing it.
+#
+# IMPORTANT: where EAS honours this file it uses it INSTEAD OF .gitignore, not
+# in addition to it. Anything heavy has to be named here even when .gitignore
+# already covers it - which is why vendor, dist and node_modules are repeated.
+
+# --- Laravel side: none of it is used to build the Android app -------------
+nativephp/
+dist/
+vendor/
+node_modules/
+storage/framework/
+storage/logs/
+bootstrap/cache/
+public/build/
+public/storage/
+database/*.sqlite
+
+# --- React Native app ------------------------------------------------------
+react-native-app/node_modules/
+react-native-app/android/build/
+react-native-app/android/app/build/
+react-native-app/android/app/.cxx/
+react-native-app/android/.gradle/
+react-native-app/android/.kotlin/
+react-native-app/android/local.properties
+react-native-app/ios/build/
+react-native-app/ios/Pods/
+react-native-app/.expo/
+react-native-app/web-build/
+
+# --- Build artifacts and noise ---------------------------------------------
+*.apk
+*.aab
+*.hprof
+*.log
+coverage/
+.git/
+.github/
+.idea/
+.vscode/
+.DS_Store
+
+# NOT excluded on purpose: react-native-app/credentials.json and the keystore
+# under react-native-app/android/app/. The production profile signs with
+# credentialsSource: local, and signing must not break to save a few KB.
