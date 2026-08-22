@@ -1,0 +1,60 @@
+<?php
+
+/** Czech legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Zásady ochrany osobních údajů',
+        'blocks' => [
+            'Tyto zásady vysvětlují, jaké údaje Kegelee shromažďuje, jak je používá a jaké máte možnosti volby. Držíme je krátké a v běžném jazyce.',
+            'Co shromažďujeme',
+            'Když si vytvoříte účet, ukládáme vaše jméno, e-mailovou adresu a bezpečně zahašované heslo. Pokud se přihlásíte přes Google, získáme od Googlu vaše jméno a e-mailovou adresu.',
+            'Během tréninku aplikace zaznamenává vaše cvičební jednotky, dokončené tréninkové dny, měření výdrže, zvolenou obtížnost a časy připomenutí. Tato data o postupu se nejprve ukládají do vašeho zařízení a synchronizují se s naším serverem, abyste je mohli obnovit po přeinstalaci aplikace nebo výměně telefonu.',
+            'Co neshromažďujeme',
+            'Neshromažďujeme vaši polohu, kontakty, fotografie ani žádné zdravotní údaje nad rámec výše popsaného tréninkového postupu. Nezobrazujeme reklamy a vaše údaje nikdy nikomu neprodáváme.',
+            'Platby',
+            'Předplatné účtuje Google Play. Údaje o vaší kartě nikdy nevidíme ani neukládáme. Od Googlu dostáváme potvrzení o nákupu, abychom mohli odemknout vaše předplatné a udržet je aktivní na všech vašich zařízeních.',
+            'Jak vaše údaje používáme',
+            'Vaše údaje slouží pouze k provozu aplikace: k přihlášení, ukládání postupu, synchronizaci mezi zařízeními, odesílání ověřovacích e-mailů a e-mailů pro obnovu hesla a ke správě předplatného. Nic víc.',
+            'Kde jsou vaše údaje uloženy',
+            'Váš postup je uložen ve vašem zařízení a synchronizuje se s naším serverem přes šifrované spojení. Přístup k našemu serveru je omezený a chráněný.',
+            'Smazání vašich údajů',
+            'Postup tréninku můžete kdykoli vynulovat v nastavení aplikace, čímž se smaže i z našeho serveru. Chcete-li smazat účet a všechna data s ním spojená, napište nám na adresu níže a odstraníme je.',
+            'Kontakt',
+            'Máte dotaz k ochraně soukromí? Napište nám na support@kegelee.com.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'Zásady vracení peněz',
+        'blocks' => [
+            'Předplatné Kegelee se kupuje a účtuje přes Google Play, takže vrácení peněz vyřizuje Google podle zásad vracení peněz Google Play.',
+            'Jak požádat o vrácení peněz',
+            'Otevřete Obchod Google Play, přejděte na svůj účet, zvolte Platby a předplatné, vyberte nákup Kegelee a požádejte o vrácení peněz. U nedávných nákupů Google žádosti obvykle vyřídí do jednoho až dvou dnů.',
+            'Zrušení',
+            'Předplatné můžete kdykoli zrušit v Google Play. Plný přístup vám zůstane do konce zaplaceného období a poté už vám nic účtováno nebude.',
+            'Potřebujete pomoc?',
+            'Pokud máte potíže s nákupem nebo vrácením peněz, napište nám na support@kegelee.com a uděláme maximum, abychom pomohli.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Podmínky služby',
+        'blocks' => [
+            'Vítejte v Kegelee. Vytvořením účtu nebo používáním aplikace souhlasíte s těmito podmínkami. Přečtěte si je prosím; jsou krátké.',
+            'Co je Kegelee',
+            'Kegelee je aplikace pro vedený trénink pánevního dna. Nabízí cvičební programy, sledování postupu a připomenutí. Je to fitness nástroj, nikoli zdravotnický prostředek.',
+            'Nejde o lékařskou radu',
+            'Kegelee neposkytuje lékařské rady, diagnózy ani léčbu. Pokud máte zdravotní potíže, zotavujete se po operaci, jste těhotná nebo při cvičení cítíte bolest, přestaňte a před pokračováním se poraďte s lékařem. Vždy naslouchejte svému tělu.',
+            'Váš účet',
+            'Odpovídáte za bezpečné uchování přihlašovacích údajů a za to, co se na vašem účtu děje. Při registraci musíte uvést pravdivé údaje.',
+            'Předplatné',
+            'Plný tréninkový zážitek vyžaduje předplatné zakoupené přes Google Play. Ceny se zobrazují v aplikaci před nákupem. Předplatné se automaticky obnovuje, pokud je nezrušíte v Google Play; po zrušení vám přístup zůstane do konce zaplaceného období. Vracení peněz se řídí našimi zásadami vracení peněz a pravidly Google Play.',
+            'Férové užívání',
+            'Nepokoušejte se aplikaci ani její služby kopírovat, přeprodávat, narušovat nebo zneužívat. Účty, které to dělají, můžeme pozastavit.',
+            'Odpovědnost',
+            'Kegelee je poskytováno tak, jak je. V rozsahu, který zákon dovoluje, neodpovídáme za zranění ani ztráty vzniklé používáním aplikace. Cvičte rozumně a v mezích svých možností.',
+            'Změny',
+            'Tyto podmínky můžeme s vývojem aplikace aktualizovat. Podstatné změny se projeví na této stránce s datem uvedeným výše.',
+            'Kontakt',
+            'Máte dotaz k těmto podmínkám? Napište nám na support@kegelee.com.',
+        ],
+    ],
+];

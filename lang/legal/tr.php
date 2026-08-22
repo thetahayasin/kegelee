@@ -1,0 +1,60 @@
+<?php
+
+/** Turkish legal pages. Machine-translated, NOT legally reviewed. */
+return [
+    'privacy-policy' => [
+        'title' => 'Gizlilik Politikası',
+        'blocks' => [
+            'Bu Gizlilik Politikası, Kegelee\'nin hangi bilgileri topladığını, bunların nasıl kullanıldığını ve sahip olduğun seçenekleri açıklar. Kısa ve sade bir dille yazdık.',
+            'Neleri topluyoruz',
+            'Hesap oluşturduğunda adını, e-posta adresini ve güvenli biçimde karma değere dönüştürülmüş parolanı saklarız. Google ile giriş yaparsan adını ve e-posta adresini Google\'dan alırız.',
+            'Sen çalışırken uygulama seanslarını, tamamladığın antrenman günlerini, dayanıklılık ölçümlerini, seçtiğin zorluk seviyesini ve hatırlatma saatlerini kaydeder. Bu ilerleme verileri önce cihazında tutulur ve sunucumuzla eşitlenir; böylece uygulamayı yeniden kurduğunda ya da telefon değiştirdiğinde geri yükleyebilirsin.',
+            'Neleri toplamıyoruz',
+            'Konumunu, kişilerini, fotoğraflarını ya da yukarıda anlatılan antrenman ilerlemesi dışında hiçbir sağlık verisini toplamayız. Reklam göstermeyiz ve verilerini asla kimseye satmayız.',
+            'Ödemeler',
+            'Abonelikler Google Play tarafından faturalandırılır. Kart bilgilerini hiçbir zaman görmez ve saklamayız. Google\'dan bir satın alma onayı alırız; böylece aboneliğini açar ve tüm cihazlarında etkin tutarız.',
+            'Verilerin nasıl kullanılıyor',
+            'Verilerin yalnızca uygulamanın çalışması için kullanılır: girişini yapmak, ilerlemeni kaydetmek, cihazlar arasında eşitlemek, doğrulama ve parola sıfırlama e-postaları göndermek ve aboneliğini yönetmek. Hepsi bu.',
+            'Verilerin nerede tutuluyor',
+            'İlerlemen cihazında durur ve şifreli bir bağlantı üzerinden sunucumuza eşitlenir. Sunucumuza erişim kısıtlı ve korumalıdır.',
+            'Verilerini silme',
+            'Antrenman ilerlemeni uygulama ayarlarından istediğin zaman sıfırlayabilirsin; bu işlem verileri sunucumuzdan da siler. Hesabını ve ona bağlı tüm verileri silmek istersen aşağıdaki adresten bize yaz, kaldıralım.',
+            'İletişim',
+            'Gizlilikle ilgili soruların mı var? support@kegelee.com adresine yaz.',
+        ],
+    ],
+    'refund-policy' => [
+        'title' => 'İade Politikası',
+        'blocks' => [
+            'Kegelee abonelikleri Google Play üzerinden satın alınır ve faturalandırılır; bu nedenle iadeler Google Play iade politikası kapsamında Google tarafından yürütülür.',
+            'İade nasıl talep edilir',
+            'Google Play Store\'u aç, hesabına git, Ödemeler ve abonelikler bölümünü seç, Kegelee satın alımını işaretle ve iade talep et. Yakın tarihli satın alımlarda Google talepleri genellikle bir iki gün içinde sonuçlandırır.',
+            'İptal',
+            'Aboneliğini istediğin zaman Google Play üzerinden iptal edebilirsin. Ödediğin dönemin sonuna kadar tam erişimin sürer ve sonrasında tekrar ücretlendirilmezsin.',
+            'Yardım gerekiyor mu?',
+            'Bir satın alma veya iade konusunda sorun yaşarsan support@kegelee.com adresine yaz; elimizden geleni yaparız.',
+        ],
+    ],
+    'terms' => [
+        'title' => 'Hizmet Koşulları',
+        'blocks' => [
+            'Kegelee\'ye hoş geldin. Hesap oluşturarak veya uygulamayı kullanarak bu koşulları kabul etmiş olursun. Lütfen oku; kısalar.',
+            'Kegelee nedir',
+            'Kegelee, rehberli pelvik taban antrenmanı uygulamasıdır. Egzersiz programları, ilerleme takibi ve hatırlatmalar sunar. Bir fitness aracıdır, tıbbi cihaz değildir.',
+            'Tıbbi tavsiye değildir',
+            'Kegelee tıbbi tavsiye, teşhis veya tedavi sunmaz. Bir rahatsızlığın varsa, ameliyat sonrası iyileşiyorsan, hamileysen veya egzersiz sırasında ağrı hissediyorsan dur ve devam etmeden önce bir doktora danış. Her zaman bedenini dinle.',
+            'Hesabın',
+            'Giriş bilgilerini güvende tutmaktan ve hesabında olup bitenden sen sorumlusun. Kayıt olurken doğru bilgi vermelisin.',
+            'Abonelikler',
+            'Tam antrenman deneyimi, Google Play üzerinden satın alınan bir abonelik gerektirir. Fiyatlar satın almadan önce uygulamada gösterilir. Abonelikler, Google Play\'de iptal etmediğin sürece otomatik yenilenir; iptal ettiğinde erişimin ödenmiş dönemin sonuna kadar sürer. İadeler İade Politikamıza ve Google Play kurallarına tabidir.',
+            'Dürüst kullanım',
+            'Uygulamayı veya hizmetlerini kopyalamaya, yeniden satmaya, kırmaya ya da kötüye kullanmaya çalışma. Bunu yapan hesapları askıya alabiliriz.',
+            'Sorumluluk',
+            'Kegelee olduğu gibi sunulur. Yasaların izin verdiği ölçüde, uygulamanın kullanımından doğan yaralanma veya kayıplardan sorumlu değiliz. Mantıklı ve kendi sınırların içinde çalış.',
+            'Değişiklikler',
+            'Uygulama geliştikçe bu koşulları güncelleyebiliriz. Önemli değişiklikler yukarıdaki tarihle birlikte bu sayfada yer alır.',
+            'İletişim',
+            'Bu koşullarla ilgili soruların mı var? support@kegelee.com adresine yaz.',
+        ],
+    ],
+];

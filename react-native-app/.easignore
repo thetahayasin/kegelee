@@ -1,21 +1,49 @@
+# What NOT to upload to EAS Build.
+#
+# The 1.0.58 build shipped a 1000 MB archive and spent 5m27s uploading it,
+# every time. Almost all of that was local Gradle output: android/app/build is
+# 2.3 GB on disk and android/app/.cxx another 336 MB, none of which EAS can
+# use - it compiles from scratch in the cloud.
+#
+# IMPORTANT: when this file exists, EAS uses it INSTEAD OF .gitignore, not in
+# addition to it. Anything that needs excluding has to be listed here even if
+# .gitignore already covers it. That is why node_modules is repeated below;
+# leaving it out would upload 4.7 GB.
+
+# Dependencies - EAS runs its own install
 node_modules/
-.git/
-.gradle/
-android/.gradle/
-android/app/build/
+
+# Android build output and caches
 android/build/
-ios/Pods/
-ios/build/
-*.log
-android/.gradle_home/
+android/app/build/
+android/app/.cxx/
 android/.gradle/
 android/.kotlin/
-android/app/.cxx/
-.gradle_home/
-**/build/intermediates/
-**/build/outputs/
+android/local.properties
+
+# iOS build output
+ios/build/
+ios/Pods/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+
+# Expo / Metro caches
+.expo/
+.expo-shared/
+web-build/
+
+# Previously built artifacts
 *.apk
 *.aab
-*.keystore.bak
-android/local.properties
-play-service-account.json
+*.hprof
+
+# Local tooling noise
+coverage/
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# NOT excluded on purpose:
+#   credentials.json and android/app/*.keystore - the production profile uses
+#   credentialsSource: local, and signing must not break to save a few KB.
