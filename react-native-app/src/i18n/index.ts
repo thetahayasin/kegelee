@@ -87,6 +87,9 @@ export const resolveLanguage = (tag: string | null | undefined): LanguageTag => 
  */
 const bundles: Partial<Record<LanguageTag, () => any>> = {
   de: () => require('./locales/de.json'),
+  es: () => require('./locales/es.json'),
+  'es-419': () => require('./locales/es-419.json'),
+  fr: () => require('./locales/fr.json'),
 };
 
 const ensureBundle = (tag: LanguageTag) => {
