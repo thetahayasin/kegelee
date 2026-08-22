@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.white,
-    marginLeft: 12,
+    marginStart: 12,
   },
   errorContainer: {
     flexDirection: 'row',

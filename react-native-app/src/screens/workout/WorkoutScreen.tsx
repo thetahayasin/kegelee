@@ -971,8 +971,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
   },
   counterText: {
     fontSize: 54,
@@ -995,7 +995,7 @@ const styles = StyleSheet.create({
   },
   carouselTrack: {
     position: 'absolute',
-    left: 0,
+    start: 0,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -1122,8 +1122,8 @@ const styles = StyleSheet.create({
   modalOverlay: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.85)',
     justifyContent: 'flex-end',

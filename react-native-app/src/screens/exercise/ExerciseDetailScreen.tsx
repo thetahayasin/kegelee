@@ -179,8 +179,8 @@ const styles = StyleSheet.create({
   },
   cta: {
     position: 'absolute',
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     bottom: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.05)',

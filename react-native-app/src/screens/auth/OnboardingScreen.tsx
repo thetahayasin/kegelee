@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   loginLinkStrong: {
     color: COLORS.accent,
     fontWeight: 'bold',
-    paddingLeft: 4,
+    paddingStart: 4,
   },
 });
 export default OnboardingScreen;

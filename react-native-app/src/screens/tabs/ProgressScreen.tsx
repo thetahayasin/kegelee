@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Modal,
   Animated,
+  I18nManager,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -533,8 +534,8 @@ const styles = StyleSheet.create({
   },
   gridlineRow: {
     position: 'absolute',
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -544,17 +545,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.05)',
   },
   yLabel: {
-    marginLeft: 8,
+    marginStart: 8,
     width: 48,
-    textAlign: 'right',
+    // Hugs the chart, so it must flip with the layout. RN's textAlign has no
+    // start/end, and 'auto' would left-align in LTR - the opposite of what
+    // this label needs. Read once at style-creation time, which is safe
+    // because changing direction requires an app restart anyway.
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
     fontSize: 10,
     color: COLORS.textMuted,
   },
   barsContainer: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 56, // matches y-label offset
+    start: 0,
+    end: 56, // matches y-label offset
     bottom: 0,
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -577,7 +582,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingRight: 56,
+    paddingEnd: 56,
     paddingHorizontal: 8,
   },
   xLabel: {
@@ -616,8 +621,8 @@ const styles = StyleSheet.create({
   ctaContainer: {
     position: 'absolute',
     bottom: 24,
-    left: 20,
-    right: 20,
+    start: 20,
+    end: 20,
   },
   ctaBtn: {
     height: 56,
@@ -654,7 +659,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.white,
-    marginLeft: 8,
+    marginStart: 8,
   },
   overlayCenter: {
     flex: 1,

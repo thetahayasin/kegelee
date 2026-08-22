@@ -494,8 +494,8 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
 const styles = StyleSheet.create({
   bar: {
     position: 'absolute',
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     bottom: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
@@ -523,8 +523,8 @@ const styles = StyleSheet.create({
   backdrop: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     bottom: 0,
   },
   panel: {
@@ -631,7 +631,7 @@ const styles = StyleSheet.create({
   featuredBadge: {
     position: 'absolute',
     top: -10,
-    right: 16,
+    end: 16,
     backgroundColor: COLORS.accent,
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   authClose: {
-    marginLeft: 'auto',
+    marginStart: 'auto',
   },
   form: {
     gap: 12,

@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   todayCardGlow: {
     position: 'absolute',
     top: -78,
-    right: -78,
+    end: -78,
   },
   todayCardTop: {
     flexDirection: 'row',
@@ -414,8 +414,8 @@ const styles = StyleSheet.create({
   progressTextContainer: {
     position: 'absolute',
     top: 0,
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   equipmentIcon: {
-    marginRight: 4,
+    marginEnd: 4,
     marginTop: 4,
   },
   completeBadge: {
@@ -507,8 +507,8 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   exerciseRail: {
-    paddingLeft: 16,
-    paddingRight: 8,
+    paddingStart: 16,
+    paddingEnd: 8,
   },
   exerciseCard: {
     width: 150,
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderRadius: 20,
     padding: 16,
-    marginRight: 12,
+    marginEnd: 12,
     alignItems: 'center',
   },
   exerciseCardLocked: {

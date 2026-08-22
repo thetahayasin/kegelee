@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     position: 'absolute',
-    left: 16,
+    start: 16,
     width: 36,
     height: 36,
     alignItems: 'center',
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     position: 'absolute',
-    right: 16,
+    end: 16,
     height: 36,
     justifyContent: 'center',
     paddingHorizontal: 4,

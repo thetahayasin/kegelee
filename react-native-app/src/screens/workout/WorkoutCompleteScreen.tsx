@@ -678,8 +678,8 @@ const styles = StyleSheet.create({
   ctaContainer: {
     position: 'absolute',
     bottom: 24,
-    left: 20,
-    right: 20,
+    start: 20,
+    end: 20,
   },
   continueBtn: {
     height: 56,

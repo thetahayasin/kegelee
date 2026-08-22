@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(193, 255, 114, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginEnd: 16,
   },
   remindersInfo: {
     flex: 1,
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
     height: 44,
   },
   timePrefixIcon: {
-    marginRight: 6,
+    marginEnd: 6,
   },
   timeInputText: {
     flex: 1,

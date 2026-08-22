@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'semibold',
     color: COLORS.white,
-    marginLeft: 12,
+    marginStart: 12,
   },
   switchContainer: {
     marginTop: 32,

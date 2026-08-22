@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
   starContainer: {
     position: 'absolute',
     top: 16,
-    right: 16,
+    end: 16,
     width: 40,
     height: 40,
   },
@@ -559,14 +559,14 @@ const styles = StyleSheet.create({
   } as any,
   waveLeft: {
     position: 'absolute',
-    left: 10,
+    start: 10,
     top: '35%',
     width: 44,
     height: 44,
   },
   waveRight: {
     position: 'absolute',
-    right: 10,
+    end: 10,
     top: '35%',
     width: 44,
     height: 44,

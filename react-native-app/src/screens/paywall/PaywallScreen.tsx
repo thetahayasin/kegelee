@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
   },
   headerLeftBtn: {
     position: 'absolute',
-    left: 16,
+    start: 16,
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
   },
   logoutBtn: {
     position: 'absolute',
-    left: 16,
+    start: 16,
     borderRadius: 18,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -750,7 +750,7 @@ const styles = StyleSheet.create({
   featuredBadge: {
     position: 'absolute',
     top: -10,
-    right: 16,
+    end: 16,
     backgroundColor: COLORS.accent,
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -801,8 +801,8 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     position: 'absolute',
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     bottom: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.05)',
