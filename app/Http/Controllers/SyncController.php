@@ -262,23 +262,53 @@ class SyncController extends Controller
                 $startedAt = ! empty($s['started_at']) ? \Carbon\Carbon::parse($s['started_at']) : now();
                 $autoRenewing = (bool) ($s['auto_renewing'] ?? true);
 
+                // Verify against RevenueCat before minting anything.
+                //
+                // This block used to be advisory: it read the entitlement when
+                // it could and created the subscription either way. That made
+                // the DEFAULT push path unverified, so any signed-in client
+                // could POST an invented purchase_token and be handed an
+                // active subscription. The store is the only authority on
+                // whether money changed hands, so a row is created only when
+                // RevenueCat confirms it.
+                //
+                // Failing here does not lose a real purchase: the device
+                // re-sends every local purchase token on every sync, and the
+                // RevenueCat webhook writes the row server-side as well.
+                if (! $rcService->isConfigured()) {
+                    // No REST key means no way to check, and an unverifiable
+                    // purchase is exactly the forgery this guard exists for.
+                    \Illuminate\Support\Facades\Log::error('RevenueCat REST key missing - cannot verify pushed purchase, declined', [
+                        'user_id' => $user->id,
+                    ]);
+                    continue;
+                }
+
                 try {
                     $subscriber = $rcService->getSubscriber($rcAppUserId);
-                    if (! empty($subscriber)) {
-                        $entitlement = $rcService->getActiveEntitlement($subscriber);
-                        if ($entitlement) {
-                            $expiresAt = ! empty($entitlement['expires_date'])
-                                ? \Carbon\Carbon::parse($entitlement['expires_date'])
-                                : $expiresAt;
-                            $isTrial = ($entitlement['period_type'] ?? '') === 'TRIAL';
-                        }
-                    }
+                    $entitlement = $subscriber ? $rcService->getActiveEntitlement($subscriber) : null;
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::info('RevenueCat subscriber API lookup in push skipped/failed', [
+                    // Could not reach RevenueCat. Unknown is not the same as
+                    // invalid, so decline for now and let the next sync retry
+                    // rather than taking the client's word for it.
+                    \Illuminate\Support\Facades\Log::warning('RevenueCat verification unavailable; purchase not recorded yet', [
                         'user_id' => $user->id,
                         'error'   => $e->getMessage(),
                     ]);
+                    continue;
                 }
+
+                if (! $entitlement) {
+                    \Illuminate\Support\Facades\Log::warning('Pushed RevenueCat purchase has no active entitlement; rejected', [
+                        'user_id' => $user->id,
+                    ]);
+                    continue;
+                }
+
+                $expiresAt = ! empty($entitlement['expires_date'])
+                    ? \Carbon\Carbon::parse($entitlement['expires_date'])
+                    : $expiresAt;
+                $isTrial = ($entitlement['period_type'] ?? '') === 'TRIAL';
 
                 // Retire whatever the user was on before.
                 //

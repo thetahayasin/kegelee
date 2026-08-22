@@ -106,6 +106,114 @@ class SubscriptionPushTest extends TestCase
         $this->assertFalse($this->user->fresh()->isSubscribed());
     }
 
+    /**
+     * The RevenueCat path is the DEFAULT store for a pushed purchase, so the
+     * gate on it has to be pinned in both directions: the forged case above
+     * proves it rejects, and this proves a confirmed entitlement still gets
+     * through. Without this a change that rejected everything would look
+     * green.
+     */
+    public function test_confirmed_revenuecat_entitlement_creates_subscription(): void
+    {
+        $expiry = now()->addMonth();
+
+        config(['services.revenuecat.api_key' => 'rc-test-key-not-a-real-secret']);
+
+        Http::fake([
+            'api.revenuecat.com/*' => Http::response([
+                'subscriber' => [
+                    'entitlements' => [
+                        'premium' => [
+                            'expires_date' => $expiry->toIso8601String(),
+                            'period_type'  => 'NORMAL',
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $res = $this->push([
+            'plan_slug'      => 'premium-monthly',
+            'purchase_token' => 'rc-token-123',
+            'status'         => 'active',
+            'store'          => 'revenuecat',
+            'started_at'     => now()->toIso8601String(),
+        ]);
+
+        $res->assertStatus(200);
+        $res->assertJsonPath('synced.subscriptions', 1);
+
+        $sub = Subscription::where('purchase_token', 'rc-token-123')->first();
+        $this->assertNotNull($sub);
+        $this->assertSame('active', $sub->status);
+        // The store's expiry wins over whatever the device claimed.
+        $this->assertEqualsWithDelta($expiry->timestamp, $sub->ends_at->timestamp, 2);
+        $this->assertTrue($this->user->fresh()->isSubscribed());
+    }
+
+    /**
+     * A trial must land as 'trialing', not 'active' - the admin list and the
+     * renewal mail both read that column.
+     */
+    public function test_revenuecat_trial_is_recorded_as_trialing(): void
+    {
+        $expiry = now()->addDays(3);
+
+        config(['services.revenuecat.api_key' => 'rc-test-key-not-a-real-secret']);
+
+        Http::fake([
+            'api.revenuecat.com/*' => Http::response([
+                'subscriber' => [
+                    'entitlements' => [
+                        'premium' => [
+                            'expires_date' => $expiry->toIso8601String(),
+                            'period_type'  => 'TRIAL',
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $res = $this->push([
+            'plan_slug'      => 'premium-monthly',
+            'purchase_token' => 'rc-trial-token',
+            'status'         => 'active',
+            'store'          => 'revenuecat',
+        ]);
+
+        $res->assertJsonPath('synced.subscriptions', 1);
+
+        $sub = Subscription::where('purchase_token', 'rc-trial-token')->first();
+        $this->assertSame('trialing', $sub->status);
+        $this->assertNotNull($sub->trial_ends_at);
+    }
+
+    /**
+     * RevenueCat being unreachable is "unknown", not "invalid": decline the
+     * push (the device re-sends every token on every sync) rather than
+     * minting a subscription nobody verified.
+     */
+    public function test_revenuecat_outage_does_not_create_subscription(): void
+    {
+        config(['services.revenuecat.api_key' => 'rc-test-key-not-a-real-secret']);
+
+        Http::fake([
+            'api.revenuecat.com/*' => Http::response('gateway timeout', 504),
+        ]);
+
+        $res = $this->push([
+            'plan_slug'      => 'premium-monthly',
+            'purchase_token' => 'rc-token-during-outage',
+            'status'         => 'active',
+            'store'          => 'revenuecat',
+        ]);
+
+        $res->assertStatus(200);
+        $res->assertJsonPath('synced.subscriptions', 0);
+        $this->assertNull(Subscription::where('purchase_token', 'rc-token-during-outage')->first());
+        $this->assertFalse($this->user->fresh()->isSubscribed());
+    }
+
     public function test_known_token_is_not_rewritten_by_pushes(): void
     {
         Http::fake(); // verification must not even be attempted

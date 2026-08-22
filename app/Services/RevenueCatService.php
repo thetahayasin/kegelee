@@ -18,6 +18,19 @@ class RevenueCatService
     }
 
     /**
+     * Whether server-side verification is possible at all.
+     *
+     * Callers that treat "no active entitlement" as proof a purchase is fake
+     * MUST check this first: without a REST key getSubscriber() returns an
+     * empty array, which is indistinguishable from a real answer of "this
+     * subscriber has nothing".
+     */
+    public function isConfigured(): bool
+    {
+        return $this->apiKey !== '';
+    }
+
+    /**
      * Get the subscriber object from RevenueCat REST API v1.
      *
      * @throws \RuntimeException
