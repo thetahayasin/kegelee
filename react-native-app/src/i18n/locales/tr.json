@@ -154,11 +154,31 @@
     "terms": "Koşullar"
   },
   "training": {
+    "available": "Kullanılabilir",
+    "bestHold": "En iyi süre {{seconds}} sn",
+    "complete": "TAMAM",
+    "daysLeft_one": "{{count}} gün",
+    "daysLeft_other": "{{count}} gün",
     "exercises": "Egzersizler",
+    "extraSessionsOptional": "Ek seanslar isteğe bağlı",
+    "knowledge": "Bilgi",
+    "measureDaily": "İlerlemeni görmek için her gün ölç",
+    "minutes_one": "{{count}} dk",
+    "minutes_other": "{{count}} dk",
+    "monthDay": "AY {{month}}   /   GÜN {{day}}",
     "progressTracker": "İlerleme takibi",
+    "readyWhenYouAre": "Hazır olduğunda başla",
+    "ringA11y": "Bugün {{required}} seanstan {{done}} tanesi tamam",
+    "ringDoneA11y": "Bugün tamamlandı, {{required}} seanstan {{done}} tanesi",
     "seeAll": "Tümünü gör",
+    "sessions": "SEANS",
+    "sessionsCompleteToday_one": "{{count}} seans bugünü tamamlar",
+    "sessionsCompleteToday_other": "{{count}} seans bugünü tamamlar",
     "startWorkout": "Antrenmanı başlat",
-    "training": "Antrenman"
+    "todayIsDone": "Bugünlük bu kadar",
+    "trainAgain": "Tekrar çalış",
+    "training": "Antrenman",
+    "unlocksInA11y": "{{name}}, {{count}} gün sonra açılır"
   },
   "verifyEmail": {
     "backToLogIn": "Girişe dön",

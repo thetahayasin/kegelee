@@ -14,7 +14,7 @@
 <div class="min-h-[100dvh] pb-[calc(11rem+env(safe-area-inset-bottom))] pt-[calc(0.5rem+env(safe-area-inset-top))]"
      x-data="{}" @progress-reset.window="window.location.reload()">
     <header class="relative flex items-center justify-center px-5 py-4">
-        <a href="{{ route('home') }}" wire:navigate class="absolute left-4 grid h-9 w-9 place-items-center rounded-full text-muted tap" aria-label="Back">
+        <a href="{{ route('home') }}" wire:navigate class="absolute left-3 grid h-11 w-11 place-items-center rounded-full text-muted tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
         </a>
         <h1 class="text-2xl font-bold text-white">Progress Tracker</h1>
@@ -100,7 +100,7 @@
                 retake() { this.done = false; this.elapsed = 0; this.result = 0; },
              }">
             <div class="flex items-center">
-                <button wire:click="$set('measuring', false)" class="grid h-9 w-9 place-items-center rounded-full text-muted tap">
+                <button wire:click="$set('measuring', false)" class="grid h-11 w-11 place-items-center rounded-full text-muted tap">
                     <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
                 </button>
                 <h2 class="ml-2 text-xl font-bold">Progress Tracker</h2>

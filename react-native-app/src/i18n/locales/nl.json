@@ -154,11 +154,31 @@
     "terms": "Voorwaarden"
   },
   "training": {
+    "available": "Beschikbaar",
+    "bestHold": "Beste hold {{seconds}} s",
+    "complete": "KLAAR",
+    "daysLeft_one": "{{count}} dag",
+    "daysLeft_other": "{{count}} dagen",
     "exercises": "Oefeningen",
+    "extraSessionsOptional": "Extra sessies zijn optioneel",
+    "knowledge": "Uitleg",
+    "measureDaily": "Meet dagelijks om vooruitgang te volgen",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MAAND {{month}}   /   DAG {{day}}",
     "progressTracker": "Voortgang",
+    "readyWhenYouAre": "Wanneer jij er klaar voor bent",
+    "ringA11y": "{{done}} van {{required}} sessies vandaag gedaan",
+    "ringDoneA11y": "Vandaag klaar, {{done}} van {{required}} sessies",
     "seeAll": "Alles bekijken",
+    "sessions": "SESSIES",
+    "sessionsCompleteToday_one": "{{count}} sessie maakt vandaag af",
+    "sessionsCompleteToday_other": "{{count}} sessies maken vandaag af",
     "startWorkout": "Training starten",
-    "training": "Training"
+    "todayIsDone": "Vandaag zit erop",
+    "trainAgain": "Nog een keer trainen",
+    "training": "Training",
+    "unlocksInA11y": "{{name}}, ontgrendelt over {{count}} dagen"
   },
   "verifyEmail": {
     "backToLogIn": "Terug naar inloggen",

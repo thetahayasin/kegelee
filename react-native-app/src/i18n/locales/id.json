@@ -154,11 +154,31 @@
     "terms": "Ketentuan"
   },
   "training": {
+    "available": "Tersedia",
+    "bestHold": "Tahan terbaik {{seconds}} dtk",
+    "complete": "SELESAI",
+    "daysLeft_one": "{{count}} hari",
+    "daysLeft_other": "{{count}} hari",
     "exercises": "Latihan",
+    "extraSessionsOptional": "Sesi tambahan bersifat opsional",
+    "knowledge": "Pengetahuan",
+    "measureDaily": "Ukur setiap hari untuk melihat kemajuan",
+    "minutes_one": "{{count}} mnt",
+    "minutes_other": "{{count}} mnt",
+    "monthDay": "BULAN {{month}}   /   HARI {{day}}",
     "progressTracker": "Pelacak kemajuan",
+    "readyWhenYouAre": "Mulai kapan pun kamu siap",
+    "ringA11y": "{{done}} dari {{required}} sesi selesai hari ini",
+    "ringDoneA11y": "Hari ini selesai, {{done}} dari {{required}} sesi",
     "seeAll": "Lihat semua",
+    "sessions": "SESI",
+    "sessionsCompleteToday_one": "{{count}} sesi menuntaskan hari ini",
+    "sessionsCompleteToday_other": "{{count}} sesi menuntaskan hari ini",
     "startWorkout": "Mulai latihan",
-    "training": "Latihan"
+    "todayIsDone": "Hari ini sudah selesai",
+    "trainAgain": "Latihan lagi",
+    "training": "Latihan",
+    "unlocksInA11y": "{{name}}, terbuka dalam {{count}} hari"
   },
   "verifyEmail": {
     "backToLogIn": "Kembali ke halaman masuk",

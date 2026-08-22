@@ -154,11 +154,31 @@
     "terms": "Termini"
   },
   "training": {
+    "available": "Disponibile",
+    "bestHold": "Miglior tenuta {{seconds}} s",
+    "complete": "COMPLETATO",
+    "daysLeft_one": "{{count}} giorno",
+    "daysLeft_other": "{{count}} giorni",
     "exercises": "Esercizi",
+    "extraSessionsOptional": "Le sessioni extra sono facoltative",
+    "knowledge": "Guida",
+    "measureDaily": "Misura ogni giorno per seguire i progressi",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MESE {{month}}   /   GIORNO {{day}}",
     "progressTracker": "Monitoraggio dei progressi",
+    "readyWhenYouAre": "Quando vuoi",
+    "ringA11y": "{{done}} di {{required}} sessioni fatte oggi",
+    "ringDoneA11y": "Oggi completato, {{done}} di {{required}} sessioni",
     "seeAll": "Vedi tutti",
+    "sessions": "SESSIONI",
+    "sessionsCompleteToday_one": "{{count}} sessione completa la giornata",
+    "sessionsCompleteToday_other": "{{count}} sessioni completano la giornata",
     "startWorkout": "Inizia la sessione",
-    "training": "Allenamento"
+    "todayIsDone": "Oggi è fatta",
+    "trainAgain": "Allenati ancora",
+    "training": "Allenamento",
+    "unlocksInA11y": "{{name}}, si sblocca tra {{count}} giorni"
   },
   "verifyEmail": {
     "backToLogIn": "Torna all'accesso",

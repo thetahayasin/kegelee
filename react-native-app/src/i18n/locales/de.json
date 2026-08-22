@@ -154,11 +154,31 @@
     "terms": "AGB"
   },
   "training": {
+    "available": "Verfügbar",
+    "bestHold": "Bester Halt {{seconds}} s",
+    "complete": "GESCHAFFT",
+    "daysLeft_one": "{{count}} Tag",
+    "daysLeft_other": "{{count}} Tage",
     "exercises": "Übungen",
+    "extraSessionsOptional": "Weitere Einheiten sind optional",
+    "knowledge": "Wissen",
+    "measureDaily": "Miss täglich, um Fortschritte zu sehen",
+    "minutes_one": "{{count}} Min.",
+    "minutes_other": "{{count}} Min.",
+    "monthDay": "MONAT {{month}}   /   TAG {{day}}",
     "progressTracker": "Fortschritt",
+    "readyWhenYouAre": "Bereit, wenn du es bist",
+    "ringA11y": "{{done}} von {{required}} Einheiten heute erledigt",
+    "ringDoneA11y": "Heute geschafft, {{done}} von {{required}} Einheiten",
     "seeAll": "Alle ansehen",
+    "sessions": "EINHEITEN",
+    "sessionsCompleteToday_one": "{{count}} Einheit schließt den Tag ab",
+    "sessionsCompleteToday_other": "{{count}} Einheiten schließen den Tag ab",
     "startWorkout": "Training starten",
-    "training": "Training"
+    "todayIsDone": "Heute ist geschafft",
+    "trainAgain": "Nochmal trainieren",
+    "training": "Training",
+    "unlocksInA11y": "{{name}}, freigeschaltet in {{count}} Tagen"
   },
   "verifyEmail": {
     "backToLogIn": "Zurück zur Anmeldung",

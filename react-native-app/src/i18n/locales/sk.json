@@ -154,11 +154,31 @@
     "terms": "Podmienky"
   },
   "training": {
+    "available": "Dostupné",
+    "bestHold": "Najlepšie držanie {{seconds}} s",
+    "complete": "HOTOVO",
+    "daysLeft_one": "{{count}} deň",
+    "daysLeft_other": "{{count}} dní",
     "exercises": "Cviky",
+    "extraSessionsOptional": "Ďalšie série sú dobrovoľné",
+    "knowledge": "Vedomosti",
+    "measureDaily": "Merajte denne a sledujte pokrok",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MESIAC {{month}}   /   DEŇ {{day}}",
     "progressTracker": "Sledovanie pokroku",
+    "readyWhenYouAre": "Začnite, keď budete pripravení",
+    "ringA11y": "Dnes hotovo {{done}} z {{required}} sérií",
+    "ringDoneA11y": "Dnešok splnený, {{done}} z {{required}} sérií",
     "seeAll": "Zobraziť všetko",
+    "sessions": "SÉRIE",
+    "sessionsCompleteToday_one": "{{count}} séria dokončí dnešok",
+    "sessionsCompleteToday_other": "{{count}} série dokončia dnešok",
     "startWorkout": "Začať tréning",
-    "training": "Tréning"
+    "todayIsDone": "Dnešok je hotový",
+    "trainAgain": "Cvičiť znova",
+    "training": "Tréning",
+    "unlocksInA11y": "{{name}}, odomkne sa o {{count}} dní"
   },
   "verifyEmail": {
     "backToLogIn": "Späť na prihlásenie",

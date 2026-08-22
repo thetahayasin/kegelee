@@ -154,11 +154,31 @@
     "terms": "नियम"
   },
   "training": {
+    "available": "उपलब्ध",
+    "bestHold": "सर्वश्रेष्ठ होल्ड {{seconds}} सेकंड",
+    "complete": "पूरा",
+    "daysLeft_one": "{{count}} दिन",
+    "daysLeft_other": "{{count}} दिन",
     "exercises": "व्यायाम",
+    "extraSessionsOptional": "अतिरिक्त सत्र वैकल्पिक हैं",
+    "knowledge": "जानकारी",
+    "measureDaily": "प्रगति देखने के लिए रोज़ मापें",
+    "minutes_one": "{{count}} मिनट",
+    "minutes_other": "{{count}} मिनट",
+    "monthDay": "महीना {{month}}   /   दिन {{day}}",
     "progressTracker": "प्रगति ट्रैकर",
+    "readyWhenYouAre": "जब आप तैयार हों",
+    "ringA11y": "आज {{required}} में से {{done}} सत्र पूरे",
+    "ringDoneA11y": "आज पूरा हुआ, {{required}} में से {{done}} सत्र",
     "seeAll": "सभी देखें",
+    "sessions": "सत्र",
+    "sessionsCompleteToday_one": "{{count}} सत्र से आज पूरा होगा",
+    "sessionsCompleteToday_other": "{{count}} सत्र से आज पूरा होगा",
     "startWorkout": "अभ्यास शुरू करें",
-    "training": "अभ्यास"
+    "todayIsDone": "आज का काम हो गया",
+    "trainAgain": "फिर से करें",
+    "training": "अभ्यास",
+    "unlocksInA11y": "{{name}}, {{count}} दिन में खुलेगा"
   },
   "verifyEmail": {
     "backToLogIn": "लॉग इन पर वापस जाएँ",

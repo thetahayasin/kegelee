@@ -154,11 +154,31 @@
     "terms": "Regulamin"
   },
   "training": {
+    "available": "Dostępne",
+    "bestHold": "Najlepszy wynik {{seconds}} s",
+    "complete": "GOTOWE",
+    "daysLeft_one": "{{count}} dzień",
+    "daysLeft_other": "{{count}} dni",
     "exercises": "Ćwiczenia",
+    "extraSessionsOptional": "Dodatkowe sesje są opcjonalne",
+    "knowledge": "Wiedza",
+    "measureDaily": "Mierz codziennie, aby śledzić postępy",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MIESIĄC {{month}}   /   DZIEŃ {{day}}",
     "progressTracker": "Postępy",
+    "readyWhenYouAre": "Zacznij, gdy będziesz gotowy",
+    "ringA11y": "Dziś {{done}} z {{required}} sesji",
+    "ringDoneA11y": "Dzień zaliczony, {{done}} z {{required}} sesji",
     "seeAll": "Zobacz wszystkie",
+    "sessions": "SESJE",
+    "sessionsCompleteToday_one": "{{count}} sesja kończy dzisiaj",
+    "sessionsCompleteToday_other": "{{count}} sesje kończą dzisiaj",
     "startWorkout": "Rozpocznij trening",
-    "training": "Trening"
+    "todayIsDone": "Dzisiaj zrobione",
+    "trainAgain": "Ćwicz ponownie",
+    "training": "Trening",
+    "unlocksInA11y": "{{name}}, odblokuje się za {{count}} dni"
   },
   "verifyEmail": {
     "backToLogIn": "Wróć do logowania",

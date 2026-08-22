@@ -154,11 +154,31 @@
     "terms": "Điều khoản"
   },
   "training": {
+    "available": "Có sẵn",
+    "bestHold": "Kỷ lục {{seconds}} giây",
+    "complete": "XONG",
+    "daysLeft_one": "còn {{count}} ngày",
+    "daysLeft_other": "còn {{count}} ngày",
     "exercises": "Bài tập",
+    "extraSessionsOptional": "Các buổi thêm là tùy chọn",
+    "knowledge": "Kiến thức",
+    "measureDaily": "Đo mỗi ngày để theo dõi tiến bộ",
+    "minutes_one": "{{count}} phút",
+    "minutes_other": "{{count}} phút",
+    "monthDay": "THÁNG {{month}}   /   NGÀY {{day}}",
     "progressTracker": "Theo dõi tiến độ",
+    "readyWhenYouAre": "Sẵn sàng lúc nào cũng được",
+    "ringA11y": "Hôm nay xong {{done}} trên {{required}} buổi",
+    "ringDoneA11y": "Hôm nay đã xong, {{done}} trên {{required}} buổi",
     "seeAll": "Xem tất cả",
+    "sessions": "BUỔI",
+    "sessionsCompleteToday_one": "{{count}} buổi là xong hôm nay",
+    "sessionsCompleteToday_other": "{{count}} buổi là xong hôm nay",
     "startWorkout": "Bắt đầu buổi tập",
-    "training": "Luyện tập"
+    "todayIsDone": "Hôm nay đã xong",
+    "trainAgain": "Tập lại",
+    "training": "Luyện tập",
+    "unlocksInA11y": "{{name}}, mở khóa sau {{count}} ngày"
   },
   "verifyEmail": {
     "backToLogIn": "Quay lại đăng nhập",

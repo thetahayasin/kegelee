@@ -154,11 +154,31 @@
     "terms": "이용약관"
   },
   "training": {
+    "available": "사용 가능",
+    "bestHold": "최고 기록 {{seconds}}초",
+    "complete": "완료",
+    "daysLeft_one": "{{count}}일 남음",
+    "daysLeft_other": "{{count}}일 남음",
     "exercises": "운동",
+    "extraSessionsOptional": "추가 세션은 선택 사항입니다",
+    "knowledge": "기초 지식",
+    "measureDaily": "매일 측정해 변화를 확인하세요",
+    "minutes_one": "{{count}}분",
+    "minutes_other": "{{count}}분",
+    "monthDay": "{{month}}개월 차   /   {{day}}일 차",
     "progressTracker": "진행 상황",
+    "readyWhenYouAre": "준비되면 시작하세요",
+    "ringA11y": "오늘 {{required}}회 중 {{done}}회 완료",
+    "ringDoneA11y": "오늘 완료, {{required}}회 중 {{done}}회",
     "seeAll": "전체 보기",
+    "sessions": "세션",
+    "sessionsCompleteToday_one": "{{count}}회면 오늘이 완료됩니다",
+    "sessionsCompleteToday_other": "{{count}}회면 오늘이 완료됩니다",
     "startWorkout": "운동 시작",
-    "training": "훈련"
+    "todayIsDone": "오늘은 끝났어요",
+    "trainAgain": "다시 운동하기",
+    "training": "훈련",
+    "unlocksInA11y": "{{name}}, {{count}}일 후 잠금 해제"
   },
   "verifyEmail": {
     "backToLogIn": "로그인으로 돌아가기",

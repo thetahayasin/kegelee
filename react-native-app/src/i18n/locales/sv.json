@@ -154,11 +154,31 @@
     "terms": "Villkor"
   },
   "training": {
+    "available": "Tillgänglig",
+    "bestHold": "Bästa håll {{seconds}} s",
+    "complete": "KLART",
+    "daysLeft_one": "{{count}} dag",
+    "daysLeft_other": "{{count}} dagar",
     "exercises": "Övningar",
+    "extraSessionsOptional": "Extra pass är frivilliga",
+    "knowledge": "Kunskap",
+    "measureDaily": "Mät varje dag för att följa utvecklingen",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MÅNAD {{month}}   /   DAG {{day}}",
     "progressTracker": "Utveckling",
+    "readyWhenYouAre": "Kör när du är redo",
+    "ringA11y": "{{done}} av {{required}} pass klara i dag",
+    "ringDoneA11y": "Dagen är klar, {{done}} av {{required}} pass",
     "seeAll": "Visa alla",
+    "sessions": "PASS",
+    "sessionsCompleteToday_one": "{{count}} pass avslutar dagen",
+    "sessionsCompleteToday_other": "{{count}} pass avslutar dagen",
     "startWorkout": "Starta passet",
-    "training": "Träning"
+    "todayIsDone": "Dagen är klar",
+    "trainAgain": "Träna igen",
+    "training": "Träning",
+    "unlocksInA11y": "{{name}}, låses upp om {{count}} dagar"
   },
   "verifyEmail": {
     "backToLogIn": "Tillbaka till inloggningen",

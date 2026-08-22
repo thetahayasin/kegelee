@@ -154,11 +154,31 @@
     "terms": "条款"
   },
   "training": {
+    "available": "可用",
+    "bestHold": "最佳保持 {{seconds}} 秒",
+    "complete": "已完成",
+    "daysLeft_one": "还需 {{count}} 天",
+    "daysLeft_other": "还需 {{count}} 天",
     "exercises": "训练动作",
+    "extraSessionsOptional": "额外训练可做可不做",
+    "knowledge": "知识",
+    "measureDaily": "每天测量，记录变化",
+    "minutes_one": "{{count}} 分钟",
+    "minutes_other": "{{count}} 分钟",
+    "monthDay": "第 {{month}} 个月   /   第 {{day}} 天",
     "progressTracker": "进度追踪",
+    "readyWhenYouAre": "准备好就开始",
+    "ringA11y": "今天已完成 {{required}} 组中的 {{done}} 组",
+    "ringDoneA11y": "今天已达标，{{required}} 组中完成 {{done}} 组",
     "seeAll": "查看全部",
+    "sessions": "组",
+    "sessionsCompleteToday_one": "{{count}} 组即可完成今天",
+    "sessionsCompleteToday_other": "{{count}} 组即可完成今天",
     "startWorkout": "开始训练",
-    "training": "训练"
+    "todayIsDone": "今天已完成",
+    "trainAgain": "再练一次",
+    "training": "训练",
+    "unlocksInA11y": "{{name}}，{{count}} 天后解锁"
   },
   "verifyEmail": {
     "backToLogIn": "返回登录",

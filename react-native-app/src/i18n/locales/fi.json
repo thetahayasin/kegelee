@@ -154,11 +154,31 @@
     "terms": "Ehdot"
   },
   "training": {
+    "available": "Käytettävissä",
+    "bestHold": "Paras pito {{seconds}} s",
+    "complete": "VALMIS",
+    "daysLeft_one": "{{count}} päivä",
+    "daysLeft_other": "{{count}} päivää",
     "exercises": "Harjoitukset",
+    "extraSessionsOptional": "Lisäharjoitukset ovat vapaaehtoisia",
+    "knowledge": "Tietoa",
+    "measureDaily": "Mittaa päivittäin ja seuraa kehitystä",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "KUUKAUSI {{month}}   /   PÄIVÄ {{day}}",
     "progressTracker": "Edistyminen",
+    "readyWhenYouAre": "Aloita kun olet valmis",
+    "ringA11y": "{{done}} / {{required}} harjoitusta tehty tänään",
+    "ringDoneA11y": "Päivä valmis, {{done}} / {{required}} harjoitusta",
     "seeAll": "Näytä kaikki",
+    "sessions": "HARJOITUSTA",
+    "sessionsCompleteToday_one": "{{count}} harjoitus täyttää päivän",
+    "sessionsCompleteToday_other": "{{count}} harjoitusta täyttää päivän",
     "startWorkout": "Aloita harjoitus",
-    "training": "Harjoittelu"
+    "todayIsDone": "Tämä päivä on tehty",
+    "trainAgain": "Harjoittele uudelleen",
+    "training": "Harjoittelu",
+    "unlocksInA11y": "{{name}}, aukeaa {{count}} päivän päästä"
   },
   "verifyEmail": {
     "backToLogIn": "Takaisin kirjautumiseen",

@@ -10,11 +10,11 @@
          the plans sheet; dismissing the sheet drops to Learn the Basics. --}}
     <div class="flex items-center justify-between pt-2">
         <button @click="index > 0 ? index-- : $wire.skip()"
-                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-content tap" aria-label="Back">
+                class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface text-content tap" aria-label="Back">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
         </button>
         <button wire:click="skip"
-                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface text-muted tap" aria-label="Skip to plans">
+                class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface text-muted tap" aria-label="Skip to plans">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
     </div>

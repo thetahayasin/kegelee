@@ -154,11 +154,31 @@
     "terms": "利用規約"
   },
   "training": {
+    "available": "利用可能",
+    "bestHold": "最長キープ {{seconds}} 秒",
+    "complete": "完了",
+    "daysLeft_one": "あと{{count}}日",
+    "daysLeft_other": "あと{{count}}日",
     "exercises": "エクササイズ",
+    "extraSessionsOptional": "追加のセッションは任意です",
+    "knowledge": "基礎知識",
+    "measureDaily": "毎日測定して変化を記録",
+    "minutes_one": "{{count}}分",
+    "minutes_other": "{{count}}分",
+    "monthDay": "{{month}}か月目   /   {{day}}日目",
     "progressTracker": "進捗トラッカー",
+    "readyWhenYouAre": "準備ができたら始めましょう",
+    "ringA11y": "今日は{{required}}回中{{done}}回完了",
+    "ringDoneA11y": "今日は達成、{{required}}回中{{done}}回完了",
     "seeAll": "すべて見る",
+    "sessions": "セッション",
+    "sessionsCompleteToday_one": "{{count}}回で今日は達成",
+    "sessionsCompleteToday_other": "{{count}}回で今日は達成",
     "startWorkout": "トレーニングを開始",
-    "training": "トレーニング"
+    "todayIsDone": "今日は達成しました",
+    "trainAgain": "もう一度トレーニング",
+    "training": "トレーニング",
+    "unlocksInA11y": "{{name}}、あと{{count}}日で解放"
   },
   "verifyEmail": {
     "backToLogIn": "ログインに戻る",

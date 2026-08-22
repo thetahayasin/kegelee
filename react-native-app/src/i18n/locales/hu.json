@@ -154,11 +154,31 @@
     "terms": "Feltételek"
   },
   "training": {
+    "available": "Elérhető",
+    "bestHold": "Legjobb tartás {{seconds}} mp",
+    "complete": "KÉSZ",
+    "daysLeft_one": "{{count}} nap",
+    "daysLeft_other": "{{count}} nap",
     "exercises": "Gyakorlatok",
+    "extraSessionsOptional": "A további körök nem kötelezők",
+    "knowledge": "Tudnivalók",
+    "measureDaily": "Mérj naponta, hogy lásd a fejlődést",
+    "minutes_one": "{{count}} perc",
+    "minutes_other": "{{count}} perc",
+    "monthDay": "{{month}}. HÓNAP   /   {{day}}. NAP",
     "progressTracker": "Haladás",
+    "readyWhenYouAre": "Kezdd, amikor készen állsz",
+    "ringA11y": "Ma {{required}} körből {{done}} kész",
+    "ringDoneA11y": "A mai nap kész, {{required}} körből {{done}}",
     "seeAll": "Összes megtekintése",
+    "sessions": "KÖR",
+    "sessionsCompleteToday_one": "{{count}} kör zárja a napot",
+    "sessionsCompleteToday_other": "{{count}} kör zárja a napot",
     "startWorkout": "Edzés indítása",
-    "training": "Edzés"
+    "todayIsDone": "A mai nap megvan",
+    "trainAgain": "Újra edzés",
+    "training": "Edzés",
+    "unlocksInA11y": "{{name}}, {{count}} nap múlva nyílik"
   },
   "verifyEmail": {
     "backToLogIn": "Vissza a bejelentkezéshez",

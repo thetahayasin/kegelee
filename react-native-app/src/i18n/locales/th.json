@@ -154,11 +154,31 @@
     "terms": "ข้อกำหนด"
   },
   "training": {
+    "available": "พร้อมใช้งาน",
+    "bestHold": "สถิติสูงสุด {{seconds}} วินาที",
+    "complete": "เสร็จแล้ว",
+    "daysLeft_one": "อีก {{count}} วัน",
+    "daysLeft_other": "อีก {{count}} วัน",
     "exercises": "ท่าฝึก",
+    "extraSessionsOptional": "รอบเพิ่มเติมทำหรือไม่ก็ได้",
+    "knowledge": "ความรู้",
+    "measureDaily": "วัดทุกวันเพื่อติดตามความก้าวหน้า",
+    "minutes_one": "{{count}} นาที",
+    "minutes_other": "{{count}} นาที",
+    "monthDay": "เดือนที่ {{month}}   /   วันที่ {{day}}",
     "progressTracker": "ติดตามความคืบหน้า",
+    "readyWhenYouAre": "เริ่มได้เมื่อคุณพร้อม",
+    "ringA11y": "วันนี้ทำแล้ว {{done}} จาก {{required}} รอบ",
+    "ringDoneA11y": "วันนี้ครบแล้ว {{done}} จาก {{required}} รอบ",
     "seeAll": "ดูทั้งหมด",
+    "sessions": "รอบ",
+    "sessionsCompleteToday_one": "อีก {{count}} รอบก็ครบวันนี้",
+    "sessionsCompleteToday_other": "อีก {{count}} รอบก็ครบวันนี้",
     "startWorkout": "เริ่มฝึก",
-    "training": "การฝึก"
+    "todayIsDone": "วันนี้ครบแล้ว",
+    "trainAgain": "ฝึกอีกครั้ง",
+    "training": "การฝึก",
+    "unlocksInA11y": "{{name}} ปลดล็อกในอีก {{count}} วัน"
   },
   "verifyEmail": {
     "backToLogIn": "กลับไปหน้าเข้าสู่ระบบ",

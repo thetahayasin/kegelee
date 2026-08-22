@@ -154,11 +154,31 @@
     "terms": "תנאים"
   },
   "training": {
+    "available": "זמין",
+    "bestHold": "השיא שלך {{seconds}} שנ׳",
+    "complete": "הושלם",
+    "daysLeft_one": "יום אחד",
+    "daysLeft_other": "{{count}} ימים",
     "exercises": "תרגילים",
+    "extraSessionsOptional": "אימונים נוספים הם רשות",
+    "knowledge": "מידע",
+    "measureDaily": "מדדו כל יום כדי לעקוב אחר ההתקדמות",
+    "minutes_one": "{{count}} דק׳",
+    "minutes_other": "{{count}} דק׳",
+    "monthDay": "חודש {{month}}   /   יום {{day}}",
     "progressTracker": "מעקב התקדמות",
+    "readyWhenYouAre": "מתי שתרצו",
+    "ringA11y": "{{done}} מתוך {{required}} אימונים היום",
+    "ringDoneA11y": "היום הושלם, {{done}} מתוך {{required}} אימונים",
     "seeAll": "הצג הכל",
+    "sessions": "אימונים",
+    "sessionsCompleteToday_one": "אימון אחד משלים את היום",
+    "sessionsCompleteToday_other": "{{count}} אימונים משלימים את היום",
     "startWorkout": "התחל אימון",
-    "training": "אימון"
+    "todayIsDone": "היום הושלם",
+    "trainAgain": "להתאמן שוב",
+    "training": "אימון",
+    "unlocksInA11y": "{{name}}, נפתח בעוד {{count}} ימים"
   },
   "verifyEmail": {
     "backToLogIn": "חזרה להתחברות",

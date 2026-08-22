@@ -154,11 +154,31 @@
     "terms": "Условия"
   },
   "training": {
+    "available": "Доступно",
+    "bestHold": "Лучший результат {{seconds}} с",
+    "complete": "ГОТОВО",
+    "daysLeft_one": "{{count}} день",
+    "daysLeft_other": "{{count}} дней",
     "exercises": "Упражнения",
+    "extraSessionsOptional": "Дополнительные подходы по желанию",
+    "knowledge": "Знания",
+    "measureDaily": "Измеряйте каждый день, чтобы видеть прогресс",
+    "minutes_one": "{{count}} мин",
+    "minutes_other": "{{count}} мин",
+    "monthDay": "МЕСЯЦ {{month}}   /   ДЕНЬ {{day}}",
     "progressTracker": "Прогресс",
+    "readyWhenYouAre": "Начните, когда будете готовы",
+    "ringA11y": "Сегодня выполнено {{done}} из {{required}}",
+    "ringDoneA11y": "День закрыт, {{done}} из {{required}} подходов",
     "seeAll": "Показать все",
+    "sessions": "ПОДХОДЫ",
+    "sessionsCompleteToday_one": "{{count}} подход закрывает день",
+    "sessionsCompleteToday_other": "{{count}} подхода закрывают день",
     "startWorkout": "Начать тренировку",
-    "training": "Тренировка"
+    "todayIsDone": "На сегодня всё",
+    "trainAgain": "Позаниматься ещё",
+    "training": "Тренировка",
+    "unlocksInA11y": "{{name}}, откроется через {{count}} дней"
   },
   "verifyEmail": {
     "backToLogIn": "Вернуться ко входу",

@@ -12,7 +12,7 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS, DISABLED_OPACITY } from '../../theme/colors';
+import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import {
   getMaxMeasurement,
 } from '../../db/queries';
@@ -20,7 +20,7 @@ import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress } from '../../services/progression';
 import { EXERCISES, LEVELS } from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
-import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 
@@ -39,7 +39,7 @@ export const TrainingScreen = () => {
   const [day, setDay] = useState(1);
   const [, setCompletedDays] = useState(0);
   const [bestMeasurement, setBestMeasurement] = useState<number | null>(null);
-  
+
   // Exercise list with unlocked state
   const [exerciseItems, setExerciseItems] = useState<any[]>([]);
 
@@ -128,11 +128,16 @@ export const TrainingScreen = () => {
   };
 
   const levelDef = user ? LEVELS[user.level_id] : null;
-  const sessionLength = levelDef ? `${Math.floor(levelDef.total_session_seconds / 60)} min` : '1 min';
+  const sessionLength = t('training.minutes', {
+    count: levelDef ? Math.floor(levelDef.total_session_seconds / 60) : 1,
+  });
 
-  // Circle Arc properties
-  const arcLength = 158.336;
-  const strokeDashoffset = arcLength * (1 - Math.min(1, Math.max(0, done / Math.max(1, required))));
+  // Gauge geometry. An 80% arc (288deg) with the 72deg gap rotated to the
+  // bottom - the +126deg puts the gap's centre at 90deg, i.e. straight down.
+  const R = 58;
+  const arcLength = 2 * Math.PI * R * 0.8;
+  const pct = Math.min(1, Math.max(0, done / Math.max(1, required)));
+  const strokeDashoffset = arcLength * (1 - pct);
 
   if (loading) {
     return (
@@ -148,15 +153,22 @@ export const TrainingScreen = () => {
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={COLORS.accent} />
         }
       >
-        {/* Title Row */}
+        {/* Header */}
         <View style={styles.titleRow}>
-          <Text style={styles.pageTitle}>{t('training.training')}</Text>
+          <View>
+            <Text style={styles.brandOverline}>KEGELEE</Text>
+            <Text style={styles.pageTitle}>{t('training.training')}</Text>
+          </View>
           <TouchableOpacity
             style={styles.infoBtnInline}
+            accessibilityRole="button"
+            accessibilityLabel={t('training.knowledge')}
+            hitSlop={8}
             onPress={() => navigation.navigate('Knowledge')}
           >
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -166,115 +178,113 @@ export const TrainingScreen = () => {
             </Svg>
           </TouchableOpacity>
         </View>
-        {/* Today Card */}
-        <View style={styles.todayCard}>
-          {/* Soft accent bloom. The old decoration was a flat 176pt circle at
-              3% white, clipped by the card, so it landed as a hard grey arc
-              cutting the corner rather than as depth. A radial gradient fading
-              to zero has no edge to catch, and carries the brand colour. */}
-          <View style={styles.todayCardGlow} pointerEvents="none">
-            <Svg width={220} height={220} viewBox="0 0 220 220">
-              <Defs>
-                <RadialGradient id="todayCardGlow" cx="50%" cy="50%" r="50%">
-                  <Stop offset="0" stopColor={COLORS.accent} stopOpacity={0.16} />
-                  <Stop offset="0.55" stopColor={COLORS.accent} stopOpacity={0.05} />
-                  <Stop offset="1" stopColor={COLORS.accent} stopOpacity={0} />
-                </RadialGradient>
-              </Defs>
-              <Circle cx={110} cy={110} r={110} fill="url(#todayCardGlow)" />
-            </Svg>
-          </View>
-          
-          <View style={styles.todayCardTop}>
-            {/* SVG Arc Progress Circle */}
-            <View style={styles.progressCircleContainer}>
+
+        {/* Hero. The ring is the one thing a returning user opens the app to
+            check, so it is the screen's single focal point rather than a
+            68px circle sharing a row with a decorative dumbbell. */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroBody}>
+            <View
+              style={styles.ringWrap}
+              accessible
+              accessibilityRole="image"
+              accessibilityLabel={
+                complete
+                  ? t('training.ringDoneA11y', { done, required })
+                  : t('training.ringA11y', { done, required })
+              }
+            >
               <View style={{ transform: [{ rotate: '126deg' }] }}>
-                <Svg width={68} height={68} viewBox="0 0 68 68">
+                <Svg width={132} height={132} viewBox="0 0 132 132">
                   <Circle
-                    cx={34}
-                    cy={34}
-                    r={31.5}
+                    cx={66}
+                    cy={66}
+                    r={R}
                     fill="none"
-                    stroke="rgba(255,255,255,0.10)"
-                    strokeWidth={5}
-                    strokeDasharray={`${arcLength} 197.920`}
+                    stroke="rgba(255,255,255,0.07)"
+                    strokeWidth={9}
+                    strokeDasharray={`${arcLength} 999`}
                     strokeLinecap="round"
                   />
                   <Circle
-                    cx={34}
-                    cy={34}
-                    r={31.5}
+                    cx={66}
+                    cy={66}
+                    r={R}
                     fill="none"
                     stroke={COLORS.accent}
-                    strokeWidth={5}
-                    strokeDasharray={`${arcLength} 197.920`}
+                    strokeWidth={9}
+                    strokeDasharray={`${arcLength} 999`}
                     strokeDashoffset={strokeDashoffset}
                     strokeLinecap="round"
                   />
                 </Svg>
               </View>
-              <View style={styles.progressTextContainer}>
-                <Text style={styles.progressText}>{`${done}/${required}`}</Text>
+              <View style={styles.ringCentre} pointerEvents="none">
+                <Text style={styles.ringCount}>
+                  {done}
+                  <Text style={styles.ringSlash}>/</Text>
+                  <Text style={styles.ringTotal}>{required}</Text>
+                </Text>
+                <Text style={styles.ringLabel}>{t('training.sessions')}</Text>
               </View>
             </View>
 
-            {/* Dumbbell Equipment Icon (Inline SVG) */}
-            <View style={styles.equipmentIcon}>
-              <Svg width={88} height={88} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M6.5 6.5l11 11M3 6.5l3.5-3.5 3.5 3.5-3.5 3.5L3 6.5zm11 11l3.5-3.5 3.5 3.5-3.5 3.5-3.5-3.5z"
-                  stroke={COLORS.accent}
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
-            </View>
+            <Text style={styles.heroOverline}>
+              {t('training.monthDay', { month, day })}
+            </Text>
+            <Text style={styles.heroHeadline}>
+              {complete ? t('training.todayIsDone') : t('training.readyWhenYouAre')}
+            </Text>
           </View>
 
-          {complete && (
-            <View style={styles.completeBadge}>
-              <Text style={styles.completeBadgeText}>COMPLETED</Text>
-              <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            </View>
-          )}
+          {/* Action strip, seated on the card one elevation step forward. */}
+          <View style={styles.actionStrip}>
+            <View style={styles.actionMetaRow}>
+              <View style={styles.durationRow}>
+                <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+                  <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={1.8} />
+                  <Path d="M12 8v4l3 2" stroke={COLORS.textMuted} strokeWidth={1.8} strokeLinecap="round" />
+                </Svg>
+                <Text style={styles.durationText}>{sessionLength}</Text>
+              </View>
 
-          <Text style={styles.todayCardTitle}>
-            Month {month} <Text style={styles.dot}>·</Text> Day {day}
-          </Text>
-
-          {/* Start Strip */}
-          <View style={styles.startStrip}>
-            <View style={styles.durationRow}>
-              <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
-                <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={1.8} />
-                <Path d="M12 8v4l3 2" stroke={COLORS.textMuted} strokeWidth={1.8} strokeLinecap="round" />
-              </Svg>
-              <Text style={styles.durationText}>{sessionLength}</Text>
+              {complete && (
+                <View style={styles.completeBadge}>
+                  <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
+                    <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+                  <Text style={styles.completeBadgeText}>{t('training.complete')}</Text>
+                </View>
+              )}
             </View>
-            
-            <Text style={styles.infoText}>
-              {complete
-                ? 'Day complete - extra sessions are optional'
-                : `Complete ${required} training session${required > 1 ? 's' : ''} a day to finish a training day`}
-            </Text>
 
             <TouchableOpacity
               style={styles.startBtn}
+              accessibilityRole="button"
+              activeOpacity={0.85}
               onPress={() => navigation.navigate('Workout')}
             >
-              <Text style={styles.startBtnText}>{t('training.startWorkout')}</Text>
+              <Text style={styles.startBtnText}>
+                {complete ? t('training.trainAgain') : t('training.startWorkout')}
+              </Text>
             </TouchableOpacity>
+
+            <Text style={styles.helperText}>
+              {complete
+                ? t('training.extraSessionsOptional')
+                : t('training.sessionsCompleteToday', { count: required })}
+            </Text>
           </View>
         </View>
 
-        {/* Exercises Section */}
+        {/* Exercises. Was a horizontal rail, which hid most of the set
+            off-screen and gave no sense of how much there is to unlock. */}
         <View style={styles.railHeader}>
           <Text style={styles.sectionTitleCompact}>{t('training.exercises')}</Text>
           <TouchableOpacity
             style={styles.seeAllBtn}
+            accessibilityRole="button"
+            hitSlop={8}
             onPress={() => navigation.navigate('AllExercises')}
           >
             <Text style={styles.seeAllText}>{t('training.seeAll')}</Text>
@@ -284,16 +294,19 @@ export const TrainingScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.exerciseRail}
-        >
+        <View style={styles.exerciseGrid}>
           {exerciseItems.slice(0, 8).map((ex) => (
             <TouchableOpacity
               key={ex.slug}
               disabled={!ex.unlocked}
-              style={[styles.exerciseCard, !ex.unlocked && styles.exerciseCardLocked]}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={
+                ex.unlocked
+                  ? ex.name
+                  : t('training.unlocksInA11y', { name: ex.name, count: ex.daysLeft })
+              }
+              style={styles.exerciseCard}
               onPress={() =>
                 navigation.navigate('ExerciseDetail', {
                   slug: ex.slug,
@@ -302,32 +315,58 @@ export const TrainingScreen = () => {
                 })
               }
             >
-              <EquipmentIcon slug={ex.slug} size={84} />
-              <Text style={styles.exerciseName} numberOfLines={1}>
+              <View style={!ex.unlocked && styles.lockedArt}>
+                <EquipmentIcon slug={ex.slug} size={72} />
+              </View>
+              <Text
+                style={[styles.exerciseName, !ex.unlocked && styles.exerciseNameLocked]}
+                numberOfLines={1}
+              >
                 {ex.name}
               </Text>
-              <Text style={[styles.exerciseStatus, !ex.unlocked && styles.exerciseStatusLocked]}>
-                {ex.unlocked ? 'Available' : `${ex.daysLeft} days`}
-              </Text>
+              {ex.unlocked ? (
+                <Text style={styles.exerciseStatus}>{t('training.available')}</Text>
+              ) : (
+                <View style={styles.lockRow}>
+                  <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
+                    <Rect x={4} y={10} width={16} height={11} rx={2.5} stroke={COLORS.textDim} strokeWidth={2.4} />
+                    <Path d="M8 10V7a4 4 0 1 1 8 0v3" stroke={COLORS.textDim} strokeWidth={2.4} strokeLinecap="round" />
+                  </Svg>
+                  <Text style={styles.exerciseStatusLocked}>{t('training.daysLeft', { count: ex.daysLeft })}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
 
-        {/* Progress Tracker Card Link */}
+        {/* Progress */}
         <TouchableOpacity
           style={styles.progressRowLink}
+          activeOpacity={0.85}
+          accessibilityRole="button"
           onPress={() => navigation.navigate('Progress')}
         >
-          <View>
+          <View style={styles.progressIconTile}>
+            <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-7"
+                stroke={COLORS.accent}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </View>
+          <View style={styles.progressCopy}>
             <Text style={styles.progressLinkTitle}>{t('training.progressTracker')}</Text>
             <Text style={styles.progressLinkDesc}>
               {bestMeasurement !== null
-                ? `Best hold: ${Math.floor(bestMeasurement)} sec`
-                : 'Take measurements daily to track progress'}
+                ? t('training.bestHold', { seconds: Math.floor(bestMeasurement) })
+                : t('training.measureDaily')}
             </Text>
           </View>
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M9 5l7 7-7 7" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </TouchableOpacity>
       </ScrollView>
@@ -336,82 +375,47 @@ export const TrainingScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.bg,
-  },
+  container: { flex: 1, backgroundColor: COLORS.bg },
   loadingContainer: {
     flex: 1,
     backgroundColor: COLORS.bg,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scrollContent: {
-    paddingBottom: 40,
-  },
+  scrollContent: { paddingBottom: 40 },
+
+  /* Header ------------------------------------------------------------- */
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 16,
+    paddingHorizontal: SPACE.lg,
+    paddingTop: SPACE.xl,
+    paddingBottom: SPACE.lg,
   },
-  pageTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
+  brandOverline: { ...TYPE.overline, color: COLORS.textDim, marginBottom: 2 },
+  pageTitle: { ...TYPE.display, color: COLORS.white },
   infoBtnInline: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.pill,
     ...GLASS,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  sectionTitleCompact: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  todayCard: {
-    marginHorizontal: 16,
+
+  /* Hero --------------------------------------------------------------- */
+  heroCard: {
+    marginHorizontal: SPACE.lg,
     ...GLASS,
     backgroundColor: COLORS.surface,
-    borderRadius: 28,
-    padding: 20,
-    position: 'relative',
+    borderRadius: RADIUS.xl,
     overflow: 'hidden',
   },
-  todayCardGlow: {
-    position: 'absolute',
-    top: -78,
-    end: -78,
-  },
-  todayCardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  progressCircleContainer: {
-    width: 68,
-    height: 68,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressTextContainer: {
+  heroBody: { paddingHorizontal: SPACE.xl, paddingTop: 28, paddingBottom: SPACE.xl, alignItems: 'center' },
+  ringWrap: { width: 132, height: 132, justifyContent: 'center', alignItems: 'center' },
+  ringCentre: {
     position: 'absolute',
     top: 0,
     start: 0,
@@ -420,151 +424,116 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  progressText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.white,
+  ringCount: { fontSize: 36, fontWeight: '800', letterSpacing: -1.4, color: COLORS.white },
+  ringSlash: { color: COLORS.textDim, fontWeight: '800' },
+  ringTotal: { color: COLORS.textMuted, fontWeight: '800' },
+  ringLabel: { ...TYPE.overline, fontSize: 10, color: COLORS.textDim, marginTop: 3 },
+  heroOverline: { ...TYPE.overline, color: COLORS.textDim, marginTop: SPACE.xl },
+  heroHeadline: { ...TYPE.heading, color: COLORS.white, marginTop: 6 },
+
+  /* Action strip -------------------------------------------------------- */
+  actionStrip: {
+    backgroundColor: COLORS.surface2,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingHorizontal: SPACE.xl,
+    paddingVertical: SPACE.lg,
   },
-  equipmentIcon: {
-    marginEnd: 4,
-    marginTop: 4,
+  actionMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACE.md,
   },
+  durationRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  durationText: { ...TYPE.bodySm, color: COLORS.textMuted },
   completeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(193, 255, 114, 0.15)',
+    backgroundColor: COLORS.accentWash,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-    gap: 6,
-    marginBottom: 8,
+    borderRadius: RADIUS.pill,
+    gap: 5,
   },
-  completeBadgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: COLORS.accent,
-  },
-  todayCardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  dot: {
-    color: 'rgba(193, 255, 114, 0.6)',
-  },
-  startStrip: {
-    marginTop: 20,
-    backgroundColor: COLORS.surface2,
-    borderRadius: 20,
-    padding: 16,
-  },
-  durationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  durationText: {
-    color: COLORS.whiteMuted,
-    fontSize: 13,
-    fontWeight: 'semibold',
-  },
-  infoText: {
-    color: COLORS.white,
-    fontSize: 14,
-    fontWeight: 'medium',
-    marginTop: 6,
-    lineHeight: 20,
-  },
+  completeBadgeText: { ...TYPE.overline, fontSize: 10, color: COLORS.accent },
   startBtn: {
     backgroundColor: COLORS.accent,
-    borderRadius: 24,
-    height: 48,
+    borderRadius: RADIUS.md,
+    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
   },
-  startBtnText: {
-    color: COLORS.onAccent,
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
+  startBtnText: { color: COLORS.onAccent, fontWeight: '700', fontSize: 15, letterSpacing: -0.2 },
+  helperText: { ...TYPE.caption, color: COLORS.textDim, textAlign: 'center', marginTop: 10 },
+
+  /* Exercises ----------------------------------------------------------- */
   railHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    paddingBottom: 12,
+    alignItems: 'flex-end',
+    paddingHorizontal: SPACE.lg + 4,
+    paddingTop: SPACE.xxl,
+    paddingBottom: SPACE.md,
   },
-  seeAllBtn: {
+  sectionTitleCompact: { ...TYPE.section, color: COLORS.white },
+  seeAllBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  seeAllText: { ...TYPE.bodySm, color: COLORS.textMuted, fontWeight: '600' },
+  exerciseGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  seeAllText: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-  },
-  exerciseRail: {
-    paddingStart: 16,
-    paddingEnd: 8,
+    flexWrap: 'wrap',
+    paddingHorizontal: SPACE.lg,
+    gap: SPACE.md,
   },
   exerciseCard: {
-    width: 150,
+    // Two per row, accounting for the 12px gap between them.
+    width: '48%',
+    flexGrow: 1,
     ...GLASS,
     backgroundColor: COLORS.surface,
-    borderRadius: 20,
-    padding: 16,
-    marginEnd: 12,
+    borderRadius: RADIUS.lg,
+    padding: 14,
     alignItems: 'center',
   },
-  exerciseCardLocked: {
-    opacity: DISABLED_OPACITY,
-  },
-  exerciseIconContainer: {
-    width: 64,
-    height: 64,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
+  // Locked art is dimmed but the card itself stays at full opacity, so a
+  // locked row reads as "not yet earned" rather than as a broken card.
+  lockedArt: { opacity: 0.4 },
   exerciseName: {
     color: COLORS.white,
-    fontSize: 14,
-    fontWeight: 'semibold',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: -0.2,
     textAlign: 'center',
     width: '100%',
-    marginTop: 12,
+    marginTop: SPACE.md,
   },
-  exerciseStatus: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
-  exerciseStatusLocked: {
-    color: COLORS.accentSoft,
-  },
+  exerciseNameLocked: { color: COLORS.textMuted },
+  exerciseStatus: { ...TYPE.caption, color: COLORS.accent, fontWeight: '600', marginTop: 2 },
+  lockRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
+  exerciseStatusLocked: { ...TYPE.caption, color: COLORS.textDim, fontWeight: '600' },
+
+  /* Progress ------------------------------------------------------------ */
   progressRowLink: {
-    marginHorizontal: 16,
-    marginTop: 28,
+    marginHorizontal: SPACE.lg,
+    marginTop: SPACE.md,
     ...GLASS,
     backgroundColor: COLORS.surface,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACE.lg,
+    paddingVertical: SPACE.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: SPACE.lg,
   },
-  progressLinkTitle: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: COLORS.white,
+  progressIconTile: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.sm + 2,
+    backgroundColor: COLORS.accentWash,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  progressLinkDesc: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
+  progressCopy: { flex: 1 },
+  progressLinkTitle: { fontSize: 15, fontWeight: '700', letterSpacing: -0.2, color: COLORS.white },
+  progressLinkDesc: { ...TYPE.bodySm, color: COLORS.textMuted, marginTop: 2 },
 });

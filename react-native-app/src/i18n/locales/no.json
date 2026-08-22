@@ -154,11 +154,31 @@
     "terms": "Vilkår"
   },
   "training": {
+    "available": "Tilgjengelig",
+    "bestHold": "Beste hold {{seconds}} s",
+    "complete": "FULLFØRT",
+    "daysLeft_one": "{{count}} dag",
+    "daysLeft_other": "{{count}} dager",
     "exercises": "Øvelser",
+    "extraSessionsOptional": "Ekstra økter er valgfrie",
+    "knowledge": "Kunnskap",
+    "measureDaily": "Mål daglig for å følge fremgangen",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MÅNED {{month}}   /   DAG {{day}}",
     "progressTracker": "Fremgang",
+    "readyWhenYouAre": "Klar når du er",
+    "ringA11y": "{{done}} av {{required}} økter gjort i dag",
+    "ringDoneA11y": "Dagen er fullført, {{done}} av {{required}} økter",
     "seeAll": "Se alle",
+    "sessions": "ØKTER",
+    "sessionsCompleteToday_one": "{{count}} økt fullfører dagen",
+    "sessionsCompleteToday_other": "{{count}} økter fullfører dagen",
     "startWorkout": "Start økten",
-    "training": "Trening"
+    "todayIsDone": "Dagen er ferdig",
+    "trainAgain": "Tren igjen",
+    "training": "Trening",
+    "unlocksInA11y": "{{name}}, låses opp om {{count}} dager"
   },
   "verifyEmail": {
     "backToLogIn": "Tilbake til innlogging",

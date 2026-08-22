@@ -154,11 +154,31 @@
     "terms": "Умови"
   },
   "training": {
+    "available": "Доступно",
+    "bestHold": "Найкращий результат {{seconds}} с",
+    "complete": "ГОТОВО",
+    "daysLeft_one": "{{count}} день",
+    "daysLeft_other": "{{count}} днів",
     "exercises": "Вправи",
+    "extraSessionsOptional": "Додаткові підходи за бажанням",
+    "knowledge": "Знання",
+    "measureDaily": "Вимірюйте щодня, щоб бачити прогрес",
+    "minutes_one": "{{count}} хв",
+    "minutes_other": "{{count}} хв",
+    "monthDay": "МІСЯЦЬ {{month}}   /   ДЕНЬ {{day}}",
     "progressTracker": "Прогрес",
+    "readyWhenYouAre": "Починайте, коли будете готові",
+    "ringA11y": "Сьогодні виконано {{done}} з {{required}}",
+    "ringDoneA11y": "День закрито, {{done}} з {{required}} підходів",
     "seeAll": "Показати всі",
+    "sessions": "ПІДХОДИ",
+    "sessionsCompleteToday_one": "{{count}} підхід закриває день",
+    "sessionsCompleteToday_other": "{{count}} підходи закривають день",
     "startWorkout": "Почати тренування",
-    "training": "Тренування"
+    "todayIsDone": "На сьогодні все",
+    "trainAgain": "Позайматися ще",
+    "training": "Тренування",
+    "unlocksInA11y": "{{name}}, відкриється через {{count}} днів"
   },
   "verifyEmail": {
     "backToLogIn": "Повернутися до входу",

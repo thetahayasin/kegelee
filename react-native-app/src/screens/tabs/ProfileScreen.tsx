@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS } from '../../theme/colors';
+import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { LEVELS } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import Svg, { Path } from 'react-native-svg';
@@ -23,7 +23,7 @@ export const ProfileScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, updateUserFields } = useAuth();
-  
+
   const [levelModalVisible, setLevelModalVisible] = useState(false);
   const [updatingLevel, setUpdatingLevel] = useState(false);
 
@@ -37,7 +37,7 @@ export const ProfileScreen = () => {
     try {
       // 1. Update auth context and SQLite locally
       await updateUserFields({ level_id: levelNumber });
-      
+
       // 2. Trigger instant push sync to backend so server knows about the change immediately
       await syncNow(user.id);
 
@@ -58,6 +58,10 @@ export const ProfileScreen = () => {
         <Text style={styles.pageTitle}>{t('profile.profile')}</Text>
         <TouchableOpacity
           style={styles.settingsBtnInline}
+          accessibilityRole="button"
+          accessibilityLabel="Settings"
+          hitSlop={8}
+          activeOpacity={0.85}
           onPress={() => navigation.navigate('Settings')}
         >
           <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -85,6 +89,8 @@ export const ProfileScreen = () => {
       <View style={styles.menuContainer}>
         <TouchableOpacity
           style={styles.menuRow}
+          accessibilityRole="button"
+          activeOpacity={0.85}
           onPress={() => setLevelModalVisible(true)}
         >
           <Text style={styles.menuLabel}>{t('profile.difficulty')}</Text>
@@ -98,6 +104,8 @@ export const ProfileScreen = () => {
 
         <TouchableOpacity
           style={styles.menuRow}
+          accessibilityRole="button"
+          activeOpacity={0.85}
           onPress={() => navigation.navigate('Schedule')}
         >
           <Text style={styles.menuLabel}>{t('profile.scheduleReminders')}</Text>
@@ -192,18 +200,17 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   settingsBtnInline: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    // 36px sat under both the iOS HIG and Material minimum target.
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.pill,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    ...GLASS,
   },
   pageTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...TYPE.display,
     color: COLORS.white,
   },
   identityContainer: {
@@ -213,47 +220,52 @@ const styles = StyleSheet.create({
   avatar: {
     width: 80,
     height: 80,
-    borderRadius: 40,
-    ...GLASS,
+    borderRadius: RADIUS.pill,
     backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    // The identity mark is the one place on this screen worth accenting.
+    borderColor: 'rgba(193, 255, 114, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.textMuted,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    color: COLORS.accent,
   },
   name: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...TYPE.heading,
     color: COLORS.white,
-    marginTop: 16,
+    marginTop: SPACE.lg,
   },
   email: {
-    fontSize: 14,
+    ...TYPE.bodySm,
     color: COLORS.textMuted,
     marginTop: 4,
   },
   menuContainer: {
-    marginHorizontal: 16,
+    marginHorizontal: SPACE.lg,
     ...GLASS,
     backgroundColor: COLORS.surface,
-    borderRadius: 20,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
   },
   menuRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingHorizontal: SPACE.lg + 4,
+    paddingVertical: 16,
+    // Rows sit on a consistent rhythm rather than sizing to their content.
+    minHeight: 56,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.03)',
+    borderBottomColor: COLORS.border,
   },
   menuLabel: {
     fontSize: 15,
-    fontWeight: 'semibold',
+    fontWeight: '600',
+    letterSpacing: -0.2,
     color: COLORS.white,
   },
   menuRight: {
@@ -262,7 +274,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   menuValue: {
-    fontSize: 14,
+    ...TYPE.bodySm,
     color: COLORS.textMuted,
   },
 

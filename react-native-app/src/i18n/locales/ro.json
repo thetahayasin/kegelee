@@ -154,11 +154,31 @@
     "terms": "Termeni"
   },
   "training": {
+    "available": "Disponibil",
+    "bestHold": "Cel mai bun rezultat {{seconds}} s",
+    "complete": "GATA",
+    "daysLeft_one": "{{count}} zi",
+    "daysLeft_other": "{{count}} zile",
     "exercises": "Exerciții",
+    "extraSessionsOptional": "Sesiunile în plus sunt opționale",
+    "knowledge": "Ghid",
+    "measureDaily": "Măsoară zilnic ca să-ți urmărești progresul",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "LUNA {{month}}   /   ZIUA {{day}}",
     "progressTracker": "Evoluție",
+    "readyWhenYouAre": "Când ești pregătit",
+    "ringA11y": "{{done}} din {{required}} sesiuni făcute azi",
+    "ringDoneA11y": "Ziua e completă, {{done}} din {{required}} sesiuni",
     "seeAll": "Vezi tot",
+    "sessions": "SESIUNI",
+    "sessionsCompleteToday_one": "{{count}} sesiune încheie ziua",
+    "sessionsCompleteToday_other": "{{count}} sesiuni încheie ziua",
     "startWorkout": "Începe antrenamentul",
-    "training": "Antrenament"
+    "todayIsDone": "Ziua de azi e gata",
+    "trainAgain": "Antrenează-te din nou",
+    "training": "Antrenament",
+    "unlocksInA11y": "{{name}}, se deblochează în {{count}} zile"
   },
   "verifyEmail": {
     "backToLogIn": "Înapoi la autentificare",

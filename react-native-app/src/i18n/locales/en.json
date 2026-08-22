@@ -154,11 +154,31 @@
     "terms": "Terms"
   },
   "training": {
+    "available": "Available",
+    "bestHold": "Best hold {{seconds}}s",
+    "complete": "COMPLETE",
+    "daysLeft_one": "{{count}} day",
+    "daysLeft_other": "{{count}} days",
     "exercises": "Exercises",
+    "extraSessionsOptional": "Extra sessions are optional",
+    "knowledge": "Knowledge",
+    "measureDaily": "Measure daily to track progress",
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "monthDay": "MONTH {{month}}   /   DAY {{day}}",
     "progressTracker": "Progress Tracker",
+    "readyWhenYouAre": "Ready when you are",
+    "ringA11y": "{{done}} of {{required}} sessions done today",
+    "ringDoneA11y": "Today complete, {{done}} of {{required}} sessions done",
     "seeAll": "See All",
+    "sessions": "SESSIONS",
+    "sessionsCompleteToday_one": "{{count}} session completes today",
+    "sessionsCompleteToday_other": "{{count}} sessions complete today",
     "startWorkout": "Start workout",
-    "training": "Training"
+    "todayIsDone": "Today is done",
+    "trainAgain": "Train again",
+    "training": "Training",
+    "unlocksInA11y": "{{name}}, unlocks in {{count}} days"
   },
   "verifyEmail": {
     "backToLogIn": "Back to Log In",

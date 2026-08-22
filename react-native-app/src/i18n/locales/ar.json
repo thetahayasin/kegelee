@@ -154,11 +154,31 @@
     "terms": "الشروط"
   },
   "training": {
+    "available": "متاح",
+    "bestHold": "أفضل مدة {{seconds}} ث",
+    "complete": "مكتمل",
+    "daysLeft_one": "يوم واحد",
+    "daysLeft_other": "{{count}} يوم",
     "exercises": "التمارين",
+    "extraSessionsOptional": "الجلسات الإضافية اختيارية",
+    "knowledge": "المعرفة",
+    "measureDaily": "قِس يوميًا لتتابع تقدمك",
+    "minutes_one": "{{count}} دقيقة",
+    "minutes_other": "{{count}} دقيقة",
+    "monthDay": "الشهر {{month}}   /   اليوم {{day}}",
     "progressTracker": "متابعة التقدّم",
+    "readyWhenYouAre": "ابدأ متى كنت مستعدًا",
+    "ringA11y": "أكملت {{done}} من {{required}} جلسات اليوم",
+    "ringDoneA11y": "اكتمل اليوم، {{done}} من {{required}} جلسات",
     "seeAll": "عرض الكل",
+    "sessions": "جلسات",
+    "sessionsCompleteToday_one": "جلسة واحدة تُكمل يومك",
+    "sessionsCompleteToday_other": "{{count}} جلسات تُكمل يومك",
     "startWorkout": "ابدأ التمرين",
-    "training": "التدريب"
+    "todayIsDone": "انتهى يومك",
+    "trainAgain": "تدرّب مجددًا",
+    "training": "التدريب",
+    "unlocksInA11y": "{{name}}، يُفتح بعد {{count}} يوم"
   },
   "verifyEmail": {
     "backToLogIn": "العودة إلى تسجيل الدخول",
