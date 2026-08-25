@@ -15,7 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import type { AuthStackParamList } from '../../navigation/AppNavigator';
 import { COLORS } from '../../theme/colors';
-import { HeartVisual, StopwatchVisual, ProgressVisual, HabitVisual } from '../../components/OnboardingVisuals';
+import {
+  FalteringVisual,
+  OneMinuteVisual,
+  GrowingHoldVisual,
+  RhythmVisual,
+} from '../../components/OnboardingVisuals';
 import { Watermark } from '../../components/Watermark';
 import { SubscribeSheet } from '../../components/SubscribeSheet';
 
@@ -101,13 +106,13 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     const active = activeIndex === index;
     switch (index) {
       case 0:
-        return <HeartVisual active={active} />;
+        return <FalteringVisual active={active} />;
       case 1:
-        return <StopwatchVisual active={active} />;
+        return <OneMinuteVisual active={active} />;
       case 2:
-        return <ProgressVisual active={active} />;
+        return <GrowingHoldVisual active={active} />;
       case 3:
-        return <HabitVisual active={active} />;
+        return <RhythmVisual active={active} />;
       default:
         return null;
     }
