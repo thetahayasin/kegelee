@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, ScrollView, StyleSheet, Animated, Easing, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { LessonCards } from '../../../components/LessonCards';
 import { COLORS, GLASS } from '../../../theme/colors';
 
 interface Props {
@@ -117,10 +118,9 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
 
         <Text style={styles.h1}>{t('why.aMuscleYouCanTrain')}</Text>
         {done ? (
-          <>
-            <Text style={styles.p}>{t('why.aRealMuscleBody')}</Text>
-            <Text style={styles.p}>{t('why.andYouCanDoIt')}</Text>
-          </>
+          <LessonCards
+            lines={[t('why.cardRealMuscle'), t('why.cardAnywhere')]}
+          />
         ) : (
           <Text style={styles.tapHint}>{t('why.tapToSqueeze')}</Text>
         )}
@@ -166,39 +166,29 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>{t('why.doingItRightIsEverything')}</Text>
-      <Text style={[styles.p, { textAlign: 'center' }]}>
-        {t('why.squeezeTheWrongMusclesAnd')}
-      </Text>
-      <View style={styles.finalCard}>
-        <View style={styles.finalCardHead}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accent}>
-            <Path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-          </Svg>
-          <Text style={styles.finalCardHeadText}>{t('why.worthTwoMinutesOfYour')}</Text>
-        </View>
-        <View style={styles.finalCardBody}>
-          <View style={styles.finalRow}>
-            <View style={styles.numBadge}>
-              <Text style={styles.numBadgeText}>2</Text>
-            </View>
-            <Text style={styles.finalRowText}>{t('why.theNextLessonShowsYou')}</Text>
-          </View>
-          <View style={styles.finalRow}>
-            <View style={styles.numBadge}>
-              <Text style={styles.numBadgeText}>3</Text>
-            </View>
-            <Text style={styles.finalRowText}>{t('why.thenYouDoYourFirst')}</Text>
-          </View>
-          <Text style={styles.finalEmphasis}>
-            {t('why.learnItOnceAndEvery')}
-          </Text>
-        </View>
-      </View>
+      <Text style={styles.lead}>{t('why.squeezeTheWrongMusclesAnd')}</Text>
+      {/* Existing keys, already one line each in all 29 locales - no reason to
+          mint new ones and re-translate what already says exactly this. */}
+      <LessonCards
+        numbered
+        lines={[
+          t('why.theNextLessonShowsYou'),
+          t('why.thenYouDoYourFirst'),
+          t('why.learnItOnceAndEvery'),
+        ]}
+      />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  lead: {
+    fontSize: 15,
+    lineHeight: 21,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   squeezeTarget: { alignItems: 'center', justifyContent: 'center' },
   // Rises from the bottom of the circle as the muscle is trained.
