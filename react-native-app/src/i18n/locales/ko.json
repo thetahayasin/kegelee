@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "사용 가능",
-    "exercises": "운동"
+    "backA11y": "뒤로",
+    "exercises": "운동",
+    "unlockProgressA11y": "{{name}} 잠금 해제 진행률"
+  },
+  "basics": {
+    "findTitle": "골반저근 찾기",
+    "firstTitle": "첫 번째 운동",
+    "whyTitle": "케겔 운동이 효과 있는 이유"
+  },
+  "billing": {
+    "alreadyOwned": "이미 활성 구독이 있습니다. 지금 복원하고 있습니다.",
+    "configuration": "지금은 이 요금제를 구매할 수 없습니다. 저희 쪽 문제이니 잠시 후 다시 시도하시거나 고객지원에 문의해 주세요.",
+    "declined": "Google Play가 결제를 거절했습니다. Google 계정의 결제 수단을 확인한 뒤 다시 시도하세요.",
+    "ineligible": "이 혜택의 대상이 아닙니다. 다른 요금제를 선택하세요.",
+    "network": "스토어에 연결할 수 없습니다. 연결 상태를 확인하고 다시 시도하세요. 이미 결제되었다면 이용 권한이 저절로 나타납니다.",
+    "noPermission": "사용 중인 Google 계정은 이 기기에서 구매할 권한이 없습니다.",
+    "notAllowed": "이 기기나 Google 계정은 구매할 수 없습니다. 보통 자녀 보호 설정이거나 계정에 결제 수단이 없는 경우입니다.",
+    "operationInProgress": "이미 진행 중인 구매가 있습니다. 잠시 기다린 뒤 다시 시도하세요.",
+    "otherAccount": "이 구독은 다른 계정의 것입니다. 해당 계정으로 로그인하시거나 고객지원에 문의해 주시면 옮겨 드립니다.",
+    "paymentPending": "Google Play가 결제를 처리하고 있습니다. 현금이나 상품권 결제는 시간이 걸릴 수 있습니다. 결제가 완료되면 자동으로 이용할 수 있으니 다시 결제하지 마세요.",
+    "storeProblem": "현재 Google Play에 문제가 있습니다. 몇 분 뒤에 다시 시도하세요.",
+    "unknown": "구매를 완료하는 중 문제가 발생했습니다. 다시 시도하세요. 이미 결제되었다면 이용 권한이 저절로 나타납니다."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "천천히 쌓아 올린 단단한 조임을, 똑같이 천천히 풀어냅니다.",
+        "howTo": "원이 채워지는 3초 동안 천천히 조이고, 원이 비워지는 동안 똑같이 천천히 푸세요. 올릴 때도 내릴 때도 부드럽게 유지하세요.",
+        "name": "클램프",
+        "summary": "천천히 올리고 천천히 내리기"
+      },
+      "downstairs": {
+        "description": "정상까지 조인 다음, 완전히 조절하며 한 단계씩 내려옵니다.",
+        "howTo": "가장 강한 지점까지 조인 뒤 조금씩 이완하며, 내려오는 각 단계에서 1초 정도 멈추세요. 이 조절된 하강이 바로 운동입니다.",
+        "name": "계단 내려가기",
+        "summary": "정상에서 4단계로 내려오기"
+      },
+      "elevator": {
+        "description": "대표 운동입니다. 한 단계씩 올라간 다음 조절하며 다시 내려옵니다.",
+        "howTo": "엘리베이터를 타고 있다고 상상해 보세요. 가장 강한 조임에 이를 때까지 각 단계에서 조금씩 더 세게 조이고, 완전히 이완될 때까지 한 단계씩 내려오세요.",
+        "name": "엘리베이터",
+        "summary": "정상까지 올라갔다가 한 단계씩 내려오기"
+      },
+      "flash": {
+        "description": "가장 빠른 조임. 짧고 경쾌한 수축으로 순발력을 훈련합니다.",
+        "howTo": "원의 박자에 맞춰 최대한 빠르게 조였다 푸세요. 가볍게, 무리하지 마세요.",
+        "name": "플래시",
+        "summary": "가장 빠른 조임"
+      },
+      "front-clamp": {
+        "description": "골반저 앞쪽을 천천히 집중해서 조인 뒤 빠르고 깔끔하게 푸는 동작입니다.",
+        "howTo": "원이 채워지는 3초 동안 천천히 조이세요. 원이 비면 한 번에 모두 푸세요. 그리고 다음 느린 조이기를 시작합니다.",
+        "name": "앞쪽 클램프",
+        "summary": "천천히 조이고 한 번에 풀기"
+      },
+      "holding": {
+        "description": "조인 상태를 유지하며 골반저근의 기본 지구력을 기릅니다.",
+        "howTo": "골반저근을 조이고 한 라운드 내내 유지하세요. 힘이 풀리면 부드럽게 다시 조이면 됩니다. 호흡은 평소처럼 이어가세요.",
+        "name": "버티기",
+        "summary": "한 번의 꾸준한 유지"
+      },
+      "long-steady-clamp": {
+        "description": "지구력을 키우는 동작. 1초간의 조임에서 10초간의 최대 강도 유지로 이어집니다.",
+        "howTo": "1초 동안 조인 다음 10초간 최대 강도로 유지하세요. 힘이 풀리면 부드럽게 다시 최대까지 조이면 됩니다. 풀고 반복합니다.",
+        "name": "긴 안정 클램프",
+        "summary": "1초 조임, 10초 유지"
+      },
+      "pulsation": {
+        "description": "빠른 조임을 연달아 두 번 한 뒤 완전히 풉니다. 완전히 회복되기 전에 다시 조이는 것과, 힘을 쓰는 사이사이 제대로 푸는 것을 훈련합니다.",
+        "howTo": "원에 맞춰 연달아 두 번 조였다 풀고, 쉬는 동안에는 모든 힘을 완전히 놓으세요. 이 완전한 이완은 펄스만큼이나 중요합니다.",
+        "name": "더블 펄스",
+        "summary": "빠른 펄스 두 번, 그리고 완전한 회복"
+      },
+      "push": {
+        "description": "조임을 강한 정점까지 끌어올려 유지한 뒤 천천히 풉니다.",
+        "howTo": "원이 채워지는 동안 3초에 걸쳐 점점 더 강하게 조이세요. 가장 강한 조임을 2초간 유지한 다음 천천히 푸세요. 더 세게 조이되, 절대 아래로 힘을 주지 마세요.",
+        "name": "푸시",
+        "summary": "3초 상승, 2초 정점 유지, 3초 이완"
+      },
+      "reverse-clamp": {
+        "description": "빠르게 조인 뒤 천천히 조절하며 푸는 동작입니다. 조절력을 기르는 데 아주 좋습니다.",
+        "howTo": "한 번에 조인 다음, 곧바로 내려가는 원을 따라 최대한 천천히 풀기 시작하세요. 천천히 푸는 이 과정이 바로 운동입니다.",
+        "name": "역방향 클램프",
+        "summary": "한 번에 조이고 천천히 풀기"
+      },
+      "short-holding": {
+        "description": "4초간 강하게 유지한 뒤 떨어뜨리지 않고 천천히 푸는 동작입니다. 조절하며 푸는 것은 그 자체로 하나의 기술이며, 대부분은 유지보다 이쪽을 더 어려워합니다.",
+        "howTo": "1초에 걸쳐 조이고 4초간 최대 강도로 유지한 다음, 원이 내려가는 동안 서서히 푸세요. 한꺼번에 무너뜨리지 말고 끝까지 함께 내려가세요.",
+        "name": "짧게 버티기",
+        "summary": "4초 유지 후 서서히 풀기"
+      },
+      "starter": {
+        "description": "근육을 깨우는 빠른 조임 한 번, 그다음 5초간의 강한 유지.",
+        "howTo": "빠르게 한 번 조이고 부드럽게 이완한 다음, 다시 조여 5초간 힘 있게 유지하세요. 풀고, 숨 쉬고, 반복합니다.",
+        "name": "스타터",
+        "summary": "빠른 조임 후 5초 유지"
+      },
+      "steady-clamp": {
+        "description": "안정된 클램프. 1초 동안 조인 뒤 5초간 최대 강도로 유지합니다.",
+        "howTo": "1초 동안 조인 다음, 힘이 떨어지지 않게 5초간 최대 강도로 유지하세요. 풀고 반복합니다.",
+        "name": "안정된 클램프",
+        "summary": "1초 조임, 5초 유지"
+      },
+      "steady-trembling": {
+        "description": "한 번에 조이고 몇 초 동안 힘을 일정하게 유지한 뒤 이완합니다.",
+        "howTo": "한 번에 조이고 힘을 유지하세요. 원이 내려가면 부드럽게 푸세요. 그리고 빠른 조임과 유지를 반복합니다.",
+        "name": "안정된 떨림",
+        "summary": "한 번에 조이고, 유지하고, 이완"
+      },
+      "trembling": {
+        "description": "빠르게 조였다 푸는 동작으로 근육을 떨리게 하고 순간적인 반응을 깨웁니다.",
+        "howTo": "한 번에 조이고 잠깐 유지한 다음 부드럽게 푸세요. 원이 위로 튀어 올랐다가 천천히 내려오는 흐름을 따라가면 됩니다.",
+        "name": "떨림",
+        "summary": "빠르게 조였다 풀기"
+      },
+      "upstairs": {
+        "description": "조임을 네 단계로 끌어올리며 단계마다 조금씩 더 강하게 만듭니다.",
+        "howTo": "엘리베이터를 타고 올라간다고 상상해 보세요. 조금 조이고, 더 조이고, 더욱 조여서 가장 강한 조임에 이를 때까지 각 단계에서 1초 정도 머무세요. 그다음 이완합니다.",
+        "name": "계단 오르기",
+        "summary": "4단계로 정상까지"
+      },
+      "waves": {
+        "description": "파도처럼 힘을 끊임없이 쌓았다가 풀어내는 조임입니다.",
+        "howTo": "2초 동안 천천히 조이고 똑같이 천천히 푸세요. 밀려왔다 빠져나가는 파도처럼 부드럽고 끊김 없이 이어가세요.",
+        "name": "파도",
+        "summary": "2초 올리고 2초 내리기"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "부드러운 시작. 1분짜리 짧은 세션.",
+        "name": "레벨 1"
+      },
+      "2": {
+        "description": "조금 더 길게. 2분 세션.",
+        "name": "레벨 2"
+      },
+      "3": {
+        "description": "균형 잡힌 훈련. 3분 세션.",
+        "name": "레벨 3"
+      },
+      "4": {
+        "description": "더 강한 근육을 위한 긴 세션. 4분.",
+        "name": "레벨 4"
+      },
+      "5": {
+        "description": "고급 지구력과 조절력. 5분.",
+        "name": "레벨 5"
+      }
+    },
+    "steps": {
+      "contract": "조이기",
+      "contractAndHold": "조이고 유지",
+      "contractSlowly": "천천히 조이기",
+      "easeDown": "서서히 풀기",
+      "hold": "유지",
+      "pulse1": "펄스 1",
+      "pulse2": "펄스 2",
+      "relax": "이완",
+      "relaxSlowly": "천천히 이완",
+      "release": "풀기",
+      "releaseSlowly": "천천히 풀기",
+      "reset": "처음으로",
+      "rest": "휴식",
+      "step1": "1단계",
+      "step2": "2단계",
+      "step3": "3단계",
+      "top": "정상"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "문제가 발생했어요",
@@ -9,48 +177,94 @@
     "tryAgain": "다시 시도"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "잠금을 해제하려면 훈련을 {{count}}일 더 완료하세요.",
+    "completeMoreDaysToUnlock_other": "잠금을 해제하려면 훈련을 {{count}}일 더 완료하세요.",
     "exerciseNotFound": "운동을 찾을 수 없어요.",
+    "lockedDaysLeft_one": "잠김 - {{count}}일 남음",
+    "lockedDaysLeft_other": "잠김 - {{count}}일 남음",
     "tryItNow": "지금 해보기"
   },
   "find": {
+    "flow_stopMidway": "중간에 멈춥니다",
+    "flow_thatSqueeze": "바로 그 조임!",
+    "flow_youPee": "소변을 봅니다",
     "keepGoing": "그대로 유지하세요…",
     "onlyDoThePeeTest": "소변 테스트는 한 번만 하세요",
+    "onlyDoThePeeTestDesc": "이건 근육을 찾는 방법일 뿐 운동이 아닙니다. 소변 흐름을 자주 멈추는 것은 방광에 좋지 않습니다.",
+    "pressAndHold": "길게 누르기",
+    "squeezeNow": "조이세요!",
     "squeezeOnlyThoseMuscles": "그 근육만 조이세요",
+    "squeezeOnlyThoseMusclesDesc": "또 하나의 힌트: 방귀를 참듯이 조여 보세요. 배, 다리, 엉덩이는 완전히 힘을 뺀 상태를 유지합니다.",
+    "stopTheFlowBody": "다음에 소변을 볼 때 중간에 흐름을 살짝 멈춰 보세요. 방금 사용한 근육이 바로 골반저근입니다.",
     "thatExactSqueezeIsThe": "바로 그 조이는 느낌이 앞으로 훈련할 동작이에요.",
     "theEasiestWayToFind": "가장 쉽게 찾는 방법",
-    "twoQuickRules": "간단한 두 가지 규칙"
+    "tryItNow": "지금 해보세요",
+    "tryItNowBody": "원을 길게 누르세요. 누르고 있는 동안 그 근육을 조입니다. 함께 놓으세요.",
+    "twoQuickRules": "간단한 두 가지 규칙",
+    "youFoundThem": "찾으셨네요!",
+    "youFoundThemBody": "그렇게 조였다 푸는 것이 케겔 운동의 전부입니다. 이제 첫 번째 운동을 할 준비가 됐습니다."
   },
   "first": {
     "contract": "조이기",
+    "followTheCircle": "원을 따라가세요. 조이고... 이완하세요.",
+    "niceWork": "잘하셨어요!",
+    "nowYouTry": "이제 직접 해보세요",
     "start": "시작",
+    "tenSecondsReady": "{{exercise}} 10초. {{contract}}마다 조이고 {{relax}}에서 놓으세요. 준비되셨나요?",
+    "thatWasARealExercise": "방금 그게 진짜 운동이었습니다. 모든 세션이 정확히 이렇게, 원 하나씩 진행됩니다.",
     "theCircleIsYourGuide": "원이 안내해 줘요",
+    "theCircleIsYourGuideBody": "모든 운동은 이 원을 따라갑니다. 원이 빛나며 커지면 조이고, 빛이 사그라들면 이완하세요. 안에 있는 단어가 항상 무엇을 할지 알려줍니다.",
     "thisIsTrembling": "이것이 트렘블링이에요",
     "yourFirstExerciseQuickFlicks": "첫 번째 운동은 빠른 조이기예요. ‘조이기’에서 조이고 ‘이완’에서 힘을 빼세요."
   },
   "knowledge": {
     "continueToTraining": "훈련으로 이동",
     "learnTheBasics": "기본기 배우기",
+    "lessonNumber": "{{number}}강",
     "logIn": "로그인"
   },
   "login": {
     "6DigitCode": "6자리 코드",
     "close": "닫기",
+    "codeSentEnterBelow": "코드를 보냈습니다! 새 비밀번호와 함께 아래에 입력하세요.",
     "continueWithGoogle": "Google로 계속하기",
+    "couldNotOpenGoogle": "Google 로그인을 열 수 없습니다. 다시 시도하세요.",
     "createAccount": "계정 만들기",
     "email": "이메일",
-    "enterYourEmail": "이메일을 입력하세요",
+    "enterSixDigitCode": "이메일로 받은 6자리 코드를 입력하세요.",
+    "enterYourEmail": "이메일을 입력하세요.",
+    "failedToResetPassword": "비밀번호를 재설정하지 못했습니다.",
+    "failedToSendResetCode": "재설정 코드를 보내지 못했습니다.",
+    "fillAllFields": "모든 항목을 입력하세요.",
     "forgotPassword": "비밀번호를 잊으셨나요?",
+    "googleSignInFailed": "Google 로그인에 실패했습니다. 다시 시도하세요.",
+    "invalidCredentials": "로그인 정보가 올바르지 않습니다.",
     "logIn": "로그인",
     "logIn2": "로그인",
     "newHere": "처음이신가요?",
     "newPassword": "새 비밀번호",
     "password": "비밀번호",
     "passwordReset": "비밀번호가 재설정되었어요",
-    "resetPassword": "비밀번호 재설정"
+    "passwordResetBody": "비밀번호가 재설정되었습니다. 로그인해 주세요.",
+    "passwordResetTitle": "비밀번호 재설정 완료",
+    "passwordRules": "비밀번호는 6자 이상이어야 하며 숫자를 포함해야 합니다.",
+    "resetPassword": "비밀번호 재설정",
+    "resetPasswordCta": "비밀번호 재설정",
+    "sendCodeCta": "코드 보내기"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
-    "logIn": "로그인"
+    "getStarted": "시작하기",
+    "logIn": "로그인",
+    "perDay": "하루",
+    "slide1Body": "아무도 꺼내지 않는 이야기지만, 원인은 약해진 근육 하나입니다. 그리고 약해진 근육은 다시 단련할 수 있습니다.",
+    "slide1Title": "새는 느낌. 갑작스러운 요의. 떨어진 조절력.",
+    "slide2Body": "헬스장도, 기구도, 벗을 것도 없습니다. 소파에서, 책상에서, 버스에서. 아무도 눈치채지 못합니다.",
+    "slide2Title": "앉은 자리에서, 1분",
+    "slide3Body": "얼마나 오래 버티는지 앱이 기록합니다. 시간이 늘고, 새로운 운동이 열리고, 원하던 곳에서 변화가 나타납니다.",
+    "slide3Title": "보이기 전에 먼저 느껴집니다",
+    "slide4Body": "그만두면 근육은 다시 약해집니다. 다른 운동과 똑같습니다. 시간만 정해두면 나머지는 알림이 챙깁니다.",
+    "slide4Title": "계속해야만 효과가 있습니다"
   },
   "paywall": {
     "autoRenewOffHint": "자동 갱신이 꺼져 있습니다. 만료일에 이용이 종료됩니다.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "변화를 측정하세요",
     "benefitReminders": "하루 일과에 맞는 알림 설정",
     "benefitStrength": "골반저근을 실제로 강화",
+    "bestValue": "가장 알뜰한 선택",
     "billingIsNotAvailableOn": "이 기기에서는 결제를 이용할 수 없어요. 아래에서 이전 구매를 복원할 수 있어요.",
     "byContinuingYouAgree": "계속하면 다음에 동의하게 됩니다:",
     "changeYourPlan": "플랜 변경",
@@ -72,6 +287,7 @@
     "managePlan": "플랜 관리",
     "noActiveSubscriptionWasFound": "복원할 활성 구독을 찾지 못했어요.",
     "off": "꺼짐",
+    "offeringsUnavailable": "지금은 이 기기에서 구독을 이용할 수 없습니다. 잠시 후 다시 시도하거나 아래에서 이전 구매를 복원하세요.",
     "on": "켜짐",
     "paymentProcessedSecurely": "결제는 확인 시 RevenueCat과 앱스토어를 통해 안전하게 처리됩니다.",
     "premium": "프리미엄",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "구매는 완료되었지만 요금제를 확인하지 못했어요. 고객지원에 문의해 주세요.",
     "restorePurchases": "구매 복원",
     "restoredPurchaseCouldNotBe": "복원한 구매를 요금제와 연결하지 못했어요. 고객지원에 문의해 주세요.",
+    "savePercent": "{{percent}}% 절약",
     "signInFirst": "구독하기 전에 로그인하세요.",
     "startFreeTrialCta_one": "{{count}}일 무료 체험 시작",
     "startFreeTrialCta_other": "{{count}}일 무료 체험 시작",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "앱을 삭제해도 구독이 해지되거나 환불되지 않습니다.",
     "yourSubscriptionIsNowActive": "구독이 활성화되어 모든 기능을 이용할 수 있어요."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "전체 이용, 매월 결제.",
+      "name": "1개월"
+    },
+    "premium-quarterly": {
+      "description": "3개월마다 결제.",
+      "name": "3개월"
+    },
+    "premium-yearly": {
+      "description": "1년치를 한 번에 결제.",
+      "name": "1년"
+    }
+  },
   "profile": {
     "currentDifficulty": "현재 난이도",
     "difficulty": "난이도",
     "error": "오류",
+    "errorTitle": "오류",
+    "failedToUpdateLevel": "훈련 레벨을 업데이트하지 못했습니다.",
     "profile": "프로필",
     "scheduleReminders": "일정 및 알림",
     "setTheDifficultyOfKegel": "케겔 운동 프로그램의 난이도를 설정하세요",
+    "settingsA11y": "설정",
     "theHigherTheLevelThe": "레벨이 높을수록 훈련이 어려워져요"
   },
   "progress": {
+    "bestResult": "최고 기록",
     "continue": "계속",
     "holdTheButtonAndContract": "버튼을 누른 채로 골반저근을 최대한 오래 조이세요.",
+    "lastMeasurement": "마지막 측정",
     "progressTracker": "진행 상황",
+    "seconds": "{{count}}초",
     "takeMeasurement": "측정하기",
+    "today": "오늘",
+    "topResult": "최고 기록: {{count}}초",
     "tryAgain": "다시 시도"
   },
   "register": {
     "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
     "confirmPassword": "비밀번호 확인",
     "continueWithGoogle": "Google로 계속하기",
+    "couldNotOpenGoogle": "Google 가입을 열 수 없습니다. 다시 시도하세요.",
     "createAccount": "계정 만들기",
     "createAccount2": "계정 만들기",
     "email": "이메일",
+    "fillAllFields": "모든 항목을 입력하세요.",
+    "googleSignUpFailed": "Google 가입에 실패했습니다. 다시 시도하세요.",
     "logIn": "로그인",
     "name": "이름",
-    "password": "비밀번호"
+    "password": "비밀번호",
+    "passwordNeedsNumber": "비밀번호에 숫자를 하나 이상 포함해야 합니다.",
+    "passwordTooShort": "비밀번호는 6자 이상이어야 합니다.",
+    "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다.",
+    "registrationFailed": "가입에 실패했습니다."
+  },
+  "reminders": {
+    "notificationBody": "오늘의 케겔 세션 시간입니다!",
+    "notificationTitle": "케겔 훈련"
   },
   "schedule": {
     "active": "켜짐",
     "allowExactReminders": "정확한 알림 허용",
+    "daysLeft_one": "{{count}}일 남음",
+    "daysLeft_other": "{{count}}일 남음",
     "error": "오류",
+    "errorTitle": "오류",
+    "failedToSaveReminders": "알림을 저장하지 못했습니다.",
     "limitReached": "한도에 도달했어요",
+    "limitReachedBody": "하루에 최대 5개의 알림을 설정할 수 있습니다.",
+    "limitReachedTitle": "한도 도달",
+    "monthNumber": "{{number}}개월 차",
     "reminders": "알림",
     "remindersSaved": "알림을 저장했어요",
     "repeatOn": "반복 요일",
     "saveAddReminders": "알림 저장",
     "schedule": "일정",
+    "sessionNumber": "{{number}}번째 세션",
     "sessionTimes": "세션 시간"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "계정을 삭제할까요?",
     "deletePermanently": "영구 삭제",
     "deleted": "삭제됨",
+    "deletedBody": "계정이 영구적으로 삭제되었습니다.",
+    "deletedTitle": "삭제됨",
+    "failedToDeleteAccount": "계정을 삭제하지 못했습니다.",
     "gotIt": "알겠어요",
     "language": "언어",
     "logOut": "로그아웃",
     "manageSubscription": "구독 관리",
     "noActiveSubscription": "활성 구독 없음",
     "reset": "초기화",
+    "resetConfirmBody": "훈련 일수, 세션, 측정값, 레슨 진행 상황이 모두 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
     "resetProgress": "진행 상황 초기화",
     "resetProgress2": "진행 상황을 초기화할까요?",
+    "resetSuccessBody": "훈련 기록이 삭제되었습니다.",
+    "resetSuccessTitle": "초기화됨",
     "resetSuccessful": "초기화 완료",
     "restartBody": "레이아웃 방향을 바꾸려면 앱을 닫았다가 다시 열어 주세요.",
     "restartRequired": "재시작이 필요해요",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "이미 계정이 있으신가요? 로그인",
     "back": "뒤로",
+    "bestValue": "가장 알뜰한 선택",
+    "billingDisclosure": "결제는 확인 시 RevenueCat과 앱 스토어를 통해 안전하게 처리됩니다. 구독 설정에서 취소하기 전까지 표시된 가격으로 자동 갱신되며, 앱을 삭제해도 구독이 취소되거나 환불되지 않습니다. 계속하면 다음에 동의하는 것으로 간주됩니다:",
     "close": "닫기",
     "confirmPassword": "비밀번호 확인",
     "continue": "계속",
     "continueWithGoogle": "Google로 계속하기",
+    "couldNotOpenGoogle": "Google 로그인을 열 수 없습니다. 다시 시도하세요.",
     "couldNotOpenGoogleSign": "Google 로그인을 열지 못했어요. 다시 시도해 주세요.",
+    "couldNotReachServer": "서버에 연결할 수 없습니다. 인터넷 연결을 확인하고 다시 시도하세요.",
+    "createAccount": "계정 만들기",
     "createAccountSubscribe": "계정 만들고 구독하기",
     "creatingAccount": "계정을 만드는 중…",
     "emailAddress": "이메일 주소",
+    "emailInvalid": "올바른 이메일 주소를 입력하세요.",
+    "emailOrPasswordIncorrect": "이메일 또는 비밀번호가 올바르지 않습니다.",
+    "emailRequired": "이메일을 입력하세요.",
     "fullName": "이름",
+    "googleSignInFailed": "Google 로그인에 실패했습니다. 다시 시도하세요.",
+    "nameRequired": "이름을 입력하세요.",
     "noAccountYetCreateOne": "아직 계정이 없으신가요? 만들기",
     "password": "비밀번호",
     "password6Characters1Number": "비밀번호 (6자 이상, 숫자 1개 이상)",
+    "passwordRequired": "비밀번호를 입력하세요.",
+    "passwordRules": "비밀번호는 6자 이상이어야 하며 숫자를 포함해야 합니다.",
+    "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다.",
+    "signIn": "로그인",
     "signInSubscribe": "로그인하고 구독하기",
     "signingIn": "로그인 중…",
     "startYourTransformationJourneyNow": "지금 변화를 시작하세요",
     "subscribe": "구독하기",
     "terms": "이용약관"
+  },
+  "tabs": {
+    "profile": "프로필",
+    "progress": "진행 상황",
+    "schedule": "일정",
+    "training": "훈련"
   },
   "training": {
     "available": "사용 가능",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "로그인으로 돌아가기",
+    "codeResent": "인증 코드를 다시 보냈습니다!",
     "didnTReceiveTheCode": "코드를 받지 못하셨나요? 다시 보내기",
+    "enterSixDigitCode": "6자리 인증 코드를 입력하세요.",
+    "failedToResendCode": "코드를 다시 보내지 못했습니다.",
+    "verificationFailed": "인증에 실패했습니다. 다시 시도하세요.",
     "verifyCode": "코드 확인",
     "verifyEmail": "이메일 인증"
   },
   "why": {
     "aMuscleYouCanTrain": "훈련할 수 있는 근육이에요",
+    "aRealMuscleBody": "골반저근은 진짜 근육입니다. 하루 몇 분만 단련하면 다른 운동과 똑같이 강해집니다. 약도, 부작용도 없고 효과는 오래갑니다.",
     "andYouCanDoIt": "게다가 언제 어디서나 할 수 있어요. 앉아서, 서서, 버스 안에서도. 아무도 눈치채지 못해요.",
+    "benefit_bladder_desc": "새는 느낌과 갑작스러운 요의가 줄어듭니다.",
+    "benefit_bladder_title": "더 나은 방광 조절",
+    "benefit_confidence_desc": "주마다 쌓이는 변화.",
+    "benefit_confidence_title": "오래가는 자신감",
+    "benefit_core_desc": "자세와 허리에 도움이 됩니다.",
+    "benefit_core_title": "받쳐주는 코어",
+    "benefit_performance_desc": "친밀한 순간의 조절력과 지구력이 늘어납니다.",
+    "benefit_performance_title": "더 강한 퍼포먼스",
     "doingItRightIsEverything": "제대로 하는 것이 전부예요",
     "learnItOnceAndEvery": "한 번 익혀 두면 훈련하는 1분 1분이 진짜 의미를 가져요.",
     "squeezeTheWrongMusclesAnd": "엉뚱한 근육을 조이면 아무 효과가 없어요.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "지금 나가면 이 세션은 오늘 진행 상황에 반영되지 않아요.",
     "leaveTraining": "훈련을 종료할까요?",
     "noExercises": "운동 없음",
+    "noExercisesBody": "이 세션에 잠금 해제된 운동이 없습니다.",
+    "noExercisesTitle": "운동 없음",
     "noGoBack": "아니요, 돌아가기",
     "pause": "일시정지",
     "resume": "계속하기",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "네, 종료할게요"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "이미 가장 쉬운 레벨입니다.",
+    "alreadyHighestLevel": "이미 가장 높은 레벨입니다.",
     "continue": "계속",
     "howWasThat": "어떠셨나요?",
     "justRight": "딱 좋아요",
+    "keepGoing": "훌륭해요! 계속 가봅시다.",
+    "levelUp": "레벨 업! 이제 {{level}}입니다.",
+    "monthNumber": "{{number}}개월 차",
     "newExerciseUnlocked": "새로운 운동이 열렸어요!",
     "nextToUnlock": "다음에 열릴 운동",
     "notNow": "나중에",
+    "steppedDown": "{{level}}(으)로 내려왔습니다. 할 수 있어요!",
     "tooEasy": "너무 쉬워요",
     "tooHard": "너무 어려워요",
-    "tryItNow": "지금 해보기"
+    "tryItNow": "지금 해보기",
+    "unlockedList": "잠금 해제: {{names}}"
   }
 }

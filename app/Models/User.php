@@ -79,6 +79,18 @@ class User extends Authenticatable
                 // access until the paid period actually ends.
                 ->orWhere(function ($w) {
                     $w->where('status', 'canceled')->where('ends_at', '>', now());
+                })
+                // Past due = Google is RETRYING the card, and its grace period
+                // is defined as the window where the subscriber keeps access.
+                // We were doing the opposite: SUBSCRIPTION_IN_GRACE_PERIOD and
+                // BILLING_ISSUE both write 'past_due', which this clause used
+                // to exclude, so a card blip locked out a paying customer the
+                // instant Google told us to keep serving them. Bounded by
+                // ends_at exactly like 'canceled', so it can never grant
+                // beyond the period already paid for - when the grace really
+                // does run out, Play sends the expiration that sets 'expired'.
+                ->orWhere(function ($w) {
+                    $w->where('status', 'past_due')->where('ends_at', '>', now());
                 });
             })
             ->latest('id')

@@ -16,7 +16,12 @@ import {
 } from '@react-navigation/native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { COLORS, GLASS } from '../../theme/colors';
-import { EXERCISES } from '../../constants/catalogues';
+import {
+  EXERCISES,
+  exerciseNameKey,
+  exerciseDescriptionKey,
+  exerciseHowToKey,
+} from '../../constants/catalogues';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { RootStackParamList } from '../../navigation/AppNavigator';
@@ -54,7 +59,7 @@ export const ExerciseDetailScreen = () => {
           </Svg>
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          {ex.name}
+          {t(exerciseNameKey(slug))}
         </Text>
         <View style={{ width: 36 }} />
       </View>
@@ -71,13 +76,13 @@ export const ExerciseDetailScreen = () => {
             <View style={styles.lockBanner}>
               <LockIcon color={COLORS.accentSoft} />
               <Text style={styles.lockBannerText}>
-                Complete {daysLeft} more training days to unlock.
+                {t('exerciseDetail.completeMoreDaysToUnlock', { count: daysLeft })}
               </Text>
             </View>
           )}
 
-          <Text style={styles.description}>{ex.description}</Text>
-          {ex.how_to ? <Text style={styles.howTo}>{ex.how_to}</Text> : null}
+          <Text style={styles.description}>{t(exerciseDescriptionKey(slug))}</Text>
+          <Text style={styles.howTo}>{t(exerciseHowToKey(slug))}</Text>
         </View>
       </ScrollView>
 
@@ -93,7 +98,9 @@ export const ExerciseDetailScreen = () => {
         ) : (
           <View style={styles.lockedBtn}>
             <LockIcon color={COLORS.textMuted} />
-            <Text style={styles.lockedBtnText}>Locked - {daysLeft} days left</Text>
+            <Text style={styles.lockedBtnText}>
+              {t('exerciseDetail.lockedDaysLeft', { count: daysLeft })}
+            </Text>
           </View>
         )}
       </View>

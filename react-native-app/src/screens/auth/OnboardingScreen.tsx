@@ -21,31 +21,14 @@ import { SubscribeSheet } from '../../components/SubscribeSheet';
 
 const { width } = Dimensions.get('window');
 
+// Slide STRUCTURE only. The copy lives in the locale files and is resolved
+// with t() at render, so the slides follow the reader's language - they used
+// to be hardcoded English and stayed English in all 29 locales.
 const SLIDES = [
-  {
-    id: 1,
-    title: 'Get stronger, naturally',
-    body: 'You train your pelvic floor like any other muscle. No pills, no side effects. You put in a few minutes, you keep the strength.',
-    cta: 'Next',
-  },
-  {
-    id: 2,
-    title: 'You only need a minute',
-    body: 'Your first sessions take one minute. Do them on the couch, at your desk, anywhere.',
-    cta: 'Next',
-  },
-  {
-    id: 3,
-    title: 'Watch yourself get stronger',
-    body: 'You finish your sessions, your streak grows, and new exercises unlock as you improve. You will feel the difference week after week.',
-    cta: 'Next',
-  },
-  {
-    id: 4,
-    title: 'Make it your habit',
-    body: 'Set reminders that fit your day. A few minutes daily, and you get results that last.',
-    cta: 'Get Started',
-  },
+  { id: 1, titleKey: 'onboarding.slide1Title', bodyKey: 'onboarding.slide1Body' },
+  { id: 2, titleKey: 'onboarding.slide2Title', bodyKey: 'onboarding.slide2Body' },
+  { id: 3, titleKey: 'onboarding.slide3Title', bodyKey: 'onboarding.slide3Body' },
+  { id: 4, titleKey: 'onboarding.slide4Title', bodyKey: 'onboarding.slide4Body' },
 ];
 
 interface OnboardingScreenProps {
@@ -165,8 +148,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
           <View style={styles.slide}>
             <View style={styles.visualContainer}>{renderVisual(index)}</View>
             <View style={styles.textContainer}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.body}>{item.body}</Text>
+              <Text style={styles.title}>{t(item.titleKey)}</Text>
+              <Text style={styles.body}>{t(item.bodyKey)}</Text>
             </View>
           </View>
         )}
@@ -197,7 +180,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
           </View>
         ) : (
           <TouchableOpacity style={styles.ctaButton} onPress={handleNext}>
-            <Text style={styles.ctaButtonText}>{SLIDES[activeIndex].cta}</Text>
+            <Text style={styles.ctaButtonText}>{t('onboarding.getStarted')}</Text>
           </TouchableOpacity>
         )}
 

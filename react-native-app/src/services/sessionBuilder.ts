@@ -1,17 +1,27 @@
-import { EXERCISES, LEVELS, getCycleSeconds, getDurationBounds, getSteps } from '../constants/catalogues';
+import {
+  EXERCISES,
+  LEVELS,
+  REST_LABEL_KEY,
+  getCycleSeconds,
+  getDurationBounds,
+  getSteps,
+} from '../constants/catalogues';
 
 export interface PlaylistStep {
   phase: 'contract' | 'relax';
-  label: string;
+  /** i18n key for the cue inside the circle. Resolved by the screen, not here. */
+  labelKey: string;
   seconds: number;
   from: number;
   to: number;
-  exerciseName: string;
+  /** Exercise this step belongs to, or 'rest'. Doubles as the identity used to
+   *  group consecutive steps into one carousel block. */
   slug: string;
 }
 
 export interface Playlist {
   steps: PlaylistStep[];
+  /** Slugs, in the order they are trained. Names are looked up for display. */
   exercises: string[];
   totalSeconds: number;
 }
@@ -109,11 +119,10 @@ export const buildDailySession = (completedDays: number, levelNumber: number): P
     if (i > 0 && rest > 0) {
       steps.push({
         phase: 'relax',
-        label: 'Rest',
+        labelKey: REST_LABEL_KEY,
         seconds: rest,
         from: 0,
         to: 0,
-        exerciseName: 'Rest',
         slug: 'rest',
       });
       finalAcc += rest;
@@ -126,18 +135,17 @@ export const buildDailySession = (completedDays: number, levelNumber: number): P
     exerciseSteps.forEach((s) => {
       steps.push({
         phase: s.phase,
-        label: s.label,
+        labelKey: s.labelKey,
         seconds: s.seconds,
         from: s.from,
         to: s.to,
-        exerciseName: exercise.name,
         slug: exercise.slug,
       });
       finalAcc += s.seconds;
     });
 
-    if (!exercises.includes(exercise.name)) {
-      exercises.push(exercise.name);
+    if (!exercises.includes(exercise.slug)) {
+      exercises.push(exercise.slug);
     }
   });
 
@@ -160,11 +168,10 @@ export const buildSingleSession = (slug: string, levelNumber: number): Playlist 
 
   const steps: PlaylistStep[] = exerciseSteps.map((s) => ({
     phase: s.phase,
-    label: s.label,
+    labelKey: s.labelKey,
     seconds: s.seconds,
     from: s.from,
     to: s.to,
-    exerciseName: exercise.name,
     slug: exercise.slug,
   }));
 
@@ -172,7 +179,7 @@ export const buildSingleSession = (slug: string, levelNumber: number): Playlist 
 
   return {
     steps,
-    exercises: [exercise.name],
+    exercises: [exercise.slug],
     totalSeconds: Math.round(total * 10) / 10,
   };
 };

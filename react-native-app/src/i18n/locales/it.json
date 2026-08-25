@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Disponibile",
-    "exercises": "Esercizi"
+    "backA11y": "Indietro",
+    "exercises": "Esercizi",
+    "unlockProgressA11y": "Avanzamento dello sblocco di {{name}}"
+  },
+  "basics": {
+    "findTitle": "Trova il tuo pavimento pelvico",
+    "firstTitle": "Il tuo primo esercizio",
+    "whyTitle": "Perché il Kegel funziona"
+  },
+  "billing": {
+    "alreadyOwned": "Hai già un abbonamento attivo. Lo stiamo ripristinando.",
+    "configuration": "Questo piano non è acquistabile in questo momento. Il problema è dalla nostra parte: riprova più tardi o contatta l’assistenza.",
+    "declined": "Google Play ha rifiutato il pagamento. Controlla il metodo di pagamento del tuo account Google e riprova.",
+    "ineligible": "Non hai i requisiti per questa offerta. Scegli un altro piano.",
+    "network": "Non siamo riusciti a raggiungere lo store. Controlla la connessione e riprova. Se ti è stato addebitato qualcosa, l’accesso comparirà da solo.",
+    "noPermission": "Il tuo account Google non ha il permesso di effettuare acquisti su questo dispositivo.",
+    "notAllowed": "Questo dispositivo o account Google non può effettuare acquisti. Di solito dipende dal controllo parentale o dall’assenza di un metodo di pagamento sull’account.",
+    "operationInProgress": "C’è già un acquisto in corso. Aspetta un attimo prima di riprovare.",
+    "otherAccount": "Questo abbonamento appartiene a un altro account. Accedi con quell’account oppure contatta l’assistenza e lo trasferiamo noi.",
+    "paymentPending": "Google Play sta elaborando il tuo pagamento. I pagamenti in contanti o con voucher possono richiedere tempo. L’accesso si sblocca automaticamente appena viene confermato, quindi non pagare di nuovo.",
+    "storeProblem": "Google Play sta avendo problemi in questo momento. Riprova tra qualche minuto.",
+    "unknown": "Qualcosa è andato storto durante l’acquisto. Riprova. Se ti è stato addebitato qualcosa, l’accesso comparirà da solo."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Una contrazione decisa costruita lentamente e rilasciata altrettanto lentamente.",
+        "howTo": "Stringi lentamente per 3 secondi mentre il cerchio si riempie, poi rilascia altrettanto lentamente mentre si svuota. Mantieni il movimento fluido in entrambe le direzioni.",
+        "name": "Morsa",
+        "summary": "Salita lenta, discesa lenta"
+      },
+      "downstairs": {
+        "description": "Contrai fino in cima, poi scendi un gradino alla volta con pieno controllo.",
+        "howTo": "Contrai al massimo, poi rilassa un po' alla volta, fermandoti circa un secondo su ogni gradino durante la discesa. La discesa controllata è l'esercizio.",
+        "name": "Discesa",
+        "summary": "Discesa in 4 gradini dalla cima"
+      },
+      "elevator": {
+        "description": "L'esercizio simbolo. Sali gradino dopo gradino, poi torna giù mantenendo il controllo.",
+        "howTo": "Immagina di essere in ascensore. Stringi un po' di più a ogni gradino fino alla contrazione massima, poi torna giù un gradino alla volta fino al rilassamento completo.",
+        "name": "Ascensore",
+        "summary": "Sali fino in cima, poi torna giù gradino per gradino"
+      },
+      "flash": {
+        "description": "Le contrazioni più rapide. Strette brevi e scattanti che allenano la reattività.",
+        "howTo": "Contrai e rilascia il più velocemente possibile, a tempo con il cerchio. Resta leggero, non forzare.",
+        "name": "Lampo",
+        "summary": "Le contrazioni più rapide"
+      },
+      "front-clamp": {
+        "description": "Una contrazione lenta e mirata della parte anteriore del pavimento pelvico, con un rilascio rapido e netto.",
+        "howTo": "Stringi lentamente per 3 secondi mentre il cerchio si riempie. Quando si svuota, rilascia tutto insieme. Poi inizia la contrazione lenta successiva.",
+        "name": "Morsa anteriore",
+        "summary": "Stringi lentamente, rilascia di colpo"
+      },
+      "holding": {
+        "description": "Contrai e mantieni per costruire la resistenza di base del pavimento pelvico.",
+        "howTo": "Contrai il pavimento pelvico e mantieni per tutta la serie. Se la tensione cala, ricontrai delicatamente. Continua a respirare normalmente.",
+        "name": "Mantenimento",
+        "summary": "Un mantenimento costante"
+      },
+      "long-steady-clamp": {
+        "description": "L'esercizio di resistenza: un secondo di contrazione seguito da dieci secondi alla massima forza.",
+        "howTo": "Stringi per un secondo, poi tieni alla massima forza per dieci secondi. Se la tensione cala, ricontrai delicatamente al massimo. Rilascia e ripeti.",
+        "name": "Morsa costante lunga",
+        "summary": "1 secondo di contrazione, 10 di tenuta"
+      },
+      "pulsation": {
+        "description": "Due contrazioni rapide una dopo l'altra, poi un rilascio completo. Allena a ricontrarre prima di esserti ripreso del tutto e a rilasciare bene tra uno sforzo e l'altro.",
+        "howTo": "Contrai e rilascia due volte di seguito seguendo il cerchio, poi lascia andare tutto completamente durante la pausa. Il rilascio completo conta quanto gli impulsi.",
+        "name": "Doppio impulso",
+        "summary": "Due impulsi rapidi, poi ritorno completo"
+      },
+      "push": {
+        "description": "Porta la contrazione fino a un picco deciso, mantienilo e poi rilascia lentamente.",
+        "howTo": "Stringi gradualmente per tre secondi, aumentando la forza mentre il cerchio si riempie. Mantieni la contrazione più forte per due secondi, poi rilascia lentamente. Stringi di più, non spingere mai verso il basso.",
+        "name": "Spinta",
+        "summary": "3 s di salita, 2 s di picco, 3 s di rilascio"
+      },
+      "reverse-clamp": {
+        "description": "Una contrazione rapida seguita da un rilascio lento e controllato. Ottima per il controllo.",
+        "howTo": "Stringi di colpo, poi inizia subito a rilasciare il più lentamente possibile, seguendo il cerchio che scende. Il rilascio lento è l'esercizio vero e proprio.",
+        "name": "Morsa inversa",
+        "summary": "Stringi di colpo, rilascia lentamente"
+      },
+      "short-holding": {
+        "description": "Una tenuta decisa di 4 secondi rilasciata lentamente invece che lasciata cadere. Rilasciare con controllo è un'abilità a sé, e per molti è più difficile della tenuta stessa.",
+        "howTo": "Stringi per un secondo, tieni alla massima forza per quattro, poi rilascia gradualmente mentre il cerchio scende. Non lasciarlo crollare: accompagnalo fino in fondo.",
+        "name": "Mantenimento breve",
+        "summary": "Tieni 4 secondi, poi rilascia gradualmente"
+      },
+      "starter": {
+        "description": "Una contrazione rapida per svegliare il muscolo, poi una tenuta decisa di 5 secondi.",
+        "howTo": "Fai una contrazione rapida, rilassa con dolcezza, poi contrai di nuovo e tieni con forza per cinque secondi. Rilascia, respira e ripeti.",
+        "name": "Avvio",
+        "summary": "Contrazione rapida, poi 5 secondi di tenuta"
+      },
+      "steady-clamp": {
+        "description": "Una morsa costante: contrai per un secondo, poi tieni alla massima forza per cinque.",
+        "howTo": "Stringi per un secondo, poi tieni alla massima forza per cinque secondi senza far calare la tensione. Rilascia e ripeti.",
+        "name": "Morsa costante",
+        "summary": "1 secondo di contrazione, 5 di tenuta"
+      },
+      "steady-trembling": {
+        "description": "Contrai di colpo, mantieni la tensione stabile per un paio di secondi, poi rilassa.",
+        "howTo": "Contrai di colpo e mantieni la tensione. Quando il cerchio scende, rilascia con dolcezza. Poi ripeti la contrazione rapida e il mantenimento.",
+        "name": "Tremolio costante",
+        "summary": "Stringi di colpo, tieni, poi rilassa"
+      },
+      "trembling": {
+        "description": "Contrazioni e rilasci rapidi che fanno tremare il muscolo e ne risvegliano la risposta veloce.",
+        "howTo": "Contrai tutto insieme, tieni un istante, poi rilascia con dolcezza. Segui il cerchio mentre scatta verso l'alto e ridiscende.",
+        "name": "Tremolio",
+        "summary": "Contrazioni rapide, on e off"
+      },
+      "upstairs": {
+        "description": "Sali con la contrazione in quattro gradini, un po' più forte a ogni livello.",
+        "howTo": "Immagina di salire in ascensore. Stringi un po', poi di più, poi ancora di più, fino alla contrazione massima, restando circa un secondo su ogni gradino. Poi rilassa.",
+        "name": "Salita",
+        "summary": "Salita in 4 gradini fino in cima"
+      },
+      "waves": {
+        "description": "Contrazioni a onda che accumulano e rilasciano tensione senza interruzione.",
+        "howTo": "Stringi lentamente per due secondi, poi rilascia altrettanto lentamente, come un'onda che sale e scende. Mantienilo fluido e continuo.",
+        "name": "Onde",
+        "summary": "2 secondi in salita, 2 in discesa"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Inizio graduale. Sessioni brevi da 1 minuto.",
+        "name": "Livello 1"
+      },
+      "2": {
+        "description": "Un po' più lungo. Sessioni da 2 minuti.",
+        "name": "Livello 2"
+      },
+      "3": {
+        "description": "Allenamento equilibrato. Sessioni da 3 minuti.",
+        "name": "Livello 3"
+      },
+      "4": {
+        "description": "Sessioni più lunghe per muscoli più forti. 4 minuti.",
+        "name": "Livello 4"
+      },
+      "5": {
+        "description": "Resistenza e controllo avanzati. 5 minuti.",
+        "name": "Livello 5"
+      }
+    },
+    "steps": {
+      "contract": "Contrai",
+      "contractAndHold": "Contrai e tieni",
+      "contractSlowly": "Contrai lentamente",
+      "easeDown": "Rilascia gradualmente",
+      "hold": "Tieni",
+      "pulse1": "Impulso 1",
+      "pulse2": "Impulso 2",
+      "relax": "Rilassa",
+      "relaxSlowly": "Rilassa lentamente",
+      "release": "Rilascia",
+      "releaseSlowly": "Rilascia lentamente",
+      "reset": "Ritorno a zero",
+      "rest": "Pausa",
+      "step1": "Gradino 1",
+      "step2": "Gradino 2",
+      "step3": "Gradino 3",
+      "top": "In cima"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Qualcosa è andato storto",
@@ -9,48 +177,94 @@
     "tryAgain": "Riprova"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Completa ancora {{count}} giorno di allenamento per sbloccarlo.",
+    "completeMoreDaysToUnlock_other": "Completa ancora {{count}} giorni di allenamento per sbloccarlo.",
     "exerciseNotFound": "Esercizio non trovato.",
+    "lockedDaysLeft_one": "Bloccato - manca {{count}} giorno",
+    "lockedDaysLeft_other": "Bloccato - mancano {{count}} giorni",
     "tryItNow": "Provalo ora"
   },
   "find": {
+    "flow_stopMidway": "Fermati a metà",
+    "flow_thatSqueeze": "Ecco la contrazione!",
+    "flow_youPee": "Fai pipì",
     "keepGoing": "Continua così …",
     "onlyDoThePeeTest": "Fai il test durante la minzione una volta sola",
+    "onlyDoThePeeTestDesc": "È solo un modo per individuare i muscoli, non un esercizio. Interrompere spesso il flusso non fa bene alla vescica.",
+    "pressAndHold": "Tieni premuto",
+    "squeezeNow": "Contrai!",
     "squeezeOnlyThoseMuscles": "Contrai solo quei muscoli",
+    "squeezeOnlyThoseMusclesDesc": "Un altro spunto: contrai come se trattenessi aria. Pancia, gambe e glutei restano completamente rilassati.",
+    "stopTheFlowBody": "La prossima volta che fai pipì, interrompi delicatamente il flusso a metà. I muscoli che hai appena usato sono il tuo pavimento pelvico.",
     "thatExactSqueezeIsThe": "Proprio quella contrazione è il movimento che allenerai.",
     "theEasiestWayToFind": "Il modo più semplice per trovarli",
-    "twoQuickRules": "Due regole veloci"
+    "tryItNow": "Provaci ora",
+    "tryItNowBody": "Tieni premuto il cerchio. Mentre lo tieni, contrai quei muscoli. Rilascia insieme.",
+    "twoQuickRules": "Due regole veloci",
+    "youFoundThem": "Li hai trovati!",
+    "youFoundThemBody": "Quella contrazione seguita dal rilascio è tutto ciò che è un Kegel. Sei pronto per il tuo primo esercizio."
   },
   "first": {
     "contract": "Contrai",
+    "followTheCircle": "Segui il cerchio. Contrai... e rilassa.",
+    "niceWork": "Ottimo lavoro!",
+    "nowYouTry": "Ora prova tu",
     "start": "Inizia",
+    "tenSecondsReady": "Dieci secondi di {{exercise}}. Contrai a ogni {{contract}}, lascia andare su {{relax}}. Pronto?",
+    "thatWasARealExercise": "Quello era un esercizio vero. Ogni sessione funziona esattamente così, un cerchio alla volta.",
     "theCircleIsYourGuide": "Il cerchio ti guida",
+    "theCircleIsYourGuideBody": "Ogni esercizio segue questo cerchio. Quando si illumina e si allarga, contrai. Quando la luce svanisce, rilassa. La parola al centro ti dice sempre cosa fare.",
     "thisIsTrembling": "Questo è Tremolio",
     "yourFirstExerciseQuickFlicks": "Il tuo primo esercizio: contrazioni rapide. Stringi su Contrai, lascia su Rilassa."
   },
   "knowledge": {
     "continueToTraining": "Continua verso l'allenamento",
     "learnTheBasics": "Impara le basi",
+    "lessonNumber": "Lezione {{number}}",
     "logIn": "Accedi"
   },
   "login": {
     "6DigitCode": "Codice a 6 cifre",
     "close": "Chiudi",
+    "codeSentEnterBelow": "Codice inviato! Inseriscilo qui sotto insieme a una nuova password.",
     "continueWithGoogle": "Continua con Google",
+    "couldNotOpenGoogle": "Impossibile aprire l’accesso con Google. Riprova.",
     "createAccount": "Crea un account",
     "email": "E-mail",
-    "enterYourEmail": "Inserisci la tua e-mail",
+    "enterSixDigitCode": "Inserisci il codice a 6 cifre ricevuto via email.",
+    "enterYourEmail": "Inserisci la tua email.",
+    "failedToResetPassword": "Impossibile reimpostare la password.",
+    "failedToSendResetCode": "Impossibile inviare il codice di reimpostazione.",
+    "fillAllFields": "Compila tutti i campi.",
     "forgotPassword": "Password dimenticata?",
+    "googleSignInFailed": "Accesso con Google non riuscito. Riprova.",
+    "invalidCredentials": "Credenziali non valide.",
     "logIn": "Accedi",
     "logIn2": "Accedi",
     "newHere": "Sei nuovo?",
     "newPassword": "Nuova password",
     "password": "Password",
     "passwordReset": "Password reimpostata",
-    "resetPassword": "Reimposta la password"
+    "passwordResetBody": "La tua password è stata reimpostata. Effettua l’accesso.",
+    "passwordResetTitle": "Password reimpostata",
+    "passwordRules": "La password deve avere almeno 6 caratteri e contenere un numero.",
+    "resetPassword": "Reimposta la password",
+    "resetPasswordCta": "Reimposta password",
+    "sendCodeCta": "Invia codice"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Hai già un account?",
-    "logIn": "Accedi"
+    "getStarted": "Inizia",
+    "logIn": "Accedi",
+    "perDay": "AL GIORNO",
+    "slide1Body": "Nessuno ne parla. Tutto risale a un unico muscolo debole, e un muscolo debole si può riallenare.",
+    "slide1Title": "Perdite. Urgenza. Meno controllo.",
+    "slide2Body": "Niente palestra, niente attrezzi, niente da togliere. Sul divano, alla scrivania, in autobus. Nessuno se ne accorge.",
+    "slide2Title": "Un minuto, da seduto",
+    "slide3Body": "L'app misura quanto riesci a tenere. I tuoi tempi salgono, si sbloccano nuovi esercizi e il cambiamento si vede dove lo volevi.",
+    "slide3Title": "Lo senti prima di vederlo",
+    "slide4Body": "Se smetti il muscolo cede, come in qualsiasi allenamento. Scegli un orario e al resto pensa il promemoria.",
+    "slide4Title": "Funziona solo se continui"
   },
   "paywall": {
     "autoRenewOffHint": "Il rinnovo automatico è disattivato. L'accesso terminerà alla data di scadenza.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Misura i tuoi progressi",
     "benefitReminders": "Promemoria su misura per la tua giornata",
     "benefitStrength": "Costruisci vera forza del pavimento pelvico",
+    "bestValue": "MIGLIORE OFFERTA",
     "billingIsNotAvailableOn": "I pagamenti non sono disponibili su questo dispositivo. Puoi ripristinare un acquisto precedente qui sotto.",
     "byContinuingYouAgree": "Continuando accetti i nostri",
     "changeYourPlan": "Cambia piano",
@@ -72,6 +287,7 @@
     "managePlan": "Gestisci piano",
     "noActiveSubscriptionWasFound": "Nessun abbonamento attivo da ripristinare.",
     "off": "Disattivo",
+    "offeringsUnavailable": "Al momento gli abbonamenti non sono disponibili su questo dispositivo. Riprova più tardi oppure ripristina un acquisto precedente qui sotto.",
     "on": "Attivo",
     "paymentProcessedSecurely": "Il pagamento viene elaborato in sicurezza tramite RevenueCat e lo store alla conferma.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Acquisto ricevuto, ma non è stato possibile identificare il piano. Contatta l'assistenza.",
     "restorePurchases": "Ripristina acquisti",
     "restoredPurchaseCouldNotBe": "L'acquisto ripristinato non è stato associato a un piano. Contatta l'assistenza.",
+    "savePercent": "RISPARMI IL {{percent}} %",
     "signInFirst": "Accedi prima di abbonarti.",
     "startFreeTrialCta_one": "Inizia {{count}} giorno di prova gratuita",
     "startFreeTrialCta_other": "Inizia {{count}} giorni di prova gratuita",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Disinstallare l'app non annulla né rimborsa un abbonamento.",
     "yourSubscriptionIsNowActive": "Il tuo abbonamento è attivo e l'accesso completo è sbloccato."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Accesso completo, addebito mensile.",
+      "name": "1 mese"
+    },
+    "premium-quarterly": {
+      "description": "Addebito ogni 3 mesi.",
+      "name": "3 mesi"
+    },
+    "premium-yearly": {
+      "description": "Un unico pagamento per tutto l’anno.",
+      "name": "1 anno"
+    }
+  },
   "profile": {
     "currentDifficulty": "Difficoltà attuale",
     "difficulty": "Difficoltà",
     "error": "Errore",
+    "errorTitle": "Errore",
+    "failedToUpdateLevel": "Impossibile aggiornare il livello di allenamento.",
     "profile": "Profilo",
     "scheduleReminders": "Programma e promemoria",
     "setTheDifficultyOfKegel": "Imposta la difficoltà del programma di allenamento Kegel",
+    "settingsA11y": "Impostazioni",
     "theHigherTheLevelThe": "Più alto è il livello, più duro è l'allenamento"
   },
   "progress": {
+    "bestResult": "miglior risultato",
     "continue": "Continua",
     "holdTheButtonAndContract": "Tieni premuto il pulsante e contrai i muscoli del pavimento pelvico il più a lungo possibile.",
+    "lastMeasurement": "ultima misurazione",
     "progressTracker": "Monitoraggio dei progressi",
+    "seconds": "{{count}} s",
     "takeMeasurement": "Esegui una misurazione",
+    "today": "Oggi",
+    "topResult": "record: {{count}} s",
     "tryAgain": "Riprova"
   },
   "register": {
     "alreadyHaveAnAccount": "Hai già un account?",
     "confirmPassword": "Conferma la password",
     "continueWithGoogle": "Continua con Google",
+    "couldNotOpenGoogle": "Impossibile aprire la registrazione con Google. Riprova.",
     "createAccount": "Crea un account",
     "createAccount2": "Crea un account",
     "email": "E-mail",
+    "fillAllFields": "Compila tutti i campi.",
+    "googleSignUpFailed": "Registrazione con Google non riuscita. Riprova.",
     "logIn": "Accedi",
     "name": "Nome",
-    "password": "Password"
+    "password": "Password",
+    "passwordNeedsNumber": "La password deve contenere almeno un numero.",
+    "passwordTooShort": "La password deve avere almeno 6 caratteri.",
+    "passwordsDoNotMatch": "Le password non coincidono.",
+    "registrationFailed": "Registrazione non riuscita."
+  },
+  "reminders": {
+    "notificationBody": "È ora della tua sessione quotidiana di Kegel!",
+    "notificationTitle": "Allenamento Kegel"
   },
   "schedule": {
     "active": "Attivo",
     "allowExactReminders": "Consenti promemoria precisi",
+    "daysLeft_one": "manca {{count}} giorno",
+    "daysLeft_other": "mancano {{count}} giorni",
     "error": "Errore",
+    "errorTitle": "Errore",
+    "failedToSaveReminders": "Impossibile salvare i promemoria.",
     "limitReached": "Limite raggiunto",
+    "limitReachedBody": "Puoi impostare fino a 5 promemoria al giorno.",
+    "limitReachedTitle": "Limite raggiunto",
+    "monthNumber": "Mese {{number}}",
     "reminders": "Promemoria",
     "remindersSaved": "Promemoria salvati",
     "repeatOn": "Ripeti il",
     "saveAddReminders": "Salva promemoria",
     "schedule": "Programma",
+    "sessionNumber": "Sessione {{number}}",
     "sessionTimes": "Orari delle sessioni"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Eliminare l'account?",
     "deletePermanently": "Elimina definitivamente",
     "deleted": "Eliminato",
+    "deletedBody": "Il tuo account è stato eliminato definitivamente.",
+    "deletedTitle": "Eliminato",
+    "failedToDeleteAccount": "Impossibile eliminare l’account.",
     "gotIt": "Ho capito",
     "language": "Lingua",
     "logOut": "Esci",
     "manageSubscription": "Gestisci abbonamento",
     "noActiveSubscription": "Nessun abbonamento attivo",
     "reset": "Reimposta",
+    "resetConfirmBody": "Verranno cancellati i tuoi giorni di allenamento, le sessioni, le misurazioni e i progressi nelle lezioni. L’operazione non è reversibile.",
     "resetProgress": "Reimposta i progressi",
     "resetProgress2": "Reimpostare i progressi?",
+    "resetSuccessBody": "I tuoi progressi di allenamento sono stati cancellati.",
+    "resetSuccessTitle": "Azzerato",
     "resetSuccessful": "Reimpostazione riuscita",
     "restartBody": "Chiudi e riapri l’app per completare il cambio di direzione del layout.",
     "restartRequired": "Riavvio necessario",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Hai già un account? Accedi",
     "back": "Indietro",
+    "bestValue": "MIGLIORE OFFERTA",
+    "billingDisclosure": "Il pagamento viene elaborato in modo sicuro tramite RevenueCat e lo store al momento della conferma. L’abbonamento si rinnova automaticamente al prezzo indicato finché non lo annulli nelle impostazioni degli abbonamenti; disinstallare l’app non lo annulla né lo rimborsa. Continuando accetti i nostri",
     "close": "Chiudi",
     "confirmPassword": "Conferma la password",
     "continue": "Continua",
     "continueWithGoogle": "Continua con Google",
+    "couldNotOpenGoogle": "Impossibile aprire l’accesso con Google. Riprova.",
     "couldNotOpenGoogleSign": "Impossibile aprire l'accesso con Google. Riprova.",
+    "couldNotReachServer": "Impossibile raggiungere il server. Controlla la connessione e riprova.",
+    "createAccount": "Crea account",
     "createAccountSubscribe": "Crea un account e abbonati",
     "creatingAccount": "Creazione account …",
     "emailAddress": "Indirizzo e-mail",
+    "emailInvalid": "Inserisci un indirizzo email valido.",
+    "emailOrPasswordIncorrect": "Email o password non corretti.",
+    "emailRequired": "L’email è obbligatoria.",
     "fullName": "Nome completo",
+    "googleSignInFailed": "Accesso con Google non riuscito. Riprova.",
+    "nameRequired": "Il nome è obbligatorio.",
     "noAccountYetCreateOne": "Non hai ancora un account? Creane uno",
     "password": "Password",
     "password6Characters1Number": "Password (almeno 6 caratteri, 1 numero)",
+    "passwordRequired": "La password è obbligatoria.",
+    "passwordRules": "La password deve avere almeno 6 caratteri e contenere un numero.",
+    "passwordsDoNotMatch": "Le password non coincidono.",
+    "signIn": "Accedi",
     "signInSubscribe": "Accedi e abbonati",
     "signingIn": "Accesso in corso …",
     "startYourTransformationJourneyNow": "Inizia subito la tua trasformazione",
     "subscribe": "Abbonati",
     "terms": "Termini"
+  },
+  "tabs": {
+    "profile": "Profilo",
+    "progress": "Progressi",
+    "schedule": "Programma",
+    "training": "Allenamento"
   },
   "training": {
     "available": "Disponibile",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Torna all'accesso",
+    "codeResent": "Codice di verifica inviato di nuovo!",
     "didnTReceiveTheCode": "Non hai ricevuto il codice? Invia di nuovo",
+    "enterSixDigitCode": "Inserisci un codice di verifica a 6 cifre.",
+    "failedToResendCode": "Impossibile inviare di nuovo il codice.",
+    "verificationFailed": "Verifica non riuscita. Riprova.",
     "verifyCode": "Verifica il codice",
     "verifyEmail": "Verifica l'e-mail"
   },
   "why": {
     "aMuscleYouCanTrain": "Un muscolo che puoi allenare",
+    "aRealMuscleBody": "Il tuo pavimento pelvico è un muscolo vero. Allenalo qualche minuto al giorno e diventa più forte, come in qualsiasi altro allenamento. Niente pillole, niente effetti collaterali, e i risultati durano.",
     "andYouCanDoIt": "E puoi farlo ovunque, in qualsiasi momento. Seduto, in piedi, sull'autobus. Nessuno se ne accorge.",
+    "benefit_bladder_desc": "Meno perdite e meno urgenze.",
+    "benefit_bladder_title": "Miglior controllo della vescica",
+    "benefit_confidence_desc": "Progressi che crescono settimana dopo settimana.",
+    "benefit_confidence_title": "Sicurezza che dura",
+    "benefit_core_desc": "Aiuta la postura e la zona lombare.",
+    "benefit_core_title": "Un core sostenuto",
+    "benefit_performance_desc": "Più controllo e resistenza nell’intimità.",
+    "benefit_performance_title": "Prestazioni migliori",
     "doingItRightIsEverything": "Farlo bene è tutto",
     "learnItOnceAndEvery": "Imparalo una volta e ogni minuto di allenamento conterà davvero.",
     "squeezeTheWrongMusclesAnd": "Se contrai i muscoli sbagliati, non ottieni nulla.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Se esci, questa sessione non conterà per i tuoi progressi giornalieri.",
     "leaveTraining": "Uscire dall'allenamento?",
     "noExercises": "Nessun esercizio",
+    "noExercisesBody": "Nessun esercizio sbloccato per questa sessione.",
+    "noExercisesTitle": "Nessun esercizio",
     "noGoBack": "No, torna indietro",
     "pause": "Pausa",
     "resume": "Riprendi",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Sì, esci dall'allenamento"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Sei già al livello più facile.",
+    "alreadyHighestLevel": "Sei già al livello più alto.",
     "continue": "Continua",
     "howWasThat": "Com'è andata?",
     "justRight": "Perfetto",
+    "keepGoing": "Fantastico! Continuiamo così.",
+    "levelUp": "Livello superato! Ora sei al {{level}}.",
+    "monthNumber": "Mese {{number}}",
     "newExerciseUnlocked": "Nuovo esercizio sbloccato!",
     "nextToUnlock": "Prossimo da sbloccare",
     "notNow": "Non ora",
+    "steppedDown": "Sei tornato al {{level}}. Ce la puoi fare!",
     "tooEasy": "Troppo facile",
     "tooHard": "Troppo difficile",
-    "tryItNow": "Provalo ora"
+    "tryItNow": "Provalo ora",
+    "unlockedList": "Sbloccato: {{names}}"
   }
 }

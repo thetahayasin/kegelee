@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Verfügbar",
-    "exercises": "Übungen"
+    "backA11y": "Zurück",
+    "exercises": "Übungen",
+    "unlockProgressA11y": "Freischaltfortschritt für {{name}}"
+  },
+  "basics": {
+    "findTitle": "Finde deinen Beckenboden",
+    "firstTitle": "Deine erste Übung",
+    "whyTitle": "Warum Kegel-Training wirkt"
+  },
+  "billing": {
+    "alreadyOwned": "Du hast bereits ein aktives Abo. Es wird jetzt wiederhergestellt.",
+    "configuration": "Dieser Tarif kann gerade nicht gekauft werden. Das liegt an uns - bitte versuche es später erneut oder wende dich an den Support.",
+    "declined": "Google Play hat die Zahlung abgelehnt. Prüfe die Zahlungsmethode in deinem Google-Konto und versuche es erneut.",
+    "ineligible": "Du bist für dieses Angebot nicht berechtigt. Bitte wähle einen anderen Tarif.",
+    "network": "Wir konnten den Store nicht erreichen. Prüfe deine Verbindung und versuche es erneut. Falls dir etwas berechnet wurde, erscheint dein Zugang von allein.",
+    "noPermission": "Dein Google-Konto hat auf diesem Gerät keine Berechtigung für Käufe.",
+    "notAllowed": "Dieses Gerät oder Google-Konto darf keine Käufe tätigen. Meist liegt das an der Kindersicherung oder an einer fehlenden Zahlungsmethode im Konto.",
+    "operationInProgress": "Ein Kauf läuft bereits. Warte einen Moment, bevor du es erneut versuchst.",
+    "otherAccount": "Dieses Abo gehört zu einem anderen Konto. Melde dich mit diesem Konto an oder wende dich an den Support, wir können es übertragen.",
+    "paymentPending": "Deine Zahlung wird von Google Play verarbeitet. Bar- und Gutscheinzahlungen können eine Weile dauern. Dein Zugang wird automatisch freigeschaltet, sobald sie durch ist - bitte zahle nicht noch einmal.",
+    "storeProblem": "Google Play hat gerade Probleme. Bitte versuche es in ein paar Minuten erneut.",
+    "unknown": "Beim Abschluss deines Kaufs ist etwas schiefgelaufen. Bitte versuche es erneut. Falls dir etwas berechnet wurde, erscheint dein Zugang von allein."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Ein festes Anspannen, das langsam aufgebaut und genauso langsam wieder gelöst wird.",
+        "howTo": "Spanne über 3 Sekunden langsam an, während sich der Kreis füllt, und lass dann genauso langsam los, während er sich leert. Halte die Bewegung in beide Richtungen gleichmäßig.",
+        "name": "Klammer",
+        "summary": "Langsam anspannen, langsam loslassen"
+      },
+      "downstairs": {
+        "description": "Spanne bis ganz nach oben an und komm dann Stufe für Stufe unter voller Kontrolle wieder herunter.",
+        "howTo": "Spanne bis zu deiner stärksten Anspannung an, dann entspanne Stück für Stück und halte auf dem Weg nach unten etwa eine Sekunde auf jeder Stufe. Der kontrollierte Abstieg ist die eigentliche Übung.",
+        "name": "Treppe runter",
+        "summary": "In 4 Stufen von oben herunter"
+      },
+      "elevator": {
+        "description": "Die Signature-Übung. Steige Stufe für Stufe nach oben und komm dann kontrolliert wieder herunter.",
+        "howTo": "Stell dir vor, du fährst mit einem Aufzug. Spanne auf jeder Stufe etwas fester an, bis du deine stärkste Anspannung erreichst, und komm dann Stufe für Stufe wieder herunter, bis du ganz entspannt bist.",
+        "name": "Aufzug",
+        "summary": "Nach ganz oben steigen, dann Stufe für Stufe zurück"
+      },
+      "flash": {
+        "description": "Die schnellsten Impulse. Kurze, knackige Anspannungen, die schnelle Reaktionen trainieren.",
+        "howTo": "Spanne an und lass so schnell wie möglich los, im Takt des Kreises. Bleib locker und presse nicht.",
+        "name": "Blitz",
+        "summary": "Die schnellsten Impulse, an und aus"
+      },
+      "front-clamp": {
+        "description": "Ein langsames, gezieltes Anspannen des vorderen Beckenbodens mit einem schnellen, sauberen Loslassen.",
+        "howTo": "Spanne über 3 Sekunden langsam an, während sich der Kreis füllt. Wenn er sich leert, lass alles auf einmal los. Dann beginnt das nächste langsame Anspannen.",
+        "name": "Vordere Klammer",
+        "summary": "Langsam anspannen, auf einmal loslassen"
+      },
+      "holding": {
+        "description": "Anspannen und halten, um die Grundausdauer im Beckenboden aufzubauen.",
+        "howTo": "Spanne deinen Beckenboden an und halte die ganze Runde über. Lässt die Spannung nach, spanne sanft wieder an. Atme dabei normal weiter.",
+        "name": "Halten",
+        "summary": "Ein gleichmäßiges Halten"
+      },
+      "long-steady-clamp": {
+        "description": "Der Ausdauer-Aufbau: eine Sekunde anspannen und dann zehn Sekunden mit voller Kraft halten.",
+        "howTo": "Spanne eine Sekunde lang an und halte dann zehn Sekunden mit voller Kraft. Lässt die Spannung nach, spanne sanft wieder bis zum Maximum an. Loslassen und wiederholen.",
+        "name": "Lange ruhige Klammer",
+        "summary": "1 Sekunde anspannen, 10 Sekunden halten"
+      },
+      "pulsation": {
+        "description": "Zwei schnelle Anspannungen direkt hintereinander, dann ein vollständiges Loslassen. Trainiert das erneute Anspannen, bevor du dich ganz erholt hast, und das richtige Loslassen zwischen den Einsätzen.",
+        "howTo": "Spanne im Takt des Kreises zweimal kurz hintereinander an und lass wieder los, dann lass in der Ruhephase alles vollständig los. Das vollständige Loslassen zählt genauso viel wie die Impulse.",
+        "name": "Doppelpuls",
+        "summary": "Zwei schnelle Impulse, dann ganz zurück"
+      },
+      "push": {
+        "description": "Baue die Spannung bis zu einem kräftigen Höhepunkt auf, halte sie und lass dann langsam los.",
+        "howTo": "Spanne über drei Sekunden allmählich an und werde stärker, während sich der Kreis füllt. Halte deine stärkste Anspannung zwei Sekunden, dann lass langsam los. Spanne fester an, presse niemals nach unten.",
+        "name": "Schub",
+        "summary": "3 s Aufbau, 2 s Spitze halten, 3 s entspannen"
+      },
+      "reverse-clamp": {
+        "description": "Ein schnelles Anspannen, gefolgt von einem langsamen, kontrollierten Loslassen. Ideal für die Kontrolle.",
+        "howTo": "Spanne sofort an und beginne dann direkt, so langsam wie möglich loszulassen, während der Kreis sinkt. Das langsame Loslassen ist die eigentliche Übung.",
+        "name": "Umgekehrte Klammer",
+        "summary": "Sofort anspannen, langsam loslassen"
+      },
+      "short-holding": {
+        "description": "Ein kräftiges Halten über 4 Sekunden, das langsam gelöst statt fallen gelassen wird. Kontrolliertes Loslassen ist eine eigene Fähigkeit, und den meisten fällt sie schwerer als das Halten.",
+        "howTo": "Spanne über eine Sekunde an, halte vier Sekunden mit voller Kraft und lass dann allmählich los, während der Kreis sinkt. Lass die Spannung nicht zusammenbrechen, bleib den ganzen Weg nach unten dabei.",
+        "name": "Kurzes Halten",
+        "summary": "4 Sekunden halten, dann langsam nachlassen"
+      },
+      "starter": {
+        "description": "Ein schnelles Anspannen, um den Muskel zu wecken, dann ein kräftiges Halten über 5 Sekunden.",
+        "howTo": "Spanne einmal kurz an, entspanne sanft, spanne dann erneut an und halte fünf Sekunden lang kräftig. Loslassen, atmen, wiederholen.",
+        "name": "Starter",
+        "summary": "Kurzer Impuls, dann 5 Sekunden halten"
+      },
+      "steady-clamp": {
+        "description": "Eine ruhige Klammer: eine Sekunde anspannen, dann fünf Sekunden mit voller Kraft halten.",
+        "howTo": "Spanne eine Sekunde lang an und halte dann fünf Sekunden mit voller Kraft, ohne die Spannung abfallen zu lassen. Loslassen und wiederholen.",
+        "name": "Ruhige Klammer",
+        "summary": "1 Sekunde anspannen, 5 Sekunden halten"
+      },
+      "steady-trembling": {
+        "description": "Sofort anspannen, die Spannung ein paar Sekunden gleichmäßig halten, dann entspannen.",
+        "howTo": "Spanne sofort an und halte die Spannung. Wenn der Kreis fällt, lass sanft los. Dann wiederhole das schnelle Anspannen und Halten.",
+        "name": "Ruhiges Zittern",
+        "summary": "Sofort anspannen, halten, dann entspannen"
+      },
+      "trembling": {
+        "description": "Schnelles An- und Entspannen, das den Muskel zittern lässt und seine schnelle Reaktion weckt.",
+        "howTo": "Spanne alles auf einmal an, halte kurz, dann lass sanft los. Folge dem Kreis, wie er hochschnellt und wieder abfällt.",
+        "name": "Zittern",
+        "summary": "Kurze Impulse, an und aus"
+      },
+      "upstairs": {
+        "description": "Steigere die Anspannung in vier Stufen, bei jeder Stufe etwas kräftiger.",
+        "howTo": "Stell dir vor, du fährst mit einem Aufzug nach oben. Spanne etwas an, dann mehr, dann noch mehr, bis du deine stärkste Anspannung erreichst, und verweile etwa eine Sekunde auf jeder Stufe. Danach entspannen.",
+        "name": "Treppe hoch",
+        "summary": "In 4 Stufen nach ganz oben"
+      },
+      "waves": {
+        "description": "Wellenförmiges Anspannen, das Spannung ununterbrochen aufbaut und wieder löst.",
+        "howTo": "Spanne zwei Sekunden lang langsam an und lass dann genauso langsam los, wie eine Welle, die steigt und fällt. Halte es gleichmäßig und fließend.",
+        "name": "Wellen",
+        "summary": "2 Sekunden hoch, 2 Sekunden runter"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Sanfter Einstieg. Kurze Einheiten von 1 Minute.",
+        "name": "Stufe 1"
+      },
+      "2": {
+        "description": "Etwas länger. Einheiten von 2 Minuten.",
+        "name": "Stufe 2"
+      },
+      "3": {
+        "description": "Ausgewogenes Training. Einheiten von 3 Minuten.",
+        "name": "Stufe 3"
+      },
+      "4": {
+        "description": "Längere Einheiten für kräftigere Muskeln. 4 Minuten.",
+        "name": "Stufe 4"
+      },
+      "5": {
+        "description": "Fortgeschrittene Ausdauer und Kontrolle. 5 Minuten.",
+        "name": "Stufe 5"
+      }
+    },
+    "steps": {
+      "contract": "Anspannen",
+      "contractAndHold": "Anspannen & halten",
+      "contractSlowly": "Langsam anspannen",
+      "easeDown": "Langsam nachlassen",
+      "hold": "Halten",
+      "pulse1": "Puls 1",
+      "pulse2": "Puls 2",
+      "relax": "Entspannen",
+      "relaxSlowly": "Langsam entspannen",
+      "release": "Loslassen",
+      "releaseSlowly": "Langsam loslassen",
+      "reset": "Zurücksetzen",
+      "rest": "Pause",
+      "step1": "Stufe 1",
+      "step2": "Stufe 2",
+      "step3": "Stufe 3",
+      "top": "Ganz oben"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Etwas ist schiefgelaufen",
@@ -9,48 +177,94 @@
     "tryAgain": "Erneut versuchen"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Absolviere noch {{count}} Trainingstag, um sie freizuschalten.",
+    "completeMoreDaysToUnlock_other": "Absolviere noch {{count}} Trainingstage, um sie freizuschalten.",
     "exerciseNotFound": "Übung nicht gefunden.",
+    "lockedDaysLeft_one": "Gesperrt - noch {{count}} Tag",
+    "lockedDaysLeft_other": "Gesperrt - noch {{count}} Tage",
     "tryItNow": "Jetzt ausprobieren"
   },
   "find": {
+    "flow_stopMidway": "Halte kurz an",
+    "flow_thatSqueeze": "Genau diese Anspannung!",
+    "flow_youPee": "Du urinierst",
     "keepGoing": "Weiter so …",
     "onlyDoThePeeTest": "Mach den Urin-Test nur einmal",
+    "onlyDoThePeeTestDesc": "Das ist nur ein Weg, die Muskeln zu finden, keine Übung. Den Harnstrahl häufig anzuhalten ist nicht gut für deine Blase.",
+    "pressAndHold": "Gedrückt halten",
+    "squeezeNow": "Anspannen!",
     "squeezeOnlyThoseMuscles": "Spanne nur diese Muskeln an",
+    "squeezeOnlyThoseMusclesDesc": "Noch ein Hinweis: Spanne so an, als würdest du Winde zurückhalten. Bauch, Beine und Gesäß bleiben völlig entspannt.",
+    "stopTheFlowBody": "Halte beim nächsten Wasserlassen den Strahl sanft auf halbem Weg an. Die Muskeln, die du gerade benutzt hast, sind dein Beckenboden.",
     "thatExactSqueezeIsThe": "Genau diese Anspannung ist die Bewegung, die du trainierst.",
     "theEasiestWayToFind": "Der einfachste Weg, sie zu finden",
-    "twoQuickRules": "Zwei kurze Regeln"
+    "tryItNow": "Probiere es jetzt",
+    "tryItNowBody": "Halte den Kreis gedrückt. Während du hältst, spanne diese Muskeln an. Lass gemeinsam los.",
+    "twoQuickRules": "Zwei kurze Regeln",
+    "youFoundThem": "Du hast sie gefunden!",
+    "youFoundThemBody": "Dieses Anspannen und Loslassen ist alles, was ein Kegel ist. Du bist bereit für deine erste Übung."
   },
   "first": {
     "contract": "Anspannen",
+    "followTheCircle": "Folge dem Kreis. Anspannen ... und entspannen.",
+    "niceWork": "Gut gemacht!",
+    "nowYouTry": "Jetzt bist du dran",
     "start": "Start",
+    "tenSecondsReady": "Zehn Sekunden {{exercise}}. Spanne bei jedem {{contract}} an, lass bei {{relax}} los. Bereit?",
+    "thatWasARealExercise": "Das war eine echte Übung. Jede Einheit läuft genau so ab, ein Kreis nach dem anderen.",
     "theCircleIsYourGuide": "Der Kreis führt dich",
+    "theCircleIsYourGuideBody": "Jede Übung folgt diesem Kreis. Wenn er leuchtet und größer wird, spannst du an. Wenn das Leuchten verblasst, entspannst du. Das Wort in der Mitte sagt dir immer, was zu tun ist.",
     "thisIsTrembling": "Das ist Zittern",
     "yourFirstExerciseQuickFlicks": "Deine erste Übung: schnelle Impulse. Anspannen bei Anspannen, loslassen bei Entspannen."
   },
   "knowledge": {
     "continueToTraining": "Weiter zum Training",
     "learnTheBasics": "Grundlagen lernen",
+    "lessonNumber": "Lektion {{number}}",
     "logIn": "Anmelden"
   },
   "login": {
     "6DigitCode": "6-stelliger Code",
     "close": "Schließen",
+    "codeSentEnterBelow": "Code gesendet! Gib ihn unten zusammen mit einem neuen Passwort ein.",
     "continueWithGoogle": "Mit Google fortfahren",
+    "couldNotOpenGoogle": "Google-Anmeldung konnte nicht geöffnet werden. Bitte versuche es erneut.",
     "createAccount": "Konto erstellen",
     "email": "E-Mail",
-    "enterYourEmail": "E-Mail-Adresse eingeben",
+    "enterSixDigitCode": "Gib den 6-stelligen Code aus deiner E-Mail ein.",
+    "enterYourEmail": "Bitte gib deine E-Mail-Adresse ein.",
+    "failedToResetPassword": "Das Passwort konnte nicht zurückgesetzt werden.",
+    "failedToSendResetCode": "Der Zurücksetzungscode konnte nicht gesendet werden.",
+    "fillAllFields": "Bitte fülle alle Felder aus.",
     "forgotPassword": "Passwort vergessen?",
+    "googleSignInFailed": "Google-Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+    "invalidCredentials": "Ungültige Anmeldedaten.",
     "logIn": "Anmelden",
     "logIn2": "Anmelden",
     "newHere": "Neu hier?",
     "newPassword": "Neues Passwort",
     "password": "Passwort",
     "passwordReset": "Passwort zurückgesetzt",
-    "resetPassword": "Passwort zurücksetzen"
+    "passwordResetBody": "Dein Passwort wurde zurückgesetzt. Bitte melde dich an.",
+    "passwordResetTitle": "Passwort zurückgesetzt",
+    "passwordRules": "Das Passwort muss mindestens 6 Zeichen lang sein und eine Zahl enthalten.",
+    "resetPassword": "Passwort zurücksetzen",
+    "resetPasswordCta": "Passwort zurücksetzen",
+    "sendCodeCta": "Code senden"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
-    "logIn": "Anmelden"
+    "getStarted": "Loslegen",
+    "logIn": "Anmelden",
+    "perDay": "PRO TAG",
+    "slide1Body": "Darüber spricht niemand. Alles läuft auf einen schwachen Muskel hinaus, und einen schwachen Muskel kann man zurücktrainieren.",
+    "slide1Title": "Tröpfeln. Harndrang. Weniger Kontrolle.",
+    "slide2Body": "Kein Fitnessstudio, keine Geräte, nichts ausziehen. Auf dem Sofa, am Schreibtisch, im Bus. Niemand merkt es.",
+    "slide2Title": "Eine Minute, im Sitzen",
+    "slide3Body": "Die App misst, wie lange du halten kannst. Deine Zeiten steigen, neue Übungen schalten sich frei, und die Veränderung zeigt sich dort, wo du sie wolltest.",
+    "slide3Title": "Du spürst es, bevor du es siehst",
+    "slide4Body": "Hörst du auf, lässt der Muskel nach, wie bei jedem Training. Such dir eine Uhrzeit, den Rest übernimmt die Erinnerung.",
+    "slide4Title": "Es wirkt nur, wenn du dranbleibst"
   },
   "paywall": {
     "autoRenewOffHint": "Die automatische Verlängerung ist aus. Dein Zugang endet am Ablaufdatum.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Miss deinen Fortschritt",
     "benefitReminders": "Erinnerungen, die zu deinem Tag passen",
     "benefitStrength": "Echte Beckenbodenkraft aufbauen",
+    "bestValue": "BESTER WERT",
     "billingIsNotAvailableOn": "Zahlungen sind auf diesem Gerät nicht verfügbar. Du kannst unten einen früheren Kauf wiederherstellen.",
     "byContinuingYouAgree": "Mit dem Fortfahren akzeptierst du unsere",
     "changeYourPlan": "Tarif wechseln",
@@ -72,6 +287,7 @@
     "managePlan": "Abo verwalten",
     "noActiveSubscriptionWasFound": "Es wurde kein aktives Abo zum Wiederherstellen gefunden.",
     "off": "Aus",
+    "offeringsUnavailable": "Abos sind auf diesem Gerät gerade nicht verfügbar. Bitte versuche es später noch einmal oder stelle unten einen früheren Kauf wieder her.",
     "on": "An",
     "paymentProcessedSecurely": "Die Zahlung wird bei der Bestätigung sicher über RevenueCat und den App-Store abgewickelt.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Kauf erhalten, aber der Tarif konnte nicht zugeordnet werden. Bitte kontaktiere den Support.",
     "restorePurchases": "Käufe wiederherstellen",
     "restoredPurchaseCouldNotBe": "Der wiederhergestellte Kauf konnte keinem Tarif zugeordnet werden. Bitte kontaktiere den Support.",
+    "savePercent": "{{percent}} % SPAREN",
     "signInFirst": "Melde dich an, bevor du ein Abo abschließt.",
     "startFreeTrialCta_one": "{{count}} Tag gratis starten",
     "startFreeTrialCta_other": "{{count}} Tage gratis starten",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Das Deinstallieren der App kündigt kein Abo und erstattet nichts.",
     "yourSubscriptionIsNowActive": "Dein Abo ist jetzt aktiv und der volle Zugriff ist freigeschaltet."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Voller Zugriff, monatlich abgerechnet.",
+      "name": "1 Monat"
+    },
+    "premium-quarterly": {
+      "description": "Alle 3 Monate abgerechnet.",
+      "name": "3 Monate"
+    },
+    "premium-yearly": {
+      "description": "Eine Zahlung für das ganze Jahr.",
+      "name": "1 Jahr"
+    }
+  },
   "profile": {
     "currentDifficulty": "Aktueller Schwierigkeitsgrad",
     "difficulty": "Schwierigkeitsgrad",
     "error": "Fehler",
+    "errorTitle": "Fehler",
+    "failedToUpdateLevel": "Die Trainingsstufe konnte nicht aktualisiert werden.",
     "profile": "Profil",
     "scheduleReminders": "Zeitplan & Erinnerungen",
     "setTheDifficultyOfKegel": "Lege den Schwierigkeitsgrad des Kegel-Trainings fest",
+    "settingsA11y": "Einstellungen",
     "theHigherTheLevelThe": "Je höher die Stufe, desto härter das Training"
   },
   "progress": {
+    "bestResult": "bestes Ergebnis",
     "continue": "Weiter",
     "holdTheButtonAndContract": "Halte die Taste gedrückt und spanne die Beckenbodenmuskeln so lange wie möglich an.",
+    "lastMeasurement": "letzte Messung",
     "progressTracker": "Fortschritt",
+    "seconds": "{{count}} Sek.",
     "takeMeasurement": "Messung durchführen",
+    "today": "Heute",
+    "topResult": "Bestwert: {{count}} Sek.",
     "tryAgain": "Erneut versuchen"
   },
   "register": {
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
     "confirmPassword": "Passwort bestätigen",
     "continueWithGoogle": "Mit Google fortfahren",
+    "couldNotOpenGoogle": "Google-Registrierung konnte nicht geöffnet werden. Bitte versuche es erneut.",
     "createAccount": "Konto erstellen",
     "createAccount2": "Konto erstellen",
     "email": "E-Mail",
+    "fillAllFields": "Bitte fülle alle Felder aus.",
+    "googleSignUpFailed": "Google-Registrierung fehlgeschlagen. Bitte versuche es erneut.",
     "logIn": "Anmelden",
     "name": "Name",
-    "password": "Passwort"
+    "password": "Passwort",
+    "passwordNeedsNumber": "Das Passwort muss mindestens eine Zahl enthalten.",
+    "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
+    "registrationFailed": "Registrierung fehlgeschlagen."
+  },
+  "reminders": {
+    "notificationBody": "Zeit für deine tägliche Kegel-Einheit!",
+    "notificationTitle": "Kegel-Training"
   },
   "schedule": {
     "active": "Aktiv",
     "allowExactReminders": "Exakte Erinnerungen erlauben",
+    "daysLeft_one": "noch {{count}} Tag",
+    "daysLeft_other": "noch {{count}} Tage",
     "error": "Fehler",
+    "errorTitle": "Fehler",
+    "failedToSaveReminders": "Die Erinnerungen konnten nicht gespeichert werden.",
     "limitReached": "Limit erreicht",
+    "limitReachedBody": "Du kannst bis zu 5 Erinnerungszeiten pro Tag festlegen.",
+    "limitReachedTitle": "Limit erreicht",
+    "monthNumber": "Monat {{number}}",
     "reminders": "Erinnerungen",
     "remindersSaved": "Erinnerungen gespeichert",
     "repeatOn": "Wiederholen am",
     "saveAddReminders": "Erinnerungen speichern",
     "schedule": "Zeitplan",
+    "sessionNumber": "Einheit {{number}}",
     "sessionTimes": "Trainingszeiten"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Konto löschen?",
     "deletePermanently": "Endgültig löschen",
     "deleted": "Gelöscht",
+    "deletedBody": "Dein Konto wurde endgültig gelöscht.",
+    "deletedTitle": "Gelöscht",
+    "failedToDeleteAccount": "Das Konto konnte nicht gelöscht werden.",
     "gotIt": "Verstanden",
     "language": "Sprache",
     "logOut": "Abmelden",
     "manageSubscription": "Abo verwalten",
     "noActiveSubscription": "Kein aktives Abo",
     "reset": "Zurücksetzen",
+    "resetConfirmBody": "Damit werden deine Trainingstage, Einheiten, Messungen und dein Wissensfortschritt gelöscht. Das lässt sich nicht rückgängig machen.",
     "resetProgress": "Fortschritt zurücksetzen",
     "resetProgress2": "Fortschritt zurücksetzen?",
+    "resetSuccessBody": "Dein Trainingsfortschritt wurde gelöscht.",
+    "resetSuccessTitle": "Zurückgesetzt",
     "resetSuccessful": "Erfolgreich zurückgesetzt",
     "restartBody": "Schließe die App und öffne sie erneut, um die Layoutrichtung zu übernehmen.",
     "restartRequired": "Neustart erforderlich",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Du hast schon ein Konto? Anmelden",
     "back": "Zurück",
+    "bestValue": "BESTER WERT",
+    "billingDisclosure": "Die Zahlung wird bei der Bestätigung sicher über RevenueCat und den App-Store abgewickelt. Dein Abo verlängert sich automatisch zum angezeigten Preis, bis du es in deinen Abo-Einstellungen kündigst; das Deinstallieren der App kündigt es nicht und erstattet nichts. Mit dem Fortfahren stimmst du unseren",
     "close": "Schließen",
     "confirmPassword": "Passwort bestätigen",
     "continue": "Weiter",
     "continueWithGoogle": "Mit Google fortfahren",
+    "couldNotOpenGoogle": "Google-Anmeldung konnte nicht geöffnet werden. Bitte versuche es erneut.",
     "couldNotOpenGoogleSign": "Google-Anmeldung konnte nicht geöffnet werden. Bitte versuche es erneut.",
+    "couldNotReachServer": "Der Server ist nicht erreichbar. Prüfe deine Internetverbindung und versuche es erneut.",
+    "createAccount": "Konto erstellen",
     "createAccountSubscribe": "Konto erstellen & abonnieren",
     "creatingAccount": "Konto wird erstellt …",
     "emailAddress": "E-Mail-Adresse",
+    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein.",
+    "emailOrPasswordIncorrect": "E-Mail oder Passwort ist falsch.",
+    "emailRequired": "E-Mail ist erforderlich.",
     "fullName": "Vollständiger Name",
+    "googleSignInFailed": "Google-Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+    "nameRequired": "Name ist erforderlich.",
     "noAccountYetCreateOne": "Noch kein Konto? Jetzt erstellen",
     "password": "Passwort",
     "password6Characters1Number": "Passwort (mind. 6 Zeichen, 1 Zahl)",
+    "passwordRequired": "Passwort ist erforderlich.",
+    "passwordRules": "Das Passwort muss mindestens 6 Zeichen lang sein und eine Zahl enthalten.",
+    "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
+    "signIn": "Anmelden",
     "signInSubscribe": "Anmelden & abonnieren",
     "signingIn": "Anmeldung läuft …",
     "startYourTransformationJourneyNow": "Starte jetzt deine Veränderung",
     "subscribe": "Abonnieren",
     "terms": "AGB"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Fortschritt",
+    "schedule": "Plan",
+    "training": "Training"
   },
   "training": {
     "available": "Verfügbar",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Zurück zur Anmeldung",
+    "codeResent": "Bestätigungscode erneut gesendet!",
     "didnTReceiveTheCode": "Keinen Code erhalten? Erneut senden",
+    "enterSixDigitCode": "Bitte gib einen 6-stelligen Bestätigungscode ein.",
+    "failedToResendCode": "Der Code konnte nicht erneut gesendet werden.",
+    "verificationFailed": "Bestätigung fehlgeschlagen. Bitte versuche es erneut.",
     "verifyCode": "Code bestätigen",
     "verifyEmail": "E-Mail bestätigen"
   },
   "why": {
     "aMuscleYouCanTrain": "Ein Muskel, den du trainieren kannst",
+    "aRealMuscleBody": "Dein Beckenboden ist ein echter Muskel. Trainiere ihn ein paar Minuten am Tag, und er wird stärker, wie bei jedem anderen Training. Keine Pillen, keine Nebenwirkungen, und die Ergebnisse bleiben.",
     "andYouCanDoIt": "Und du kannst es überall und jederzeit tun. Im Sitzen, im Stehen, im Bus. Niemand merkt es.",
+    "benefit_bladder_desc": "Weniger Tröpfeln und weniger plötzlicher Drang.",
+    "benefit_bladder_title": "Bessere Blasenkontrolle",
+    "benefit_confidence_desc": "Fortschritte, die Woche für Woche wachsen.",
+    "benefit_confidence_title": "Bleibende Sicherheit",
+    "benefit_core_desc": "Hilft Haltung und unterem Rücken.",
+    "benefit_core_title": "Eine gestützte Körpermitte",
+    "benefit_performance_desc": "Mehr Kontrolle und Ausdauer in der Intimität.",
+    "benefit_performance_title": "Stärkere Leistung",
     "doingItRightIsEverything": "Es richtig zu machen ist alles",
     "learnItOnceAndEvery": "Lerne es einmal, und jede Trainingsminute zählt wirklich.",
     "squeezeTheWrongMusclesAnd": "Spannst du die falschen Muskeln an, bringt es dir nichts.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Wenn du gehst, zählt diese Einheit nicht für deinen Tagesfortschritt.",
     "leaveTraining": "Training verlassen?",
     "noExercises": "Keine Übungen",
+    "noExercisesBody": "Für dieses Training sind noch keine Übungen freigeschaltet.",
+    "noExercisesTitle": "Keine Übungen",
     "noGoBack": "Nein, zurück",
     "pause": "Pause",
     "resume": "Fortsetzen",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Ja, Training beenden"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Du bist bereits auf der leichtesten Stufe.",
+    "alreadyHighestLevel": "Du bist bereits auf der höchsten Stufe.",
     "continue": "Weiter",
     "howWasThat": "Wie war das?",
     "justRight": "Genau richtig",
+    "keepGoing": "Super! Weiter so.",
+    "levelUp": "Level geschafft! Du bist jetzt auf {{level}}.",
+    "monthNumber": "Monat {{number}}",
     "newExerciseUnlocked": "Neue Übung freigeschaltet!",
     "nextToUnlock": "Als Nächstes freischaltbar",
     "notNow": "Jetzt nicht",
+    "steppedDown": "Zurück auf {{level}}. Das schaffst du!",
     "tooEasy": "Zu leicht",
     "tooHard": "Zu schwer",
-    "tryItNow": "Jetzt ausprobieren"
+    "tryItNow": "Jetzt ausprobieren",
+    "unlockedList": "Freigeschaltet: {{names}}"
   }
 }

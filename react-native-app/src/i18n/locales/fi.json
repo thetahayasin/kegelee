@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Saatavilla",
-    "exercises": "Harjoitukset"
+    "backA11y": "Takaisin",
+    "exercises": "Harjoitukset",
+    "unlockProgressA11y": "Avautumisen eteneminen: {{name}}"
+  },
+  "basics": {
+    "findTitle": "Löydä lantionpohjasi",
+    "firstTitle": "Ensimmäinen harjoituksesi",
+    "whyTitle": "Miksi Kegel-harjoittelu toimii"
+  },
+  "billing": {
+    "alreadyOwned": "Sinulla on jo voimassa oleva tilaus. Palautamme sen nyt.",
+    "configuration": "Tätä tilausta ei voi juuri nyt ostaa. Vika on meissä - yritä myöhemmin uudelleen tai ota yhteyttä tukeen.",
+    "declined": "Google Play hylkäsi maksun. Tarkista Google-tilisi maksutapa ja yritä uudelleen.",
+    "ineligible": "Et ole oikeutettu tähän tarjoukseen. Valitse toinen tilaus.",
+    "network": "Kauppaan ei saatu yhteyttä. Tarkista yhteytesi ja yritä uudelleen. Jos sinulta veloitettiin, käyttöoikeus ilmestyy itsestään.",
+    "noPermission": "Google-tililläsi ei ole oikeutta tehdä ostoksia tällä laitteella.",
+    "notAllowed": "Tällä laitteella tai Google-tilillä ei saa tehdä ostoksia. Yleensä syynä on lapsilukko tai tililtä puuttuva maksutapa.",
+    "operationInProgress": "Ostos on jo käynnissä. Odota hetki ennen uutta yritystä.",
+    "otherAccount": "Tämä tilaus kuuluu toiselle tilille. Kirjaudu sisään sillä tilillä tai ota yhteyttä tukeen, niin siirrämme sen.",
+    "paymentPending": "Google Play käsittelee maksuasi. Käteis- ja lahjakorttimaksut voivat kestää hetken. Käyttöoikeus avautuu automaattisesti, kun maksu menee läpi, joten älä maksa uudelleen.",
+    "storeProblem": "Google Playssä on juuri nyt ongelmia. Yritä uudelleen muutaman minuutin kuluttua.",
+    "unknown": "Ostoksesi viimeistelyssä meni jotain pieleen. Yritä uudelleen. Jos sinulta veloitettiin, käyttöoikeus ilmestyy itsestään."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Luja jännitys, joka rakennetaan hitaasti ja päästetään yhtä hitaasti.",
+        "howTo": "Jännitä hitaasti 3 sekunnin ajan, kun ympyrä täyttyy, ja päästä sitten yhtä hitaasti, kun se tyhjenee. Pidä liike pehmeänä molempiin suuntiin.",
+        "name": "Puristin",
+        "summary": "Hidas nousu, hidas lasku"
+      },
+      "downstairs": {
+        "description": "Jännitä huipulle ja laskeudu sitten porras kerrallaan täysin hallitusti.",
+        "howTo": "Jännitä voimakkaimmillesi ja rentouta sitten vähän kerrallaan pysähtyen noin sekunniksi jokaisella portaalla alaspäin. Hallittu laskeutuminen on itse harjoitus.",
+        "name": "Portaat alas",
+        "summary": "Neljä porrasta huipulta alas"
+      },
+      "elevator": {
+        "description": "Tunnusomainen harjoitus. Nouse porras portaalta ja laskeudu sitten hallitusti takaisin.",
+        "howTo": "Kuvittele olevasi hississä. Jännitä joka portaalla hieman lujempaa, kunnes saavutat voimakkaimman jännityksesi, ja laskeudu sitten porras kerrallaan täysin rentoutuneeksi.",
+        "name": "Hissi",
+        "summary": "Nouse huipulle ja laskeudu takaisin"
+      },
+      "flash": {
+        "description": "Nopeimmat puristukset. Lyhyitä, napakoita jännityksiä, jotka harjoittavat nopeaa reagointia.",
+        "howTo": "Jännitä ja päästä niin nopeasti kuin pystyt, ympyrän tahdissa. Pysy kevyenä, älä ponnista.",
+        "name": "Salama",
+        "summary": "Nopeimmat puristukset"
+      },
+      "front-clamp": {
+        "description": "Hidas, kohdennettu lantionpohjan etuosan jännitys ja nopea, puhdas vapautus.",
+        "howTo": "Jännitä hitaasti 3 sekunnin ajan, kun ympyrä täyttyy. Kun se tyhjenee, päästä kaikki kerralla. Aloita sitten seuraava hidas jännitys.",
+        "name": "Etupuristin",
+        "summary": "Jännitä hitaasti, päästä kerralla"
+      },
+      "holding": {
+        "description": "Jännitä ja pidä yllä rakentaaksesi lantionpohjan peruskestävyyttä.",
+        "howTo": "Jännitä lantionpohja ja pidä koko kierroksen ajan. Jos jännitys herpaantuu, jännitä varovasti uudelleen. Hengitä normaalisti.",
+        "name": "Pito",
+        "summary": "Yksi tasainen pito"
+      },
+      "long-steady-clamp": {
+        "description": "Kestävyyden rakentaja: sekunnin jännitys, joka jatkuu kymmenen sekunnin täysvoimaisena pitona.",
+        "howTo": "Jännitä sekunnin ajan ja pidä sitten täydellä voimalla kymmenen sekuntia. Jos jännitys herpaantuu, jännitä varovasti takaisin täyteen. Päästä ja toista.",
+        "name": "Pitkä tasainen puristin",
+        "summary": "1 sekunnin jännitys, 10 sekunnin pito"
+      },
+      "pulsation": {
+        "description": "Kaksi nopeaa jännitystä peräkkäin ja sen jälkeen täydellinen vapautus. Harjoittaa jännittämään uudelleen ennen täyttä palautumista ja päästämään kunnolla suoritusten välissä.",
+        "howTo": "Jännitä ja päästä kaksi kertaa peräkkäin ympyrän tahdissa ja päästä sitten kaikki täysin tauon ajaksi. Täydellinen vapautus on yhtä tärkeä kuin pulssit.",
+        "name": "Kaksoispulssi",
+        "summary": "Kaksi nopeaa pulssia, sitten täysi palautus"
+      },
+      "push": {
+        "description": "Rakenna jännitys voimakkaaseen huippuun, pidä se ja päästä sitten hitaasti.",
+        "howTo": "Jännitä vähitellen kolmen sekunnin ajan ja vahvistu, kun ympyrä täyttyy. Pidä voimakkainta jännitystäsi kaksi sekuntia ja päästä sitten hitaasti. Purista lujempaa, älä koskaan ponnista alaspäin.",
+        "name": "Työntö",
+        "summary": "3 s nousu, 2 s huippupito, 3 s rentoutus"
+      },
+      "reverse-clamp": {
+        "description": "Nopea jännitys ja sen jälkeen hidas, hallittu vapautus. Erinomainen hallinnan harjoittamiseen.",
+        "howTo": "Jännitä kerralla ja ala heti päästää niin hitaasti kuin pystyt seuraten ympyrän laskua. Hidas päästäminen on itse harjoitus.",
+        "name": "Käänteinen puristin",
+        "summary": "Jännitä kerralla, päästä hitaasti"
+      },
+      "short-holding": {
+        "description": "Voimakas 4 sekunnin pito, joka päästetään hitaasti eikä pudoteta. Hallittu päästäminen on oma taitonsa, ja useimmat kokevat sen pitoa vaikeammaksi.",
+        "howTo": "Jännitä sekunnin ajan, pidä täydellä voimalla neljä ja päästä sitten vähitellen, kun ympyrä laskee. Älä anna sen romahtaa: pysy mukana koko matkan alas.",
+        "name": "Lyhyt pito",
+        "summary": "Pidä 4 sekuntia, päästä sitten vähitellen"
+      },
+      "starter": {
+        "description": "Yksi nopea jännitys herättämään lihas ja sen jälkeen voimakas 5 sekunnin pito.",
+        "howTo": "Tee yksi nopea jännitys, rentoudu pehmeästi, jännitä sitten uudelleen ja pidä lujaa viisi sekuntia. Päästä, hengitä ja toista.",
+        "name": "Käynnistys",
+        "summary": "Nopea puristus, sitten 5 sekunnin pito"
+      },
+      "steady-clamp": {
+        "description": "Tasainen puristin: jännitä sekunnin ajan ja pidä sitten täydellä voimalla viisi.",
+        "howTo": "Jännitä sekunnin ajan ja pidä sitten täydellä voimalla viisi sekuntia antamatta jännityksen laskea. Päästä ja toista.",
+        "name": "Tasainen puristin",
+        "summary": "1 sekunnin jännitys, 5 sekunnin pito"
+      },
+      "steady-trembling": {
+        "description": "Jännitä kerralla, pidä jännitys tasaisena parin sekunnin ajan ja rentoudu sitten.",
+        "howTo": "Jännitä kerralla ja pidä jännitys yllä. Kun ympyrä laskee, päästä pehmeästi. Toista sitten nopea jännitys ja pito.",
+        "name": "Tasainen värinä",
+        "summary": "Jännitä kerralla, pidä ja rentoudu"
+      },
+      "trembling": {
+        "description": "Nopeita jännityksiä ja rentoutuksia, jotka saavat lihaksen värisemään ja herättävät sen nopean vasteen.",
+        "howTo": "Jännitä kaikki kerralla, pidä hetki ja päästä sitten pehmeästi. Seuraa ympyrää, kun se nousee nopeasti ja laskee rauhallisesti.",
+        "name": "Värinä",
+        "summary": "Nopeita puristuksia, päälle ja pois"
+      },
+      "upstairs": {
+        "description": "Nouse jännityksessä neljässä portaassa, hieman voimakkaammin joka tasolla.",
+        "howTo": "Kuvittele nousevasi hissillä. Jännitä hieman, sitten enemmän, sitten vielä enemmän, kunnes saavutat voimakkaimman jännityksesi, ja viivy noin sekunnin jokaisella portaalla. Rentoudu lopuksi.",
+        "name": "Portaat ylös",
+        "summary": "Neljä porrasta huipulle"
+      },
+      "waves": {
+        "description": "Aaltomaisia jännityksiä, jotka rakentavat ja vapauttavat jännitystä keskeytyksettä.",
+        "howTo": "Jännitä hitaasti kahden sekunnin ajan ja päästä sitten yhtä hitaasti, kuin aalto joka nousee ja laskee. Pidä liike pehmeänä ja yhtenäisenä.",
+        "name": "Aallot",
+        "summary": "2 sekuntia ylös, 2 sekuntia alas"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Lempeä aloitus. Lyhyet 1 minuutin harjoitukset.",
+        "name": "Taso 1"
+      },
+      "2": {
+        "description": "Hieman pidempi. 2 minuutin harjoitukset.",
+        "name": "Taso 2"
+      },
+      "3": {
+        "description": "Tasapainoinen harjoittelu. 3 minuutin harjoitukset.",
+        "name": "Taso 3"
+      },
+      "4": {
+        "description": "Pidemmät harjoitukset vahvemmille lihaksille. 4 minuuttia.",
+        "name": "Taso 4"
+      },
+      "5": {
+        "description": "Edistynyt kestävyys ja hallinta. 5 minuuttia.",
+        "name": "Taso 5"
+      }
+    },
+    "steps": {
+      "contract": "Jännitä",
+      "contractAndHold": "Jännitä ja pidä",
+      "contractSlowly": "Jännitä hitaasti",
+      "easeDown": "Päästä vähitellen",
+      "hold": "Pidä",
+      "pulse1": "Pulssi 1",
+      "pulse2": "Pulssi 2",
+      "relax": "Rentouta",
+      "relaxSlowly": "Rentouta hitaasti",
+      "release": "Päästä",
+      "releaseSlowly": "Päästä hitaasti",
+      "reset": "Takaisin nollaan",
+      "rest": "Tauko",
+      "step1": "Porras 1",
+      "step2": "Porras 2",
+      "step3": "Porras 3",
+      "top": "Huipulla"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Jokin meni pieleen",
@@ -9,48 +177,94 @@
     "tryAgain": "Yritä uudelleen"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Suorita vielä {{count}} harjoituspäivä avataksesi tämän.",
+    "completeMoreDaysToUnlock_other": "Suorita vielä {{count}} harjoituspäivää avataksesi tämän.",
     "exerciseNotFound": "Harjoitusta ei löytynyt.",
+    "lockedDaysLeft_one": "Lukittu - {{count}} päivä jäljellä",
+    "lockedDaysLeft_other": "Lukittu - {{count}} päivää jäljellä",
     "tryItNow": "Kokeile nyt"
   },
   "find": {
+    "flow_stopMidway": "Pysäytä puolivälissä",
+    "flow_thatSqueeze": "Juuri tuo jännitys!",
+    "flow_youPee": "Käyt pissalla",
     "keepGoing": "Jatka samaan malliin …",
     "onlyDoThePeeTest": "Tee virtsaamistesti vain kerran",
+    "onlyDoThePeeTestDesc": "Tämä on vain tapa löytää lihakset, ei harjoitus. Suihkun toistuva pysäyttäminen ei ole hyväksi rakolle.",
+    "pressAndHold": "Paina ja pidä",
+    "squeezeNow": "Jännitä!",
     "squeezeOnlyThoseMuscles": "Jännitä vain näitä lihaksia",
+    "squeezeOnlyThoseMusclesDesc": "Toinen vinkki: jännitä kuin pidättäisit ilmavaivoja. Vatsa, jalat ja pakarat pysyvät täysin rentoina.",
+    "stopTheFlowBody": "Kun seuraavan kerran käyt pissalla, pysäytä suihku varovasti puolivälissä. Lihakset, joita juuri käytit, ovat lantionpohjasi.",
     "thatExactSqueezeIsThe": "Juuri tuo jännitys on se liike, jota harjoittelet.",
     "theEasiestWayToFind": "Helpoin tapa löytää ne",
-    "twoQuickRules": "Kaksi lyhyttä sääntöä"
+    "tryItNow": "Kokeile nyt",
+    "tryItNowBody": "Paina ympyrää pohjassa. Pidon aikana jännitä noita lihaksia. Päästä irti samaan aikaan.",
+    "twoQuickRules": "Kaksi lyhyttä sääntöä",
+    "youFoundThem": "Löysit ne!",
+    "youFoundThemBody": "Tuo jännitys ja rentoutus on kaikki, mitä Kegel on. Olet valmis ensimmäiseen harjoitukseesi."
   },
   "first": {
     "contract": "Jännitä",
+    "followTheCircle": "Seuraa ympyrää. Jännitä... ja rentoudu.",
+    "niceWork": "Hienoa työtä!",
+    "nowYouTry": "Nyt on sinun vuorosi",
     "start": "Aloita",
+    "tenSecondsReady": "Kymmenen sekuntia liikettä {{exercise}}. Jännitä jokaisella {{contract}} ja päästä irti kohdassa {{relax}}. Valmiina?",
+    "thatWasARealExercise": "Tuo oli oikea harjoitus. Jokainen sessio toimii juuri näin, yksi ympyrä kerrallaan.",
     "theCircleIsYourGuide": "Ympyrä näyttää rytmin",
+    "theCircleIsYourGuideBody": "Jokainen liike seuraa tätä ympyrää. Kun se hehkuu ja kasvaa, jännitä. Kun hehku himmenee, rentoudu. Sisällä oleva sana kertoo aina, mitä tehdä.",
     "thisIsTrembling": "Tämä on Värinä",
     "yourFirstExerciseQuickFlicks": "Ensimmäinen harjoituksesi: nopeat jännitykset. Jännitä kohdassa Jännitä ja päästä irti kohdassa Rentouta."
   },
   "knowledge": {
     "continueToTraining": "Jatka harjoitteluun",
     "learnTheBasics": "Opettele perusteet",
+    "lessonNumber": "Oppitunti {{number}}",
     "logIn": "Kirjaudu sisään"
   },
   "login": {
     "6DigitCode": "6-numeroinen koodi",
     "close": "Sulje",
+    "codeSentEnterBelow": "Koodi lähetetty! Syötä se alle yhdessä uuden salasanan kanssa.",
     "continueWithGoogle": "Jatka Google-tilillä",
+    "couldNotOpenGoogle": "Google-kirjautumista ei voitu avata. Yritä uudelleen.",
     "createAccount": "Luo tili",
     "email": "Sähköposti",
-    "enterYourEmail": "Syötä sähköpostiosoitteesi",
+    "enterSixDigitCode": "Syötä sähköpostiisi tullut 6-numeroinen koodi.",
+    "enterYourEmail": "Anna sähköpostiosoitteesi.",
+    "failedToResetPassword": "Salasanan palautus epäonnistui.",
+    "failedToSendResetCode": "Palautuskoodin lähetys epäonnistui.",
+    "fillAllFields": "Täytä kaikki kentät.",
     "forgotPassword": "Unohtuiko salasana?",
+    "googleSignInFailed": "Google-kirjautuminen epäonnistui. Yritä uudelleen.",
+    "invalidCredentials": "Virheelliset kirjautumistiedot.",
     "logIn": "Kirjaudu sisään",
     "logIn2": "Kirjaudu sisään",
     "newHere": "Oletko uusi täällä?",
     "newPassword": "Uusi salasana",
     "password": "Salasana",
     "passwordReset": "Salasana palautettu",
-    "resetPassword": "Palauta salasana"
+    "passwordResetBody": "Salasanasi on palautettu. Kirjaudu sisään.",
+    "passwordResetTitle": "Salasana palautettu",
+    "passwordRules": "Salasanassa on oltava vähintään 6 merkkiä ja numero.",
+    "resetPassword": "Palauta salasana",
+    "resetPasswordCta": "Palauta salasana",
+    "sendCodeCta": "Lähetä koodi"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
-    "logIn": "Kirjaudu sisään"
+    "getStarted": "Aloita",
+    "logIn": "Kirjaudu sisään",
+    "perDay": "PÄIVÄSSÄ",
+    "slide1Body": "Kukaan ei puhu näistä. Kaikki palautuu yhteen heikkoon lihakseen, ja heikon lihaksen voi treenata takaisin kuntoon.",
+    "slide1Title": "Vuotoja. Äkillistä tarvetta. Vähemmän hallintaa.",
+    "slide2Body": "Ei salia, ei välineitä, ei mitään riisuttavaa. Sohvalla, työpöydän ääressä, bussissa. Kukaan ei huomaa.",
+    "slide2Title": "Yksi minuutti, paikallaan istuen",
+    "slide3Body": "Sovellus mittaa, kuinka kauan jaksat pitää. Aikasi nousevat, uusia liikkeitä avautuu, ja muutos näkyy siellä, missä sitä halusitkin.",
+    "slide3Title": "Tunnet sen ennen kuin näet sen",
+    "slide4Body": "Jos lopetat, lihas veltostuu, kuten missä tahansa treenissä. Valitse kellonaika, muistutus hoitaa loput.",
+    "slide4Title": "Se toimii vain, jos jatkat"
   },
   "paywall": {
     "autoRenewOffHint": "Automaattinen uusiminen on pois päältä. Käyttöoikeutesi päättyy päättymispäivänä.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Mittaa edistymisesi",
     "benefitReminders": "Aseta muistutukset päivääsi sopiviksi",
     "benefitStrength": "Rakenna todellista lantionpohjan voimaa",
+    "bestValue": "PARAS TARJOUS",
     "billingIsNotAvailableOn": "Maksaminen ei ole käytettävissä tällä laitteella. Voit palauttaa aiemman oston alta.",
     "byContinuingYouAgree": "Jatkamalla hyväksyt",
     "changeYourPlan": "Vaihda tilausta",
@@ -72,6 +287,7 @@
     "managePlan": "Hallitse tilausta",
     "noActiveSubscriptionWasFound": "Palautettavaa aktiivista tilausta ei löytynyt.",
     "off": "Pois",
+    "offeringsUnavailable": "Tilaukset eivät ole juuri nyt saatavilla tällä laitteella. Yritä myöhemmin uudelleen tai palauta aiempi ostos alta.",
     "on": "Päällä",
     "paymentProcessedSecurely": "Maksu käsitellään turvallisesti RevenueCatin ja sovelluskaupan kautta vahvistettaessa.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Osto vastaanotettiin, mutta tilausta ei tunnistettu. Ota yhteyttä tukeen.",
     "restorePurchases": "Palauta ostot",
     "restoredPurchaseCouldNotBe": "Palautettua ostoa ei voitu yhdistää tilaukseen. Ota yhteyttä tukeen.",
+    "savePercent": "SÄÄSTÄ {{percent}} %",
     "signInFirst": "Kirjaudu sisään ennen tilaamista.",
     "startFreeTrialCta_one": "Aloita {{count}} päivän ilmaisjakso",
     "startFreeTrialCta_other": "Aloita {{count}} päivän ilmaisjakso",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Sovelluksen poistaminen ei peruuta tilausta eikä palauta rahoja.",
     "yourSubscriptionIsNowActive": "Tilauksesi on aktiivinen ja koko sisältö on käytettävissä."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Täysi käyttöoikeus, laskutus kuukausittain.",
+      "name": "1 kuukausi"
+    },
+    "premium-quarterly": {
+      "description": "Laskutus 3 kuukauden välein.",
+      "name": "3 kuukautta"
+    },
+    "premium-yearly": {
+      "description": "Yksi maksu koko vuodesta.",
+      "name": "1 vuosi"
+    }
+  },
   "profile": {
     "currentDifficulty": "Nykyinen vaikeustaso",
     "difficulty": "Vaikeustaso",
     "error": "Virhe",
+    "errorTitle": "Virhe",
+    "failedToUpdateLevel": "Harjoittelutason päivitys epäonnistui.",
     "profile": "Profiili",
     "scheduleReminders": "Aikataulu ja muistutukset",
     "setTheDifficultyOfKegel": "Valitse Kegel-harjoitusohjelman vaikeustaso",
+    "settingsA11y": "Asetukset",
     "theHigherTheLevelThe": "Mitä korkeampi taso, sitä kovempi harjoitus"
   },
   "progress": {
+    "bestResult": "paras tulos",
     "continue": "Jatka",
     "holdTheButtonAndContract": "Pidä painiketta pohjassa ja jännitä lantionpohjan lihaksia niin pitkään kuin jaksat.",
+    "lastMeasurement": "viimeisin mittaus",
     "progressTracker": "Edistyminen",
+    "seconds": "{{count}} s",
     "takeMeasurement": "Tee mittaus",
+    "today": "Tänään",
+    "topResult": "paras tulos: {{count}} s",
     "tryAgain": "Yritä uudelleen"
   },
   "register": {
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
     "confirmPassword": "Vahvista salasana",
     "continueWithGoogle": "Jatka Google-tilillä",
+    "couldNotOpenGoogle": "Google-rekisteröintiä ei voitu avata. Yritä uudelleen.",
     "createAccount": "Luo tili",
     "createAccount2": "Luo tili",
     "email": "Sähköposti",
+    "fillAllFields": "Täytä kaikki kentät.",
+    "googleSignUpFailed": "Google-rekisteröinti epäonnistui. Yritä uudelleen.",
     "logIn": "Kirjaudu sisään",
     "name": "Nimi",
-    "password": "Salasana"
+    "password": "Salasana",
+    "passwordNeedsNumber": "Salasanassa on oltava vähintään yksi numero.",
+    "passwordTooShort": "Salasanassa on oltava vähintään 6 merkkiä.",
+    "passwordsDoNotMatch": "Salasanat eivät täsmää.",
+    "registrationFailed": "Rekisteröinti epäonnistui."
+  },
+  "reminders": {
+    "notificationBody": "On aika tehdä päivittäinen Kegel-harjoitus!",
+    "notificationTitle": "Kegel-harjoittelu"
   },
   "schedule": {
     "active": "Käytössä",
     "allowExactReminders": "Salli tarkat muistutukset",
+    "daysLeft_one": "{{count}} päivä jäljellä",
+    "daysLeft_other": "{{count}} päivää jäljellä",
     "error": "Virhe",
+    "errorTitle": "Virhe",
+    "failedToSaveReminders": "Muistutusten tallennus epäonnistui.",
     "limitReached": "Raja saavutettu",
+    "limitReachedBody": "Voit asettaa enintään 5 muistutusta päivässä.",
+    "limitReachedTitle": "Raja saavutettu",
+    "monthNumber": "Kuukausi {{number}}",
     "reminders": "Muistutukset",
     "remindersSaved": "Muistutukset tallennettu",
     "repeatOn": "Toista päivinä",
     "saveAddReminders": "Tallenna muistutukset",
     "schedule": "Aikataulu",
+    "sessionNumber": "Sessio {{number}}",
     "sessionTimes": "Harjoitusajat"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Poistetaanko tili?",
     "deletePermanently": "Poista pysyvästi",
     "deleted": "Poistettu",
+    "deletedBody": "Tilisi on poistettu pysyvästi.",
+    "deletedTitle": "Poistettu",
+    "failedToDeleteAccount": "Tilin poistaminen epäonnistui.",
     "gotIt": "Selvä",
     "language": "Kieli",
     "logOut": "Kirjaudu ulos",
     "manageSubscription": "Hallitse tilausta",
     "noActiveSubscription": "Ei aktiivista tilausta",
     "reset": "Nollaa",
+    "resetConfirmBody": "Tämä tyhjentää harjoittelupäiväsi, sessiot, mittaukset ja oppituntiedistymisesi. Toimintoa ei voi perua.",
     "resetProgress": "Nollaa edistyminen",
     "resetProgress2": "Nollataanko edistyminen?",
+    "resetSuccessBody": "Harjoitteluedistymisesi on tyhjennetty.",
+    "resetSuccessTitle": "Nollattu",
     "resetSuccessful": "Nollaus onnistui",
     "restartBody": "Sulje ja avaa sovellus uudelleen, jotta asettelun suunta vaihtuu.",
     "restartRequired": "Uudelleenkäynnistys vaaditaan",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Onko sinulla jo tili? Kirjaudu sisään",
     "back": "Takaisin",
+    "bestValue": "PARAS TARJOUS",
+    "billingDisclosure": "Maksu käsitellään turvallisesti RevenueCatin ja sovelluskaupan kautta vahvistuksen yhteydessä. Tilauksesi uusiutuu automaattisesti näytettyyn hintaan, kunnes peruutat sen tilausasetuksissasi; sovelluksen poistaminen ei peruuta tilausta eikä palauta rahoja. Jatkamalla hyväksyt",
     "close": "Sulje",
     "confirmPassword": "Vahvista salasana",
     "continue": "Jatka",
     "continueWithGoogle": "Jatka Google-tilillä",
+    "couldNotOpenGoogle": "Google-kirjautumista ei voitu avata. Yritä uudelleen.",
     "couldNotOpenGoogleSign": "Google-kirjautumista ei voitu avata. Yritä uudelleen.",
+    "couldNotReachServer": "Palvelimeen ei saatu yhteyttä. Tarkista verkkoyhteytesi ja yritä uudelleen.",
+    "createAccount": "Luo tili",
     "createAccountSubscribe": "Luo tili ja tilaa",
     "creatingAccount": "Luodaan tiliä …",
     "emailAddress": "Sähköpostiosoite",
+    "emailInvalid": "Anna kelvollinen sähköpostiosoite.",
+    "emailOrPasswordIncorrect": "Sähköposti tai salasana on väärin.",
+    "emailRequired": "Sähköposti vaaditaan.",
     "fullName": "Koko nimi",
+    "googleSignInFailed": "Google-kirjautuminen epäonnistui. Yritä uudelleen.",
+    "nameRequired": "Nimi vaaditaan.",
     "noAccountYetCreateOne": "Eikö sinulla ole vielä tiliä? Luo se",
     "password": "Salasana",
     "password6Characters1Number": "Salasana (vähintään 6 merkkiä, 1 numero)",
+    "passwordRequired": "Salasana vaaditaan.",
+    "passwordRules": "Salasanassa on oltava vähintään 6 merkkiä ja numero.",
+    "passwordsDoNotMatch": "Salasanat eivät täsmää.",
+    "signIn": "Kirjaudu sisään",
     "signInSubscribe": "Kirjaudu sisään ja tilaa",
     "signingIn": "Kirjaudutaan …",
     "startYourTransformationJourneyNow": "Aloita muutoksesi jo tänään",
     "subscribe": "Tilaa",
     "terms": "Ehdot"
+  },
+  "tabs": {
+    "profile": "Profiili",
+    "progress": "Edistyminen",
+    "schedule": "Aikataulu",
+    "training": "Harjoittelu"
   },
   "training": {
     "available": "Käytettävissä",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Takaisin kirjautumiseen",
+    "codeResent": "Vahvistuskoodi lähetetty uudelleen!",
     "didnTReceiveTheCode": "Etkö saanut koodia? Lähetä uudelleen",
+    "enterSixDigitCode": "Anna 6-numeroinen vahvistuskoodi.",
+    "failedToResendCode": "Koodin lähetys uudelleen epäonnistui.",
+    "verificationFailed": "Vahvistus epäonnistui. Yritä uudelleen.",
     "verifyCode": "Vahvista koodi",
     "verifyEmail": "Vahvista sähköposti"
   },
   "why": {
     "aMuscleYouCanTrain": "Lihas, jota voit harjoittaa",
+    "aRealMuscleBody": "Lantionpohjasi on oikea lihas. Harjoita sitä muutama minuutti päivässä, niin se vahvistuu aivan kuten missä tahansa treenissä. Ei pillereitä, ei sivuvaikutuksia, ja tulokset kestävät.",
     "andYouCanDoIt": "Ja voit tehdä sen missä ja milloin vain. Istuen, seisten, bussissa. Kukaan ei huomaa.",
+    "benefit_bladder_desc": "Vähemmän vuotoja ja äkillistä tarvetta.",
+    "benefit_bladder_title": "Parempi rakon hallinta",
+    "benefit_confidence_desc": "Edistystä, joka kasvaa viikko viikolta.",
+    "benefit_confidence_title": "Kestävä itsevarmuus",
+    "benefit_core_desc": "Auttaa ryhtiä ja alaselkää.",
+    "benefit_core_title": "Tuettu keskivartalo",
+    "benefit_performance_desc": "Enemmän hallintaa ja kestävyyttä läheisyydessä.",
+    "benefit_performance_title": "Vahvempi suorituskyky",
     "doingItRightIsEverything": "Oikea suoritus ratkaisee kaiken",
     "learnItOnceAndEvery": "Opettele se kerran, niin jokainen harjoitusminuutti todella merkitsee.",
     "squeezeTheWrongMusclesAnd": "Jos jännität vääriä lihaksia, siitä ei ole mitään hyötyä.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Jos poistut nyt, tämä harjoitus ei kirjaudu päivän edistymiseen.",
     "leaveTraining": "Poistutaanko harjoituksesta?",
     "noExercises": "Ei harjoituksia",
+    "noExercisesBody": "Tähän sessioon ei ole avattu yhtään liikettä.",
+    "noExercisesTitle": "Ei liikkeitä",
     "noGoBack": "Ei, takaisin",
     "pause": "Tauko",
     "resume": "Jatka",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Kyllä, lopeta harjoitus"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Olet jo helpoimmalla tasolla.",
+    "alreadyHighestLevel": "Olet jo korkeimmalla tasolla.",
     "continue": "Jatka",
     "howWasThat": "Miltä tuntui?",
     "justRight": "Juuri sopiva",
+    "keepGoing": "Mahtavaa! Jatketaan.",
+    "levelUp": "Taso nousi! Olet nyt tasolla {{level}}.",
+    "monthNumber": "Kuukausi {{number}}",
     "newExerciseUnlocked": "Uusi harjoitus avattu!",
     "nextToUnlock": "Seuraavaksi avautuu",
     "notNow": "Ei nyt",
+    "steppedDown": "Palasit tasolle {{level}}. Kyllä sinä pystyt!",
     "tooEasy": "Liian helppo",
     "tooHard": "Liian rankka",
-    "tryItNow": "Kokeile nyt"
+    "tryItNow": "Kokeile nyt",
+    "unlockedList": "Avattu: {{names}}"
   }
 }

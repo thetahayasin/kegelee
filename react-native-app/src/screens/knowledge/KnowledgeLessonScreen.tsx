@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -29,6 +30,7 @@ import { useAuth } from '../../context/AuthContext';
 const LAST = 2;
 
 export const KnowledgeLessonScreen = () => {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, 'KnowledgeLesson'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
@@ -102,7 +104,7 @@ export const KnowledgeLessonScreen = () => {
           </Svg>
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          {BASICS_LESSONS[index].title}
+          {t(BASICS_LESSONS[index].titleKey)}
         </Text>
         <View style={{ width: 36 }} />
       </View>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Linking } from 'react-native';
+import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee from '@notifee/react-native';
 import { api, setApiToken } from '../services/api';
@@ -7,7 +7,7 @@ import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiv
 import { syncNow, onSyncComplete } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
-import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement } from '../services/billing';
+import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo } from '../services/billing';
 import { BASICS_LESSONS } from '../constants/basics';
 
 const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
@@ -545,6 +545,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       syncNow(user.id).catch(() => {});
     });
     return off;
+  }, [user]);
+
+  // Re-check entitlement every time the app comes back to the foreground.
+  //
+  // This is what closes the hole a renewal used to fall into. Every other
+  // syncNow call site lives inside a tab or workout screen, and the navigator
+  // unmounts all of them the moment the subscription gate closes - so a user
+  // sitting on the paywall had no code left running that could ever notice
+  // Play had charged them and renewed. They stayed locked out until the app
+  // was killed and reopened, which is the one thing that remounted the paywall
+  // and re-ran its one-shot sync.
+  //
+  // Both halves are needed. The sync picks up the row once our backend has
+  // processed the RevenueCat webhook; refreshCustomerInfo asks RevenueCat
+  // directly, which is live well before that and covers the case where the
+  // webhook is delayed or was missed. RAISE-only, like every other gate
+  // listener here: revocation stays with the backend-confirmed path in
+  // onSyncComplete, so a foreground with flaky network can never cost a paying
+  // user their access.
+  useEffect(() => {
+    if (!user) return;
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') return;
+      syncNow(user.id).catch(() => {});
+      refreshCustomerInfo(user.id)
+        .then((active) => {
+          if (active) setSubscribed(true);
+        })
+        .catch(() => {});
+    });
+    return () => sub.remove();
   }, [user]);
 
   // Google sign-in returns from the Custom Tab through the app deeplink

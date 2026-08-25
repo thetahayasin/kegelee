@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import i18n from '../i18n';
 import notifee, {
   TriggerType,
   RepeatFrequency,
@@ -150,8 +151,8 @@ export const scheduleReminders = async (configs: ReminderConfig[]) => {
         await notifee.createTriggerNotification(
           {
             id: notificationId,
-            title: 'Kegel Training',
-            body: "It's time for your daily Kegel session!",
+            title: i18n.t('reminders.notificationTitle'),
+            body: i18n.t('reminders.notificationBody'),
             android: {
               channelId,
               // Channel settings own the sound on Android 8+; this covers the

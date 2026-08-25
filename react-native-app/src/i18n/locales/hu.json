@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Elérhető",
-    "exercises": "Gyakorlatok"
+    "backA11y": "Vissza",
+    "exercises": "Gyakorlatok",
+    "unlockProgressA11y": "{{name}} feloldásának állása"
+  },
+  "basics": {
+    "findTitle": "Találd meg a medencefenekedet",
+    "firstTitle": "Az első gyakorlatod",
+    "whyTitle": "Miért működik a Kegel-edzés"
+  },
+  "billing": {
+    "alreadyOwned": "Már van aktív előfizetésed. Most visszaállítjuk.",
+    "configuration": "Ez a csomag most nem vásárolható meg. Ez a mi hibánk - próbáld később, vagy írj az ügyfélszolgálatnak.",
+    "declined": "A Google Play elutasította a fizetést. Ellenőrizd a fizetési módot a Google-fiókodban, majd próbáld újra.",
+    "ineligible": "Nem vagy jogosult erre az ajánlatra. Válassz másik csomagot.",
+    "network": "Nem értük el a boltot. Ellenőrizd a kapcsolatot, és próbáld újra. Ha terhelés történt, a hozzáférés magától megjelenik.",
+    "noPermission": "A Google-fiókodnak nincs jogosultsága vásárolni ezen a készüléken.",
+    "notAllowed": "Ez a készülék vagy Google-fiók nem vásárolhat. Ez általában szülői felügyelet, vagy hiányzó fizetési mód a fiókon.",
+    "operationInProgress": "Már folyamatban van egy vásárlás. Várj egy pillanatot, mielőtt újra próbálod.",
+    "otherAccount": "Ez az előfizetés egy másik fiókhoz tartozik. Jelentkezz be azzal a fiókkal, vagy írj az ügyfélszolgálatnak, és átvisszük.",
+    "paymentPending": "A Google Play feldolgozza a fizetésedet. A készpénzes és utalványos fizetés eltarthat egy ideig. A hozzáférés automatikusan megnyílik, amint átmegy, ezért kérjük, ne fizess újra.",
+    "storeProblem": "A Google Play most akadozik. Próbáld újra néhány perc múlva.",
+    "unknown": "Valami hiba történt a vásárlás befejezésekor. Próbáld újra. Ha terhelés történt, a hozzáférés magától megjelenik."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Határozott összeszorítás, amelyet lassan építesz fel, és ugyanolyan lassan engedsz el.",
+        "howTo": "Szorítsd lassan 3 másodpercen át, miközben a kör megtelik, majd engedd el ugyanolyan lassan, ahogy kiürül. Tartsd a mozdulatot egyenletesen mindkét irányban.",
+        "name": "Szorító",
+        "summary": "Lassan fel, lassan le"
+      },
+      "downstairs": {
+        "description": "Szoríts fel a csúcsra, majd ereszkedj le fokonként, teljes kontroll alatt.",
+        "howTo": "Szoríts a legerősebbig, majd lazíts apránként, nagyjából egy másodpercre megállva minden fokon lefelé. A kontrollált ereszkedés maga a gyakorlat.",
+        "name": "Le a lépcsőn",
+        "summary": "Négy fokban a csúcsról lefelé"
+      },
+      "elevator": {
+        "description": "A védjegygyakorlat. Emelkedj fokról fokra, majd ereszkedj vissza kontrolláltan.",
+        "howTo": "Képzeld el, hogy liftben utazol. Minden fokon szoríts egy kicsit erősebben, amíg el nem éred a legerősebb szorításodat, majd ereszkedj vissza fokonként a teljes ellazulásig.",
+        "name": "Lift",
+        "summary": "Menj fel a csúcsra, majd ereszkedj vissza"
+      },
+      "flash": {
+        "description": "A leggyorsabb szorítások. Rövid, pattogós összehúzások, amelyek a gyors reagálást edzik.",
+        "howTo": "Szoríts és engedj el olyan gyorsan, ahogy csak bírsz, a kör ütemére. Maradj könnyed, ne erőltesd.",
+        "name": "Villanás",
+        "summary": "A leggyorsabb szorítások"
+      },
+      "front-clamp": {
+        "description": "A medencefenék elülső részének lassú, célzott összeszorítása gyors, tiszta elengedéssel.",
+        "howTo": "Szorítsd lassan 3 másodpercen át, miközben a kör megtelik. Amikor kiürül, engedd el mindent egyszerre. Aztán kezdd a következő lassú szorítást.",
+        "name": "Elülső szorító",
+        "summary": "Lassan szorítsd, egyszerre engedd el"
+      },
+      "holding": {
+        "description": "Szorítsd össze és tartsd, hogy felépítsd a medencefenék alap-állóképességét.",
+        "howTo": "Szorítsd össze a medencefeneked, és tartsd az egész körön át. Ha a feszülés alábbhagy, óvatosan szorítsd vissza. Végig lélegezz normálisan.",
+        "name": "Tartás",
+        "summary": "Egy egyenletes tartás"
+      },
+      "long-steady-clamp": {
+        "description": "Az állóképesség-építő: egy másodperces szorítás, amely tíz másodperces, teljes erejű tartásba megy át.",
+        "howTo": "Szorítsd össze egy másodpercig, majd tartsd teljes erővel tíz másodpercig. Ha a feszülés alábbhagy, óvatosan szorítsd vissza teljesre. Engedd el és ismételd.",
+        "name": "Hosszú egyenletes szorító",
+        "summary": "1 másodperc szorítás, 10 másodperc tartás"
+      },
+      "pulsation": {
+        "description": "Két gyors összeszorítás közvetlenül egymás után, majd teljes elengedés. Azt edzi, hogy újra szoríts, mielőtt teljesen kipihented volna magad, és hogy rendesen elengedd a terhelések között.",
+        "howTo": "Szoríts és engedj el kétszer gyors egymásutánban a körrel, majd a pihenő alatt engedj el mindent teljesen. A teljes elengedés ugyanannyit számít, mint a lüktetések.",
+        "name": "Dupla lüktetés",
+        "summary": "Két gyors lüktetés, majd teljes visszatérés"
+      },
+      "push": {
+        "description": "Építsd fel a szorítást egy erős csúcsig, tartsd meg, majd engedd el lassan.",
+        "howTo": "Szorítsd fokozatosan három másodpercen át, egyre erősebben, ahogy a kör megtelik. Tartsd a legerősebb szorításodat két másodpercig, majd engedd el lassan. Szoríts erősebben, soha ne nyomj lefelé.",
+        "name": "Nyomás",
+        "summary": "3 mp felépítés, 2 mp csúcstartás, 3 mp lazítás"
+      },
+      "reverse-clamp": {
+        "description": "Gyors összeszorítás, amelyet lassú, kontrollált elengedés követ. Kiváló a kontrollhoz.",
+        "howTo": "Szorítsd össze egyszerre, majd rögtön kezdd el olyan lassan elengedni, amennyire csak tudod, követve a kör süllyedését. A lassú elengedés maga a gyakorlat.",
+        "name": "Fordított szorító",
+        "summary": "Szorítsd egyszerre, engedd lassan"
+      },
+      "short-holding": {
+        "description": "Erős, 4 másodperces tartás, amelyet lassan engedsz el, nem pedig elejtesz. A kontrollált elengedés önálló készség, és a legtöbb ember nehezebbnek találja, mint magát a tartást.",
+        "howTo": "Szorítsd össze egy másodperc alatt, tartsd teljes erővel négyig, majd engedd fokozatosan, ahogy a kör süllyed. Ne hagyd összeomlani: maradj vele végig, egészen lentig.",
+        "name": "Rövid tartás",
+        "summary": "Tartsd 4 másodpercig, majd engedd fokozatosan"
+      },
+      "starter": {
+        "description": "Egy gyors összeszorítás, hogy felébreszd az izmot, majd egy erős, 5 másodperces tartás.",
+        "howTo": "Szorítsd össze egyszer gyorsan, lazíts finoman, majd szorítsd össze újra, és tartsd erősen öt másodpercig. Engedd el, lélegezz, és ismételd.",
+        "name": "Indító",
+        "summary": "Gyors szorítás, majd 5 másodperces tartás"
+      },
+      "steady-clamp": {
+        "description": "Egyenletes szorító: szoríts egy másodpercig, majd tartsd teljes erővel ötig.",
+        "howTo": "Szorítsd össze egy másodpercig, majd tartsd teljes erővel öt másodpercig anélkül, hogy hagynád csökkenni a feszülést. Engedd el és ismételd.",
+        "name": "Egyenletes szorító",
+        "summary": "1 másodperc szorítás, 5 másodperc tartás"
+      },
+      "steady-trembling": {
+        "description": "Szorítsd össze egyszerre, tartsd a feszülést pár másodpercig egyenletesen, majd lazíts.",
+        "howTo": "Szorítsd össze egyszerre, és tartsd a feszülést. Amikor a kör leesik, engedd el finoman. Aztán ismételd a gyors szorítást és a tartást.",
+        "name": "Egyenletes remegés",
+        "summary": "Szorítsd egyszerre, tartsd, majd lazíts"
+      },
+      "trembling": {
+        "description": "Gyors szorítások és elengedések, amelyektől megremeg az izom, és felébred a gyors válaszkészsége.",
+        "howTo": "Szorítsd össze mindent egyszerre, tartsd egy pillanatig, majd engedd el finoman. Kövesd a kört, ahogy felugrik és lassan visszaereszkedik.",
+        "name": "Remegés",
+        "summary": "Gyors szorítások, be és ki"
+      },
+      "upstairs": {
+        "description": "Emeld a szorítást négy fokban, minden szinten egy kicsit erősebben.",
+        "howTo": "Képzeld el, hogy lifttel mész felfelé. Szoríts egy kicsit, aztán jobban, aztán még jobban, amíg el nem éred a legerősebb szorításodat, és tölts nagyjából egy másodpercet minden fokon. Utána lazíts.",
+        "name": "Fel a lépcsőn",
+        "summary": "Négy fokban a csúcsra"
+      },
+      "waves": {
+        "description": "Hullámszerű összeszorítások, amelyek megszakítás nélkül építik és oldják a feszülést.",
+        "howTo": "Szorítsd lassan két másodpercig, majd engedd el ugyanolyan lassan, mint egy hullám, amely felemelkedik és visszahúzódik. Tartsd egyenletesnek és folyamatosnak.",
+        "name": "Hullámok",
+        "summary": "2 másodperc fel, 2 másodperc le"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Kíméletes kezdés. Rövid, 1 perces gyakorlások.",
+        "name": "1. szint"
+      },
+      "2": {
+        "description": "Kicsit hosszabb. 2 perces gyakorlások.",
+        "name": "2. szint"
+      },
+      "3": {
+        "description": "Kiegyensúlyozott edzés. 3 perces gyakorlások.",
+        "name": "3. szint"
+      },
+      "4": {
+        "description": "Hosszabb gyakorlások erősebb izmokért. 4 perc.",
+        "name": "4. szint"
+      },
+      "5": {
+        "description": "Haladó állóképesség és kontroll. 5 perc.",
+        "name": "5. szint"
+      }
+    },
+    "steps": {
+      "contract": "Szorítsd",
+      "contractAndHold": "Szorítsd és tartsd",
+      "contractSlowly": "Szorítsd lassan",
+      "easeDown": "Engedd fokozatosan",
+      "hold": "Tartsd",
+      "pulse1": "1. lüktetés",
+      "pulse2": "2. lüktetés",
+      "relax": "Lazíts",
+      "relaxSlowly": "Lazíts lassan",
+      "release": "Engedd el",
+      "releaseSlowly": "Engedd el lassan",
+      "reset": "Vissza a nullára",
+      "rest": "Pihenő",
+      "step1": "1. fok",
+      "step2": "2. fok",
+      "step3": "3. fok",
+      "top": "Csúcson"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Valami hiba történt",
@@ -9,48 +177,94 @@
     "tryAgain": "Újra"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Teljesíts még {{count}} edzésnapot a feloldásához.",
+    "completeMoreDaysToUnlock_other": "Teljesíts még {{count}} edzésnapot a feloldásához.",
     "exerciseNotFound": "A gyakorlat nem található.",
+    "lockedDaysLeft_one": "Zárolva - {{count}} nap van hátra",
+    "lockedDaysLeft_other": "Zárolva - {{count}} nap van hátra",
     "tryItNow": "Kipróbálom"
   },
   "find": {
+    "flow_stopMidway": "Állítsd meg félúton",
+    "flow_thatSqueeze": "Pontosan ez a szorítás!",
+    "flow_youPee": "Vizelsz",
     "keepGoing": "Így tovább …",
     "onlyDoThePeeTest": "A vizelés közbeni tesztet csak egyszer végezd el",
+    "onlyDoThePeeTestDesc": "Ez csak arra jó, hogy megtaláld az izmokat, nem gyakorlat. A sugár gyakori megállítása nem tesz jót a hólyagnak.",
+    "pressAndHold": "Nyomd és tartsd",
+    "squeezeNow": "Szoríts!",
     "squeezeOnlyThoseMuscles": "Csak azokat az izmokat szorítsd össze",
+    "squeezeOnlyThoseMusclesDesc": "Másik támpont: szoríts úgy, mintha szelet tartanál vissza. A has, a láb és a fenék teljesen ellazulva marad.",
+    "stopTheFlowBody": "Legközelebb, amikor vizelsz, félúton finoman állítsd meg a sugarat. Az izmok, amelyeket most használtál, a medencefeneked.",
     "thatExactSqueezeIsThe": "Pontosan ez az összeszorítás az a mozdulat, amit edzeni fogsz.",
     "theEasiestWayToFind": "A legegyszerűbb módja, hogy megtaláld őket",
-    "twoQuickRules": "Két rövid szabály"
+    "tryItNow": "Próbáld ki most",
+    "tryItNowBody": "Nyomd meg és tartsd a kört. Amíg tartod, szorítsd össze azokat az izmokat. Engedd el egyszerre.",
+    "twoQuickRules": "Két rövid szabály",
+    "youFoundThem": "Megtaláltad!",
+    "youFoundThemBody": "Ez a szorítás és elengedés minden, ami egy Kegel-gyakorlat. Készen állsz az első gyakorlatodra."
   },
   "first": {
     "contract": "Szorítsd",
+    "followTheCircle": "Kövesd a kört. Szoríts... és lazíts.",
+    "niceWork": "Szép munka!",
+    "nowYouTry": "Most te jössz",
     "start": "Kezdés",
+    "tenSecondsReady": "Tíz másodperc {{exercise}}. Szoríts minden {{contract}} jelnél, és engedd el a {{relax}} jelnél. Kezdhetjük?",
+    "thatWasARealExercise": "Ez egy valódi gyakorlat volt. Minden alkalom pontosan így működik, egyszerre egy kör.",
     "theCircleIsYourGuide": "A kör adja a ritmust",
+    "theCircleIsYourGuideBody": "Minden gyakorlat ezt a kört követi. Amikor felfénylik és nő, szoríts. Amikor a fény elhalványul, lazíts. A benne lévő szó mindig megmondja, mit tegyél.",
     "thisIsTrembling": "Ez a Remegés",
     "yourFirstExerciseQuickFlicks": "Az első gyakorlatod: gyors összehúzások. Szorítsd a Szorítsd jelnél, engedd el a Lazíts jelnél."
   },
   "knowledge": {
     "continueToTraining": "Tovább az edzésre",
     "learnTheBasics": "Tanuld meg az alapokat",
+    "lessonNumber": "{{number}}. lecke",
     "logIn": "Bejelentkezés"
   },
   "login": {
     "6DigitCode": "6 jegyű kód",
     "close": "Bezárás",
+    "codeSentEnterBelow": "Kód elküldve! Írd be lent egy új jelszóval együtt.",
     "continueWithGoogle": "Folytatás Google-fiókkal",
+    "couldNotOpenGoogle": "Nem sikerült megnyitni a Google-bejelentkezést. Próbáld újra.",
     "createAccount": "Fiók létrehozása",
     "email": "E-mail",
-    "enterYourEmail": "Add meg az e-mail-címed",
+    "enterSixDigitCode": "Írd be az e-mailben kapott 6 jegyű kódot.",
+    "enterYourEmail": "Add meg az e-mail-címed.",
+    "failedToResetPassword": "Nem sikerült visszaállítani a jelszót.",
+    "failedToSendResetCode": "Nem sikerült elküldeni a visszaállítási kódot.",
+    "fillAllFields": "Tölts ki minden mezőt.",
     "forgotPassword": "Elfelejtetted a jelszavad?",
+    "googleSignInFailed": "A Google-bejelentkezés nem sikerült. Próbáld újra.",
+    "invalidCredentials": "Érvénytelen belépési adatok.",
     "logIn": "Bejelentkezés",
     "logIn2": "Bejelentkezés",
     "newHere": "Most jársz itt először?",
     "newPassword": "Új jelszó",
     "password": "Jelszó",
     "passwordReset": "A jelszó visszaállítva",
-    "resetPassword": "Jelszó visszaállítása"
+    "passwordResetBody": "A jelszavad visszaállt. Jelentkezz be.",
+    "passwordResetTitle": "Jelszó visszaállítva",
+    "passwordRules": "A jelszónak legalább 6 karakteresnek kell lennie, és tartalmaznia kell egy számot.",
+    "resetPassword": "Jelszó visszaállítása",
+    "resetPasswordCta": "Jelszó visszaállítása",
+    "sendCodeCta": "Kód küldése"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Van már fiókod?",
-    "logIn": "Bejelentkezés"
+    "getStarted": "Kezdjük",
+    "logIn": "Bejelentkezés",
+    "perDay": "NAPONTA",
+    "slide1Body": "Senki nem beszél róluk. Mind egyetlen gyenge izomra vezethető vissza, és a gyenge izom visszaedzhető.",
+    "slide1Title": "Csepegés. Hirtelen inger. Kevesebb kontroll.",
+    "slide2Body": "Nincs edzőterem, nincs eszköz, nincs mit levenni. A kanapén, az íróasztalnál, a buszon. Senki nem veszi észre.",
+    "slide2Title": "Egy perc, ülve",
+    "slide3Body": "Az app méri, meddig bírod tartani. Az időid nőnek, új gyakorlatok nyílnak meg, és a változás ott jelentkezik, ahol szeretted volna.",
+    "slide3Title": "Előbb érzed, mint látod",
+    "slide4Body": "Ha abbahagyod, az izom visszaesik, ahogy bármelyik másik. Válassz egy időpontot, a többit intézi az emlékeztető.",
+    "slide4Title": "Csak akkor működik, ha kitartasz"
   },
   "paywall": {
     "autoRenewOffHint": "Az automatikus megújítás ki van kapcsolva. A hozzáférésed a lejárat napján véget ér.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Mérd a fejlődésed",
     "benefitReminders": "Állíts be a napodhoz illő emlékeztetőket",
     "benefitStrength": "Építs valódi gátizomerőt",
+    "bestValue": "LEGJOBB ÁR",
     "billingIsNotAvailableOn": "Ezen az eszközön nem érhető el a fizetés. Lent visszaállíthatod egy korábbi vásárlásod.",
     "byContinuingYouAgree": "A folytatással elfogadod a",
     "changeYourPlan": "Csomag váltása",
@@ -72,6 +287,7 @@
     "managePlan": "Csomag kezelése",
     "noActiveSubscriptionWasFound": "Nem található visszaállítható aktív előfizetés.",
     "off": "Ki",
+    "offeringsUnavailable": "Az előfizetések most nem érhetők el ezen a készüléken. Próbáld később, vagy állíts vissza lent egy korábbi vásárlást.",
     "on": "Be",
     "paymentProcessedSecurely": "A fizetés megerősítéskor biztonságosan, a RevenueCaten és az alkalmazásboltban keresztül történik.",
     "premium": "Prémium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "A vásárlás megérkezett, de a csomagot nem sikerült azonosítani. Fordulj az ügyfélszolgálathoz.",
     "restorePurchases": "Vásárlások visszaállítása",
     "restoredPurchaseCouldNotBe": "A visszaállított vásárlást nem sikerült csomaghoz rendelni. Fordulj az ügyfélszolgálathoz.",
+    "savePercent": "SPÓROLJ {{percent}} %-OT",
     "signInFirst": "Előfizetés előtt jelentkezz be.",
     "startFreeTrialCta_one": "{{count}} napos ingyenes próba indítása",
     "startFreeTrialCta_other": "{{count}} napos ingyenes próba indítása",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Az alkalmazás törlése nem mondja le az előfizetést és nem jár visszatérítéssel.",
     "yourSubscriptionIsNowActive": "Az előfizetésed aktív, és a teljes tartalom elérhető."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Teljes hozzáférés, havi díjazással.",
+      "name": "1 hónap"
+    },
+    "premium-quarterly": {
+      "description": "3 havonta díjazva.",
+      "name": "3 hónap"
+    },
+    "premium-yearly": {
+      "description": "Egyetlen fizetés az egész évre.",
+      "name": "1 év"
+    }
+  },
   "profile": {
     "currentDifficulty": "Jelenlegi nehézség",
     "difficulty": "Nehézség",
     "error": "Hiba",
+    "errorTitle": "Hiba",
+    "failedToUpdateLevel": "Nem sikerült frissíteni az edzésszintet.",
     "profile": "Profil",
     "scheduleReminders": "Ütemezés és emlékeztetők",
     "setTheDifficultyOfKegel": "Állítsd be a Kegel-edzésprogram nehézségét",
+    "settingsA11y": "Beállítások",
     "theHigherTheLevelThe": "Minél magasabb a szint, annál nehezebb az edzés"
   },
   "progress": {
+    "bestResult": "legjobb eredmény",
     "continue": "Tovább",
     "holdTheButtonAndContract": "Tartsd nyomva a gombot, és szorítsd össze a medencefenék izmait, ameddig csak bírod.",
+    "lastMeasurement": "utolsó mérés",
     "progressTracker": "Haladás",
+    "seconds": "{{count}} mp",
     "takeMeasurement": "Mérés indítása",
+    "today": "Ma",
+    "topResult": "legjobb eredmény: {{count}} mp",
     "tryAgain": "Újra"
   },
   "register": {
     "alreadyHaveAnAccount": "Van már fiókod?",
     "confirmPassword": "Jelszó megerősítése",
     "continueWithGoogle": "Folytatás Google-fiókkal",
+    "couldNotOpenGoogle": "Nem sikerült megnyitni a Google-regisztrációt. Próbáld újra.",
     "createAccount": "Fiók létrehozása",
     "createAccount2": "Fiók létrehozása",
     "email": "E-mail",
+    "fillAllFields": "Tölts ki minden mezőt.",
+    "googleSignUpFailed": "A Google-regisztráció nem sikerült. Próbáld újra.",
     "logIn": "Bejelentkezés",
     "name": "Név",
-    "password": "Jelszó"
+    "password": "Jelszó",
+    "passwordNeedsNumber": "A jelszónak tartalmaznia kell legalább egy számot.",
+    "passwordTooShort": "A jelszónak legalább 6 karakteresnek kell lennie.",
+    "passwordsDoNotMatch": "A jelszavak nem egyeznek.",
+    "registrationFailed": "A regisztráció nem sikerült."
+  },
+  "reminders": {
+    "notificationBody": "Itt az ideje a napi Kegel-alkalmadnak!",
+    "notificationTitle": "Kegel-edzés"
   },
   "schedule": {
     "active": "Aktív",
     "allowExactReminders": "Pontos emlékeztetők engedélyezése",
+    "daysLeft_one": "{{count}} nap van hátra",
+    "daysLeft_other": "{{count}} nap van hátra",
     "error": "Hiba",
+    "errorTitle": "Hiba",
+    "failedToSaveReminders": "Nem sikerült menteni az emlékeztetőket.",
     "limitReached": "Elérted a korlátot",
+    "limitReachedBody": "Naponta legfeljebb 5 emlékeztetőt állíthatsz be.",
+    "limitReachedTitle": "Elérted a korlátot",
+    "monthNumber": "{{number}}. hónap",
     "reminders": "Emlékeztetők",
     "remindersSaved": "Emlékeztetők mentve",
     "repeatOn": "Ismétlés ezeken a napokon",
     "saveAddReminders": "Emlékeztetők mentése",
     "schedule": "Ütemezés",
+    "sessionNumber": "{{number}}. alkalom",
     "sessionTimes": "Edzésidőpontok"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Törlöd a fiókot?",
     "deletePermanently": "Végleges törlés",
     "deleted": "Törölve",
+    "deletedBody": "A fiókod véglegesen törölve lett.",
+    "deletedTitle": "Törölve",
+    "failedToDeleteAccount": "Nem sikerült törölni a fiókot.",
     "gotIt": "Értem",
     "language": "Nyelv",
     "logOut": "Kijelentkezés",
     "manageSubscription": "Előfizetés kezelése",
     "noActiveSubscription": "Nincs aktív előfizetés",
     "reset": "Visszaállítás",
+    "resetConfirmBody": "Ezzel törlöd az edzésnapjaidat, alkalmaidat, méréseidet és a leckékben elért haladásodat. A művelet nem vonható vissza.",
     "resetProgress": "Haladás visszaállítása",
     "resetProgress2": "Visszaállítod a haladást?",
+    "resetSuccessBody": "Az edzési haladásod törölve lett.",
+    "resetSuccessTitle": "Visszaállítva",
     "resetSuccessful": "Sikeres visszaállítás",
     "restartBody": "Zárd be és nyisd meg újra az alkalmazást az elrendezés irányának váltásához.",
     "restartRequired": "Újraindítás szükséges",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Van már fiókod? Jelentkezz be",
     "back": "Vissza",
+    "bestValue": "LEGJOBB ÁR",
+    "billingDisclosure": "A fizetést megerősítéskor a RevenueCat és az alkalmazásbolt dolgozza fel biztonságosan. Az előfizetés a megjelenített áron automatikusan megújul, amíg le nem mondod az előfizetési beállításokban; az alkalmazás törlése nem mondja le és nem téríti vissza. A folytatással elfogadod a",
     "close": "Bezárás",
     "confirmPassword": "Jelszó megerősítése",
     "continue": "Tovább",
     "continueWithGoogle": "Folytatás Google-fiókkal",
+    "couldNotOpenGoogle": "Nem sikerült megnyitni a Google-bejelentkezést. Próbáld újra.",
     "couldNotOpenGoogleSign": "A Google-bejelentkezést nem sikerült megnyitni. Kérjük, próbáld újra.",
+    "couldNotReachServer": "Nem sikerült elérni a szervert. Ellenőrizd a kapcsolatot, és próbáld újra.",
+    "createAccount": "Fiók létrehozása",
     "createAccountSubscribe": "Fiók létrehozása és előfizetés",
     "creatingAccount": "Fiók létrehozása …",
     "emailAddress": "E-mail-cím",
+    "emailInvalid": "Adj meg egy érvényes e-mail-címet.",
+    "emailOrPasswordIncorrect": "Hibás e-mail-cím vagy jelszó.",
+    "emailRequired": "Az e-mail megadása kötelező.",
     "fullName": "Teljes név",
+    "googleSignInFailed": "A Google-bejelentkezés nem sikerült. Próbáld újra.",
+    "nameRequired": "A név megadása kötelező.",
     "noAccountYetCreateOne": "Még nincs fiókod? Hozz létre egyet",
     "password": "Jelszó",
     "password6Characters1Number": "Jelszó (legalább 6 karakter, 1 szám)",
+    "passwordRequired": "A jelszó megadása kötelező.",
+    "passwordRules": "A jelszónak legalább 6 karakteresnek kell lennie, és tartalmaznia kell egy számot.",
+    "passwordsDoNotMatch": "A jelszavak nem egyeznek.",
+    "signIn": "Bejelentkezés",
     "signInSubscribe": "Bejelentkezés és előfizetés",
     "signingIn": "Bejelentkezés …",
     "startYourTransformationJourneyNow": "Kezdd el a változást még ma",
     "subscribe": "Előfizetek",
     "terms": "Feltételek"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Haladás",
+    "schedule": "Ütemterv",
+    "training": "Edzés"
   },
   "training": {
     "available": "Elérhető",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Vissza a bejelentkezéshez",
+    "codeResent": "Megerősítő kód újraküldve!",
     "didnTReceiveTheCode": "Nem kaptad meg a kódot? Küldés újra",
+    "enterSixDigitCode": "Adj meg egy 6 jegyű megerősítő kódot.",
+    "failedToResendCode": "Nem sikerült újraküldeni a kódot.",
+    "verificationFailed": "A megerősítés nem sikerült. Próbáld újra.",
     "verifyCode": "Kód ellenőrzése",
     "verifyEmail": "E-mail megerősítése"
   },
   "why": {
     "aMuscleYouCanTrain": "Egy izom, amit edzeni tudsz",
+    "aRealMuscleBody": "A medencefeneked valódi izom. Edzd napi pár percet, és erősödik, mint bármelyik másik izom. Nincsenek tabletták, nincsenek mellékhatások, és az eredmény kitart.",
     "andYouCanDoIt": "És bárhol, bármikor csinálhatod. Ülve, állva, a buszon. Senki nem veszi észre.",
+    "benefit_bladder_desc": "Kevesebb csepegés és kevesebb hirtelen inger.",
+    "benefit_bladder_title": "Jobb hólyagkontroll",
+    "benefit_confidence_desc": "Eredmények, amelyek hétről hétre épülnek.",
+    "benefit_confidence_title": "Tartós magabiztosság",
+    "benefit_core_desc": "Segíti a tartást és a derekat.",
+    "benefit_core_title": "Megtámasztott törzs",
+    "benefit_performance_desc": "Több kontroll és állóképesség az intimitásban.",
+    "benefit_performance_title": "Erősebb teljesítmény",
     "doingItRightIsEverything": "Minden azon múlik, hogy jól csinálod-e",
     "learnItOnceAndEvery": "Tanuld meg egyszer, és onnantól az edzés minden perce tényleg számít.",
     "squeezeTheWrongMusclesAnd": "Ha rossz izmokat szorítasz össze, semmit nem nyersz vele.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Ha most kilépsz, ez az edzés nem számít bele a napi haladásodba.",
     "leaveTraining": "Kilépsz az edzésből?",
     "noExercises": "Nincs gyakorlat",
+    "noExercisesBody": "Ehhez az alkalomhoz még nincs feloldott gyakorlat.",
+    "noExercisesTitle": "Nincs gyakorlat",
     "noGoBack": "Nem, vissza",
     "pause": "Szünet",
     "resume": "Folytatás",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Igen, kilépek"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Már a legkönnyebb szinten vagy.",
+    "alreadyHighestLevel": "Már a legmagasabb szinten vagy.",
     "continue": "Tovább",
     "howWasThat": "Milyen volt?",
     "justRight": "Pont jó",
+    "keepGoing": "Remek! Folytassuk.",
+    "levelUp": "Szintlépés! Mostantól a(z) {{level}} vagy.",
+    "monthNumber": "{{number}}. hónap",
     "newExerciseUnlocked": "Új gyakorlat feloldva!",
     "nextToUnlock": "Következő feloldható",
     "notNow": "Most nem",
+    "steppedDown": "Vissza a(z) {{level}} szintre. Menni fog!",
     "tooEasy": "Túl könnyű",
     "tooHard": "Túl nehéz",
-    "tryItNow": "Kipróbálom"
+    "tryItNow": "Kipróbálom",
+    "unlockedList": "Feloldva: {{names}}"
   }
 }

@@ -18,6 +18,7 @@ import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect } fr
 import KeepAwake from 'react-native-keep-awake';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useAuth } from '../../context/AuthContext';
+import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
 import { COLORS } from '../../theme/colors';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
 import { getDBConnection } from '../../db/sqlite';
@@ -219,7 +220,7 @@ export const WorkoutScreen = () => {
         }
 
         if (session.steps.length === 0) {
-          Alert.alert('No Exercises', 'No exercises unlocked for this workout.');
+          Alert.alert(t('workout.noExercisesTitle'), t('workout.noExercisesBody'));
           navigation.goBack();
           return;
         }
@@ -486,13 +487,16 @@ export const WorkoutScreen = () => {
 
   // Exercise-block carousel (Past · Current · Next): collapse consecutive
   // same-exercise steps into one labelled block, matching the web carousel.
+  // Grouped by SLUG, and the label resolved at render. Grouping on the visible
+  // text would merge two genuinely different exercises in any language where
+  // their names happen to collide, and would rebuild the whole carousel on a
+  // language change.
   const blocks = useMemo(() => {
-    const out: { label: string; rest: boolean; startIndex: number }[] = [];
+    const out: { slug: string; rest: boolean; startIndex: number }[] = [];
     playlist.forEach((step, i) => {
-      const label = step.slug === 'rest' ? 'Rest' : step.exerciseName;
       const last = out[out.length - 1];
-      if (!last || last.label !== label) {
-        out.push({ label, rest: step.slug === 'rest', startIndex: i });
+      if (!last || last.slug !== step.slug) {
+        out.push({ slug: step.slug, rest: step.slug === 'rest', startIndex: i });
       }
     });
     return out;
@@ -569,7 +573,7 @@ export const WorkoutScreen = () => {
     let rem = remainingRef.current;
     for (let k = idx + 1; k < pl.length; k++) {
       const s = pl[k];
-      if (s.slug === 'rest' || s.exerciseName !== cur.exerciseName) break;
+      if (s.slug !== cur.slug) break;
       rem += s.seconds;
     }
     return Math.max(0, Math.ceil(rem));
@@ -585,7 +589,7 @@ export const WorkoutScreen = () => {
     let rem = remainingRef.current;
     for (let k = idx + 1; k < pl.length; k++) {
       const s = pl[k];
-      if (s.slug === 'rest' || s.exerciseName !== cur.exerciseName) break;
+      if (s.slug !== cur.slug) break;
       rem += s.seconds;
     }
     return Math.max(0, rem);
@@ -602,7 +606,7 @@ export const WorkoutScreen = () => {
     while (
       start > 0 &&
       pl[start - 1].slug !== 'rest' &&
-      pl[start - 1].exerciseName === cur.exerciseName
+      pl[start - 1].slug === cur.slug
     ) {
       start--;
     }
@@ -610,7 +614,7 @@ export const WorkoutScreen = () => {
     let total = 0;
     for (let k = start; k < pl.length; k++) {
       const s = pl[k];
-      if (s.slug === 'rest' || s.exerciseName !== cur.exerciseName) break;
+      if (s.slug !== cur.slug) break;
       total += s.seconds;
     }
     return Math.max(1, total);
@@ -726,7 +730,7 @@ export const WorkoutScreen = () => {
           </Animated.View>
 
           {/* Central progress ring: tick-subscribed so only it repaints */}
-          <LiveProgressRing label={currentStep.label} register={registerRing} />
+          <LiveProgressRing label={t(currentStep.labelKey)} register={registerRing} />
         </View>
       </View>
 
@@ -787,7 +791,7 @@ export const WorkoutScreen = () => {
               ]}
               numberOfLines={1}
             >
-              {b.label}
+              {t(b.rest ? REST_LABEL_KEY : exerciseNameKey(b.slug))}
             </Text>
           ))}
         </Animated.View>
@@ -837,7 +841,7 @@ export const WorkoutScreen = () => {
           <TouchableWithoutFeedback>
             <SafeAreaView style={styles.modalContent}>
               <View style={styles.handleBar} />
-              <Text style={styles.modalTitle}>{currentStep.exerciseName}</Text>
+              <Text style={styles.modalTitle}>{t(exerciseNameKey(currentStep.slug))}</Text>
               <Text style={styles.modalBody}>
                 {t('workout.watchTheQuickTutorialFor')}
               </Text>

@@ -27,9 +27,9 @@ const CIRC = 2 * Math.PI * R;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const FLOW = [
-  { icon: 'M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z', label: 'You pee' },
-  { icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4 13H8V9h8v6z', label: 'Stop midway' },
-  { icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', label: 'That squeeze!' },
+  { icon: 'M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z', key: 'youPee' },
+  { icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4 13H8V9h8v6z', key: 'stopMidway' },
+  { icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', key: 'thatSqueeze' },
 ];
 
 export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
@@ -96,16 +96,14 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
     return (
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.h1}>{t('find.theEasiestWayToFind')}</Text>
-        <Text style={styles.p}>
-          Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor.
-        </Text>
+        <Text style={styles.p}>{t('find.stopTheFlowBody')}</Text>
         <View style={styles.flowRow}>
           {FLOW.map(f => (
-            <View key={f.label} style={styles.flowCard}>
+            <View key={f.key} style={styles.flowCard}>
               <Svg width={40} height={40} viewBox="0 0 24 24" fill={COLORS.accent}>
                 <Path d={f.icon} />
               </Svg>
-              <Text style={styles.flowLabel}>{f.label}</Text>
+              <Text style={styles.flowLabel}>{t(`find.flow_${f.key}`)}</Text>
             </View>
           ))}
         </View>
@@ -127,10 +125,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.ruleTitle}>{t('find.onlyDoThePeeTest')}</Text>
-              <Text style={styles.ruleDesc}>
-                It is just a way to find the muscles, not an exercise. Stopping your pee often is not good
-                for your bladder.
-              </Text>
+              <Text style={styles.ruleDesc}>{t('find.onlyDoThePeeTestDesc')}</Text>
             </View>
           </View>
           <View style={styles.ruleCard}>
@@ -141,10 +136,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.ruleTitle}>{t('find.squeezeOnlyThoseMuscles')}</Text>
-              <Text style={styles.ruleDesc}>
-                Another cue: squeeze as if holding back gas. Your belly, legs and buttocks stay completely
-                relaxed.
-              </Text>
+              <Text style={styles.ruleDesc}>{t('find.squeezeOnlyThoseMusclesDesc')}</Text>
             </View>
           </View>
         </View>
@@ -154,11 +146,11 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
 
   return (
     <View style={styles.center}>
-      <Text style={styles.h1}>{doneHold ? 'You found them!' : 'Try it now'}</Text>
+      <Text style={styles.h1}>
+        {doneHold ? t('find.youFoundThem') : t('find.tryItNow')}
+      </Text>
       <Text style={styles.p}>
-        {doneHold
-          ? 'That squeeze and release is all a Kegel is. You are ready for your first exercise.'
-          : 'Press and hold the circle. While you hold it, squeeze those muscles. Let go together.'}
+        {doneHold ? t('find.youFoundThemBody') : t('find.tryItNowBody')}
       </Text>
 
       <Pressable
@@ -194,7 +186,9 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
             </Svg>
           ) : (
             <View style={{ alignItems: 'center' }}>
-              <Text style={styles.holdLabel}>{holding ? 'Squeeze!' : 'Press & hold'}</Text>
+              <Text style={styles.holdLabel}>
+                {holding ? t('find.squeezeNow') : t('find.pressAndHold')}
+              </Text>
               {holding ? <Text style={styles.holdSub}>{t('find.keepGoing')}</Text> : null}
             </View>
           )}

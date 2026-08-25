@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "זמין",
-    "exercises": "תרגילים"
+    "backA11y": "חזרה",
+    "exercises": "תרגילים",
+    "unlockProgressA11y": "התקדמות הפתיחה של {{name}}"
+  },
+  "basics": {
+    "findTitle": "מצאו את רצפת האגן שלכם",
+    "firstTitle": "התרגיל הראשון שלכם",
+    "whyTitle": "למה אימוני קיגל עובדים"
+  },
+  "billing": {
+    "alreadyOwned": "כבר יש לכם מנוי פעיל. אנחנו משחזרים אותו עכשיו.",
+    "configuration": "לא ניתן לרכוש את התוכנית הזו כרגע. הבעיה אצלנו - נסו מאוחר יותר או פנו לתמיכה.",
+    "declined": "Google Play דחה את התשלום. בדקו את אמצעי התשלום בחשבון Google שלכם ונסו שוב.",
+    "ineligible": "אינכם זכאים למבצע הזה. בחרו תוכנית אחרת.",
+    "network": "לא הצלחנו להגיע לחנות. בדקו את החיבור ונסו שוב. אם חויבתם, הגישה תופיע מעצמה.",
+    "noPermission": "לחשבון Google שלכם אין הרשאה לבצע רכישות במכשיר הזה.",
+    "notAllowed": "למכשיר או לחשבון Google הזה אין הרשאה לבצע רכישות. בדרך כלל מדובר בבקרת הורים, או בהיעדר אמצעי תשלום בחשבון.",
+    "operationInProgress": "רכישה כבר מתבצעת. המתינו רגע לפני שתנסו שוב.",
+    "otherAccount": "המנוי הזה שייך לחשבון אחר. התחברו עם אותו חשבון, או פנו לתמיכה ונעביר אותו.",
+    "paymentPending": "Google Play מעבד את התשלום שלכם. תשלומים במזומן ובשוברים עשויים לקחת זמן. הגישה תיפתח אוטומטית ברגע שהתשלום יאושר, אז אנא אל תשלמו שוב.",
+    "storeProblem": "ל-Google Play יש תקלה כרגע. נסו שוב בעוד כמה דקות.",
+    "unknown": "משהו השתבש בהשלמת הרכישה. נסו שוב. אם חויבתם, הגישה תופיע מעצמה."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "כיווץ איתן שנבנה לאט ומשוחרר לאט באותה מידה.",
+        "howTo": "כווץ לאט במשך 3 שניות בזמן שהמעגל מתמלא, ואז שחרר לאט באותה מידה בזמן שהוא מתרוקן. שמור על תנועה חלקה בשני הכיוונים.",
+        "name": "מהדק",
+        "summary": "לאט למעלה, לאט למטה"
+      },
+      "downstairs": {
+        "description": "כווץ עד לפסגה, ואז רד שלב אחר שלב בשליטה מלאה.",
+        "howTo": "כווץ עד הנקודה החזקה ביותר שלך, ואז הרפה מעט בכל פעם, תוך עצירה של כשנייה בכל שלב בדרך למטה. הירידה המבוקרת היא התרגיל עצמו.",
+        "name": "ירידה במדרגות",
+        "summary": "ירידה מהפסגה בארבעה שלבים"
+      },
+      "elevator": {
+        "description": "תרגיל הדגל. טפס מעלה שלב אחר שלב, ואז רד חזרה בשליטה.",
+        "howTo": "דמיין שאתה נוסע במעלית. כווץ קצת יותר חזק בכל שלב עד שתגיע לכיווץ החזק ביותר שלך, ואז רד שלב אחר שלב עד להרפיה מלאה.",
+        "name": "מעלית",
+        "summary": "טפס אל הפסגה, ואז רד שלב אחר שלב"
+      },
+      "flash": {
+        "description": "הכיווצים המהירים ביותר. כיווצים קצרים וחדים שמאמנים תגובה מהירה.",
+        "howTo": "כווץ ושחרר מהר ככל שתוכל, בקצב המעגל. הישאר קליל, אל תתאמץ יתר על המידה.",
+        "name": "הבזק",
+        "summary": "הכיווצים המהירים ביותר"
+      },
+      "front-clamp": {
+        "description": "כיווץ איטי וממוקד של החלק הקדמי של רצפת האגן, ואחריו שחרור מהיר ונקי.",
+        "howTo": "כווץ לאט במשך 3 שניות בזמן שהמעגל מתמלא. כשהוא מתרוקן, שחרר הכול בבת אחת. ואז התחל את הכיווץ האיטי הבא.",
+        "name": "מהדק קדמי",
+        "summary": "כווץ לאט, שחרר בבת אחת"
+      },
+      "holding": {
+        "description": "כווץ והמשך להחזיק כדי לבנות סיבולת בסיסית ברצפת האגן.",
+        "howTo": "כווץ את רצפת האגן והחזק לאורך כל הסבב. אם המתח נחלש, כווץ שוב בעדינות. המשך לנשום כרגיל.",
+        "name": "החזקה",
+        "summary": "החזקה אחת יציבה"
+      },
+      "long-steady-clamp": {
+        "description": "בונה הסיבולת: כיווץ של שנייה שעובר להחזקה של עשר שניות בכוח מלא.",
+        "howTo": "כווץ במשך שנייה, ואז החזק בכוח מלא במשך עשר שניות. אם המתח נחלש, כווץ שוב בעדינות עד למקסימום. שחרר וחזור.",
+        "name": "מהדק יציב ארוך",
+        "summary": "שנייה של כיווץ, 10 שניות החזקה"
+      },
+      "pulsation": {
+        "description": "שני כיווצים מהירים ברצף, ואחריהם שחרור מלא. מאמן כיווץ מחדש עוד לפני התאוששות מלאה, ושחרור נכון בין המאמצים.",
+        "howTo": "כווץ ושחרר פעמיים ברצף מהיר עם המעגל, ואז שחרר הכול לחלוטין בזמן המנוחה. השחרור המלא חשוב לא פחות מהפעימות.",
+        "name": "פעימה כפולה",
+        "summary": "שתי פעימות מהירות, ואז חזרה מלאה"
+      },
+      "push": {
+        "description": "בנה את הכיווץ עד לשיא חזק, החזק אותו, ואז שחרר לאט.",
+        "howTo": "כווץ בהדרגה במשך שלוש שניות, והתחזק ככל שהמעגל מתמלא. החזק את הכיווץ החזק ביותר שלך במשך שתי שניות, ואז שחרר לאט. כווץ חזק יותר, ולעולם אל תדחוף כלפי מטה.",
+        "name": "דחיפה",
+        "summary": "3 שניות עלייה, 2 שניות בשיא, 3 שניות הרפיה"
+      },
+      "reverse-clamp": {
+        "description": "כיווץ מהיר ואחריו שחרור איטי ומבוקר. מצוין לשליטה.",
+        "howTo": "כווץ בבת אחת, ואז התחל מיד לשחרר לאט ככל שתוכל, תוך מעקב אחרי המעגל היורד. השחרור האיטי הוא התרגיל עצמו.",
+        "name": "מהדק הפוך",
+        "summary": "כווץ בבת אחת, שחרר לאט"
+      },
+      "short-holding": {
+        "description": "החזקה חזקה של 4 שניות שמשוחררת לאט במקום להישמט. שחרור מבוקר הוא מיומנות בפני עצמה, ורוב האנשים מוצאים אותו קשה יותר מההחזקה עצמה.",
+        "howTo": "כווץ במשך שנייה, החזק בכוח מלא במשך ארבע, ואז שחרר בהדרגה בזמן שהמעגל שוקע. אל תיתן לו לקרוס: לווה אותו עד למטה.",
+        "name": "החזקה קצרה",
+        "summary": "החזק 4 שניות, ואז שחרר בהדרגה"
+      },
+      "starter": {
+        "description": "כיווץ מהיר אחד שמעיר את השריר, ואחריו החזקה חזקה של 5 שניות.",
+        "howTo": "בצע כיווץ מהיר אחד, הרפה בצורה חלקה, ואז כווץ שוב והחזק חזק במשך חמש שניות. שחרר, נשום, וחזור.",
+        "name": "התנעה",
+        "summary": "כיווץ מהיר, ואז החזקה של 5 שניות"
+      },
+      "steady-clamp": {
+        "description": "מהדק יציב: כווץ במשך שנייה, ואז החזק בכוח מלא במשך חמש.",
+        "howTo": "כווץ במשך שנייה, ואז החזק בכוח מלא במשך חמש שניות בלי לתת למתח לרדת. שחרר וחזור.",
+        "name": "מהדק יציב",
+        "summary": "שנייה של כיווץ, 5 שניות החזקה"
+      },
+      "steady-trembling": {
+        "description": "כווץ בבת אחת, שמור על מתח יציב במשך כמה שניות, ואז הרפה.",
+        "howTo": "כווץ בבת אחת ושמור על המתח. כשהמעגל יורד, שחרר בצורה חלקה. ואז חזור על הכיווץ המהיר וההחזקה.",
+        "name": "רעד יציב",
+        "summary": "כווץ בבת אחת, החזק, ואז הרפה"
+      },
+      "trembling": {
+        "description": "כיווצים ושחרורים מהירים שגורמים לשריר לרעוד ומעירים את התגובה המהירה שלו.",
+        "howTo": "כווץ הכול בבת אחת, החזק לרגע, ואז שחרר בצורה חלקה. עקוב אחרי המעגל כשהוא זינק למעלה ויורד בעדינות.",
+        "name": "רעד",
+        "summary": "כיווצים מהירים, פנימה והחוצה"
+      },
+      "upstairs": {
+        "description": "העלה את הכיווץ בארבעה שלבים, קצת יותר חזק בכל רמה.",
+        "howTo": "דמיין שאתה עולה במעלית. כווץ מעט, ואז יותר, ואז עוד יותר, עד שתגיע לכיווץ החזק ביותר שלך, ושהה כשנייה בכל שלב. הרפה לאחר מכן.",
+        "name": "עלייה במדרגות",
+        "summary": "טיפוס בארבעה שלבים אל הפסגה"
+      },
+      "waves": {
+        "description": "כיווצים דמויי גל שבונים ומשחררים מתח ברציפות.",
+        "howTo": "כווץ לאט במשך שתי שניות, ואז שחרר לאט באותה מידה, כמו גל שעולה ויורד. שמור על תנועה חלקה ורציפה.",
+        "name": "גלים",
+        "summary": "2 שניות למעלה, 2 שניות למטה"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "התחלה עדינה. אימונים קצרים של דקה.",
+        "name": "רמה 1"
+      },
+      "2": {
+        "description": "קצת יותר ארוך. אימונים של 2 דקות.",
+        "name": "רמה 2"
+      },
+      "3": {
+        "description": "אימון מאוזן. אימונים של 3 דקות.",
+        "name": "רמה 3"
+      },
+      "4": {
+        "description": "אימונים ארוכים יותר לשרירים חזקים יותר. 4 דקות.",
+        "name": "רמה 4"
+      },
+      "5": {
+        "description": "סיבולת ושליטה מתקדמות. 5 דקות.",
+        "name": "רמה 5"
+      }
+    },
+    "steps": {
+      "contract": "כווץ",
+      "contractAndHold": "כווץ והחזק",
+      "contractSlowly": "כווץ לאט",
+      "easeDown": "שחרר בהדרגה",
+      "hold": "החזק",
+      "pulse1": "פעימה 1",
+      "pulse2": "פעימה 2",
+      "relax": "הרפה",
+      "relaxSlowly": "הרפה לאט",
+      "release": "שחרר",
+      "releaseSlowly": "שחרר לאט",
+      "reset": "חזרה לאפס",
+      "rest": "מנוחה",
+      "step1": "שלב 1",
+      "step2": "שלב 2",
+      "step3": "שלב 3",
+      "top": "בפסגה"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "משהו השתבש",
@@ -9,48 +177,94 @@
     "tryAgain": "נסה שוב"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "השלם עוד {{count}} יום אימון כדי לפתוח.",
+    "completeMoreDaysToUnlock_other": "השלם עוד {{count}} ימי אימון כדי לפתוח.",
     "exerciseNotFound": "התרגיל לא נמצא.",
+    "lockedDaysLeft_one": "נעול - נותר {{count}} יום",
+    "lockedDaysLeft_other": "נעול - נותרו {{count}} ימים",
     "tryItNow": "נסה עכשיו"
   },
   "find": {
+    "flow_stopMidway": "עצרו באמצע",
+    "flow_thatSqueeze": "בדיוק הכיווץ הזה!",
+    "flow_youPee": "אתם משתינים",
     "keepGoing": "תמשיך ככה…",
     "onlyDoThePeeTest": "בצע את בדיקת ההשתנה פעם אחת בלבד",
+    "onlyDoThePeeTestDesc": "זו רק דרך למצוא את השרירים, לא תרגיל. עצירה תכופה של הזרם אינה טובה לשלפוחית.",
+    "pressAndHold": "לחצו והחזיקו",
+    "squeezeNow": "כווצו!",
     "squeezeOnlyThoseMuscles": "כווץ רק את השרירים האלה",
+    "squeezeOnlyThoseMusclesDesc": "רמז נוסף: כווצו כאילו אתם עוצרים גזים. הבטן, הרגליים והישבן נשארים רפויים לחלוטין.",
+    "stopTheFlowBody": "בפעם הבאה שאתם משתינים, עצרו בעדינות את הזרם באמצע. השרירים שהרגע השתמשתם בהם הם רצפת האגן שלכם.",
     "thatExactSqueezeIsThe": "בדיוק הכיווץ הזה הוא התנועה שתאמן.",
     "theEasiestWayToFind": "הדרך הקלה ביותר למצוא אותם",
-    "twoQuickRules": "שני כללים קצרים"
+    "tryItNow": "נסו עכשיו",
+    "tryItNowBody": "לחצו והחזיקו את המעגל. בזמן ההחזקה, כווצו את השרירים האלה. שחררו יחד.",
+    "twoQuickRules": "שני כללים קצרים",
+    "youFoundThem": "מצאתם אותם!",
+    "youFoundThemBody": "הכיווץ והשחרור הזה הם כל מה שתרגיל קיגל הוא. אתם מוכנים לתרגיל הראשון שלכם."
   },
   "first": {
     "contract": "כווץ",
+    "followTheCircle": "עקבו אחרי המעגל. כווצו... והרפו.",
+    "niceWork": "עבודה יפה!",
+    "nowYouTry": "עכשיו תורך",
     "start": "התחל",
+    "tenSecondsReady": "עשר שניות של {{exercise}}. כווצו בכל {{contract}}, ושחררו ב{{relax}}. מוכנים?",
+    "thatWasARealExercise": "זה היה תרגיל אמיתי. כל אימון עובד בדיוק ככה, מעגל אחרי מעגל.",
     "theCircleIsYourGuide": "העיגול מכתיב את הקצב",
+    "theCircleIsYourGuideBody": "כל תרגיל עוקב אחרי המעגל הזה. כשהוא נדלק ומתרחב, כווצו. כשהזוהר דועך, הרפו. המילה שבפנים תמיד אומרת לכם מה לעשות.",
     "thisIsTrembling": "זהו תרגיל הרעד",
     "yourFirstExerciseQuickFlicks": "התרגיל הראשון שלך: כיווצים מהירים. כווץ כשמופיע כווץ, שחרר כשמופיע הרפה."
   },
   "knowledge": {
     "continueToTraining": "המשך לאימון",
     "learnTheBasics": "למד את היסודות",
+    "lessonNumber": "שיעור {{number}}",
     "logIn": "התחברות"
   },
   "login": {
     "6DigitCode": "קוד בן 6 ספרות",
     "close": "סגור",
+    "codeSentEnterBelow": "הקוד נשלח! הזינו אותו למטה יחד עם סיסמה חדשה.",
     "continueWithGoogle": "המשך עם Google",
+    "couldNotOpenGoogle": "לא ניתן היה לפתוח את ההתחברות עם Google. נסו שוב.",
     "createAccount": "צור חשבון",
     "email": "אימייל",
-    "enterYourEmail": "הזן את כתובת האימייל שלך",
+    "enterSixDigitCode": "הזינו את הקוד בן 6 הספרות מהמייל.",
+    "enterYourEmail": "הזינו את האימייל שלכם.",
+    "failedToResetPassword": "לא הצלחנו לאפס את הסיסמה.",
+    "failedToSendResetCode": "לא הצלחנו לשלוח את קוד האיפוס.",
+    "fillAllFields": "נא למלא את כל השדות.",
     "forgotPassword": "שכחת סיסמה?",
+    "googleSignInFailed": "ההתחברות עם Google נכשלה. נסו שוב.",
+    "invalidCredentials": "פרטי התחברות שגויים.",
     "logIn": "התחברות",
     "logIn2": "התחבר",
     "newHere": "חדש כאן?",
     "newPassword": "סיסמה חדשה",
     "password": "סיסמה",
     "passwordReset": "הסיסמה אופסה",
-    "resetPassword": "איפוס סיסמה"
+    "passwordResetBody": "הסיסמה שלכם אופסה. אנא התחברו.",
+    "passwordResetTitle": "הסיסמה אופסה",
+    "passwordRules": "הסיסמה חייבת להיות באורך 6 תווים לפחות ולכלול ספרה.",
+    "resetPassword": "איפוס סיסמה",
+    "resetPasswordCta": "איפוס סיסמה",
+    "sendCodeCta": "שליחת קוד"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "כבר יש לך חשבון?",
-    "logIn": "התחבר"
+    "getStarted": "מתחילים",
+    "logIn": "התחבר",
+    "perDay": "ליום",
+    "slide1Body": "אף אחד לא מדבר על זה, אבל הכול מתחיל בשריר אחד שנחלש, ושריר שנחלש אפשר לחזק בחזרה.",
+    "slide1Title": "דליפות. דחיפות פתאומית. פחות שליטה.",
+    "slide2Body": "בלי חדר כושר, בלי ציוד, בלי להוריד כלום. על הספה, ליד השולחן, באוטובוס. אף אחד לא שם לב.",
+    "slide2Title": "דקה אחת, בישיבה",
+    "slide3Body": "האפליקציה מודדת כמה זמן אתם מחזיקים. הזמנים שלכם עולים, תרגילים חדשים נפתחים, והשינוי מופיע בדיוק איפה שרציתם.",
+    "slide3Title": "תרגישו את זה לפני שתראו",
+    "slide4Body": "אם מפסיקים, השריר נחלש בחזרה, כמו בכל אימון. תבחרו שעה, ואת השאר התזכורת תעשה.",
+    "slide4Title": "זה עובד רק אם ממשיכים"
   },
   "paywall": {
     "autoRenewOffHint": "החידוש האוטומטי כבוי. הגישה שלך תסתיים בתאריך התפוגה.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "מדדו את ההתקדמות",
     "benefitReminders": "תזכורות שמתאימות ליום שלכם",
     "benefitStrength": "בנו כוח אמיתי ברצפת האגן",
+    "bestValue": "הכי משתלם",
     "billingIsNotAvailableOn": "תשלום אינו זמין במכשיר הזה. אפשר לשחזר רכישה קודמת למטה.",
     "byContinuingYouAgree": "בהמשך אתם מסכימים ל",
     "changeYourPlan": "שינוי המסלול",
@@ -72,6 +287,7 @@
     "managePlan": "ניהול המסלול",
     "noActiveSubscriptionWasFound": "לא נמצא מנוי פעיל לשחזור.",
     "off": "כבוי",
+    "offeringsUnavailable": "מנויים אינם זמינים במכשיר הזה כרגע. נסו שוב מאוחר יותר, או שחזרו רכישה קודמת למטה.",
     "on": "פועל",
     "paymentProcessedSecurely": "התשלום מעובד באופן מאובטח דרך RevenueCat וחנות האפליקציות עם האישור.",
     "premium": "פרימיום",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "הרכישה התקבלה, אך לא ניתן היה לזהות את המסלול. פנה לתמיכה.",
     "restorePurchases": "שחזור רכישות",
     "restoredPurchaseCouldNotBe": "לא ניתן היה לשייך את הרכישה המשוחזרת למסלול. פנה לתמיכה.",
+    "savePercent": "חסכו {{percent}} %",
     "signInFirst": "התחברו לפני ההרשמה למנוי.",
     "startFreeTrialCta_one": "התחילו יום ניסיון חינם",
     "startFreeTrialCta_other": "התחילו {{count}} ימי ניסיון חינם",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "הסרת האפליקציה אינה מבטלת מנוי ואינה מזכה בהחזר.",
     "yourSubscriptionIsNowActive": "המנוי שלך פעיל וכל התוכן נפתח."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "גישה מלאה, בחיוב חודשי.",
+      "name": "חודש אחד"
+    },
+    "premium-quarterly": {
+      "description": "בחיוב כל 3 חודשים.",
+      "name": "3 חודשים"
+    },
+    "premium-yearly": {
+      "description": "תשלום אחד לכל השנה.",
+      "name": "שנה אחת"
+    }
+  },
   "profile": {
     "currentDifficulty": "רמת הקושי הנוכחית",
     "difficulty": "רמת קושי",
     "error": "שגיאה",
+    "errorTitle": "שגיאה",
+    "failedToUpdateLevel": "לא הצלחנו לעדכן את רמת האימון.",
     "profile": "פרופיל",
     "scheduleReminders": "לוח זמנים ותזכורות",
     "setTheDifficultyOfKegel": "קבע את רמת הקושי של תוכנית תרגילי קיגל",
+    "settingsA11y": "הגדרות",
     "theHigherTheLevelThe": "ככל שהרמה גבוהה יותר, האימון קשה יותר"
   },
   "progress": {
+    "bestResult": "התוצאה הטובה ביותר",
     "continue": "המשך",
     "holdTheButtonAndContract": "החזק את הכפתור לחוץ וכווץ את שרירי רצפת האגן כמה שיותר זמן.",
+    "lastMeasurement": "המדידה האחרונה",
     "progressTracker": "מעקב התקדמות",
+    "seconds": "{{count}} שנ׳",
     "takeMeasurement": "בצע מדידה",
+    "today": "היום",
+    "topResult": "שיא: {{count}} שנ׳",
     "tryAgain": "נסה שוב"
   },
   "register": {
     "alreadyHaveAnAccount": "כבר יש לך חשבון?",
     "confirmPassword": "אימות סיסמה",
     "continueWithGoogle": "המשך עם Google",
+    "couldNotOpenGoogle": "לא ניתן היה לפתוח את ההרשמה עם Google. נסו שוב.",
     "createAccount": "צור חשבון",
     "createAccount2": "צור חשבון",
     "email": "אימייל",
+    "fillAllFields": "נא למלא את כל השדות.",
+    "googleSignUpFailed": "ההרשמה עם Google נכשלה. נסו שוב.",
     "logIn": "התחבר",
     "name": "שם",
-    "password": "סיסמה"
+    "password": "סיסמה",
+    "passwordNeedsNumber": "הסיסמה חייבת לכלול לפחות ספרה אחת.",
+    "passwordTooShort": "הסיסמה חייבת להיות באורך 6 תווים לפחות.",
+    "passwordsDoNotMatch": "הסיסמאות אינן תואמות.",
+    "registrationFailed": "ההרשמה נכשלה."
+  },
+  "reminders": {
+    "notificationBody": "הגיע הזמן לאימון הקיגל היומי שלכם!",
+    "notificationTitle": "אימון קיגל"
   },
   "schedule": {
     "active": "פעיל",
     "allowExactReminders": "אפשר תזכורות מדויקות",
+    "daysLeft_one": "נותר {{count}} יום",
+    "daysLeft_other": "נותרו {{count}} ימים",
     "error": "שגיאה",
+    "errorTitle": "שגיאה",
+    "failedToSaveReminders": "לא הצלחנו לשמור את התזכורות.",
     "limitReached": "הגעת למגבלה",
+    "limitReachedBody": "אפשר להגדיר עד 5 תזכורות ביום.",
+    "limitReachedTitle": "הגעתם למגבלה",
+    "monthNumber": "חודש {{number}}",
     "reminders": "תזכורות",
     "remindersSaved": "התזכורות נשמרו",
     "repeatOn": "חזרה בימים",
     "saveAddReminders": "שמור תזכורות",
     "schedule": "לוח זמנים",
+    "sessionNumber": "אימון {{number}}",
     "sessionTimes": "שעות האימון"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "למחוק את החשבון?",
     "deletePermanently": "מחק לצמיתות",
     "deleted": "נמחק",
+    "deletedBody": "החשבון שלכם נמחק לצמיתות.",
+    "deletedTitle": "נמחק",
+    "failedToDeleteAccount": "לא הצלחנו למחוק את החשבון.",
     "gotIt": "הבנתי",
     "language": "שפה",
     "logOut": "התנתק",
     "manageSubscription": "ניהול מנוי",
     "noActiveSubscription": "אין מנוי פעיל",
     "reset": "איפוס",
+    "resetConfirmBody": "הפעולה תמחק את ימי האימון, האימונים, המדידות וההתקדמות בשיעורים. לא ניתן לבטל אותה.",
     "resetProgress": "איפוס ההתקדמות",
     "resetProgress2": "לאפס את ההתקדמות?",
+    "resetSuccessBody": "התקדמות האימונים שלכם נמחקה.",
+    "resetSuccessTitle": "אופס",
     "resetSuccessful": "האיפוס הושלם",
     "restartBody": "סגור ופתח מחדש את האפליקציה כדי להשלים את שינוי כיוון הפריסה.",
     "restartRequired": "נדרשת הפעלה מחדש",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "כבר יש לך חשבון? התחבר",
     "back": "חזרה",
+    "bestValue": "הכי משתלם",
+    "billingDisclosure": "התשלום מעובד באופן מאובטח דרך RevenueCat וחנות האפליקציות בעת האישור. המנוי מתחדש אוטומטית במחיר המוצג עד שתבטלו אותו בהגדרות המנוי; הסרת האפליקציה אינה מבטלת אותו ואינה מזכה החזר. בהמשך אתם מסכימים ל",
     "close": "סגור",
     "confirmPassword": "אימות סיסמה",
     "continue": "המשך",
     "continueWithGoogle": "המשך עם Google",
+    "couldNotOpenGoogle": "לא ניתן היה לפתוח את ההתחברות עם Google. נסו שוב.",
     "couldNotOpenGoogleSign": "לא ניתן היה לפתוח את ההתחברות עם Google. נסה שוב.",
+    "couldNotReachServer": "לא הצלחנו להגיע לשרת. בדקו את החיבור ונסו שוב.",
+    "createAccount": "יצירת חשבון",
     "createAccountSubscribe": "צור חשבון והירשם למנוי",
     "creatingAccount": "יוצרים חשבון…",
     "emailAddress": "כתובת אימייל",
+    "emailInvalid": "הזינו כתובת אימייל תקינה.",
+    "emailOrPasswordIncorrect": "אימייל או סיסמה שגויים.",
+    "emailRequired": "חובה להזין אימייל.",
     "fullName": "שם מלא",
+    "googleSignInFailed": "ההתחברות עם Google נכשלה. נסו שוב.",
+    "nameRequired": "חובה להזין שם.",
     "noAccountYetCreateOne": "עדיין אין לך חשבון? צור אחד",
     "password": "סיסמה",
     "password6Characters1Number": "סיסמה (לפחות 6 תווים, ספרה אחת)",
+    "passwordRequired": "חובה להזין סיסמה.",
+    "passwordRules": "הסיסמה חייבת להיות באורך 6 תווים לפחות ולכלול ספרה.",
+    "passwordsDoNotMatch": "הסיסמאות אינן תואמות.",
+    "signIn": "התחברות",
     "signInSubscribe": "התחבר והירשם למנוי",
     "signingIn": "מתחברים…",
     "startYourTransformationJourneyNow": "התחל את השינוי שלך כבר עכשיו",
     "subscribe": "הירשם למנוי",
     "terms": "תנאים"
+  },
+  "tabs": {
+    "profile": "פרופיל",
+    "progress": "התקדמות",
+    "schedule": "לוח זמנים",
+    "training": "אימון"
   },
   "training": {
     "available": "זמין",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "חזרה להתחברות",
+    "codeResent": "קוד האימות נשלח שוב!",
     "didnTReceiveTheCode": "לא קיבלת את הקוד? שלח שוב",
+    "enterSixDigitCode": "הזינו קוד אימות בן 6 ספרות.",
+    "failedToResendCode": "לא הצלחנו לשלוח את הקוד שוב.",
+    "verificationFailed": "האימות נכשל. נסו שוב.",
     "verifyCode": "אימות הקוד",
     "verifyEmail": "אימות אימייל"
   },
   "why": {
     "aMuscleYouCanTrain": "שריר שאפשר לאמן",
+    "aRealMuscleBody": "רצפת האגן שלכם היא שריר אמיתי. אמנו אותה כמה דקות ביום והיא תתחזק, בדיוק כמו בכל אימון אחר. בלי כדורים, בלי תופעות לוואי, והתוצאות נשארות.",
     "andYouCanDoIt": "ואפשר לעשות את זה בכל מקום ובכל זמן. בישיבה, בעמידה, באוטובוס. אף אחד לא שם לב.",
+    "benefit_bladder_desc": "פחות דליפות ופחות רגעי דחיפות.",
+    "benefit_bladder_title": "שליטה טובה יותר בשלפוחית",
+    "benefit_confidence_desc": "התקדמות שנבנית שבוע אחרי שבוע.",
+    "benefit_confidence_title": "ביטחון מתמשך",
+    "benefit_core_desc": "עוזר ליציבה ולגב התחתון.",
+    "benefit_core_title": "ליבה נתמכת",
+    "benefit_performance_desc": "יותר שליטה וסיבולת באינטימיות.",
+    "benefit_performance_title": "ביצועים חזקים יותר",
     "doingItRightIsEverything": "הביצוע הנכון הוא העיקר",
     "learnItOnceAndEvery": "תלמד את זה פעם אחת, ומאז כל דקת אימון באמת נחשבת.",
     "squeezeTheWrongMusclesAnd": "אם תכווץ את השרירים הלא נכונים, לא תקבל מזה כלום.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "אם תצא עכשיו, האימון הזה לא ייספר בהתקדמות היומית שלך.",
     "leaveTraining": "לצאת מהאימון?",
     "noExercises": "אין תרגילים",
+    "noExercisesBody": "אין תרגילים פתוחים לאימון הזה.",
+    "noExercisesTitle": "אין תרגילים",
     "noGoBack": "לא, חזרה",
     "pause": "השהה",
     "resume": "המשך",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "כן, סיים את האימון"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "אתה כבר ברמה הקלה ביותר.",
+    "alreadyHighestLevel": "אתה כבר ברמה הגבוהה ביותר.",
     "continue": "המשך",
     "howWasThat": "איך היה?",
     "justRight": "בדיוק כמו שצריך",
+    "keepGoing": "מעולה! ממשיכים.",
+    "levelUp": "עלית רמה! אתה עכשיו ב{{level}}.",
+    "monthNumber": "חודש {{number}}",
     "newExerciseUnlocked": "נפתח תרגיל חדש!",
     "nextToUnlock": "הבא שייפתח",
     "notNow": "לא עכשיו",
+    "steppedDown": "חזרת ל{{level}}. אתה תסתדר!",
     "tooEasy": "קל מדי",
     "tooHard": "קשה מדי",
-    "tryItNow": "נסה עכשיו"
+    "tryItNow": "נסה עכשיו",
+    "unlockedList": "נפתח: {{names}}"
   }
 }

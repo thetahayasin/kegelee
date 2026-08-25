@@ -117,7 +117,7 @@ export const ScheduleScreen = () => {
 
   const addTime = () => {
     if (times.length >= 5) {
-      Alert.alert('Limit reached', 'You can set up to 5 reminder times per day.');
+      Alert.alert(t('schedule.limitReachedTitle'), t('schedule.limitReachedBody'));
       return;
     }
     setTimes([...times, '08:00']);
@@ -185,7 +185,7 @@ export const ScheduleScreen = () => {
       }
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'Failed to save reminders.');
+      Alert.alert(t('schedule.errorTitle'), t('schedule.failedToSaveReminders'));
     } finally {
       setSavingReminders(false);
     }
@@ -236,8 +236,10 @@ export const ScheduleScreen = () => {
         <View style={styles.calendarCard}>
           <View style={styles.calendarHeader}>
             <View>
-              <Text style={styles.monthTitle}>Month {position.month}</Text>
-              <Text style={styles.monthSubtitle}>{position.days_left} days left</Text>
+              <Text style={styles.monthTitle}>{t('schedule.monthNumber', { number: position.month })}</Text>
+              <Text style={styles.monthSubtitle}>
+                {t('schedule.daysLeft', { count: position.days_left })}
+              </Text>
             </View>
             <View style={styles.statusRow}>
               <View style={styles.statusDot} />
@@ -325,7 +327,7 @@ export const ScheduleScreen = () => {
                   <View style={styles.timesList}>
                     {times.map((time, idx) => (
                       <View key={idx} style={styles.timeRow}>
-                        <Text style={styles.timeRowLabel}>Session {idx + 1}</Text>
+                        <Text style={styles.timeRowLabel}>{t('schedule.sessionNumber', { number: idx + 1 })}</Text>
 
                         <TouchableOpacity
                           style={styles.timeInputContainer}

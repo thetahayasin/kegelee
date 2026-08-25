@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Kullanılabilir",
-    "exercises": "Egzersizler"
+    "backA11y": "Geri",
+    "exercises": "Egzersizler",
+    "unlockProgressA11y": "{{name}} kilit açma ilerlemesi"
+  },
+  "basics": {
+    "findTitle": "Pelvik tabanını bul",
+    "firstTitle": "İlk egzersizin",
+    "whyTitle": "Kegel antrenmanı neden işe yarar"
+  },
+  "billing": {
+    "alreadyOwned": "Zaten aktif bir aboneliğin var. Şimdi geri yüklüyoruz.",
+    "configuration": "Bu paket şu anda satın alınamıyor. Sorun bizde - daha sonra tekrar dene veya destekle iletişime geç.",
+    "declined": "Google Play ödemeyi reddetti. Google hesabındaki ödeme yöntemini kontrol edip tekrar dene.",
+    "ineligible": "Bu teklif için uygun değilsin. Başka bir paket seç.",
+    "network": "Mağazaya ulaşamadık. Bağlantını kontrol edip tekrar dene. Ücret alındıysa erişimin kendiliğinden görünecek.",
+    "noPermission": "Google hesabının bu cihazda satın alma izni yok.",
+    "notAllowed": "Bu cihazın veya Google hesabının satın alma izni yok. Bu genelde ebeveyn denetimi ya da hesapta ödeme yöntemi olmamasıdır.",
+    "operationInProgress": "Zaten devam eden bir satın alma var. Tekrar denemeden önce biraz bekle.",
+    "otherAccount": "Bu abonelik başka bir hesaba ait. O hesapla giriş yap veya destekle iletişime geç, biz aktaralım.",
+    "paymentPending": "Google Play ödemeni işliyor. Nakit ve kupon ödemeleri biraz sürebilir. Ödeme geçtiği anda erişimin otomatik olarak açılır, bu yüzden lütfen tekrar ödeme yapma.",
+    "storeProblem": "Google Play şu anda sorun yaşıyor. Birkaç dakika sonra tekrar dene.",
+    "unknown": "Satın alman tamamlanırken bir şeyler ters gitti. Tekrar dene. Ücret alındıysa erişimin kendiliğinden görünecek."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Yavaşça kurulan ve aynı yavaşlıkta bırakılan sıkı bir kasılma.",
+        "howTo": "Daire dolarken 3 saniye boyunca yavaşça sık, sonra daire boşalırken aynı yavaşlıkta bırak. Hareketi her iki yönde de akıcı tut.",
+        "name": "Kıskaç",
+        "summary": "Yavaş yukarı, yavaş aşağı"
+      },
+      "downstairs": {
+        "description": "Zirveye kadar kas, sonra tam kontrol altında basamak basamak in.",
+        "howTo": "En güçlü noktana kadar kas, sonra inişte her basamakta yaklaşık bir saniye durarak azar azar gevşe. Kontrollü iniş, egzersizin kendisidir.",
+        "name": "Merdiven inişi",
+        "summary": "Zirveden 4 basamakta iniş"
+      },
+      "elevator": {
+        "description": "İmza egzersiz. Basamak basamak yukarı çık, sonra kontrollü şekilde geri in.",
+        "howTo": "Asansörde olduğunu hayal et. En güçlü kasılmana ulaşana kadar her basamakta biraz daha sıkı kas, sonra tamamen gevşeyene kadar basamak basamak in.",
+        "name": "Asansör",
+        "summary": "Zirveye tırman, sonra basamak basamak in"
+      },
+      "flash": {
+        "description": "En hızlı kasılmalar. Hızlı tepkiyi çalıştıran kısa ve keskin sıkmalar.",
+        "howTo": "Dairenin ritmine uyarak yapabildiğin kadar hızlı kas ve bırak. Hafif kal, zorlama.",
+        "name": "Şimşek",
+        "summary": "En hızlı kasılmalar"
+      },
+      "front-clamp": {
+        "description": "Pelvik tabanın ön kısmının yavaş ve odaklı kasılması, ardından hızlı ve temiz bir bırakış.",
+        "howTo": "Daire dolarken 3 saniye boyunca yavaşça sık. Daire boşaldığında hepsini bir anda bırak. Sonra bir sonraki yavaş kasılmaya başla.",
+        "name": "Ön kıskaç",
+        "summary": "Yavaşça sık, bir anda bırak"
+      },
+      "holding": {
+        "description": "Pelvik tabanda temel dayanıklılığı geliştirmek için kas ve tutmaya devam et.",
+        "howTo": "Pelvik tabanını kas ve tur boyunca tut. Gerginlik azalırsa nazikçe tekrar kas. Normal nefes almayı sürdür.",
+        "name": "Tutuş",
+        "summary": "Tek bir düzenli tutuş"
+      },
+      "long-steady-clamp": {
+        "description": "Dayanıklılık geliştirici: bir saniyelik kasılmanın on saniyelik tam güç tutuşa dönüşmesi.",
+        "howTo": "Bir saniye sık, sonra on saniye tam güçle tut. Gerginlik azalırsa nazikçe tekrar tam güce çık. Bırak ve tekrarla.",
+        "name": "Uzun düzenli kıskaç",
+        "summary": "1 saniye kasılma, 10 saniye tutuş"
+      },
+      "pulsation": {
+        "description": "Arka arkaya iki hızlı kasılma, ardından tam bir bırakış. Tam toparlanmadan yeniden kasılmayı ve efor aralarında düzgün bırakmayı çalıştırır.",
+        "howTo": "Daireyle birlikte arka arkaya iki kez kas ve bırak, sonra dinlenme sırasında her şeyi tamamen bırak. Tam bırakış, vuruşlar kadar önemlidir.",
+        "name": "Çift vuruş",
+        "summary": "İki hızlı vuruş, sonra tam dönüş"
+      },
+      "push": {
+        "description": "Kasılmayı güçlü bir zirveye kadar kur, orada tut, sonra yavaşça bırak.",
+        "howTo": "Daire dolarken güçlenerek üç saniye boyunca kademeli olarak sık. En güçlü kasılmanı iki saniye tut, sonra yavaşça bırak. Daha sıkı kas, asla aşağı doğru ıkınma.",
+        "name": "İtiş",
+        "summary": "3 sn kurulum, 2 sn zirve, 3 sn gevşeme"
+      },
+      "reverse-clamp": {
+        "description": "Hızlı bir kasılmanın ardından yavaş ve kontrollü bir bırakış. Kontrol için mükemmel.",
+        "howTo": "Bir anda sık, sonra hemen daireyi aşağı doğru takip ederek yapabildiğin kadar yavaş bırakmaya başla. Yavaş bırakış, egzersizin kendisidir.",
+        "name": "Ters kıskaç",
+        "summary": "Bir anda sık, yavaşça bırak"
+      },
+      "short-holding": {
+        "description": "Düşürülmek yerine yavaşça bırakılan güçlü bir 4 saniyelik tutuş. Kontrollü bırakmak başlı başına bir beceridir ve çoğu kişi bunu tutuşun kendisinden daha zor bulur.",
+        "howTo": "Bir saniyede sık, dört saniye tam güçle tut, sonra daire alçalırken kademeli olarak bırak. Çökmesine izin verme: sonuna kadar ona eşlik et.",
+        "name": "Kısa tutuş",
+        "summary": "4 saniye tut, sonra kademeli bırak"
+      },
+      "starter": {
+        "description": "Kası uyandırmak için tek bir hızlı kasılma, ardından güçlü bir 5 saniyelik tutuş.",
+        "howTo": "Tek bir hızlı kasılma yap, yumuşakça gevşe, sonra tekrar kas ve beş saniye güçlü tut. Bırak, nefes al ve tekrarla.",
+        "name": "Çalıştırma",
+        "summary": "Hızlı kasılma, sonra 5 saniye tutuş"
+      },
+      "steady-clamp": {
+        "description": "Düzenli bir kıskaç: bir saniye kas, sonra beş saniye tam güçle tut.",
+        "howTo": "Bir saniye sık, sonra gerginliğin düşmesine izin vermeden beş saniye tam güçle tut. Bırak ve tekrarla.",
+        "name": "Düzenli kıskaç",
+        "summary": "1 saniye kasılma, 5 saniye tutuş"
+      },
+      "steady-trembling": {
+        "description": "Bir anda kas, gerginliği birkaç saniye sabit tut, sonra gevşe.",
+        "howTo": "Bir anda kas ve gerginliği koru. Daire düştüğünde yumuşakça bırak. Sonra hızlı kasılmayı ve tutuşu tekrarla.",
+        "name": "Düzenli titreme",
+        "summary": "Bir anda sık, tut, sonra gevşe"
+      },
+      "trembling": {
+        "description": "Kası titreten ve hızlı tepkisini uyandıran hızlı kasılma ve gevşemeler.",
+        "howTo": "Hepsini birden kas, bir an tut, sonra yumuşakça bırak. Daire hızla yükselip usulca inerken onu takip et.",
+        "name": "Titreme",
+        "summary": "Hızlı kasılmalar, aç ve kapa"
+      },
+      "upstairs": {
+        "description": "Kasılmayı dört basamakta yükselt, her seviyede biraz daha güçlü.",
+        "howTo": "Asansörle yukarı çıktığını hayal et. Biraz kas, sonra daha fazla, sonra daha da fazla, en güçlü kasılmana ulaşana kadar, her basamakta yaklaşık bir saniye kal. Sonra gevşe.",
+        "name": "Merdiven çıkışı",
+        "summary": "4 basamakta zirveye tırmanış"
+      },
+      "waves": {
+        "description": "Gerginliği kesintisiz kuran ve bırakan dalga benzeri kasılmalar.",
+        "howTo": "İki saniye boyunca yavaşça sık, sonra yükselip alçalan bir dalga gibi aynı yavaşlıkta bırak. Akıcı ve kesintisiz tut.",
+        "name": "Dalgalar",
+        "summary": "2 saniye yukarı, 2 saniye aşağı"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Yumuşak başlangıç. Kısa, 1 dakikalık seanslar.",
+        "name": "Seviye 1"
+      },
+      "2": {
+        "description": "Biraz daha uzun. 2 dakikalık seanslar.",
+        "name": "Seviye 2"
+      },
+      "3": {
+        "description": "Dengeli antrenman. 3 dakikalık seanslar.",
+        "name": "Seviye 3"
+      },
+      "4": {
+        "description": "Daha güçlü kaslar için daha uzun seanslar. 4 dakika.",
+        "name": "Seviye 4"
+      },
+      "5": {
+        "description": "İleri düzey dayanıklılık ve kontrol. 5 dakika.",
+        "name": "Seviye 5"
+      }
+    },
+    "steps": {
+      "contract": "Kas",
+      "contractAndHold": "Kas ve tut",
+      "contractSlowly": "Yavaşça kas",
+      "easeDown": "Kademeli bırak",
+      "hold": "Tut",
+      "pulse1": "Vuruş 1",
+      "pulse2": "Vuruş 2",
+      "relax": "Gevşe",
+      "relaxSlowly": "Yavaşça gevşe",
+      "release": "Bırak",
+      "releaseSlowly": "Yavaşça bırak",
+      "reset": "Başa dön",
+      "rest": "Dinlenme",
+      "step1": "Basamak 1",
+      "step2": "Basamak 2",
+      "step3": "Basamak 3",
+      "top": "Zirvede"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Bir şeyler ters gitti",
@@ -9,48 +177,94 @@
     "tryAgain": "Tekrar dene"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Kilidi açmak için {{count}} antrenman günü daha tamamla.",
+    "completeMoreDaysToUnlock_other": "Kilidi açmak için {{count}} antrenman günü daha tamamla.",
     "exerciseNotFound": "Egzersiz bulunamadı.",
+    "lockedDaysLeft_one": "Kilitli - {{count}} gün kaldı",
+    "lockedDaysLeft_other": "Kilitli - {{count}} gün kaldı",
     "tryItNow": "Hemen dene"
   },
   "find": {
+    "flow_stopMidway": "Yarıda durdur",
+    "flow_thatSqueeze": "İşte o kasılma!",
+    "flow_youPee": "İdrara çıkıyorsun",
     "keepGoing": "Devam et …",
     "onlyDoThePeeTest": "İdrar testini yalnızca bir kez yap",
+    "onlyDoThePeeTestDesc": "Bu sadece kasları bulmanın bir yolu, bir egzersiz değil. Akışı sık sık durdurmak mesanen için iyi değildir.",
+    "pressAndHold": "Basılı tut",
+    "squeezeNow": "Kas!",
     "squeezeOnlyThoseMuscles": "Yalnızca o kasları sık",
+    "squeezeOnlyThoseMusclesDesc": "Başka bir ipucu: gaz tutuyormuş gibi kas. Karın, bacaklar ve kalçalar tamamen gevşek kalır.",
+    "stopTheFlowBody": "Bir dahaki idrara çıkışında akışı yarı yolda nazikçe durdur. Az önce kullandığın kaslar pelvik tabanın.",
     "thatExactSqueezeIsThe": "İşte tam olarak bu sıkma hareketi çalıştıracağın harekettir.",
     "theEasiestWayToFind": "Onları bulmanın en kolay yolu",
-    "twoQuickRules": "İki kısa kural"
+    "tryItNow": "Şimdi dene",
+    "tryItNowBody": "Daireye basılı tut. Tutarken o kasları sık. Aynı anda bırak.",
+    "twoQuickRules": "İki kısa kural",
+    "youFoundThem": "Onları buldun!",
+    "youFoundThemBody": "O kasılma ve bırakma, bir Kegel egzersizinin tamamıdır. İlk egzersizin için hazırsın."
   },
   "first": {
     "contract": "Sık",
+    "followTheCircle": "Daireyi takip et. Kas... ve gevşe.",
+    "niceWork": "Güzel iş!",
+    "nowYouTry": "Şimdi sıra sende",
     "start": "Başla",
+    "tenSecondsReady": "On saniye {{exercise}}. Her {{contract}} işaretinde kas, {{relax}} işaretinde bırak. Hazır mısın?",
+    "thatWasARealExercise": "Bu gerçek bir egzersizdi. Her seans tam olarak böyle işler, her seferinde bir daire.",
     "theCircleIsYourGuide": "Daire sana rehberlik eder",
+    "theCircleIsYourGuideBody": "Her egzersiz bu daireyi izler. Daire parlayıp büyüdüğünde kas. Parıltı söndüğünde gevşe. İçindeki kelime sana her zaman ne yapacağını söyler.",
     "thisIsTrembling": "Bu Titreme",
     "yourFirstExerciseQuickFlicks": "İlk egzersizin: hızlı sıkmalar. Sık dediğinde sık, Gevşe dediğinde bırak."
   },
   "knowledge": {
     "continueToTraining": "Antrenmana devam et",
     "learnTheBasics": "Temelleri öğren",
+    "lessonNumber": "Ders {{number}}",
     "logIn": "Giriş yap"
   },
   "login": {
     "6DigitCode": "6 haneli kod",
     "close": "Kapat",
+    "codeSentEnterBelow": "Kod gönderildi! Yeni bir şifreyle birlikte aşağıya girin.",
     "continueWithGoogle": "Google ile devam et",
+    "couldNotOpenGoogle": "Google girişi açılamadı. Tekrar deneyin.",
     "createAccount": "Hesap oluştur",
     "email": "E-posta",
-    "enterYourEmail": "E-postanı gir",
+    "enterSixDigitCode": "E-postandaki 6 haneli kodu gir.",
+    "enterYourEmail": "E-posta adresinizi girin.",
+    "failedToResetPassword": "Şifre sıfırlanamadı.",
+    "failedToSendResetCode": "Sıfırlama kodu gönderilemedi.",
+    "fillAllFields": "Tüm alanları doldurun.",
     "forgotPassword": "Şifreni mi unuttun?",
+    "googleSignInFailed": "Google ile giriş başarısız oldu. Tekrar deneyin.",
+    "invalidCredentials": "Geçersiz giriş bilgileri.",
     "logIn": "Giriş yap",
     "logIn2": "Giriş yap",
     "newHere": "Yeni misin?",
     "newPassword": "Yeni şifre",
     "password": "Şifre",
     "passwordReset": "Şifre sıfırlandı",
-    "resetPassword": "Şifreyi sıfırla"
+    "passwordResetBody": "Şifreniz sıfırlandı. Lütfen giriş yapın.",
+    "passwordResetTitle": "Şifre sıfırlandı",
+    "passwordRules": "Şifre en az 6 karakter olmalı ve bir rakam içermelidir.",
+    "resetPassword": "Şifreyi sıfırla",
+    "resetPasswordCta": "Şifreyi sıfırla",
+    "sendCodeCta": "Kod gönder"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Zaten hesabın var mı?",
-    "logIn": "Giriş yap"
+    "getStarted": "Başla",
+    "logIn": "Giriş yap",
+    "perDay": "GÜNDE",
+    "slide1Body": "Kimse bunlardan bahsetmiyor. Hepsi tek bir zayıf kasa dayanıyor ve zayıf bir kas yeniden çalıştırılabilir.",
+    "slide1Title": "Kaçırma. Ani sıkışma. Daha az kontrol.",
+    "slide2Body": "Spor salonu yok, ekipman yok, çıkaracak bir şey yok. Koltukta, masa başında, otobüste. Kimse fark etmez.",
+    "slide2Title": "Bir dakika, oturduğun yerden",
+    "slide3Body": "Uygulama ne kadar tutabildiğini ölçer. Süreler yükselir, yeni egzersizler açılır ve değişim tam istediğin yerde kendini gösterir.",
+    "slide3Title": "Görmeden önce hissedersin",
+    "slide4Body": "Bırakırsan kas geri gevşer, her antrenmanda olduğu gibi. Bir saat seç, gerisini hatırlatıcı halleder.",
+    "slide4Title": "Sadece devam edersen işe yarar"
   },
   "paywall": {
     "autoRenewOffHint": "Otomatik yenileme kapalı. Erişimin bitiş tarihinde sona erecek.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "İlerlemeni ölç",
     "benefitReminders": "Gününe uyan hatırlatıcılar kur",
     "benefitStrength": "Pelvik tabanda gerçek güç kazan",
+    "bestValue": "EN İYİ FİYAT",
     "billingIsNotAvailableOn": "Bu cihazda ödeme kullanılamıyor. Aşağıdan önceki bir satın alımı geri yükleyebilirsin.",
     "byContinuingYouAgree": "Devam ederek şunları kabul edersin:",
     "changeYourPlan": "Planını değiştir",
@@ -72,6 +287,7 @@
     "managePlan": "Planı yönet",
     "noActiveSubscriptionWasFound": "Geri yüklenecek etkin abonelik bulunamadı.",
     "off": "Kapalı",
+    "offeringsUnavailable": "Abonelikler şu anda bu cihazda kullanılamıyor. Daha sonra tekrar deneyin veya aşağıdan önceki bir satın almayı geri yükleyin.",
     "on": "Açık",
     "paymentProcessedSecurely": "Ödeme, onay sırasında RevenueCat ve uygulama mağazası üzerinden güvenle alınır.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Satın alma alındı ancak plan eşleştirilemedi. Destek ile iletişime geç.",
     "restorePurchases": "Satın alımları geri yükle",
     "restoredPurchaseCouldNotBe": "Geri yüklenen satın alma bir planla eşleştirilemedi. Destek ile iletişime geç.",
+    "savePercent": "%{{percent}} TASARRUF",
     "signInFirst": "Abone olmadan önce giriş yap.",
     "startFreeTrialCta_one": "{{count}} Günlük Ücretsiz Denemeyi Başlat",
     "startFreeTrialCta_other": "{{count}} Günlük Ücretsiz Denemeyi Başlat",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Uygulamayı kaldırmak aboneliği iptal etmez ve para iadesi sağlamaz.",
     "yourSubscriptionIsNowActive": "Aboneliğin etkin ve tüm içeriğe erişimin açıldı."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Tam erişim, aylık faturalandırılır.",
+      "name": "1 ay"
+    },
+    "premium-quarterly": {
+      "description": "3 ayda bir faturalandırılır.",
+      "name": "3 ay"
+    },
+    "premium-yearly": {
+      "description": "Tüm yıl için tek ödeme.",
+      "name": "1 yıl"
+    }
+  },
   "profile": {
     "currentDifficulty": "Mevcut zorluk",
     "difficulty": "Zorluk",
     "error": "Hata",
+    "errorTitle": "Hata",
+    "failedToUpdateLevel": "Antrenman seviyesi güncellenemedi.",
     "profile": "Profil",
     "scheduleReminders": "Program ve hatırlatıcılar",
     "setTheDifficultyOfKegel": "Kegel antrenman programının zorluğunu ayarla",
+    "settingsA11y": "Ayarlar",
     "theHigherTheLevelThe": "Seviye yükseldikçe antrenman zorlaşır"
   },
   "progress": {
+    "bestResult": "en iyi sonuç",
     "continue": "Devam et",
     "holdTheButtonAndContract": "Düğmeyi basılı tut ve pelvik taban kaslarını olabildiğince uzun süre sık.",
+    "lastMeasurement": "son ölçüm",
     "progressTracker": "İlerleme takibi",
+    "seconds": "{{count}} sn",
     "takeMeasurement": "Ölçüm yap",
+    "today": "Bugün",
+    "topResult": "en iyi sonuç: {{count}} sn",
     "tryAgain": "Tekrar dene"
   },
   "register": {
     "alreadyHaveAnAccount": "Zaten hesabın var mı?",
     "confirmPassword": "Şifreyi onayla",
     "continueWithGoogle": "Google ile devam et",
+    "couldNotOpenGoogle": "Google kaydı açılamadı. Tekrar deneyin.",
     "createAccount": "Hesap oluştur",
     "createAccount2": "Hesap oluştur",
     "email": "E-posta",
+    "fillAllFields": "Tüm alanları doldurun.",
+    "googleSignUpFailed": "Google ile kayıt başarısız oldu. Tekrar deneyin.",
     "logIn": "Giriş yap",
     "name": "Ad",
-    "password": "Şifre"
+    "password": "Şifre",
+    "passwordNeedsNumber": "Şifre en az bir rakam içermelidir.",
+    "passwordTooShort": "Şifre en az 6 karakter olmalıdır.",
+    "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
+    "registrationFailed": "Kayıt başarısız oldu."
+  },
+  "reminders": {
+    "notificationBody": "Günlük Kegel seansının vakti geldi!",
+    "notificationTitle": "Kegel Antrenmanı"
   },
   "schedule": {
     "active": "Etkin",
     "allowExactReminders": "Tam zamanlı hatırlatıcılara izin ver",
+    "daysLeft_one": "{{count}} gün kaldı",
+    "daysLeft_other": "{{count}} gün kaldı",
     "error": "Hata",
+    "errorTitle": "Hata",
+    "failedToSaveReminders": "Hatırlatıcılar kaydedilemedi.",
     "limitReached": "Sınıra ulaşıldı",
+    "limitReachedBody": "Günde en fazla 5 hatırlatıcı ayarlayabilirsin.",
+    "limitReachedTitle": "Sınıra ulaşıldı",
+    "monthNumber": "{{number}}. ay",
     "reminders": "Hatırlatıcılar",
     "remindersSaved": "Hatırlatıcılar kaydedildi",
     "repeatOn": "Şu günlerde tekrarla",
     "saveAddReminders": "Hatırlatıcıları kaydet",
     "schedule": "Program",
+    "sessionNumber": "{{number}}. seans",
     "sessionTimes": "Seans saatleri"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Hesap silinsin mi?",
     "deletePermanently": "Kalıcı olarak sil",
     "deleted": "Silindi",
+    "deletedBody": "Hesabın kalıcı olarak silindi.",
+    "deletedTitle": "Silindi",
+    "failedToDeleteAccount": "Hesap silinemedi.",
     "gotIt": "Anladım",
     "language": "Dil",
     "logOut": "Çıkış yap",
     "manageSubscription": "Aboneliği yönet",
     "noActiveSubscription": "Etkin abonelik yok",
     "reset": "Sıfırla",
+    "resetConfirmBody": "Bu işlem antrenman günlerini, seanslarını, ölçümlerini ve ders ilerlemeni temizler. Bu işlem geri alınamaz.",
     "resetProgress": "İlerlemeyi sıfırla",
     "resetProgress2": "İlerleme sıfırlansın mı?",
+    "resetSuccessBody": "Antrenman ilerlemen temizlendi.",
+    "resetSuccessTitle": "Sıfırlandı",
     "resetSuccessful": "Sıfırlama başarılı",
     "restartBody": "Yerleşim yönünü değiştirmeyi tamamlamak için uygulamayı kapatıp yeniden aç.",
     "restartRequired": "Yeniden başlatma gerekli",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Zaten hesabın var mı? Giriş yap",
     "back": "Geri",
+    "bestValue": "EN İYİ FİYAT",
+    "billingDisclosure": "Ödeme, onay sırasında RevenueCat ve uygulama mağazası üzerinden güvenli şekilde işlenir. Aboneliğiniz, abonelik ayarlarınızdan iptal edene kadar gösterilen fiyattan otomatik olarak yenilenir; uygulamayı kaldırmak aboneliği iptal etmez ve para iadesi sağlamaz. Devam ederek şunları kabul edersiniz:",
     "close": "Kapat",
     "confirmPassword": "Şifreyi onayla",
     "continue": "Devam et",
     "continueWithGoogle": "Google ile devam et",
+    "couldNotOpenGoogle": "Google girişi açılamadı. Tekrar deneyin.",
     "couldNotOpenGoogleSign": "Google girişi açılamadı. Lütfen tekrar dene.",
+    "couldNotReachServer": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+    "createAccount": "Hesap oluştur",
     "createAccountSubscribe": "Hesap oluştur ve abone ol",
     "creatingAccount": "Hesap oluşturuluyor …",
     "emailAddress": "E-posta adresi",
+    "emailInvalid": "Geçerli bir e-posta adresi girin.",
+    "emailOrPasswordIncorrect": "E-posta veya şifre hatalı.",
+    "emailRequired": "E-posta gereklidir.",
     "fullName": "Ad soyad",
+    "googleSignInFailed": "Google ile giriş başarısız oldu. Tekrar deneyin.",
+    "nameRequired": "Ad gereklidir.",
     "noAccountYetCreateOne": "Henüz hesabın yok mu? Oluştur",
     "password": "Şifre",
     "password6Characters1Number": "Şifre (en az 6 karakter, 1 rakam)",
+    "passwordRequired": "Şifre gereklidir.",
+    "passwordRules": "Şifre en az 6 karakter olmalı ve bir rakam içermelidir.",
+    "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
+    "signIn": "Giriş yap",
     "signInSubscribe": "Giriş yap ve abone ol",
     "signingIn": "Giriş yapılıyor …",
     "startYourTransformationJourneyNow": "Değişimine hemen başla",
     "subscribe": "Abone ol",
     "terms": "Koşullar"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "İlerleme",
+    "schedule": "Program",
+    "training": "Antrenman"
   },
   "training": {
     "available": "Kullanılabilir",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Girişe dön",
+    "codeResent": "Doğrulama kodu tekrar gönderildi!",
     "didnTReceiveTheCode": "Kod gelmedi mi? Yeniden gönder",
+    "enterSixDigitCode": "6 haneli bir doğrulama kodu girin.",
+    "failedToResendCode": "Kod tekrar gönderilemedi.",
+    "verificationFailed": "Doğrulama başarısız oldu. Tekrar deneyin.",
     "verifyCode": "Kodu doğrula",
     "verifyEmail": "E-postayı doğrula"
   },
   "why": {
     "aMuscleYouCanTrain": "Çalıştırabileceğin bir kas",
+    "aRealMuscleBody": "Pelvik tabanın gerçek bir kastır. Günde birkaç dakika çalıştır, tıpkı diğer antrenmanlarda olduğu gibi güçlenir. Hap yok, yan etki yok ve sonuçlar kalıcı.",
     "andYouCanDoIt": "Üstelik her yerde, her zaman yapabilirsin. Otururken, ayaktayken, otobüste. Kimse fark etmez.",
+    "benefit_bladder_desc": "Daha az kaçırma ve daha az ani sıkışma.",
+    "benefit_bladder_title": "Daha iyi mesane kontrolü",
+    "benefit_confidence_desc": "Hafta hafta artan kazanımlar.",
+    "benefit_confidence_title": "Kalıcı özgüven",
+    "benefit_core_desc": "Duruşa ve bel bölgesine yardımcı olur.",
+    "benefit_core_title": "Desteklenmiş bir merkez",
+    "benefit_performance_desc": "Yakınlıkta daha fazla kontrol ve dayanıklılık.",
+    "benefit_performance_title": "Daha güçlü performans",
     "doingItRightIsEverything": "Doğru yapmak her şeydir",
     "learnItOnceAndEvery": "Bir kez öğren, sonra her antrenman dakikası gerçekten işe yarar.",
     "squeezeTheWrongMusclesAnd": "Yanlış kasları sıkarsan hiçbir şey elde edemezsin.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Şimdi çıkarsan bu seans günlük ilerlemene sayılmaz.",
     "leaveTraining": "Antrenmandan çıkılsın mı?",
     "noExercises": "Egzersiz yok",
+    "noExercisesBody": "Bu seans için açılmış egzersiz yok.",
+    "noExercisesTitle": "Egzersiz yok",
     "noGoBack": "Hayır, geri dön",
     "pause": "Duraklat",
     "resume": "Devam et",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Evet, antrenmandan çık"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Zaten en kolay seviyedesin.",
+    "alreadyHighestLevel": "Zaten en yüksek seviyedesin.",
     "continue": "Devam et",
     "howWasThat": "Nasıldı?",
     "justRight": "Tam kıvamında",
+    "keepGoing": "Harika! Devam ediyoruz.",
+    "levelUp": "Seviye atladın! Artık {{level}} seviyesindesin.",
+    "monthNumber": "{{number}}. ay",
     "newExerciseUnlocked": "Yeni egzersiz açıldı!",
     "nextToUnlock": "Sırada açılacak",
     "notNow": "Şimdi değil",
+    "steppedDown": "{{level}} seviyesine döndün. Bunu başarabilirsin!",
     "tooEasy": "Çok kolay",
     "tooHard": "Çok zor",
-    "tryItNow": "Hemen dene"
+    "tryItNow": "Hemen dene",
+    "unlockedList": "Açıldı: {{names}}"
   }
 }

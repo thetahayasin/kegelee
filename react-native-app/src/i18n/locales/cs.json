@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Dostupné",
-    "exercises": "Cviky"
+    "backA11y": "Zpět",
+    "exercises": "Cviky",
+    "unlockProgressA11y": "Postup odemykání: {{name}}"
+  },
+  "basics": {
+    "findTitle": "Najdi své pánevní dno",
+    "firstTitle": "Tvůj první cvik",
+    "whyTitle": "Proč Kegelovy cviky fungují"
+  },
+  "billing": {
+    "alreadyOwned": "Už máš aktivní předplatné. Právě ho obnovujeme.",
+    "configuration": "Tento tarif teď nelze koupit. Je to problém na naší straně - zkus to později, nebo se ozvi podpoře.",
+    "declined": "Google Play platbu odmítl. Zkontroluj platební metodu na svém účtu Google a zkus to znovu.",
+    "ineligible": "Na tuto nabídku nemáš nárok. Vyber si jiný tarif.",
+    "network": "Nepodařilo se spojit s obchodem. Zkontroluj připojení a zkus to znovu. Pokud ti bylo účtováno, přístup se objeví sám.",
+    "noPermission": "Tvůj účet Google nemá na tomto zařízení oprávnění k nákupům.",
+    "notAllowed": "Toto zařízení nebo účet Google nesmí nakupovat. Obvykle je to rodičovská kontrola nebo chybějící platební metoda na účtu.",
+    "operationInProgress": "Nákup už probíhá. Chvilku počkej, než to zkusíš znovu.",
+    "otherAccount": "Toto předplatné patří jinému účtu. Přihlas se tím účtem, nebo se ozvi podpoře a převedeme ho.",
+    "paymentPending": "Google Play zpracovává tvoji platbu. Platby v hotovosti a poukazem mohou chvíli trvat. Přístup se odemkne automaticky, jakmile projde, takže neplať znovu.",
+    "storeProblem": "Google Play má právě potíže. Zkus to znovu za pár minut.",
+    "unknown": "Při dokončování nákupu se něco pokazilo. Zkus to znovu. Pokud ti bylo účtováno, přístup se objeví sám."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Pevný stah budovaný pomalu a povolovaný stejně pomalu.",
+        "howTo": "Stahuj pomalu po dobu 3 sekund, zatímco se kruh plní, a pak stejně pomalu povoluj, jak se vyprazdňuje. Udrž pohyb plynulý v obou směrech.",
+        "name": "Svorka",
+        "summary": "Pomalu nahoru, pomalu dolů"
+      },
+      "downstairs": {
+        "description": "Stáhni až na vrchol a pak sestupuj po jednom stupni s plnou kontrolou.",
+        "howTo": "Stáhni na maximum a pak uvolňuj po troškách, na každém stupni cestou dolů se zastav asi na sekundu. Ten kontrolovaný sestup je vlastní cvik.",
+        "name": "Po schodech dolů",
+        "summary": "Sestup z vrcholu ve 4 stupních"
+      },
+      "elevator": {
+        "description": "Vlajkový cvik. Stoupej stupeň po stupni a pak se pod kontrolou vrať dolů.",
+        "howTo": "Představ si, že jedeš výtahem. Na každém stupni stáhni o něco silněji, až dosáhneš svého nejsilnějšího stahu, a pak sestupuj po jednom stupni až do úplného uvolnění.",
+        "name": "Výtah",
+        "summary": "Vystoupej na vrchol a pak sestup zpátky"
+      },
+      "flash": {
+        "description": "Nejrychlejší stahy. Krátká, svižná stažení, která trénují rychlou reakci.",
+        "howTo": "Stahuj a pouštěj tak rychle, jak dokážeš, v rytmu kruhu. Zůstaň lehký, netlač.",
+        "name": "Záblesk",
+        "summary": "Nejrychlejší stahy"
+      },
+      "front-clamp": {
+        "description": "Pomalý, cílený stah přední části pánevního dna s rychlým a čistým povolením.",
+        "howTo": "Stahuj pomalu po dobu 3 sekund, zatímco se kruh plní. Když se vyprázdní, pusť všechno najednou. Pak začni další pomalý stah.",
+        "name": "Přední svorka",
+        "summary": "Pomalu stáhni, pusť najednou"
+      },
+      "holding": {
+        "description": "Stáhni a drž, abys vybudoval základní vytrvalost pánevního dna.",
+        "howTo": "Stáhni pánevní dno a drž po celé kolo. Když napětí povolí, jemně znovu přitáhni. Dýchej normálně dál.",
+        "name": "Držení",
+        "summary": "Jedno vyrovnané držení"
+      },
+      "long-steady-clamp": {
+        "description": "Budování vytrvalosti: sekundový stah přecházející v desetisekundové držení naplno.",
+        "howTo": "Stáhni na jednu sekundu a pak drž naplno deset sekund. Když napětí povolí, jemně přitáhni zpět na maximum. Pusť a opakuj.",
+        "name": "Dlouhá klidná svorka",
+        "summary": "1 sekunda stahu, 10 sekund držení"
+      },
+      "pulsation": {
+        "description": "Dva rychlé stahy hned po sobě a pak úplné uvolnění. Trénuje opětovné stažení dřív, než se úplně zotavíš, a správné povolení mezi jednotlivými výkony.",
+        "howTo": "Stáhni a pusť dvakrát rychle po sobě v rytmu kruhu a pak během pauzy pusť úplně všechno. Úplné uvolnění je stejně důležité jako pulsy.",
+        "name": "Dvojitý puls",
+        "summary": "Dva rychlé pulsy a pak úplný návrat"
+      },
+      "push": {
+        "description": "Vybuduj stah až k silnému vrcholu, udrž ho a pak pomalu povoluj.",
+        "howTo": "Stahuj postupně po dobu tří sekund a sílí, jak se kruh plní. Udrž svůj nejsilnější stah dvě sekundy a pak pomalu povoluj. Stahuj víc, nikdy netlač dolů.",
+        "name": "Tlak",
+        "summary": "3 s nárůst, 2 s vrchol, 3 s uvolnění"
+      },
+      "reverse-clamp": {
+        "description": "Rychlý stah následovaný pomalým, kontrolovaným povolením. Skvělé pro kontrolu.",
+        "howTo": "Stáhni najednou a hned začni pouštět tak pomalu, jak dokážeš, a sleduj klesající kruh. To pomalé pouštění je vlastní cvik.",
+        "name": "Obrácená svorka",
+        "summary": "Stáhni najednou, pouštěj pomalu"
+      },
+      "short-holding": {
+        "description": "Silné čtyřsekundové držení, které se pomalu povoluje, místo aby spadlo. Kontrolované pouštění je samostatná dovednost a většině lidí dá víc práce než samotné držení.",
+        "howTo": "Stáhni na jednu sekundu, drž naplno čtyři a pak postupně povoluj, jak kruh klesá. Nenech to spadnout: zůstaň u toho celou cestu dolů.",
+        "name": "Krátké držení",
+        "summary": "Drž 4 sekundy, pak postupně povoluj"
+      },
+      "starter": {
+        "description": "Jeden rychlý stah, který probudí sval, a pak silné pětisekundové držení.",
+        "howTo": "Udělej jeden rychlý stah, plynule uvolni, pak znovu stáhni a drž naplno pět sekund. Pusť, nadechni se a opakuj.",
+        "name": "Rozjezd",
+        "summary": "Rychlý stah a pak 5 sekund držení"
+      },
+      "steady-clamp": {
+        "description": "Klidná svorka: stáhni na sekundu a pak drž naplno pět.",
+        "howTo": "Stáhni na jednu sekundu a pak drž naplno pět sekund, aniž bys nechal napětí klesnout. Pusť a opakuj.",
+        "name": "Klidná svorka",
+        "summary": "1 sekunda stahu, 5 sekund držení"
+      },
+      "steady-trembling": {
+        "description": "Stáhni najednou, udrž napětí vyrovnané pár sekund a pak uvolni.",
+        "howTo": "Stáhni najednou a udrž napětí. Když kruh klesne, plynule pusť. Pak zopakuj rychlý stah a držení.",
+        "name": "Klidné chvění",
+        "summary": "Stáhni najednou, drž a uvolni"
+      },
+      "trembling": {
+        "description": "Rychlé stahy a povolení, po kterých sval zavibruje a probudí se jeho rychlá reakce.",
+        "howTo": "Stáhni všechno najednou, chvilku podrž a pak plynule pusť. Sleduj kruh, jak vyskočí nahoru a zase klesne.",
+        "name": "Chvění",
+        "summary": "Rychlé stahy, tam a zpět"
+      },
+      "upstairs": {
+        "description": "Stoupej se stahem ve čtyřech stupních, na každé úrovni o něco silněji.",
+        "howTo": "Představ si, že jedeš výtahem nahoru. Stáhni trochu, pak víc, pak ještě víc, až dosáhneš svého nejsilnějšího stahu, a na každém stupni zůstaň asi sekundu. Potom uvolni.",
+        "name": "Po schodech nahoru",
+        "summary": "Výstup na vrchol ve 4 stupních"
+      },
+      "waves": {
+        "description": "Vlnivé stahy, které nepřetržitě budují a uvolňují napětí.",
+        "howTo": "Stahuj pomalu dvě sekundy a pak stejně pomalu povoluj jako vlna, která se zvedá a klesá. Udrž to plynulé a souvislé.",
+        "name": "Vlny",
+        "summary": "2 sekundy nahoru, 2 sekundy dolů"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Šetrný start. Krátké jednominutové lekce.",
+        "name": "Úroveň 1"
+      },
+      "2": {
+        "description": "O něco delší. Dvouminutové lekce.",
+        "name": "Úroveň 2"
+      },
+      "3": {
+        "description": "Vyvážený trénink. Tříminutové lekce.",
+        "name": "Úroveň 3"
+      },
+      "4": {
+        "description": "Delší lekce pro silnější svaly. 4 minuty.",
+        "name": "Úroveň 4"
+      },
+      "5": {
+        "description": "Pokročilá vytrvalost a kontrola. 5 minut.",
+        "name": "Úroveň 5"
+      }
+    },
+    "steps": {
+      "contract": "Stáhni",
+      "contractAndHold": "Stáhni a drž",
+      "contractSlowly": "Stahuj pomalu",
+      "easeDown": "Postupně povoluj",
+      "hold": "Drž",
+      "pulse1": "Puls 1",
+      "pulse2": "Puls 2",
+      "relax": "Uvolni",
+      "relaxSlowly": "Uvolňuj pomalu",
+      "release": "Pusť",
+      "releaseSlowly": "Pouštěj pomalu",
+      "reset": "Zpět na nulu",
+      "rest": "Pauza",
+      "step1": "Stupeň 1",
+      "step2": "Stupeň 2",
+      "step3": "Stupeň 3",
+      "top": "Vrchol"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Něco se pokazilo",
@@ -9,48 +177,94 @@
     "tryAgain": "Zkusit znovu"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Dokonči ještě {{count}} tréninkový den a odemkneš ho.",
+    "completeMoreDaysToUnlock_other": "Dokonči ještě {{count}} tréninkových dní a odemkneš ho.",
     "exerciseNotFound": "Cvik nebyl nalezen.",
+    "lockedDaysLeft_one": "Zamčeno - zbývá {{count}} den",
+    "lockedDaysLeft_other": "Zamčeno - zbývá {{count}} dní",
     "tryItNow": "Vyzkoušet hned"
   },
   "find": {
+    "flow_stopMidway": "Zastav v půlce",
+    "flow_thatSqueeze": "Přesně tenhle stah!",
+    "flow_youPee": "Močíš",
     "keepGoing": "Jen tak dál …",
     "onlyDoThePeeTest": "Test při močení udělej jen jednou",
+    "onlyDoThePeeTestDesc": "Je to jen způsob, jak svaly najít, ne cvik. Časté zastavování proudu močovému měchýři neprospívá.",
+    "pressAndHold": "Stiskni a podrž",
+    "squeezeNow": "Stáhni!",
     "squeezeOnlyThoseMuscles": "Stahuj jen tyhle svaly",
+    "squeezeOnlyThoseMusclesDesc": "Další vodítko: stáhni se, jako bys zadržoval větry. Břicho, nohy a hýždě zůstávají úplně uvolněné.",
+    "stopTheFlowBody": "Až budeš příště močit, jemně zastav proud v půlce. Svaly, které jsi právě použil, jsou tvoje pánevní dno.",
     "thatExactSqueezeIsThe": "Přesně tenhle stah je pohyb, který budeš trénovat.",
     "theEasiestWayToFind": "Nejjednodušší způsob, jak je najít",
-    "twoQuickRules": "Dvě krátká pravidla"
+    "tryItNow": "Zkus to teď",
+    "tryItNowBody": "Stiskni a podrž kruh. Zatímco držíš, stáhni ty svaly. Pusť najednou.",
+    "twoQuickRules": "Dvě krátká pravidla",
+    "youFoundThem": "Našel jsi je!",
+    "youFoundThemBody": "Ten stah a povolení je všechno, co Kegelův cvik je. Jsi připravený na svůj první cvik."
   },
   "first": {
     "contract": "Stáhni",
+    "followTheCircle": "Sleduj kruh. Stáhni... a povol.",
+    "niceWork": "Skvělá práce!",
+    "nowYouTry": "Teď to zkus ty",
     "start": "Začít",
+    "tenSecondsReady": "Deset sekund cviku {{exercise}}. Stáhni se při každém {{contract}} a pusť při {{relax}}. Připravený?",
+    "thatWasARealExercise": "To byl opravdový cvik. Každá lekce probíhá přesně takhle, jeden kruh po druhém.",
     "theCircleIsYourGuide": "Kruh ti udává rytmus",
+    "theCircleIsYourGuideBody": "Každý cvik sleduje tenhle kruh. Když se rozzáří a zvětší, stáhni se. Když záře zeslábne, povol. Slovo uvnitř ti vždycky řekne, co dělat.",
     "thisIsTrembling": "Tohle je Chvění",
     "yourFirstExerciseQuickFlicks": "Tvůj první cvik: rychlé stahy. Stahuj při Stáhni, povol při Uvolni."
   },
   "knowledge": {
     "continueToTraining": "Pokračovat na trénink",
     "learnTheBasics": "Nauč se základy",
+    "lessonNumber": "Lekce {{number}}",
     "logIn": "Přihlásit se"
   },
   "login": {
     "6DigitCode": "6místný kód",
     "close": "Zavřít",
+    "codeSentEnterBelow": "Kód odeslán! Zadej ho níže spolu s novým heslem.",
     "continueWithGoogle": "Pokračovat přes Google",
+    "couldNotOpenGoogle": "Nepodařilo se otevřít přihlášení přes Google. Zkus to znovu.",
     "createAccount": "Vytvořit účet",
     "email": "E-mail",
-    "enterYourEmail": "Zadej svůj e-mail",
+    "enterSixDigitCode": "Zadej 6místný kód z e-mailu.",
+    "enterYourEmail": "Zadej svůj e-mail.",
+    "failedToResetPassword": "Heslo se nepodařilo obnovit.",
+    "failedToSendResetCode": "Kód pro obnovení se nepodařilo odeslat.",
+    "fillAllFields": "Vyplň všechna pole.",
     "forgotPassword": "Zapomněl jsi heslo?",
+    "googleSignInFailed": "Přihlášení přes Google se nezdařilo. Zkus to znovu.",
+    "invalidCredentials": "Neplatné přihlašovací údaje.",
     "logIn": "Přihlášení",
     "logIn2": "Přihlásit se",
     "newHere": "Jsi tu poprvé?",
     "newPassword": "Nové heslo",
     "password": "Heslo",
     "passwordReset": "Heslo bylo obnoveno",
-    "resetPassword": "Obnovit heslo"
+    "passwordResetBody": "Tvoje heslo bylo obnoveno. Přihlas se prosím.",
+    "passwordResetTitle": "Heslo obnoveno",
+    "passwordRules": "Heslo musí mít alespoň 6 znaků a obsahovat číslici.",
+    "resetPassword": "Obnovit heslo",
+    "resetPasswordCta": "Obnovit heslo",
+    "sendCodeCta": "Odeslat kód"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Už máš účet?",
-    "logIn": "Přihlásit se"
+    "getStarted": "Začít",
+    "logIn": "Přihlásit se",
+    "perDay": "DENNĚ",
+    "slide1Body": "Nikdo o tom nemluví. Všechno se vrací k jednomu oslabenému svalu, a oslabený sval se dá zase posílit.",
+    "slide1Title": "Úniky. Náhlé nutkání. Menší kontrola.",
+    "slide2Body": "Žádná posilovna, žádné pomůcky, nic se nesvléká. Na gauči, u stolu, v autobuse. Nikdo si ničeho nevšimne.",
+    "slide2Title": "Jedna minuta, vsedě",
+    "slide3Body": "Aplikace měří, jak dlouho vydržíš. Tvoje časy rostou, odemykají se nové cviky a změna se projeví přesně tam, kde jsi chtěl.",
+    "slide3Title": "Ucítíš to dřív, než to uvidíš",
+    "slide4Body": "Když přestaneš, sval povolí, jako u každého tréninku. Vyber si čas a zbytek zařídí připomínka.",
+    "slide4Title": "Funguje to, jen když vydržíš"
   },
   "paywall": {
     "autoRenewOffHint": "Automatické obnovení je vypnuté. Přístup skončí k datu vypršení.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Měřte svůj pokrok",
     "benefitReminders": "Nastavte si připomínky podle svého dne",
     "benefitStrength": "Skutečně posilte pánevní dno",
+    "bestValue": "NEJLEPŠÍ CENA",
     "billingIsNotAvailableOn": "Na tomto zařízení nejsou platby dostupné. Níže můžeš obnovit dřívější nákup.",
     "byContinuingYouAgree": "Pokračováním souhlasíte s",
     "changeYourPlan": "Změnit tarif",
@@ -72,6 +287,7 @@
     "managePlan": "Správa tarifu",
     "noActiveSubscriptionWasFound": "Nebylo nalezeno žádné aktivní předplatné k obnovení.",
     "off": "Vypnuto",
+    "offeringsUnavailable": "Předplatné teď na tomto zařízení není dostupné. Zkus to později, nebo níže obnov dřívější nákup.",
     "on": "Zapnuto",
     "paymentProcessedSecurely": "Platba je při potvrzení bezpečně zpracována přes RevenueCat a obchod s aplikacemi.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Nákup byl přijat, ale tarif se nepodařilo určit. Kontaktuj podporu.",
     "restorePurchases": "Obnovit nákupy",
     "restoredPurchaseCouldNotBe": "Obnovený nákup se nepodařilo přiřadit k tarifu. Kontaktuj podporu.",
+    "savePercent": "UŠETŘÍŠ {{percent}} %",
     "signInFirst": "Před předplatným se přihlaste.",
     "startFreeTrialCta_one": "Začít {{count}}denní zkoušku zdarma",
     "startFreeTrialCta_other": "Začít {{count}}denní zkoušku zdarma",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Odinstalace aplikace předplatné neruší ani nevrací peníze.",
     "yourSubscriptionIsNowActive": "Tvoje předplatné je aktivní a máš plný přístup."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Plný přístup, účtováno měsíčně.",
+      "name": "1 měsíc"
+    },
+    "premium-quarterly": {
+      "description": "Účtováno každé 3 měsíce.",
+      "name": "3 měsíce"
+    },
+    "premium-yearly": {
+      "description": "Jedna platba za celý rok.",
+      "name": "1 rok"
+    }
+  },
   "profile": {
     "currentDifficulty": "Aktuální obtížnost",
     "difficulty": "Obtížnost",
     "error": "Chyba",
+    "errorTitle": "Chyba",
+    "failedToUpdateLevel": "Tréninkovou úroveň se nepodařilo aktualizovat.",
     "profile": "Profil",
     "scheduleReminders": "Rozvrh a připomínky",
     "setTheDifficultyOfKegel": "Nastav obtížnost tréninkového programu Kegel",
+    "settingsA11y": "Nastavení",
     "theHigherTheLevelThe": "Čím vyšší úroveň, tím náročnější trénink"
   },
   "progress": {
+    "bestResult": "nejlepší výsledek",
     "continue": "Pokračovat",
     "holdTheButtonAndContract": "Drž tlačítko a stahuj svaly pánevního dna co nejdéle to půjde.",
+    "lastMeasurement": "poslední měření",
     "progressTracker": "Sledování pokroku",
+    "seconds": "{{count}} s",
     "takeMeasurement": "Provést měření",
+    "today": "Dnes",
+    "topResult": "nejlepší výsledek: {{count}} s",
     "tryAgain": "Zkusit znovu"
   },
   "register": {
     "alreadyHaveAnAccount": "Už máš účet?",
     "confirmPassword": "Potvrď heslo",
     "continueWithGoogle": "Pokračovat přes Google",
+    "couldNotOpenGoogle": "Nepodařilo se otevřít registraci přes Google. Zkus to znovu.",
     "createAccount": "Vytvořit účet",
     "createAccount2": "Vytvořit účet",
     "email": "E-mail",
+    "fillAllFields": "Vyplň všechna pole.",
+    "googleSignUpFailed": "Registrace přes Google se nezdařila. Zkus to znovu.",
     "logIn": "Přihlásit se",
     "name": "Jméno",
-    "password": "Heslo"
+    "password": "Heslo",
+    "passwordNeedsNumber": "Heslo musí obsahovat alespoň jednu číslici.",
+    "passwordTooShort": "Heslo musí mít alespoň 6 znaků.",
+    "passwordsDoNotMatch": "Hesla se neshodují.",
+    "registrationFailed": "Registrace se nezdařila."
+  },
+  "reminders": {
+    "notificationBody": "Je čas na tvou každodenní Kegelovu lekci!",
+    "notificationTitle": "Kegelův trénink"
   },
   "schedule": {
     "active": "Aktivní",
     "allowExactReminders": "Povolit přesné připomínky",
+    "daysLeft_one": "zbývá {{count}} den",
+    "daysLeft_other": "zbývá {{count}} dní",
     "error": "Chyba",
+    "errorTitle": "Chyba",
+    "failedToSaveReminders": "Připomenutí se nepodařilo uložit.",
     "limitReached": "Dosažen limit",
+    "limitReachedBody": "Můžeš nastavit až 5 připomenutí denně.",
+    "limitReachedTitle": "Dosažen limit",
+    "monthNumber": "Měsíc {{number}}",
     "reminders": "Připomínky",
     "remindersSaved": "Připomínky uloženy",
     "repeatOn": "Opakovat v",
     "saveAddReminders": "Uložit připomínky",
     "schedule": "Rozvrh",
+    "sessionNumber": "Lekce {{number}}",
     "sessionTimes": "Časy tréninků"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Smazat účet?",
     "deletePermanently": "Trvale smazat",
     "deleted": "Smazáno",
+    "deletedBody": "Tvůj účet byl trvale smazán.",
+    "deletedTitle": "Smazáno",
+    "failedToDeleteAccount": "Účet se nepodařilo smazat.",
     "gotIt": "Rozumím",
     "language": "Jazyk",
     "logOut": "Odhlásit se",
     "manageSubscription": "Spravovat předplatné",
     "noActiveSubscription": "Žádné aktivní předplatné",
     "reset": "Resetovat",
+    "resetConfirmBody": "Tímto smažeš své tréninkové dny, lekce, měření a pokrok ve výuce. Akci nelze vrátit zpět.",
     "resetProgress": "Resetovat pokrok",
     "resetProgress2": "Resetovat pokrok?",
+    "resetSuccessBody": "Tvůj tréninkový pokrok byl smazán.",
+    "resetSuccessTitle": "Vynulováno",
     "resetSuccessful": "Reset proběhl úspěšně",
     "restartBody": "Zavři a znovu otevři aplikaci, aby se dokončila změna směru rozvržení.",
     "restartRequired": "Vyžaduje restart",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Už máš účet? Přihlas se",
     "back": "Zpět",
+    "bestValue": "NEJLEPŠÍ CENA",
+    "billingDisclosure": "Platba je při potvrzení bezpečně zpracována přes RevenueCat a obchod s aplikacemi. Předplatné se automaticky obnovuje za zobrazenou cenu, dokud ho nezrušíš v nastavení předplatného; odinstalování aplikace ho nezruší ani nevrátí peníze. Pokračováním souhlasíš s našimi",
     "close": "Zavřít",
     "confirmPassword": "Potvrď heslo",
     "continue": "Pokračovat",
     "continueWithGoogle": "Pokračovat přes Google",
+    "couldNotOpenGoogle": "Nepodařilo se otevřít přihlášení přes Google. Zkus to znovu.",
     "couldNotOpenGoogleSign": "Přihlášení přes Google se nepodařilo otevřít. Zkus to prosím znovu.",
+    "couldNotReachServer": "Nepodařilo se spojit se serverem. Zkontroluj připojení a zkus to znovu.",
+    "createAccount": "Vytvořit účet",
     "createAccountSubscribe": "Vytvořit účet a předplatit",
     "creatingAccount": "Vytváříme účet …",
     "emailAddress": "E-mailová adresa",
+    "emailInvalid": "Zadej platnou e-mailovou adresu.",
+    "emailOrPasswordIncorrect": "Nesprávný e-mail nebo heslo.",
+    "emailRequired": "E-mail je povinný.",
     "fullName": "Celé jméno",
+    "googleSignInFailed": "Přihlášení přes Google se nezdařilo. Zkus to znovu.",
+    "nameRequired": "Jméno je povinné.",
     "noAccountYetCreateOne": "Ještě nemáš účet? Vytvoř si ho",
     "password": "Heslo",
     "password6Characters1Number": "Heslo (min. 6 znaků, 1 číslice)",
+    "passwordRequired": "Heslo je povinné.",
+    "passwordRules": "Heslo musí mít alespoň 6 znaků a obsahovat číslici.",
+    "passwordsDoNotMatch": "Hesla se neshodují.",
+    "signIn": "Přihlásit se",
     "signInSubscribe": "Přihlásit se a předplatit",
     "signingIn": "Přihlašujeme …",
     "startYourTransformationJourneyNow": "Začni svou proměnu ještě dnes",
     "subscribe": "Předplatit",
     "terms": "Podmínky"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Pokrok",
+    "schedule": "Rozvrh",
+    "training": "Trénink"
   },
   "training": {
     "available": "Dostupné",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Zpět na přihlášení",
+    "codeResent": "Ověřovací kód byl odeslán znovu!",
     "didnTReceiveTheCode": "Nedorazil kód? Poslat znovu",
+    "enterSixDigitCode": "Zadej 6místný ověřovací kód.",
+    "failedToResendCode": "Kód se nepodařilo odeslat znovu.",
+    "verificationFailed": "Ověření se nezdařilo. Zkus to znovu.",
     "verifyCode": "Ověřit kód",
     "verifyEmail": "Ověřit e-mail"
   },
   "why": {
     "aMuscleYouCanTrain": "Sval, který můžeš trénovat",
+    "aRealMuscleBody": "Tvoje pánevní dno je opravdový sval. Trénuj ho pár minut denně a zesílí, stejně jako při jakémkoli jiném tréninku. Žádné prášky, žádné vedlejší účinky, a výsledky vydrží.",
     "andYouCanDoIt": "A můžeš to dělat kdekoli a kdykoli. Vsedě, vestoje, v autobuse. Nikdo si toho nevšimne.",
+    "benefit_bladder_desc": "Méně úniků a méně náhlého nutkání.",
+    "benefit_bladder_title": "Lepší kontrola měchýře",
+    "benefit_confidence_desc": "Pokrok, který roste týden po týdnu.",
+    "benefit_confidence_title": "Trvalá jistota",
+    "benefit_core_desc": "Pomáhá držení těla a bederní páteři.",
+    "benefit_core_title": "Podepřený střed těla",
+    "benefit_performance_desc": "Více kontroly a výdrže v intimitě.",
+    "benefit_performance_title": "Lepší výkon",
     "doingItRightIsEverything": "Správné provedení je všechno",
     "learnItOnceAndEvery": "Nauč se to jednou a každá minuta tréninku pak opravdu bude mít smysl.",
     "squeezeTheWrongMusclesAnd": "Když stáhneš špatné svaly, nic z toho nebudeš mít.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Pokud teď odejdeš, tenhle trénink se ti nezapočítá do denního pokroku.",
     "leaveTraining": "Ukončit trénink?",
     "noExercises": "Žádné cviky",
+    "noExercisesBody": "Pro tuto lekci nejsou odemčené žádné cviky.",
+    "noExercisesTitle": "Žádné cviky",
     "noGoBack": "Ne, zpět",
     "pause": "Pauza",
     "resume": "Pokračovat",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Ano, ukončit trénink"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Už jsi na nejlehčí úrovni.",
+    "alreadyHighestLevel": "Už jsi na nejvyšší úrovni.",
     "continue": "Pokračovat",
     "howWasThat": "Jaké to bylo?",
     "justRight": "Tak akorát",
+    "keepGoing": "Super! Jedeme dál.",
+    "levelUp": "Postup! Teď jsi na úrovni {{level}}.",
+    "monthNumber": "Měsíc {{number}}",
     "newExerciseUnlocked": "Odemkl se nový cvik!",
     "nextToUnlock": "Další k odemčení",
     "notNow": "Teď ne",
+    "steppedDown": "Zpátky na {{level}}. Zvládneš to!",
     "tooEasy": "Příliš lehké",
     "tooHard": "Příliš těžké",
-    "tryItNow": "Vyzkoušet hned"
+    "tryItNow": "Vyzkoušet hned",
+    "unlockedList": "Odemčeno: {{names}}"
   }
 }

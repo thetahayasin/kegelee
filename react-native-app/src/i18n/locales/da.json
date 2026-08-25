@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Tilgængelig",
-    "exercises": "Øvelser"
+    "backA11y": "Tilbage",
+    "exercises": "Øvelser",
+    "unlockProgressA11y": "Oplåsningsforløb for {{name}}"
+  },
+  "basics": {
+    "findTitle": "Find din bækkenbund",
+    "firstTitle": "Din første øvelse",
+    "whyTitle": "Derfor virker knibeøvelser"
+  },
+  "billing": {
+    "alreadyOwned": "Du har allerede et aktivt abonnement. Vi gendanner det nu.",
+    "configuration": "Dette abonnement kan ikke købes lige nu. Det er vores fejl - prøv igen senere, eller kontakt supporten.",
+    "declined": "Google Play afviste betalingen. Tjek betalingsmetoden på din Google-konto, og prøv igen.",
+    "ineligible": "Du er ikke berettiget til dette tilbud. Vælg et andet abonnement.",
+    "network": "Vi kunne ikke nå butikken. Tjek din forbindelse, og prøv igen. Hvis du er blevet trukket, dukker din adgang op af sig selv.",
+    "noPermission": "Din Google-konto har ikke tilladelse til at foretage køb på denne enhed.",
+    "notAllowed": "Denne enhed eller Google-konto må ikke foretage køb. Det skyldes som regel forældrekontrol eller manglende betalingsmetode på kontoen.",
+    "operationInProgress": "Et køb er allerede i gang. Vent et øjeblik, før du prøver igen.",
+    "otherAccount": "Dette abonnement tilhører en anden konto. Log ind med den konto, eller kontakt supporten, så flytter vi det.",
+    "paymentPending": "Google Play behandler din betaling. Kontant- og voucherbetalinger kan tage et stykke tid. Din adgang låses op automatisk, når den går igennem, så betal ikke igen.",
+    "storeProblem": "Google Play har problemer lige nu. Prøv igen om et par minutter.",
+    "unknown": "Noget gik galt, da dit køb skulle gennemføres. Prøv igen. Hvis du er blevet trukket, dukker din adgang op af sig selv."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Et fast knib, der bygges op langsomt og slippes lige så langsomt.",
+        "howTo": "Spænd langsomt over 3 sekunder, mens cirklen fyldes, og slip så lige så langsomt, mens den tømmes. Hold bevægelsen blød begge veje.",
+        "name": "Klemme",
+        "summary": "Langsomt op, langsomt ned"
+      },
+      "downstairs": {
+        "description": "Spænd til toppen, og kom så ned ét trin ad gangen med fuld kontrol.",
+        "howTo": "Spænd til dit stærkeste, og slap så af lidt ad gangen med omkring et sekunds pause på hvert trin på vej ned. Den kontrollerede nedstigning er selve øvelsen.",
+        "name": "Ned ad trappen",
+        "summary": "Fire trin ned fra toppen"
+      },
+      "elevator": {
+        "description": "Signaturøvelsen. Kravl opad trin for trin, og kom så ned under kontrol.",
+        "howTo": "Forestil dig, at du kører i en elevator. Spænd en smule hårdere for hvert trin, indtil du når dit stærkeste knib, og kom så ned ét trin ad gangen, indtil du er helt afspændt.",
+        "name": "Elevator",
+        "summary": "Kravl til toppen, og gå så ned igen"
+      },
+      "flash": {
+        "description": "De hurtigste knib. Korte, kvikke spændinger, der træner hurtige reaktioner.",
+        "howTo": "Spænd og slip så hurtigt, du kan, i takt med cirklen. Hold det let, og pres ikke.",
+        "name": "Lyn",
+        "summary": "De hurtigste knib"
+      },
+      "front-clamp": {
+        "description": "Et langsomt, fokuseret knib i den forreste bækkenbund med et hurtigt og rent slip.",
+        "howTo": "Spænd langsomt over 3 sekunder, mens cirklen fyldes. Når den tømmes, slipper du det hele på én gang. Begynd så det næste langsomme knib.",
+        "name": "Forreste klemme",
+        "summary": "Spænd langsomt, slip på én gang"
+      },
+      "holding": {
+        "description": "Spænd og hold fast for at opbygge grundlæggende udholdenhed i bækkenbunden.",
+        "howTo": "Spænd din bækkenbund, og hold hele runden igennem. Hvis spændingen falder, så spænd blidt op igen. Bliv ved med at trække vejret normalt.",
+        "name": "Holdning",
+        "summary": "Ét jævnt hold"
+      },
+      "long-steady-clamp": {
+        "description": "Udholdenhedsopbyggeren: et knib på ét sekund, der går over i ti sekunder med fuld kraft.",
+        "howTo": "Spænd i ét sekund, og hold så med fuld kraft i ti sekunder. Hvis spændingen falder, så spænd blidt op til fuld igen. Slip, og gentag.",
+        "name": "Lang jævn klemme",
+        "summary": "1 sekunds knib, 10 sekunders hold"
+      },
+      "pulsation": {
+        "description": "To hurtige knib lige efter hinanden og derefter et fuldstændigt slip. Træner at spænde igen, før du er helt restitueret, og at slippe ordentligt mellem anstrengelserne.",
+        "howTo": "Spænd og slip to gange i hurtig rækkefølge med cirklen, og slip så alt fuldstændigt under pausen. Det fuldstændige slip tæller lige så meget som pulserne.",
+        "name": "Dobbeltpuls",
+        "summary": "To hurtige pulser, så helt tilbage"
+      },
+      "push": {
+        "description": "Byg knibet op til en kraftfuld top, hold den, og slip så langsomt.",
+        "howTo": "Spænd gradvist over tre sekunder, og bliv stærkere, mens cirklen fyldes. Hold dit stærkeste knib i to sekunder, og slip så langsomt. Knib hårdere, og pres aldrig nedad.",
+        "name": "Tryk",
+        "summary": "3 s opbygning, 2 s topophold, 3 s afspænding"
+      },
+      "reverse-clamp": {
+        "description": "Et hurtigt knib efterfulgt af et langsomt, kontrolleret slip. Fremragende til kontrollen.",
+        "howTo": "Spænd på én gang, og begynd derefter straks at slippe så langsomt, du kan, mens du følger cirklen ned. Det langsomme slip er selve øvelsen.",
+        "name": "Omvendt klemme",
+        "summary": "Spænd på én gang, slip langsomt"
+      },
+      "short-holding": {
+        "description": "Et kraftfuldt hold på 4 sekunder, der slippes langsomt frem for at blive tabt. At slippe kontrolleret er en færdighed i sig selv, og de fleste synes, det er sværere end selve holdet.",
+        "howTo": "Spænd i ét sekund, hold med fuld kraft i fire, og slip så gradvist, mens cirklen synker. Lad det ikke falde sammen: følg med hele vejen ned.",
+        "name": "Kort holdning",
+        "summary": "Hold 4 sekunder, slip så gradvist"
+      },
+      "starter": {
+        "description": "Ét hurtigt knib, der vækker musklen, efterfulgt af et kraftfuldt hold på 5 sekunder.",
+        "howTo": "Giv ét hurtigt knib, slap blødt af, spænd så igen, og hold hårdt i fem sekunder. Slip, træk vejret, og gentag.",
+        "name": "Starter",
+        "summary": "Hurtigt knib, så 5 sekunders hold"
+      },
+      "steady-clamp": {
+        "description": "En jævn klemme: spænd i ét sekund, og hold så med fuld kraft i fem.",
+        "howTo": "Spænd i ét sekund, og hold så med fuld kraft i fem sekunder uden at lade spændingen falde. Slip, og gentag.",
+        "name": "Jævn klemme",
+        "summary": "1 sekunds knib, 5 sekunders hold"
+      },
+      "steady-trembling": {
+        "description": "Spænd på én gang, hold spændingen jævn i et par sekunder, og slap så af.",
+        "howTo": "Spænd på én gang, og hold spændingen. Når cirklen falder, slipper du blødt. Gentag så det hurtige knib og holdet.",
+        "name": "Jævn sitren",
+        "summary": "Spænd på én gang, hold, slap af"
+      },
+      "trembling": {
+        "description": "Hurtige knib og slip, der får musklen til at sitre og vækker dens hurtige respons.",
+        "howTo": "Spænd det hele på én gang, hold et øjeblik, og slip så blødt. Følg cirklen, mens den skyder op og daler igen.",
+        "name": "Sitren",
+        "summary": "Hurtige knib, til og fra"
+      },
+      "upstairs": {
+        "description": "Kravl opad med knibet i fire trin, en smule stærkere på hvert niveau.",
+        "howTo": "Forestil dig, at du kører op i en elevator. Spænd lidt, så mere, så endnu mere, indtil du når dit stærkeste knib, og bliv omkring et sekund på hvert trin. Slap af bagefter.",
+        "name": "Op ad trappen",
+        "summary": "Fire trin op til toppen"
+      },
+      "waves": {
+        "description": "Bølgende knib, der uafbrudt bygger spænding op og slipper den igen.",
+        "howTo": "Spænd langsomt i to sekunder, og slip så lige så langsomt, som en bølge, der stiger og falder. Hold det blødt og sammenhængende.",
+        "name": "Bølger",
+        "summary": "2 sekunder op, 2 sekunder ned"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Blid start. Korte sessioner på 1 minut.",
+        "name": "Niveau 1"
+      },
+      "2": {
+        "description": "Lidt længere. Sessioner på 2 minutter.",
+        "name": "Niveau 2"
+      },
+      "3": {
+        "description": "Balanceret træning. Sessioner på 3 minutter.",
+        "name": "Niveau 3"
+      },
+      "4": {
+        "description": "Længere sessioner til stærkere muskler. 4 minutter.",
+        "name": "Niveau 4"
+      },
+      "5": {
+        "description": "Avanceret udholdenhed og kontrol. 5 minutter.",
+        "name": "Niveau 5"
+      }
+    },
+    "steps": {
+      "contract": "Spænd",
+      "contractAndHold": "Spænd & hold",
+      "contractSlowly": "Spænd langsomt",
+      "easeDown": "Slip gradvist",
+      "hold": "Hold",
+      "pulse1": "Puls 1",
+      "pulse2": "Puls 2",
+      "relax": "Slap af",
+      "relaxSlowly": "Slap langsomt af",
+      "release": "Slip",
+      "releaseSlowly": "Slip langsomt",
+      "reset": "Tilbage til nul",
+      "rest": "Pause",
+      "step1": "Trin 1",
+      "step2": "Trin 2",
+      "step3": "Trin 3",
+      "top": "Toppen"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Noget gik galt",
@@ -9,48 +177,94 @@
     "tryAgain": "Prøv igen"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Gennemfør {{count}} træningsdag mere for at låse op.",
+    "completeMoreDaysToUnlock_other": "Gennemfør {{count}} træningsdage mere for at låse op.",
     "exerciseNotFound": "Øvelsen blev ikke fundet.",
+    "lockedDaysLeft_one": "Låst - {{count}} dag tilbage",
+    "lockedDaysLeft_other": "Låst - {{count}} dage tilbage",
     "tryItNow": "Prøv nu"
   },
   "find": {
+    "flow_stopMidway": "Stop halvvejs",
+    "flow_thatSqueeze": "Præcis det knib!",
+    "flow_youPee": "Du tisser",
     "keepGoing": "Bliv ved …",
     "onlyDoThePeeTest": "Lav kun tissetesten én gang",
+    "onlyDoThePeeTestDesc": "Det er kun en måde at finde musklerne på, ikke en øvelse. At stoppe strålen ofte er ikke godt for din blære.",
+    "pressAndHold": "Tryk og hold",
+    "squeezeNow": "Knib!",
     "squeezeOnlyThoseMuscles": "Spænd kun de muskler",
+    "squeezeOnlyThoseMusclesDesc": "Et andet fingerpeg: knib, som om du holdt på en prut. Mave, ben og balder forbliver helt afslappede.",
+    "stopTheFlowBody": "Næste gang du tisser, så stop strålen forsigtigt halvvejs. De muskler, du lige brugte, er din bækkenbund.",
     "thatExactSqueezeIsThe": "Præcis den sammentrækning er den bevægelse, du skal træne.",
     "theEasiestWayToFind": "Den nemmeste måde at finde dem på",
-    "twoQuickRules": "To korte regler"
+    "tryItNow": "Prøv det nu",
+    "tryItNowBody": "Tryk og hold på cirklen. Mens du holder, kniber du de muskler sammen. Slip samtidig.",
+    "twoQuickRules": "To korte regler",
+    "youFoundThem": "Du fandt dem!",
+    "youFoundThemBody": "Det knib og den slip er alt, hvad en knibeøvelse er. Du er klar til din første øvelse."
   },
   "first": {
     "contract": "Spænd",
+    "followTheCircle": "Følg cirklen. Knib... og slap af.",
+    "niceWork": "Flot klaret!",
+    "nowYouTry": "Nu er det din tur",
     "start": "Start",
+    "tenSecondsReady": "Ti sekunders {{exercise}}. Knib ved hvert {{contract}}, og slip ved {{relax}}. Klar?",
+    "thatWasARealExercise": "Det var en rigtig øvelse. Hver session fungerer præcis sådan, én cirkel ad gangen.",
     "theCircleIsYourGuide": "Cirklen sætter rytmen",
+    "theCircleIsYourGuideBody": "Hver øvelse følger denne cirkel. Når den lyser og vokser, kniber du. Når lyset falmer, slapper du af. Ordet indeni fortæller dig altid, hvad du skal gøre.",
     "thisIsTrembling": "Det her er Dirren",
     "yourFirstExerciseQuickFlicks": "Din første øvelse: hurtige spænd. Spænd ved Spænd, slip ved Slap af."
   },
   "knowledge": {
     "continueToTraining": "Videre til træningen",
     "learnTheBasics": "Lær det grundlæggende",
+    "lessonNumber": "Lektion {{number}}",
     "logIn": "Log ind"
   },
   "login": {
     "6DigitCode": "6-cifret kode",
     "close": "Luk",
+    "codeSentEnterBelow": "Koden er sendt! Indtast den nedenfor sammen med en ny adgangskode.",
     "continueWithGoogle": "Fortsæt med Google",
+    "couldNotOpenGoogle": "Kunne ikke åbne Google-login. Prøv igen.",
     "createAccount": "Opret konto",
     "email": "E-mail",
-    "enterYourEmail": "Indtast din e-mail",
+    "enterSixDigitCode": "Indtast den 6-cifrede kode fra din e-mail.",
+    "enterYourEmail": "Indtast din e-mailadresse.",
+    "failedToResetPassword": "Adgangskoden kunne ikke nulstilles.",
+    "failedToSendResetCode": "Nulstillingskoden kunne ikke sendes.",
+    "fillAllFields": "Udfyld alle felter.",
     "forgotPassword": "Glemt adgangskode?",
+    "googleSignInFailed": "Google-login mislykkedes. Prøv igen.",
+    "invalidCredentials": "Ugyldige loginoplysninger.",
     "logIn": "Log ind",
     "logIn2": "Log ind",
     "newHere": "Er du ny her?",
     "newPassword": "Ny adgangskode",
     "password": "Adgangskode",
     "passwordReset": "Adgangskoden er nulstillet",
-    "resetPassword": "Nulstil adgangskode"
+    "passwordResetBody": "Din adgangskode er nulstillet. Log venligst ind.",
+    "passwordResetTitle": "Adgangskode nulstillet",
+    "passwordRules": "Adgangskoden skal være mindst 6 tegn og indeholde et tal.",
+    "resetPassword": "Nulstil adgangskode",
+    "resetPasswordCta": "Nulstil adgangskode",
+    "sendCodeCta": "Send kode"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Har du allerede en konto?",
-    "logIn": "Log ind"
+    "getStarted": "Kom i gang",
+    "logIn": "Log ind",
+    "perDay": "PR. DAG",
+    "slide1Body": "Ingen taler om det. Det hele bunder i én svag muskel, og en svag muskel kan trænes op igen.",
+    "slide1Title": "Lækager. Trængninger. Mindre kontrol.",
+    "slide2Body": "Intet fitnesscenter, intet udstyr, intet at tage af. I sofaen, ved skrivebordet, i bussen. Ingen opdager noget.",
+    "slide2Title": "Ét minut, siddende",
+    "slide3Body": "Appen måler, hvor længe du kan holde. Dine tider stiger, nye øvelser låses op, og forskellen dukker op, hvor du gerne ville have den.",
+    "slide3Title": "Du mærker det, før du ser det",
+    "slide4Body": "Stopper du, falder musklen af igen, som ved al anden træning. Vælg et tidspunkt, og lad påmindelsen klare resten.",
+    "slide4Title": "Det virker kun, hvis du bliver ved"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisk fornyelse er slået fra. Din adgang slutter på udløbsdatoen.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Mål din fremgang",
     "benefitReminders": "Sæt påmindelser, der passer din dag",
     "benefitStrength": "Opbyg rigtig bækkenbundsstyrke",
+    "bestValue": "BEDSTE VÆRDI",
     "billingIsNotAvailableOn": "Betaling er ikke tilgængelig på denne enhed. Du kan gendanne et tidligere køb nedenfor.",
     "byContinuingYouAgree": "Ved at fortsætte accepterer du vores",
     "changeYourPlan": "Skift abonnement",
@@ -72,6 +287,7 @@
     "managePlan": "Administrer abonnement",
     "noActiveSubscriptionWasFound": "Der blev ikke fundet noget aktivt abonnement at gendanne.",
     "off": "Fra",
+    "offeringsUnavailable": "Abonnementer er ikke tilgængelige på denne enhed lige nu. Prøv igen senere, eller gendan et tidligere køb nedenfor.",
     "on": "Til",
     "paymentProcessedSecurely": "Betalingen behandles sikkert via RevenueCat og app-butikken ved bekræftelse.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Købet blev modtaget, men abonnementet kunne ikke identificeres. Kontakt support.",
     "restorePurchases": "Gendan køb",
     "restoredPurchaseCouldNotBe": "Det gendannede køb kunne ikke matches med et abonnement. Kontakt support.",
+    "savePercent": "SPAR {{percent}} %",
     "signInFirst": "Log ind før du abonnerer.",
     "startFreeTrialCta_one": "Start {{count}} dags gratis prøve",
     "startFreeTrialCta_other": "Start {{count}} dages gratis prøve",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "At afinstallere appen opsiger ikke abonnementet og giver ikke refusion.",
     "yourSubscriptionIsNowActive": "Dit abonnement er aktivt, og du har fuld adgang."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Fuld adgang, faktureres månedligt.",
+      "name": "1 måned"
+    },
+    "premium-quarterly": {
+      "description": "Faktureres hver 3. måned.",
+      "name": "3 måneder"
+    },
+    "premium-yearly": {
+      "description": "Én betaling for hele året.",
+      "name": "1 år"
+    }
+  },
   "profile": {
     "currentDifficulty": "Nuværende sværhedsgrad",
     "difficulty": "Sværhedsgrad",
     "error": "Fejl",
+    "errorTitle": "Fejl",
+    "failedToUpdateLevel": "Træningsniveauet kunne ikke opdateres.",
     "profile": "Profil",
     "scheduleReminders": "Plan og påmindelser",
     "setTheDifficultyOfKegel": "Vælg sværhedsgraden for Kegel-træningsprogrammet",
+    "settingsA11y": "Indstillinger",
     "theHigherTheLevelThe": "Jo højere niveau, jo hårdere træning"
   },
   "progress": {
+    "bestResult": "bedste resultat",
     "continue": "Fortsæt",
     "holdTheButtonAndContract": "Hold knappen nede, og spænd bækkenbundsmusklerne så længe du kan.",
+    "lastMeasurement": "seneste måling",
     "progressTracker": "Fremgang",
+    "seconds": "{{count}} sek.",
     "takeMeasurement": "Foretag måling",
+    "today": "I dag",
+    "topResult": "bedste resultat: {{count}} sek.",
     "tryAgain": "Prøv igen"
   },
   "register": {
     "alreadyHaveAnAccount": "Har du allerede en konto?",
     "confirmPassword": "Bekræft adgangskode",
     "continueWithGoogle": "Fortsæt med Google",
+    "couldNotOpenGoogle": "Kunne ikke åbne Google-tilmelding. Prøv igen.",
     "createAccount": "Opret konto",
     "createAccount2": "Opret konto",
     "email": "E-mail",
+    "fillAllFields": "Udfyld alle felter.",
+    "googleSignUpFailed": "Google-tilmelding mislykkedes. Prøv igen.",
     "logIn": "Log ind",
     "name": "Navn",
-    "password": "Adgangskode"
+    "password": "Adgangskode",
+    "passwordNeedsNumber": "Adgangskoden skal indeholde mindst ét tal.",
+    "passwordTooShort": "Adgangskoden skal være mindst 6 tegn.",
+    "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
+    "registrationFailed": "Registreringen mislykkedes."
+  },
+  "reminders": {
+    "notificationBody": "Det er tid til din daglige knibesession!",
+    "notificationTitle": "Knibetræning"
   },
   "schedule": {
     "active": "Aktiv",
     "allowExactReminders": "Tillad præcise påmindelser",
+    "daysLeft_one": "{{count}} dag tilbage",
+    "daysLeft_other": "{{count}} dage tilbage",
     "error": "Fejl",
+    "errorTitle": "Fejl",
+    "failedToSaveReminders": "Påmindelserne kunne ikke gemmes.",
     "limitReached": "Grænsen er nået",
+    "limitReachedBody": "Du kan indstille op til 5 påmindelser om dagen.",
+    "limitReachedTitle": "Grænsen er nået",
+    "monthNumber": "Måned {{number}}",
     "reminders": "Påmindelser",
     "remindersSaved": "Påmindelser gemt",
     "repeatOn": "Gentag på",
     "saveAddReminders": "Gem påmindelser",
     "schedule": "Plan",
+    "sessionNumber": "Session {{number}}",
     "sessionTimes": "Træningstidspunkter"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Slet kontoen?",
     "deletePermanently": "Slet permanent",
     "deleted": "Slettet",
+    "deletedBody": "Din konto er slettet permanent.",
+    "deletedTitle": "Slettet",
+    "failedToDeleteAccount": "Kontoen kunne ikke slettes.",
     "gotIt": "Forstået",
     "language": "Sprog",
     "logOut": "Log ud",
     "manageSubscription": "Administrer abonnement",
     "noActiveSubscription": "Intet aktivt abonnement",
     "reset": "Nulstil",
+    "resetConfirmBody": "Dette rydder dine træningsdage, sessioner, målinger og lektionsfremskridt. Handlingen kan ikke fortrydes.",
     "resetProgress": "Nulstil fremgang",
     "resetProgress2": "Nulstil fremgangen?",
+    "resetSuccessBody": "Dine træningsfremskridt er ryddet.",
+    "resetSuccessTitle": "Nulstillet",
     "resetSuccessful": "Nulstilling gennemført",
     "restartBody": "Luk og åbn appen igen for at fuldføre skiftet af layoutretning.",
     "restartRequired": "Genstart påkrævet",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Har du allerede en konto? Log ind",
     "back": "Tilbage",
+    "bestValue": "BEDSTE VÆRDI",
+    "billingDisclosure": "Betalingen håndteres sikkert af RevenueCat og app-butikken ved bekræftelsen. Dit abonnement fornyes automatisk til den viste pris, indtil du opsiger det i dine abonnementsindstillinger; at afinstallere appen opsiger det ikke og refunderer ikke. Ved at fortsætte accepterer du vores",
     "close": "Luk",
     "confirmPassword": "Bekræft adgangskode",
     "continue": "Fortsæt",
     "continueWithGoogle": "Fortsæt med Google",
+    "couldNotOpenGoogle": "Kunne ikke åbne Google-login. Prøv igen.",
     "couldNotOpenGoogleSign": "Google-login kunne ikke åbnes. Prøv igen.",
+    "couldNotReachServer": "Kunne ikke nå serveren. Tjek din internetforbindelse, og prøv igen.",
+    "createAccount": "Opret konto",
     "createAccountSubscribe": "Opret konto og abonnér",
     "creatingAccount": "Opretter konto …",
     "emailAddress": "E-mailadresse",
+    "emailInvalid": "Indtast en gyldig e-mailadresse.",
+    "emailOrPasswordIncorrect": "Forkert e-mail eller adgangskode.",
+    "emailRequired": "E-mail er påkrævet.",
     "fullName": "Fulde navn",
+    "googleSignInFailed": "Google-login mislykkedes. Prøv igen.",
+    "nameRequired": "Navn er påkrævet.",
     "noAccountYetCreateOne": "Har du ikke en konto endnu? Opret en",
     "password": "Adgangskode",
     "password6Characters1Number": "Adgangskode (mindst 6 tegn, 1 tal)",
+    "passwordRequired": "Adgangskode er påkrævet.",
+    "passwordRules": "Adgangskoden skal være mindst 6 tegn og indeholde et tal.",
+    "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
+    "signIn": "Log ind",
     "signInSubscribe": "Log ind og abonnér",
     "signingIn": "Logger ind …",
     "startYourTransformationJourneyNow": "Start din forandring i dag",
     "subscribe": "Abonnér",
     "terms": "Vilkår"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Fremskridt",
+    "schedule": "Plan",
+    "training": "Træning"
   },
   "training": {
     "available": "Tilgængelig",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Tilbage til login",
+    "codeResent": "Bekræftelseskoden er sendt igen!",
     "didnTReceiveTheCode": "Fik du ikke koden? Send igen",
+    "enterSixDigitCode": "Indtast en 6-cifret bekræftelseskode.",
+    "failedToResendCode": "Koden kunne ikke sendes igen.",
+    "verificationFailed": "Bekræftelsen mislykkedes. Prøv igen.",
     "verifyCode": "Bekræft kode",
     "verifyEmail": "Bekræft e-mail"
   },
   "why": {
     "aMuscleYouCanTrain": "En muskel, du kan træne",
+    "aRealMuscleBody": "Din bækkenbund er en rigtig muskel. Træn den et par minutter om dagen, så bliver den stærkere, ligesom ved al anden træning. Ingen piller, ingen bivirkninger, og resultaterne holder.",
     "andYouCanDoIt": "Og du kan gøre det hvor som helst, når som helst. Siddende, stående, i bussen. Ingen opdager det.",
+    "benefit_bladder_desc": "Færre lækager og færre pludselige trængninger.",
+    "benefit_bladder_title": "Bedre blærekontrol",
+    "benefit_confidence_desc": "Fremgang, der bygges uge for uge.",
+    "benefit_confidence_title": "Varig selvtillid",
+    "benefit_core_desc": "Hjælper holdningen og lænden.",
+    "benefit_core_title": "En støttet kerne",
+    "benefit_performance_desc": "Mere kontrol og udholdenhed i intimiteten.",
+    "benefit_performance_title": "Stærkere præstation",
     "doingItRightIsEverything": "Det handler om at gøre det rigtigt",
     "learnItOnceAndEvery": "Lær det én gang, så tæller hvert minuts træning virkelig.",
     "squeezeTheWrongMusclesAnd": "Spænder du de forkerte muskler, får du ikke noget ud af det.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Hvis du går nu, tæller denne session ikke med i din daglige fremgang.",
     "leaveTraining": "Forlad træningen?",
     "noExercises": "Ingen øvelser",
+    "noExercisesBody": "Ingen øvelser låst op til denne session.",
+    "noExercisesTitle": "Ingen øvelser",
     "noGoBack": "Nej, tilbage",
     "pause": "Pause",
     "resume": "Fortsæt",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Ja, afslut træningen"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Du er allerede på det letteste niveau.",
+    "alreadyHighestLevel": "Du er allerede på det højeste niveau.",
     "continue": "Fortsæt",
     "howWasThat": "Hvordan gik det?",
     "justRight": "Lige tilpas",
+    "keepGoing": "Fedt! Vi fortsætter.",
+    "levelUp": "Nyt niveau! Du er nu på {{level}}.",
+    "monthNumber": "Måned {{number}}",
     "newExerciseUnlocked": "Ny øvelse låst op!",
     "nextToUnlock": "Næste der låses op",
     "notNow": "Ikke nu",
+    "steppedDown": "Tilbage til {{level}}. Du klarer den!",
     "tooEasy": "For let",
     "tooHard": "For hårdt",
-    "tryItNow": "Prøv nu"
+    "tryItNow": "Prøv nu",
+    "unlockedList": "Låst op: {{names}}"
   }
 }

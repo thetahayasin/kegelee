@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "利用可能",
-    "exercises": "エクササイズ"
+    "backA11y": "戻る",
+    "exercises": "エクササイズ",
+    "unlockProgressA11y": "{{name}} の解放までの進捗"
+  },
+  "basics": {
+    "findTitle": "骨盤底筋を見つける",
+    "firstTitle": "はじめてのエクササイズ",
+    "whyTitle": "骨盤底トレーニングが効く理由"
+  },
+  "billing": {
+    "alreadyOwned": "すでに有効なサブスクリプションがあります。いま復元しています。",
+    "configuration": "このプランは現在購入できません。こちら側の問題です。しばらくしてからお試しいただくか、サポートまでご連絡ください。",
+    "declined": "Google Play がお支払いを拒否しました。Google アカウントのお支払い方法をご確認のうえ、もう一度お試しください。",
+    "ineligible": "このオファーの対象ではありません。別のプランをお選びください。",
+    "network": "ストアに接続できませんでした。通信環境を確認してもう一度お試しください。すでに課金されている場合は、自動的にご利用いただけるようになります。",
+    "noPermission": "お使いの Google アカウントには、この端末で購入する権限がありません。",
+    "notAllowed": "この端末または Google アカウントでは購入が許可されていません。多くの場合、ペアレンタルコントロールか、アカウントにお支払い方法が登録されていないことが原因です。",
+    "operationInProgress": "すでに購入手続きが進行中です。少し待ってからもう一度お試しください。",
+    "otherAccount": "このサブスクリプションは別のアカウントのものです。そのアカウントでログインするか、サポートにご連絡いただければ移行できます。",
+    "paymentPending": "Google Play がお支払いを処理しています。現金やバウチャーでのお支払いには時間がかかることがあります。完了すると自動的に利用できるようになりますので、重ねてお支払いなさらないでください。",
+    "storeProblem": "Google Play で現在障害が発生しています。数分後にもう一度お試しください。",
+    "unknown": "購入の完了中に問題が発生しました。もう一度お試しください。すでに課金されている場合は、自動的にご利用いただけるようになります。"
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "しっかりした締めをゆっくり作り上げ、同じだけゆっくりゆるめます。",
+        "howTo": "円が満ちていく3秒のあいだゆっくり締め、円が空いていくのに合わせて同じだけゆっくりゆるめます。上りも下りもなめらかに保ってください。",
+        "name": "クランプ",
+        "summary": "ゆっくり上げて、ゆっくり下げる"
+      },
+      "downstairs": {
+        "description": "頂点まで締めてから、完全にコントロールしながら一段ずつ下りてきます。",
+        "howTo": "いちばん強いところまで締め、そこから少しずつゆるめ、下りの各段で1秒ほど止まります。このコントロールされた下降こそが本題です。",
+        "name": "ダウンステアーズ",
+        "summary": "頂点から4段階で下る"
+      },
+      "elevator": {
+        "description": "看板となるエクササイズ。一段ずつ上っていき、コントロールしながら下りてきます。",
+        "howTo": "エレベーターに乗っているところを思い浮かべてください。いちばん強い締めに届くまで各段で少しずつ強く締め、そこから完全にゆるむまで一段ずつ下りていきます。",
+        "name": "エレベーター",
+        "summary": "頂点まで上り、一段ずつ下りる"
+      },
+      "flash": {
+        "description": "最速の締め。短くキレのある収縮で、素早い反応を鍛えます。",
+        "howTo": "円のテンポに合わせて、できるだけ速く締めて放します。力みすぎず、軽やかに。",
+        "name": "フラッシュ",
+        "summary": "いちばん速いオン・オフ"
+      },
+      "front-clamp": {
+        "description": "骨盤底の前側をゆっくり集中して締め、素早くすっきりと解放します。",
+        "howTo": "円が満ちていく3秒のあいだ、ゆっくり締めていきます。円が空になったら一気に放してください。そして次のゆっくりした締めを始めます。",
+        "name": "フロントクランプ",
+        "summary": "ゆっくり締めて、一気に放す"
+      },
+      "holding": {
+        "description": "締めたまま保ち、骨盤底筋の基礎的な持久力を育てます。",
+        "howTo": "骨盤底筋を締め、そのラウンドの間ずっと保ちます。力がゆるんできたら、やさしく締め直してください。呼吸は普通に続けます。",
+        "name": "ホールディング",
+        "summary": "ひとつの安定したキープ"
+      },
+      "long-steady-clamp": {
+        "description": "持久力づくりの一種。1秒の締めから、10秒間の全力キープへつなげます。",
+        "howTo": "1秒かけて締め、そこから10秒間全力で保ちます。力がゆるんできたら、やさしく最大まで締め直してください。放して繰り返します。",
+        "name": "ロングステディクランプ",
+        "summary": "1秒で締め、10秒キープ"
+      },
+      "pulsation": {
+        "description": "素早い締めを続けて2回、そのあと完全に解放します。回復しきる前にもう一度締めること、そして力の合間にきちんと放すことを鍛えます。",
+        "howTo": "円に合わせて素早く2回続けて締めて放し、休みのあいだにすべてを完全に手放します。この完全な解放は、パルスと同じくらい大切です。",
+        "name": "ダブルパルス",
+        "summary": "速いパルス2回、そして完全リセット"
+      },
+      "push": {
+        "description": "締めを強いピークまで高め、そこで保ち、ゆっくりゆるめます。",
+        "howTo": "円が満ちていくのに合わせて3秒かけて少しずつ強く締めます。いちばん強い締めを2秒保ち、それからゆっくりゆるめます。より強く締めることを意識し、決していきんで押し下げないでください。",
+        "name": "プッシュ",
+        "summary": "3秒で高め、2秒キープ、3秒でゆるめる"
+      },
+      "reverse-clamp": {
+        "description": "素早く締めたあと、ゆっくりとコントロールしながらゆるめます。コントロールを養うのに最適です。",
+        "howTo": "一気に締め、すぐに円の下降に合わせてできるだけゆっくり放していきます。このゆっくり放す動きこそが本題です。",
+        "name": "リバースクランプ",
+        "summary": "一気に締めて、ゆっくり放す"
+      },
+      "short-holding": {
+        "description": "4秒間しっかり保ち、落とすのではなくゆっくりゆるめます。コントロールして放すことはそれ自体がひとつの技術で、多くの人は保持そのものより難しく感じます。",
+        "howTo": "1秒かけて締め、4秒間全力で保ち、円が沈んでいくのに合わせて少しずつゆるめます。一気に崩さず、いちばん下まで付き添ってください。",
+        "name": "ショートホールディング",
+        "summary": "4秒キープ、そこからゆっくり戻す"
+      },
+      "starter": {
+        "description": "筋肉を目覚めさせる素早い締めのあと、5秒間しっかり保ちます。",
+        "howTo": "素早く一度締め、なめらかにゆるめ、もう一度締めて5秒間しっかり保ちます。放して、呼吸して、繰り返してください。",
+        "name": "スターター",
+        "summary": "素早い締めのあと5秒キープ"
+      },
+      "steady-clamp": {
+        "description": "安定したクランプ。1秒で締め、そこから5秒間全力で保ちます。",
+        "howTo": "1秒かけて締め、力を落とさないまま5秒間全力で保ちます。放して繰り返してください。",
+        "name": "ステディクランプ",
+        "summary": "1秒で締め、5秒キープ"
+      },
+      "steady-trembling": {
+        "description": "一気に締めて、数秒間その力を一定に保ち、それからゆるめます。",
+        "howTo": "一気に締めて力を保ちます。円が下がったら、なめらかにゆるめてください。そして素早い締めと保持を繰り返します。",
+        "name": "ステディトレンブリング",
+        "summary": "一気に締め、保ち、ゆるめる"
+      },
+      "trembling": {
+        "description": "素早く締めてゆるめる動きで筋肉を震わせ、瞬発的な反応を目覚めさせます。",
+        "howTo": "一気に締めて一瞬保ち、なめらかにゆるめます。円が跳ね上がり、やわらかく下りていくのに合わせてください。",
+        "name": "トレンブリング",
+        "summary": "速いオン・オフの締め"
+      },
+      "upstairs": {
+        "description": "締めを4段階で引き上げ、段ごとに少しずつ強くしていきます。",
+        "howTo": "エレベーターで上っていくところを思い浮かべてください。少し締め、さらに強く、もっと強く、いちばん強い締めに届くまで、各段で1秒ほど留まります。そのあとゆるめてください。",
+        "name": "アップステアーズ",
+        "summary": "4段階で頂点まで上る"
+      },
+      "waves": {
+        "description": "波のような締めで、力を絶え間なく高めては解いていきます。",
+        "howTo": "2秒かけてゆっくり締め、同じだけゆっくりゆるめます。寄せては返す波のように、なめらかに途切れなく続けてください。",
+        "name": "ウェーブ",
+        "summary": "2秒で上げ、2秒で下げる"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "やさしいスタート。1分の短いセッション。",
+        "name": "レベル 1"
+      },
+      "2": {
+        "description": "少し長め。2分のセッション。",
+        "name": "レベル 2"
+      },
+      "3": {
+        "description": "バランスの取れたトレーニング。3分のセッション。",
+        "name": "レベル 3"
+      },
+      "4": {
+        "description": "より強い筋肉のための長めのセッション。4分。",
+        "name": "レベル 4"
+      },
+      "5": {
+        "description": "上級の持久力とコントロール。5分。",
+        "name": "レベル 5"
+      }
+    },
+    "steps": {
+      "contract": "締める",
+      "contractAndHold": "締めて保つ",
+      "contractSlowly": "ゆっくり締める",
+      "easeDown": "ゆっくり戻す",
+      "hold": "保つ",
+      "pulse1": "パルス 1",
+      "pulse2": "パルス 2",
+      "relax": "ゆるめる",
+      "relaxSlowly": "ゆっくりゆるめる",
+      "release": "解放",
+      "releaseSlowly": "ゆっくり解放",
+      "reset": "ゼロに戻す",
+      "rest": "休憩",
+      "step1": "段階 1",
+      "step2": "段階 2",
+      "step3": "段階 3",
+      "top": "頂点"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "問題が発生しました",
@@ -9,48 +177,94 @@
     "tryAgain": "再試行"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "解放するには、あと {{count}} 日のトレーニングが必要です。",
+    "completeMoreDaysToUnlock_other": "解放するには、あと {{count}} 日のトレーニングが必要です。",
     "exerciseNotFound": "エクササイズが見つかりません。",
+    "lockedDaysLeft_one": "ロック中 - 残り {{count}} 日",
+    "lockedDaysLeft_other": "ロック中 - 残り {{count}} 日",
     "tryItNow": "今すぐ試す"
   },
   "find": {
+    "flow_stopMidway": "途中で止める",
+    "flow_thatSqueeze": "その締めです！",
+    "flow_youPee": "排尿する",
     "keepGoing": "その調子です…",
     "onlyDoThePeeTest": "排尿時のテストは一度だけにしてください",
+    "onlyDoThePeeTestDesc": "これは筋肉を見つけるための方法であって、エクササイズではありません。頻繁に尿を止めるのは膀胱によくありません。",
+    "pressAndHold": "長押し",
+    "squeezeNow": "締めて！",
     "squeezeOnlyThoseMuscles": "その筋肉だけを締めます",
+    "squeezeOnlyThoseMusclesDesc": "もうひとつの目安は、おならを我慢するように締めることです。おなか、脚、おしりは完全に力を抜いたままにします。",
+    "stopTheFlowBody": "次にトイレへ行ったとき、尿の流れを途中でそっと止めてみてください。そのとき使った筋肉が骨盤底筋です。",
     "thatExactSqueezeIsThe": "まさにその締める感覚が、これから鍛える動きです。",
     "theEasiestWayToFind": "見つけるいちばん簡単な方法",
-    "twoQuickRules": "2つの簡単なルール"
+    "tryItNow": "やってみましょう",
+    "tryItNowBody": "円を長押ししてください。押している間、その筋肉を締めます。同時に放しましょう。",
+    "twoQuickRules": "2つの簡単なルール",
+    "youFoundThem": "見つかりました！",
+    "youFoundThemBody": "その締めて放す動きが、骨盤底トレーニングのすべてです。はじめてのエクササイズの準備ができました。"
   },
   "first": {
     "contract": "締める",
+    "followTheCircle": "円に合わせて。締めて……ゆるめて。",
+    "niceWork": "その調子です！",
+    "nowYouTry": "今度はあなたの番です",
     "start": "スタート",
+    "tenSecondsReady": "{{exercise}}を10秒。{{contract}}のたびに締め、{{relax}}で放します。準備はいいですか？",
+    "thatWasARealExercise": "いまのが本物のエクササイズです。どのセッションもまったく同じように、円ひとつずつ進みます。",
     "theCircleIsYourGuide": "円がガイドになります",
+    "theCircleIsYourGuideBody": "すべてのエクササイズはこの円に従います。円が光って大きくなったら締め、光が消えたらゆるめます。中の言葉が、いつでもやるべきことを教えてくれます。",
     "thisIsTrembling": "これがトレンブリングです",
     "yourFirstExerciseQuickFlicks": "最初のエクササイズは素早い締めです。「締める」で締め、「ゆるめる」で力を抜きます。"
   },
   "knowledge": {
     "continueToTraining": "トレーニングへ進む",
     "learnTheBasics": "基本を学ぶ",
+    "lessonNumber": "レッスン {{number}}",
     "logIn": "ログイン"
   },
   "login": {
     "6DigitCode": "6桁のコード",
     "close": "閉じる",
+    "codeSentEnterBelow": "コードを送信しました。新しいパスワードと一緒に下に入力してください。",
     "continueWithGoogle": "Googleで続行",
+    "couldNotOpenGoogle": "Google ログインを開けませんでした。もう一度お試しください。",
     "createAccount": "アカウントを作成",
     "email": "メールアドレス",
-    "enterYourEmail": "メールアドレスを入力",
+    "enterSixDigitCode": "メールに届いた6桁のコードを入力してください。",
+    "enterYourEmail": "メールアドレスを入力してください。",
+    "failedToResetPassword": "パスワードを再設定できませんでした。",
+    "failedToSendResetCode": "再設定コードを送信できませんでした。",
+    "fillAllFields": "すべての項目を入力してください。",
     "forgotPassword": "パスワードをお忘れですか？",
+    "googleSignInFailed": "Google ログインに失敗しました。もう一度お試しください。",
+    "invalidCredentials": "ログイン情報が正しくありません。",
     "logIn": "ログイン",
     "logIn2": "ログイン",
     "newHere": "はじめてですか？",
     "newPassword": "新しいパスワード",
     "password": "パスワード",
     "passwordReset": "パスワードをリセットしました",
-    "resetPassword": "パスワードをリセット"
+    "passwordResetBody": "パスワードを再設定しました。ログインしてください。",
+    "passwordResetTitle": "パスワードを再設定しました",
+    "passwordRules": "パスワードは6文字以上で、数字を含める必要があります。",
+    "resetPassword": "パスワードをリセット",
+    "resetPasswordCta": "パスワードを再設定",
+    "sendCodeCta": "コードを送信"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
-    "logIn": "ログイン"
+    "getStarted": "はじめる",
+    "logIn": "ログイン",
+    "perDay": "1日あたり",
+    "slide1Body": "誰も口にしませんが、原因はひとつの衰えた筋肉です。そして衰えた筋肉は、鍛え直せます。",
+    "slide1Title": "尿もれ。急な尿意。落ちていくコントロール。",
+    "slide2Body": "ジムも器具もいりません。脱ぐものもありません。ソファでも、デスクでも、バスの中でも。誰にも気づかれません。",
+    "slide2Title": "座ったまま、1分",
+    "slide3Body": "どれだけ長く保てるかをアプリが記録します。時間が伸び、新しいエクササイズが開き、望んでいたところに変化が現れます。",
+    "slide3Title": "見えるより先に、感じます",
+    "slide4Body": "やめれば筋肉は元に戻ります。ほかのトレーニングと同じです。時間を決めれば、あとはリマインダーが引き受けます。",
+    "slide4Title": "続けたときだけ効きます"
   },
   "paywall": {
     "autoRenewOffHint": "自動更新はオフです。有効期限日でアクセスが終了します。",
@@ -60,6 +274,7 @@
     "benefitMeasure": "進捗を記録",
     "benefitReminders": "生活に合うリマインダー",
     "benefitStrength": "骨盤底筋を本当に鍛える",
+    "bestValue": "いちばんお得",
     "billingIsNotAvailableOn": "このデバイスでは購入を利用できません。下から以前の購入を復元できます。",
     "byContinuingYouAgree": "続けると、次に同意したことになります:",
     "changeYourPlan": "プランを変更",
@@ -72,6 +287,7 @@
     "managePlan": "プラン管理",
     "noActiveSubscriptionWasFound": "復元できる有効なサブスクリプションが見つかりませんでした。",
     "off": "オフ",
+    "offeringsUnavailable": "この端末では現在サブスクリプションをご利用いただけません。しばらくしてからお試しいただくか、下から以前の購入を復元してください。",
     "on": "オン",
     "paymentProcessedSecurely": "確定時に RevenueCat とアプリストアを通じて安全に決済されます。",
     "premium": "プレミアム",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "購入は完了しましたが、プランを特定できませんでした。サポートにご連絡ください。",
     "restorePurchases": "購入を復元",
     "restoredPurchaseCouldNotBe": "復元した購入をプランに紐づけできませんでした。サポートにご連絡ください。",
+    "savePercent": "{{percent}} % お得",
     "signInFirst": "登録の前にログインしてください。",
     "startFreeTrialCta_one": "{{count}}日間の無料トライアルを開始",
     "startFreeTrialCta_other": "{{count}}日間の無料トライアルを開始",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "アプリを削除しても解約や返金にはなりません。",
     "yourSubscriptionIsNowActive": "サブスクリプションが有効になり、すべての機能をご利用いただけます。"
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "フルアクセス、毎月のお支払い。",
+      "name": "1か月"
+    },
+    "premium-quarterly": {
+      "description": "3か月ごとのお支払い。",
+      "name": "3か月"
+    },
+    "premium-yearly": {
+      "description": "1年分をまとめて1回のお支払い。",
+      "name": "1年"
+    }
+  },
   "profile": {
     "currentDifficulty": "現在の難易度",
     "difficulty": "難易度",
     "error": "エラー",
+    "errorTitle": "エラー",
+    "failedToUpdateLevel": "トレーニングレベルを更新できませんでした。",
     "profile": "プロフィール",
     "scheduleReminders": "スケジュールとリマインダー",
     "setTheDifficultyOfKegel": "ケーゲルトレーニングの難易度を設定します",
+    "settingsA11y": "設定",
     "theHigherTheLevelThe": "レベルが上がるほどトレーニングは難しくなります"
   },
   "progress": {
+    "bestResult": "ベスト記録",
     "continue": "続ける",
     "holdTheButtonAndContract": "ボタンを押し続け、骨盤底筋をできるだけ長く締めてください。",
+    "lastMeasurement": "最新の測定",
     "progressTracker": "進捗トラッカー",
+    "seconds": "{{count}} 秒",
     "takeMeasurement": "計測する",
+    "today": "今日",
+    "topResult": "ベスト記録: {{count}} 秒",
     "tryAgain": "再試行"
   },
   "register": {
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
     "confirmPassword": "パスワードの確認",
     "continueWithGoogle": "Googleで続行",
+    "couldNotOpenGoogle": "Google 登録を開けませんでした。もう一度お試しください。",
     "createAccount": "アカウント作成",
     "createAccount2": "アカウントを作成",
     "email": "メールアドレス",
+    "fillAllFields": "すべての項目を入力してください。",
+    "googleSignUpFailed": "Google での登録に失敗しました。もう一度お試しください。",
     "logIn": "ログイン",
     "name": "名前",
-    "password": "パスワード"
+    "password": "パスワード",
+    "passwordNeedsNumber": "パスワードには数字を1つ以上含めてください。",
+    "passwordTooShort": "パスワードは6文字以上にしてください。",
+    "passwordsDoNotMatch": "パスワードが一致しません。",
+    "registrationFailed": "登録に失敗しました。"
+  },
+  "reminders": {
+    "notificationBody": "今日の骨盤底トレーニングの時間です！",
+    "notificationTitle": "骨盤底トレーニング"
   },
   "schedule": {
     "active": "オン",
     "allowExactReminders": "正確なリマインダーを許可",
+    "daysLeft_one": "残り {{count}} 日",
+    "daysLeft_other": "残り {{count}} 日",
     "error": "エラー",
+    "errorTitle": "エラー",
+    "failedToSaveReminders": "リマインダーを保存できませんでした。",
     "limitReached": "上限に達しました",
+    "limitReachedBody": "リマインダーは1日に5件まで設定できます。",
+    "limitReachedTitle": "上限に達しました",
+    "monthNumber": "{{number}}か月目",
     "reminders": "リマインダー",
     "remindersSaved": "リマインダーを保存しました",
     "repeatOn": "繰り返す曜日",
     "saveAddReminders": "リマインダーを保存",
     "schedule": "スケジュール",
+    "sessionNumber": "セッション {{number}}",
     "sessionTimes": "セッションの時間"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "アカウントを削除しますか？",
     "deletePermanently": "完全に削除",
     "deleted": "削除しました",
+    "deletedBody": "アカウントを完全に削除しました。",
+    "deletedTitle": "削除しました",
+    "failedToDeleteAccount": "アカウントを削除できませんでした。",
     "gotIt": "OK",
     "language": "言語",
     "logOut": "ログアウト",
     "manageSubscription": "サブスクリプションを管理",
     "noActiveSubscription": "有効なサブスクリプションはありません",
     "reset": "リセット",
+    "resetConfirmBody": "トレーニング日、セッション、測定値、レッスンの進捗がすべて消去されます。この操作は取り消せません。",
     "resetProgress": "進捗をリセット",
     "resetProgress2": "進捗をリセットしますか？",
+    "resetSuccessBody": "トレーニングの記録を消去しました。",
+    "resetSuccessTitle": "リセットしました",
     "resetSuccessful": "リセットが完了しました",
     "restartBody": "レイアウトの方向を切り替えるため、アプリを一度終了してから開き直してください。",
     "restartRequired": "再起動が必要です",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "すでにアカウントをお持ちですか？ ログイン",
     "back": "戻る",
+    "bestValue": "いちばんお得",
+    "billingDisclosure": "お支払いは確定時に RevenueCat とアプリストアを通じて安全に処理されます。サブスクリプションは、サブスクリプション設定で解約されるまで表示価格で自動更新されます。アプリを削除しても解約や返金は行われません。続行すると、以下に同意したものとみなされます:",
     "close": "閉じる",
     "confirmPassword": "パスワードの確認",
     "continue": "続ける",
     "continueWithGoogle": "Googleで続行",
+    "couldNotOpenGoogle": "Google ログインを開けませんでした。もう一度お試しください。",
     "couldNotOpenGoogleSign": "Googleログインを開けませんでした。もう一度お試しください。",
+    "couldNotReachServer": "サーバーに接続できませんでした。通信環境を確認してもう一度お試しください。",
+    "createAccount": "アカウントを作成",
     "createAccountSubscribe": "アカウントを作成して登録",
     "creatingAccount": "アカウントを作成中…",
     "emailAddress": "メールアドレス",
+    "emailInvalid": "有効なメールアドレスを入力してください。",
+    "emailOrPasswordIncorrect": "メールアドレスまたはパスワードが正しくありません。",
+    "emailRequired": "メールアドレスを入力してください。",
     "fullName": "氏名",
+    "googleSignInFailed": "Google ログインに失敗しました。もう一度お試しください。",
+    "nameRequired": "名前を入力してください。",
     "noAccountYetCreateOne": "アカウントをお持ちでないですか？ 作成する",
     "password": "パスワード",
     "password6Characters1Number": "パスワード（6文字以上、数字1つ以上）",
+    "passwordRequired": "パスワードを入力してください。",
+    "passwordRules": "パスワードは6文字以上で、数字を含める必要があります。",
+    "passwordsDoNotMatch": "パスワードが一致しません。",
+    "signIn": "ログイン",
     "signInSubscribe": "ログインして登録",
     "signingIn": "ログイン中…",
     "startYourTransformationJourneyNow": "今日から変化を始めましょう",
     "subscribe": "登録する",
     "terms": "利用規約"
+  },
+  "tabs": {
+    "profile": "プロフィール",
+    "progress": "進捗",
+    "schedule": "スケジュール",
+    "training": "トレーニング"
   },
   "training": {
     "available": "利用可能",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "ログインに戻る",
+    "codeResent": "確認コードを再送しました！",
     "didnTReceiveTheCode": "コードが届きませんか？ 再送信",
+    "enterSixDigitCode": "6桁の確認コードを入力してください。",
+    "failedToResendCode": "コードを再送できませんでした。",
+    "verificationFailed": "確認に失敗しました。もう一度お試しください。",
     "verifyCode": "コードを確認",
     "verifyEmail": "メールアドレスを確認"
   },
   "why": {
     "aMuscleYouCanTrain": "鍛えられる筋肉です",
+    "aRealMuscleBody": "骨盤底筋は本物の筋肉です。1日数分鍛えれば、ほかのトレーニングと同じように強くなります。薬も副作用も不要で、結果は続きます。",
     "andYouCanDoIt": "しかもいつでもどこでもできます。座っていても、立っていても、バスの中でも。誰にも気づかれません。",
+    "benefit_bladder_desc": "尿もれや急な尿意が減ります。",
+    "benefit_bladder_title": "膀胱のコントロール向上",
+    "benefit_confidence_desc": "週を追うごとに積み上がる成果。",
+    "benefit_confidence_title": "続く自信",
+    "benefit_core_desc": "姿勢と腰まわりを助けます。",
+    "benefit_core_title": "支えられた体幹",
+    "benefit_performance_desc": "親密な場面でのコントロールと持久力が高まります。",
+    "benefit_performance_title": "パフォーマンスの向上",
     "doingItRightIsEverything": "正しく行うことがすべてです",
     "learnItOnceAndEvery": "一度覚えれば、トレーニングの1分1分が本当に意味を持ちます。",
     "squeezeTheWrongMusclesAnd": "違う筋肉を締めても効果はありません。",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "ここで終了すると、このセッションは今日の進捗に反映されません。",
     "leaveTraining": "トレーニングを終了しますか？",
     "noExercises": "エクササイズがありません",
+    "noExercisesBody": "このセッションで解放されているエクササイズがありません。",
+    "noExercisesTitle": "エクササイズがありません",
     "noGoBack": "いいえ、戻る",
     "pause": "一時停止",
     "resume": "再開",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "はい、終了する"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "すでにいちばんやさしいレベルです。",
+    "alreadyHighestLevel": "すでに最高レベルです。",
     "continue": "続ける",
     "howWasThat": "いかがでしたか？",
     "justRight": "ちょうどいい",
+    "keepGoing": "すばらしい！ この調子で続けましょう。",
+    "levelUp": "レベルアップ！ 現在は{{level}}です。",
+    "monthNumber": "{{number}}か月目",
     "newExerciseUnlocked": "新しいエクササイズが解放されました",
     "nextToUnlock": "次に解放されるもの",
     "notNow": "あとで",
+    "steppedDown": "{{level}}に戻りました。きっとできます！",
     "tooEasy": "簡単すぎる",
     "tooHard": "難しすぎる",
-    "tryItNow": "今すぐ試す"
+    "tryItNow": "今すぐ試す",
+    "unlockedList": "解放: {{names}}"
   }
 }

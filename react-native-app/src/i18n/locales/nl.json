@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Beschikbaar",
-    "exercises": "Oefeningen"
+    "backA11y": "Terug",
+    "exercises": "Oefeningen",
+    "unlockProgressA11y": "Voortgang ontgrendeling van {{name}}"
+  },
+  "basics": {
+    "findTitle": "Vind je bekkenbodem",
+    "firstTitle": "Je eerste oefening",
+    "whyTitle": "Waarom kegeltraining werkt"
+  },
+  "billing": {
+    "alreadyOwned": "Je hebt al een actief abonnement. We herstellen het nu.",
+    "configuration": "Dit plan kan nu niet gekocht worden. Dat ligt aan ons - probeer het later opnieuw of neem contact op met support.",
+    "declined": "Google Play heeft de betaling geweigerd. Controleer de betaalmethode van je Google-account en probeer het opnieuw.",
+    "ineligible": "Je komt niet in aanmerking voor deze aanbieding. Kies een ander plan.",
+    "network": "We konden de store niet bereiken. Controleer je verbinding en probeer het opnieuw. Als er is afgeschreven, verschijnt je toegang vanzelf.",
+    "noPermission": "Je Google-account heeft geen toestemming om aankopen te doen op dit apparaat.",
+    "notAllowed": "Dit apparaat of Google-account mag geen aankopen doen. Meestal is dat ouderlijk toezicht, of geen betaalmethode op het account.",
+    "operationInProgress": "Er loopt al een aankoop. Wacht even voordat je het opnieuw probeert.",
+    "otherAccount": "Dit abonnement hoort bij een ander account. Log in met dat account, of neem contact op met support en wij zetten het over.",
+    "paymentPending": "Je betaling wordt verwerkt door Google Play. Contant- en voucherbetalingen kunnen even duren. Je toegang wordt automatisch vrijgegeven zodra het rond is, dus betaal alsjeblieft niet nog een keer.",
+    "storeProblem": "Google Play heeft momenteel problemen. Probeer het over een paar minuten opnieuw.",
+    "unknown": "Er ging iets mis bij het afronden van je aankoop. Probeer het opnieuw. Als er is afgeschreven, verschijnt je toegang vanzelf."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Een stevige aanspanning die langzaam wordt opgebouwd en net zo langzaam wordt losgelaten.",
+        "howTo": "Span 3 seconden lang langzaam aan terwijl de cirkel volloopt en laat dan net zo langzaam los terwijl hij leegloopt. Houd de beweging in beide richtingen soepel.",
+        "name": "Klem",
+        "summary": "Langzaam omhoog, langzaam omlaag"
+      },
+      "downstairs": {
+        "description": "Span aan tot bovenaan en kom dan trede voor trede volledig gecontroleerd naar beneden.",
+        "howTo": "Span aan tot je sterkste punt en ontspan dan stukje bij beetje, met ongeveer een seconde pauze op elke trede naar beneden. De gecontroleerde afdaling is de oefening.",
+        "name": "Trap af",
+        "summary": "In 4 treden vanaf de top omlaag"
+      },
+      "elevator": {
+        "description": "De kenmerkende oefening. Klim trede voor trede omhoog en kom dan gecontroleerd weer naar beneden.",
+        "howTo": "Stel je voor dat je in een lift staat. Span bij elke trede iets steviger aan tot je je sterkste aanspanning bereikt en kom dan trede voor trede omlaag tot je volledig ontspannen bent.",
+        "name": "Lift",
+        "summary": "Klim naar boven en stap weer omlaag"
+      },
+      "flash": {
+        "description": "De snelste knijpjes. Korte, kwieke aanspanningen die je reactievermogen trainen.",
+        "howTo": "Span aan en laat los zo snel als je kunt, op het ritme van de cirkel. Blijf licht, forceer niets.",
+        "name": "Flits",
+        "summary": "De allersnelste knijpjes"
+      },
+      "front-clamp": {
+        "description": "Een langzame, gerichte aanspanning van de voorkant van de bekkenbodem met een snelle, schone ontspanning.",
+        "howTo": "Span 3 seconden lang langzaam aan terwijl de cirkel volloopt. Als hij leegloopt, laat je alles in één keer los. Begin daarna aan de volgende langzame aanspanning.",
+        "name": "Voorste klem",
+        "summary": "Langzaam aanspannen, in één keer loslaten"
+      },
+      "holding": {
+        "description": "Aanspannen en vasthouden om de basisconditie van je bekkenbodem op te bouwen.",
+        "howTo": "Span je bekkenbodem aan en houd de hele ronde vast. Zakt de spanning weg, span dan rustig weer aan. Blijf normaal doorademen.",
+        "name": "Vasthouden",
+        "summary": "Eén gelijkmatige houdgreep"
+      },
+      "long-steady-clamp": {
+        "description": "De conditie-opbouwer: één seconde aanspannen gevolgd door tien seconden op volle kracht vasthouden.",
+        "howTo": "Span één seconde aan en houd daarna tien seconden op volle kracht vast. Zakt de spanning weg, span dan rustig weer aan tot vol. Loslaten en herhalen.",
+        "name": "Lange rustige klem",
+        "summary": "1 seconde aanspannen, 10 seconden vasthouden"
+      },
+      "pulsation": {
+        "description": "Twee snelle aanspanningen achter elkaar, gevolgd door volledig loslaten. Traint het opnieuw aanspannen voordat je volledig hersteld bent, en het goed loslaten tussen inspanningen door.",
+        "howTo": "Span twee keer snel achter elkaar aan en laat los op het ritme van de cirkel, en laat tijdens de rust alles volledig gaan. Het volledig loslaten telt net zo zwaar als de pulsen.",
+        "name": "Dubbele puls",
+        "summary": "Twee snelle pulsen, dan helemaal terug"
+      },
+      "push": {
+        "description": "Bouw de aanspanning op tot een stevige piek, houd die vast en laat dan langzaam los.",
+        "howTo": "Span drie seconden geleidelijk aan en word sterker naarmate de cirkel volloopt. Houd je sterkste aanspanning twee seconden vast en laat dan langzaam los. Knijp harder, duw nooit naar beneden.",
+        "name": "Duw",
+        "summary": "3 s opbouwen, 2 s piek vasthouden, 3 s ontspannen"
+      },
+      "reverse-clamp": {
+        "description": "Een snelle aanspanning gevolgd door langzaam, gecontroleerd loslaten. Uitstekend voor controle.",
+        "howTo": "Span in één keer aan en begin meteen zo langzaam mogelijk los te laten, terwijl je de cirkel naar beneden volgt. Het langzame loslaten is de oefening.",
+        "name": "Omgekeerde klem",
+        "summary": "In één keer aanspannen, langzaam loslaten"
+      },
+      "short-holding": {
+        "description": "Een stevige houdgreep van 4 seconden die langzaam wordt losgelaten in plaats van laten vallen. Gecontroleerd loslaten is een vaardigheid op zich, en de meeste mensen vinden dat lastiger dan het vasthouden.",
+        "howTo": "Span één seconde aan, houd vier seconden op volle kracht vast en laat dan geleidelijk los terwijl de cirkel zakt. Laat het niet inzakken: blijf er tot helemaal onderaan bij.",
+        "name": "Kort vasthouden",
+        "summary": "4 seconden vasthouden, dan rustig laten zakken"
+      },
+      "starter": {
+        "description": "Eén snelle aanspanning om de spier wakker te maken, gevolgd door een stevige houdgreep van 5 seconden.",
+        "howTo": "Geef één snelle aanspanning, ontspan soepel, span dan opnieuw aan en houd vijf seconden stevig vast. Loslaten, ademen en herhalen.",
+        "name": "Starter",
+        "summary": "Snel knijpje, dan 5 seconden vasthouden"
+      },
+      "steady-clamp": {
+        "description": "Een rustige klem: span één seconde aan en houd daarna vijf seconden op volle kracht vast.",
+        "howTo": "Span één seconde aan en houd daarna vijf seconden op volle kracht vast zonder de spanning te laten zakken. Loslaten en herhalen.",
+        "name": "Rustige klem",
+        "summary": "1 seconde aanspannen, 5 seconden vasthouden"
+      },
+      "steady-trembling": {
+        "description": "Span in één keer aan, houd de spanning een paar seconden stabiel en ontspan dan.",
+        "howTo": "Span in één keer aan en houd de spanning vast. Als de cirkel zakt, laat je soepel los. Herhaal daarna de snelle aanspanning en het vasthouden.",
+        "name": "Rustig trillen",
+        "summary": "In één keer aanspannen, vasthouden, ontspannen"
+      },
+      "trembling": {
+        "description": "Snel aanspannen en loslaten waardoor de spier trilt en zijn snelle reactie wakker wordt.",
+        "howTo": "Span alles in één keer aan, houd het even vast en laat dan soepel los. Volg de cirkel terwijl hij omhoogschiet en weer zakt.",
+        "name": "Trillen",
+        "summary": "Snelle knijpjes, aan en uit"
+      },
+      "upstairs": {
+        "description": "Klim met de aanspanning omhoog in vier treden, bij elke trede iets steviger.",
+        "howTo": "Stel je voor dat je met de lift omhooggaat. Span een beetje aan, dan meer, dan nog meer, tot je je sterkste aanspanning bereikt, en blijf ongeveer een seconde op elke trede. Ontspan daarna.",
+        "name": "Trap op",
+        "summary": "In 4 treden naar boven"
+      },
+      "waves": {
+        "description": "Golvende aanspanningen die onafgebroken spanning opbouwen en weer loslaten.",
+        "howTo": "Span twee seconden langzaam aan en laat dan net zo langzaam los, als een golf die opkomt en wegebt. Houd het soepel en doorlopend.",
+        "name": "Golven",
+        "summary": "2 seconden omhoog, 2 seconden omlaag"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Rustige start. Korte sessies van 1 minuut.",
+        "name": "Niveau 1"
+      },
+      "2": {
+        "description": "Iets langer. Sessies van 2 minuten.",
+        "name": "Niveau 2"
+      },
+      "3": {
+        "description": "Evenwichtige training. Sessies van 3 minuten.",
+        "name": "Niveau 3"
+      },
+      "4": {
+        "description": "Langere sessies voor sterkere spieren. 4 minuten.",
+        "name": "Niveau 4"
+      },
+      "5": {
+        "description": "Gevorderd uithoudingsvermogen en controle. 5 minuten.",
+        "name": "Niveau 5"
+      }
+    },
+    "steps": {
+      "contract": "Aanspannen",
+      "contractAndHold": "Aanspannen & vasthouden",
+      "contractSlowly": "Langzaam aanspannen",
+      "easeDown": "Rustig laten zakken",
+      "hold": "Vasthouden",
+      "pulse1": "Puls 1",
+      "pulse2": "Puls 2",
+      "relax": "Ontspannen",
+      "relaxSlowly": "Langzaam ontspannen",
+      "release": "Loslaten",
+      "releaseSlowly": "Langzaam loslaten",
+      "reset": "Terug naar rust",
+      "rest": "Rust",
+      "step1": "Trede 1",
+      "step2": "Trede 2",
+      "step3": "Trede 3",
+      "top": "Bovenaan"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Er is iets misgegaan",
@@ -9,48 +177,94 @@
     "tryAgain": "Opnieuw proberen"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Voltooi nog {{count}} trainingsdag om te ontgrendelen.",
+    "completeMoreDaysToUnlock_other": "Voltooi nog {{count}} trainingsdagen om te ontgrendelen.",
     "exerciseNotFound": "Oefening niet gevonden.",
+    "lockedDaysLeft_one": "Vergrendeld - nog {{count}} dag",
+    "lockedDaysLeft_other": "Vergrendeld - nog {{count}} dagen",
     "tryItNow": "Nu uitproberen"
   },
   "find": {
+    "flow_stopMidway": "Stop halverwege",
+    "flow_thatSqueeze": "Precies dat knijpen!",
+    "flow_youPee": "Je plast",
     "keepGoing": "Ga zo door …",
     "onlyDoThePeeTest": "Doe de plastest maar één keer",
+    "onlyDoThePeeTestDesc": "Het is alleen een manier om de spieren te vinden, geen oefening. Je plas vaak afbreken is niet goed voor je blaas.",
+    "pressAndHold": "Ingedrukt houden",
+    "squeezeNow": "Knijpen!",
     "squeezeOnlyThoseMuscles": "Span alleen die spieren aan",
+    "squeezeOnlyThoseMusclesDesc": "Nog een aanwijzing: knijp alsof je een wind ophoudt. Buik, benen en billen blijven volledig ontspannen.",
+    "stopTheFlowBody": "Stop de volgende keer dat je plast de straal halverwege rustig af. De spieren die je net gebruikte zijn je bekkenbodem.",
     "thatExactSqueezeIsThe": "Precies die aanspanning is de beweging die je gaat trainen.",
     "theEasiestWayToFind": "De makkelijkste manier om ze te vinden",
-    "twoQuickRules": "Twee korte regels"
+    "tryItNow": "Probeer het nu",
+    "tryItNowBody": "Houd de cirkel ingedrukt. Terwijl je hem vasthoudt, knijp je die spieren aan. Laat samen los.",
+    "twoQuickRules": "Twee korte regels",
+    "youFoundThem": "Je hebt ze gevonden!",
+    "youFoundThemBody": "Dat knijpen en loslaten is alles wat een kegel is. Je bent klaar voor je eerste oefening."
   },
   "first": {
     "contract": "Aanspannen",
+    "followTheCircle": "Volg de cirkel. Aanspannen... en ontspannen.",
+    "niceWork": "Goed gedaan!",
+    "nowYouTry": "Nu jij",
     "start": "Starten",
+    "tenSecondsReady": "Tien seconden {{exercise}}. Knijp bij elke {{contract}} en laat los bij {{relax}}. Klaar?",
+    "thatWasARealExercise": "Dat was een echte oefening. Elke sessie werkt precies zo, één cirkel per keer.",
     "theCircleIsYourGuide": "De cirkel is je gids",
+    "theCircleIsYourGuideBody": "Elke oefening volgt deze cirkel. Als hij oplicht en groter wordt, knijp je aan. Als de gloed wegvalt, ontspan je. Het woord erin vertelt je altijd wat je moet doen.",
     "thisIsTrembling": "Dit is Trillen",
     "yourFirstExerciseQuickFlicks": "Je eerste oefening: korte pulsjes. Aanspannen bij Aanspannen, loslaten bij Ontspannen."
   },
   "knowledge": {
     "continueToTraining": "Door naar de training",
     "learnTheBasics": "Leer de basis",
+    "lessonNumber": "Les {{number}}",
     "logIn": "Inloggen"
   },
   "login": {
     "6DigitCode": "6-cijferige code",
     "close": "Sluiten",
+    "codeSentEnterBelow": "Code verzonden! Voer hem hieronder in samen met een nieuw wachtwoord.",
     "continueWithGoogle": "Doorgaan met Google",
+    "couldNotOpenGoogle": "Kon Google-inloggen niet openen. Probeer het opnieuw.",
     "createAccount": "Account aanmaken",
     "email": "E-mail",
-    "enterYourEmail": "Voer je e-mailadres in",
+    "enterSixDigitCode": "Voer de 6-cijferige code uit je e-mail in.",
+    "enterYourEmail": "Voer je e-mailadres in.",
+    "failedToResetPassword": "Kon het wachtwoord niet opnieuw instellen.",
+    "failedToSendResetCode": "Kon de herstelcode niet versturen.",
+    "fillAllFields": "Vul alle velden in.",
     "forgotPassword": "Wachtwoord vergeten?",
+    "googleSignInFailed": "Inloggen met Google is mislukt. Probeer het opnieuw.",
+    "invalidCredentials": "Ongeldige inloggegevens.",
     "logIn": "Inloggen",
     "logIn2": "Inloggen",
     "newHere": "Nieuw hier?",
     "newPassword": "Nieuw wachtwoord",
     "password": "Wachtwoord",
     "passwordReset": "Wachtwoord opnieuw ingesteld",
-    "resetPassword": "Wachtwoord opnieuw instellen"
+    "passwordResetBody": "Je wachtwoord is opnieuw ingesteld. Log in.",
+    "passwordResetTitle": "Wachtwoord hersteld",
+    "passwordRules": "Het wachtwoord moet minstens 6 tekens bevatten en een cijfer.",
+    "resetPassword": "Wachtwoord opnieuw instellen",
+    "resetPasswordCta": "Wachtwoord herstellen",
+    "sendCodeCta": "Code versturen"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Heb je al een account?",
-    "logIn": "Inloggen"
+    "getStarted": "Aan de slag",
+    "logIn": "Inloggen",
+    "perDay": "PER DAG",
+    "slide1Body": "Niemand heeft het erover. Het komt allemaal door één zwakke spier, en een zwakke spier kun je terugtrainen.",
+    "slide1Title": "Lekken. Aandrang. Minder controle.",
+    "slide2Body": "Geen sportschool, geen apparaten, niets uittrekken. Op de bank, achter je bureau, in de bus. Niemand ziet het.",
+    "slide2Title": "Eén minuut, gewoon zittend",
+    "slide3Body": "De app meet hoe lang je het volhoudt. Je tijden lopen op, nieuwe oefeningen komen vrij, en het verschil merk je waar je het wilde.",
+    "slide3Title": "Je voelt het voordat je het ziet",
+    "slide4Body": "Stop je, dan zakt de spier weg, net als bij elke training. Kies een tijd en laat de herinnering de rest doen.",
+    "slide4Title": "Het werkt alleen als je doorgaat"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisch verlengen staat uit. Je toegang stopt op de vervaldatum.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Meet je vooruitgang",
     "benefitReminders": "Herinneringen die bij je dag passen",
     "benefitStrength": "Bouw echte bekkenbodemkracht op",
+    "bestValue": "BESTE KEUZE",
     "billingIsNotAvailableOn": "Betalen is niet beschikbaar op dit apparaat. Je kunt hieronder een eerdere aankoop herstellen.",
     "byContinuingYouAgree": "Door verder te gaan ga je akkoord met onze",
     "changeYourPlan": "Abonnement wijzigen",
@@ -72,6 +287,7 @@
     "managePlan": "Abonnement beheren",
     "noActiveSubscriptionWasFound": "Er is geen actief abonnement gevonden om te herstellen.",
     "off": "Uit",
+    "offeringsUnavailable": "Abonnementen zijn op dit apparaat momenteel niet beschikbaar. Probeer het later opnieuw of herstel hieronder een eerdere aankoop.",
     "on": "Aan",
     "paymentProcessedSecurely": "De betaling wordt bij bevestiging veilig verwerkt via RevenueCat en de app store.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Aankoop ontvangen, maar het abonnement kon niet worden herkend. Neem contact op met support.",
     "restorePurchases": "Aankopen herstellen",
     "restoredPurchaseCouldNotBe": "De herstelde aankoop kon niet aan een abonnement worden gekoppeld. Neem contact op met support.",
+    "savePercent": "BESPAAR {{percent}}%",
     "signInFirst": "Log in voordat je een abonnement neemt.",
     "startFreeTrialCta_one": "Start {{count}} dag gratis",
     "startFreeTrialCta_other": "Start {{count}} dagen gratis",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "De app verwijderen zegt een abonnement niet op en geeft geen geld terug.",
     "yourSubscriptionIsNowActive": "Je abonnement is actief en je hebt volledige toegang."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Volledige toegang, maandelijks gefactureerd.",
+      "name": "1 maand"
+    },
+    "premium-quarterly": {
+      "description": "Elke 3 maanden gefactureerd.",
+      "name": "3 maanden"
+    },
+    "premium-yearly": {
+      "description": "Eén betaling voor het hele jaar.",
+      "name": "1 jaar"
+    }
+  },
   "profile": {
     "currentDifficulty": "Huidige moeilijkheidsgraad",
     "difficulty": "Moeilijkheidsgraad",
     "error": "Fout",
+    "errorTitle": "Fout",
+    "failedToUpdateLevel": "Kon het trainingsniveau niet bijwerken.",
     "profile": "Profiel",
     "scheduleReminders": "Schema en herinneringen",
     "setTheDifficultyOfKegel": "Stel de moeilijkheidsgraad van het Kegel-trainingsprogramma in",
+    "settingsA11y": "Instellingen",
     "theHigherTheLevelThe": "Hoe hoger het niveau, hoe zwaarder de training"
   },
   "progress": {
+    "bestResult": "beste resultaat",
     "continue": "Doorgaan",
     "holdTheButtonAndContract": "Houd de knop ingedrukt en span je bekkenbodemspieren zo lang mogelijk aan.",
+    "lastMeasurement": "laatste meting",
     "progressTracker": "Voortgang",
+    "seconds": "{{count}} sec",
     "takeMeasurement": "Meting doen",
+    "today": "Vandaag",
+    "topResult": "beste score: {{count}} sec",
     "tryAgain": "Opnieuw proberen"
   },
   "register": {
     "alreadyHaveAnAccount": "Heb je al een account?",
     "confirmPassword": "Bevestig wachtwoord",
     "continueWithGoogle": "Doorgaan met Google",
+    "couldNotOpenGoogle": "Kon Google-registratie niet openen. Probeer het opnieuw.",
     "createAccount": "Account aanmaken",
     "createAccount2": "Account aanmaken",
     "email": "E-mail",
+    "fillAllFields": "Vul alle velden in.",
+    "googleSignUpFailed": "Registreren met Google is mislukt. Probeer het opnieuw.",
     "logIn": "Inloggen",
     "name": "Naam",
-    "password": "Wachtwoord"
+    "password": "Wachtwoord",
+    "passwordNeedsNumber": "Het wachtwoord moet minstens één cijfer bevatten.",
+    "passwordTooShort": "Het wachtwoord moet minstens 6 tekens bevatten.",
+    "passwordsDoNotMatch": "De wachtwoorden komen niet overeen.",
+    "registrationFailed": "Registreren is mislukt."
+  },
+  "reminders": {
+    "notificationBody": "Tijd voor je dagelijkse kegelsessie!",
+    "notificationTitle": "Kegeltraining"
   },
   "schedule": {
     "active": "Actief",
     "allowExactReminders": "Exacte herinneringen toestaan",
+    "daysLeft_one": "nog {{count}} dag",
+    "daysLeft_other": "nog {{count}} dagen",
     "error": "Fout",
+    "errorTitle": "Fout",
+    "failedToSaveReminders": "Kon de herinneringen niet opslaan.",
     "limitReached": "Limiet bereikt",
+    "limitReachedBody": "Je kunt maximaal 5 herinneringen per dag instellen.",
+    "limitReachedTitle": "Limiet bereikt",
+    "monthNumber": "Maand {{number}}",
     "reminders": "Herinneringen",
     "remindersSaved": "Herinneringen opgeslagen",
     "repeatOn": "Herhalen op",
     "saveAddReminders": "Herinneringen opslaan",
     "schedule": "Schema",
+    "sessionNumber": "Sessie {{number}}",
     "sessionTimes": "Sessietijden"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Account verwijderen?",
     "deletePermanently": "Definitief verwijderen",
     "deleted": "Verwijderd",
+    "deletedBody": "Je account is definitief verwijderd.",
+    "deletedTitle": "Verwijderd",
+    "failedToDeleteAccount": "Kon het account niet verwijderen.",
     "gotIt": "Begrepen",
     "language": "Taal",
     "logOut": "Uitloggen",
     "manageSubscription": "Abonnement beheren",
     "noActiveSubscription": "Geen actief abonnement",
     "reset": "Resetten",
+    "resetConfirmBody": "Hiermee wis je je trainingsdagen, sessies, metingen en lesvoortgang. Dit kan niet ongedaan worden gemaakt.",
     "resetProgress": "Voortgang resetten",
     "resetProgress2": "Voortgang resetten?",
+    "resetSuccessBody": "Je trainingsvoortgang is gewist.",
+    "resetSuccessTitle": "Gewist",
     "resetSuccessful": "Reset gelukt",
     "restartBody": "Sluit de app en open hem opnieuw om de layoutrichting te wijzigen.",
     "restartRequired": "Herstart vereist",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Heb je al een account? Log in",
     "back": "Terug",
+    "bestValue": "BESTE KEUZE",
+    "billingDisclosure": "De betaling wordt bij bevestiging veilig verwerkt via RevenueCat en de appstore. Je abonnement wordt automatisch verlengd tegen de getoonde prijs totdat je het opzegt in je abonnementsinstellingen; de app verwijderen zegt het niet op en geeft geen restitutie. Door verder te gaan ga je akkoord met onze",
     "close": "Sluiten",
     "confirmPassword": "Bevestig wachtwoord",
     "continue": "Doorgaan",
     "continueWithGoogle": "Doorgaan met Google",
+    "couldNotOpenGoogle": "Kon Google-inloggen niet openen. Probeer het opnieuw.",
     "couldNotOpenGoogleSign": "Kon inloggen met Google niet openen. Probeer het opnieuw.",
+    "couldNotReachServer": "Kon de server niet bereiken. Controleer je internetverbinding en probeer het opnieuw.",
+    "createAccount": "Account aanmaken",
     "createAccountSubscribe": "Account aanmaken en abonneren",
     "creatingAccount": "Account aanmaken …",
     "emailAddress": "E-mailadres",
+    "emailInvalid": "Voer een geldig e-mailadres in.",
+    "emailOrPasswordIncorrect": "E-mailadres of wachtwoord is onjuist.",
+    "emailRequired": "E-mail is verplicht.",
     "fullName": "Volledige naam",
+    "googleSignInFailed": "Inloggen met Google is mislukt. Probeer het opnieuw.",
+    "nameRequired": "Naam is verplicht.",
     "noAccountYetCreateOne": "Nog geen account? Maak er een aan",
     "password": "Wachtwoord",
     "password6Characters1Number": "Wachtwoord (6+ tekens, 1 cijfer)",
+    "passwordRequired": "Wachtwoord is verplicht.",
+    "passwordRules": "Het wachtwoord moet minstens 6 tekens bevatten en een cijfer.",
+    "passwordsDoNotMatch": "De wachtwoorden komen niet overeen.",
+    "signIn": "Inloggen",
     "signInSubscribe": "Inloggen en abonneren",
     "signingIn": "Inloggen …",
     "startYourTransformationJourneyNow": "Begin nu aan je transformatie",
     "subscribe": "Abonneren",
     "terms": "Voorwaarden"
+  },
+  "tabs": {
+    "profile": "Profiel",
+    "progress": "Voortgang",
+    "schedule": "Schema",
+    "training": "Training"
   },
   "training": {
     "available": "Beschikbaar",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Terug naar inloggen",
+    "codeResent": "Verificatiecode opnieuw verstuurd!",
     "didnTReceiveTheCode": "Geen code ontvangen? Opnieuw versturen",
+    "enterSixDigitCode": "Voer een verificatiecode van 6 cijfers in.",
+    "failedToResendCode": "Kon de code niet opnieuw versturen.",
+    "verificationFailed": "Verificatie mislukt. Probeer het opnieuw.",
     "verifyCode": "Code verifiëren",
     "verifyEmail": "E-mail verifiëren"
   },
   "why": {
     "aMuscleYouCanTrain": "Een spier die je kunt trainen",
+    "aRealMuscleBody": "Je bekkenbodem is een echte spier. Train hem een paar minuten per dag en hij wordt sterker, net als bij elke andere training. Geen pillen, geen bijwerkingen, en het resultaat blijft.",
     "andYouCanDoIt": "En je kunt het overal en altijd doen. Zittend, staand, in de bus. Niemand die het merkt.",
+    "benefit_bladder_desc": "Minder lekken en minder plotselinge aandrang.",
+    "benefit_bladder_title": "Betere blaascontrole",
+    "benefit_confidence_desc": "Winst die week na week groeit.",
+    "benefit_confidence_title": "Blijvend zelfvertrouwen",
+    "benefit_core_desc": "Helpt je houding en onderrug.",
+    "benefit_core_title": "Een ondersteund midden",
+    "benefit_performance_desc": "Meer controle en uithoudingsvermogen in intimiteit.",
+    "benefit_performance_title": "Sterkere prestaties",
     "doingItRightIsEverything": "Het goed doen is alles",
     "learnItOnceAndEvery": "Leer het één keer, en elke minuut training telt echt.",
     "squeezeTheWrongMusclesAnd": "Span je de verkeerde spieren aan, dan levert het niets op.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Als je stopt, telt deze sessie niet mee voor je dagelijkse voortgang.",
     "leaveTraining": "Training verlaten?",
     "noExercises": "Geen oefeningen",
+    "noExercisesBody": "Nog geen oefeningen vrijgespeeld voor deze sessie.",
+    "noExercisesTitle": "Geen oefeningen",
     "noGoBack": "Nee, terug",
     "pause": "Pauze",
     "resume": "Hervatten",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Ja, training stoppen"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Je zit al op het makkelijkste niveau.",
+    "alreadyHighestLevel": "Je zit al op het hoogste niveau.",
     "continue": "Doorgaan",
     "howWasThat": "Hoe ging dat?",
     "justRight": "Precies goed",
+    "keepGoing": "Top! We gaan door.",
+    "levelUp": "Niveau omhoog! Je zit nu op {{level}}.",
+    "monthNumber": "Maand {{number}}",
     "newExerciseUnlocked": "Nieuwe oefening vrijgespeeld!",
     "nextToUnlock": "Volgende om vrij te spelen",
     "notNow": "Niet nu",
+    "steppedDown": "Terug naar {{level}}. Dit ga je halen!",
     "tooEasy": "Te makkelijk",
     "tooHard": "Te zwaar",
-    "tryItNow": "Nu uitproberen"
+    "tryItNow": "Nu uitproberen",
+    "unlockedList": "Vrijgespeeld: {{names}}"
   }
 }

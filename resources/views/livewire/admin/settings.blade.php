@@ -123,6 +123,17 @@
                            placeholder="your_custom_webhook_secret"
                            class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
                     <p class="mt-1 text-xs text-muted">Value set in RevenueCat Dashboard &rarr; Integrations &rarr; Webhooks &rarr; Authorization Header.</p>
+                    @if (trim((string) ($values['revenuecat_webhook_secret'] ?? '')) === '')
+                        {{-- The webhook creates subscriptions from its request body, so it
+                             refuses to process anything until this is set. Renewals,
+                             cancellations and expiries will NOT reach the app before then. --}}
+                        <p class="mt-2 rounded-lg border border-accent/40 bg-accent/10 p-2 text-xs leading-relaxed">
+                            <strong>Not set - subscription webhooks are being rejected.</strong>
+                            RevenueCat events (renewals, cancellations, expiries) are refused with a 503
+                            until this secret is set here <em>and</em> in the RevenueCat dashboard.
+                            RevenueCat retries, so nothing is lost once both sides match.
+                        </p>
+                    @endif
                 </div>
 
                 <div>

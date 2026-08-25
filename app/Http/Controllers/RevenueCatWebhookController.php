@@ -20,17 +20,35 @@ class RevenueCatWebhookController extends Controller
 {
     public function handle(Request $request, RevenueCatService $rcService, SettingsService $settings): Response
     {
-        // 1. Authorization check if webhook secret configured
+        // 1. Authorization. This endpoint MINTS SUBSCRIPTIONS from its request
+        //    body - handleInitialPurchase resolves the account straight out of
+        //    app_user_id (which may be an email) and creates a row with an
+        //    expiry taken from the payload. So it must never run unauthenticated.
+        //
+        //    It previously skipped the check entirely when no secret was
+        //    configured, and the secret defaults to empty in both
+        //    SettingsService and config/services.php - which meant a fresh
+        //    deployment would hand a free subscription of any length to anyone
+        //    who could POST this URL. Refuse to process instead.
         $configuredSecret = (string) ($settings->get('revenuecat_webhook_secret') ?: config('services.revenuecat.webhook_secret', ''));
-        if (! empty($configuredSecret)) {
-            $authHeader = $request->header('Authorization', '');
-            $providedSecret = str_replace('Bearer ', '', $authHeader);
-            if ($providedSecret !== $configuredSecret) {
-                Log::warning('RevenueCat webhook unauthorized attempt', [
-                    'ip' => $request->ip(),
-                ]);
-                return response('Unauthorized', 401);
-            }
+        if ($configuredSecret === '') {
+            Log::critical('RevenueCat webhook secret is not configured - refusing to process events. Set it in Admin -> Settings (or REVENUECAT_WEBHOOK_SECRET) AND in RevenueCat Dashboard -> Integrations -> Webhooks -> Authorization Header. Subscription events are being REJECTED until then.');
+
+            // 503, not 401: this is our misconfiguration, and it makes
+            // RevenueCat retry rather than discard the event, so nothing is
+            // lost once the secret is set.
+            return response('webhook secret not configured', 503);
+        }
+
+        $authHeader = (string) $request->header('Authorization', '');
+        $providedSecret = preg_replace('/^Bearer\s+/i', '', trim($authHeader));
+        // hash_equals: constant time, so the secret can't be recovered by
+        // timing repeated guesses against this endpoint.
+        if (! hash_equals($configuredSecret, (string) $providedSecret)) {
+            Log::warning('RevenueCat webhook unauthorized attempt', [
+                'ip' => $request->ip(),
+            ]);
+            return response('Unauthorized', 401);
         }
 
         $payload = $request->json()->all();
@@ -104,7 +122,12 @@ class RevenueCatWebhookController extends Controller
             'EXPIRATION'       => $this->handleExpiration($event, $sub),
             'BILLING_ISSUE'    => $this->handleBillingIssue($event, $sub),
             'REVOCATION'       => $this->handleRevocation($event, $sub),
-            default            => null,
+            'SUBSCRIPTION_PAUSED' => $this->handlePaused($event, $sub),
+            'SUBSCRIPTION_EXTENDED' => $this->handleExtended($event, $sub),
+            'TRANSFER'         => $this->handleTransfer($event),
+            'NON_RENEWING_PURCHASE' => $this->handleNonRenewingPurchase($event, $user, $plan, $sub),
+            'TEMPORARY_ENTITLEMENT_GRANT' => $this->handleTemporaryGrant($event, $sub),
+            default            => Log::info("RevenueCat webhook event ignored: {$type}"),
         };
     }
 
@@ -278,6 +301,136 @@ class RevenueCatWebhookController extends Controller
         $sub->update([
             'status' => 'past_due',
         ]);
+    }
+
+    /**
+     * Google Play lets a subscriber PAUSE rather than cancel. The pause takes
+     * effect at the end of the paid period, so this is the same shape as a
+     * cancellation from our side: stop expecting a renewal, but keep serving
+     * until the period they already paid for runs out.
+     *
+     * Mapped onto 'canceled' because the status column is an enum without a
+     * 'paused' member; the distinction does not change entitlement, and a
+     * resume arrives as UNCANCELLATION or RENEWAL which restores the row.
+     */
+    private function handlePaused(array $event, ?Subscription $sub): void
+    {
+        if (! $sub) {
+            return;
+        }
+
+        $expiresAt = isset($event['expiration_at_ms'])
+            ? Carbon::createFromTimestampMs((int) $event['expiration_at_ms'])
+            : $sub->ends_at;
+
+        $sub->update([
+            'status'        => 'canceled',
+            'ends_at'       => $expiresAt,
+            'auto_renewing' => false,
+        ]);
+    }
+
+    /**
+     * The paid period was extended - a support gesture, a Play price-change
+     * grace, or a developer-granted extension. Push the expiry out; never pull
+     * it in, since an extension can only ever add time.
+     */
+    private function handleExtended(array $event, ?Subscription $sub): void
+    {
+        if (! $sub || ! isset($event['expiration_at_ms'])) {
+            return;
+        }
+
+        $expiresAt = Carbon::createFromTimestampMs((int) $event['expiration_at_ms']);
+        if ($sub->ends_at && $expiresAt->lessThanOrEqualTo($sub->ends_at)) {
+            return;
+        }
+
+        $sub->update([
+            'status'  => in_array($sub->status, ['expired', 'past_due'], true) ? 'active' : $sub->status,
+            'ends_at' => $expiresAt,
+        ]);
+    }
+
+    /**
+     * The purchase moved to a different RevenueCat customer - typically the
+     * same human signing in on a new account, or a shared device.
+     *
+     * Entitlement follows the store transaction, so the accounts it moved AWAY
+     * from must lose it. Leaving them entitled is how one purchase ends up
+     * unlocking several accounts forever.
+     */
+    private function handleTransfer(array $event): void
+    {
+        $from = (array) ($event['transferred_from'] ?? []);
+        $to   = (array) ($event['transferred_to'] ?? []);
+
+        foreach ($from as $appUserId) {
+            $user = $this->resolveUser((string) $appUserId);
+            if (! $user) {
+                continue;
+            }
+            Subscription::where('user_id', $user->id)
+                ->whereIn('status', ['active', 'trialing', 'past_due'])
+                ->update([
+                    'status'        => 'expired',
+                    'auto_renewing' => false,
+                ]);
+        }
+
+        // The receiving account is entitled from RevenueCat's point of view,
+        // but this event carries no product/expiry to build a row from. The
+        // device's own sync push (verified against the RevenueCat REST API)
+        // creates it, and an INITIAL_PURCHASE/RENEWAL for the new app_user_id
+        // fills it in server-side. Log so a stuck transfer is diagnosable.
+        foreach ($to as $appUserId) {
+            Log::info('RevenueCat transfer received', ['to' => (string) $appUserId]);
+        }
+    }
+
+    /**
+     * A one-off, non-renewing purchase. Recorded so it grants access for its
+     * period, but explicitly not auto-renewing - treating it as a subscription
+     * would leave the account entitled forever once ends_at passed unnoticed.
+     */
+    private function handleNonRenewingPurchase(array $event, ?User $user, ?Plan $plan, ?Subscription $sub): void
+    {
+        if (! $user) {
+            return;
+        }
+
+        $this->handleInitialPurchase($event, $user, $plan, $sub);
+
+        $transactionId = (string) ($event['transaction_id'] ?? ($event['original_transaction_id'] ?? ''));
+        Subscription::where('user_id', $user->id)
+            ->when($transactionId !== '', fn ($q) => $q->where('store_transaction_id', $transactionId))
+            ->update(['auto_renewing' => false]);
+    }
+
+    /**
+     * RevenueCat could not reach the store and is granting provisional access
+     * so a paying customer is not locked out by an outage. Extend, never
+     * downgrade: a real entitlement already on file outranks this.
+     */
+    private function handleTemporaryGrant(array $event, ?Subscription $sub): void
+    {
+        if (! $sub) {
+            return;
+        }
+
+        $this->handleExtended($event, $sub);
+    }
+
+    /** Resolve the account an app_user_id refers to. RevenueCat is configured with the user id, but older clients used the email. */
+    private function resolveUser(string $appUserId): ?User
+    {
+        if ($appUserId === '') {
+            return null;
+        }
+
+        return is_numeric($appUserId)
+            ? User::find((int) $appUserId)
+            : User::where('email', strtolower($appUserId))->first();
     }
 
     private function handleRevocation(array $event, ?Subscription $sub): void

@@ -70,7 +70,7 @@ export const LoginScreen = () => {
   const handleLogin = async () => {
     setError('');
     if (!email || !password) {
-      setError('Please fill in all fields.');
+      setError(t('login.fillAllFields'));
       return;
     }
     setLoading(true);
@@ -80,7 +80,7 @@ export const LoginScreen = () => {
       if (res.error === 'unverified') {
         navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
       } else {
-        setError(res.error || 'Invalid credentials.');
+        setError(res.error || t('login.invalidCredentials'));
       }
     }
   };
@@ -95,7 +95,7 @@ export const LoginScreen = () => {
       if (native.status === 'success') {
         const res = await googleNativeLogin(native.idToken);
         if (!res.success) {
-          setError(res.error || 'Google sign-in failed. Please try again.');
+          setError(res.error || t('login.googleSignInFailed'));
         }
         // On success the auth context is populated and the keyed navigator
         // swaps phases by itself - nothing to do here.
@@ -110,7 +110,7 @@ export const LoginScreen = () => {
       // Fallback directly to the browser Custom-Tab flow.
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch {
-      setError('Could not open Google sign-in. Please try again.');
+      setError(t('login.couldNotOpenGoogle'));
     } finally {
       setGoogleLoading(false);
     }
@@ -120,17 +120,17 @@ export const LoginScreen = () => {
     setResetError('');
     setResetSuccess('');
     if (!resetEmail) {
-      setResetError('Please enter your email.');
+      setResetError(t('login.enterYourEmail'));
       return;
     }
     setResetLoading(true);
     const res = await api.requestResetPasswordCode({ email: resetEmail.trim().toLowerCase() });
     setResetLoading(false);
     if (res.ok) {
-      setResetSuccess('Code sent! Enter it below with a new password.');
+      setResetSuccess(t('login.codeSentEnterBelow'));
       setResetCodeSent(true);
     } else {
-      setResetError(res.error || 'Failed to send reset code.');
+      setResetError(res.error || t('login.failedToSendResetCode'));
     }
   };
 
@@ -138,11 +138,11 @@ export const LoginScreen = () => {
     setResetError('');
     setResetSuccess('');
     if (!/^\d{6}$/.test(resetCode.trim())) {
-      setResetError('Enter the 6-digit code from your email.');
+      setResetError(t('login.enterSixDigitCode'));
       return;
     }
     if (resetNewPassword.length < 6 || !/\d/.test(resetNewPassword)) {
-      setResetError('Password must be at least 6 characters and include a number.');
+      setResetError(t('login.passwordRules'));
       return;
     }
     setResetLoading(true);
@@ -155,9 +155,9 @@ export const LoginScreen = () => {
     if (res.ok) {
       closeResetModal();
       setEmail(resetEmail.trim().toLowerCase());
-      Alert.alert('Password reset', 'Your password has been reset. Please log in.');
+      Alert.alert(t('login.passwordResetTitle'), t('login.passwordResetBody'));
     } else {
-      setResetError(res.error || 'Failed to reset password.');
+      setResetError(res.error || t('login.failedToResetPassword'));
     }
   };
 
@@ -367,7 +367,7 @@ export const LoginScreen = () => {
                     <ActivityIndicator color={COLORS.onAccent} />
                   ) : (
                     <Text style={styles.modalActionBtnText}>
-                      {resetCodeSent ? 'Reset Password' : 'Send Code'}
+                      {resetCodeSent ? t('login.resetPasswordCta') : t('login.sendCodeCta')}
                     </Text>
                   )}
                 </TouchableOpacity>

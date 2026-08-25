@@ -18,7 +18,7 @@ import {
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress } from '../../services/progression';
-import { EXERCISES, LEVELS } from '../../constants/catalogues';
+import { EXERCISES, LEVELS, exerciseNameKey } from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
@@ -303,8 +303,11 @@ export const TrainingScreen = () => {
               accessibilityRole="button"
               accessibilityLabel={
                 ex.unlocked
-                  ? ex.name
-                  : t('training.unlocksInA11y', { name: ex.name, count: ex.daysLeft })
+                  ? t(exerciseNameKey(ex.slug))
+                  : t('training.unlocksInA11y', {
+                      name: t(exerciseNameKey(ex.slug)),
+                      count: ex.daysLeft,
+                    })
               }
               style={styles.exerciseCard}
               onPress={() =>
@@ -322,7 +325,7 @@ export const TrainingScreen = () => {
                 style={[styles.exerciseName, !ex.unlocked && styles.exerciseNameLocked]}
                 numberOfLines={1}
               >
-                {ex.name}
+                {t(exerciseNameKey(ex.slug))}
               </Text>
               {ex.unlocked ? (
                 <Text style={styles.exerciseStatus}>{t('training.available')}</Text>

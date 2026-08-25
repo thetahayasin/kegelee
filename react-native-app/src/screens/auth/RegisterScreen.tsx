@@ -37,20 +37,20 @@ export const RegisterScreen = () => {
   const handleRegister = async () => {
     setError('');
     if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+      setError(t('register.fillAllFields'));
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError(t('register.passwordTooShort'));
       return;
     }
     // simple regex to check for a digit in password matching laravel validation
     if (!/\d/.test(password)) {
-      setError('Password must contain at least one number.');
+      setError(t('register.passwordNeedsNumber'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('register.passwordsDoNotMatch'));
       return;
     }
 
@@ -62,7 +62,7 @@ export const RegisterScreen = () => {
       // Successfully registered. Now redirect to verification screen.
       navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
     } else {
-      setError(res.error || 'Registration failed.');
+      setError(res.error || t('register.registrationFailed'));
     }
   };
 
@@ -76,7 +76,7 @@ export const RegisterScreen = () => {
       if (native.status === 'success') {
         const res = await googleNativeLogin(native.idToken);
         if (!res.success) {
-          setError(res.error || 'Google sign-up failed. Please try again.');
+          setError(res.error || t('register.googleSignUpFailed'));
         }
         return;
       }
@@ -89,7 +89,7 @@ export const RegisterScreen = () => {
       // Fallback directly to the backend Custom-Tab flow (returns via deeplink).
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch {
-      setError('Could not open Google sign-up. Please try again.');
+      setError(t('register.couldNotOpenGoogle'));
     } finally {
       setGoogleLoading(false);
     }

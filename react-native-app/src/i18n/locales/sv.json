@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Tillgänglig",
-    "exercises": "Övningar"
+    "backA11y": "Tillbaka",
+    "exercises": "Övningar",
+    "unlockProgressA11y": "Upplåsningsförlopp för {{name}}"
+  },
+  "basics": {
+    "findTitle": "Hitta din bäckenbotten",
+    "firstTitle": "Din första övning",
+    "whyTitle": "Därför fungerar knipövningar"
+  },
+  "billing": {
+    "alreadyOwned": "Du har redan en aktiv prenumeration. Vi återställer den nu.",
+    "configuration": "Det här abonnemanget går inte att köpa just nu. Det är vårt fel - försök igen senare eller kontakta supporten.",
+    "declined": "Google Play nekade betalningen. Kontrollera betalningsmetoden på ditt Google-konto och försök igen.",
+    "ineligible": "Du är inte behörig för det här erbjudandet. Välj ett annat abonnemang.",
+    "network": "Vi kunde inte nå butiken. Kontrollera din anslutning och försök igen. Om du blev debiterad dyker din tillgång upp av sig själv.",
+    "noPermission": "Ditt Google-konto har inte behörighet att göra köp på den här enheten.",
+    "notAllowed": "Den här enheten eller det här Google-kontot får inte göra köp. Det beror oftast på föräldrakontroll, eller att kontot saknar betalningsmetod.",
+    "operationInProgress": "Ett köp pågår redan. Vänta ett ögonblick innan du försöker igen.",
+    "otherAccount": "Den här prenumerationen tillhör ett annat konto. Logga in med det kontot, eller kontakta supporten så flyttar vi över den.",
+    "paymentPending": "Google Play behandlar din betalning. Kontant- och vouchersbetalningar kan ta ett tag. Din tillgång låses upp automatiskt när den går igenom, så betala inte igen.",
+    "storeProblem": "Google Play har problem just nu. Försök igen om några minuter.",
+    "unknown": "Något gick fel när ditt köp skulle slutföras. Försök igen. Om du blev debiterad dyker din tillgång upp av sig själv."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Ett fast knip som byggs upp långsamt och släpps precis lika långsamt.",
+        "howTo": "Spänn långsamt under 3 sekunder medan cirkeln fylls och släpp sedan precis lika långsamt medan den töms. Håll rörelsen mjuk åt båda hållen.",
+        "name": "Klämma",
+        "summary": "Långsamt upp, långsamt ner"
+      },
+      "downstairs": {
+        "description": "Spänn till toppen och kom sedan ner ett steg i taget med full kontroll.",
+        "howTo": "Spänn till ditt starkaste och slappna sedan av lite i taget, med ungefär en sekunds paus på varje steg nedåt. Den kontrollerade nedstigningen är själva övningen.",
+        "name": "Nedför trappan",
+        "summary": "Fyra steg ner från toppen"
+      },
+      "elevator": {
+        "description": "Signaturövningen. Klättra uppåt steg för steg och kom sedan ner under kontroll.",
+        "howTo": "Föreställ dig att du åker hiss. Spänn lite hårdare för varje steg tills du når ditt starkaste knip och kom sedan ner ett steg i taget tills du är helt avslappnad.",
+        "name": "Hiss",
+        "summary": "Klättra till toppen och gå sedan ner igen"
+      },
+      "flash": {
+        "description": "De snabbaste knipen. Korta, snärtiga spänningar som tränar snabba reaktioner.",
+        "howTo": "Spänn och släpp så snabbt du kan, i takt med cirkeln. Håll det lätt, pressa inte.",
+        "name": "Blixt",
+        "summary": "De snabbaste knipen"
+      },
+      "front-clamp": {
+        "description": "Ett långsamt, fokuserat knip i främre bäckenbotten med ett snabbt och rent släpp.",
+        "howTo": "Spänn långsamt under 3 sekunder medan cirkeln fylls. När den töms släpper du allt på en gång. Börja sedan nästa långsamma knip.",
+        "name": "Främre klämma",
+        "summary": "Spänn långsamt, släpp på en gång"
+      },
+      "holding": {
+        "description": "Spänn och håll kvar för att bygga grundläggande uthållighet i bäckenbotten.",
+        "howTo": "Spänn bäckenbotten och håll kvar hela rundan. Om spänningen avtar, spänn försiktigt upp igen. Fortsätt andas normalt.",
+        "name": "Hållning",
+        "summary": "Ett jämnt håll"
+      },
+      "long-steady-clamp": {
+        "description": "Uthållighetsbyggaren: ett knip på en sekund som övergår i tio sekunder med full kraft.",
+        "howTo": "Spänn i en sekund och håll sedan med full kraft i tio sekunder. Om spänningen avtar, spänn försiktigt upp till full igen. Släpp och upprepa.",
+        "name": "Lång jämn klämma",
+        "summary": "1 sekunds knip, 10 sekunders håll"
+      },
+      "pulsation": {
+        "description": "Två snabba knip direkt efter varandra, följt av ett fullständigt släpp. Tränar att spänna igen innan du hunnit återhämta dig helt, och att släppa ordentligt mellan ansträngningarna.",
+        "howTo": "Spänn och släpp två gånger i snabb följd med cirkeln och släpp sedan allt fullständigt under vilan. Det fullständiga släppet räknas lika mycket som pulserna.",
+        "name": "Dubbelpuls",
+        "summary": "Två snabba pulser, sedan full återgång"
+      },
+      "push": {
+        "description": "Bygg upp knipet till en kraftfull topp, håll kvar den och släpp sedan långsamt.",
+        "howTo": "Spänn gradvis under tre sekunder och bli starkare medan cirkeln fylls. Håll ditt starkaste knip i två sekunder och släpp sedan långsamt. Knip hårdare, tryck aldrig nedåt.",
+        "name": "Tryck",
+        "summary": "3 s uppbyggnad, 2 s topphåll, 3 s avslappning"
+      },
+      "reverse-clamp": {
+        "description": "Ett snabbt knip följt av ett långsamt, kontrollerat släpp. Utmärkt för kontrollen.",
+        "howTo": "Spänn på en gång och börja sedan direkt släppa så långsamt du kan medan du följer cirkeln nedåt. Det långsamma släppet är själva övningen.",
+        "name": "Omvänd klämma",
+        "summary": "Spänn på en gång, släpp långsamt"
+      },
+      "short-holding": {
+        "description": "Ett kraftfullt håll på 4 sekunder som släpps långsamt i stället för att tappas. Att släppa kontrollerat är en färdighet i sig, och de flesta tycker att det är svårare än själva hållet.",
+        "howTo": "Spänn under en sekund, håll med full kraft i fyra och släpp sedan gradvis medan cirkeln sjunker. Låt den inte kollapsa: följ med hela vägen ner.",
+        "name": "Kort hållning",
+        "summary": "Håll 4 sekunder, släpp sedan gradvis"
+      },
+      "starter": {
+        "description": "Ett snabbt knip som väcker muskeln, följt av ett kraftfullt håll på 5 sekunder.",
+        "howTo": "Gör ett snabbt knip, slappna av mjukt, spänn sedan igen och håll hårt i fem sekunder. Släpp, andas och upprepa.",
+        "name": "Startare",
+        "summary": "Snabbt knip, sedan 5 sekunders håll"
+      },
+      "steady-clamp": {
+        "description": "En jämn klämma: spänn i en sekund och håll sedan med full kraft i fem.",
+        "howTo": "Spänn i en sekund och håll sedan med full kraft i fem sekunder utan att låta spänningen sjunka. Släpp och upprepa.",
+        "name": "Jämn klämma",
+        "summary": "1 sekunds knip, 5 sekunders håll"
+      },
+      "steady-trembling": {
+        "description": "Spänn på en gång, håll spänningen jämn i ett par sekunder och slappna sedan av.",
+        "howTo": "Spänn på en gång och håll kvar spänningen. När cirkeln sjunker släpper du mjukt. Upprepa sedan det snabba knipet och hållet.",
+        "name": "Jämn darrning",
+        "summary": "Spänn på en gång, håll, slappna av"
+      },
+      "trembling": {
+        "description": "Snabba knip och släpp som får muskeln att darra och väcker dess snabba respons.",
+        "howTo": "Spänn allt på en gång, håll ett ögonblick och släpp sedan mjukt. Följ cirkeln när den skjuter upp och sjunker tillbaka.",
+        "name": "Darrning",
+        "summary": "Snabba knip, på och av"
+      },
+      "upstairs": {
+        "description": "Klättra uppåt med knipet i fyra steg, lite starkare på varje nivå.",
+        "howTo": "Föreställ dig att du åker hiss uppåt. Spänn lite, sedan mer, sedan ännu mer, tills du når ditt starkaste knip, och stanna ungefär en sekund på varje nivå. Slappna av efteråt.",
+        "name": "Uppför trappan",
+        "summary": "Fyra steg upp till toppen"
+      },
+      "waves": {
+        "description": "Vågliknande knip som bygger upp och släpper spänning utan uppehåll.",
+        "howTo": "Spänn långsamt i två sekunder och släpp sedan precis lika långsamt, som en våg som stiger och faller. Håll det mjukt och sammanhängande.",
+        "name": "Vågor",
+        "summary": "2 sekunder upp, 2 sekunder ner"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Mjuk start. Korta pass på 1 minut.",
+        "name": "Nivå 1"
+      },
+      "2": {
+        "description": "Lite längre. Pass på 2 minuter.",
+        "name": "Nivå 2"
+      },
+      "3": {
+        "description": "Balanserad träning. Pass på 3 minuter.",
+        "name": "Nivå 3"
+      },
+      "4": {
+        "description": "Längre pass för starkare muskler. 4 minuter.",
+        "name": "Nivå 4"
+      },
+      "5": {
+        "description": "Avancerad uthållighet och kontroll. 5 minuter.",
+        "name": "Nivå 5"
+      }
+    },
+    "steps": {
+      "contract": "Spänn",
+      "contractAndHold": "Spänn & håll",
+      "contractSlowly": "Spänn långsamt",
+      "easeDown": "Släpp gradvis",
+      "hold": "Håll",
+      "pulse1": "Puls 1",
+      "pulse2": "Puls 2",
+      "relax": "Slappna av",
+      "relaxSlowly": "Slappna av långsamt",
+      "release": "Släpp",
+      "releaseSlowly": "Släpp långsamt",
+      "reset": "Tillbaka till noll",
+      "rest": "Vila",
+      "step1": "Steg 1",
+      "step2": "Steg 2",
+      "step3": "Steg 3",
+      "top": "Toppen"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Något gick fel",
@@ -9,48 +177,94 @@
     "tryAgain": "Försök igen"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Klara {{count}} träningsdag till för att låsa upp.",
+    "completeMoreDaysToUnlock_other": "Klara {{count}} träningsdagar till för att låsa upp.",
     "exerciseNotFound": "Övningen hittades inte.",
+    "lockedDaysLeft_one": "Låst - {{count}} dag kvar",
+    "lockedDaysLeft_other": "Låst - {{count}} dagar kvar",
     "tryItNow": "Testa nu"
   },
   "find": {
+    "flow_stopMidway": "Stoppa halvvägs",
+    "flow_thatSqueeze": "Precis det knipet!",
+    "flow_youPee": "Du kissar",
     "keepGoing": "Fortsätt så …",
     "onlyDoThePeeTest": "Gör kisstestet bara en gång",
+    "onlyDoThePeeTestDesc": "Det är bara ett sätt att hitta musklerna, inte en övning. Att ofta stoppa strålen är inte bra för blåsan.",
+    "pressAndHold": "Tryck och håll",
+    "squeezeNow": "Knip!",
     "squeezeOnlyThoseMuscles": "Spänn bara de musklerna",
+    "squeezeOnlyThoseMusclesDesc": "En annan ledtråd: knip som om du höll emot en fjärt. Mage, ben och rumpa förblir helt avslappnade.",
+    "stopTheFlowBody": "Nästa gång du kissar, stoppa strålen försiktigt halvvägs. Musklerna du just använde är din bäckenbotten.",
     "thatExactSqueezeIsThe": "Precis den sammandragningen är rörelsen du ska träna.",
     "theEasiestWayToFind": "Enklaste sättet att hitta dem",
-    "twoQuickRules": "Två korta regler"
+    "tryItNow": "Testa nu",
+    "tryItNowBody": "Håll cirkeln nedtryckt. Medan du håller, knip de musklerna. Släpp samtidigt.",
+    "twoQuickRules": "Två korta regler",
+    "youFoundThem": "Du hittade dem!",
+    "youFoundThemBody": "Det där knipet och släppet är allt en knipövning är. Du är redo för din första övning."
   },
   "first": {
     "contract": "Spänn",
+    "followTheCircle": "Följ cirkeln. Knip... och slappna av.",
+    "niceWork": "Snyggt jobbat!",
+    "nowYouTry": "Nu är det din tur",
     "start": "Starta",
+    "tenSecondsReady": "Tio sekunder {{exercise}}. Knip vid varje {{contract}} och släpp på {{relax}}. Redo?",
+    "thatWasARealExercise": "Det där var en riktig övning. Varje pass fungerar precis så här, en cirkel i taget.",
     "theCircleIsYourGuide": "Cirkeln sätter takten",
+    "theCircleIsYourGuideBody": "Varje övning följer den här cirkeln. När den lyser och växer kniper du. När skenet tonar bort slappnar du av. Ordet inuti säger alltid vad du ska göra.",
     "thisIsTrembling": "Det här är Darrning",
     "yourFirstExerciseQuickFlicks": "Din första övning: snabba spänningar. Spänn vid Spänn, släpp vid Slappna av."
   },
   "knowledge": {
     "continueToTraining": "Vidare till träningen",
     "learnTheBasics": "Lär dig grunderna",
+    "lessonNumber": "Lektion {{number}}",
     "logIn": "Logga in"
   },
   "login": {
     "6DigitCode": "6-siffrig kod",
     "close": "Stäng",
+    "codeSentEnterBelow": "Koden är skickad! Ange den nedan tillsammans med ett nytt lösenord.",
     "continueWithGoogle": "Fortsätt med Google",
+    "couldNotOpenGoogle": "Kunde inte öppna Google-inloggningen. Försök igen.",
     "createAccount": "Skapa konto",
     "email": "E-post",
-    "enterYourEmail": "Ange din e-postadress",
+    "enterSixDigitCode": "Ange den 6-siffriga koden från ditt mejl.",
+    "enterYourEmail": "Ange din e-postadress.",
+    "failedToResetPassword": "Kunde inte återställa lösenordet.",
+    "failedToSendResetCode": "Kunde inte skicka återställningskoden.",
+    "fillAllFields": "Fyll i alla fält.",
     "forgotPassword": "Glömt lösenordet?",
+    "googleSignInFailed": "Google-inloggningen misslyckades. Försök igen.",
+    "invalidCredentials": "Ogiltiga inloggningsuppgifter.",
     "logIn": "Logga in",
     "logIn2": "Logga in",
     "newHere": "Är du ny här?",
     "newPassword": "Nytt lösenord",
     "password": "Lösenord",
     "passwordReset": "Lösenordet har återställts",
-    "resetPassword": "Återställ lösenord"
+    "passwordResetBody": "Ditt lösenord har återställts. Logga in.",
+    "passwordResetTitle": "Lösenordet återställt",
+    "passwordRules": "Lösenordet måste vara minst 6 tecken och innehålla en siffra.",
+    "resetPassword": "Återställ lösenord",
+    "resetPasswordCta": "Återställ lösenord",
+    "sendCodeCta": "Skicka kod"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Har du redan ett konto?",
-    "logIn": "Logga in"
+    "getStarted": "Kom igång",
+    "logIn": "Logga in",
+    "perDay": "PER DAG",
+    "slide1Body": "Ingen pratar om det. Allt går tillbaka till en enda svag muskel, och en svag muskel går att träna upp igen.",
+    "slide1Title": "Läckage. Trängningar. Sämre kontroll.",
+    "slide2Body": "Inget gym, ingen utrustning, inget att ta av. I soffan, vid skrivbordet, på bussen. Ingen märker något.",
+    "slide2Title": "En minut, sittande",
+    "slide3Body": "Appen mäter hur länge du orkar hålla. Tiderna klättrar, nya övningar låses upp, och skillnaden dyker upp där du ville ha den.",
+    "slide3Title": "Du känner det innan du ser det",
+    "slide4Body": "Slutar du träna tappar muskeln, precis som all annan träning. Välj en tid och låt påminnelsen sköta resten.",
+    "slide4Title": "Det funkar bara om du håller i"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisk förnyelse är av. Din åtkomst slutar på utgångsdatumet.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Mät dina framsteg",
     "benefitReminders": "Påminnelser som passar din dag",
     "benefitStrength": "Bygg riktig bäckenbottenstyrka",
+    "bestValue": "BÄSTA VÄRDET",
     "billingIsNotAvailableOn": "Betalning är inte tillgänglig på den här enheten. Du kan återställa ett tidigare köp nedan.",
     "byContinuingYouAgree": "Genom att fortsätta godkänner du våra",
     "changeYourPlan": "Byt plan",
@@ -72,6 +287,7 @@
     "managePlan": "Hantera plan",
     "noActiveSubscriptionWasFound": "Hittade ingen aktiv prenumeration att återställa.",
     "off": "Av",
+    "offeringsUnavailable": "Prenumerationer är inte tillgängliga på den här enheten just nu. Försök igen senare eller återställ ett tidigare köp nedan.",
     "on": "På",
     "paymentProcessedSecurely": "Betalningen behandlas säkert via RevenueCat och appbutiken vid bekräftelse.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Köpet togs emot, men abonnemanget kunde inte identifieras. Kontakta supporten.",
     "restorePurchases": "Återställ köp",
     "restoredPurchaseCouldNotBe": "Det återställda köpet kunde inte kopplas till ett abonnemang. Kontakta supporten.",
+    "savePercent": "SPARA {{percent}} %",
     "signInFirst": "Logga in innan du prenumererar.",
     "startFreeTrialCta_one": "Börja {{count}} dag gratis",
     "startFreeTrialCta_other": "Börja {{count}} dagar gratis",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Att avinstallera appen säger inte upp prenumerationen och ger ingen återbetalning.",
     "yourSubscriptionIsNowActive": "Din prenumeration är aktiv och du har full tillgång."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Full tillgång, faktureras varje månad.",
+      "name": "1 månad"
+    },
+    "premium-quarterly": {
+      "description": "Faktureras var tredje månad.",
+      "name": "3 månader"
+    },
+    "premium-yearly": {
+      "description": "En betalning för hela året.",
+      "name": "1 år"
+    }
+  },
   "profile": {
     "currentDifficulty": "Nuvarande svårighetsgrad",
     "difficulty": "Svårighetsgrad",
     "error": "Fel",
+    "errorTitle": "Fel",
+    "failedToUpdateLevel": "Kunde inte uppdatera träningsnivån.",
     "profile": "Profil",
     "scheduleReminders": "Schema och påminnelser",
     "setTheDifficultyOfKegel": "Välj svårighetsgrad för Kegel-träningsprogrammet",
+    "settingsA11y": "Inställningar",
     "theHigherTheLevelThe": "Ju högre nivå, desto tuffare träning"
   },
   "progress": {
+    "bestResult": "bästa resultat",
     "continue": "Fortsätt",
     "holdTheButtonAndContract": "Håll knappen intryckt och spänn bäckenbottenmusklerna så länge du orkar.",
+    "lastMeasurement": "senaste mätning",
     "progressTracker": "Utveckling",
+    "seconds": "{{count}} sek",
     "takeMeasurement": "Gör en mätning",
+    "today": "I dag",
+    "topResult": "bästa resultat: {{count}} sek",
     "tryAgain": "Försök igen"
   },
   "register": {
     "alreadyHaveAnAccount": "Har du redan ett konto?",
     "confirmPassword": "Bekräfta lösenord",
     "continueWithGoogle": "Fortsätt med Google",
+    "couldNotOpenGoogle": "Kunde inte öppna Google-registreringen. Försök igen.",
     "createAccount": "Skapa konto",
     "createAccount2": "Skapa konto",
     "email": "E-post",
+    "fillAllFields": "Fyll i alla fält.",
+    "googleSignUpFailed": "Google-registreringen misslyckades. Försök igen.",
     "logIn": "Logga in",
     "name": "Namn",
-    "password": "Lösenord"
+    "password": "Lösenord",
+    "passwordNeedsNumber": "Lösenordet måste innehålla minst en siffra.",
+    "passwordTooShort": "Lösenordet måste vara minst 6 tecken.",
+    "passwordsDoNotMatch": "Lösenorden matchar inte.",
+    "registrationFailed": "Registreringen misslyckades."
+  },
+  "reminders": {
+    "notificationBody": "Dags för ditt dagliga knippass!",
+    "notificationTitle": "Knipträning"
   },
   "schedule": {
     "active": "Aktiv",
     "allowExactReminders": "Tillåt exakta påminnelser",
+    "daysLeft_one": "{{count}} dag kvar",
+    "daysLeft_other": "{{count}} dagar kvar",
     "error": "Fel",
+    "errorTitle": "Fel",
+    "failedToSaveReminders": "Kunde inte spara påminnelserna.",
     "limitReached": "Gränsen är nådd",
+    "limitReachedBody": "Du kan ställa in upp till 5 påminnelser per dag.",
+    "limitReachedTitle": "Gränsen är nådd",
+    "monthNumber": "Månad {{number}}",
     "reminders": "Påminnelser",
     "remindersSaved": "Påminnelser sparade",
     "repeatOn": "Upprepa på",
     "saveAddReminders": "Spara påminnelser",
     "schedule": "Schema",
+    "sessionNumber": "Pass {{number}}",
     "sessionTimes": "Träningstider"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Radera kontot?",
     "deletePermanently": "Radera permanent",
     "deleted": "Raderat",
+    "deletedBody": "Ditt konto har raderats permanent.",
+    "deletedTitle": "Raderat",
+    "failedToDeleteAccount": "Kunde inte radera kontot.",
     "gotIt": "Uppfattat",
     "language": "Språk",
     "logOut": "Logga ut",
     "manageSubscription": "Hantera prenumeration",
     "noActiveSubscription": "Ingen aktiv prenumeration",
     "reset": "Återställ",
+    "resetConfirmBody": "Detta rensar dina träningsdagar, pass, mätningar och lektionsframsteg. Åtgärden går inte att ångra.",
     "resetProgress": "Återställ utveckling",
     "resetProgress2": "Återställa utvecklingen?",
+    "resetSuccessBody": "Dina träningsframsteg har rensats.",
+    "resetSuccessTitle": "Återställt",
     "resetSuccessful": "Återställningen lyckades",
     "restartBody": "Stäng och öppna appen igen för att slutföra bytet av layoutriktning.",
     "restartRequired": "Omstart krävs",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Har du redan ett konto? Logga in",
     "back": "Tillbaka",
+    "bestValue": "BÄSTA VÄRDET",
+    "billingDisclosure": "Betalningen hanteras säkert av RevenueCat och appbutiken vid bekräftelsen. Din prenumeration förnyas automatiskt till det pris som visas tills du säger upp den i dina prenumerationsinställningar; att avinstallera appen säger inte upp den och ger ingen återbetalning. Genom att fortsätta godkänner du våra",
     "close": "Stäng",
     "confirmPassword": "Bekräfta lösenord",
     "continue": "Fortsätt",
     "continueWithGoogle": "Fortsätt med Google",
+    "couldNotOpenGoogle": "Kunde inte öppna Google-inloggningen. Försök igen.",
     "couldNotOpenGoogleSign": "Kunde inte öppna Google-inloggningen. Försök igen.",
+    "couldNotReachServer": "Kunde inte nå servern. Kontrollera din anslutning och försök igen.",
+    "createAccount": "Skapa konto",
     "createAccountSubscribe": "Skapa konto och prenumerera",
     "creatingAccount": "Skapar konto …",
     "emailAddress": "E-postadress",
+    "emailInvalid": "Ange en giltig e-postadress.",
+    "emailOrPasswordIncorrect": "Fel e-postadress eller lösenord.",
+    "emailRequired": "E-post krävs.",
     "fullName": "Fullständigt namn",
+    "googleSignInFailed": "Google-inloggningen misslyckades. Försök igen.",
+    "nameRequired": "Namn krävs.",
     "noAccountYetCreateOne": "Har du inget konto än? Skapa ett",
     "password": "Lösenord",
     "password6Characters1Number": "Lösenord (minst 6 tecken, 1 siffra)",
+    "passwordRequired": "Lösenord krävs.",
+    "passwordRules": "Lösenordet måste vara minst 6 tecken och innehålla en siffra.",
+    "passwordsDoNotMatch": "Lösenorden matchar inte.",
+    "signIn": "Logga in",
     "signInSubscribe": "Logga in och prenumerera",
     "signingIn": "Loggar in …",
     "startYourTransformationJourneyNow": "Börja din förändring redan idag",
     "subscribe": "Prenumerera",
     "terms": "Villkor"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Framsteg",
+    "schedule": "Schema",
+    "training": "Träning"
   },
   "training": {
     "available": "Tillgänglig",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Tillbaka till inloggningen",
+    "codeResent": "Verifieringskoden är skickad igen!",
     "didnTReceiveTheCode": "Fick du ingen kod? Skicka igen",
+    "enterSixDigitCode": "Ange en 6-siffrig verifieringskod.",
+    "failedToResendCode": "Kunde inte skicka koden igen.",
+    "verificationFailed": "Verifieringen misslyckades. Försök igen.",
     "verifyCode": "Verifiera kod",
     "verifyEmail": "Verifiera e-post"
   },
   "why": {
     "aMuscleYouCanTrain": "En muskel du kan träna",
+    "aRealMuscleBody": "Din bäckenbotten är en riktig muskel. Träna den några minuter om dagen så blir den starkare, precis som vid all annan träning. Inga piller, inga biverkningar, och resultatet håller i sig.",
     "andYouCanDoIt": "Och du kan göra det var som helst, när som helst. Sittande, stående, på bussen. Ingen märker det.",
+    "benefit_bladder_desc": "Färre läckage och färre trängningar.",
+    "benefit_bladder_title": "Bättre blåskontroll",
+    "benefit_confidence_desc": "Framsteg som byggs vecka för vecka.",
+    "benefit_confidence_title": "Varaktigt självförtroende",
+    "benefit_core_desc": "Hjälper hållningen och ländryggen.",
+    "benefit_core_title": "En stöttad bål",
+    "benefit_performance_desc": "Mer kontroll och uthållighet i intimiteten.",
+    "benefit_performance_title": "Starkare prestation",
     "doingItRightIsEverything": "Allt hänger på att du gör rätt",
     "learnItOnceAndEvery": "Lär dig det en gång, så räknas varje träningsminut på riktigt.",
     "squeezeTheWrongMusclesAnd": "Spänner du fel muskler får du ingenting ut av det.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Om du går nu räknas inte det här passet in i din dagliga utveckling.",
     "leaveTraining": "Avsluta träningen?",
     "noExercises": "Inga övningar",
+    "noExercisesBody": "Inga övningar upplåsta för det här passet.",
+    "noExercisesTitle": "Inga övningar",
     "noGoBack": "Nej, tillbaka",
     "pause": "Paus",
     "resume": "Fortsätt",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Ja, avsluta träningen"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Du är redan på den enklaste nivån.",
+    "alreadyHighestLevel": "Du är redan på den högsta nivån.",
     "continue": "Fortsätt",
     "howWasThat": "Hur kändes det?",
     "justRight": "Lagom",
+    "keepGoing": "Toppen! Vi fortsätter.",
+    "levelUp": "Ny nivå! Du är nu på {{level}}.",
+    "monthNumber": "Månad {{number}}",
     "newExerciseUnlocked": "Ny övning upplåst!",
     "nextToUnlock": "Nästa att låsa upp",
     "notNow": "Inte nu",
+    "steppedDown": "Tillbaka till {{level}}. Du fixar det!",
     "tooEasy": "För lätt",
     "tooHard": "För tufft",
-    "tryItNow": "Testa nu"
+    "tryItNow": "Testa nu",
+    "unlockedList": "Upplåst: {{names}}"
   }
 }

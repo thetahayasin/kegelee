@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { TouchableOpacity } from '../../../components/Touchable';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { exerciseNameKey } from '../../../constants/catalogues';
 import { COLORS } from '../../../theme/colors';
 import { getSteps } from '../../../constants/catalogues';
 
@@ -110,7 +111,15 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  const cur = TREMBLING[i] || { label: 'Relax', seconds: 1, from: 0, to: 0 };
+  // Fallback must carry a labelKey like a real segment: the circle renders
+  // t(cur.labelKey), and a stray `label` here resolved to t(undefined).
+  const cur = TREMBLING[i] || {
+    phase: 'relax' as const,
+    labelKey: 'catalogue.steps.relax',
+    seconds: 1,
+    from: 0,
+    to: 0,
+  };
 
   const ease = (t: number) => {
     const c = Math.max(0, Math.min(1, t));
@@ -133,7 +142,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     const progress = Math.max(0, Math.min(1, (total - remaining) / Math.max(0.001, total)));
 
     let intensity = 0;
-    if (curStep.label === 'Contract') {
+    if (curStep.phase === 'contract') {
       intensity = ease(progress);
     } else {
       intensity = 1 - ease(progress);
@@ -202,10 +211,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           </View>
         </View>
         <Text style={styles.h1}>{t('first.theCircleIsYourGuide')}</Text>
-        <Text style={styles.p}>
-          Every exercise follows this circle. When it glows and swells, squeeze. When the glow fades,
-          relax. The word inside always tells you what to do.
-        </Text>
+        <Text style={styles.p}>{t('first.theCircleIsYourGuideBody')}</Text>
       </View>
     );
   }
@@ -221,7 +227,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             <Ring offset={CIRC * (1 - pct)} />
             <View style={styles.circleCenter}>
               <Text style={styles.count}>{count}</Text>
-              <Text style={styles.label}>{cur.label}</Text>
+              <Text style={styles.label}>{t(cur.labelKey)}</Text>
             </View>
           </View>
         </View>
@@ -252,18 +258,22 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           ) : (
             <View style={styles.circleCenter}>
               <Text style={styles.count}>{count}</Text>
-              <Text style={styles.label}>{cur.label}</Text>
+              <Text style={styles.label}>{t(cur.labelKey)}</Text>
             </View>
           )}
         </View>
       </View>
-      <Text style={styles.h1Below}>{tried ? 'Nice work!' : 'Now you try'}</Text>
+      <Text style={styles.h1Below}>{tried ? t('first.niceWork') : t('first.nowYouTry')}</Text>
       <Text style={styles.p}>
         {tried
-          ? 'That was a real exercise. Every session works exactly like this, one circle at a time.'
+          ? t('first.thatWasARealExercise')
           : playing
-          ? 'Follow the circle. Squeeze... and relax.'
-          : 'Ten seconds of Trembling. Squeeze on every Contract, let go on Relax. Ready?'}
+          ? t('first.followTheCircle')
+          : t('first.tenSecondsReady', {
+              exercise: t(exerciseNameKey('trembling')),
+              contract: t('catalogue.steps.contract'),
+              relax: t('catalogue.steps.relax'),
+            })}
       </Text>
     </View>
   );

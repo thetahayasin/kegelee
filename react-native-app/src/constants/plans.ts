@@ -5,35 +5,38 @@
  * entries map RevenueCat/Store product IDs to plans and drive the paywall.
  */
 export interface PlanDef {
-  name: string;
   slug: string;
   price: number;
   currency: 'USD';
   interval: 'day' | 'week' | 'month' | 'year' | 'lifetime';
   interval_count: number;
-  description: string;
   store_product_id: string;
   revenuecat_package_id: string;
   is_featured: boolean;
   sort_order: number;
 }
 
+/**
+ * Display copy lives in the locale files, keyed by slug - the paywall shows
+ * these to every reader in their own language, and a name baked in here
+ * would be English for all of them.
+ */
+export const planNameKey = (slug: string) => `plans.${slug}.name`;
+export const planDescriptionKey = (slug: string) => `plans.${slug}.description`;
+
 export const PLANS: PlanDef[] = [
   {
-    name: '1 Month',
     slug: 'premium-monthly',
     price: 5.99,
     currency: 'USD',
     interval: 'month',
     interval_count: 1,
-    description: 'Full access, billed monthly.',
     store_product_id: 'premium_monthly',
     revenuecat_package_id: '$rc_monthly',
     is_featured: false,
     sort_order: 1,
   },
   {
-    name: '3 Months',
     slug: 'premium-quarterly',
     price: 15.99,
     currency: 'USD',
@@ -41,20 +44,17 @@ export const PLANS: PlanDef[] = [
     interval_count: 3,
     // No hardcoded savings percentage: Play prices are localized per market,
     // so a fixed "Save 11%" can be plainly untrue outside the USD catalogue.
-    description: 'Billed every 3 months.',
     store_product_id: 'premium_quarterly',
     revenuecat_package_id: '$rc_three_month',
     is_featured: true,
     sort_order: 2,
   },
   {
-    name: '1 Year',
     slug: 'premium-yearly',
     price: 59.99,
     currency: 'USD',
     interval: 'year',
     interval_count: 1,
-    description: 'One payment for the whole year.',
     store_product_id: 'premium_yearly',
     revenuecat_package_id: '$rc_annual',
     is_featured: false,

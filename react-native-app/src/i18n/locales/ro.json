@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Disponibil",
-    "exercises": "Exerciții"
+    "backA11y": "Înapoi",
+    "exercises": "Exerciții",
+    "unlockProgressA11y": "Progresul deblocării pentru {{name}}"
+  },
+  "basics": {
+    "findTitle": "Găsește-ți planșeul pelvin",
+    "firstTitle": "Primul tău exercițiu",
+    "whyTitle": "De ce funcționează exercițiile Kegel"
+  },
+  "billing": {
+    "alreadyOwned": "Ai deja un abonament activ. Îl restaurăm acum.",
+    "configuration": "Acest abonament nu poate fi cumpărat momentan. Este o problemă de partea noastră - încearcă mai târziu sau contactează asistența.",
+    "declined": "Google Play a refuzat plata. Verifică metoda de plată din contul tău Google, apoi încearcă din nou.",
+    "ineligible": "Nu ești eligibil pentru această ofertă. Alege alt abonament.",
+    "network": "Nu am putut contacta magazinul. Verifică-ți conexiunea și încearcă din nou. Dacă ai fost taxat, accesul va apărea de la sine.",
+    "noPermission": "Contul tău Google nu are permisiunea de a face achiziții pe acest dispozitiv.",
+    "notAllowed": "Acest dispozitiv sau cont Google nu are voie să facă achiziții. De obicei este controlul parental sau lipsa unei metode de plată pe cont.",
+    "operationInProgress": "O achiziție este deja în curs. Așteaptă un moment înainte să încerci din nou.",
+    "otherAccount": "Acest abonament aparține altui cont. Autentifică-te cu acel cont sau contactează asistența și îl mutăm noi.",
+    "paymentPending": "Google Play îți procesează plata. Plățile în numerar și cu voucher pot dura. Accesul se deblochează automat imediat ce se confirmă, deci te rugăm să nu plătești din nou.",
+    "storeProblem": "Google Play are probleme în acest moment. Încearcă din nou peste câteva minute.",
+    "unknown": "Ceva n-a mers bine la finalizarea achiziției. Încearcă din nou. Dacă ai fost taxat, accesul va apărea de la sine."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "O contracție fermă construită lent și eliberată la fel de lent.",
+        "howTo": "Strânge lent timp de 3 secunde, cât se umple cercul, apoi eliberează la fel de lent cât se golește. Păstrează mișcarea lină în ambele direcții.",
+        "name": "Clemă",
+        "summary": "Urcare lentă, coborâre lentă"
+      },
+      "downstairs": {
+        "description": "Contractă până în vârf, apoi coboară treaptă cu treaptă, sub control deplin.",
+        "howTo": "Contractă la maximum, apoi relaxează puțin câte puțin, oprindu-te cam o secundă pe fiecare treaptă la coborâre. Coborârea controlată este exercițiul propriu-zis.",
+        "name": "Coborârea scărilor",
+        "summary": "Coborâre în 4 trepte din vârf"
+      },
+      "elevator": {
+        "description": "Exercițiul emblematic. Urcă treaptă cu treaptă, apoi coboară sub control.",
+        "howTo": "Imaginează-ți că mergi cu liftul. Strânge puțin mai tare la fiecare treaptă până ajungi la cea mai puternică contracție, apoi coboară treaptă cu treaptă până la relaxarea completă.",
+        "name": "Lift",
+        "summary": "Urcă până în vârf, apoi coboară treaptă cu treaptă"
+      },
+      "flash": {
+        "description": "Cele mai rapide contracții. Strângeri scurte și vioaie care antrenează reacția rapidă.",
+        "howTo": "Contractă și eliberează cât de repede poți, în ritmul cercului. Rămâi lejer, nu forța.",
+        "name": "Fulger",
+        "summary": "Cele mai rapide contracții"
+      },
+      "front-clamp": {
+        "description": "O contracție lentă și țintită a părții din față a planșeului pelvin, cu o eliberare rapidă și curată.",
+        "howTo": "Strânge lent timp de 3 secunde, cât se umple cercul. Când se golește, eliberează tot dintr-odată. Apoi începe următoarea contracție lentă.",
+        "name": "Clemă frontală",
+        "summary": "Strânge lent, eliberează dintr-odată"
+      },
+      "holding": {
+        "description": "Contractă și menține pentru a construi rezistența de bază a planșeului pelvin.",
+        "howTo": "Contractă planșeul pelvin și menține pe toată durata rundei. Dacă tensiunea scade, contractă din nou ușor. Continuă să respiri normal.",
+        "name": "Menținere",
+        "summary": "O menținere constantă"
+      },
+      "long-steady-clamp": {
+        "description": "Constructorul de rezistență: o secundă de contracție care trece în zece secunde de menținere la forță maximă.",
+        "howTo": "Strânge timp de o secundă, apoi menține la forță maximă zece secunde. Dacă tensiunea scade, contractă ușor înapoi la maximum. Eliberează și repetă.",
+        "name": "Clemă constantă lungă",
+        "summary": "1 secundă de contracție, 10 de menținere"
+      },
+      "pulsation": {
+        "description": "Două contracții rapide una după alta, apoi o eliberare completă. Antrenează contractarea din nou înainte de a-ți fi revenit complet și eliberarea corectă între eforturi.",
+        "howTo": "Contractă și eliberează de două ori la rând în ritmul cercului, apoi lasă totul complet liber în timpul pauzei. Eliberarea completă contează la fel de mult ca pulsurile.",
+        "name": "Puls dublu",
+        "summary": "Două pulsuri rapide, apoi revenire completă"
+      },
+      "push": {
+        "description": "Construiește contracția până la un vârf puternic, menține-l, apoi eliberează lent.",
+        "howTo": "Strânge treptat timp de trei secunde, devenind mai puternic pe măsură ce se umple cercul. Menține cea mai puternică contracție două secunde, apoi eliberează lent. Strânge mai tare, nu împinge niciodată în jos.",
+        "name": "Împingere",
+        "summary": "3 s urcare, 2 s vârf menținut, 3 s relaxare"
+      },
+      "reverse-clamp": {
+        "description": "O contracție rapidă urmată de o eliberare lentă și controlată. Excelentă pentru control.",
+        "howTo": "Strânge dintr-odată, apoi începe imediat să eliberezi cât mai lent posibil, urmărind cercul cum coboară. Eliberarea lentă este exercițiul propriu-zis.",
+        "name": "Clemă inversă",
+        "summary": "Strânge dintr-odată, eliberează lent"
+      },
+      "short-holding": {
+        "description": "O menținere puternică de 4 secunde eliberată lent, nu lăsată să cadă. Eliberarea controlată este o abilitate în sine, iar majoritatea o găsesc mai grea decât menținerea propriu-zisă.",
+        "howTo": "Strânge timp de o secundă, menține la forță maximă patru, apoi eliberează treptat cât coboară cercul. Nu îl lăsa să se prăbușească: însoțește-l până jos de tot.",
+        "name": "Menținere scurtă",
+        "summary": "Menține 4 secunde, apoi eliberează treptat"
+      },
+      "starter": {
+        "description": "O contracție rapidă care trezește mușchiul, urmată de o menținere puternică de 5 secunde.",
+        "howTo": "Fă o contracție rapidă, relaxează lin, apoi contractă din nou și menține puternic cinci secunde. Eliberează, respiră și repetă.",
+        "name": "Pornire",
+        "summary": "Contracție rapidă, apoi menținere de 5 secunde"
+      },
+      "steady-clamp": {
+        "description": "O clemă constantă: contractă o secundă, apoi menține la forță maximă cinci.",
+        "howTo": "Strânge timp de o secundă, apoi menține la forță maximă cinci secunde fără să lași tensiunea să scadă. Eliberează și repetă.",
+        "name": "Clemă constantă",
+        "summary": "1 secundă de contracție, 5 de menținere"
+      },
+      "steady-trembling": {
+        "description": "Contractă dintr-odată, menține tensiunea constantă câteva secunde, apoi relaxează.",
+        "howTo": "Contractă dintr-odată și menține tensiunea. Când cercul coboară, eliberează lin. Apoi repetă contracția rapidă și menținerea.",
+        "name": "Tremur constant",
+        "summary": "Strânge dintr-odată, menține, apoi relaxează"
+      },
+      "trembling": {
+        "description": "Contracții și relaxări rapide care fac mușchiul să tremure și îi trezesc răspunsul rapid.",
+        "howTo": "Contractă tot dintr-odată, menține o clipă, apoi eliberează lin. Urmărește cercul cum sare în sus și coboară ușor.",
+        "name": "Tremur",
+        "summary": "Contracții rapide, pornit și oprit"
+      },
+      "upstairs": {
+        "description": "Urcă contracția în patru trepte, puțin mai puternic la fiecare nivel.",
+        "howTo": "Imaginează-ți că urci cu liftul. Strânge puțin, apoi mai mult, apoi și mai mult, până ajungi la cea mai puternică contracție, petrecând cam o secundă pe fiecare treaptă. Relaxează-te după aceea.",
+        "name": "Urcarea scărilor",
+        "summary": "Urcare în 4 trepte până în vârf"
+      },
+      "waves": {
+        "description": "Contracții în formă de val care acumulează și eliberează tensiunea fără întrerupere.",
+        "howTo": "Strânge lent timp de două secunde, apoi eliberează la fel de lent, ca un val care urcă și coboară. Păstrează mișcarea lină și continuă.",
+        "name": "Valuri",
+        "summary": "2 secunde în sus, 2 secunde în jos"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Început blând. Sesiuni scurte de 1 minut.",
+        "name": "Nivelul 1"
+      },
+      "2": {
+        "description": "Puțin mai lung. Sesiuni de 2 minute.",
+        "name": "Nivelul 2"
+      },
+      "3": {
+        "description": "Antrenament echilibrat. Sesiuni de 3 minute.",
+        "name": "Nivelul 3"
+      },
+      "4": {
+        "description": "Sesiuni mai lungi pentru mușchi mai puternici. 4 minute.",
+        "name": "Nivelul 4"
+      },
+      "5": {
+        "description": "Rezistență și control avansate. 5 minute.",
+        "name": "Nivelul 5"
+      }
+    },
+    "steps": {
+      "contract": "Contractă",
+      "contractAndHold": "Contractă și menține",
+      "contractSlowly": "Contractă lent",
+      "easeDown": "Eliberează treptat",
+      "hold": "Menține",
+      "pulse1": "Puls 1",
+      "pulse2": "Puls 2",
+      "relax": "Relaxează",
+      "relaxSlowly": "Relaxează lent",
+      "release": "Eliberează",
+      "releaseSlowly": "Eliberează lent",
+      "reset": "Înapoi la zero",
+      "rest": "Pauză",
+      "step1": "Treapta 1",
+      "step2": "Treapta 2",
+      "step3": "Treapta 3",
+      "top": "În vârf"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Ceva n-a mers bine",
@@ -9,48 +177,94 @@
     "tryAgain": "Încearcă din nou"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Mai completează {{count}} zi de antrenament pentru a debloca.",
+    "completeMoreDaysToUnlock_other": "Mai completează {{count}} zile de antrenament pentru a debloca.",
     "exerciseNotFound": "Exercițiul nu a fost găsit.",
+    "lockedDaysLeft_one": "Blocat - a mai rămas {{count}} zi",
+    "lockedDaysLeft_other": "Blocat - au mai rămas {{count}} zile",
     "tryItNow": "Încearcă acum"
   },
   "find": {
+    "flow_stopMidway": "Oprește la jumătate",
+    "flow_thatSqueeze": "Exact acea contracție!",
+    "flow_youPee": "Urinezi",
     "keepGoing": "Continuă așa …",
     "onlyDoThePeeTest": "Fă testul la urinare o singură dată",
+    "onlyDoThePeeTestDesc": "Este doar o metodă de a găsi mușchii, nu un exercițiu. Oprirea frecventă a jetului nu îi face bine vezicii.",
+    "pressAndHold": "Apasă și ține",
+    "squeezeNow": "Contractă!",
     "squeezeOnlyThoseMuscles": "Contractă doar mușchii aceia",
+    "squeezeOnlyThoseMusclesDesc": "Alt indiciu: contractă ca și cum ai reține un gaz. Abdomenul, picioarele și fesele rămân complet relaxate.",
+    "stopTheFlowBody": "Data viitoare când urinezi, oprește ușor jetul la jumătate. Mușchii pe care tocmai i-ai folosit sunt planșeul tău pelvin.",
     "thatExactSqueezeIsThe": "Exact acea contracție este mișcarea pe care o vei antrena.",
     "theEasiestWayToFind": "Cel mai simplu mod de a-i găsi",
-    "twoQuickRules": "Două reguli scurte"
+    "tryItNow": "Încearcă acum",
+    "tryItNowBody": "Apasă și ține cercul. Cât timp îl ții, contractă acei mușchi. Eliberează în același timp.",
+    "twoQuickRules": "Două reguli scurte",
+    "youFoundThem": "I-ai găsit!",
+    "youFoundThemBody": "Acea contracție și relaxare este tot ce înseamnă un exercițiu Kegel. Ești pregătit pentru primul tău exercițiu."
   },
   "first": {
     "contract": "Contractă",
+    "followTheCircle": "Urmărește cercul. Contractă... și relaxează.",
+    "niceWork": "Bravo!",
+    "nowYouTry": "Acum încearcă tu",
     "start": "Începe",
+    "tenSecondsReady": "Zece secunde de {{exercise}}. Contractă la fiecare {{contract}} și eliberează la {{relax}}. Ești gata?",
+    "thatWasARealExercise": "Acela a fost un exercițiu adevărat. Fiecare sesiune funcționează exact așa, un cerc pe rând.",
     "theCircleIsYourGuide": "Cercul îți dă ritmul",
+    "theCircleIsYourGuideBody": "Fiecare exercițiu urmează acest cerc. Când strălucește și crește, contractă. Când strălucirea scade, relaxează. Cuvântul dinăuntru îți spune mereu ce să faci.",
     "thisIsTrembling": "Acesta este Tremurul",
     "yourFirstExerciseQuickFlicks": "Primul tău exercițiu: contracții rapide. Strânge la Contractă, eliberează la Relaxează."
   },
   "knowledge": {
     "continueToTraining": "Continuă spre antrenament",
     "learnTheBasics": "Învață bazele",
+    "lessonNumber": "Lecția {{number}}",
     "logIn": "Autentificare"
   },
   "login": {
     "6DigitCode": "Cod din 6 cifre",
     "close": "Închide",
+    "codeSentEnterBelow": "Cod trimis! Introdu-l mai jos împreună cu o parolă nouă.",
     "continueWithGoogle": "Continuă cu Google",
+    "couldNotOpenGoogle": "Nu am putut deschide autentificarea cu Google. Încearcă din nou.",
     "createAccount": "Creează cont",
     "email": "E-mail",
-    "enterYourEmail": "Introdu adresa ta de e-mail",
+    "enterSixDigitCode": "Introdu codul din 6 cifre primit pe e-mail.",
+    "enterYourEmail": "Introdu adresa ta de e-mail.",
+    "failedToResetPassword": "Nu am putut reseta parola.",
+    "failedToSendResetCode": "Nu am putut trimite codul de resetare.",
+    "fillAllFields": "Completează toate câmpurile.",
     "forgotPassword": "Ai uitat parola?",
+    "googleSignInFailed": "Autentificarea cu Google a eșuat. Încearcă din nou.",
+    "invalidCredentials": "Date de autentificare invalide.",
     "logIn": "Autentificare",
     "logIn2": "Autentifică-te",
     "newHere": "Ești nou aici?",
     "newPassword": "Parolă nouă",
     "password": "Parolă",
     "passwordReset": "Parola a fost resetată",
-    "resetPassword": "Resetează parola"
+    "passwordResetBody": "Parola ta a fost resetată. Autentifică-te.",
+    "passwordResetTitle": "Parolă resetată",
+    "passwordRules": "Parola trebuie să aibă cel puțin 6 caractere și să conțină o cifră.",
+    "resetPassword": "Resetează parola",
+    "resetPasswordCta": "Resetează parola",
+    "sendCodeCta": "Trimite codul"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Ai deja un cont?",
-    "logIn": "Autentifică-te"
+    "getStarted": "Începe",
+    "logIn": "Autentifică-te",
+    "perDay": "PE ZI",
+    "slide1Body": "Nimeni nu vorbește despre ele. Toate pornesc de la un singur mușchi slăbit, iar un mușchi slăbit poate fi antrenat la loc.",
+    "slide1Title": "Scurgeri. Urgență. Mai puțin control.",
+    "slide2Body": "Fără sală, fără echipament, fără să dai ceva jos. Pe canapea, la birou, în autobuz. Nimeni nu observă.",
+    "slide2Title": "Un minut, stând jos",
+    "slide3Body": "Aplicația măsoară cât reușești să menții. Timpii tăi cresc, se deblochează exerciții noi, iar schimbarea apare exact unde o voiai.",
+    "slide3Title": "O simți înainte să o vezi",
+    "slide4Body": "Dacă te oprești, mușchiul cedează, ca la orice antrenament. Alege o oră, iar de restul se ocupă mementoul.",
+    "slide4Title": "Funcționează doar dacă ții ritmul"
   },
   "paywall": {
     "autoRenewOffHint": "Reînnoirea automată este dezactivată. Accesul se încheie la data expirării.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Măsoară-ți progresul",
     "benefitReminders": "Memento-uri potrivite zilei tale",
     "benefitStrength": "Construiește forță reală în planșeul pelvin",
+    "bestValue": "CEA MAI BUNĂ OFERTĂ",
     "billingIsNotAvailableOn": "Plățile nu sunt disponibile pe acest dispozitiv. Poți restaura o achiziție anterioară mai jos.",
     "byContinuingYouAgree": "Continuând, ești de acord cu",
     "changeYourPlan": "Schimbă planul",
@@ -72,6 +287,7 @@
     "managePlan": "Gestionează planul",
     "noActiveSubscriptionWasFound": "Nu s-a găsit niciun abonament activ de restaurat.",
     "off": "Dezactivată",
+    "offeringsUnavailable": "Abonamentele nu sunt disponibile pe acest dispozitiv momentan. Încearcă mai târziu sau restaurează mai jos o achiziție anterioară.",
     "on": "Activată",
     "paymentProcessedSecurely": "Plata este procesată în siguranță prin RevenueCat și magazinul de aplicații la confirmare.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Achiziția a fost primită, dar planul nu a putut fi identificat. Contactează asistența.",
     "restorePurchases": "Restaurează achizițiile",
     "restoredPurchaseCouldNotBe": "Achiziția restaurată nu a putut fi asociată unui plan. Contactează asistența.",
+    "savePercent": "ECONOMISEȘTI {{percent}} %",
     "signInFirst": "Conectează-te înainte de a te abona.",
     "startFreeTrialCta_one": "Începe {{count}} zi gratuită",
     "startFreeTrialCta_other": "Începe {{count}} zile gratuite",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Dezinstalarea aplicației nu anulează abonamentul și nu oferă rambursare.",
     "yourSubscriptionIsNowActive": "Abonamentul tău este activ și ai acces complet."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Acces complet, facturat lunar.",
+      "name": "1 lună"
+    },
+    "premium-quarterly": {
+      "description": "Facturat la fiecare 3 luni.",
+      "name": "3 luni"
+    },
+    "premium-yearly": {
+      "description": "O singură plată pentru tot anul.",
+      "name": "1 an"
+    }
+  },
   "profile": {
     "currentDifficulty": "Dificultatea curentă",
     "difficulty": "Dificultate",
     "error": "Eroare",
+    "errorTitle": "Eroare",
+    "failedToUpdateLevel": "Nu am putut actualiza nivelul de antrenament.",
     "profile": "Profil",
     "scheduleReminders": "Program și memento-uri",
     "setTheDifficultyOfKegel": "Setează dificultatea programului de antrenament Kegel",
+    "settingsA11y": "Setări",
     "theHigherTheLevelThe": "Cu cât nivelul e mai mare, cu atât antrenamentul e mai greu"
   },
   "progress": {
+    "bestResult": "cel mai bun rezultat",
     "continue": "Continuă",
     "holdTheButtonAndContract": "Ține butonul apăsat și contractă mușchii planșeului pelvin cât poți de mult.",
+    "lastMeasurement": "ultima măsurătoare",
     "progressTracker": "Evoluție",
+    "seconds": "{{count}} s",
     "takeMeasurement": "Fă o măsurătoare",
+    "today": "Azi",
+    "topResult": "cel mai bun rezultat: {{count}} s",
     "tryAgain": "Încearcă din nou"
   },
   "register": {
     "alreadyHaveAnAccount": "Ai deja un cont?",
     "confirmPassword": "Confirmă parola",
     "continueWithGoogle": "Continuă cu Google",
+    "couldNotOpenGoogle": "Nu am putut deschide înregistrarea cu Google. Încearcă din nou.",
     "createAccount": "Creează cont",
     "createAccount2": "Creează cont",
     "email": "E-mail",
+    "fillAllFields": "Completează toate câmpurile.",
+    "googleSignUpFailed": "Înregistrarea cu Google a eșuat. Încearcă din nou.",
     "logIn": "Autentifică-te",
     "name": "Nume",
-    "password": "Parolă"
+    "password": "Parolă",
+    "passwordNeedsNumber": "Parola trebuie să conțină cel puțin o cifră.",
+    "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere.",
+    "passwordsDoNotMatch": "Parolele nu coincid.",
+    "registrationFailed": "Înregistrarea a eșuat."
+  },
+  "reminders": {
+    "notificationBody": "E timpul pentru sesiunea ta zilnică de Kegel!",
+    "notificationTitle": "Antrenament Kegel"
   },
   "schedule": {
     "active": "Activ",
     "allowExactReminders": "Permite memento-uri exacte",
+    "daysLeft_one": "a mai rămas {{count}} zi",
+    "daysLeft_other": "au mai rămas {{count}} zile",
     "error": "Eroare",
+    "errorTitle": "Eroare",
+    "failedToSaveReminders": "Nu am putut salva mementourile.",
     "limitReached": "Limită atinsă",
+    "limitReachedBody": "Poți seta până la 5 mementouri pe zi.",
+    "limitReachedTitle": "Limită atinsă",
+    "monthNumber": "Luna {{number}}",
     "reminders": "Memento-uri",
     "remindersSaved": "Memento-uri salvate",
     "repeatOn": "Repetă în",
     "saveAddReminders": "Salvează memento-urile",
     "schedule": "Program",
+    "sessionNumber": "Sesiunea {{number}}",
     "sessionTimes": "Orele sesiunilor"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Ștergi contul?",
     "deletePermanently": "Șterge definitiv",
     "deleted": "Șters",
+    "deletedBody": "Contul tău a fost șters definitiv.",
+    "deletedTitle": "Șters",
+    "failedToDeleteAccount": "Nu am putut șterge contul.",
     "gotIt": "Am înțeles",
     "language": "Limbă",
     "logOut": "Deconectare",
     "manageSubscription": "Gestionează abonamentul",
     "noActiveSubscription": "Niciun abonament activ",
     "reset": "Resetează",
+    "resetConfirmBody": "Aceasta îți va șterge zilele de antrenament, sesiunile, măsurătorile și progresul din lecții. Acțiunea nu poate fi anulată.",
     "resetProgress": "Resetează evoluția",
     "resetProgress2": "Resetezi evoluția?",
+    "resetSuccessBody": "Progresul tău de antrenament a fost șters.",
+    "resetSuccessTitle": "Resetat",
     "resetSuccessful": "Resetare reușită",
     "restartBody": "Închide și redeschide aplicația pentru a finaliza schimbarea direcției aspectului.",
     "restartRequired": "Este necesară repornirea",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Ai deja un cont? Autentifică-te",
     "back": "Înapoi",
+    "bestValue": "CEA MAI BUNĂ OFERTĂ",
+    "billingDisclosure": "Plata este procesată în siguranță prin RevenueCat și magazinul de aplicații la confirmare. Abonamentul se reînnoiește automat la prețul afișat până când îl anulezi din setările de abonament; dezinstalarea aplicației nu îl anulează și nu îl rambursează. Continuând, ești de acord cu",
     "close": "Închide",
     "confirmPassword": "Confirmă parola",
     "continue": "Continuă",
     "continueWithGoogle": "Continuă cu Google",
+    "couldNotOpenGoogle": "Nu am putut deschide autentificarea cu Google. Încearcă din nou.",
     "couldNotOpenGoogleSign": "Autentificarea cu Google nu a putut fi deschisă. Te rugăm să încerci din nou.",
+    "couldNotReachServer": "Nu am putut contacta serverul. Verifică-ți conexiunea și încearcă din nou.",
+    "createAccount": "Creează cont",
     "createAccountSubscribe": "Creează cont și abonează-te",
     "creatingAccount": "Se creează contul …",
     "emailAddress": "Adresă de e-mail",
+    "emailInvalid": "Introdu o adresă de e-mail validă.",
+    "emailOrPasswordIncorrect": "E-mail sau parolă incorecte.",
+    "emailRequired": "E-mailul este obligatoriu.",
     "fullName": "Nume complet",
+    "googleSignInFailed": "Autentificarea cu Google a eșuat. Încearcă din nou.",
+    "nameRequired": "Numele este obligatoriu.",
     "noAccountYetCreateOne": "Încă nu ai cont? Creează unul",
     "password": "Parolă",
     "password6Characters1Number": "Parolă (min. 6 caractere, 1 cifră)",
+    "passwordRequired": "Parola este obligatorie.",
+    "passwordRules": "Parola trebuie să aibă cel puțin 6 caractere și să conțină o cifră.",
+    "passwordsDoNotMatch": "Parolele nu coincid.",
+    "signIn": "Autentificare",
     "signInSubscribe": "Autentifică-te și abonează-te",
     "signingIn": "Se face autentificarea …",
     "startYourTransformationJourneyNow": "Începe-ți transformarea chiar acum",
     "subscribe": "Abonează-te",
     "terms": "Termeni"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Progres",
+    "schedule": "Program",
+    "training": "Antrenament"
   },
   "training": {
     "available": "Disponibil",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Înapoi la autentificare",
+    "codeResent": "Codul de verificare a fost retrimis!",
     "didnTReceiveTheCode": "Nu ai primit codul? Retrimite",
+    "enterSixDigitCode": "Introdu un cod de verificare din 6 cifre.",
+    "failedToResendCode": "Nu am putut retrimite codul.",
+    "verificationFailed": "Verificarea a eșuat. Încearcă din nou.",
     "verifyCode": "Verifică codul",
     "verifyEmail": "Verifică e-mailul"
   },
   "why": {
     "aMuscleYouCanTrain": "Un mușchi pe care îl poți antrena",
+    "aRealMuscleBody": "Planșeul tău pelvin este un mușchi adevărat. Antrenează-l câteva minute pe zi și devine mai puternic, ca la orice alt antrenament. Fără pastile, fără efecte secundare, iar rezultatele durează.",
     "andYouCanDoIt": "Și o poți face oriunde, oricând. Așezat, în picioare, în autobuz. Nimeni nu observă.",
+    "benefit_bladder_desc": "Mai puține scurgeri și mai puține urgențe.",
+    "benefit_bladder_title": "Control mai bun al vezicii",
+    "benefit_confidence_desc": "Progrese care se adună săptămână de săptămână.",
+    "benefit_confidence_title": "Încredere de durată",
+    "benefit_core_desc": "Ajută postura și zona lombară.",
+    "benefit_core_title": "Un centru susținut",
+    "benefit_performance_desc": "Mai mult control și rezistență în intimitate.",
+    "benefit_performance_title": "Performanță mai bună",
     "doingItRightIsEverything": "Totul ține de execuția corectă",
     "learnItOnceAndEvery": "Învață o dată, și fiecare minut de antrenament chiar va conta.",
     "squeezeTheWrongMusclesAnd": "Dacă contracți mușchii greșiți, nu obții nimic.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Dacă pleci acum, sesiunea nu va fi luată în calcul pentru progresul zilnic.",
     "leaveTraining": "Ieși din antrenament?",
     "noExercises": "Niciun exercițiu",
+    "noExercisesBody": "Niciun exercițiu deblocat pentru această sesiune.",
+    "noExercisesTitle": "Niciun exercițiu",
     "noGoBack": "Nu, înapoi",
     "pause": "Pauză",
     "resume": "Reia",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Da, ies din antrenament"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Ești deja la cel mai ușor nivel.",
+    "alreadyHighestLevel": "Ești deja la cel mai înalt nivel.",
     "continue": "Continuă",
     "howWasThat": "Cum a fost?",
     "justRight": "Exact cât trebuie",
+    "keepGoing": "Excelent! Continuăm.",
+    "levelUp": "Ai avansat! Acum ești la {{level}}.",
+    "monthNumber": "Luna {{number}}",
     "newExerciseUnlocked": "Ai deblocat un exercițiu nou!",
     "nextToUnlock": "Următorul de deblocat",
     "notNow": "Nu acum",
+    "steppedDown": "Ai coborât la {{level}}. Poți să reușești!",
     "tooEasy": "Prea ușor",
     "tooHard": "Prea greu",
-    "tryItNow": "Încearcă acum"
+    "tryItNow": "Încearcă acum",
+    "unlockedList": "Deblocat: {{names}}"
   }
 }

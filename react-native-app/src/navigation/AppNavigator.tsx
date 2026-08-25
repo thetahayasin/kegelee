@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 // Native stack, not the JS one. @react-navigation/stack animates transitions on
 // the JS thread, so every push competed with whatever the incoming screen was
 // doing on mount - and several screens run SQLite reads on focus, which is
@@ -138,8 +139,16 @@ const styles = StyleSheet.create({
   },
 });
 
+const TAB_LABEL_KEYS: Record<string, string> = {
+  Training: 'tabs.training',
+  Progress: 'tabs.progress',
+  Schedule: 'tabs.schedule',
+  Profile: 'tabs.profile',
+};
+
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -147,6 +156,8 @@ const TabNavigator = () => {
         // blurred tabs so background tabs cost nothing while training.
         lazy: true,
         freezeOnBlur: true,
+        // Without this the tab bar renders the route name verbatim.
+        tabBarLabel: t(TAB_LABEL_KEYS[route.name] ?? route.name),
         tabBarIcon: ({ color, focused }) => (
           <View style={[styles.tabIconWrap, focused && styles.tabIconWrapActive]}>
             <TabIcon name={route.name} color={color} focused={focused} />

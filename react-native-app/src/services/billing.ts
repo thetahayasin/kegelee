@@ -188,6 +188,34 @@ export const onCustomerInfoChange = (
   };
 };
 
+/**
+ * Force RevenueCat to go and ask the server what this customer owns right now.
+ *
+ * `onCustomerInfoChange` only hears about a renewal when the SDK actually
+ * fetches, and the SDK decides that for itself - it will happily serve a cached
+ * CustomerInfo for the whole time an app sits open. That is exactly the window
+ * in which a subscription renews and the app never notices, so a caller that
+ * has reason to believe the entitlement moved (app came back to the
+ * foreground, user is staring at the paywall) needs a way to say "check now".
+ *
+ * Dropping the cache first is the point: without it the SDK can answer from
+ * the same stale copy that caused the problem. Returns whether premium is live
+ * so the caller can act on the answer directly rather than only through the
+ * listener, and never throws - a billing hiccup must not take a screen down.
+ */
+export const refreshCustomerInfo = async (
+  userId?: number | string | null,
+): Promise<boolean> => {
+  try {
+    if (!(await initBilling(userId))) return false;
+    await Purchases.invalidateCustomerInfoCache().catch(() => {});
+    const info = await Purchases.getCustomerInfo();
+    return hasActiveEntitlement(info);
+  } catch {
+    return false;
+  }
+};
+
 export interface CompletedPurchase {
   revenuecatAppUserId: string;
   productId: string;
@@ -247,7 +275,7 @@ const packageForPlan = async (plan: PlanDef): Promise<PurchasesPackage> => {
   const found = findPackageForPlan(packages, plan);
 
   if (!found) {
-    throw new Error(`RevenueCat package for ${plan.name} is not configured.`);
+    throw new Error(`RevenueCat package for ${plan.slug} is not configured.`);
   }
 
   return found;
@@ -484,8 +512,8 @@ export interface PurchaseFailure {
   restorable: boolean;
   /** Whether trying again could plausibly succeed. */
   retryable: boolean;
-  /** Copy safe to put in front of a paying customer. */
-  message: string;
+  /** i18n key for copy safe to put in front of a paying customer. Empty when cancelled. */
+  messageKey: string;
   /** SDK detail. Logs only - it leaks internals into the UI otherwise. */
   detail: string | null;
 }
@@ -513,7 +541,7 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
   // userCancelled is deprecated in favour of the code, but the Android bridge
   // still sets it, so honour whichever arrives.
   if (code === RC.CANCELLED || e?.userCancelled === true) {
-    return { ...base, cancelled: true, message: '' };
+    return { ...base, cancelled: true, messageKey: '' };
   }
 
   switch (code) {
@@ -521,8 +549,7 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
       return {
         ...base,
         pending: true,
-        message:
-          'Your payment is being processed by Google Play. Cash and voucher payments can take a while. Your access unlocks automatically once it clears, so please do not pay again.',
+        messageKey: 'billing.paymentPending',
       };
 
     case RC.ALREADY_PURCHASED:
@@ -530,36 +557,32 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
       return {
         ...base,
         restorable: true,
-        message: 'You already have an active subscription. Restoring it now.',
+        messageKey: 'billing.alreadyOwned',
       };
 
     case RC.RECEIPT_IN_USE_BY_OTHER:
       return {
         ...base,
-        message:
-          'This subscription belongs to a different account. Sign in with that account, or contact support and we can move it across.',
+        messageKey: 'billing.otherAccount',
       };
 
     case RC.PURCHASE_INVALID:
       return {
         ...base,
         retryable: true,
-        message:
-          'Google Play declined the payment. Check the payment method on your Google account, then try again.',
+        messageKey: 'billing.declined',
       };
 
     case RC.NOT_ALLOWED:
       return {
         ...base,
-        message:
-          'This device or Google account is not allowed to make purchases. That is usually parental controls, or no payment method on the account.',
+        messageKey: 'billing.notAllowed',
       };
 
     case RC.INSUFFICIENT_PERMISSIONS:
       return {
         ...base,
-        message:
-          'Your Google account does not have permission to make purchases on this device.',
+        messageKey: 'billing.noPermission',
       };
 
     case RC.NETWORK:
@@ -569,8 +592,7 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
       return {
         ...base,
         retryable: true,
-        message:
-          'We could not reach the store. Check your connection and try again. If you were charged, your access will appear on its own.',
+        messageKey: 'billing.network',
       };
 
     case RC.STORE_PROBLEM:
@@ -579,18 +601,18 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
       return {
         ...base,
         retryable: true,
-        message: 'Google Play is having trouble right now. Please try again in a few minutes.',
+        messageKey: 'billing.storeProblem',
       };
 
     case RC.OPERATION_IN_PROGRESS:
       return {
         ...base,
         retryable: true,
-        message: 'A purchase is already in progress. Give it a moment before trying again.',
+        messageKey: 'billing.operationInProgress',
       };
 
     case RC.INELIGIBLE:
-      return { ...base, message: 'You are not eligible for this offer. Please choose another plan.' };
+      return { ...base, messageKey: 'billing.ineligible' };
 
     case RC.PRODUCT_NOT_AVAILABLE:
     case RC.CONFIGURATION:
@@ -601,16 +623,14 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
       // something wrong; the code still reaches the logs for us to act on.
       return {
         ...base,
-        message:
-          'This plan cannot be purchased right now. This is a problem on our side - please try again later or contact support.',
+        messageKey: 'billing.configuration',
       };
 
     default:
       return {
         ...base,
         retryable: true,
-        message:
-          'Something went wrong completing your purchase. Please try again. If you were charged, your access will appear on its own.',
+        messageKey: 'billing.unknown',
       };
   }
 };

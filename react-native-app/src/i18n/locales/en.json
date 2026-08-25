@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Available",
-    "exercises": "Exercises"
+    "backA11y": "Back",
+    "exercises": "Exercises",
+    "unlockProgressA11y": "{{name}} unlock progress"
+  },
+  "basics": {
+    "findTitle": "Find your pelvic floor",
+    "firstTitle": "Your first exercise",
+    "whyTitle": "Why Kegel training works"
+  },
+  "billing": {
+    "alreadyOwned": "You already have an active subscription. Restoring it now.",
+    "configuration": "This plan cannot be purchased right now. This is a problem on our side - please try again later or contact support.",
+    "declined": "Google Play declined the payment. Check the payment method on your Google account, then try again.",
+    "ineligible": "You are not eligible for this offer. Please choose another plan.",
+    "network": "We could not reach the store. Check your connection and try again. If you were charged, your access will appear on its own.",
+    "noPermission": "Your Google account does not have permission to make purchases on this device.",
+    "notAllowed": "This device or Google account is not allowed to make purchases. That is usually parental controls, or no payment method on the account.",
+    "operationInProgress": "A purchase is already in progress. Give it a moment before trying again.",
+    "otherAccount": "This subscription belongs to a different account. Sign in with that account, or contact support and we can move it across.",
+    "paymentPending": "Your payment is being processed by Google Play. Cash and voucher payments can take a while. Your access unlocks automatically once it clears, so please do not pay again.",
+    "storeProblem": "Google Play is having trouble right now. Please try again in a few minutes.",
+    "unknown": "Something went wrong completing your purchase. Please try again. If you were charged, your access will appear on its own."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "A firm squeeze built up slowly and released just as slowly.",
+        "howTo": "Tighten slowly over 3 seconds as the circle fills, then release just as slowly as it empties. Keep the movement smooth in both directions.",
+        "name": "Clamp",
+        "summary": "Slow squeeze up, slow release"
+      },
+      "downstairs": {
+        "description": "Squeeze to the top, then come down one step at a time under full control.",
+        "howTo": "Squeeze to your strongest, then relax a little at a time, pausing about one second at each level on the way down. The controlled descent is the exercise.",
+        "name": "Downstairs",
+        "summary": "4-step descent from the top"
+      },
+      "elevator": {
+        "description": "The signature exercise. Climb up step by step, then come back down under control.",
+        "howTo": "Imagine riding an elevator. Tighten a little more at each step until you reach your strongest squeeze, then come back down one step at a time until fully relaxed.",
+        "name": "Elevator",
+        "summary": "Climb to the top, then step back down"
+      },
+      "flash": {
+        "description": "The fastest flicks. Short snappy squeezes that train quick reactions.",
+        "howTo": "Squeeze and let go as fast as you can, in time with the circle. Stay light, do not strain.",
+        "name": "Flash",
+        "summary": "Fastest on and off flicks"
+      },
+      "front-clamp": {
+        "description": "A slow, focused squeeze of the front pelvic floor with a quick clean release.",
+        "howTo": "Tighten slowly over 3 seconds as the circle fills. When it empties, let go all at once. Then start the next slow squeeze.",
+        "name": "Front Clamp",
+        "summary": "Squeeze up slowly, let go at once"
+      },
+      "holding": {
+        "description": "Squeeze and keep holding to build baseline endurance in the pelvic floor.",
+        "howTo": "Squeeze your pelvic floor and keep holding for the whole round. If the tension fades, gently squeeze back up. Keep breathing normally.",
+        "name": "Holding",
+        "summary": "One steady hold"
+      },
+      "long-steady-clamp": {
+        "description": "The endurance builder: a one second squeeze into a ten second full-strength hold.",
+        "howTo": "Tighten for one second, then hold at full strength for ten seconds. If the tension fades, gently squeeze back up to full. Let go and repeat.",
+        "name": "Long Steady Clamp",
+        "summary": "1 second squeeze, 10 second hold"
+      },
+      "pulsation": {
+        "description": "Two quick squeezes back to back, then a complete release. Trains squeezing again before you have fully recovered, and letting go properly between efforts.",
+        "howTo": "Squeeze and release twice in quick succession with the circle, then let everything go completely while it rests. The full release matters as much as the pulses.",
+        "name": "Double Pulse",
+        "summary": "Two fast pulses, then a full reset"
+      },
+      "push": {
+        "description": "Build the squeeze to a strong peak, hold it, then let go slowly.",
+        "howTo": "Tighten gradually over three seconds, getting stronger as the circle fills. Hold your strongest squeeze for two seconds, then release slowly. Squeeze harder, never push down or strain.",
+        "name": "Push",
+        "summary": "3s build, 2s peak hold, 3s relax"
+      },
+      "reverse-clamp": {
+        "description": "A quick squeeze followed by a slow, controlled letting go. Great for control.",
+        "howTo": "Squeeze at once, then immediately start releasing as slowly as you can, following the circle down. The slow letting go is the exercise.",
+        "name": "Reverse Clamp",
+        "summary": "Squeeze at once, release slowly"
+      },
+      "short-holding": {
+        "description": "A strong 4 second hold released slowly rather than dropped. Letting go under control is a skill in its own right, and most people find it harder than the hold.",
+        "howTo": "Tighten over one second, hold at full strength for four, then release gradually as the circle sinks. Do not let it collapse - stay with it all the way down.",
+        "name": "Short Holding",
+        "summary": "Hold 4 seconds, then ease down"
+      },
+      "starter": {
+        "description": "One quick squeeze to wake the muscle, then a strong 5 second hold.",
+        "howTo": "Give one quick squeeze, relax smoothly, then squeeze again and hold strong for five seconds. Let go, breathe, and repeat.",
+        "name": "Starter",
+        "summary": "Quick flick, then a 5 second hold"
+      },
+      "steady-clamp": {
+        "description": "A steady clamp: squeeze for a second, then hold at full strength for five.",
+        "howTo": "Tighten for one second, then hold at full strength for five seconds without letting the tension drop. Let go and repeat.",
+        "name": "Steady Clamp",
+        "summary": "1 second squeeze, 5 second hold"
+      },
+      "steady-trembling": {
+        "description": "Squeeze at once, keep the tension steady for a couple of seconds, then relax.",
+        "howTo": "Squeeze at once and hold the tension. When the circle drops, let go smoothly. Then repeat the quick squeeze and hold.",
+        "name": "Steady Trembling",
+        "summary": "Squeeze at once, hold, then relax"
+      },
+      "trembling": {
+        "description": "Rapid on and off squeezes that make the muscle tremble and wake up its fast response.",
+        "howTo": "Squeeze all at once, hold for a moment, then let go smoothly. Follow the circle as it snaps up and eases down.",
+        "name": "Trembling",
+        "summary": "Quick flicks, on and off"
+      },
+      "upstairs": {
+        "description": "Climb the squeeze in four steps, a little stronger at each level.",
+        "howTo": "Imagine riding an elevator upward. Tighten a little, then more, then more, until you reach your strongest squeeze, spending about one second at each level. Relax afterward.",
+        "name": "Upstairs",
+        "summary": "4-step climb to the top"
+      },
+      "waves": {
+        "description": "Wave-like squeezes that build and release tension continuously.",
+        "howTo": "Tighten slowly for two seconds, then release just as slowly, like a wave rising and falling. Keep it smooth and continuous.",
+        "name": "Waves",
+        "summary": "2 seconds up, 2 seconds down"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Gentle start. Short 1 minute sessions.",
+        "name": "Level 1"
+      },
+      "2": {
+        "description": "A little longer. 2 minute sessions.",
+        "name": "Level 2"
+      },
+      "3": {
+        "description": "Balanced training. 3 minute sessions.",
+        "name": "Level 3"
+      },
+      "4": {
+        "description": "Longer sessions for stronger muscles. 4 minutes.",
+        "name": "Level 4"
+      },
+      "5": {
+        "description": "Advanced endurance and control. 5 minutes.",
+        "name": "Level 5"
+      }
+    },
+    "steps": {
+      "contract": "Contract",
+      "contractAndHold": "Contract & hold",
+      "contractSlowly": "Contract slowly",
+      "easeDown": "Ease down",
+      "hold": "Hold",
+      "pulse1": "Pulse 1",
+      "pulse2": "Pulse 2",
+      "relax": "Relax",
+      "relaxSlowly": "Relax slowly",
+      "release": "Release",
+      "releaseSlowly": "Release slowly",
+      "reset": "Reset",
+      "rest": "Rest",
+      "step1": "Step 1",
+      "step2": "Step 2",
+      "step3": "Step 3",
+      "top": "Top"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Something went wrong",
@@ -9,48 +177,94 @@
     "tryAgain": "Try again"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Complete {{count}} more training day to unlock.",
+    "completeMoreDaysToUnlock_other": "Complete {{count}} more training days to unlock.",
     "exerciseNotFound": "Exercise not found.",
+    "lockedDaysLeft_one": "Locked - {{count}} day left",
+    "lockedDaysLeft_other": "Locked - {{count}} days left",
     "tryItNow": "Try it now"
   },
   "find": {
+    "flow_stopMidway": "Stop midway",
+    "flow_thatSqueeze": "That squeeze!",
+    "flow_youPee": "You pee",
     "keepGoing": "Keep going...",
     "onlyDoThePeeTest": "Only do the pee test once",
+    "onlyDoThePeeTestDesc": "It is just a way to find the muscles, not an exercise. Stopping your pee often is not good for your bladder.",
+    "pressAndHold": "Press & hold",
+    "squeezeNow": "Squeeze!",
     "squeezeOnlyThoseMuscles": "Squeeze only those muscles",
+    "squeezeOnlyThoseMusclesDesc": "Another cue: squeeze as if holding back gas. Your belly, legs and buttocks stay completely relaxed.",
+    "stopTheFlowBody": "Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor.",
     "thatExactSqueezeIsThe": "That exact squeeze is the move you will train.",
     "theEasiestWayToFind": "The easiest way to find them",
-    "twoQuickRules": "Two quick rules"
+    "tryItNow": "Try it now",
+    "tryItNowBody": "Press and hold the circle. While you hold it, squeeze those muscles. Let go together.",
+    "twoQuickRules": "Two quick rules",
+    "youFoundThem": "You found them!",
+    "youFoundThemBody": "That squeeze and release is all a Kegel is. You are ready for your first exercise."
   },
   "first": {
     "contract": "Contract",
+    "followTheCircle": "Follow the circle. Squeeze... and relax.",
+    "niceWork": "Nice work!",
+    "nowYouTry": "Now you try",
     "start": "Start",
+    "tenSecondsReady": "Ten seconds of {{exercise}}. Squeeze on every {{contract}}, let go on {{relax}}. Ready?",
+    "thatWasARealExercise": "That was a real exercise. Every session works exactly like this, one circle at a time.",
     "theCircleIsYourGuide": "The circle is your guide",
+    "theCircleIsYourGuideBody": "Every exercise follows this circle. When it glows and swells, squeeze. When the glow fades, relax. The word inside always tells you what to do.",
     "thisIsTrembling": "This is Trembling",
     "yourFirstExerciseQuickFlicks": "Your first exercise: quick flicks. Squeeze on Contract, let go on Relax."
   },
   "knowledge": {
     "continueToTraining": "Continue to Training",
     "learnTheBasics": "Learn the basics",
+    "lessonNumber": "Lesson {{number}}",
     "logIn": "Log in"
   },
   "login": {
     "6DigitCode": "6-digit code",
     "close": "Close",
+    "codeSentEnterBelow": "Code sent! Enter it below with a new password.",
     "continueWithGoogle": "Continue with Google",
+    "couldNotOpenGoogle": "Could not open Google sign-in. Please try again.",
     "createAccount": "Create account",
     "email": "Email",
-    "enterYourEmail": "Enter your email",
+    "enterSixDigitCode": "Enter the 6-digit code from your email.",
+    "enterYourEmail": "Please enter your email.",
+    "failedToResetPassword": "Failed to reset password.",
+    "failedToSendResetCode": "Failed to send reset code.",
+    "fillAllFields": "Please fill in all fields.",
     "forgotPassword": "Forgot password?",
+    "googleSignInFailed": "Google sign-in failed. Please try again.",
+    "invalidCredentials": "Invalid credentials.",
     "logIn": "Log In",
     "logIn2": "Log in",
     "newHere": "New here?",
     "newPassword": "New password",
     "password": "Password",
     "passwordReset": "Password reset",
-    "resetPassword": "Reset Password"
+    "passwordResetBody": "Your password has been reset. Please log in.",
+    "passwordResetTitle": "Password reset",
+    "passwordRules": "Password must be at least 6 characters and include a number.",
+    "resetPassword": "Reset Password",
+    "resetPasswordCta": "Reset Password",
+    "sendCodeCta": "Send Code"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Already have an account?",
-    "logIn": "Log in"
+    "getStarted": "Get Started",
+    "logIn": "Log in",
+    "perDay": "PER DAY",
+    "slide1Body": "Nobody talks about them. They trace back to one weak muscle, and a weak muscle can be trained back.",
+    "slide1Title": "Leaks. Urgency. Less control.",
+    "slide2Body": "No gym, no equipment, nothing to take off. On the sofa, at your desk, on the bus. Nobody can tell.",
+    "slide2Title": "One minute, sitting still",
+    "slide3Body": "The app tracks how long you can hold. Your times climb, new exercises unlock, and the change shows up where you wanted it.",
+    "slide3Title": "You feel it before you see it",
+    "slide4Body": "Stop training and the muscle fades, the same as any other. Pick a time, and let the reminder handle the rest.",
+    "slide4Title": "It only works if you keep going"
   },
   "paywall": {
     "autoRenewOffHint": "Auto-renewal is off. Your access will end at the expiry date.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Measure your progress",
     "benefitReminders": "Set reminders that fit your day",
     "benefitStrength": "Build real pelvic floor strength",
+    "bestValue": "BEST VALUE",
     "billingIsNotAvailableOn": "Billing is not available on this device. You can restore a previous purchase below.",
     "byContinuingYouAgree": "By continuing you agree to our",
     "changeYourPlan": "Change your plan",
@@ -72,6 +287,7 @@
     "managePlan": "Manage Plan",
     "noActiveSubscriptionWasFound": "No active subscription was found to restore.",
     "off": "Off",
+    "offeringsUnavailable": "Subscriptions aren't available on this device right now. Please try again later, or restore a previous purchase below.",
     "on": "On",
     "paymentProcessedSecurely": "Payment is processed securely through RevenueCat and the app store on confirmation.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Purchase received but plan could not be matched. Contact support.",
     "restorePurchases": "Restore purchases",
     "restoredPurchaseCouldNotBe": "Restored purchase could not be matched to a plan. Contact support.",
+    "savePercent": "SAVE {{percent}}%",
     "signInFirst": "Sign in before subscribing.",
     "startFreeTrialCta_one": "Start {{count}}-Day Free Trial",
     "startFreeTrialCta_other": "Start {{count}}-Day Free Trial",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Uninstalling the app does not cancel or refund a subscription.",
     "yourSubscriptionIsNowActive": "Your subscription is now active and full access has been unlocked."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Full access, billed monthly.",
+      "name": "1 Month"
+    },
+    "premium-quarterly": {
+      "description": "Billed every 3 months.",
+      "name": "3 Months"
+    },
+    "premium-yearly": {
+      "description": "One payment for the whole year.",
+      "name": "1 Year"
+    }
+  },
   "profile": {
     "currentDifficulty": "Current difficulty",
     "difficulty": "Difficulty",
     "error": "Error",
+    "errorTitle": "Error",
+    "failedToUpdateLevel": "Failed to update training level.",
     "profile": "Profile",
     "scheduleReminders": "Schedule & reminders",
     "setTheDifficultyOfKegel": "Set the difficulty of Kegel Training program",
+    "settingsA11y": "Settings",
     "theHigherTheLevelThe": "The higher the level, the harder the training"
   },
   "progress": {
+    "bestResult": "best result",
     "continue": "Continue",
     "holdTheButtonAndContract": "Hold the button and contract the PF muscles for as long as possible.",
+    "lastMeasurement": "last measurement",
     "progressTracker": "Progress Tracker",
+    "seconds": "{{count}} sec",
     "takeMeasurement": "Take measurement",
+    "today": "Today",
+    "topResult": "top result: {{count}} sec",
     "tryAgain": "Try again"
   },
   "register": {
     "alreadyHaveAnAccount": "Already have an account?",
     "confirmPassword": "Confirm password",
     "continueWithGoogle": "Continue with Google",
+    "couldNotOpenGoogle": "Could not open Google sign-up. Please try again.",
     "createAccount": "Create Account",
     "createAccount2": "Create account",
     "email": "Email",
+    "fillAllFields": "Please fill in all fields.",
+    "googleSignUpFailed": "Google sign-up failed. Please try again.",
     "logIn": "Log in",
     "name": "Name",
-    "password": "Password"
+    "password": "Password",
+    "passwordNeedsNumber": "Password must contain at least one number.",
+    "passwordTooShort": "Password must be at least 6 characters.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "registrationFailed": "Registration failed."
+  },
+  "reminders": {
+    "notificationBody": "It's time for your daily Kegel session!",
+    "notificationTitle": "Kegel Training"
   },
   "schedule": {
     "active": "Active",
     "allowExactReminders": "Allow exact reminders",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
     "error": "Error",
+    "errorTitle": "Error",
+    "failedToSaveReminders": "Failed to save reminders.",
     "limitReached": "Limit reached",
+    "limitReachedBody": "You can set up to 5 reminder times per day.",
+    "limitReachedTitle": "Limit reached",
+    "monthNumber": "Month {{number}}",
     "reminders": "Reminders",
     "remindersSaved": "Reminders Saved",
     "repeatOn": "Repeat on",
     "saveAddReminders": "Save & Add Reminders",
     "schedule": "Schedule",
+    "sessionNumber": "Session {{number}}",
     "sessionTimes": "Session times"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Delete account?",
     "deletePermanently": "Delete permanently",
     "deleted": "Deleted",
+    "deletedBody": "Your account has been permanently deleted.",
+    "deletedTitle": "Deleted",
+    "failedToDeleteAccount": "Failed to delete account.",
     "gotIt": "Got it",
     "language": "Language",
     "logOut": "Log out",
     "manageSubscription": "Manage subscription",
     "noActiveSubscription": "No active subscription",
     "reset": "Reset",
+    "resetConfirmBody": "This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.",
     "resetProgress": "Reset progress",
     "resetProgress2": "Reset progress?",
+    "resetSuccessBody": "Your training progress has been cleared.",
+    "resetSuccessTitle": "Reset Successful",
     "resetSuccessful": "Reset Successful",
     "restartBody": "Close and reopen the app to finish switching the layout direction.",
     "restartRequired": "Restart required",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Already have an account? Sign in",
     "back": "Back",
+    "bestValue": "BEST VALUE",
+    "billingDisclosure": "Payment is processed securely through RevenueCat and the app store on confirmation. Your subscription renews automatically at the price shown until you cancel it in your subscription settings; uninstalling the app does not cancel or refund it. By continuing you agree to our",
     "close": "Close",
     "confirmPassword": "Confirm password",
     "continue": "Continue",
     "continueWithGoogle": "Continue with Google",
+    "couldNotOpenGoogle": "Could not open Google sign-in. Please try again.",
     "couldNotOpenGoogleSign": "Could not open Google sign-in. Please try again.",
+    "couldNotReachServer": "Could not reach the server. Check your internet connection and try again.",
+    "createAccount": "Create account",
     "createAccountSubscribe": "Create account & subscribe",
     "creatingAccount": "Creating account…",
     "emailAddress": "Email address",
+    "emailInvalid": "Enter a valid email address.",
+    "emailOrPasswordIncorrect": "Email or password is incorrect.",
+    "emailRequired": "Email is required.",
     "fullName": "Full name",
+    "googleSignInFailed": "Google sign-in failed. Please try again.",
+    "nameRequired": "Name is required.",
     "noAccountYetCreateOne": "No account yet? Create one",
     "password": "Password",
     "password6Characters1Number": "Password (6+ characters, 1 number)",
+    "passwordRequired": "Password is required.",
+    "passwordRules": "Password must be at least 6 characters and include a number.",
+    "passwordsDoNotMatch": "Passwords don't match.",
+    "signIn": "Sign in",
     "signInSubscribe": "Sign in & subscribe",
     "signingIn": "Signing in…",
     "startYourTransformationJourneyNow": "Start your transformation journey now",
     "subscribe": "Subscribe",
     "terms": "Terms"
+  },
+  "tabs": {
+    "profile": "Profile",
+    "progress": "Progress",
+    "schedule": "Schedule",
+    "training": "Training"
   },
   "training": {
     "available": "Available",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Back to Log In",
+    "codeResent": "Verification code resent successfully!",
     "didnTReceiveTheCode": "Didn't receive the code? Resend",
+    "enterSixDigitCode": "Please enter a 6-digit verification code.",
+    "failedToResendCode": "Failed to resend code.",
+    "verificationFailed": "Verification failed. Please try again.",
     "verifyCode": "Verify Code",
     "verifyEmail": "Verify Email"
   },
   "why": {
     "aMuscleYouCanTrain": "A muscle you can train",
+    "aRealMuscleBody": "Your pelvic floor is a real muscle. Train it a few minutes a day and it gets stronger, just like any workout. No pills, no side effects, and the results last.",
     "andYouCanDoIt": "And you can do it anywhere, anytime. Sitting, standing, on the bus. Nobody can tell.",
+    "benefit_bladder_desc": "Fewer leaks and urgent moments.",
+    "benefit_bladder_title": "Better bladder control",
+    "benefit_confidence_desc": "Gains that build week after week.",
+    "benefit_confidence_title": "Lasting confidence",
+    "benefit_core_desc": "Helps posture and lower back.",
+    "benefit_core_title": "A supported core",
+    "benefit_performance_desc": "More control and stamina in intimacy.",
+    "benefit_performance_title": "Stronger performance",
     "doingItRightIsEverything": "Doing it right is everything",
     "learnItOnceAndEvery": "Learn it once, and every minute you train actually counts.",
     "squeezeTheWrongMusclesAnd": "Squeeze the wrong muscles and you get nothing back.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "If you leave, this session will not be counted towards your daily progress.",
     "leaveTraining": "Leave training?",
     "noExercises": "No Exercises",
+    "noExercisesBody": "No exercises unlocked for this workout.",
+    "noExercisesTitle": "No Exercises",
     "noGoBack": "No, go back",
     "pause": "Pause",
     "resume": "Resume",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Yes, quit training"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "You're already at the easiest level.",
+    "alreadyHighestLevel": "You're already at the highest level.",
     "continue": "Continue",
     "howWasThat": "How was that?",
     "justRight": "Just right",
+    "keepGoing": "Awesome! Let's keep going.",
+    "levelUp": "Level up! You're now on {{level}}.",
+    "monthNumber": "Month {{number}}",
     "newExerciseUnlocked": "New exercise unlocked!",
     "nextToUnlock": "Next to unlock",
     "notNow": "Not now",
+    "steppedDown": "Stepped down to {{level}}. You got this!",
     "tooEasy": "Too easy",
     "tooHard": "Too hard",
-    "tryItNow": "Try it now"
+    "tryItNow": "Try it now",
+    "unlockedList": "Unlocked: {{names}}"
   }
 }

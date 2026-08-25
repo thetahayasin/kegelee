@@ -20,6 +20,8 @@ import {
   PlanDef,
   featuredPlan,
   planBySlug,
+  planNameKey,
+  planDescriptionKey,
   paywallIntervalLabel,
 } from '../../constants/plans';
 import {
@@ -30,6 +32,7 @@ import {
   takePendingPlan,
   getPlanPricing,
   describePurchaseFailure,
+  refreshCustomerInfo,
   PlanPricing,
   WITH_TIME_PRORATION,
   DEFERRED,
@@ -108,7 +111,7 @@ const PREMIUM_BENEFIT_KEYS = [
 export const PaywallScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user, logout, markSubscribed } = useAuth();
+  const { user, logout, markSubscribed, subscribed: gateOpen } = useAuth();
 
   const [activeSub, setActiveSub] = useState<DBSubscription | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null); // plan slug
@@ -213,7 +216,7 @@ export const PaywallScreen = () => {
         }
         // The raw code and SDK string are for us, not for the customer.
         console.warn('[billing] purchase failed', failure.code, failure.detail);
-        setMessage(failure.message);
+        setMessage(t(failure.messageKey));
         if (failure.restorable) {
           // They already own it. Restoring is the fix; asking them to buy
           // again would take a second payment for the same thing.
@@ -227,6 +230,47 @@ export const PaywallScreen = () => {
     // not re-create this handler on every render.
     [user, markSubscribed, t],
   );
+
+  // Keep looking for an entitlement for as long as this screen is the whole
+  // app (`!gateOpen`), rather than only once on mount.
+  //
+  // A renewal does not arrive when this screen opens; it arrives whenever
+  // Google gets round to charging the card, which can be minutes after the old
+  // period lapsed. The mount sync above fires far too early to see it, and
+  // behind the gate there is no other screen left mounted to sync later - so
+  // without this the user sat on the paywall, already charged, until they
+  // force-killed the app. Asking RevenueCat as well as our own backend matters
+  // because RevenueCat knows about the renewal well before our webhook has
+  // been processed.
+  //
+  // The interval backs off (15s up to 5 min) so a paywall left open all day
+  // does not sit there hammering the network on a phone in someone's pocket.
+  // Not needed for a subscriber who reached this screen as "Manage Plan",
+  // hence the `gateOpen` guard (AuthContext's gate value, distinct from this
+  // screen's own `subscribed`, which is derived from the local row).
+  useEffect(() => {
+    if (!user || gateOpen) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    let delay = 15_000;
+
+    const tick = () => {
+      if (cancelled) return;
+      // Both paths raise the gate through AuthContext: the sync via its
+      // onSyncComplete listener, RevenueCat via onCustomerInfoChange. This
+      // screen unmounts by itself the moment either lands.
+      syncNow(user.id).catch(() => {});
+      refreshCustomerInfo(user.id).catch(() => {});
+      delay = Math.min(delay * 2, 300_000);
+      timer = setTimeout(tick, delay);
+    };
+
+    timer = setTimeout(tick, delay);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [user, gateOpen]);
 
   // Mount: warm the billing connection, load the current subscription,
   // pre-select the featured plan (or the CURRENT plan for subscribers, so
@@ -346,7 +390,7 @@ export const PaywallScreen = () => {
       const failure = describePurchaseFailure(e);
       if (!failure.cancelled) {
         console.warn('[billing] restore failed', failure.code, failure.detail);
-        setMessage(failure.message);
+        setMessage(t(failure.messageKey));
       }
     } finally {
       setPurchasing(false);
@@ -487,16 +531,20 @@ export const PaywallScreen = () => {
               >
                 {plan.is_featured && (
                   <View style={styles.featuredBadge}>
-                    <Text style={styles.featuredBadgeText}>BEST VALUE</Text>
+                    <Text style={styles.featuredBadgeText}>{t('paywall.bestValue')}</Text>
                   </View>
                 )}
                 <View style={styles.planRow}>
                   <View style={styles.planInfo}>
-                    <Text style={styles.planName}>{plan.name}</Text>
-                    <Text style={styles.planDescription}>{plan.description}</Text>
+                    <Text style={styles.planName}>{t(planNameKey(plan.slug))}</Text>
+                    <Text style={styles.planDescription}>
+                      {t(planDescriptionKey(plan.slug))}
+                    </Text>
                     {savings ? (
                       <View style={styles.savingsPill}>
-                        <Text style={styles.savingsPillText}>SAVE {savings}%</Text>
+                        <Text style={styles.savingsPillText}>
+                          {t('paywall.savePercent', { percent: savings })}
+                        </Text>
                       </View>
                     ) : null}
                   </View>
@@ -517,10 +565,7 @@ export const PaywallScreen = () => {
         </View>
 
         {offeringsUnavailable ? (
-          <Text style={styles.message}>
-            Subscriptions aren't available on this device right now. Please try again
-            later, or restore a previous purchase below.
-          </Text>
+          <Text style={styles.message}>{t('paywall.offeringsUnavailable')}</Text>
         ) : null}
 
         {message ? <Text style={styles.message}>{message}</Text> : null}
@@ -545,7 +590,9 @@ export const PaywallScreen = () => {
           ) : (
             <Text style={styles.continueBtnText}>
               {isUpgrade
-                ? t('paywall.switchToPlan', { plan: selectedPlanDef?.name })
+                ? t('paywall.switchToPlan', {
+                    plan: selectedPlanDef ? t(planNameKey(selectedPlanDef.slug)) : '',
+                  })
                 : trialDays
                   ? t('paywall.startFreeTrialCta', { count: trialDays })
                   : t('paywall.subscribe')}

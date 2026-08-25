@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Có sẵn",
-    "exercises": "Bài tập"
+    "backA11y": "Quay lại",
+    "exercises": "Bài tập",
+    "unlockProgressA11y": "Tiến độ mở khóa {{name}}"
+  },
+  "basics": {
+    "findTitle": "Tìm cơ sàn chậu của bạn",
+    "firstTitle": "Bài tập đầu tiên của bạn",
+    "whyTitle": "Vì sao bài tập Kegel hiệu quả"
+  },
+  "billing": {
+    "alreadyOwned": "Bạn đã có gói đăng ký đang hoạt động. Chúng tôi đang khôi phục ngay.",
+    "configuration": "Hiện chưa mua được gói này. Đây là lỗi từ phía chúng tôi - hãy thử lại sau hoặc liên hệ hỗ trợ.",
+    "declined": "Google Play đã từ chối khoản thanh toán. Hãy kiểm tra phương thức thanh toán trên tài khoản Google rồi thử lại.",
+    "ineligible": "Bạn không đủ điều kiện cho ưu đãi này. Hãy chọn gói khác.",
+    "network": "Chúng tôi không kết nối được với cửa hàng. Hãy kiểm tra kết nối và thử lại. Nếu bạn đã bị trừ tiền, quyền truy cập sẽ tự xuất hiện.",
+    "noPermission": "Tài khoản Google của bạn không có quyền mua hàng trên thiết bị này.",
+    "notAllowed": "Thiết bị hoặc tài khoản Google này không được phép mua hàng. Thường là do kiểm soát của phụ huynh, hoặc tài khoản chưa có phương thức thanh toán.",
+    "operationInProgress": "Đã có một giao dịch đang diễn ra. Hãy đợi một lát rồi thử lại.",
+    "otherAccount": "Gói đăng ký này thuộc về một tài khoản khác. Hãy đăng nhập bằng tài khoản đó, hoặc liên hệ hỗ trợ để chúng tôi chuyển sang.",
+    "paymentPending": "Google Play đang xử lý khoản thanh toán của bạn. Thanh toán tiền mặt và voucher có thể mất một lúc. Quyền truy cập sẽ tự mở ngay khi hoàn tất, nên đừng thanh toán thêm lần nữa.",
+    "storeProblem": "Google Play đang gặp sự cố. Hãy thử lại sau vài phút.",
+    "unknown": "Đã xảy ra lỗi khi hoàn tất giao dịch. Hãy thử lại. Nếu bạn đã bị trừ tiền, quyền truy cập sẽ tự xuất hiện."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Một cú siết chắc được dựng lên từ từ và thả ra cũng chậm y như vậy.",
+        "howTo": "Siết từ từ trong 3 giây khi vòng tròn đầy dần, rồi thả ra chậm y như vậy khi vòng tròn cạn đi. Giữ chuyển động mượt ở cả hai chiều.",
+        "name": "Kẹp",
+        "summary": "Lên chậm, xuống chậm"
+      },
+      "downstairs": {
+        "description": "Siết lên tới đỉnh, rồi hạ xuống từng bậc một trong sự kiểm soát hoàn toàn.",
+        "howTo": "Siết tới mức mạnh nhất, rồi thư giãn từng chút một, dừng khoảng một giây ở mỗi bậc trên đường xuống. Chính việc hạ xuống có kiểm soát mới là bài tập.",
+        "name": "Xuống cầu thang",
+        "summary": "Hạ 4 bậc từ đỉnh xuống"
+      },
+      "elevator": {
+        "description": "Bài tập đặc trưng. Leo lên từng bậc, rồi hạ xuống trong sự kiểm soát.",
+        "howTo": "Hãy tưởng tượng bạn đang đi thang máy. Ở mỗi bậc hãy siết mạnh thêm một chút cho tới cú siết mạnh nhất, rồi hạ xuống từng bậc một cho tới khi thư giãn hoàn toàn.",
+        "name": "Thang máy",
+        "summary": "Leo lên đỉnh rồi hạ xuống từng bậc"
+      },
+      "flash": {
+        "description": "Những lần siết nhanh nhất. Các cú siết ngắn và dứt khoát giúp rèn phản xạ nhanh.",
+        "howTo": "Siết và thả nhanh hết mức có thể, theo nhịp vòng tròn. Giữ nhẹ nhàng, đừng gắng sức.",
+        "name": "Chớp",
+        "summary": "Những lần siết nhanh nhất"
+      },
+      "front-clamp": {
+        "description": "Siết chậm và tập trung vào phần trước của sàn chậu, rồi thả ra nhanh và dứt khoát.",
+        "howTo": "Siết từ từ trong 3 giây khi vòng tròn đầy dần. Khi vòng tròn cạn, hãy thả tất cả cùng lúc. Rồi bắt đầu lần siết chậm tiếp theo.",
+        "name": "Kẹp trước",
+        "summary": "Siết từ từ, thả một lần"
+      },
+      "holding": {
+        "description": "Siết và giữ nguyên để xây dựng sức bền nền tảng cho sàn chậu.",
+        "howTo": "Siết sàn chậu và giữ suốt cả hiệp. Nếu lực yếu đi, hãy nhẹ nhàng siết lại. Vẫn thở bình thường.",
+        "name": "Giữ",
+        "summary": "Một lần giữ đều đặn"
+      },
+      "long-steady-clamp": {
+        "description": "Bài xây sức bền: một giây siết dẫn vào mười giây giữ hết lực.",
+        "howTo": "Siết trong một giây, rồi giữ hết lực trong mười giây. Nếu lực yếu đi, hãy nhẹ nhàng siết lại tới mức tối đa. Thả ra và lặp lại.",
+        "name": "Kẹp đều dài",
+        "summary": "1 giây siết, 10 giây giữ"
+      },
+      "pulsation": {
+        "description": "Hai cú siết nhanh liên tiếp, rồi thả ra hoàn toàn. Rèn khả năng siết lại khi chưa hồi phục hẳn, và thả ra đúng cách giữa các lần gắng sức.",
+        "howTo": "Siết và thả hai lần liên tiếp theo vòng tròn, rồi buông tất cả hoàn toàn trong lúc nghỉ. Việc thả hoàn toàn quan trọng ngang với chính các nhịp siết.",
+        "name": "Nhịp đôi",
+        "summary": "Hai nhịp nhanh, rồi trở về hoàn toàn"
+      },
+      "push": {
+        "description": "Dồn lực siết lên tới một đỉnh thật mạnh, giữ ở đó rồi thả ra từ từ.",
+        "howTo": "Siết tăng dần trong ba giây, mạnh hơn theo lúc vòng tròn đầy lên. Giữ cú siết mạnh nhất của bạn trong hai giây rồi thả ra từ từ. Hãy siết mạnh hơn, đừng bao giờ rặn xuống.",
+        "name": "Đẩy",
+        "summary": "3 giây lên, 2 giây giữ đỉnh, 3 giây thư giãn"
+      },
+      "reverse-clamp": {
+        "description": "Siết nhanh rồi thả ra thật chậm và có kiểm soát. Rất tốt cho khả năng kiểm soát.",
+        "howTo": "Siết một lần, rồi lập tức bắt đầu thả chậm nhất có thể, bám theo vòng tròn đi xuống. Chính việc thả chậm mới là bài tập.",
+        "name": "Kẹp ngược",
+        "summary": "Siết một lần, thả từ từ"
+      },
+      "short-holding": {
+        "description": "Một lần giữ chắc 4 giây được thả ra từ từ chứ không buông thõng. Thả ra có kiểm soát là một kỹ năng riêng, và phần lớn mọi người thấy nó khó hơn cả việc giữ.",
+        "howTo": "Siết trong một giây, giữ hết lực trong bốn giây, rồi thả dần khi vòng tròn hạ xuống. Đừng để nó sụp xuống: hãy theo cùng nó tới tận đáy.",
+        "name": "Giữ ngắn",
+        "summary": "Giữ 4 giây, rồi thả dần"
+      },
+      "starter": {
+        "description": "Một cú siết nhanh để đánh thức cơ, rồi giữ thật chắc trong 5 giây.",
+        "howTo": "Siết nhanh một lần, thư giãn thật mượt, rồi siết lại và giữ chắc trong năm giây. Thả ra, hít thở và lặp lại.",
+        "name": "Khởi động",
+        "summary": "Siết nhanh, rồi giữ 5 giây"
+      },
+      "steady-clamp": {
+        "description": "Một cú kẹp đều: siết trong một giây rồi giữ hết lực trong năm giây.",
+        "howTo": "Siết trong một giây, rồi giữ hết lực trong năm giây mà không để lực tụt xuống. Thả ra và lặp lại.",
+        "name": "Kẹp đều",
+        "summary": "1 giây siết, 5 giây giữ"
+      },
+      "steady-trembling": {
+        "description": "Siết một lần, giữ lực ổn định trong vài giây rồi thư giãn.",
+        "howTo": "Siết một lần và giữ nguyên lực. Khi vòng tròn hạ xuống, hãy thả ra thật mượt. Rồi lặp lại cú siết nhanh và lần giữ đó.",
+        "name": "Rung đều",
+        "summary": "Siết một lần, giữ rồi thư giãn"
+      },
+      "trembling": {
+        "description": "Siết và thả thật nhanh khiến cơ rung lên và đánh thức phản ứng nhanh của nó.",
+        "howTo": "Siết tất cả cùng lúc, giữ một khoảnh khắc rồi thả ra thật mượt. Bám theo vòng tròn khi nó vọt lên và hạ xuống nhẹ nhàng.",
+        "name": "Rung",
+        "summary": "Siết nhanh, bật và tắt"
+      },
+      "upstairs": {
+        "description": "Nâng lực siết qua bốn bậc, mỗi bậc mạnh hơn một chút.",
+        "howTo": "Hãy tưởng tượng bạn đang đi thang máy lên. Siết một chút, rồi mạnh hơn, rồi mạnh hơn nữa, cho tới cú siết mạnh nhất, dừng khoảng một giây ở mỗi bậc. Sau đó thư giãn.",
+        "name": "Lên cầu thang",
+        "summary": "Leo 4 bậc lên tới đỉnh"
+      },
+      "waves": {
+        "description": "Những cú siết như sóng, dồn lực rồi thả lực liên tục không ngắt quãng.",
+        "howTo": "Siết từ từ trong hai giây, rồi thả ra chậm y như vậy, như một con sóng dâng lên rồi rút xuống. Giữ cho mượt mà và liền mạch.",
+        "name": "Sóng",
+        "summary": "2 giây lên, 2 giây xuống"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Khởi đầu nhẹ nhàng. Buổi tập ngắn 1 phút.",
+        "name": "Cấp 1"
+      },
+      "2": {
+        "description": "Dài hơn một chút. Buổi tập 2 phút.",
+        "name": "Cấp 2"
+      },
+      "3": {
+        "description": "Tập luyện cân bằng. Buổi tập 3 phút.",
+        "name": "Cấp 3"
+      },
+      "4": {
+        "description": "Buổi tập dài hơn cho cơ khỏe hơn. 4 phút.",
+        "name": "Cấp 4"
+      },
+      "5": {
+        "description": "Sức bền và khả năng kiểm soát nâng cao. 5 phút.",
+        "name": "Cấp 5"
+      }
+    },
+    "steps": {
+      "contract": "Siết",
+      "contractAndHold": "Siết và giữ",
+      "contractSlowly": "Siết từ từ",
+      "easeDown": "Thả dần",
+      "hold": "Giữ",
+      "pulse1": "Nhịp 1",
+      "pulse2": "Nhịp 2",
+      "relax": "Thư giãn",
+      "relaxSlowly": "Thư giãn từ từ",
+      "release": "Thả",
+      "releaseSlowly": "Thả từ từ",
+      "reset": "Về mức đầu",
+      "rest": "Nghỉ",
+      "step1": "Bậc 1",
+      "step2": "Bậc 2",
+      "step3": "Bậc 3",
+      "top": "Đỉnh"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Đã xảy ra lỗi",
@@ -9,48 +177,94 @@
     "tryAgain": "Thử lại"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Hoàn thành thêm {{count}} ngày tập nữa để mở khóa.",
+    "completeMoreDaysToUnlock_other": "Hoàn thành thêm {{count}} ngày tập nữa để mở khóa.",
     "exerciseNotFound": "Không tìm thấy bài tập.",
+    "lockedDaysLeft_one": "Đang khóa - còn {{count}} ngày",
+    "lockedDaysLeft_other": "Đang khóa - còn {{count}} ngày",
     "tryItNow": "Thử ngay"
   },
   "find": {
+    "flow_stopMidway": "Ngắt giữa chừng",
+    "flow_thatSqueeze": "Chính cái siết đó!",
+    "flow_youPee": "Bạn đi tiểu",
     "keepGoing": "Cứ tiếp tục …",
     "onlyDoThePeeTest": "Chỉ thử nghiệm khi đi tiểu một lần duy nhất",
+    "onlyDoThePeeTestDesc": "Đây chỉ là cách để tìm ra cơ, không phải bài tập. Ngắt dòng tiểu thường xuyên không tốt cho bàng quang.",
+    "pressAndHold": "Nhấn giữ",
+    "squeezeNow": "Siết!",
     "squeezeOnlyThoseMuscles": "Chỉ siết những cơ đó",
+    "squeezeOnlyThoseMusclesDesc": "Một gợi ý khác: siết như thể đang nín một hơi. Bụng, chân và mông vẫn thả lỏng hoàn toàn.",
+    "stopTheFlowBody": "Lần tới khi đi tiểu, hãy nhẹ nhàng ngắt dòng giữa chừng. Những cơ bạn vừa dùng chính là sàn chậu của bạn.",
     "thatExactSqueezeIsThe": "Chính cảm giác siết đó là động tác bạn sẽ luyện tập.",
     "theEasiestWayToFind": "Cách dễ nhất để tìm ra chúng",
-    "twoQuickRules": "Hai quy tắc ngắn gọn"
+    "tryItNow": "Thử ngay",
+    "tryItNowBody": "Nhấn giữ vòng tròn. Trong lúc giữ, hãy siết những cơ đó. Thả ra cùng lúc.",
+    "twoQuickRules": "Hai quy tắc ngắn gọn",
+    "youFoundThem": "Bạn tìm ra rồi!",
+    "youFoundThemBody": "Cái siết rồi thả đó chính là toàn bộ bài Kegel. Bạn đã sẵn sàng cho bài tập đầu tiên."
   },
   "first": {
     "contract": "Siết",
+    "followTheCircle": "Bám theo vòng tròn. Siết... rồi thả lỏng.",
+    "niceWork": "Làm tốt lắm!",
+    "nowYouTry": "Giờ đến lượt bạn",
     "start": "Bắt đầu",
+    "tenSecondsReady": "Mười giây {{exercise}}. Siết ở mỗi {{contract}}, thả ở {{relax}}. Sẵn sàng chưa?",
+    "thatWasARealExercise": "Vừa rồi là một bài tập thật sự. Mỗi buổi tập đều diễn ra đúng như vậy, từng vòng tròn một.",
     "theCircleIsYourGuide": "Vòng tròn sẽ dẫn nhịp cho bạn",
+    "theCircleIsYourGuideBody": "Mọi bài tập đều đi theo vòng tròn này. Khi nó sáng lên và phình ra, bạn siết. Khi ánh sáng mờ đi, bạn thả lỏng. Chữ bên trong luôn cho bạn biết phải làm gì.",
     "thisIsTrembling": "Đây là bài Rung",
     "yourFirstExerciseQuickFlicks": "Bài tập đầu tiên: siết nhanh. Siết khi thấy Siết, buông khi thấy Thả lỏng."
   },
   "knowledge": {
     "continueToTraining": "Tiếp tục đến buổi tập",
     "learnTheBasics": "Học kiến thức cơ bản",
+    "lessonNumber": "Bài học {{number}}",
     "logIn": "Đăng nhập"
   },
   "login": {
     "6DigitCode": "Mã 6 chữ số",
     "close": "Đóng",
+    "codeSentEnterBelow": "Đã gửi mã! Nhập mã bên dưới cùng với mật khẩu mới.",
     "continueWithGoogle": "Tiếp tục với Google",
+    "couldNotOpenGoogle": "Không mở được đăng nhập Google. Hãy thử lại.",
     "createAccount": "Tạo tài khoản",
     "email": "Email",
-    "enterYourEmail": "Nhập email của bạn",
+    "enterSixDigitCode": "Nhập mã 6 chữ số trong email của bạn.",
+    "enterYourEmail": "Vui lòng nhập email của bạn.",
+    "failedToResetPassword": "Không đặt lại được mật khẩu.",
+    "failedToSendResetCode": "Không gửi được mã đặt lại.",
+    "fillAllFields": "Vui lòng điền đầy đủ các ô.",
     "forgotPassword": "Quên mật khẩu?",
+    "googleSignInFailed": "Đăng nhập bằng Google không thành công. Hãy thử lại.",
+    "invalidCredentials": "Thông tin đăng nhập không hợp lệ.",
     "logIn": "Đăng nhập",
     "logIn2": "Đăng nhập",
     "newHere": "Bạn mới dùng?",
     "newPassword": "Mật khẩu mới",
     "password": "Mật khẩu",
     "passwordReset": "Đã đặt lại mật khẩu",
-    "resetPassword": "Đặt lại mật khẩu"
+    "passwordResetBody": "Mật khẩu của bạn đã được đặt lại. Hãy đăng nhập.",
+    "passwordResetTitle": "Đã đặt lại mật khẩu",
+    "passwordRules": "Mật khẩu phải có ít nhất 6 ký tự và chứa một chữ số.",
+    "resetPassword": "Đặt lại mật khẩu",
+    "resetPasswordCta": "Đặt lại mật khẩu",
+    "sendCodeCta": "Gửi mã"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Đã có tài khoản?",
-    "logIn": "Đăng nhập"
+    "getStarted": "Bắt đầu",
+    "logIn": "Đăng nhập",
+    "perDay": "MỖI NGÀY",
+    "slide1Body": "Chẳng ai nói ra, nhưng tất cả đều bắt nguồn từ một cơ đã yếu đi, và cơ yếu thì tập lại được.",
+    "slide1Title": "Rò rỉ. Buồn gấp. Kém kiểm soát.",
+    "slide2Body": "Không phòng gym, không dụng cụ, không phải cởi gì cả. Trên ghế sofa, ở bàn làm việc, trên xe buýt. Không ai nhận ra.",
+    "slide2Title": "Một phút, ngồi yên một chỗ",
+    "slide3Body": "Ứng dụng đo bạn giữ được bao lâu. Thời gian tăng dần, bài tập mới mở ra, và thay đổi xuất hiện đúng chỗ bạn mong.",
+    "slide3Title": "Bạn cảm nhận được trước khi nhìn thấy",
+    "slide4Body": "Ngừng tập thì cơ lại yếu đi, giống như mọi loại cơ khác. Chọn một giờ, phần còn lại để lời nhắc lo.",
+    "slide4Title": "Chỉ hiệu quả nếu bạn theo đến cùng"
   },
   "paywall": {
     "autoRenewOffHint": "Tự động gia hạn đang tắt. Quyền truy cập sẽ kết thúc vào ngày hết hạn.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Đo tiến bộ của bạn",
     "benefitReminders": "Đặt nhắc nhở hợp với ngày của bạn",
     "benefitStrength": "Xây dựng sức mạnh sàn chậu thật sự",
+    "bestValue": "GIÁ TỐT NHẤT",
     "billingIsNotAvailableOn": "Không thể thanh toán trên thiết bị này. Bạn có thể khôi phục giao dịch trước đó ở bên dưới.",
     "byContinuingYouAgree": "Tiếp tục nghĩa là bạn đồng ý với",
     "changeYourPlan": "Đổi gói",
@@ -72,6 +287,7 @@
     "managePlan": "Quản lý gói",
     "noActiveSubscriptionWasFound": "Không tìm thấy gói đăng ký đang hoạt động để khôi phục.",
     "off": "Tắt",
+    "offeringsUnavailable": "Hiện chưa dùng được gói đăng ký trên thiết bị này. Hãy thử lại sau hoặc khôi phục giao dịch trước đó ở bên dưới.",
     "on": "Bật",
     "paymentProcessedSecurely": "Thanh toán được xử lý an toàn qua RevenueCat và cửa hàng ứng dụng khi xác nhận.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Đã nhận giao dịch nhưng không xác định được gói. Hãy liên hệ hỗ trợ.",
     "restorePurchases": "Khôi phục giao dịch",
     "restoredPurchaseCouldNotBe": "Giao dịch được khôi phục không khớp với gói nào. Hãy liên hệ hỗ trợ.",
+    "savePercent": "TIẾT KIỆM {{percent}}%",
     "signInFirst": "Hãy đăng nhập trước khi đăng ký.",
     "startFreeTrialCta_one": "Bắt đầu {{count}} ngày dùng thử miễn phí",
     "startFreeTrialCta_other": "Bắt đầu {{count}} ngày dùng thử miễn phí",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Gỡ ứng dụng không hủy gói đăng ký và không hoàn tiền.",
     "yourSubscriptionIsNowActive": "Gói đăng ký của bạn đã hoạt động và toàn bộ nội dung đã được mở."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Toàn quyền truy cập, thanh toán hằng tháng.",
+      "name": "1 tháng"
+    },
+    "premium-quarterly": {
+      "description": "Thanh toán mỗi 3 tháng.",
+      "name": "3 tháng"
+    },
+    "premium-yearly": {
+      "description": "Một lần thanh toán cho cả năm.",
+      "name": "1 năm"
+    }
+  },
   "profile": {
     "currentDifficulty": "Độ khó hiện tại",
     "difficulty": "Độ khó",
     "error": "Lỗi",
+    "errorTitle": "Lỗi",
+    "failedToUpdateLevel": "Không cập nhật được cấp độ tập luyện.",
     "profile": "Hồ sơ",
     "scheduleReminders": "Lịch và nhắc nhở",
     "setTheDifficultyOfKegel": "Chọn độ khó cho chương trình tập Kegel",
+    "settingsA11y": "Cài đặt",
     "theHigherTheLevelThe": "Cấp độ càng cao thì bài tập càng nặng"
   },
   "progress": {
+    "bestResult": "kết quả tốt nhất",
     "continue": "Tiếp tục",
     "holdTheButtonAndContract": "Giữ nút và siết cơ sàn chậu càng lâu càng tốt.",
+    "lastMeasurement": "lần đo gần nhất",
     "progressTracker": "Theo dõi tiến độ",
+    "seconds": "{{count}} giây",
     "takeMeasurement": "Thực hiện đo",
+    "today": "Hôm nay",
+    "topResult": "kết quả tốt nhất: {{count}} giây",
     "tryAgain": "Thử lại"
   },
   "register": {
     "alreadyHaveAnAccount": "Đã có tài khoản?",
     "confirmPassword": "Xác nhận mật khẩu",
     "continueWithGoogle": "Tiếp tục với Google",
+    "couldNotOpenGoogle": "Không mở được đăng ký Google. Hãy thử lại.",
     "createAccount": "Tạo tài khoản",
     "createAccount2": "Tạo tài khoản",
     "email": "Email",
+    "fillAllFields": "Vui lòng điền đầy đủ các ô.",
+    "googleSignUpFailed": "Đăng ký bằng Google không thành công. Hãy thử lại.",
     "logIn": "Đăng nhập",
     "name": "Tên",
-    "password": "Mật khẩu"
+    "password": "Mật khẩu",
+    "passwordNeedsNumber": "Mật khẩu phải chứa ít nhất một chữ số.",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự.",
+    "passwordsDoNotMatch": "Mật khẩu không khớp.",
+    "registrationFailed": "Đăng ký không thành công."
+  },
+  "reminders": {
+    "notificationBody": "Đến giờ tập Kegel hằng ngày của bạn rồi!",
+    "notificationTitle": "Tập Kegel"
   },
   "schedule": {
     "active": "Đang bật",
     "allowExactReminders": "Cho phép nhắc nhở chính xác",
+    "daysLeft_one": "còn {{count}} ngày",
+    "daysLeft_other": "còn {{count}} ngày",
     "error": "Lỗi",
+    "errorTitle": "Lỗi",
+    "failedToSaveReminders": "Không lưu được lời nhắc.",
     "limitReached": "Đã đạt giới hạn",
+    "limitReachedBody": "Bạn có thể đặt tối đa 5 lời nhắc mỗi ngày.",
+    "limitReachedTitle": "Đã đạt giới hạn",
+    "monthNumber": "Tháng {{number}}",
     "reminders": "Nhắc nhở",
     "remindersSaved": "Đã lưu nhắc nhở",
     "repeatOn": "Lặp lại vào",
     "saveAddReminders": "Lưu nhắc nhở",
     "schedule": "Lịch",
+    "sessionNumber": "Buổi {{number}}",
     "sessionTimes": "Giờ tập"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Xóa tài khoản?",
     "deletePermanently": "Xóa vĩnh viễn",
     "deleted": "Đã xóa",
+    "deletedBody": "Tài khoản của bạn đã bị xóa vĩnh viễn.",
+    "deletedTitle": "Đã xóa",
+    "failedToDeleteAccount": "Không xóa được tài khoản.",
     "gotIt": "Đã hiểu",
     "language": "Ngôn ngữ",
     "logOut": "Đăng xuất",
     "manageSubscription": "Quản lý gói đăng ký",
     "noActiveSubscription": "Chưa có gói đăng ký",
     "reset": "Đặt lại",
+    "resetConfirmBody": "Thao tác này sẽ xóa các ngày tập, buổi tập, số đo và tiến độ bài học của bạn. Không thể hoàn tác.",
     "resetProgress": "Đặt lại tiến độ",
     "resetProgress2": "Đặt lại tiến độ?",
+    "resetSuccessBody": "Tiến độ tập luyện của bạn đã được xóa.",
+    "resetSuccessTitle": "Đã đặt lại",
     "resetSuccessful": "Đặt lại thành công",
     "restartBody": "Đóng và mở lại ứng dụng để hoàn tất việc đổi hướng bố cục.",
     "restartRequired": "Cần khởi động lại",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Đã có tài khoản? Đăng nhập",
     "back": "Quay lại",
+    "bestValue": "GIÁ TỐT NHẤT",
+    "billingDisclosure": "Khoản thanh toán được xử lý an toàn qua RevenueCat và cửa hàng ứng dụng khi bạn xác nhận. Gói đăng ký tự động gia hạn theo mức giá hiển thị cho tới khi bạn hủy trong phần cài đặt đăng ký; gỡ ứng dụng không hủy gói và không hoàn tiền. Khi tiếp tục, bạn đồng ý với",
     "close": "Đóng",
     "confirmPassword": "Xác nhận mật khẩu",
     "continue": "Tiếp tục",
     "continueWithGoogle": "Tiếp tục với Google",
+    "couldNotOpenGoogle": "Không mở được đăng nhập Google. Hãy thử lại.",
     "couldNotOpenGoogleSign": "Không mở được đăng nhập Google. Vui lòng thử lại.",
+    "couldNotReachServer": "Không kết nối được máy chủ. Hãy kiểm tra kết nối và thử lại.",
+    "createAccount": "Tạo tài khoản",
     "createAccountSubscribe": "Tạo tài khoản và đăng ký",
     "creatingAccount": "Đang tạo tài khoản …",
     "emailAddress": "Địa chỉ email",
+    "emailInvalid": "Hãy nhập địa chỉ email hợp lệ.",
+    "emailOrPasswordIncorrect": "Email hoặc mật khẩu không đúng.",
+    "emailRequired": "Vui lòng nhập email.",
     "fullName": "Họ và tên",
+    "googleSignInFailed": "Đăng nhập bằng Google không thành công. Hãy thử lại.",
+    "nameRequired": "Vui lòng nhập tên.",
     "noAccountYetCreateOne": "Chưa có tài khoản? Tạo ngay",
     "password": "Mật khẩu",
     "password6Characters1Number": "Mật khẩu (từ 6 ký tự, có 1 chữ số)",
+    "passwordRequired": "Vui lòng nhập mật khẩu.",
+    "passwordRules": "Mật khẩu phải có ít nhất 6 ký tự và chứa một chữ số.",
+    "passwordsDoNotMatch": "Mật khẩu không khớp.",
+    "signIn": "Đăng nhập",
     "signInSubscribe": "Đăng nhập và đăng ký",
     "signingIn": "Đang đăng nhập …",
     "startYourTransformationJourneyNow": "Bắt đầu thay đổi ngay hôm nay",
     "subscribe": "Đăng ký",
     "terms": "Điều khoản"
+  },
+  "tabs": {
+    "profile": "Hồ sơ",
+    "progress": "Tiến độ",
+    "schedule": "Lịch",
+    "training": "Tập luyện"
   },
   "training": {
     "available": "Có sẵn",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Quay lại đăng nhập",
+    "codeResent": "Đã gửi lại mã xác minh!",
     "didnTReceiveTheCode": "Chưa nhận được mã? Gửi lại",
+    "enterSixDigitCode": "Vui lòng nhập mã xác minh 6 chữ số.",
+    "failedToResendCode": "Không gửi lại được mã.",
+    "verificationFailed": "Xác minh không thành công. Hãy thử lại.",
     "verifyCode": "Xác minh mã",
     "verifyEmail": "Xác minh email"
   },
   "why": {
     "aMuscleYouCanTrain": "Một nhóm cơ bạn có thể rèn luyện",
+    "aRealMuscleBody": "Sàn chậu của bạn là một cơ thật sự. Tập vài phút mỗi ngày là nó khỏe lên, giống như mọi cơ khác. Không thuốc men, không tác dụng phụ, và kết quả thì bền.",
     "andYouCanDoIt": "Và bạn có thể tập ở bất cứ đâu, bất cứ lúc nào. Ngồi, đứng, trên xe buýt. Không ai nhận ra.",
+    "benefit_bladder_desc": "Ít rò rỉ và ít cơn buồn gấp hơn.",
+    "benefit_bladder_title": "Kiểm soát bàng quang tốt hơn",
+    "benefit_confidence_desc": "Tiến bộ dồn lại theo từng tuần.",
+    "benefit_confidence_title": "Sự tự tin bền lâu",
+    "benefit_core_desc": "Hỗ trợ tư thế và vùng thắt lưng.",
+    "benefit_core_title": "Phần lõi được nâng đỡ",
+    "benefit_performance_desc": "Kiểm soát và sức bền tốt hơn trong chuyện gối chăn.",
+    "benefit_performance_title": "Phong độ tốt hơn",
     "doingItRightIsEverything": "Tập đúng cách là điều quan trọng nhất",
     "learnItOnceAndEvery": "Học một lần, và mỗi phút luyện tập sau đó đều thực sự có giá trị.",
     "squeezeTheWrongMusclesAnd": "Siết sai cơ thì bạn chẳng thu được gì.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Nếu thoát bây giờ, buổi tập này sẽ không được tính vào tiến độ hôm nay.",
     "leaveTraining": "Thoát buổi tập?",
     "noExercises": "Chưa có bài tập",
+    "noExercisesBody": "Chưa có bài tập nào được mở cho buổi này.",
+    "noExercisesTitle": "Chưa có bài tập",
     "noGoBack": "Không, quay lại",
     "pause": "Tạm dừng",
     "resume": "Tiếp tục",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Có, thoát buổi tập"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Bạn đã ở cấp dễ nhất rồi.",
+    "alreadyHighestLevel": "Bạn đã ở cấp cao nhất rồi.",
     "continue": "Tiếp tục",
     "howWasThat": "Cảm thấy thế nào?",
     "justRight": "Vừa sức",
+    "keepGoing": "Tuyệt! Cùng tiếp tục nào.",
+    "levelUp": "Lên cấp! Bây giờ bạn đang ở {{level}}.",
+    "monthNumber": "Tháng {{number}}",
     "newExerciseUnlocked": "Đã mở khóa bài tập mới!",
     "nextToUnlock": "Bài tiếp theo sẽ mở",
     "notNow": "Để sau",
+    "steppedDown": "Đã lùi về {{level}}. Bạn làm được mà!",
     "tooEasy": "Quá dễ",
     "tooHard": "Quá khó",
-    "tryItNow": "Thử ngay"
+    "tryItNow": "Thử ngay",
+    "unlockedList": "Đã mở: {{names}}"
   }
 }

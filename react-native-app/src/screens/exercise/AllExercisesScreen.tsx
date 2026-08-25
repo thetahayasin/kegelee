@@ -15,14 +15,13 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
-import { EXERCISES } from '../../constants/catalogues';
+import { EXERCISES, exerciseNameKey } from '../../constants/catalogues';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
 type Row = {
   slug: string;
-  name: string;
   unlocked: boolean;
   daysLeft: number;
   completed: number;
@@ -74,7 +73,6 @@ export const AllExercisesScreen = () => {
               : threshold > 0 ? Math.min(100, Math.round((completed / threshold) * 100)) : 100;
             return {
               slug: ex.slug,
-              name: ex.name,
               unlocked,
               daysLeft: unlocked ? 0 : Math.max(0, threshold - completedDays),
               completed,
@@ -111,7 +109,9 @@ export const AllExercisesScreen = () => {
         <EquipmentIcon slug={row.slug} size={56} />
       </View>
       <View style={styles.rowInfo}>
-        <Text style={[styles.rowName, !row.unlocked && styles.rowNameLocked]}>{row.name}</Text>
+        <Text style={[styles.rowName, !row.unlocked && styles.rowNameLocked]}>
+          {t(exerciseNameKey(row.slug))}
+        </Text>
         {row.unlocked ? (
           <Text style={styles.rowAvailable}>{t('allExercises.available')}</Text>
         ) : (
@@ -129,7 +129,9 @@ export const AllExercisesScreen = () => {
               style={styles.progressBarBg}
               accessible
               accessibilityRole="progressbar"
-              accessibilityLabel={`${row.name} unlock progress`}
+              accessibilityLabel={t('allExercises.unlockProgressA11y', {
+                name: t(exerciseNameKey(row.slug)),
+              })}
               accessibilityValue={{ min: 0, max: row.threshold, now: row.completed }}
             >
               <View style={[styles.progressBarFill, { width: `${row.pct}%` }]} />
@@ -157,7 +159,7 @@ export const AllExercisesScreen = () => {
         <TouchableOpacity
           style={styles.backBtn}
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t('allExercises.backA11y')}
           hitSlop={8}
           onPress={() => navigation.goBack()}
         >

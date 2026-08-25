@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "可用",
-    "exercises": "训练动作"
+    "backA11y": "返回",
+    "exercises": "训练动作",
+    "unlockProgressA11y": "{{name}} 的解锁进度"
+  },
+  "basics": {
+    "findTitle": "找到你的盆底肌",
+    "firstTitle": "你的第一个练习",
+    "whyTitle": "凯格尔训练为什么有效"
+  },
+  "billing": {
+    "alreadyOwned": "你已经有一个有效订阅，正在为你恢复。",
+    "configuration": "该套餐目前无法购买。这是我们这边的问题，请稍后再试或联系客服。",
+    "declined": "Google Play 拒绝了此次付款。请检查 Google 账号中的付款方式，然后重试。",
+    "ineligible": "你不符合此优惠的条件，请选择其他套餐。",
+    "network": "无法连接商店。请检查网络后重试。如果已扣款，权限会自动出现。",
+    "noPermission": "你的 Google 账号没有在此设备上购买的权限。",
+    "notAllowed": "此设备或 Google 账号不被允许购买。通常是家长控制，或者账号里没有付款方式。",
+    "operationInProgress": "已有一笔购买正在进行中。请稍候再试。",
+    "otherAccount": "该订阅属于另一个账号。请用那个账号登录，或联系客服，我们可以帮你转移。",
+    "paymentPending": "Google Play 正在处理你的付款。现金和代金券付款可能需要一些时间。款项到账后会自动开通，请不要重复付款。",
+    "storeProblem": "Google Play 目前有故障，请几分钟后再试。",
+    "unknown": "完成购买时出了点问题，请重试。如果已扣款，权限会自动出现。"
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "缓慢建立起的坚实收缩，再以同样的速度缓慢释放。",
+        "howTo": "在圆环充满的 3 秒内缓慢收紧，再随着圆环清空以同样的速度缓慢放开。上行和下行都要保持顺畅。",
+        "name": "夹紧",
+        "summary": "缓慢上升，缓慢下降"
+      },
+      "downstairs": {
+        "description": "收紧到顶点，然后在完全的控制下一级一级降下来。",
+        "howTo": "收紧到你最强的位置，然后一点一点放松，下行时在每一级停留约一秒。这种受控的下降就是这个动作的重点。",
+        "name": "下楼",
+        "summary": "从顶点分四级下降"
+      },
+      "elevator": {
+        "description": "招牌动作。一级一级往上爬，再在控制下降回来。",
+        "howTo": "想象自己正在乘电梯。每上一级就收得再紧一点，直到抵达最强的收缩，然后一级一级降下来，直到完全放松。",
+        "name": "电梯",
+        "summary": "登上顶点，再一级一级降回来"
+      },
+      "flash": {
+        "description": "最快的收放。短促有力的收缩，训练快速反应。",
+        "howTo": "跟着圆环的节奏，用你能做到的最快速度收紧和放开。保持轻松，不要用力过猛。",
+        "name": "闪电",
+        "summary": "最快的收放"
+      },
+      "front-clamp": {
+        "description": "对盆底前侧进行缓慢而集中的收缩，然后快速干脆地释放。",
+        "howTo": "在圆环充满的 3 秒内缓慢收紧。当圆环清空时，一次性全部放开。然后开始下一次缓慢收紧。",
+        "name": "前侧夹紧",
+        "summary": "缓慢收紧，一次放开"
+      },
+      "holding": {
+        "description": "收紧并持续保持，为盆底肌打下基础耐力。",
+        "howTo": "收紧盆底肌，并在整轮训练中保持住。如果力量减弱，就轻轻地再收紧一些。全程保持正常呼吸。",
+        "name": "保持",
+        "summary": "一次稳定的保持"
+      },
+      "long-steady-clamp": {
+        "description": "耐力的基石：一秒的收紧，接入十秒的全力保持。",
+        "howTo": "用一秒收紧，然后全力保持十秒。如果力量减弱，就轻轻地再收紧到最大。放开并重复。",
+        "name": "长时稳定夹紧",
+        "summary": "1 秒收紧，10 秒保持"
+      },
+      "pulsation": {
+        "description": "连续两次快速收紧，随后完全放松。训练在尚未完全恢复时再次收紧，以及在两次发力之间彻底放开。",
+        "howTo": "跟着圆环连续两次收紧与放开，然后在休息期间把一切完全放下。这次彻底的放松，和脉冲本身同样重要。",
+        "name": "双脉冲",
+        "summary": "两次快速脉冲，然后完全归位"
+      },
+      "push": {
+        "description": "把收缩推到一个强劲的顶点，保持住，然后缓慢放开。",
+        "howTo": "随着圆环充满，用三秒逐渐收紧、逐渐加力。把最强的收缩保持两秒，然后缓慢放开。要收得更紧，但绝不要向下用力憋气。",
+        "name": "推进",
+        "summary": "3 秒上升，2 秒峰值保持，3 秒放松"
+      },
+      "reverse-clamp": {
+        "description": "快速收紧，随后缓慢而受控地放松。非常适合训练控制力。",
+        "howTo": "一次性收紧，然后立刻跟着下降的圆环，用你能做到的最慢速度开始放开。缓慢地放开才是这个动作的重点。",
+        "name": "反向夹紧",
+        "summary": "一次收紧，缓慢放开"
+      },
+      "short-holding": {
+        "description": "有力的 4 秒保持，靠缓慢释放而不是直接松掉。有控制地放开本身就是一项技巧，大多数人都觉得它比保持更难。",
+        "howTo": "用一秒收紧，全力保持四秒，然后随着圆环下沉逐渐放开。不要让它一下子垮掉，要一路陪着它降到底。",
+        "name": "短时保持",
+        "summary": "保持 4 秒，然后逐渐放松"
+      },
+      "starter": {
+        "description": "一次快速收紧唤醒肌肉，然后是 5 秒的有力保持。",
+        "howTo": "先快速收紧一次，平顺地放松，然后再次收紧并用力保持五秒。放开、呼吸，然后重复。",
+        "name": "启动",
+        "summary": "快速收紧，然后保持 5 秒"
+      },
+      "steady-clamp": {
+        "description": "稳定的夹紧：用一秒收紧，然后全力保持五秒。",
+        "howTo": "用一秒收紧，然后全力保持五秒，不要让力度掉下来。放开并重复。",
+        "name": "稳定夹紧",
+        "summary": "1 秒收紧，5 秒保持"
+      },
+      "steady-trembling": {
+        "description": "一次性收紧，把力度稳定地保持几秒，然后放松。",
+        "howTo": "一次性收紧并保持住力度。当圆环下降时，平顺地放开。然后重复这次快速收紧与保持。",
+        "name": "稳定震颤",
+        "summary": "一次收紧、保持，然后放松"
+      },
+      "trembling": {
+        "description": "快速的收缩与放松，让肌肉产生震颤，唤醒它的快速反应能力。",
+        "howTo": "一次性收紧，稍作保持，然后平顺地放开。跟着圆环一起，看它猛地升起、缓缓落下。",
+        "name": "震颤",
+        "summary": "快速收放"
+      },
+      "upstairs": {
+        "description": "分四级把收缩往上推，每一级都比上一级再强一点。",
+        "howTo": "想象自己正乘电梯上行。先收紧一点，再多一点，再更多一点，直到抵达最强的收缩，每一级停留约一秒。之后放松。",
+        "name": "上楼",
+        "summary": "四级台阶登顶"
+      },
+      "waves": {
+        "description": "波浪般的收缩，不间断地积蓄并释放力量。",
+        "howTo": "用两秒缓慢收紧，再以同样的速度缓慢放开，就像海浪起落一样。保持顺畅、连贯。",
+        "name": "波浪",
+        "summary": "2 秒上升，2 秒下降"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "温和起步。1 分钟的短时训练。",
+        "name": "第 1 级"
+      },
+      "2": {
+        "description": "稍微长一些。2 分钟的训练。",
+        "name": "第 2 级"
+      },
+      "3": {
+        "description": "均衡训练。3 分钟的训练。",
+        "name": "第 3 级"
+      },
+      "4": {
+        "description": "更长的训练，练就更强的肌肉。4 分钟。",
+        "name": "第 4 级"
+      },
+      "5": {
+        "description": "进阶的耐力与控制。5 分钟。",
+        "name": "第 5 级"
+      }
+    },
+    "steps": {
+      "contract": "收缩",
+      "contractAndHold": "收缩并保持",
+      "contractSlowly": "缓慢收缩",
+      "easeDown": "逐渐放松",
+      "hold": "保持",
+      "pulse1": "脉冲 1",
+      "pulse2": "脉冲 2",
+      "relax": "放松",
+      "relaxSlowly": "缓慢放松",
+      "release": "释放",
+      "releaseSlowly": "缓慢释放",
+      "reset": "回到起点",
+      "rest": "休息",
+      "step1": "第 1 级",
+      "step2": "第 2 级",
+      "step3": "第 3 级",
+      "top": "顶点"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "出错了",
@@ -9,48 +177,94 @@
     "tryAgain": "重试"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "再完成 {{count}} 天训练即可解锁。",
+    "completeMoreDaysToUnlock_other": "再完成 {{count}} 天训练即可解锁。",
     "exerciseNotFound": "未找到该训练动作。",
+    "lockedDaysLeft_one": "未解锁 - 还剩 {{count}} 天",
+    "lockedDaysLeft_other": "未解锁 - 还剩 {{count}} 天",
     "tryItNow": "立即体验"
   },
   "find": {
+    "flow_stopMidway": "中途停住",
+    "flow_thatSqueeze": "就是这一收！",
+    "flow_youPee": "你在小便",
     "keepGoing": "继续保持…",
     "onlyDoThePeeTest": "排尿测试只做一次",
+    "onlyDoThePeeTestDesc": "这只是找到肌肉的方法，不是练习。经常憋停尿流对膀胱并不好。",
+    "pressAndHold": "按住",
+    "squeezeNow": "收缩！",
     "squeezeOnlyThoseMuscles": "只收缩这些肌肉",
+    "squeezeOnlyThoseMusclesDesc": "另一个提示：像忍住排气那样收缩。腹部、双腿和臀部都保持完全放松。",
+    "stopTheFlowBody": "下次小便时，在中途轻轻把尿流停住。你刚刚用到的那块肌肉，就是盆底肌。",
     "thatExactSqueezeIsThe": "这种收缩的感觉，正是你要训练的动作。",
     "theEasiestWayToFind": "找到它们最简单的方法",
-    "twoQuickRules": "两条简单规则"
+    "tryItNow": "现在试试",
+    "tryItNowBody": "按住这个圆圈。按住的时候收缩那些肌肉，然后一起放开。",
+    "twoQuickRules": "两条简单规则",
+    "youFoundThem": "你找到了！",
+    "youFoundThemBody": "这一收一放，就是凯格尔运动的全部。你已经可以开始第一个练习了。"
   },
   "first": {
     "contract": "收缩",
+    "followTheCircle": "跟着圆圈。收缩……然后放松。",
+    "niceWork": "做得好！",
+    "nowYouTry": "现在换你试试",
     "start": "开始",
+    "tenSecondsReady": "十秒钟的{{exercise}}。每次{{contract}}时收缩，{{relax}}时放开。准备好了吗？",
+    "thatWasARealExercise": "刚刚那就是一次真正的练习。每一次训练都完全是这样，一个圆圈接一个圆圈。",
     "theCircleIsYourGuide": "圆圈会为你引导节奏",
+    "theCircleIsYourGuideBody": "每个动作都跟着这个圆圈走。它发亮、变大时收缩，光芒淡下去时放松。圆圈里的字始终告诉你该做什么。",
     "thisIsTrembling": "这就是快速颤动",
     "yourFirstExerciseQuickFlicks": "你的第一个动作：快速收缩。看到“收缩”时用力，看到“放松”时松开。"
   },
   "knowledge": {
     "continueToTraining": "继续训练",
     "learnTheBasics": "学习基础",
+    "lessonNumber": "第 {{number}} 课",
     "logIn": "登录"
   },
   "login": {
     "6DigitCode": "6 位验证码",
     "close": "关闭",
+    "codeSentEnterBelow": "验证码已发送！请连同新密码一起填在下方。",
     "continueWithGoogle": "使用 Google 继续",
+    "couldNotOpenGoogle": "无法打开 Google 登录，请重试。",
     "createAccount": "创建账号",
     "email": "邮箱",
-    "enterYourEmail": "请输入邮箱",
+    "enterSixDigitCode": "请输入邮件里的 6 位验证码。",
+    "enterYourEmail": "请输入你的邮箱。",
+    "failedToResetPassword": "密码重置失败。",
+    "failedToSendResetCode": "重置验证码发送失败。",
+    "fillAllFields": "请填写所有字段。",
     "forgotPassword": "忘记密码？",
+    "googleSignInFailed": "Google 登录失败，请重试。",
+    "invalidCredentials": "登录信息不正确。",
     "logIn": "登录",
     "logIn2": "登录",
     "newHere": "第一次使用？",
     "newPassword": "新密码",
     "password": "密码",
     "passwordReset": "密码已重置",
-    "resetPassword": "重置密码"
+    "passwordResetBody": "你的密码已重置，请登录。",
+    "passwordResetTitle": "密码已重置",
+    "passwordRules": "密码至少 6 位，并且需要包含数字。",
+    "resetPassword": "重置密码",
+    "resetPasswordCta": "重置密码",
+    "sendCodeCta": "发送验证码"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "已有账号？",
-    "logIn": "登录"
+    "getStarted": "开始",
+    "logIn": "登录",
+    "perDay": "每天",
+    "slide1Body": "没人会主动提起，但根源都是同一块变弱的肌肉。而变弱的肌肉，是可以练回来的。",
+    "slide1Title": "漏尿。突如其来的尿意。控制力下降。",
+    "slide2Body": "不用健身房，不用器械，不用脱掉什么。在沙发上、办公桌前、公交车上。没人看得出来。",
+    "slide2Title": "坐着不动，一分钟",
+    "slide3Body": "应用会记录你能坚持多久。时间不断上升，新动作陆续解锁，变化出现在你最想要的地方。",
+    "slide3Title": "你会先感觉到，然后才看到",
+    "slide4Body": "一旦停练，肌肉就会退回去，和任何训练一样。定个时间，剩下的交给提醒。",
+    "slide4Title": "只有坚持下去才有用"
   },
   "paywall": {
     "autoRenewOffHint": "自动续订已关闭，到期后将无法继续使用。",
@@ -60,6 +274,7 @@
     "benefitMeasure": "记录你的进步",
     "benefitReminders": "设置贴合日常的提醒",
     "benefitStrength": "真正练出盆底肌力量",
+    "bestValue": "最划算",
     "billingIsNotAvailableOn": "此设备无法进行支付。你可以在下方恢复之前的购买。",
     "byContinuingYouAgree": "继续即表示你同意我们的",
     "changeYourPlan": "更换套餐",
@@ -72,6 +287,7 @@
     "managePlan": "管理套餐",
     "noActiveSubscriptionWasFound": "未找到可恢复的有效订阅。",
     "off": "已关闭",
+    "offeringsUnavailable": "此设备目前无法使用订阅。请稍后再试，或在下方恢复此前的购买。",
     "on": "已开启",
     "paymentProcessedSecurely": "确认后将通过 RevenueCat 与应用商店安全完成支付。",
     "premium": "高级版",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "已收到购买，但无法匹配到套餐。请联系客服。",
     "restorePurchases": "恢复购买",
     "restoredPurchaseCouldNotBe": "恢复的购买无法匹配到套餐。请联系客服。",
+    "savePercent": "立省 {{percent}}%",
     "signInFirst": "订阅前请先登录。",
     "startFreeTrialCta_one": "开始 {{count}} 天免费试用",
     "startFreeTrialCta_other": "开始 {{count}} 天免费试用",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "卸载应用不会取消订阅，也不会退款。",
     "yourSubscriptionIsNowActive": "你的订阅已生效，全部内容已解锁。"
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "完整权限，按月扣费。",
+      "name": "1 个月"
+    },
+    "premium-quarterly": {
+      "description": "每 3 个月扣费一次。",
+      "name": "3 个月"
+    },
+    "premium-yearly": {
+      "description": "一次付清全年。",
+      "name": "1 年"
+    }
+  },
   "profile": {
     "currentDifficulty": "当前难度",
     "difficulty": "难度",
     "error": "错误",
+    "errorTitle": "出错了",
+    "failedToUpdateLevel": "训练等级更新失败。",
     "profile": "个人资料",
     "scheduleReminders": "日程与提醒",
     "setTheDifficultyOfKegel": "设置凯格尔训练计划的难度",
+    "settingsA11y": "设置",
     "theHigherTheLevelThe": "等级越高，训练越难"
   },
   "progress": {
+    "bestResult": "最佳成绩",
     "continue": "继续",
     "holdTheButtonAndContract": "按住按钮，尽可能长时间地收缩盆底肌。",
+    "lastMeasurement": "最近一次测量",
     "progressTracker": "进度追踪",
+    "seconds": "{{count}} 秒",
     "takeMeasurement": "进行测量",
+    "today": "今天",
+    "topResult": "最佳成绩：{{count}} 秒",
     "tryAgain": "重试"
   },
   "register": {
     "alreadyHaveAnAccount": "已有账号？",
     "confirmPassword": "确认密码",
     "continueWithGoogle": "使用 Google 继续",
+    "couldNotOpenGoogle": "无法打开 Google 注册，请重试。",
     "createAccount": "创建账号",
     "createAccount2": "创建账号",
     "email": "邮箱",
+    "fillAllFields": "请填写所有字段。",
+    "googleSignUpFailed": "Google 注册失败，请重试。",
     "logIn": "登录",
     "name": "姓名",
-    "password": "密码"
+    "password": "密码",
+    "passwordNeedsNumber": "密码至少需要包含一个数字。",
+    "passwordTooShort": "密码至少需要 6 位。",
+    "passwordsDoNotMatch": "两次输入的密码不一致。",
+    "registrationFailed": "注册失败。"
+  },
+  "reminders": {
+    "notificationBody": "到了每天的凯格尔训练时间！",
+    "notificationTitle": "凯格尔训练"
   },
   "schedule": {
     "active": "已开启",
     "allowExactReminders": "允许精确提醒",
+    "daysLeft_one": "还剩 {{count}} 天",
+    "daysLeft_other": "还剩 {{count}} 天",
     "error": "错误",
+    "errorTitle": "出错了",
+    "failedToSaveReminders": "提醒保存失败。",
     "limitReached": "已达上限",
+    "limitReachedBody": "每天最多可以设置 5 个提醒。",
+    "limitReachedTitle": "已达上限",
+    "monthNumber": "第 {{number}} 个月",
     "reminders": "提醒",
     "remindersSaved": "提醒已保存",
     "repeatOn": "重复于",
     "saveAddReminders": "保存提醒",
     "schedule": "日程",
+    "sessionNumber": "第 {{number}} 次训练",
     "sessionTimes": "训练时间"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "要删除账号吗？",
     "deletePermanently": "永久删除",
     "deleted": "已删除",
+    "deletedBody": "你的账号已被永久删除。",
+    "deletedTitle": "已删除",
+    "failedToDeleteAccount": "账号删除失败。",
     "gotIt": "知道了",
     "language": "语言",
     "logOut": "退出登录",
     "manageSubscription": "管理订阅",
     "noActiveSubscription": "暂无有效订阅",
     "reset": "重置",
+    "resetConfirmBody": "这会清空你的训练天数、训练记录、测量数据和课程进度。此操作无法撤销。",
     "resetProgress": "重置进度",
     "resetProgress2": "要重置进度吗？",
+    "resetSuccessBody": "你的训练进度已清空。",
+    "resetSuccessTitle": "已重置",
     "resetSuccessful": "重置成功",
     "restartBody": "请关闭并重新打开应用，以完成布局方向的切换。",
     "restartRequired": "需要重启",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "已有账号？登录",
     "back": "返回",
+    "bestValue": "最划算",
+    "billingDisclosure": "确认时，付款将通过 RevenueCat 与应用商店安全处理。订阅会按显示价格自动续期，直到你在订阅设置中取消；卸载应用不会取消订阅，也不会退款。继续即表示你同意我们的",
     "close": "关闭",
     "confirmPassword": "确认密码",
     "continue": "继续",
     "continueWithGoogle": "使用 Google 继续",
+    "couldNotOpenGoogle": "无法打开 Google 登录，请重试。",
     "couldNotOpenGoogleSign": "无法打开 Google 登录，请重试。",
+    "couldNotReachServer": "无法连接服务器。请检查网络后重试。",
+    "createAccount": "创建账号",
     "createAccountSubscribe": "创建账号并订阅",
     "creatingAccount": "正在创建账号…",
     "emailAddress": "邮箱地址",
+    "emailInvalid": "请输入有效的邮箱地址。",
+    "emailOrPasswordIncorrect": "邮箱或密码不正确。",
+    "emailRequired": "请填写邮箱。",
     "fullName": "姓名",
+    "googleSignInFailed": "Google 登录失败，请重试。",
+    "nameRequired": "请填写姓名。",
     "noAccountYetCreateOne": "还没有账号？立即创建",
     "password": "密码",
     "password6Characters1Number": "密码（至少 6 位，含 1 个数字）",
+    "passwordRequired": "请填写密码。",
+    "passwordRules": "密码至少 6 位，并且需要包含数字。",
+    "passwordsDoNotMatch": "两次输入的密码不一致。",
+    "signIn": "登录",
     "signInSubscribe": "登录并订阅",
     "signingIn": "正在登录…",
     "startYourTransformationJourneyNow": "现在就开始你的改变",
     "subscribe": "订阅",
     "terms": "条款"
+  },
+  "tabs": {
+    "profile": "个人",
+    "progress": "进度",
+    "schedule": "日程",
+    "training": "训练"
   },
   "training": {
     "available": "可用",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "返回登录",
+    "codeResent": "验证码已重新发送！",
     "didnTReceiveTheCode": "没收到验证码？重新发送",
+    "enterSixDigitCode": "请输入 6 位验证码。",
+    "failedToResendCode": "验证码重新发送失败。",
+    "verificationFailed": "验证失败，请重试。",
     "verifyCode": "验证验证码",
     "verifyEmail": "验证邮箱"
   },
   "why": {
     "aMuscleYouCanTrain": "一块可以锻炼的肌肉",
+    "aRealMuscleBody": "盆底肌是一块真正的肌肉。每天练几分钟，它就会像其他肌肉一样变强。不用吃药，没有副作用，效果也留得住。",
     "andYouCanDoIt": "而且随时随地都能练。坐着、站着、在公交车上都行，没人看得出来。",
+    "benefit_bladder_desc": "漏尿和急迫感都会减少。",
+    "benefit_bladder_title": "更好的膀胱控制",
+    "benefit_confidence_desc": "一周一周累积起来的进步。",
+    "benefit_confidence_title": "持久的自信",
+    "benefit_core_desc": "有助于体态和下背部。",
+    "benefit_core_title": "被撑住的核心",
+    "benefit_performance_desc": "亲密时更有掌控力和耐力。",
+    "benefit_performance_title": "更强的表现",
     "doingItRightIsEverything": "做对了才有意义",
     "learnItOnceAndEvery": "学会一次，之后每一分钟的训练都真正有效。",
     "squeezeTheWrongMusclesAnd": "收缩错了肌肉，就什么效果都没有。",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "现在离开的话，这次训练不会计入今天的进度。",
     "leaveTraining": "要退出训练吗？",
     "noExercises": "暂无训练动作",
+    "noExercisesBody": "这次训练还没有解锁任何动作。",
+    "noExercisesTitle": "暂无动作",
     "noGoBack": "不，返回",
     "pause": "暂停",
     "resume": "继续",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "是，退出训练"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "你已经在最简单的等级了。",
+    "alreadyHighestLevel": "你已经在最高等级了。",
     "continue": "继续",
     "howWasThat": "感觉怎么样？",
     "justRight": "刚刚好",
+    "keepGoing": "太棒了！我们继续。",
+    "levelUp": "升级了！你现在处于{{level}}。",
+    "monthNumber": "第 {{number}} 个月",
     "newExerciseUnlocked": "解锁了新动作！",
     "nextToUnlock": "下一个待解锁",
     "notNow": "暂时不用",
+    "steppedDown": "已回到{{level}}。你可以的！",
     "tooEasy": "太简单",
     "tooHard": "太难",
-    "tryItNow": "立即体验"
+    "tryItNow": "立即体验",
+    "unlockedList": "已解锁：{{names}}"
   }
 }

@@ -24,6 +24,7 @@ import { setPendingPlan } from '../services/billing';
 import {
   PLANS,
   featuredPlan,
+  planNameKey,
   sheetIntervalLabel,
 } from '../constants/plans';
 import { GoogleLogo } from './GoogleLogo';
@@ -126,15 +127,15 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
 
   const handleRegister = async () => {
     const next: FieldErrors = {};
-    if (!name.trim()) next.name = 'Name is required.';
-    if (!email.trim()) next.email = 'Email is required.';
-    else if (!/\S+@\S+\.\S+/.test(email.trim())) next.email = 'Enter a valid email address.';
-    if (!password) next.password = 'Password is required.';
+    if (!name.trim()) next.name = t('subscribeSheet.nameRequired');
+    if (!email.trim()) next.email = t('subscribeSheet.emailRequired');
+    else if (!/\S+@\S+\.\S+/.test(email.trim())) next.email = t('subscribeSheet.emailInvalid');
+    if (!password) next.password = t('subscribeSheet.passwordRequired');
     else if (password.length < 6 || !/[0-9]/.test(password)) {
-      next.password = 'Password must be at least 6 characters and include a number.';
+      next.password = t('subscribeSheet.passwordRules');
     }
     if (password !== passwordConfirmation) {
-      next.password_confirmation = "Passwords don't match.";
+      next.password_confirmation = t('subscribeSheet.passwordsDoNotMatch');
     }
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -152,14 +153,14 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       close();
       onNavigateToVerify(email.trim().toLowerCase());
     } else {
-      setErrors({ email: res.error || 'Could not reach the server. Check your internet connection and try again.' });
+      setErrors({ email: res.error || t('subscribeSheet.couldNotReachServer') });
     }
   };
 
   const handleLogin = async () => {
     const next: FieldErrors = {};
-    if (!email.trim()) next.email = 'Email is required.';
-    if (!password) next.password = 'Password is required.';
+    if (!email.trim()) next.email = t('subscribeSheet.emailRequired');
+    if (!password) next.password = t('subscribeSheet.passwordRequired');
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
@@ -182,8 +183,8 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
     }
     setErrors({
       email: /credentials|password/i.test(res.error || '')
-        ? 'Email or password is incorrect.'
-        : res.error || 'Could not reach the server. Check your internet connection and try again.',
+        ? t('subscribeSheet.emailOrPasswordIncorrect')
+        : res.error || t('subscribeSheet.couldNotReachServer'),
     });
   };
 
@@ -198,7 +199,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       if (native.status === 'success') {
         const res = await googleNativeLogin(native.idToken);
         if (!res.success) {
-          setMessage(res.error || 'Google sign-in failed. Please try again.');
+          setMessage(res.error || t('subscribeSheet.googleSignInFailed'));
         }
         // On success the navigator swaps phases by itself (paywall or app).
         return;
@@ -211,7 +212,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       // the pending plan then continues on the paywall like every other path.
       await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
     } catch {
-      setMessage('Could not open Google sign-in. Please try again.');
+      setMessage(t('subscribeSheet.couldNotOpenGoogle'));
     } finally {
       setGoogleLoading(false);
     }
@@ -292,7 +293,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                           </View>
                           <View style={styles.planInfo}>
                             <View style={styles.planInfoRow}>
-                              <Text style={styles.planName}>{plan.name}</Text>
+                              <Text style={styles.planName}>{t(planNameKey(plan.slug))}</Text>
                               <View style={styles.planPriceWrap}>
                                 <Text style={styles.planPrice}>${plan.price.toFixed(2)}</Text>
                                 <Text style={styles.planInterval}>{sheetIntervalLabel(plan)}</Text>
@@ -301,7 +302,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                           </View>
                           {plan.is_featured && (
                             <View style={styles.featuredBadge}>
-                              <Text style={styles.featuredBadgeText}>BEST VALUE</Text>
+                              <Text style={styles.featuredBadgeText}>{t('subscribeSheet.bestValue')}</Text>
                             </View>
                           )}
                         </TouchableOpacity>
@@ -318,10 +319,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                   </TouchableOpacity>
 
                   <Text style={styles.legalText}>
-                    Payment is processed securely through RevenueCat and the app store on confirmation. Your
-                    subscription renews automatically at the price shown until you cancel it
-                    in your subscription settings; uninstalling the app does not cancel or refund it. By
-                    continuing you agree to our{' '}
+                    {t('subscribeSheet.billingDisclosure')}{' '}
                     <Text
                       style={styles.legalLink}
                       onPress={() => Linking.openURL(`${getWebBaseUrl()}/p/terms`)}
@@ -344,7 +342,9 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                       </Svg>
                     </TouchableOpacity>
                     <Text style={styles.authTitle}>
-                      {authMode === 'register' ? 'Create account' : 'Sign in'}
+                      {authMode === 'register'
+                        ? t('subscribeSheet.createAccount')
+                        : t('subscribeSheet.signIn')}
                     </Text>
                     <TouchableOpacity
                       style={[styles.roundBtn, styles.authClose]}

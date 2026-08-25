@@ -66,7 +66,7 @@ export const ProgressScreen = () => {
         const todayStr = getLocalDateString(user.timezone);
         const itemDateStr = lastItem.measured_at.split('T')[0];
         if (todayStr === itemDateStr) {
-          label = 'Today';
+          label = t('progress.today');
         }
         setLast({
           seconds: Math.floor(lastItem.seconds),
@@ -265,15 +265,17 @@ export const ProgressScreen = () => {
             </Svg>
           </View>
           <View>
-            <Text style={styles.summaryLabel}>best result</Text>
-            <Text style={styles.summaryValue}>{best > 0 ? `${best} sec` : '-'}</Text>
+            <Text style={styles.summaryLabel}>{t('progress.bestResult')}</Text>
+            <Text style={styles.summaryValue}>
+              {best > 0 ? t('progress.seconds', { count: best }) : '-'}
+            </Text>
           </View>
         </View>
 
         <View style={styles.summaryBoxRight}>
-          <Text style={styles.summaryLabel}>last measurement</Text>
+          <Text style={styles.summaryLabel}>{t('progress.lastMeasurement')}</Text>
           <Text style={styles.summaryValue}>
-            {last ? `${last.seconds} sec (${last.label})` : '-'}
+            {last ? `${t('progress.seconds', { count: last.seconds })} (${last.label})` : '-'}
           </Text>
         </View>
       </View>
@@ -281,7 +283,7 @@ export const ProgressScreen = () => {
       {/* Chart Section */}
       <View style={styles.chartCard}>
         <Text style={styles.chartTitle}>{rangeLabel}</Text>
-        <Text style={styles.chartSubtitle}>top result: {best} sec</Text>
+        <Text style={styles.chartSubtitle}>{t('progress.topResult', { count: best })}</Text>
 
         <View style={styles.chartArea}>
           {/* Y Axis Gridlines */}
@@ -290,7 +292,7 @@ export const ProgressScreen = () => {
             return (
               <View key={gVal} style={[styles.gridlineRow, { top: topPct as any }]}>
                 <View style={styles.gridline} />
-                <Text style={styles.yLabel}>{gVal} sec</Text>
+                <Text style={styles.yLabel}>{t('progress.seconds', { count: gVal })}</Text>
               </View>
             );
           })}

@@ -15,7 +15,13 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../theme/colors';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress } from '../../services/progression';
-import { EXERCISES, LEVELS } from '../../constants/catalogues';
+import {
+  EXERCISES,
+  LEVELS,
+  ExerciseDef,
+  exerciseNameKey,
+  levelNameKey,
+} from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
@@ -39,8 +45,8 @@ export const WorkoutCompleteScreen = () => {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   // Unlocks
-  const [unlockedNow, setUnlockedNow] = useState<any[]>([]);
-  const [nextUnlock, setNextUnlock] = useState<any>(null);
+  const [unlockedNow, setUnlockedNow] = useState<ExerciseDef[]>([]);
+  const [nextUnlock, setNextUnlock] = useState<ExerciseDef | null>(null);
   // "Try the new exercise" prompt, shown when Continue is pressed on the
   // session that just unlocked something.
   const [showUnlockPrompt, setShowUnlockPrompt] = useState(false);
@@ -127,19 +133,19 @@ export const WorkoutCompleteScreen = () => {
       if (feedback === 'easy') {
         if (user.level_id < 5) {
           nextLvl = user.level_id + 1;
-          msg = `Level up! You're now on ${LEVELS[nextLvl].name}.`;
+          msg = t('workoutComplete.levelUp', { level: t(levelNameKey(nextLvl)) });
         } else {
-          msg = "You're already at the highest level.";
+          msg = t('workoutComplete.alreadyHighestLevel');
         }
       } else if (feedback === 'hard') {
         if (user.level_id > 1) {
           nextLvl = user.level_id - 1;
-          msg = `Stepped down to ${LEVELS[nextLvl].name}. You got this!`;
+          msg = t('workoutComplete.steppedDown', { level: t(levelNameKey(nextLvl)) });
         } else {
-          msg = "You're already at the easiest level.";
+          msg = t('workoutComplete.alreadyEasiestLevel');
         }
       } else {
-        msg = "Awesome! Let's keep going.";
+        msg = t('workoutComplete.keepGoing');
       }
 
       if (nextLvl !== user.level_id) {
@@ -259,7 +265,7 @@ export const WorkoutCompleteScreen = () => {
         {/* Month Calendar strip */}
         <View style={styles.calendarCard}>
           <View style={styles.calendarHeader}>
-            <Text style={styles.monthLabel}>Month {position.month}</Text>
+            <Text style={styles.monthLabel}>{t('workoutComplete.monthNumber', { number: position.month })}</Text>
             <Text style={styles.planProgressText}>
               {position.completed}/{position.plan_length}
             </Text>
@@ -296,7 +302,9 @@ export const WorkoutCompleteScreen = () => {
         {!user?.is_admin && unlockedNow.length > 0 && (
           <View style={styles.unlockCard}>
             <Text style={styles.unlockText}>
-              Unlocked: {unlockedNow.map((ex) => ex.name).join(', ')}
+              {t('workoutComplete.unlockedList', {
+                names: unlockedNow.map((ex) => t(exerciseNameKey(ex.slug))).join(', '),
+              })}
             </Text>
           </View>
         )}
@@ -307,7 +315,7 @@ export const WorkoutCompleteScreen = () => {
             <EquipmentIcon slug={nextUnlock.slug} size={44} />
             <View style={{ flex: 1 }}>
               <Text style={styles.unlockNextLabel}>{t('workoutComplete.nextToUnlock')}</Text>
-              <Text style={styles.unlockNameText}>{nextUnlock.name}</Text>
+              <Text style={styles.unlockNameText}>{t(exerciseNameKey(nextUnlock.slug))}</Text>
               <View style={styles.progressBarBg}>
                 <View style={[styles.progressBarFill, { width: `${unlockPct}%` }]} />
               </View>
@@ -363,7 +371,7 @@ export const WorkoutCompleteScreen = () => {
             </View>
             <Text style={styles.unlockModalTitle}>{t('workoutComplete.newExerciseUnlocked')}</Text>
             <Text style={styles.unlockModalExercise}>
-              {unlockedNow.map((ex) => ex.name).join(', ')}
+              {unlockedNow.map((ex) => t(exerciseNameKey(ex.slug))).join(', ')}
             </Text>
             <View style={styles.unlockModalButtons}>
               <TouchableOpacity

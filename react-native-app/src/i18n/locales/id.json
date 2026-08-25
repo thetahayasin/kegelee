@@ -1,7 +1,175 @@
 {
   "allExercises": {
     "available": "Tersedia",
-    "exercises": "Latihan"
+    "backA11y": "Kembali",
+    "exercises": "Latihan",
+    "unlockProgressA11y": "Progres membuka {{name}}"
+  },
+  "basics": {
+    "findTitle": "Temukan dasar panggulmu",
+    "firstTitle": "Latihan pertamamu",
+    "whyTitle": "Kenapa latihan Kegel berhasil"
+  },
+  "billing": {
+    "alreadyOwned": "Kamu sudah punya langganan aktif. Kami memulihkannya sekarang.",
+    "configuration": "Paket ini belum bisa dibeli saat ini. Ini masalah di pihak kami - coba lagi nanti atau hubungi dukungan.",
+    "declined": "Google Play menolak pembayaran. Periksa metode pembayaran di akun Google-mu, lalu coba lagi.",
+    "ineligible": "Kamu tidak memenuhi syarat untuk penawaran ini. Pilih paket lain.",
+    "network": "Kami tidak dapat menghubungi toko. Periksa koneksimu dan coba lagi. Jika kamu sudah ditagih, aksesmu akan muncul sendiri.",
+    "noPermission": "Akun Google-mu tidak punya izin melakukan pembelian di perangkat ini.",
+    "notAllowed": "Perangkat atau akun Google ini tidak diizinkan melakukan pembelian. Biasanya karena kontrol orang tua, atau tidak ada metode pembayaran di akun.",
+    "operationInProgress": "Sudah ada pembelian yang sedang berjalan. Tunggu sebentar sebelum mencoba lagi.",
+    "otherAccount": "Langganan ini milik akun lain. Masuk dengan akun tersebut, atau hubungi dukungan dan kami akan memindahkannya.",
+    "paymentPending": "Google Play sedang memproses pembayaranmu. Pembayaran tunai dan voucher bisa memakan waktu. Aksesmu terbuka otomatis begitu pembayaran selesai, jadi jangan membayar lagi.",
+    "storeProblem": "Google Play sedang bermasalah saat ini. Coba lagi beberapa menit lagi.",
+    "unknown": "Ada yang salah saat menyelesaikan pembelianmu. Coba lagi. Jika kamu sudah ditagih, aksesmu akan muncul sendiri."
+  },
+  "catalogue": {
+    "exercises": {
+      "clamp": {
+        "description": "Kontraksi mantap yang dibangun perlahan dan dilepaskan sama perlahannya.",
+        "howTo": "Kencangkan perlahan selama 3 detik saat lingkaran terisi, lalu lepaskan sama perlahannya saat lingkaran kosong. Jaga gerakan tetap halus di kedua arah.",
+        "name": "Jepit",
+        "summary": "Naik perlahan, turun perlahan"
+      },
+      "downstairs": {
+        "description": "Kencangkan sampai puncak, lalu turun satu tingkat demi satu tingkat dengan kendali penuh.",
+        "howTo": "Kencangkan sampai titik terkuatmu, lalu rileks sedikit demi sedikit, berhenti sekitar satu detik di setiap tingkat saat turun. Penurunan terkendali itulah latihannya.",
+        "name": "Turun tangga",
+        "summary": "Turun 4 tingkat dari puncak"
+      },
+      "elevator": {
+        "description": "Latihan andalan. Naik setingkat demi setingkat, lalu turun kembali dengan kendali.",
+        "howTo": "Bayangkan kamu sedang naik lift. Kencangkan sedikit lebih kuat di setiap tingkat sampai mencapai kontraksi terkuatmu, lalu turun satu tingkat demi satu tingkat sampai benar-benar rileks.",
+        "name": "Lift",
+        "summary": "Naik ke puncak, lalu turun bertahap"
+      },
+      "flash": {
+        "description": "Kontraksi tercepat. Cengkeraman singkat dan tangkas yang melatih reaksi cepat.",
+        "howTo": "Kencangkan dan lepaskan secepat yang kamu bisa, seirama dengan lingkaran. Tetap ringan, jangan memaksa.",
+        "name": "Kilat",
+        "summary": "Kontraksi tercepat"
+      },
+      "front-clamp": {
+        "description": "Kontraksi lambat dan terfokus pada bagian depan dasar panggul dengan pelepasan yang cepat dan bersih.",
+        "howTo": "Kencangkan perlahan selama 3 detik saat lingkaran terisi. Ketika kosong, lepaskan semuanya sekaligus. Lalu mulai kontraksi lambat berikutnya.",
+        "name": "Jepit depan",
+        "summary": "Kencangkan perlahan, lepas sekaligus"
+      },
+      "holding": {
+        "description": "Kencangkan dan terus tahan untuk membangun daya tahan dasar dasar panggul.",
+        "howTo": "Kencangkan dasar panggul dan tahan sepanjang putaran. Jika ketegangan mengendur, kencangkan kembali dengan lembut. Tetap bernapas normal.",
+        "name": "Menahan",
+        "summary": "Satu tahanan yang stabil"
+      },
+      "long-steady-clamp": {
+        "description": "Pembangun daya tahan: kontraksi satu detik yang berlanjut menjadi tahanan sepuluh detik dengan kekuatan penuh.",
+        "howTo": "Kencangkan selama satu detik, lalu tahan dengan kekuatan penuh selama sepuluh detik. Jika ketegangan mengendur, kencangkan kembali dengan lembut sampai penuh. Lepaskan dan ulangi.",
+        "name": "Jepit stabil panjang",
+        "summary": "1 detik kontraksi, 10 detik tahan"
+      },
+      "pulsation": {
+        "description": "Dua kontraksi cepat beruntun, lalu pelepasan penuh. Melatih mengencangkan lagi sebelum pulih sepenuhnya, dan melepaskan dengan benar di antara usaha.",
+        "howTo": "Kencangkan dan lepaskan dua kali beruntun mengikuti lingkaran, lalu lepaskan semuanya sepenuhnya selama istirahat. Pelepasan penuh sama pentingnya dengan denyutnya.",
+        "name": "Denyut ganda",
+        "summary": "Dua denyut cepat, lalu kembali penuh"
+      },
+      "push": {
+        "description": "Bangun kontraksi sampai puncak yang kuat, tahan di sana, lalu lepaskan perlahan.",
+        "howTo": "Kencangkan bertahap selama tiga detik, makin kuat seiring lingkaran terisi. Tahan kontraksi terkuatmu selama dua detik, lalu lepaskan perlahan. Kencangkan lebih kuat, jangan pernah mengejan ke bawah.",
+        "name": "Dorongan",
+        "summary": "3 dtk naik, 2 dtk puncak, 3 dtk rileks"
+      },
+      "reverse-clamp": {
+        "description": "Kontraksi cepat diikuti pelepasan yang lambat dan terkendali. Bagus sekali untuk kontrol.",
+        "howTo": "Kencangkan sekaligus, lalu langsung mulai melepaskan selambat yang kamu bisa, mengikuti lingkaran turun. Pelepasan lambat itulah latihannya.",
+        "name": "Jepit terbalik",
+        "summary": "Kencangkan sekaligus, lepas perlahan"
+      },
+      "short-holding": {
+        "description": "Tahanan kuat 4 detik yang dilepaskan perlahan, bukan dijatuhkan. Melepaskan dengan kendali adalah keterampilan tersendiri, dan kebanyakan orang merasa itu lebih sulit daripada menahannya.",
+        "howTo": "Kencangkan selama satu detik, tahan dengan kekuatan penuh selama empat, lalu lepaskan bertahap saat lingkaran turun. Jangan biarkan ambruk: temani sampai ke bawah.",
+        "name": "Tahanan pendek",
+        "summary": "Tahan 4 detik, lalu lepas bertahap"
+      },
+      "starter": {
+        "description": "Satu kontraksi cepat untuk membangunkan otot, lalu tahanan kuat selama 5 detik.",
+        "howTo": "Lakukan satu kontraksi cepat, rileks dengan halus, lalu kencangkan lagi dan tahan kuat selama lima detik. Lepaskan, tarik napas, dan ulangi.",
+        "name": "Pemula",
+        "summary": "Kontraksi cepat, lalu tahan 5 detik"
+      },
+      "steady-clamp": {
+        "description": "Jepit yang stabil: kencangkan satu detik, lalu tahan dengan kekuatan penuh selama lima.",
+        "howTo": "Kencangkan selama satu detik, lalu tahan dengan kekuatan penuh selama lima detik tanpa membiarkan ketegangan turun. Lepaskan dan ulangi.",
+        "name": "Jepit stabil",
+        "summary": "1 detik kontraksi, 5 detik tahan"
+      },
+      "steady-trembling": {
+        "description": "Kencangkan sekaligus, jaga ketegangan tetap stabil beberapa detik, lalu rileks.",
+        "howTo": "Kencangkan sekaligus dan tahan ketegangannya. Saat lingkaran turun, lepaskan dengan halus. Lalu ulangi kontraksi cepat dan tahanannya.",
+        "name": "Getaran stabil",
+        "summary": "Kencangkan sekaligus, tahan, lalu rileks"
+      },
+      "trembling": {
+        "description": "Kontraksi dan pelepasan cepat yang membuat otot bergetar dan membangunkan respons cepatnya.",
+        "howTo": "Kencangkan semuanya sekaligus, tahan sejenak, lalu lepaskan dengan halus. Ikuti lingkaran saat melonjak naik dan turun perlahan.",
+        "name": "Getaran",
+        "summary": "Kontraksi cepat, nyala dan mati"
+      },
+      "upstairs": {
+        "description": "Naikkan kontraksi dalam empat tingkat, sedikit lebih kuat di setiap tingkat.",
+        "howTo": "Bayangkan kamu naik lift. Kencangkan sedikit, lalu lebih, lalu lebih lagi, sampai mencapai kontraksi terkuatmu, dengan berhenti sekitar satu detik di setiap tingkat. Rileks setelahnya.",
+        "name": "Naik tangga",
+        "summary": "Naik 4 tingkat sampai puncak"
+      },
+      "waves": {
+        "description": "Kontraksi seperti gelombang yang membangun dan melepaskan ketegangan tanpa henti.",
+        "howTo": "Kencangkan perlahan selama dua detik, lalu lepaskan sama perlahannya, seperti gelombang yang naik dan turun. Jaga tetap halus dan berkesinambungan.",
+        "name": "Gelombang",
+        "summary": "2 detik naik, 2 detik turun"
+      }
+    },
+    "levels": {
+      "1": {
+        "description": "Awal yang lembut. Sesi singkat 1 menit.",
+        "name": "Level 1"
+      },
+      "2": {
+        "description": "Sedikit lebih lama. Sesi 2 menit.",
+        "name": "Level 2"
+      },
+      "3": {
+        "description": "Latihan seimbang. Sesi 3 menit.",
+        "name": "Level 3"
+      },
+      "4": {
+        "description": "Sesi lebih panjang untuk otot yang lebih kuat. 4 menit.",
+        "name": "Level 4"
+      },
+      "5": {
+        "description": "Daya tahan dan kontrol tingkat lanjut. 5 menit.",
+        "name": "Level 5"
+      }
+    },
+    "steps": {
+      "contract": "Kencangkan",
+      "contractAndHold": "Kencangkan & tahan",
+      "contractSlowly": "Kencangkan perlahan",
+      "easeDown": "Lepas bertahap",
+      "hold": "Tahan",
+      "pulse1": "Denyut 1",
+      "pulse2": "Denyut 2",
+      "relax": "Rileks",
+      "relaxSlowly": "Rileks perlahan",
+      "release": "Lepaskan",
+      "releaseSlowly": "Lepaskan perlahan",
+      "reset": "Kembali ke nol",
+      "rest": "Istirahat",
+      "step1": "Tingkat 1",
+      "step2": "Tingkat 2",
+      "step3": "Tingkat 3",
+      "top": "Puncak"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Terjadi kesalahan",
@@ -9,48 +177,94 @@
     "tryAgain": "Coba lagi"
   },
   "exerciseDetail": {
+    "completeMoreDaysToUnlock_one": "Selesaikan {{count}} hari latihan lagi untuk membukanya.",
+    "completeMoreDaysToUnlock_other": "Selesaikan {{count}} hari latihan lagi untuk membukanya.",
     "exerciseNotFound": "Latihan tidak ditemukan.",
+    "lockedDaysLeft_one": "Terkunci - tersisa {{count}} hari",
+    "lockedDaysLeft_other": "Terkunci - tersisa {{count}} hari",
     "tryItNow": "Coba sekarang"
   },
   "find": {
+    "flow_stopMidway": "Berhenti di tengah",
+    "flow_thatSqueeze": "Kencangan itu!",
+    "flow_youPee": "Kamu buang air kecil",
     "keepGoing": "Terus begitu …",
     "onlyDoThePeeTest": "Lakukan tes saat buang air kecil hanya sekali",
+    "onlyDoThePeeTestDesc": "Ini hanya cara menemukan ototnya, bukan latihan. Sering menahan aliran tidak baik untuk kandung kemih.",
+    "pressAndHold": "Tekan dan tahan",
+    "squeezeNow": "Kencangkan!",
     "squeezeOnlyThoseMuscles": "Kencangkan hanya otot-otot itu",
+    "squeezeOnlyThoseMusclesDesc": "Petunjuk lain: kencangkan seperti sedang menahan angin. Perut, kaki, dan bokong tetap benar-benar rileks.",
+    "stopTheFlowBody": "Lain kali saat buang air kecil, hentikan alirannya perlahan di tengah. Otot yang baru saja kamu pakai adalah dasar panggulmu.",
     "thatExactSqueezeIsThe": "Sensasi mengencangkan itulah gerakan yang akan kamu latih.",
     "theEasiestWayToFind": "Cara termudah menemukannya",
-    "twoQuickRules": "Dua aturan singkat"
+    "tryItNow": "Coba sekarang",
+    "tryItNowBody": "Tekan dan tahan lingkarannya. Selagi menahan, kencangkan otot-otot itu. Lepaskan bersamaan.",
+    "twoQuickRules": "Dua aturan singkat",
+    "youFoundThem": "Kamu menemukannya!",
+    "youFoundThemBody": "Kencangan dan pelepasan itulah keseluruhan latihan Kegel. Kamu siap untuk latihan pertamamu."
   },
   "first": {
     "contract": "Kencangkan",
+    "followTheCircle": "Ikuti lingkarannya. Kencangkan... lalu rileks.",
+    "niceWork": "Kerja bagus!",
+    "nowYouTry": "Sekarang giliranmu",
     "start": "Mulai",
+    "tenSecondsReady": "Sepuluh detik {{exercise}}. Kencangkan di setiap {{contract}}, lepaskan di {{relax}}. Siap?",
+    "thatWasARealExercise": "Itu tadi latihan sungguhan. Setiap sesi bekerja persis seperti ini, satu lingkaran demi satu lingkaran.",
     "theCircleIsYourGuide": "Lingkaran jadi panduanmu",
+    "theCircleIsYourGuideBody": "Setiap latihan mengikuti lingkaran ini. Saat ia menyala dan membesar, kencangkan. Saat cahayanya meredup, rileks. Kata di dalamnya selalu memberitahumu apa yang harus dilakukan.",
     "thisIsTrembling": "Ini Getaran",
     "yourFirstExerciseQuickFlicks": "Latihan pertamamu: kontraksi cepat. Kencangkan saat Kencangkan, lepaskan saat Rileks."
   },
   "knowledge": {
     "continueToTraining": "Lanjut ke latihan",
     "learnTheBasics": "Pelajari dasarnya",
+    "lessonNumber": "Pelajaran {{number}}",
     "logIn": "Masuk"
   },
   "login": {
     "6DigitCode": "Kode 6 digit",
     "close": "Tutup",
+    "codeSentEnterBelow": "Kode terkirim! Masukkan di bawah bersama kata sandi baru.",
     "continueWithGoogle": "Lanjutkan dengan Google",
+    "couldNotOpenGoogle": "Tidak dapat membuka login Google. Coba lagi.",
     "createAccount": "Buat akun",
     "email": "Email",
-    "enterYourEmail": "Masukkan emailmu",
+    "enterSixDigitCode": "Masukkan kode 6 digit dari emailmu.",
+    "enterYourEmail": "Masukkan emailmu.",
+    "failedToResetPassword": "Kata sandi gagal direset.",
+    "failedToSendResetCode": "Kode reset gagal dikirim.",
+    "fillAllFields": "Isi semua kolom.",
     "forgotPassword": "Lupa kata sandi?",
+    "googleSignInFailed": "Masuk dengan Google gagal. Coba lagi.",
+    "invalidCredentials": "Kredensial tidak valid.",
     "logIn": "Masuk",
     "logIn2": "Masuk",
     "newHere": "Baru di sini?",
     "newPassword": "Kata sandi baru",
     "password": "Kata sandi",
     "passwordReset": "Kata sandi telah direset",
-    "resetPassword": "Reset kata sandi"
+    "passwordResetBody": "Kata sandimu sudah direset. Silakan masuk.",
+    "passwordResetTitle": "Kata sandi direset",
+    "passwordRules": "Kata sandi minimal 6 karakter dan harus memuat angka.",
+    "resetPassword": "Reset kata sandi",
+    "resetPasswordCta": "Reset kata sandi",
+    "sendCodeCta": "Kirim kode"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Sudah punya akun?",
-    "logIn": "Masuk"
+    "getStarted": "Mulai",
+    "logIn": "Masuk",
+    "perDay": "PER HARI",
+    "slide1Body": "Tak ada yang membicarakannya. Semuanya berpangkal pada satu otot yang melemah, dan otot yang melemah bisa dilatih kembali.",
+    "slide1Title": "Rembes. Rasa mendesak. Kontrol berkurang.",
+    "slide2Body": "Tanpa gym, tanpa alat, tanpa melepas apa pun. Di sofa, di meja kerja, di bus. Tak ada yang tahu.",
+    "slide2Title": "Satu menit, sambil duduk",
+    "slide3Body": "Aplikasi mengukur berapa lama kamu bisa menahan. Waktumu naik, latihan baru terbuka, dan perubahannya muncul di tempat yang kamu harapkan.",
+    "slide3Title": "Kamu merasakannya sebelum melihatnya",
+    "slide4Body": "Berhenti latihan dan ototnya melemah lagi, sama seperti otot mana pun. Pilih waktunya, sisanya biar pengingat yang urus.",
+    "slide4Title": "Hanya berhasil kalau kamu terus jalan"
   },
   "paywall": {
     "autoRenewOffHint": "Perpanjangan otomatis nonaktif. Akses kamu berakhir pada tanggal kedaluwarsa.",
@@ -60,6 +274,7 @@
     "benefitMeasure": "Ukur kemajuanmu",
     "benefitReminders": "Atur pengingat yang cocok dengan harimu",
     "benefitStrength": "Bangun kekuatan dasar panggul yang nyata",
+    "bestValue": "PALING HEMAT",
     "billingIsNotAvailableOn": "Pembayaran tidak tersedia di perangkat ini. Kamu bisa memulihkan pembelian sebelumnya di bawah.",
     "byContinuingYouAgree": "Dengan melanjutkan kamu menyetujui",
     "changeYourPlan": "Ubah paket",
@@ -72,6 +287,7 @@
     "managePlan": "Kelola Paket",
     "noActiveSubscriptionWasFound": "Tidak ada langganan aktif yang bisa dipulihkan.",
     "off": "Nonaktif",
+    "offeringsUnavailable": "Langganan belum tersedia di perangkat ini saat ini. Coba lagi nanti atau pulihkan pembelian sebelumnya di bawah.",
     "on": "Aktif",
     "paymentProcessedSecurely": "Pembayaran diproses dengan aman melalui RevenueCat dan app store saat konfirmasi.",
     "premium": "Premium",
@@ -80,6 +296,7 @@
     "purchaseReceivedButPlanCould": "Pembelian diterima, tetapi paket tidak dapat dikenali. Hubungi dukungan.",
     "restorePurchases": "Pulihkan pembelian",
     "restoredPurchaseCouldNotBe": "Pembelian yang dipulihkan tidak dapat dicocokkan dengan paket. Hubungi dukungan.",
+    "savePercent": "HEMAT {{percent}}%",
     "signInFirst": "Masuk dulu sebelum berlangganan.",
     "startFreeTrialCta_one": "Mulai Uji Coba Gratis {{count}} Hari",
     "startFreeTrialCta_other": "Mulai Uji Coba Gratis {{count}} Hari",
@@ -93,43 +310,84 @@
     "uninstallingDoesNotCancel": "Menghapus aplikasi tidak membatalkan langganan atau mengembalikan dana.",
     "yourSubscriptionIsNowActive": "Langgananmu aktif dan akses penuh sudah terbuka."
   },
+  "plans": {
+    "premium-monthly": {
+      "description": "Akses penuh, ditagih setiap bulan.",
+      "name": "1 bulan"
+    },
+    "premium-quarterly": {
+      "description": "Ditagih setiap 3 bulan.",
+      "name": "3 bulan"
+    },
+    "premium-yearly": {
+      "description": "Satu kali bayar untuk setahun penuh.",
+      "name": "1 tahun"
+    }
+  },
   "profile": {
     "currentDifficulty": "Tingkat kesulitan saat ini",
     "difficulty": "Tingkat kesulitan",
     "error": "Kesalahan",
+    "errorTitle": "Kesalahan",
+    "failedToUpdateLevel": "Level latihan gagal diperbarui.",
     "profile": "Profil",
     "scheduleReminders": "Jadwal & pengingat",
     "setTheDifficultyOfKegel": "Atur tingkat kesulitan program latihan Kegel",
+    "settingsA11y": "Pengaturan",
     "theHigherTheLevelThe": "Makin tinggi levelnya, makin berat latihannya"
   },
   "progress": {
+    "bestResult": "hasil terbaik",
     "continue": "Lanjut",
     "holdTheButtonAndContract": "Tahan tombolnya dan kencangkan otot dasar panggul selama mungkin.",
+    "lastMeasurement": "pengukuran terakhir",
     "progressTracker": "Pelacak kemajuan",
+    "seconds": "{{count}} dtk",
     "takeMeasurement": "Lakukan pengukuran",
+    "today": "Hari ini",
+    "topResult": "hasil terbaik: {{count}} dtk",
     "tryAgain": "Coba lagi"
   },
   "register": {
     "alreadyHaveAnAccount": "Sudah punya akun?",
     "confirmPassword": "Konfirmasi kata sandi",
     "continueWithGoogle": "Lanjutkan dengan Google",
+    "couldNotOpenGoogle": "Tidak dapat membuka pendaftaran Google. Coba lagi.",
     "createAccount": "Buat akun",
     "createAccount2": "Buat akun",
     "email": "Email",
+    "fillAllFields": "Isi semua kolom.",
+    "googleSignUpFailed": "Pendaftaran dengan Google gagal. Coba lagi.",
     "logIn": "Masuk",
     "name": "Nama",
-    "password": "Kata sandi"
+    "password": "Kata sandi",
+    "passwordNeedsNumber": "Kata sandi harus memuat setidaknya satu angka.",
+    "passwordTooShort": "Kata sandi minimal 6 karakter.",
+    "passwordsDoNotMatch": "Kata sandi tidak cocok.",
+    "registrationFailed": "Pendaftaran gagal."
+  },
+  "reminders": {
+    "notificationBody": "Saatnya sesi Kegel harianmu!",
+    "notificationTitle": "Latihan Kegel"
   },
   "schedule": {
     "active": "Aktif",
     "allowExactReminders": "Izinkan pengingat tepat waktu",
+    "daysLeft_one": "tersisa {{count}} hari",
+    "daysLeft_other": "tersisa {{count}} hari",
     "error": "Kesalahan",
+    "errorTitle": "Kesalahan",
+    "failedToSaveReminders": "Pengingat gagal disimpan.",
     "limitReached": "Batas tercapai",
+    "limitReachedBody": "Kamu bisa mengatur hingga 5 pengingat per hari.",
+    "limitReachedTitle": "Batas tercapai",
+    "monthNumber": "Bulan {{number}}",
     "reminders": "Pengingat",
     "remindersSaved": "Pengingat tersimpan",
     "repeatOn": "Ulangi pada",
     "saveAddReminders": "Simpan pengingat",
     "schedule": "Jadwal",
+    "sessionNumber": "Sesi {{number}}",
     "sessionTimes": "Waktu sesi"
   },
   "settings": {
@@ -138,14 +396,20 @@
     "deleteAccount2": "Hapus akun?",
     "deletePermanently": "Hapus permanen",
     "deleted": "Terhapus",
+    "deletedBody": "Akunmu telah dihapus permanen.",
+    "deletedTitle": "Dihapus",
+    "failedToDeleteAccount": "Akun gagal dihapus.",
     "gotIt": "Mengerti",
     "language": "Bahasa",
     "logOut": "Keluar",
     "manageSubscription": "Kelola langganan",
     "noActiveSubscription": "Tidak ada langganan aktif",
     "reset": "Reset",
+    "resetConfirmBody": "Ini akan menghapus hari latihan, sesi, pengukuran, dan kemajuan pelajaranmu. Tindakan ini tidak bisa dibatalkan.",
     "resetProgress": "Reset kemajuan",
     "resetProgress2": "Reset kemajuan?",
+    "resetSuccessBody": "Kemajuan latihanmu telah dihapus.",
+    "resetSuccessTitle": "Direset",
     "resetSuccessful": "Reset berhasil",
     "restartBody": "Tutup dan buka kembali aplikasi untuk menyelesaikan perubahan arah tata letak.",
     "restartRequired": "Perlu dimulai ulang",
@@ -161,23 +425,43 @@
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Sudah punya akun? Masuk",
     "back": "Kembali",
+    "bestValue": "PALING HEMAT",
+    "billingDisclosure": "Pembayaran diproses dengan aman melalui RevenueCat dan toko aplikasi saat konfirmasi. Langgananmu diperpanjang otomatis dengan harga yang ditampilkan sampai kamu membatalkannya di pengaturan langganan; menghapus aplikasi tidak membatalkan atau mengembalikan dana. Dengan melanjutkan, kamu menyetujui",
     "close": "Tutup",
     "confirmPassword": "Konfirmasi kata sandi",
     "continue": "Lanjut",
     "continueWithGoogle": "Lanjutkan dengan Google",
+    "couldNotOpenGoogle": "Tidak dapat membuka login Google. Coba lagi.",
     "couldNotOpenGoogleSign": "Tidak bisa membuka login Google. Silakan coba lagi.",
+    "couldNotReachServer": "Tidak dapat menghubungi server. Periksa koneksimu dan coba lagi.",
+    "createAccount": "Buat akun",
     "createAccountSubscribe": "Buat akun & berlangganan",
     "creatingAccount": "Membuat akun …",
     "emailAddress": "Alamat email",
+    "emailInvalid": "Masukkan alamat email yang valid.",
+    "emailOrPasswordIncorrect": "Email atau kata sandi salah.",
+    "emailRequired": "Email wajib diisi.",
     "fullName": "Nama lengkap",
+    "googleSignInFailed": "Masuk dengan Google gagal. Coba lagi.",
+    "nameRequired": "Nama wajib diisi.",
     "noAccountYetCreateOne": "Belum punya akun? Buat sekarang",
     "password": "Kata sandi",
     "password6Characters1Number": "Kata sandi (min. 6 karakter, 1 angka)",
+    "passwordRequired": "Kata sandi wajib diisi.",
+    "passwordRules": "Kata sandi minimal 6 karakter dan harus memuat angka.",
+    "passwordsDoNotMatch": "Kata sandi tidak cocok.",
+    "signIn": "Masuk",
     "signInSubscribe": "Masuk & berlangganan",
     "signingIn": "Sedang masuk …",
     "startYourTransformationJourneyNow": "Mulai perubahanmu sekarang",
     "subscribe": "Berlangganan",
     "terms": "Ketentuan"
+  },
+  "tabs": {
+    "profile": "Profil",
+    "progress": "Kemajuan",
+    "schedule": "Jadwal",
+    "training": "Latihan"
   },
   "training": {
     "available": "Tersedia",
@@ -208,13 +492,26 @@
   },
   "verifyEmail": {
     "backToLogIn": "Kembali ke halaman masuk",
+    "codeResent": "Kode verifikasi dikirim ulang!",
     "didnTReceiveTheCode": "Tidak menerima kode? Kirim ulang",
+    "enterSixDigitCode": "Masukkan kode verifikasi 6 digit.",
+    "failedToResendCode": "Kode gagal dikirim ulang.",
+    "verificationFailed": "Verifikasi gagal. Coba lagi.",
     "verifyCode": "Verifikasi kode",
     "verifyEmail": "Verifikasi email"
   },
   "why": {
     "aMuscleYouCanTrain": "Otot yang bisa kamu latih",
+    "aRealMuscleBody": "Dasar panggulmu adalah otot sungguhan. Latih beberapa menit sehari dan ia menguat, sama seperti latihan otot lainnya. Tanpa pil, tanpa efek samping, dan hasilnya bertahan.",
     "andYouCanDoIt": "Dan kamu bisa melakukannya di mana saja, kapan saja. Duduk, berdiri, di dalam bus. Tidak ada yang tahu.",
+    "benefit_bladder_desc": "Lebih sedikit rembes dan rasa mendesak.",
+    "benefit_bladder_title": "Kontrol kandung kemih lebih baik",
+    "benefit_confidence_desc": "Kemajuan yang bertambah minggu demi minggu.",
+    "benefit_confidence_title": "Percaya diri yang bertahan",
+    "benefit_core_desc": "Membantu postur dan punggung bawah.",
+    "benefit_core_title": "Inti tubuh yang tersangga",
+    "benefit_performance_desc": "Lebih banyak kontrol dan daya tahan dalam keintiman.",
+    "benefit_performance_title": "Performa lebih kuat",
     "doingItRightIsEverything": "Melakukannya dengan benar adalah segalanya",
     "learnItOnceAndEvery": "Pelajari sekali, dan setiap menit latihan benar-benar berarti.",
     "squeezeTheWrongMusclesAnd": "Kalau salah otot yang dikencangkan, hasilnya nihil.",
@@ -230,6 +527,8 @@
     "ifYouLeaveThisSession": "Kalau keluar sekarang, sesi ini tidak dihitung dalam kemajuan harianmu.",
     "leaveTraining": "Keluar dari latihan?",
     "noExercises": "Tidak ada latihan",
+    "noExercisesBody": "Belum ada latihan yang terbuka untuk sesi ini.",
+    "noExercisesTitle": "Tidak ada latihan",
     "noGoBack": "Tidak, kembali",
     "pause": "Jeda",
     "resume": "Lanjutkan",
@@ -240,14 +539,21 @@
     "yesQuitTraining": "Ya, keluar dari latihan"
   },
   "workoutComplete": {
+    "alreadyEasiestLevel": "Kamu sudah berada di level termudah.",
+    "alreadyHighestLevel": "Kamu sudah berada di level tertinggi.",
     "continue": "Lanjut",
     "howWasThat": "Bagaimana rasanya?",
     "justRight": "Pas",
+    "keepGoing": "Keren! Kita lanjut.",
+    "levelUp": "Naik level! Sekarang kamu di {{level}}.",
+    "monthNumber": "Bulan {{number}}",
     "newExerciseUnlocked": "Latihan baru terbuka!",
     "nextToUnlock": "Berikutnya yang akan terbuka",
     "notNow": "Nanti saja",
+    "steppedDown": "Turun ke {{level}}. Kamu pasti bisa!",
     "tooEasy": "Terlalu mudah",
     "tooHard": "Terlalu berat",
-    "tryItNow": "Coba sekarang"
+    "tryItNow": "Coba sekarang",
+    "unlockedList": "Terbuka: {{names}}"
   }
 }

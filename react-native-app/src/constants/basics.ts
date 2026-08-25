@@ -1,11 +1,12 @@
 // "Learn the basics" - three interactive lessons (App\Support\BasicsLessons).
 export interface BasicsLesson {
   slug: 'why' | 'find' | 'first';
-  title: string;
+  /** i18n key. The title is shown to the reader, so it cannot live here. */
+  titleKey: string;
 }
 
 export const BASICS_LESSONS: BasicsLesson[] = [
-  { slug: 'why', title: 'Why Kegel training works' },
-  { slug: 'find', title: 'Find your pelvic floor' },
-  { slug: 'first', title: 'Your first exercise' },
+  { slug: 'why', titleKey: 'basics.whyTitle' },
+  { slug: 'find', titleKey: 'basics.findTitle' },
+  { slug: 'first', titleKey: 'basics.firstTitle' },
 ];

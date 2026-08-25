@@ -128,7 +128,7 @@ export const SettingsScreen = () => {
       await clearUserData();
       setResetLoading(false);
       setResetModalVisible(false);
-      Alert.alert('Reset Successful', 'Your training progress has been cleared.');
+      Alert.alert(t('settings.resetSuccessTitle'), t('settings.resetSuccessBody'));
       navigation.navigate('MainTabs');
     } else {
       setResetLoading(false);
@@ -161,9 +161,9 @@ export const SettingsScreen = () => {
       await clearUserData();
       await logout();
       setDeleteModalVisible(false);
-      Alert.alert('Deleted', 'Your account has been permanently deleted.');
+      Alert.alert(t('settings.deletedTitle'), t('settings.deletedBody'));
     } else {
-      setDeleteError(res.error || 'Failed to delete account.');
+      setDeleteError(res.error || t('settings.failedToDeleteAccount'));
     }
   };
 
@@ -421,9 +421,7 @@ export const SettingsScreen = () => {
                 </View>
               ) : null}
 
-              <Text style={styles.modalBody}>
-                This will clear your training days, sessions, measurements and knowledge progress. This action cannot be undone.
-              </Text>
+              <Text style={styles.modalBody}>{t('settings.resetConfirmBody')}</Text>
               
               <View style={styles.modalButtons}>
                 <TouchableOpacity

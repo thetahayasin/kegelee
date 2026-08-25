@@ -458,17 +458,43 @@ export const getSubscriptions = async (userId: number): Promise<DBSubscription[]
   return query('SELECT * FROM subscriptions WHERE user_id = ? ORDER BY id DESC', [userId]);
 };
 
+/**
+ * How far past `ends_at` an auto-renewing subscription still counts as active.
+ *
+ * Google Play renews on its own clock, and the news then has to travel: Play
+ * RTDN -> RevenueCat -> our webhook -> the row this device pulls down. That
+ * chain is usually seconds, but it is neither instant nor guaranteed. So a row
+ * whose ends_at has just slipped past is NOT evidence that someone stopped
+ * paying; on a row Play still reports as auto-renewing it much more likely
+ * means "already renewed, not delivered here yet".
+ *
+ * 'past_due' rides along with 'canceled' in the clause above for a different
+ * reason: it means Google is still retrying the card, and Play's grace period
+ * is by definition the window where the subscriber keeps access. Cutting them
+ * off there locks out someone Play still considers a paying customer.
+ *
+ * A day of slack covers that lag, and it is bounded on both sides. Someone who
+ * actually cancels comes back with auto_renewing = 0 and status 'canceled',
+ * which this clause deliberately does not cover. A genuine payment failure
+ * puts the account into Play's own grace period, during which Play itself
+ * expects the app to keep serving. Erring long costs at most one free day;
+ * erring short locks out someone whose card was charged minutes ago.
+ */
+const RENEWAL_LAG_GRACE_MS = 24 * 60 * 60 * 1000;
+
 export const getActiveSubscription = async (userId: number): Promise<DBSubscription | null> => {
   const now = new Date().toISOString();
+  const renewalGraceFloor = new Date(Date.now() - RENEWAL_LAG_GRACE_MS).toISOString();
   const subs = await query(
     `SELECT * FROM subscriptions 
      WHERE user_id = ? 
      AND (
        (status IN ('trialing', 'active') AND (ends_at IS NULL OR ends_at > ?))
-       OR (status = 'canceled' AND ends_at > ?)
+       OR (status IN ('canceled', 'past_due') AND ends_at > ?)
+       OR (status IN ('trialing', 'active') AND auto_renewing = 1 AND ends_at > ?)
      )
      ORDER BY id DESC LIMIT 1`,
-    [userId, now, now]
+    [userId, now, now, renewalGraceFloor]
   );
   return subs.length > 0 ? subs[0] : null;
 };

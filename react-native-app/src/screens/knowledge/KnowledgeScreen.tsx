@@ -123,9 +123,9 @@ export const KnowledgeScreen = () => {
 
               <View style={styles.cardInfo}>
                 <Text style={[styles.lessonKicker, isDone && styles.lessonKickerDone]}>
-                  Lesson {i + 1}
+                  {t('knowledge.lessonNumber', { number: i + 1 })}
                 </Text>
-                <Text style={styles.lessonTitle}>{lesson.title}</Text>
+                <Text style={styles.lessonTitle}>{t(lesson.titleKey)}</Text>
               </View>
             </TouchableOpacity>
           );

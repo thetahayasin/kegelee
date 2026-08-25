@@ -40,7 +40,7 @@ export const VerifyEmailScreen = () => {
   const handleVerify = async () => {
     setError('');
     if (code.length !== 6) {
-      setError('Please enter a 6-digit verification code.');
+      setError(t('verifyEmail.enterSixDigitCode'));
       return;
     }
 
@@ -54,7 +54,7 @@ export const VerifyEmailScreen = () => {
       // navigator switches automatically once the auth context is populated.
       await completeAuth(res.data);
     } else {
-      setError(res.error || 'Verification failed. Please try again.');
+      setError(res.error || t('verifyEmail.verificationFailed'));
     }
   };
 
@@ -66,9 +66,9 @@ export const VerifyEmailScreen = () => {
     setResendLoading(false);
 
     if (res.ok) {
-      setResendSuccess('Verification code resent successfully!');
+      setResendSuccess(t('verifyEmail.codeResent'));
     } else {
-      setError(res.error || 'Failed to resend code.');
+      setError(res.error || t('verifyEmail.failedToResendCode'));
     }
   };
 

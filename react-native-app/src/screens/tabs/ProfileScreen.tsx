@@ -15,7 +15,7 @@ import { Watermark } from '../../components/Watermark';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
-import { LEVELS } from '../../constants/catalogues';
+import { LEVELS, levelNameKey } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import Svg, { Path } from 'react-native-svg';
 
@@ -44,7 +44,7 @@ export const ProfileScreen = () => {
       setLevelModalVisible(false);
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'Failed to update training level.');
+      Alert.alert(t('profile.errorTitle'), t('profile.failedToUpdateLevel'));
     } finally {
       setUpdatingLevel(false);
     }
@@ -59,7 +59,7 @@ export const ProfileScreen = () => {
         <TouchableOpacity
           style={styles.settingsBtnInline}
           accessibilityRole="button"
-          accessibilityLabel="Settings"
+          accessibilityLabel={t('profile.settingsA11y')}
           hitSlop={8}
           activeOpacity={0.85}
           onPress={() => navigation.navigate('Settings')}
@@ -95,7 +95,7 @@ export const ProfileScreen = () => {
         >
           <Text style={styles.menuLabel}>{t('profile.difficulty')}</Text>
           <View style={styles.menuRight}>
-            <Text style={styles.menuValue}>{currentLevel.name}</Text>
+            <Text style={styles.menuValue}>{t(levelNameKey(currentLevel.number))}</Text>
             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
               <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
@@ -163,7 +163,7 @@ export const ProfileScreen = () => {
 
                     <View style={styles.levelRowInfo}>
                       <Text style={[styles.levelRowName, selected && styles.levelRowNameSelected]}>
-                        {lvl.name}
+                        {t(levelNameKey(lvl.number))}
                       </Text>
                       {selected && <Text style={styles.levelRowCurrent}>{t('profile.currentDifficulty')}</Text>}
                     </View>

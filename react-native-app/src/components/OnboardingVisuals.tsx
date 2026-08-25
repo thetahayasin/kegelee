@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Animated, StyleSheet, Easing } from 'react-native';
 import Svg, { Path, Circle, Line, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { COLORS } from '../theme/colors';
@@ -131,6 +132,7 @@ export const HeartVisual: React.FC<VisualProps> = ({ active }) => {
 };
 
 export const StopwatchVisual: React.FC<VisualProps> = ({ active }) => {
+  const { t } = useTranslation();
   const dialSweep = useRef(new Animated.Value(264)).current;
   const colonOpacity = useRef(new Animated.Value(1)).current;
 
@@ -219,7 +221,7 @@ export const StopwatchVisual: React.FC<VisualProps> = ({ active }) => {
             <Animated.Text style={[styles.stopwatchNum, { opacity: colonOpacity }]}>:</Animated.Text>
             <Animated.Text style={styles.stopwatchNum}>00</Animated.Text>
           </View>
-          <Animated.Text style={styles.stopwatchLabel}>PER DAY</Animated.Text>
+          <Animated.Text style={styles.stopwatchLabel}>{t('onboarding.perDay')}</Animated.Text>
         </View>
       </View>
     </View>
