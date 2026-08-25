@@ -98,7 +98,7 @@ export const scheduleReminders = async (configs: ReminderConfig[]) => {
     // already had it, so this is a new id with the default sound baked in.
     const channelId = await notifee.createChannel({
       id: 'reminders-v2',
-      name: 'Training Reminders',
+      name: i18n.t('reminders.channelName'),
       importance: AndroidImportance.HIGH,
       sound: 'default',
       vibration: true,

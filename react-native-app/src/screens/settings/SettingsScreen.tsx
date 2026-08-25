@@ -132,7 +132,7 @@ export const SettingsScreen = () => {
       navigation.navigate('MainTabs');
     } else {
       setResetLoading(false);
-      setResetError(res.error || 'Failed to reset progress. Please check internet connection.');
+      setResetError(res.error || t('settings.failedToResetProgress'));
     }
   };
 
@@ -144,14 +144,14 @@ export const SettingsScreen = () => {
     if (res.ok) {
       setDeleteStep('code');
     } else {
-      setDeleteError(res.error || 'Failed to send delete code. Please check internet connection.');
+      setDeleteError(res.error || t('settings.failedToSendDeleteCode'));
     }
   };
 
   const handleDeleteAccount = async () => {
     setDeleteError('');
     if (!deleteCode || deleteCode.length !== 6) {
-      setDeleteError('Please enter the 6-digit code.');
+      setDeleteError(t('settings.enterSixDigitCode'));
       return;
     }
     setDeleteLoading(true);
@@ -183,31 +183,30 @@ export const SettingsScreen = () => {
   const subEnds = formatSubDate(subscription?.ends_at ?? null);
   const subRenews = Number(subscription?.auto_renewing) === 1;
 
-  let subscriptionLabel = 'Active';
+  let subscriptionLabel = t('settings.subActive');
   let subscriptionDetail = '';
 
   if (subStatus === 'trialing') {
-    subscriptionLabel = 'Trial';
+    subscriptionLabel = t('settings.subTrial');
     const trialEnds = formatSubDate(subscription?.trial_ends_at ?? null) || subEnds;
     subscriptionDetail = subRenews
-      ? trialEnds && `Free trial ends ${trialEnds}, then billing starts.`
-      : trialEnds && `Free trial ends ${trialEnds}. It will not renew.`;
+      ? trialEnds && t('settings.trialEndsThenBilling', { date: trialEnds })
+      : trialEnds && t('settings.trialEndsNoRenew', { date: trialEnds });
   } else if (subStatus === 'past_due') {
-    subscriptionLabel = 'Payment issue';
-    subscriptionDetail =
-      'There is an issue with your subscription payment. Please update your payment method in Google Play.';
+    subscriptionLabel = t('settings.subPaymentIssue');
+    subscriptionDetail = t('settings.paymentIssueDetail');
   } else if (subStatus === 'canceled') {
-    subscriptionLabel = 'Cancelled';
+    subscriptionLabel = t('settings.subCancelled');
     subscriptionDetail = subEnds
-      ? `Cancelled. Your access remains active until ${subEnds}.`
-      : 'Cancelled. Your access remains active until the end of the paid period.';
+      ? t('settings.cancelledUntilDate', { date: subEnds })
+      : t('settings.cancelledUntilPeriodEnd');
   } else if (subStatus === 'expired') {
-    subscriptionLabel = 'Expired';
-    subscriptionDetail = 'Your subscription has ended.';
+    subscriptionLabel = t('settings.subExpired');
+    subscriptionDetail = t('settings.expiredDetail');
   } else if (subEnds) {
     subscriptionDetail = subRenews
-      ? `Renews on ${subEnds}.`
-      : `Auto-renewal is off. Access ends ${subEnds}.`;
+      ? t('settings.renewsOn', { date: subEnds })
+      : t('settings.autoRenewalOff', { date: subEnds });
   }
 
   if (loading) {
@@ -248,7 +247,9 @@ export const SettingsScreen = () => {
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>{t('settings.subscription')}</Text>
                 <Text style={styles.menuSubtext}>
-                  {subscriptionDetail ? subscriptionDetail + ' - tap to change plan' : 'Tap to change plan'}
+                  {subscriptionDetail
+                    ? t('settings.detailTapToChange', { detail: subscriptionDetail })
+                    : t('settings.tapToChangePlan')}
                 </Text>
               </View>
               <View style={[styles.badge, styles.badgeActive]}>
@@ -290,8 +291,8 @@ export const SettingsScreen = () => {
                 <Text style={styles.menuText}>{t('settings.manageSubscription')}</Text>
                 <Text style={styles.menuSubtext}>
                   {subStatus === 'past_due'
-                    ? 'Update your payment method in Google Play.'
-                    : 'Opens Google Play to change plan, cancel, or turn off auto-renew.'}
+                    ? t('settings.updatePaymentMethod')
+                    : t('settings.opensGooglePlay')}
                 </Text>
               </View>
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">

@@ -169,11 +169,32 @@ export const getStoredLanguage = async (): Promise<LanguageTag | null> => {
  */
 export const initI18n = async (): Promise<LanguageTag> => {
   const stored = await getStoredLanguage();
-  const deviceTag = getLocales()[0]?.languageTag ?? 'en';
-  const language = stored ?? resolveLanguage(deviceTag);
+
+  // getLocales() can come back EMPTY when the native module has not finished
+  // initialising, which used to silently fall through to English - the app
+  // then started in the wrong language and only came right after a restart.
+  // Distinguish "the device said English" from "the device did not answer".
+  const deviceTag = getLocales()[0]?.languageTag ?? null;
+  const language = stored ?? (deviceTag ? resolveLanguage(deviceTag) : 'en');
+
+  // Remember a device-derived choice so later launches never depend on that
+  // timing again. Deliberately NOT written when the module stayed silent:
+  // persisting the English fallback would pin it permanently after a single
+  // unlucky cold start, turning a transient glitch into a stuck setting.
+  if (!stored && deviceTag) {
+    AsyncStorage.setItem(LANGUAGE_KEY, language).catch(() => {});
+  }
 
   await i18n.use(initReactI18next).init({
-    resources: { en: { translation: en } },
+    // The active language's bundle is registered BEFORE init rather than after,
+    // so the very first render already has its strings. Adding it afterwards
+    // left anything resolved in between showing English.
+    resources: {
+      en: { translation: en },
+      ...(language !== 'en' && bundles[language]
+        ? { [language]: { translation: bundles[language]() } }
+        : {}),
+    },
     lng: language,
     fallbackLng: 'en',
     // React already escapes everything it renders; i18next doing it again

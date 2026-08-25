@@ -146,7 +146,7 @@ export const KnowledgeLessonScreen = () => {
           </TouchableOpacity>
         ) : finished ? (
           <TouchableOpacity style={styles.completeBtn} onPress={complete}>
-            <Text style={styles.completeBtnText}>{isLastLesson ? 'Done' : 'Next lesson'}</Text>
+            <Text style={styles.completeBtnText}>{isLastLesson ? t('knowledge.done') : t('knowledge.nextLesson')}</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.navSpacer} />

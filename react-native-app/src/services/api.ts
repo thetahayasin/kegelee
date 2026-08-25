@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../i18n';
 
 // Default to production API URL. Can be modified for local dev.
 const DEFAULT_API_BASE = 'https://kegelee.com/api';
@@ -70,7 +71,7 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
       try {
         json = JSON.parse(text);
       } catch {
-        json = { error: 'Invalid server response' };
+        json = { error: i18n.t('errors.invalidServerResponse') };
       }
     }
 
@@ -78,7 +79,7 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
       return {
         ok: false,
         status: response.status,
-        error: json.error || json.message || 'Request failed',
+        error: json.error || json.message || i18n.t('errors.requestFailed'),
         errors: json.errors,
       };
     }
@@ -94,8 +95,8 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
       status: 0,
       error:
         error?.name === 'AbortError'
-          ? 'Request timed out. Check your internet connection and try again.'
-          : error.message || 'Network request failed',
+          ? i18n.t('errors.requestTimedOut')
+          : error.message || i18n.t('errors.networkRequestFailed'),
     };
   } finally {
     clearTimeout(timer);

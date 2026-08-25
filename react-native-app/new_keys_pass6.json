@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "tapToChangePlan": "Tap to change plan",
+    "detailTapToChange": "{{detail}} - tap to change plan",
+    "updatePaymentMethod": "Update your payment method in Google Play.",
+    "opensGooglePlay": "Opens Google Play to change plan, cancel, or turn off auto-renew."
+  },
+  "reminders": {
+    "channelName": "Training Reminders"
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -23,6 +24,7 @@ type RouteParams = {
 };
 
 export const LegalPageScreen = () => {
+  const { t } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'LegalPage'>>();
   const navigation = useNavigation<NavigationProp<any>>();
 
@@ -54,7 +56,7 @@ How to perform:
 Consistency is key: Train daily for the best results.`
             );
           } else {
-            setContent('No content available offline. Please connect to the internet to load this page.');
+            setContent(t('legalPage.offlineNotice'));
           }
         }
       } catch (e) {

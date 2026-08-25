@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import {
   View,
   Text,
@@ -116,18 +117,25 @@ export const ProgressScreen = () => {
       let bucketStart: Date;
       let bucketEnd: Date;
       let label = '';
+      const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) => {
+        try {
+          return d.toLocaleDateString(i18n.language, opts);
+        } catch {
+          return d.toLocaleDateString('en-US', opts);
+        }
+      };
 
       if (unit === 'day') {
         const d = new Date(today);
         d.setDate(today.getDate() - i);
         bucketStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
         bucketEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
-        label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        label = fmt(d, { day: 'numeric', month: 'short' });
       } else if (unit === 'month') {
         const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
         bucketStart = new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0);
         bucketEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
-        label = d.toLocaleDateString('en-US', { month: 'short' });
+        label = fmt(d, { month: 'short' });
       } else {
         // week
         const d = new Date(today);
@@ -142,7 +150,7 @@ export const ProgressScreen = () => {
         endDay.setDate(startDay.getDate() + 6);
         bucketEnd = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate(), 23, 59, 59);
 
-        label = bucketStart.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        label = fmt(bucketStart, { day: 'numeric', month: 'short' });
       }
 
       // Filter max seconds in bucket
@@ -329,7 +337,7 @@ export const ProgressScreen = () => {
             onPress={() => setMode(tMode)}
           >
             <Text style={[styles.toggleText, mode === tMode && styles.toggleTextActive]}>
-              {tMode}
+              {t(`progress.range${tMode.charAt(0).toUpperCase()}${tMode.slice(1)}`)}
             </Text>
           </TouchableOpacity>
         ))}

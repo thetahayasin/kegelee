@@ -168,18 +168,18 @@ export const ScheduleScreen = () => {
 
       if (exactOk) {
         Alert.alert(
-          'Reminders Saved',
-          'Your weekly training reminders are scheduled.'
+          t('schedule.remindersSavedTitle'),
+          t('schedule.remindersSavedBody'),
         );
       } else {
         // Android 12+ needs the "Alarms & reminders" special access for on-time
         // delivery. Reminders still fire without it, just a few minutes late.
         Alert.alert(
-          'Allow exact reminders',
-          'Your reminders are set.\n\nTo fire them at the exact time, allow "Alarms & reminders" for Kegelee - otherwise they may arrive a few minutes late.',
+          t('schedule.allowExactTitle'),
+          t('schedule.allowExactBody'),
           [
-            { text: 'Not now', style: 'cancel' },
-            { text: 'Open settings', onPress: () => openExactAlarmSettings() },
+            { text: t('schedule.notNow'), style: 'cancel' },
+            { text: t('schedule.openSettings'), onPress: () => openExactAlarmSettings() },
           ],
         );
       }
@@ -223,8 +223,8 @@ export const ScheduleScreen = () => {
             <Text style={styles.cardTitle}>{t('schedule.reminders')}</Text>
             <Text style={styles.cardSubtitle}>
               {activeRemindersCount > 0
-                ? `${activeRemindersCount} day${activeRemindersCount > 1 ? 's' : ''} set`
-                : 'Set times for your week'}
+                ? t('schedule.daysSet', { count: activeRemindersCount })
+                : t('schedule.setTimesForYourWeek')}
             </Text>
           </View>
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">

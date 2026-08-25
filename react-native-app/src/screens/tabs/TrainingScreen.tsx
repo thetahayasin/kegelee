@@ -161,7 +161,6 @@ export const TrainingScreen = () => {
         {/* Header */}
         <View style={styles.titleRow}>
           <View>
-            <Text style={styles.brandOverline}>KEGELEE</Text>
             <Text style={styles.pageTitle}>{t('training.training')}</Text>
           </View>
           <TouchableOpacity
@@ -396,7 +395,6 @@ const styles = StyleSheet.create({
     paddingTop: SPACE.xl,
     paddingBottom: SPACE.lg,
   },
-  brandOverline: { ...TYPE.overline, color: COLORS.textDim, marginBottom: 2 },
   pageTitle: { ...TYPE.display, color: COLORS.white },
   infoBtnInline: {
     width: 44,

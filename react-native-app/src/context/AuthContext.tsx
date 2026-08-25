@@ -9,6 +9,7 @@ import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
 import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo } from '../services/billing';
 import { BASICS_LESSONS } from '../constants/basics';
+import i18n from '../i18n';
 
 const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
 
@@ -354,7 +355,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await handleAuthResponse(res.data);
       return { success: true };
     }
-    return { success: false, error: res.error || 'Login failed' };
+    return { success: false, error: res.error || i18n.t('errors.loginFailed') };
   };
 
   const register = async (name: string, email: string, password: string) => {
@@ -372,7 +373,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // is verified (completeAuth from VerifyEmailScreen).
       return { success: true };
     }
-    return { success: false, error: res.error || 'Registration failed' };
+    return { success: false, error: res.error || i18n.t('errors.registrationFailed') };
   };
 
   // Establish the session from an auth payload obtained outside login/register
@@ -395,7 +396,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await handleAuthResponse(res.data);
       return { success: true };
     }
-    return { success: false, error: res.error || 'Google sign-in failed' };
+    return { success: false, error: res.error || i18n.t('errors.googleSignInFailed') };
   };
 
   const redeemGoogleLogin = async (googleRedeemToken: string) => {
@@ -408,7 +409,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await handleAuthResponse(res.data);
       return { success: true };
     }
-    return { success: false, error: res.error || 'Google login failed' };
+    return { success: false, error: res.error || i18n.t('errors.googleLoginFailed') };
   };
 
   const logout = async () => {

@@ -230,10 +230,10 @@ export const WorkoutCompleteScreen = () => {
         <View style={styles.titleContainer}>
           <Text style={styles.completeTitle}>
             {progress.complete
-              ? 'Training Day Complete!'
+              ? t('workoutComplete.trainingDayComplete')
               : progress.done > progress.required
-              ? 'Extra Session Done!'
-              : 'Session Complete'}
+              ? t('workoutComplete.extraSessionDone')
+              : t('workoutComplete.sessionComplete')}
           </Text>
         </View>
 
