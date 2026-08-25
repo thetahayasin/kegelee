@@ -350,7 +350,9 @@
     "scheduleReminders": "الجدول والتذكيرات",
     "setTheDifficultyOfKegel": "اختر مستوى صعوبة برنامج تمارين كيجل",
     "settingsA11y": "الإعدادات",
-    "theHigherTheLevelThe": "كلما ارتفع المستوى، ازدادت صعوبة التدريب"
+    "theHigherTheLevelThe": "كلما ارتفع المستوى، ازدادت صعوبة التدريب",
+    "vibration": "الاهتزاز",
+    "vibrationHint": "يهتز عندما يحين وقت الشدّ"
   },
   "progress": {
     "bestResult": "أفضل نتيجة",

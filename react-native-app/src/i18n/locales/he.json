@@ -350,7 +350,9 @@
     "scheduleReminders": "לוח זמנים ותזכורות",
     "setTheDifficultyOfKegel": "קבע את רמת הקושי של תוכנית תרגילי קיגל",
     "settingsA11y": "הגדרות",
-    "theHigherTheLevelThe": "ככל שהרמה גבוהה יותר, האימון קשה יותר"
+    "theHigherTheLevelThe": "ככל שהרמה גבוהה יותר, האימון קשה יותר",
+    "vibration": "רטט",
+    "vibrationHint": "רוטט כשצריך לכווץ"
   },
   "progress": {
     "bestResult": "התוצאה הטובה ביותר",

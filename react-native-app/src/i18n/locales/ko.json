@@ -350,7 +350,9 @@
     "scheduleReminders": "일정 및 알림",
     "setTheDifficultyOfKegel": "케겔 운동 프로그램의 난이도를 설정하세요",
     "settingsA11y": "설정",
-    "theHigherTheLevelThe": "레벨이 높을수록 훈련이 어려워져요"
+    "theHigherTheLevelThe": "레벨이 높을수록 훈련이 어려워져요",
+    "vibration": "진동",
+    "vibrationHint": "조일 때가 되면 진동합니다"
   },
   "progress": {
     "bestResult": "최고 기록",

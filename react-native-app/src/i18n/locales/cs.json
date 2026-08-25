@@ -350,7 +350,9 @@
     "scheduleReminders": "Rozvrh a připomínky",
     "setTheDifficultyOfKegel": "Nastav obtížnost tréninkového programu Kegel",
     "settingsA11y": "Nastavení",
-    "theHigherTheLevelThe": "Čím vyšší úroveň, tím náročnější trénink"
+    "theHigherTheLevelThe": "Čím vyšší úroveň, tím náročnější trénink",
+    "vibration": "Vibrace",
+    "vibrationHint": "Zavibruje, když máš stáhnout"
   },
   "progress": {
     "bestResult": "nejlepší výsledek",

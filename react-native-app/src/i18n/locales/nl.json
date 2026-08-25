@@ -350,7 +350,9 @@
     "scheduleReminders": "Schema en herinneringen",
     "setTheDifficultyOfKegel": "Stel de moeilijkheidsgraad van het Kegel-trainingsprogramma in",
     "settingsA11y": "Instellingen",
-    "theHigherTheLevelThe": "Hoe hoger het niveau, hoe zwaarder de training"
+    "theHigherTheLevelThe": "Hoe hoger het niveau, hoe zwaarder de training",
+    "vibration": "Trillen",
+    "vibrationHint": "Trilt wanneer je moet aanspannen"
   },
   "progress": {
     "bestResult": "beste resultaat",

@@ -350,7 +350,9 @@
     "scheduleReminders": "スケジュールとリマインダー",
     "setTheDifficultyOfKegel": "ケーゲルトレーニングの難易度を設定します",
     "settingsA11y": "設定",
-    "theHigherTheLevelThe": "レベルが上がるほどトレーニングは難しくなります"
+    "theHigherTheLevelThe": "レベルが上がるほどトレーニングは難しくなります",
+    "vibration": "バイブレーション",
+    "vibrationHint": "締めるタイミングで振動します"
   },
   "progress": {
     "bestResult": "ベスト記録",

@@ -350,7 +350,9 @@
     "scheduleReminders": "ตารางและการแจ้งเตือน",
     "setTheDifficultyOfKegel": "ตั้งระดับความยากของโปรแกรมฝึกคีเกล",
     "settingsA11y": "การตั้งค่า",
-    "theHigherTheLevelThe": "ยิ่งระดับสูง การฝึกก็ยิ่งหนัก"
+    "theHigherTheLevelThe": "ยิ่งระดับสูง การฝึกก็ยิ่งหนัก",
+    "vibration": "การสั่น",
+    "vibrationHint": "สั่นเมื่อถึงเวลาขมิบ"
   },
   "progress": {
     "bestResult": "ผลดีที่สุด",

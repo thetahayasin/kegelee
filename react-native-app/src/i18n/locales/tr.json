@@ -350,7 +350,9 @@
     "scheduleReminders": "Program ve hatırlatıcılar",
     "setTheDifficultyOfKegel": "Kegel antrenman programının zorluğunu ayarla",
     "settingsA11y": "Ayarlar",
-    "theHigherTheLevelThe": "Seviye yükseldikçe antrenman zorlaşır"
+    "theHigherTheLevelThe": "Seviye yükseldikçe antrenman zorlaşır",
+    "vibration": "Titreşim",
+    "vibrationHint": "Kasma zamanı geldiğinde titrer"
   },
   "progress": {
     "bestResult": "en iyi sonuç",

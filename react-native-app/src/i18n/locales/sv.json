@@ -350,7 +350,9 @@
     "scheduleReminders": "Schema och påminnelser",
     "setTheDifficultyOfKegel": "Välj svårighetsgrad för Kegel-träningsprogrammet",
     "settingsA11y": "Inställningar",
-    "theHigherTheLevelThe": "Ju högre nivå, desto tuffare träning"
+    "theHigherTheLevelThe": "Ju högre nivå, desto tuffare träning",
+    "vibration": "Vibration",
+    "vibrationHint": "Vibrerar när det är dags att spänna"
   },
   "progress": {
     "bestResult": "bästa resultat",

@@ -350,7 +350,9 @@
     "scheduleReminders": "Programma e promemoria",
     "setTheDifficultyOfKegel": "Imposta la difficoltà del programma di allenamento Kegel",
     "settingsA11y": "Impostazioni",
-    "theHigherTheLevelThe": "Più alto è il livello, più duro è l'allenamento"
+    "theHigherTheLevelThe": "Più alto è il livello, più duro è l'allenamento",
+    "vibration": "Vibrazione",
+    "vibrationHint": "Vibra quando è il momento di contrarre"
   },
   "progress": {
     "bestResult": "miglior risultato",

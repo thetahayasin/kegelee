@@ -350,7 +350,9 @@
     "scheduleReminders": "Schedule & reminders",
     "setTheDifficultyOfKegel": "Set the difficulty of Kegel Training program",
     "settingsA11y": "Settings",
-    "theHigherTheLevelThe": "The higher the level, the harder the training"
+    "theHigherTheLevelThe": "The higher the level, the harder the training",
+    "vibration": "Vibration",
+    "vibrationHint": "Buzz when it is time to squeeze"
   },
   "progress": {
     "bestResult": "best result",

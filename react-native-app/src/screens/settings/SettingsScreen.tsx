@@ -27,7 +27,7 @@ import { getDBConnection } from '../../db/sqlite';
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 
-export const SettingsScreen = () => {
+export const SettingsSections = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
@@ -211,26 +211,15 @@ export const SettingsScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
+      <View style={styles.loadingInline}>
         <ActivityIndicator size="large" color={COLORS.accent} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Watermark />
-      {/* Title Row */}
-      <View style={styles.titleRow}>
-        <TouchableOpacity style={styles.backBtnInline} onPress={() => navigation.goBack()}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 19l-7-7 7-7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        </TouchableOpacity>
-        <Text style={styles.pageTitle}>{t('settings.settings')}</Text>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <>
+      <View style={styles.sectionsWrap}>
         {/* Subscription section */}
         <Text style={styles.sectionLabel}>{t('settings.subscription')}</Text>
         <View style={styles.menuContainer}>
@@ -384,7 +373,7 @@ export const SettingsScreen = () => {
             <Text style={styles.deleteBtnText}>{t('settings.deleteAccount')}</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
 
       <LanguagePicker
         visible={languagePickerVisible}
@@ -565,11 +554,31 @@ export const SettingsScreen = () => {
           </TouchableWithoutFeedback>
         </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+    </>
   );
 };
 
+/**
+ * The old standalone screen, kept so the route still resolves.
+ *
+ * Nothing navigates here any more - Profile renders the sections directly - but
+ * a stale deep link or a saved navigation state pointing at 'Settings' should
+ * land somewhere sensible rather than crashing.
+ */
+export const SettingsScreen = () => (
+  <SafeAreaView style={styles.container}>
+    <Watermark />
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      <SettingsSections />
+    </ScrollView>
+  </SafeAreaView>
+);
+
 const styles = StyleSheet.create({
+  // Sections render inside Profile's ScrollView now, so they own padding but
+  // never scrolling - nesting a second scroller would break momentum on both.
+  sectionsWrap: { paddingHorizontal: 0 },
+  loadingInline: { paddingVertical: 48, alignItems: 'center' },
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,

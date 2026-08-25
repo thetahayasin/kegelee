@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -8,10 +8,13 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Switch,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
+import { SettingsSections } from '../settings/SettingsScreen';
+import { getAppSetting, saveAppSetting } from '../../db/queries';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
@@ -50,32 +53,36 @@ export const ProfileScreen = () => {
     }
   };
 
+  // Vibration during a session. `haptics_enabled` already existed in the
+  // schema defaults but nothing read or wrote it, so it was a setting in name
+  // only - this is the control that makes it real.
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
+  useEffect(() => {
+    getAppSetting('haptics_enabled', '1')
+      .then((v) => setHapticsEnabled(v !== '0'))
+      .catch(() => {});
+  }, []);
+
+  const toggleHaptics = (next: boolean) => {
+    // Optimistic: the switch must move under the finger, not after a DB write.
+    setHapticsEnabled(next);
+    saveAppSetting('haptics_enabled', next ? '1' : '0', 'bool').catch(() => {});
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Watermark />
       {/* Title Row */}
+      {/* No gear here any more: it opened a screen that was itself just a list
+          of settings, so everything it held now lives below. */}
       <View style={styles.titleRow}>
         <Text style={styles.pageTitle}>{t('profile.profile')}</Text>
-        <TouchableOpacity
-          style={styles.settingsBtnInline}
-          accessibilityRole="button"
-          accessibilityLabel={t('profile.settingsA11y')}
-          hitSlop={8}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-              stroke={COLORS.textMuted}
-              strokeWidth={1.8}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg>
-        </TouchableOpacity>
       </View>
 
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
       {/* Identity Profile Details */}
       <View style={styles.identityContainer}>
         <View style={styles.avatar}>
@@ -114,8 +121,25 @@ export const ProfileScreen = () => {
           </Svg>
         </TouchableOpacity>
 
-
+        {/* A row, not a link: the whole point is that it is one tap. */}
+        <View style={styles.menuRow}>
+          <View style={styles.vibrationLabel}>
+            <Text style={styles.menuLabel}>{t('profile.vibration')}</Text>
+            <Text style={styles.menuHint}>{t('profile.vibrationHint')}</Text>
+          </View>
+          <Switch
+            value={hapticsEnabled}
+            onValueChange={toggleHaptics}
+            trackColor={{ false: 'rgba(242, 245, 238, 0.16)', true: COLORS.accent }}
+            thumbColor={COLORS.white}
+            accessibilityLabel={t('profile.vibration')}
+          />
+        </View>
       </View>
+
+      {/* Everything the gear used to hide. */}
+      <SettingsSections />
+      </ScrollView>
 
       {/* Difficulty level selector - full page, matches the web /levels screen */}
       <Modal
@@ -187,6 +211,9 @@ export const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  scroll: { paddingBottom: 32 },
+  vibrationLabel: { flex: 1, paddingRight: 12 },
+  menuHint: { fontSize: 12.5, color: COLORS.textDim, marginTop: 2 },
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,

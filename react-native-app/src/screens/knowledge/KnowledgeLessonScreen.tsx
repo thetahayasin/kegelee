@@ -12,6 +12,7 @@ import {
   useNavigation,
   RouteProp,
   NavigationProp,
+  CommonActions,
   StackActions,
 } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -70,13 +71,22 @@ export const KnowledgeLessonScreen = () => {
           updateUserFields({ onboarded: true }).catch(() => {});
         }
       } else {
-        // Guest finished the free lessons: return to the lesson list and open
-        // the subscription sheet (pick a plan, create the account, purchase)
-        // - the web's knowledge.index?subscribe=1 funnel.
-        // Knowledge is this stack's root, so navigate pops back to it with the
-        // param set; cast past the RootStack param list the same way
-        // KnowledgeScreen does.
-        (navigation as any).navigate('Knowledge', { subscribe: true });
+        // Guest finished the free lessons: back to the list with the plans
+        // sheet open - the web's knowledge.index?subscribe=1 funnel.
+        //
+        // RESET rather than navigate. navigate() only pops when Knowledge is
+        // already below this screen, which depends on how the guest arrived:
+        // straight from onboarding it is the root, but reaching it from Login
+        // leaves that screen underneath. Either way a back button survived on a
+        // screen that is the end of the funnel, and pressing it walked back
+        // into a lesson they had just finished. Resetting makes Knowledge the
+        // only route, so there is nothing to go back to.
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Knowledge', params: { subscribe: true } }],
+          }),
+        );
       }
     } else {
       // Match the original's `navigate-replace`: REPLACE this lesson with the

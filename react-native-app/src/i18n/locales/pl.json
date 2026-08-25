@@ -350,7 +350,9 @@
     "scheduleReminders": "Harmonogram i przypomnienia",
     "setTheDifficultyOfKegel": "Ustaw poziom trudności programu treningu Kegla",
     "settingsA11y": "Ustawienia",
-    "theHigherTheLevelThe": "Im wyższy poziom, tym trudniejszy trening"
+    "theHigherTheLevelThe": "Im wyższy poziom, tym trudniejszy trening",
+    "vibration": "Wibracje",
+    "vibrationHint": "Wibruje, gdy trzeba napiąć"
   },
   "progress": {
     "bestResult": "najlepszy wynik",

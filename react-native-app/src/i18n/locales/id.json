@@ -350,7 +350,9 @@
     "scheduleReminders": "Jadwal & pengingat",
     "setTheDifficultyOfKegel": "Atur tingkat kesulitan program latihan Kegel",
     "settingsA11y": "Pengaturan",
-    "theHigherTheLevelThe": "Makin tinggi levelnya, makin berat latihannya"
+    "theHigherTheLevelThe": "Makin tinggi levelnya, makin berat latihannya",
+    "vibration": "Getaran",
+    "vibrationHint": "Bergetar saat waktunya mengencangkan"
   },
   "progress": {
     "bestResult": "hasil terbaik",

@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import type { AuthStackParamList } from '../../navigation/AppNavigator';
 import { COLORS, TYPE, SPACE, RADIUS, GLASS } from '../../theme/colors';
-import { FalteringVisual } from '../../components/OnboardingVisuals';
+import { OnboardingArt } from '../../components/OnboardingArt';
 import { Watermark } from '../../components/Watermark';
 import { SubscribeSheet } from '../../components/SubscribeSheet';
 import { ONBOARDING_QUIZ_KEY } from '../../context/AuthContext';
@@ -259,7 +259,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         {step === 0 && (
           <View style={styles.introWrap}>
             <View style={styles.introVisual}>
-              <FalteringVisual active />
+              <OnboardingArt active />
             </View>
             <Text style={styles.introTitle}>{t('onboarding.slide1Title')}</Text>
             <Text style={styles.introBody}>{t('onboarding.slide1Body')}</Text>

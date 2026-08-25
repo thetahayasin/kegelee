@@ -24,6 +24,7 @@ import { buildDailySession, buildSingleSession, PlaylistStep } from '../../servi
 import { getDBConnection } from '../../db/sqlite';
 import { recordCompletedSession } from '../../db/queries';
 import { syncNow } from '../../services/sync';
+import { getAppSetting } from '../../db/queries';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 
@@ -197,6 +198,19 @@ export const WorkoutScreen = () => {
     ignoreAndroidSystemSettings: false,
   };
 
+  // `haptics_enabled` shipped in the schema defaults but nothing ever read it,
+  // so the toggle did nothing and every user got buzzed whether they wanted it
+  // or not. Loaded once into a ref because the step-transition path this feeds
+  // runs inside the timer loop, where a DB read per tick would be absurd.
+  const hapticsOn = useRef(true);
+  useEffect(() => {
+    getAppSetting('haptics_enabled', '1')
+      .then((v) => {
+        hapticsOn.current = v !== '0';
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     // Keep screen awake during active workout session
     KeepAwake.activate();
@@ -335,12 +349,15 @@ export const WorkoutScreen = () => {
       setIndex(nextIdx);
       pushTickDisplays(true);
 
-      // Trigger cues with Haptics based on current target transition
+      // Buzz on CONTRACT only.
+      //
+      // Previously relax got its own (lighter) buzz, which made the cue
+      // useless: something vibrated at every transition, so the phone stopped
+      // telling you which one you were entering. Silence on relax is the
+      // signal - a buzz now means squeeze, and nothing else does.
       try {
-        if (nextStep.phase === 'contract') {
+        if (hapticsOn.current && nextStep.phase === 'contract') {
           ReactNativeHapticFeedback.trigger('impactMedium', hapticOptions);
-        } else {
-          ReactNativeHapticFeedback.trigger('impactLight', hapticOptions);
         }
       } catch {}
     }

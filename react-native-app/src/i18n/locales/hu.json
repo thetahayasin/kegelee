@@ -350,7 +350,9 @@
     "scheduleReminders": "Ütemezés és emlékeztetők",
     "setTheDifficultyOfKegel": "Állítsd be a Kegel-edzésprogram nehézségét",
     "settingsA11y": "Beállítások",
-    "theHigherTheLevelThe": "Minél magasabb a szint, annál nehezebb az edzés"
+    "theHigherTheLevelThe": "Minél magasabb a szint, annál nehezebb az edzés",
+    "vibration": "Rezgés",
+    "vibrationHint": "Rezeg, amikor szorítani kell"
   },
   "progress": {
     "bestResult": "legjobb eredmény",

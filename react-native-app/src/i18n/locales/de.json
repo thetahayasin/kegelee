@@ -350,7 +350,9 @@
     "scheduleReminders": "Zeitplan & Erinnerungen",
     "setTheDifficultyOfKegel": "Lege den Schwierigkeitsgrad des Kegel-Trainings fest",
     "settingsA11y": "Einstellungen",
-    "theHigherTheLevelThe": "Je höher die Stufe, desto härter das Training"
+    "theHigherTheLevelThe": "Je höher die Stufe, desto härter das Training",
+    "vibration": "Vibration",
+    "vibrationHint": "Vibriert, wenn du anspannen sollst"
   },
   "progress": {
     "bestResult": "bestes Ergebnis",

@@ -350,7 +350,9 @@
     "scheduleReminders": "Aikataulu ja muistutukset",
     "setTheDifficultyOfKegel": "Valitse Kegel-harjoitusohjelman vaikeustaso",
     "settingsA11y": "Asetukset",
-    "theHigherTheLevelThe": "Mitä korkeampi taso, sitä kovempi harjoitus"
+    "theHigherTheLevelThe": "Mitä korkeampi taso, sitä kovempi harjoitus",
+    "vibration": "Värinä",
+    "vibrationHint": "Värisee, kun on aika jännittää"
   },
   "progress": {
     "bestResult": "paras tulos",

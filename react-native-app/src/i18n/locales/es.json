@@ -350,7 +350,9 @@
     "scheduleReminders": "Horario y recordatorios",
     "setTheDifficultyOfKegel": "Elige la dificultad del programa de entrenamiento Kegel",
     "settingsA11y": "Ajustes",
-    "theHigherTheLevelThe": "Cuanto mayor es el nivel, más duro es el entrenamiento"
+    "theHigherTheLevelThe": "Cuanto mayor es el nivel, más duro es el entrenamiento",
+    "vibration": "Vibración",
+    "vibrationHint": "Vibra cuando toca contraer"
   },
   "progress": {
     "bestResult": "mejor resultado",

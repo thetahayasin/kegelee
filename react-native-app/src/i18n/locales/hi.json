@@ -350,7 +350,9 @@
     "scheduleReminders": "समय-सारणी और रिमाइंडर",
     "setTheDifficultyOfKegel": "केगेल अभ्यास कार्यक्रम की कठिनाई तय करें",
     "settingsA11y": "सेटिंग",
-    "theHigherTheLevelThe": "स्तर जितना ऊँचा, अभ्यास उतना कठिन"
+    "theHigherTheLevelThe": "स्तर जितना ऊँचा, अभ्यास उतना कठिन",
+    "vibration": "कंपन",
+    "vibrationHint": "कसने का समय आने पर कंपन करता है"
   },
   "progress": {
     "bestResult": "सर्वश्रेष्ठ नतीजा",

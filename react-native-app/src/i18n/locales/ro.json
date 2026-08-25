@@ -350,7 +350,9 @@
     "scheduleReminders": "Program și memento-uri",
     "setTheDifficultyOfKegel": "Setează dificultatea programului de antrenament Kegel",
     "settingsA11y": "Setări",
-    "theHigherTheLevelThe": "Cu cât nivelul e mai mare, cu atât antrenamentul e mai greu"
+    "theHigherTheLevelThe": "Cu cât nivelul e mai mare, cu atât antrenamentul e mai greu",
+    "vibration": "Vibrație",
+    "vibrationHint": "Vibrează când e momentul să contracți"
   },
   "progress": {
     "bestResult": "cel mai bun rezultat",

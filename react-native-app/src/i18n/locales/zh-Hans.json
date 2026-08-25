@@ -350,7 +350,9 @@
     "scheduleReminders": "日程与提醒",
     "setTheDifficultyOfKegel": "设置凯格尔训练计划的难度",
     "settingsA11y": "设置",
-    "theHigherTheLevelThe": "等级越高，训练越难"
+    "theHigherTheLevelThe": "等级越高，训练越难",
+    "vibration": "振动",
+    "vibrationHint": "该收缩时震动提醒"
   },
   "progress": {
     "bestResult": "最佳成绩",

@@ -350,7 +350,9 @@
     "scheduleReminders": "Расписание и напоминания",
     "setTheDifficultyOfKegel": "Выбери сложность программы тренировок Кегеля",
     "settingsA11y": "Настройки",
-    "theHigherTheLevelThe": "Чем выше уровень, тем тяжелее тренировка"
+    "theHigherTheLevelThe": "Чем выше уровень, тем тяжелее тренировка",
+    "vibration": "Вибрация",
+    "vibrationHint": "Вибрирует, когда пора сжимать"
   },
   "progress": {
     "bestResult": "лучший результат",

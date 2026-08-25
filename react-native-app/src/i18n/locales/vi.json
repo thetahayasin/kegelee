@@ -350,7 +350,9 @@
     "scheduleReminders": "Lịch và nhắc nhở",
     "setTheDifficultyOfKegel": "Chọn độ khó cho chương trình tập Kegel",
     "settingsA11y": "Cài đặt",
-    "theHigherTheLevelThe": "Cấp độ càng cao thì bài tập càng nặng"
+    "theHigherTheLevelThe": "Cấp độ càng cao thì bài tập càng nặng",
+    "vibration": "Rung",
+    "vibrationHint": "Rung khi đến lúc siết"
   },
   "progress": {
     "bestResult": "kết quả tốt nhất",
