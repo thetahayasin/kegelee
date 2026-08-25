@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import {
   View,
   Text,
@@ -26,7 +27,33 @@ import { scheduleReminders, showTimePicker, isExactAlarmAllowed, openExactAlarmS
 import { syncNow } from '../../services/sync';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// Last-resort labels only. The real ones come from Intl below, because
+// hardcoding seven English abbreviations left the repeat-on picker in
+// English for all 29 languages.
+const WEEKDAYS_FALLBACK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/**
+ * Short weekday names in the reader's language, Sunday first.
+ *
+ * Derived from Intl rather than 7 translated keys per locale: the platform
+ * already knows every language's abbreviation and its capitalisation rules,
+ * and a translator cannot get those wrong here. 2024-01-07 was a Sunday, so
+ * adding the index walks Sun..Sat while matching the numeric day indexes
+ * `selectedDays` stores.
+ *
+ * Hermes ships Intl inconsistently, so a throw falls back to English rather
+ * than taking the screen down.
+ */
+const weekdayLabels = (locale: string): string[] => {
+  try {
+    const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    return Array.from({ length: 7 }, (_, i) =>
+      fmt.format(new Date(Date.UTC(2024, 0, 7 + i))),
+    );
+  } catch {
+    return WEEKDAYS_FALLBACK;
+  }
+};
 
 export const ScheduleScreen = () => {
   const { t } = useTranslation();
@@ -304,7 +331,7 @@ export const ScheduleScreen = () => {
                 <View style={styles.sectionCard}>
                   <Text style={styles.sectionLabel}>{t('schedule.repeatOn')}</Text>
                   <View style={styles.weekdayRow}>
-                    {WEEKDAYS.map((label, i) => {
+                    {weekdayLabels(i18n.language).map((label, i) => {
                       const active = selectedDays.includes(i);
                       return (
                         <TouchableOpacity
@@ -371,7 +398,7 @@ export const ScheduleScreen = () => {
                     ))}
 
                     <TouchableOpacity style={styles.addTimeBtn} onPress={addTime}>
-                      <Text style={styles.addTimeText}>+ Add time</Text>
+                      <Text style={styles.addTimeText}>+ {t('schedule.addTime')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>

@@ -484,11 +484,14 @@ export const SettingsScreen = () => {
               {deleteStep === 'warn' ? (
                 <>
                   <Text style={styles.modalBody}>
-                    This permanently deletes your account and all of your data: training days, sessions, measurements, and progress. This <Text style={{ fontWeight: 'bold', color: COLORS.white }}>cannot be undone</Text>.
+                    {t('settings.deleteWarnBody')}{' '}
+                    <Text style={{ fontWeight: 'bold', color: COLORS.white }}>
+                      {t('settings.deleteWarnCannotUndo')}
+                    </Text>
                   </Text>
                   <View style={styles.warningBox}>
                     <Text style={styles.warningText}>
-                      {t('settings.thisDoes')} <Text style={{ fontWeight: 'bold' }}>not</Text> cancel your active app store or RevenueCat subscription. Cancel it in your subscription settings first to stop being billed.
+                      {t('settings.deleteWarnSubscription')}
                     </Text>
                   </View>
 
@@ -516,8 +519,12 @@ export const SettingsScreen = () => {
                 </>
               ) : (
                 <>
+                  {/* One key with the address interpolated, not a prefix key
+                      plus a hardcoded tail: the sentence used to end in English
+                      in every language, and splitting it around the email would
+                      break anywhere the word order differs. */}
                   <Text style={styles.modalBody}>
-                    {t('settings.weEmailedA6Digit')} <Text style={{ fontWeight: 'bold', color: COLORS.white }}>{user?.email}</Text>. Enter it to permanently delete your account.
+                    {t('settings.deleteCodeSent', { email: user?.email ?? '' })}
                   </Text>
 
                   <TextInput
@@ -705,22 +712,22 @@ const styles = StyleSheet.create({
   },
   // Cautionary, not destructive: progress can be rebuilt, an account cannot.
   resetBtn: {
-    backgroundColor: 'transparent',
-    borderColor: COLORS.whiteFaint,
+    backgroundColor: COLORS.surface2,
+    borderColor: 'rgba(242, 245, 238, 0.22)',
     borderWidth: 1,
   },
   resetBtnText: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.whiteMuted,
+    color: COLORS.white,
   },
   // Extra air above the only irreversible action on the screen.
   deleteBtnSpaced: {
     marginTop: 8,
   },
   deleteBtn: {
-    backgroundColor: 'rgba(255, 77, 77, 0.05)',
-    borderColor: 'rgba(255, 77, 77, 0.3)',
+    backgroundColor: 'rgba(255, 77, 77, 0.16)',
+    borderColor: 'rgba(255, 107, 107, 0.65)',
     borderWidth: 1,
   },
   deleteBtnText: {

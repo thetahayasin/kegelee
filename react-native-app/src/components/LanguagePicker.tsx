@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import RNRestart from 'react-native-restart';
 import Svg, { Path } from 'react-native-svg';
 
 import { TouchableOpacity } from './Touchable';
@@ -43,10 +44,25 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
     // background refresh and the picker should close immediately.
     refreshContentForCurrentLocale();
     if (needsRestart) {
-      // Switching between LTR and RTL flips the whole layout, and
-      // I18nManager cannot do that to a running bundle. Say so rather than
-      // leaving the user with mirrored text in an unmirrored screen.
-      setRestartNeeded(true);
+      // Switching between LTR and RTL flips the whole layout, and I18nManager
+      // cannot do that to a running bundle - the change only lands on a fresh
+      // one. Rather than leaving the user to close and reopen the app by hand
+      // (which the previous build asked them to do, and which reads like a
+      // failure), reload it for them. The language choice is already persisted
+      // above, so the new bundle comes up in the right language and direction.
+      //
+      // A frame of delay lets AsyncStorage flush and the picker paint its
+      // closing state, so the restart looks deliberate rather than like a
+      // crash. If the native module is missing for any reason, fall back to
+      // the old ask-the-user prompt instead of silently doing nothing.
+      onClose();
+      setTimeout(() => {
+        try {
+          RNRestart.restart();
+        } catch {
+          setRestartNeeded(true);
+        }
+      }, 250);
       return;
     }
     onClose();

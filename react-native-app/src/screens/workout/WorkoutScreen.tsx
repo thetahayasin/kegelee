@@ -638,9 +638,9 @@ export const WorkoutScreen = () => {
   const getTimeLabel = () => {
     const s = getTotalRemaining();
     if (s > 30) {
-      return `${Math.ceil(s / 60)}m left`;
+      return t('workout.minutesLeft', { count: Math.ceil(s / 60) });
     }
-    return `${s}s left`;
+    return t('workout.secondsLeft', { count: s });
   };
 
   if (loading || !currentStep) {

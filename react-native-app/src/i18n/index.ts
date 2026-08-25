@@ -55,7 +55,22 @@ export const isRTLLanguage = (tag: string): boolean =>
   RTL_LANGUAGES.includes(tag.split('-')[0] as LanguageTag);
 
 /** Where a manual language choice from Settings is remembered. */
+/** A MANUAL choice from Settings. Written only by setLanguage(). */
 const LANGUAGE_KEY = '@app_language';
+
+/**
+ * The last language we successfully derived from the device.
+ *
+ * Deliberately a SEPARATE key from the manual override. Caching the
+ * device-derived value under LANGUAGE_KEY looked like it fixed the empty
+ * getLocales() race, but it also made that value indistinguishable from a
+ * deliberate choice - so the app pinned itself to whatever language the
+ * phone happened to be in at first launch and then ignored the phone
+ * forever. Kept apart, the phone stays in charge until someone actually
+ * picks a language, and this only stands in when the native module has
+ * nothing to say.
+ */
+const DEVICE_LANGUAGE_KEY = '@device_language';
 
 /**
  * Resolve a device locale to a language we actually ship.
@@ -164,26 +179,40 @@ export const getStoredLanguage = async (): Promise<LanguageTag | null> => {
 /**
  * Initialise translations. Call once, before the first render that shows text.
  *
- * A manual choice always beats the device locale - someone who picked English
- * on a German phone meant it.
+ * Precedence: a manual choice from Settings, then whatever the phone is set to
+ * right now, then the last language the phone reported. Someone who picked
+ * English on a German phone meant it - but someone who never picked anything
+ * should follow their phone, including after they change it.
  */
 export const initI18n = async (): Promise<LanguageTag> => {
-  const stored = await getStoredLanguage();
+  const manual = await getStoredLanguage();
 
   // getLocales() can come back EMPTY when the native module has not finished
-  // initialising, which used to silently fall through to English - the app
-  // then started in the wrong language and only came right after a restart.
-  // Distinguish "the device said English" from "the device did not answer".
+  // initialising, which used to silently fall through to English - the app then
+  // started in the wrong language and only came right after a restart. So treat
+  // "the device did not answer" as its own case rather than as English.
   const deviceTag = getLocales()[0]?.languageTag ?? null;
-  const language = stored ?? (deviceTag ? resolveLanguage(deviceTag) : 'en');
 
-  // Remember a device-derived choice so later launches never depend on that
-  // timing again. Deliberately NOT written when the module stayed silent:
-  // persisting the English fallback would pin it permanently after a single
-  // unlucky cold start, turning a transient glitch into a stuck setting.
-  if (!stored && deviceTag) {
-    AsyncStorage.setItem(LANGUAGE_KEY, language).catch(() => {});
+  let language: LanguageTag;
+  if (manual) {
+    language = manual;
+  } else if (deviceTag) {
+    language = resolveLanguage(deviceTag);
+    // Cache it for the silent-module case below. Under its own key, so it can
+    // never be mistaken for a deliberate choice on a later launch.
+    AsyncStorage.setItem(DEVICE_LANGUAGE_KEY, language).catch(() => {});
+  } else {
+    let cached: string | null = null;
+    try {
+      cached = await AsyncStorage.getItem(DEVICE_LANGUAGE_KEY);
+    } catch {}
+    language = cached && cached in SUPPORTED_LANGUAGES ? (cached as LanguageTag) : 'en';
   }
+
+  // Hoisted so TypeScript keeps the narrowing: `language` is a let now, and an
+  // inline `bundles[language] && bundles[language]()` no longer narrows between
+  // the check and the call.
+  const activeBundle = language !== 'en' ? bundles[language] : undefined;
 
   await i18n.use(initReactI18next).init({
     // The active language's bundle is registered BEFORE init rather than after,
@@ -191,9 +220,7 @@ export const initI18n = async (): Promise<LanguageTag> => {
     // left anything resolved in between showing English.
     resources: {
       en: { translation: en },
-      ...(language !== 'en' && bundles[language]
-        ? { [language]: { translation: bundles[language]() } }
-        : {}),
+      ...(activeBundle ? { [language]: { translation: activeBundle() } } : {}),
     },
     lng: language,
     fallbackLng: 'en',

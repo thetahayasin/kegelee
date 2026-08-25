@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -50,19 +50,35 @@ export const KnowledgeScreen = () => {
     }, [user]),
   );
 
-  // Arriving with { subscribe: true } (a guest just finished the last free
-  // lesson) opens the subscription sheet on load - the web's
-  // knowledge.index?subscribe=1 funnel, including its 350ms settle delay.
-  const promptSubscribe = !isAuthenticated && route.params?.subscribe === true;
-  useEffect(() => {
-    if (!promptSubscribe) return;
-    navigation.setParams({ subscribe: undefined } as any);
-    const t = setTimeout(() => setSheetVisible(true), 350);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [promptSubscribe]);
-
   const allCompleted = done.includes('why') && done.includes('find') && done.includes('first');
+
+  // Show the plans as soon as a guest has run out of free material.
+  //
+  // This used to fire only on { subscribe: true }, the param the last lesson
+  // passes on its way back here. That covered someone finishing in one sitting
+  // and nothing else: a guest who closed the app and reopened it landed on a
+  // fully ticked lesson list with no next step and no way to buy anything. The
+  // condition that actually matters is "finished everything free, still cannot
+  // train", so key on that instead of on how they arrived.
+  //
+  // Signed-in users never reach this branch - the navigator sends an
+  // unsubscribed account to the paywall stack, which has no Knowledge route -
+  // so `isAuthenticated` is the whole entitlement check here.
+  //
+  // The ref makes it once per mount: dismissing the sheet has to mean
+  // dismissed, or the screen becomes a trap. The 350ms lets the list settle
+  // first, matching the web funnel.
+  const promptedRef = useRef(false);
+  useEffect(() => {
+    if (isAuthenticated || !allCompleted || promptedRef.current) return;
+    promptedRef.current = true;
+    if (route.params?.subscribe) {
+      navigation.setParams({ subscribe: undefined } as any);
+    }
+    const timer = setTimeout(() => setSheetVisible(true), 350);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, allCompleted]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>

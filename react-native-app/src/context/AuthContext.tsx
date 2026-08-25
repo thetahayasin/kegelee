@@ -13,6 +13,15 @@ import i18n from '../i18n';
 
 const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
 
+/**
+ * Where OnboardingScreen leaves the quiz result until there is an account.
+ *
+ * Declared here rather than in the screen because SubscribeSheet - which the
+ * screen renders - imports this context, so importing the other way round
+ * would close a cycle.
+ */
+export const ONBOARDING_QUIZ_KEY = '@onboarding_quiz';
+
 // Durable "gate is open" marker per account. Written when the user finishes
 // the basics on this device AND when a sign-in payload says the account
 // already cleared them (basics_completed) - so the gate is right immediately
@@ -301,6 +310,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // covers both login and first-time register ("getting started"), so a new
     // user never inherits the previous person's notifications.
     await cancelAllReminders();
+
+    // Starting level from the onboarding quiz.
+    //
+    // Applied BEFORE the first sync on purpose: the push sends level_id and the
+    // pull writes the server's answer straight back over it, so setting this
+    // afterwards would last until the response landed and then silently revert.
+    //
+    // Only ever applied to an account still sitting on the default level 1. A
+    // returning user who signs in on a new phone has a real level on the server,
+    // and a stale quiz answer must not pull them back down to it.
+    try {
+      const raw = await AsyncStorage.getItem(ONBOARDING_QUIZ_KEY);
+      if (raw) {
+        const quizLevel = Number(JSON.parse(raw)?.level);
+        const usable =
+          Number.isFinite(quizLevel) && quizLevel >= 1 && quizLevel <= 5;
+        if (usable && quizLevel !== 1 && localUser.level_id === 1) {
+          localUser.level_id = quizLevel;
+          setUser({ ...localUser });
+          await saveDBUser({ level_id: quizLevel });
+        }
+        // Consumed either way - it describes a first run, not a preference.
+        await AsyncStorage.removeItem(ONBOARDING_QUIZ_KEY);
+      }
+    } catch {}
 
     syncNow(userPayload.id)
       .catch(e => {

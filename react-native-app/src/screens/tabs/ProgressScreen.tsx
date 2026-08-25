@@ -62,7 +62,13 @@ export const ProgressScreen = () => {
       if (items.length > 0) {
         const lastItem = items[0];
         const dateObj = new Date(lastItem.measured_at);
-        let label = dateObj.toLocaleDateString();
+        let label = (() => {
+          try {
+            return dateObj.toLocaleDateString(i18n.language);
+          } catch {
+            return dateObj.toLocaleDateString();
+          }
+        })();
         // Check if today
         const todayStr = getLocalDateString(user.timezone);
         const itemDateStr = lastItem.measured_at.split('T')[0];
@@ -401,7 +407,7 @@ export const ProgressScreen = () => {
                     onPressOut={endMeasure}
                   >
                     {!holding ? (
-                      <Text style={styles.holdBtnText}>Press{'\n'}& Hold</Text>
+                      <Text style={styles.holdBtnText}>{t('progress.pressAndHold')}</Text>
                     ) : (
                       <Text style={styles.elapsedText}>{Math.floor(elapsed)}s</Text>
                     )}
@@ -410,7 +416,7 @@ export const ProgressScreen = () => {
               ) : (
                 <View style={styles.resultBox}>
                   <Text style={styles.resultValue}>{Math.floor(result)}s</Text>
-                  <Text style={styles.resultLabel}>your hold</Text>
+                  <Text style={styles.resultLabel}>{t('progress.yourHold')}</Text>
                 </View>
               )}
             </View>

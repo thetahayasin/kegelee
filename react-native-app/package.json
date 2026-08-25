@@ -38,6 +38,7 @@
     "react-native-haptic-feedback": "^3.0.0",
     "react-native-keep-awake": "^4.0.0",
     "react-native-purchases": "^10.7.1",
+    "react-native-restart": "^0.0.29",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.26.0",
     "react-native-sqlite-storage": "^6.0.1",
