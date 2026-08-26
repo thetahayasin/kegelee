@@ -91,14 +91,40 @@ class GooglePlayWebhookController extends Controller
             // cancellation which keeps it until the paid period ends.
             self::SUBSCRIPTION_REVOKED => $this->cancel($sub, immediately: true),
 
-            self::SUBSCRIPTION_ON_HOLD,
+            // Grace period: the card failed but Google is retrying and expects
+            // us to KEEP SERVING. ends_at is left alone, so the user stays
+            // entitled - that is the whole point of the state.
             self::SUBSCRIPTION_IN_GRACE_PERIOD => $sub?->update(['status' => 'past_due']),
+
+            // Account hold is the opposite, and these two used to share a line.
+            // Hold means the grace period is OVER: Google has suspended the
+            // subscription and the user has lost access. Leaving ends_at in the
+            // future kept them entitled through a hold that can run 30 days, so
+            // a subscription Google had already stopped honouring carried on
+            // unlocking the app. Ending it here is recoverable - RECOVERED
+            // re-reads the real expiry from the Play API.
+            self::SUBSCRIPTION_ON_HOLD => $this->hold($sub),
+
+            // Renewal pushed out - a deferred downgrade, or an extension Google
+            // granted. Unhandled, the row kept its old ends_at and the app
+            // expired a subscriber who had in fact been given longer.
+            self::SUBSCRIPTION_DEFERRED => $this->renew($sub, $billing, $productId, $purchaseToken),
+
+            // Paused: Google stops billing at the END of the paid period, so
+            // access runs to ends_at and then stops. Same shape as a
+            // cancellation, and the same shape RevenueCat's handlePaused uses.
+            // Previously fell through to default and the row stayed 'active'
+            // with a future ends_at, so a paused subscription kept working.
+            self::SUBSCRIPTION_PAUSED => $this->cancel($sub),
 
             self::SUBSCRIPTION_EXPIRED => $sub?->update(['status' => 'expired']),
 
             // SUBSCRIPTION_PURCHASED is usually handled app-side; just acknowledge if we missed it
             self::SUBSCRIPTION_PURCHASED => $this->acknowledgeIfNeeded($billing, $productId, $purchaseToken),
 
+            // PRICE_CHANGE_CONFIRMED and PAUSE_SCHEDULE_CHANGED carry no
+            // entitlement change, so ignoring them is correct rather than an
+            // oversight.
             default => null,
         };
     }
@@ -146,6 +172,24 @@ class GooglePlayWebhookController extends Controller
         } catch (\Throwable $e) {
             Log::warning('Failed to send cancellation email', ['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Account hold: grace is over and Google has suspended the subscription.
+     *
+     * Access has to stop now. `past_due` is kept rather than `expired` because
+     * a hold is recoverable - the user can fix their card and Google sends
+     * RECOVERED, which re-reads the true expiry from the Play API and restores
+     * both the status and the date. Zeroing ends_at is what actually removes
+     * the entitlement, since every entitlement check is "status plus a future
+     * ends_at" rather than status alone.
+     */
+    private function hold(?Subscription $sub): void
+    {
+        $sub?->update([
+            'status' => 'past_due',
+            'ends_at' => now(),
+        ]);
     }
 
     private function acknowledgeIfNeeded(
