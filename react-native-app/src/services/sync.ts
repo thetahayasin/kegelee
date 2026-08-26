@@ -50,6 +50,48 @@ export const onSyncComplete = (cb: SyncCompleteListener): (() => void) => {
 };
 
 /**
+ * Fired when the server rejects this device's credentials outright.
+ *
+ * Every other sync failure is treated as "try again later", which is right: a
+ * tunnel, a dead wifi router or a 500 must never cost someone access to
+ * training they paid for. But that rule was applied to 401 as well, and a 401
+ * is not a maybe - it means the token is not valid for anyone, which is what a
+ * deleted account looks like from here.
+ *
+ * The effect was that deleting a user server-side left the app fully working:
+ * the local subscription row still had a future ends_at, the gate kept reading
+ * it, and every sync failed silently. The session only ended if the person
+ * happened to log out by hand. This is the signal that ends it for them.
+ */
+type AuthFailureListener = (userId: number) => void;
+const authFailureListeners = new Set<AuthFailureListener>();
+
+export const onAuthFailure = (cb: AuthFailureListener): (() => void) => {
+  authFailureListeners.add(cb);
+  return () => {
+    authFailureListeners.delete(cb);
+  };
+};
+
+/**
+ * 401 and 403 only.
+ *
+ * NOT status 0 (the request never landed - offline, DNS, timeout) and NOT 5xx
+ * (the server is broken, not the account). Widening this would hand every
+ * flaky network the power to sign people out, which is a far worse bug than
+ * the one it fixes.
+ */
+const isAuthRejection = (status?: number) => status === 401 || status === 403;
+
+const emitAuthFailure = (userId: number) => {
+  authFailureListeners.forEach((fn) => {
+    try {
+      fn(userId);
+    } catch {}
+  });
+};
+
+/**
  * Re-fetch the legal pages in whatever language i18n is now set to.
  *
  * Called after the user picks a new language. The full sync also carries the
@@ -175,6 +217,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     // 2. Push to Laravel
     const pushRes = await api.pushState(pushPayload);
     if (!pushRes.ok) {
+      if (isAuthRejection(pushRes.status)) emitAuthFailure(userId);
       return { success: false, error: `Push failed: ${pushRes.error}` };
     }
 
@@ -202,6 +245,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     ]);
     await markSynced;
     if (!pullRes.ok) {
+      if (isAuthRejection(pullRes.status)) emitAuthFailure(userId);
       return { success: false, error: `Pull failed: ${pullRes.error}` };
     }
 

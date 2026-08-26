@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee from '@notifee/react-native';
 import { api, setApiToken } from '../services/api';
 import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions } from '../db/queries';
-import { syncNow, onSyncComplete } from '../services/sync';
+import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
 import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo } from '../services/billing';
@@ -559,6 +559,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       })().catch(() => {});
     });
     return off;
+  }, [user]);
+
+  // The account this device is signed in as no longer exists, or is no longer
+  // allowed in. Deleting a user on the backend used to leave the app fully
+  // usable: the subscription gate reads the LOCAL subscriptions table, that row
+  // still had a future ends_at, and every sync failed quietly in the
+  // background - so a deleted account kept its access until someone logged out
+  // by hand.
+  //
+  // logout() is the right response rather than just closing the gate: the token
+  // is dead, so there is nothing left this session can do. It clears the token,
+  // the cached user, the SQLite tables and this device's reminders, which is
+  // exactly the cleanup a deleted account needs anyway.
+  useEffect(() => {
+    if (!user) return;
+    return onAuthFailure((rejectedUserId) => {
+      if (rejectedUserId !== user.id) return;
+      logout().catch(() => {});
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // RevenueCat pushes a new CustomerInfo whenever entitlements change -
