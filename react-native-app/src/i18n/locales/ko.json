@@ -343,12 +343,15 @@
     "error": "오류",
     "errorTitle": "오류",
     "failedToUpdateLevel": "훈련 레벨을 업데이트하지 못했습니다.",
+    "openSystemSettings": "휴대폰 설정 열기",
     "profile": "프로필",
     "scheduleReminders": "일정 및 알림",
     "setTheDifficultyOfKegel": "케겔 운동 프로그램의 난이도를 설정하세요",
     "theHigherTheLevelThe": "레벨이 높을수록 훈련이 어려워져요",
     "vibration": "진동",
-    "vibrationHint": "조일 때가 되면 진동합니다"
+    "vibrationHint": "조일 때가 되면 진동합니다",
+    "vibrationNoHardware": "이 휴대폰에는 진동 모터가 없어 이 신호를 느낄 수 없습니다.",
+    "vibrationSilencedBySystem": "휴대폰에서 진동이 꺼져 있어 이 신호를 느낄 수 없습니다."
   },
   "progress": {
     "bestResult": "최고 기록",

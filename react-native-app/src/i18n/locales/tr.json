@@ -343,12 +343,15 @@
     "error": "Hata",
     "errorTitle": "Hata",
     "failedToUpdateLevel": "Antrenman seviyesi güncellenemedi.",
+    "openSystemSettings": "Telefon ayarlarını aç",
     "profile": "Profil",
     "scheduleReminders": "Program ve hatırlatıcılar",
     "setTheDifficultyOfKegel": "Kegel antrenman programının zorluğunu ayarla",
     "theHigherTheLevelThe": "Seviye yükseldikçe antrenman zorlaşır",
     "vibration": "Titreşim",
-    "vibrationHint": "Kasma zamanı geldiğinde titrer"
+    "vibrationHint": "Kasma zamanı geldiğinde titrer",
+    "vibrationNoHardware": "Bu telefonda titreşim motoru yok, bu yüzden bu işaret hissedilemez.",
+    "vibrationSilencedBySystem": "Telefonunuzda titreşim kapalı, bu yüzden bu işareti hissetmeyeceksiniz."
   },
   "progress": {
     "bestResult": "en iyi sonuç",

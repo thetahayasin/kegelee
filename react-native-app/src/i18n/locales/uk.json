@@ -343,12 +343,15 @@
     "error": "Помилка",
     "errorTitle": "Помилка",
     "failedToUpdateLevel": "Не вдалося оновити рівень тренування.",
+    "openSystemSettings": "Відкрити налаштування телефону",
     "profile": "Профіль",
     "scheduleReminders": "Розклад і нагадування",
     "setTheDifficultyOfKegel": "Обери складність програми тренувань Кегеля",
     "theHigherTheLevelThe": "Що вищий рівень, то важче тренування",
     "vibration": "Вібрація",
-    "vibrationHint": "Вібрує, коли час стискати"
+    "vibrationHint": "Вібрує, коли час стискати",
+    "vibrationNoHardware": "У цьому телефоні немає вібромотора, тож цей сигнал неможливо відчути.",
+    "vibrationSilencedBySystem": "На вашому телефоні вимкнено вібрацію, тож ви не відчуєте цей сигнал."
   },
   "progress": {
     "bestResult": "найкращий результат",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -15,11 +15,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { SettingsSections } from '../settings/SettingsScreen';
 import { getAppSetting, saveAppSetting } from '../../db/queries';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { LEVELS, levelNameKey } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
+import {
+  getVibrationStatus,
+  cueSilencedReason,
+  openSystemSoundSettings,
+  SilencedReason,
+} from '../../services/vibration';
 import Svg, { Path } from 'react-native-svg';
 
 export const ProfileScreen = () => {
@@ -30,6 +36,49 @@ export const ProfileScreen = () => {
   const [levelModalVisible, setLevelModalVisible] = useState(false);
   const [updatingLevel, setUpdatingLevel] = useState(false);
 
+  // Vibration during a session. `haptics_enabled` already existed in the
+  // schema defaults but nothing read or wrote it, so it was a setting in name
+  // only - this is the control that makes it real.
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
+  useEffect(() => {
+    getAppSetting('haptics_enabled', '1')
+      .then((v) => setHapticsEnabled(v !== '0'))
+      .catch(() => {});
+  }, []);
+
+  const toggleHaptics = (next: boolean) => {
+    // Optimistic: the switch must move under the finger, not after a DB write.
+    setHapticsEnabled(next);
+    saveAppSetting('haptics_enabled', next ? '1' : '0', 'bool').catch(() => {});
+  };
+
+  // A switch that says "on" while the phone stays silent is the reason
+  // vibration gets reported as broken. The cue is an untagged one-shot, so the
+  // "Touch feedback" setting does not govern it - but missing hardware and the
+  // system-wide vibration switch still do, and neither is visible from here
+  // without asking. Re-checked on focus so returning from system settings
+  // clears the warning instead of stranding it until the next cold start.
+  const [silenced, setSilenced] = useState<SilencedReason>('none');
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getVibrationStatus()
+        .then((status) => {
+          if (!cancelled) setSilenced(cueSilencedReason(status));
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
+
+  // Every hook above this line. The guard used to sit directly under the
+  // useAuth call with three more hooks below it, so the render that first
+  // saw `user` as null (a logout while this tab is mounted, or the frame
+  // before the profile loads) ran a different number of hooks than the one
+  // before it - which React treats as a hook-order violation, not as an
+  // early return.
   if (!user) return null;
 
   const currentLevel = LEVELS[user.level_id] || LEVELS[1];
@@ -51,22 +100,6 @@ export const ProfileScreen = () => {
     } finally {
       setUpdatingLevel(false);
     }
-  };
-
-  // Vibration during a session. `haptics_enabled` already existed in the
-  // schema defaults but nothing read or wrote it, so it was a setting in name
-  // only - this is the control that makes it real.
-  const [hapticsEnabled, setHapticsEnabled] = useState(true);
-  useEffect(() => {
-    getAppSetting('haptics_enabled', '1')
-      .then((v) => setHapticsEnabled(v !== '0'))
-      .catch(() => {});
-  }, []);
-
-  const toggleHaptics = (next: boolean) => {
-    // Optimistic: the switch must move under the finger, not after a DB write.
-    setHapticsEnabled(next);
-    saveAppSetting('haptics_enabled', next ? '1' : '0', 'bool').catch(() => {});
   };
 
   return (
@@ -135,6 +168,36 @@ export const ProfileScreen = () => {
             accessibilityLabel={t('profile.vibration')}
           />
         </View>
+
+        {/* Only when the switch is on: with it off, nothing is expected to
+            buzz and the phone's own setting is beside the point. */}
+        {hapticsEnabled && silenced === 'systemOff' ? (
+          <TouchableOpacity
+            style={styles.vibrationNotice}
+            accessibilityRole="button"
+            activeOpacity={0.85}
+            onPress={() => {
+              openSystemSoundSettings().catch(() => {});
+            }}
+          >
+            <Text style={styles.vibrationNoticeText}>
+              {t('profile.vibrationSilencedBySystem')}
+            </Text>
+            <Text style={styles.vibrationNoticeLink}>
+              {t('profile.openSystemSettings')}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+
+        {/* No vibrator at all: stating it is honest, but there is nothing to
+            tap through to, so this one is not a button. */}
+        {hapticsEnabled && silenced === 'noHardware' ? (
+          <View style={styles.vibrationNotice}>
+            <Text style={styles.vibrationNoticeText}>
+              {t('profile.vibrationNoHardware')}
+            </Text>
+          </View>
+        ) : null}
       </View>
 
       {/* Everything the gear used to hide. */}
@@ -213,6 +276,16 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
   scroll: { paddingBottom: 32 },
   vibrationLabel: { flex: 1, paddingRight: 12 },
+  vibrationNotice: {
+    marginTop: SPACE.sm,
+    paddingVertical: SPACE.md,
+    paddingHorizontal: SPACE.lg,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.surface2,
+    gap: SPACE.xs,
+  },
+  vibrationNoticeText: { ...TYPE.bodySm, color: COLORS.textMuted, lineHeight: 19 },
+  vibrationNoticeLink: { ...TYPE.bodySm, color: COLORS.accent, fontWeight: '700' },
   menuHint: { fontSize: 12.5, color: COLORS.textDim, marginTop: 2 },
   container: {
     flex: 1,

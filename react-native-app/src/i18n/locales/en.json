@@ -343,12 +343,15 @@
     "error": "Error",
     "errorTitle": "Error",
     "failedToUpdateLevel": "Failed to update training level.",
+    "openSystemSettings": "Open phone settings",
     "profile": "Profile",
     "scheduleReminders": "Schedule & reminders",
     "setTheDifficultyOfKegel": "Set the difficulty of Kegel Training program",
     "theHigherTheLevelThe": "The higher the level, the harder the training",
     "vibration": "Vibration",
-    "vibrationHint": "Buzz when it is time to squeeze"
+    "vibrationHint": "Buzz when it is time to squeeze",
+    "vibrationNoHardware": "This phone does not have a vibration motor, so this cue cannot be felt.",
+    "vibrationSilencedBySystem": "Your phone has vibration switched off, so this cue will not be felt."
   },
   "progress": {
     "bestResult": "best result",

@@ -343,12 +343,15 @@
     "error": "त्रुटि",
     "errorTitle": "त्रुटि",
     "failedToUpdateLevel": "अभ्यास स्तर अपडेट नहीं हो सका।",
+    "openSystemSettings": "फ़ोन सेटिंग खोलें",
     "profile": "प्रोफ़ाइल",
     "scheduleReminders": "समय-सारणी और रिमाइंडर",
     "setTheDifficultyOfKegel": "केगेल अभ्यास कार्यक्रम की कठिनाई तय करें",
     "theHigherTheLevelThe": "स्तर जितना ऊँचा, अभ्यास उतना कठिन",
     "vibration": "कंपन",
-    "vibrationHint": "कसने का समय आने पर कंपन करता है"
+    "vibrationHint": "कसने का समय आने पर कंपन करता है",
+    "vibrationNoHardware": "इस फ़ोन में वाइब्रेशन मोटर नहीं है, इसलिए यह संकेत महसूस नहीं किया जा सकता।",
+    "vibrationSilencedBySystem": "आपके फ़ोन में वाइब्रेशन बंद है, इसलिए यह संकेत महसूस नहीं होगा।"
   },
   "progress": {
     "bestResult": "सर्वश्रेष्ठ नतीजा",

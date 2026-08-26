@@ -343,12 +343,15 @@
     "error": "خطأ",
     "errorTitle": "خطأ",
     "failedToUpdateLevel": "تعذّر تحديث مستوى التدريب.",
+    "openSystemSettings": "فتح إعدادات الهاتف",
     "profile": "الملف الشخصي",
     "scheduleReminders": "الجدول والتذكيرات",
     "setTheDifficultyOfKegel": "اختر مستوى صعوبة برنامج تمارين كيجل",
     "theHigherTheLevelThe": "كلما ارتفع المستوى، ازدادت صعوبة التدريب",
     "vibration": "الاهتزاز",
-    "vibrationHint": "يهتز عندما يحين وقت الشدّ"
+    "vibrationHint": "يهتز عندما يحين وقت الشدّ",
+    "vibrationNoHardware": "لا يحتوي هذا الهاتف على محرك اهتزاز، لذا لا يمكن الشعور بهذا التنبيه.",
+    "vibrationSilencedBySystem": "الاهتزاز مُعطَّل في هاتفك، لذا لن تشعر بهذا التنبيه."
   },
   "progress": {
     "bestResult": "أفضل نتيجة",

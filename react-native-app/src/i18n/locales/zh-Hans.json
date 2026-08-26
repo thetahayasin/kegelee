@@ -343,12 +343,15 @@
     "error": "错误",
     "errorTitle": "出错了",
     "failedToUpdateLevel": "训练等级更新失败。",
+    "openSystemSettings": "打开手机设置",
     "profile": "个人资料",
     "scheduleReminders": "日程与提醒",
     "setTheDifficultyOfKegel": "设置凯格尔训练计划的难度",
     "theHigherTheLevelThe": "等级越高，训练越难",
     "vibration": "振动",
-    "vibrationHint": "该收缩时震动提醒"
+    "vibrationHint": "该收缩时震动提醒",
+    "vibrationNoHardware": "此手机没有振动马达，因此无法感觉到这个提示。",
+    "vibrationSilencedBySystem": "你的手机已关闭振动，因此不会感觉到这个提示。"
   },
   "progress": {
     "bestResult": "最佳成绩",

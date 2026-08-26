@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, ScrollView, StyleSheet, Animated, Easing, Pressable } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { LessonCards } from '../../../components/LessonCards';
 import { COLORS, GLASS } from '../../../theme/colors';
 
@@ -12,8 +12,29 @@ interface Props {
 
 const TAPS_NEEDED = 3;
 
-const HEART =
-  'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+/** Diameter of the interactive circle. The fill translates by this. */
+const CIRCLE = 160;
+
+/**
+ * A sling between two anchor points, drawn slack and drawn lifted.
+ *
+ * This used to be a stock heart, which is the wrong organ and the wrong
+ * argument: the heart is the one muscle nobody can train on purpose, so the
+ * icon quietly contradicted the sentence under it ("A muscle you can train")
+ * and read as clip-art besides. The pelvic floor is a sling slung between the
+ * pelvic bones - the metaphor every clinician reaches for - and the thing that
+ * changes when it gets stronger is how far it sags.
+ *
+ * Two fixed paths rather than one animated one. Animating an SVG path means
+ * driving it from JS, and this app has already been crashed once by mixing a
+ * JS-driven SVG value with a native-driven opacity on the same node; a
+ * cross-fade between two static paths is a plain opacity animation, so the
+ * whole visual stays on the native driver.
+ */
+const SLING_W = 108;
+const SLING_H = 74;
+const SLING_SLACK = 'M8 12 C 8 40, 56 40, 56 12';
+const SLING_LIFTED = 'M8 12 C 8 25, 56 25, 56 12';
 
 // Icons here, words in the locale files.
 const BENEFITS = [
@@ -86,44 +107,113 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
     // "it responds like any other muscle" lands differently once you have
     // just made it happen with your thumb.
     const done = taps >= TAPS_NEEDED;
+    // The fill is a full-height panel pushed down out of the circle and drawn
+    // back up as the muscle trains, which is what `bottom: 0` and a scaleY were
+    // reaching for and never achieved: RN scales about a view's CENTRE, so the
+    // "rising level" rendered as a band floating across the middle of the
+    // circle, and with nothing clipping it the band kept its square corners
+    // straight through the curve. Translating a clipped panel needs no
+    // transform origin to be correct.
+    const fillOffset = level.interpolate({
+      inputRange: [0, 1],
+      outputRange: [CIRCLE, 0],
+      extrapolate: 'clamp',
+    });
+    // The sling straightens over the three taps. Ends match the resting and
+    // fully-trained values of `level` so the cross-fade tracks the same
+    // progress the fill does.
+    const slackOpacity = level.interpolate({
+      inputRange: [0.12, 0.12 + TAPS_NEEDED * 0.2],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+    const liftedOpacity = level.interpolate({
+      inputRange: [0.12, 0.12 + TAPS_NEEDED * 0.2],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    });
+
     return (
-      <View style={styles.center}>
-        <Pressable
-          onPress={squeeze}
-          disabled={done}
-          accessibilityRole="button"
-          accessibilityLabel={t('why.tapToSqueeze')}
-          style={styles.squeezeTarget}
-        >
-          <Animated.View
-            style={[
-              styles.heartCircle,
-              { transform: [{ scale: done ? breathe : squeezeScale }] },
-            ]}
+      <View style={styles.step}>
+        <View style={styles.stage}>
+          <Pressable
+            onPress={squeeze}
+            disabled={done}
+            accessibilityRole="button"
+            accessibilityLabel={t('why.tapToSqueeze')}
+            style={styles.squeezeTarget}
           >
             <Animated.View
-              style={[styles.squeezeFill, { transform: [{ scaleY: level }] }]}
-            />
-            <Svg width={64} height={64} viewBox="0 0 24 24" fill={COLORS.accent}>
-              <Path d={HEART} />
-            </Svg>
-          </Animated.View>
-        </Pressable>
+              style={[
+                styles.squeezeCircle,
+                { transform: [{ scale: done ? breathe : squeezeScale }] },
+              ]}
+            >
+              <Animated.View
+                style={[styles.squeezeFill, { transform: [{ translateY: fillOffset }] }]}
+              />
+              <View style={styles.sling}>
+                <Animated.View style={[styles.slingLayer, { opacity: slackOpacity }]}>
+                  <Svg width={SLING_W} height={SLING_H} viewBox="0 0 64 44">
+                    <Path
+                      d={SLING_SLACK}
+                      stroke={COLORS.accent}
+                      strokeOpacity={0.55}
+                      strokeWidth={5}
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  </Svg>
+                </Animated.View>
+                <Animated.View style={[styles.slingLayer, { opacity: liftedOpacity }]}>
+                  <Svg width={SLING_W} height={SLING_H} viewBox="0 0 64 44">
+                    <Path
+                      d={SLING_LIFTED}
+                      stroke={COLORS.accent}
+                      strokeWidth={5}
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  </Svg>
+                </Animated.View>
+                {/* The anchors do not move, so they are drawn once rather than
+                    cross-faded against themselves - two copies at matching
+                    opacity dip visibly at the halfway point. */}
+                <View style={styles.slingLayer} pointerEvents="none">
+                  <Svg width={SLING_W} height={SLING_H} viewBox="0 0 64 44">
+                    <Circle cx={8} cy={12} r={4} fill={COLORS.accent} />
+                    <Circle cx={56} cy={12} r={4} fill={COLORS.accent} />
+                  </Svg>
+                </View>
+              </View>
+            </Animated.View>
+          </Pressable>
 
-        <View style={styles.tapPips}>
-          {Array.from({ length: TAPS_NEEDED }).map((_, i) => (
-            <View key={i} style={[styles.tapPip, i < taps && styles.tapPipOn]} />
-          ))}
+          <View style={styles.tapPips}>
+            {Array.from({ length: TAPS_NEEDED }).map((_, i) => (
+              <View key={i} style={[styles.tapPip, i < taps && styles.tapPipOn]} />
+            ))}
+          </View>
+
+          {/* Fixed height, so losing the hint on the last tap does not resize
+              the stage and slide the circle out from under the thumb that just
+              tapped it. */}
+          <View style={styles.hintSlot}>
+            {done ? null : <Text style={styles.tapHint}>{t('why.tapToSqueeze')}</Text>}
+          </View>
         </View>
 
-        <Text style={styles.h1}>{t('why.aMuscleYouCanTrain')}</Text>
-        {done ? (
+        {/* Mounted from the start and revealed by `active`, rather than swapped
+            in when the third tap lands: the cards hold their own space either
+            way, so the heading and the artwork above them stay put instead of
+            jumping the moment the interaction pays off. */}
+        <View style={styles.copy}>
+          <Text style={styles.h1}>{t('why.aMuscleYouCanTrain')}</Text>
           <LessonCards
             lines={[t('why.cardRealMuscle'), t('why.cardAnywhere')]}
+            active={done}
           />
-        ) : (
-          <Text style={styles.tapHint}>{t('why.tapToSqueeze')}</Text>
-        )}
+        </View>
       </View>
     );
   }
@@ -189,9 +279,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  // Artwork takes the free space and stays centred in it; the words sit in a
+  // block of their own at the bottom. Previously every element was one centred
+  // column, so any change in the text below - the hint giving way to two cards
+  // - re-centred the whole thing and shunted the circle upward.
+  step: { flex: 1 },
+  stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  copy: { paddingBottom: 8 },
   squeezeTarget: { alignItems: 'center', justifyContent: 'center' },
-  // Rises from the bottom of the circle as the muscle is trained.
+  // Rises from the bottom of the circle as the muscle is trained. Full height,
+  // translated down out of sight and drawn back up - see fillOffset. Clipping
+  // is what makes it circular, and that lives on squeezeCircle.
   squeezeFill: {
     position: 'absolute',
     left: 0,
@@ -199,9 +297,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     height: '100%',
     backgroundColor: 'rgba(193, 255, 114, 0.16)',
-    transform: [{ scaleY: 0.12 }],
+  },
+  sling: { width: SLING_W, height: SLING_H, alignItems: 'center', justifyContent: 'center' },
+  slingLayer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tapPips: { flexDirection: 'row', gap: 8, marginTop: 18 },
+  hintSlot: { height: 30, justifyContent: 'center' },
   tapPip: {
     width: 26,
     height: 4,
@@ -210,7 +318,7 @@ const styles = StyleSheet.create({
   },
   tapPipOn: { backgroundColor: COLORS.accent },
   tapHint: {
-    marginTop: 12,
+    // No margin: hintSlot is a fixed-height box that centres this itself.
     textAlign: 'center',
     color: COLORS.textMuted,
     fontSize: 13,
@@ -218,19 +326,22 @@ const styles = StyleSheet.create({
   },
   benefitCardOpen: { borderColor: 'rgba(193, 255, 114, 0.35)' },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingVertical: 12 },
-  heartCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+  squeezeCircle: {
+    width: CIRCLE,
+    height: CIRCLE,
+    borderRadius: CIRCLE / 2,
     ...GLASS,
     borderWidth: 4,
     borderColor: 'rgba(193,255,114,0.5)',
     backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
+    // Without this the fill panel renders as a square straight through the
+    // curve - the visible bug this circle had.
+    overflow: 'hidden',
   },
   h1: {
-    marginTop: 28,
+    marginBottom: 20,
     fontSize: 28,
     fontWeight: 'bold',
     color: COLORS.white,

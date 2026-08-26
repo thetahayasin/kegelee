@@ -14,7 +14,11 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { COLORS, DISABLED_OPACITY, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
-import { getActiveSubscription, DBSubscription } from '../../db/queries';
+import {
+  getActiveSubscription,
+  subscriptionIsRenewing,
+  DBSubscription,
+} from '../../db/queries';
 import {
   PLANS,
   PlanDef,
@@ -171,7 +175,13 @@ export const PaywallScreen = () => {
         // price, so monthly->yearly is treated as an upgrade.
         if (!user) throw new Error(t('paywall.signInFirst'));
         const currentPlan = current ? planBySlug(current.plan_slug) : null;
-        const switching = !!currentPlan && currentPlan.slug !== plan.slug;
+        // A cancelled-but-unexpired subscription is still an entitlement, but
+        // it is NOT something Play will let us replace - there is no renewal
+        // left to swap. Sending the change flow anyway is what produced Play's
+        // "we were unable to change your plan" for anyone who cancelled and
+        // then came back. Buying plainly is the resubscribe path.
+        const switching =
+          !!currentPlan && currentPlan.slug !== plan.slug && subscriptionIsRenewing(current);
         // Rank the two plans by their REAL store prices where we have them.
         // The catalogue price is only an offline fallback: it is USD-only and
         // can drift from Play, which would otherwise pick the wrong
@@ -318,15 +328,18 @@ export const PaywallScreen = () => {
       if (!mounted) return;
       setActiveSub(current);
       activeSubRef.current = current;
-      // Never preselect the plan they already own: subscribe() decides it is
-      // not a switch when old and new slugs match, and re-buys it instead.
-      // A subscriber lands on the featured plan, or the first one that is not
-      // theirs if the featured plan IS theirs.
+      // Never preselect the plan a RENEWING subscriber already owns: there is
+      // nothing to buy there. Once they have cancelled it is the opposite -
+      // the plan they just lost is the one they are most likely coming back
+      // for, so it leads.
+      const renewing = subscriptionIsRenewing(current);
       const notCurrent = PLANS.filter((p) => p.slug !== current?.plan_slug);
       setSelectedPlan(
-        current
-          ? (notCurrent.find((p) => p.is_featured) ?? notCurrent[0])?.slug ?? null
-          : featuredPlan().slug,
+        !current
+          ? featuredPlan().slug
+          : renewing
+            ? (notCurrent.find((p) => p.is_featured) ?? notCurrent[0])?.slug ?? null
+            : current.plan_slug ?? featuredPlan().slug,
       );
 
       const pendingSlug = await takePendingPlan();
@@ -398,8 +411,14 @@ export const PaywallScreen = () => {
   };
   handleRestoreRef.current = handleRestore;
   const selectedPlanDef = planBySlug(selectedPlan);
+  // "Switch to X" only describes a real product change. After a cancellation
+  // any purchase is a fresh one, so the CTA must not promise a switch that
+  // Play will refuse to perform.
   const isUpgrade =
-    !!activeSub && !!selectedPlan && activeSub.plan_slug !== selectedPlan;
+    !!activeSub
+    && subscriptionIsRenewing(activeSub)
+    && !!selectedPlan
+    && activeSub.plan_slug !== selectedPlan;
   const selectedPricing = selectedPlanDef ? pricing[selectedPlanDef.slug] : undefined;
   // Advertise a trial only when the store actually serves one to THIS customer
   // (see getPlanPricing) and there is no current subscription - a plan switch
@@ -511,10 +530,15 @@ export const PaywallScreen = () => {
 
         {/* Plan cards */}
         <View style={styles.plansWrap}>
-          {(activeSub
-            // Managing a plan: show only what they can move TO. Rendering the
-            // plan they already own as a purchasable card invites a tap that
-            // cannot succeed.
+          {(activeSub && subscriptionIsRenewing(activeSub)
+            // Managing a live plan: show only what they can move TO. Rendering
+            // the plan they already own as a purchasable card invites a tap
+            // that cannot succeed.
+            //
+            // Once cancelled, that reasoning inverts. Hiding their old plan
+            // left the one thing they came to do - take it back - with no
+            // button anywhere on the screen, and pushed them onto a different
+            // plan whose change flow Play then refused outright.
             ? PLANS.filter((plan) => plan.slug !== activeSub.plan_slug)
             : PLANS
           ).map((plan) => {

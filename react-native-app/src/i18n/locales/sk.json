@@ -343,12 +343,15 @@
     "error": "Chyba",
     "errorTitle": "Chyba",
     "failedToUpdateLevel": "Tréningovú úroveň sa nepodarilo aktualizovať.",
+    "openSystemSettings": "Otvoriť nastavenia telefónu",
     "profile": "Profil",
     "scheduleReminders": "Rozvrh a pripomienky",
     "setTheDifficultyOfKegel": "Nastav náročnosť tréningového programu Kegel",
     "theHigherTheLevelThe": "Čím vyššia úroveň, tým náročnejší tréning",
     "vibration": "Vibrácie",
-    "vibrationHint": "Zavibruje, keď máš stiahnuť"
+    "vibrationHint": "Zavibruje, keď máš stiahnuť",
+    "vibrationNoHardware": "Tento telefón nemá vibračný motorček, takže tento signál nie je možné pocítiť.",
+    "vibrationSilencedBySystem": "Vo vašom telefóne sú vypnuté vibrácie, takže tento signál neucítite."
   },
   "progress": {
     "bestResult": "najlepší výsledok",

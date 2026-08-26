@@ -343,12 +343,15 @@
     "error": "Hiba",
     "errorTitle": "Hiba",
     "failedToUpdateLevel": "Nem sikerült frissíteni az edzésszintet.",
+    "openSystemSettings": "Telefon beállításainak megnyitása",
     "profile": "Profil",
     "scheduleReminders": "Ütemezés és emlékeztetők",
     "setTheDifficultyOfKegel": "Állítsd be a Kegel-edzésprogram nehézségét",
     "theHigherTheLevelThe": "Minél magasabb a szint, annál nehezebb az edzés",
     "vibration": "Rezgés",
-    "vibrationHint": "Rezeg, amikor szorítani kell"
+    "vibrationHint": "Rezeg, amikor szorítani kell",
+    "vibrationNoHardware": "Ebben a telefonban nincs rezgőmotor, így ez a jelzés nem érezhető.",
+    "vibrationSilencedBySystem": "A telefonodon ki van kapcsolva a rezgés, így nem fogod érezni ezt a jelzést."
   },
   "progress": {
     "bestResult": "legjobb eredmény",

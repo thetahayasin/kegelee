@@ -343,12 +343,15 @@
     "error": "Errore",
     "errorTitle": "Errore",
     "failedToUpdateLevel": "Impossibile aggiornare il livello di allenamento.",
+    "openSystemSettings": "Apri le impostazioni del telefono",
     "profile": "Profilo",
     "scheduleReminders": "Programma e promemoria",
     "setTheDifficultyOfKegel": "Imposta la difficoltà del programma di allenamento Kegel",
     "theHigherTheLevelThe": "Più alto è il livello, più duro è l'allenamento",
     "vibration": "Vibrazione",
-    "vibrationHint": "Vibra quando è il momento di contrarre"
+    "vibrationHint": "Vibra quando è il momento di contrarre",
+    "vibrationNoHardware": "Questo telefono non ha un motore di vibrazione, quindi questo segnale non si può sentire.",
+    "vibrationSilencedBySystem": "Sul tuo telefono la vibrazione è disattivata, quindi non sentirai questo segnale."
   },
   "progress": {
     "bestResult": "miglior risultato",

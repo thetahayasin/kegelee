@@ -650,7 +650,17 @@ export const requestPlanPurchase = async (
   }
 
   const rcPackage = await packageForPlan(plan);
-  const productChangeInfo = opts?.oldProductId
+  // Never ask Play to replace a product with itself. Play rejects that outright
+  // ("we were unable to change your plan") rather than treating it as a
+  // resubscribe, and the caller cannot always tell: plan slugs and store
+  // product ids are separate identifiers, so a stale or remapped subscription
+  // row can name a different slug that resolves to this very product. Compared
+  // on the normalized id because Play reports the purchased product as
+  // `productId:basePlanId` while the catalogue stores the bare id.
+  const sameAsCurrent =
+    !!opts?.oldProductId
+    && sameProduct(opts.oldProductId, packageProductId(rcPackage) || plan.store_product_id);
+  const productChangeInfo = opts?.oldProductId && !sameAsCurrent
     ? {
         oldProductIdentifier: opts.oldProductId,
         replacementMode: opts.replacementMode ?? WITH_TIME_PRORATION,
@@ -707,7 +717,24 @@ export const recordCompletedPurchase = async (
   const token = purchase.storeTransactionId
     || `revenuecat:${purchase.revenuecatAppUserId}:${normalizeStoreProductId(purchase.productId)}`;
 
-  if (await getSubscriptionByToken(token)) {
+  // The same token coming back is NOT automatically the same event.
+  // Resubscribing to a cancelled-but-still-running subscription restores the
+  // original Play purchase, so the token is unchanged while everything that
+  // matters about it has just changed: auto-renew back on, a new expiry, and a
+  // status that is no longer 'canceled'. Bailing on the token alone left that
+  // customer's row reading "canceled" immediately after they had paid to come
+  // back - the gate opened, but the paywall and every renewal check kept
+  // treating them as lapsed until a server webhook happened to correct it.
+  //
+  // So a duplicate is a row that already says exactly what this purchase says.
+  const existing = await getSubscriptionByToken(token);
+  if (
+    existing
+    && existing.plan_slug === plan.slug
+    && existing.ends_at === purchase.endsAt
+    && Number(existing.auto_renewing) === (purchase.autoRenewing ? 1 : 0)
+    && existing.status !== 'canceled'
+  ) {
     return 'duplicate';
   }
 

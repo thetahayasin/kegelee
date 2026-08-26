@@ -408,7 +408,12 @@ export const TrainingScreen = () => {
               }
             >
               <View style={!ex.unlocked && styles.lockedArt}>
-                <EquipmentIcon slug={ex.slug} size={72} />
+                {/* Sized against the CARD, not in isolation: these cards are
+                    half the screen wide, so a 72pt tile sat as a small square
+                    marooned in the middle of one with the label doing all the
+                    work. The equipment is what makes a card identifiable at a
+                    glance, so it gets the space. */}
+                <EquipmentIcon slug={ex.slug} size={104} />
               </View>
               <Text
                 style={[styles.exerciseName, !ex.unlocked && styles.exerciseNameLocked]}

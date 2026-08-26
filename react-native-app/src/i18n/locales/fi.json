@@ -343,12 +343,15 @@
     "error": "Virhe",
     "errorTitle": "Virhe",
     "failedToUpdateLevel": "Harjoittelutason päivitys epäonnistui.",
+    "openSystemSettings": "Avaa puhelimen asetukset",
     "profile": "Profiili",
     "scheduleReminders": "Aikataulu ja muistutukset",
     "setTheDifficultyOfKegel": "Valitse Kegel-harjoitusohjelman vaikeustaso",
     "theHigherTheLevelThe": "Mitä korkeampi taso, sitä kovempi harjoitus",
     "vibration": "Värinä",
-    "vibrationHint": "Värisee, kun on aika jännittää"
+    "vibrationHint": "Värisee, kun on aika jännittää",
+    "vibrationNoHardware": "Tässä puhelimessa ei ole värinämoottoria, joten tätä merkkiä ei voi tuntea.",
+    "vibrationSilencedBySystem": "Puhelimesi värinä on pois päältä, joten et tunne tätä merkkiä."
   },
   "progress": {
     "bestResult": "paras tulos",

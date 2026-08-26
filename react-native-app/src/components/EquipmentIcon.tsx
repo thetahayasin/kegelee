@@ -217,7 +217,13 @@ export const EquipmentIcon = React.memo(({
   const mapped = SLUG_TO_GLYPH[slug] || 'dumbbell';
   const flip = mapped.endsWith('-flip');
   const glyph = flip ? mapped.slice(0, -5) : mapped;
-  const inner = Math.round(size * (bare ? 0.9 : 0.66));
+  // The glyph's share of its tile. At 0.66 the drawn equipment was swimming in
+  // its own container - on the Training grid the tile was already under half
+  // the card's inner width, and two thirds of THAT left a glyph occupying
+  // barely a third of the card, which is what made those icons read as
+  // undersized next to their labels. 0.72 keeps a clear inset on all four
+  // sides while giving the artwork the room the tile was always reserving.
+  const inner = Math.round(size * (bare ? 0.9 : 0.72));
 
   return (
     <View

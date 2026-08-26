@@ -499,6 +499,24 @@ export const getActiveSubscription = async (userId: number): Promise<DBSubscript
   return subs.length > 0 ? subs[0] : null;
 };
 
+/**
+ * Whether this subscription can still be CHANGED at the store, as opposed to
+ * merely still granting access.
+ *
+ * getActiveSubscription deliberately keeps returning a cancelled row until
+ * ends_at passes, and it is right to: that entitlement is paid for and real
+ * until the period ends. Google Play draws the line somewhere else. A cancelled
+ * subscription has no future renewal left to replace, so launching the
+ * plan-change flow against one fails with Play's own "we were unable to change
+ * your plan" - which is how re-subscribing after a cancellation turned into a
+ * dead end. What that customer needs is a plain purchase, which is exactly what
+ * Play's resubscribe is.
+ *
+ * So: still entitled, but no longer switchable.
+ */
+export const subscriptionIsRenewing = (sub: DBSubscription | null | undefined): boolean =>
+  !!sub && Number(sub.auto_renewing) === 1 && sub.status !== 'canceled';
+
 export const getSubscriptionByToken = async (token: string): Promise<DBSubscription | null> => {
   const subs = await query('SELECT * FROM subscriptions WHERE purchase_token = ? LIMIT 1', [token]);
   return subs.length > 0 ? subs[0] : null;

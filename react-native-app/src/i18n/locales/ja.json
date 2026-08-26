@@ -343,12 +343,15 @@
     "error": "エラー",
     "errorTitle": "エラー",
     "failedToUpdateLevel": "トレーニングレベルを更新できませんでした。",
+    "openSystemSettings": "端末の設定を開く",
     "profile": "プロフィール",
     "scheduleReminders": "スケジュールとリマインダー",
     "setTheDifficultyOfKegel": "ケーゲルトレーニングの難易度を設定します",
     "theHigherTheLevelThe": "レベルが上がるほどトレーニングは難しくなります",
     "vibration": "バイブレーション",
-    "vibrationHint": "締めるタイミングで振動します"
+    "vibrationHint": "締めるタイミングで振動します",
+    "vibrationNoHardware": "この端末にはバイブレーション機能がないため、この合図は伝わりません。",
+    "vibrationSilencedBySystem": "お使いの端末でバイブレーションがオフになっているため、この合図は伝わりません。"
   },
   "progress": {
     "bestResult": "ベスト記録",

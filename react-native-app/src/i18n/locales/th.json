@@ -343,12 +343,15 @@
     "error": "ข้อผิดพลาด",
     "errorTitle": "ข้อผิดพลาด",
     "failedToUpdateLevel": "อัปเดตระดับการฝึกไม่สำเร็จ",
+    "openSystemSettings": "เปิดการตั้งค่าโทรศัพท์",
     "profile": "โปรไฟล์",
     "scheduleReminders": "ตารางและการแจ้งเตือน",
     "setTheDifficultyOfKegel": "ตั้งระดับความยากของโปรแกรมฝึกคีเกล",
     "theHigherTheLevelThe": "ยิ่งระดับสูง การฝึกก็ยิ่งหนัก",
     "vibration": "การสั่น",
-    "vibrationHint": "สั่นเมื่อถึงเวลาขมิบ"
+    "vibrationHint": "สั่นเมื่อถึงเวลาขมิบ",
+    "vibrationNoHardware": "โทรศัพท์เครื่องนี้ไม่มีมอเตอร์สั่น จึงไม่สามารถรู้สึกถึงสัญญาณนี้ได้",
+    "vibrationSilencedBySystem": "โทรศัพท์ของคุณปิดการสั่นไว้ คุณจึงจะไม่รู้สึกถึงสัญญาณนี้"
   },
   "progress": {
     "bestResult": "ผลดีที่สุด",

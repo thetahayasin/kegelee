@@ -343,12 +343,15 @@
     "error": "Feil",
     "errorTitle": "Feil",
     "failedToUpdateLevel": "Kunne ikke oppdatere treningsnivået.",
+    "openSystemSettings": "Åpne telefoninnstillinger",
     "profile": "Profil",
     "scheduleReminders": "Plan og påminnelser",
     "setTheDifficultyOfKegel": "Velg vanskelighetsgrad for Kegel-treningsprogrammet",
     "theHigherTheLevelThe": "Jo høyere nivå, jo hardere trening",
     "vibration": "Vibrasjon",
-    "vibrationHint": "Vibrerer når du skal stramme"
+    "vibrationHint": "Vibrerer når du skal stramme",
+    "vibrationNoHardware": "Denne telefonen har ingen vibrasjonsmotor, så dette signalet kan ikke kjennes.",
+    "vibrationSilencedBySystem": "Vibrering er slått av på telefonen din, så du vil ikke kjenne dette signalet."
   },
   "progress": {
     "bestResult": "beste resultat",

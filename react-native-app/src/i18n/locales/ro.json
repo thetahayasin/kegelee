@@ -343,12 +343,15 @@
     "error": "Eroare",
     "errorTitle": "Eroare",
     "failedToUpdateLevel": "Nu am putut actualiza nivelul de antrenament.",
+    "openSystemSettings": "Deschide setările telefonului",
     "profile": "Profil",
     "scheduleReminders": "Program și memento-uri",
     "setTheDifficultyOfKegel": "Setează dificultatea programului de antrenament Kegel",
     "theHigherTheLevelThe": "Cu cât nivelul e mai mare, cu atât antrenamentul e mai greu",
     "vibration": "Vibrație",
-    "vibrationHint": "Vibrează când e momentul să contracți"
+    "vibrationHint": "Vibrează când e momentul să contracți",
+    "vibrationNoHardware": "Acest telefon nu are motor de vibrare, așa că acest semnal nu poate fi simțit.",
+    "vibrationSilencedBySystem": "Vibrarea este dezactivată pe telefonul tău, așa că nu vei simți acest semnal."
   },
   "progress": {
     "bestResult": "cel mai bun rezultat",

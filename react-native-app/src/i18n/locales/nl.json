@@ -343,12 +343,15 @@
     "error": "Fout",
     "errorTitle": "Fout",
     "failedToUpdateLevel": "Kon het trainingsniveau niet bijwerken.",
+    "openSystemSettings": "Telefooninstellingen openen",
     "profile": "Profiel",
     "scheduleReminders": "Schema en herinneringen",
     "setTheDifficultyOfKegel": "Stel de moeilijkheidsgraad van het Kegel-trainingsprogramma in",
     "theHigherTheLevelThe": "Hoe hoger het niveau, hoe zwaarder de training",
     "vibration": "Trillen",
-    "vibrationHint": "Trilt wanneer je moet aanspannen"
+    "vibrationHint": "Trilt wanneer je moet aanspannen",
+    "vibrationNoHardware": "Deze telefoon heeft geen trilmotor, dus dit signaal is niet te voelen.",
+    "vibrationSilencedBySystem": "Trillen staat uit op je telefoon, dus je voelt dit signaal niet."
   },
   "progress": {
     "bestResult": "beste resultaat",

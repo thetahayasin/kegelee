@@ -281,10 +281,6 @@ export const WorkoutScreen = () => {
         // transition, so without this the very first cue - the one the user is
         // actually waiting for - never fired. Trials already had it.
         cueStep(session.steps[0]);
-        // The opening Contract of the session. advanceStep only runs on a
-        // transition, so without this the very first cue - the one the user is
-        // waiting for - never fired.
-        cueStep(session.steps[0]);
       } catch (e) {
         console.error(e);
         setLoading(false);
