@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { LessonCards } from '../../../components/LessonCards';
 import { COLORS, GLASS, TYPE } from '../../../theme/colors';
@@ -20,11 +20,6 @@ const BENEFITS = [
 
 export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
   const { t } = useTranslation();
-
-  // Step 1: which benefits the reader has opened.
-  const [revealed, setRevealed] = useState<string[]>([]);
-  const toggle = (key: string) =>
-    setRevealed(prev => (prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]));
 
   useEffect(() => {
     if (step === 2) {
@@ -60,35 +55,27 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
   }
 
   if (step === 1) {
+    // Titles only, and nothing to tap.
+    //
+    // Each card used to hide a one-line description behind a press, with a
+    // "tap any one to see what changes" hint above telling you to go looking.
+    // That is four taps of work to reveal four short sentences, on a step
+    // whose whole job is to list what improves - and the titles already say
+    // it. The descriptions and the hint are gone; the list reads at a glance.
     return (
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.h1}>{t('why.whatYouGain')}</Text>
-        <Text style={styles.tapHint}>{t('why.tapToSeeWhatChanges')}</Text>
-        <View style={{ gap: 12, marginTop: 22 }}>
-          {BENEFITS.map(b => {
-            const open = revealed.includes(b.key);
-            return (
-              <Pressable
-                key={b.key}
-                onPress={() => toggle(b.key)}
-                accessibilityRole="button"
-                accessibilityState={{ expanded: open }}
-                style={[styles.benefitCard, open && styles.benefitCardOpen]}
-              >
-                <View style={styles.benefitIcon}>
-                  <Svg width={24} height={24} viewBox="0 0 24 24" fill={COLORS.accent}>
-                    <Path d={b.icon} />
-                  </Svg>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.benefitTitle}>{t(`why.benefit_${b.key}_title`)}</Text>
-                  {open ? (
-                    <Text style={styles.benefitDesc}>{t(`why.benefit_${b.key}_desc`)}</Text>
-                  ) : null}
-                </View>
-              </Pressable>
-            );
-          })}
+        <View style={styles.benefitList}>
+          {BENEFITS.map(b => (
+            <View key={b.key} style={styles.benefitCard}>
+              <View style={styles.benefitIcon}>
+                <Svg width={24} height={24} viewBox="0 0 24 24" fill={COLORS.accent}>
+                  <Path d={b.icon} />
+                </Svg>
+              </View>
+              <Text style={styles.benefitTitle}>{t(`why.benefit_${b.key}_title`)}</Text>
+            </View>
+          ))}
         </View>
       </ScrollView>
     );
@@ -105,7 +92,6 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
         lines={[
           t('why.theNextLessonShowsYou'),
           t('why.thenYouDoYourFirst'),
-          t('why.learnItOnceAndEvery'),
         ]}
       />
     </ScrollView>
@@ -136,13 +122,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  // Sits directly under h1, which carries the gap in its own marginBottom.
-  tapHint: {
-    textAlign: 'center',
-    color: COLORS.textMuted,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  benefitList: { gap: 12, marginTop: 22 },
   benefitCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -152,7 +132,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     padding: 16,
   },
-  benefitCardOpen: { borderColor: 'rgba(193, 255, 114, 0.35)' },
   benefitIcon: {
     width: 48,
     height: 48,
@@ -161,6 +140,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  benefitTitle: { fontSize: 17, fontWeight: 'bold', color: COLORS.white },
-  benefitDesc: { marginTop: 2, fontSize: 14, color: COLORS.textMuted },
+  benefitTitle: { flex: 1, fontSize: 17, fontWeight: 'bold', color: COLORS.white },
 });
