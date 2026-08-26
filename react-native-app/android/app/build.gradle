@@ -160,7 +160,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 70
-        versionName "1.0.61"
+        versionName "1.0.62"
 
         // CMake arguments:
         //  - CMAKE_OBJECT_PATH_MAX: belt-and-suspenders cap on New-Arch codegen

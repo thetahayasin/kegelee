@@ -1,196 +1,110 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
-  Animated,
-  Easing,
-  AccessibilityInfo,
+  FlatList,
+  Dimensions,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableOpacity } from '../../components/Touchable';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { TouchableOpacity } from '../../components/Touchable';
 import type { AuthStackParamList } from '../../navigation/AppNavigator';
-import { COLORS, TYPE, SPACE, RADIUS, GLASS } from '../../theme/colors';
-import { OnboardingArt } from '../../components/OnboardingArt';
-import { Watermark } from '../../components/Watermark';
+import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { SubscribeSheet } from '../../components/SubscribeSheet';
-import { ONBOARDING_QUIZ_KEY } from '../../context/AuthContext';
 
 /**
- * First run: a hook, three taps, and a plan.
+ * First run: three photographs, three lines, one button.
  *
- * This replaced four swipeable slides. Slides ask someone who has just
- * installed an app to read four paragraphs about a muscle before they are
- * allowed to do anything, and the only interaction on offer is "next" - so the
- * screens got skipped and the app started cold, with the person no more
- * invested than before they opened it.
+ * Two earlier versions failed for opposite reasons. Animated SVG art looked
+ * synthetic and crashed the app on launch; a tap-through quiz ending in a
+ * generated "plan" screen read as filler standing between the user and the
+ * product. What is left is the oldest and most reliable shape there is - a
+ * photo, a headline, a sentence - because there is nothing in it to get wrong.
  *
- * Questions invert that. Each one is a single tap, the whole quiz is under ten
- * seconds, and at the end the answers produce a real starting level rather than
- * a congratulations screen: the LEVELS catalogue runs 1-5 minutes per session,
- * so "how long can you give this" maps straight onto it. Someone who has
- * answered three questions about their own body has also decided something,
- * which is the point - the plans screen that follows is asking them to continue
- * rather than to start.
+ * The motion is a paging FlatList, so swiping uses the platform's own scroll
+ * physics rather than anything hand-rolled. That is the whole reason it feels
+ * right: no easing curve invented here beats the one the OS already ships.
+ *
+ * The photographs are quiet interiors, not people. Stock images of models in
+ * workout clothes are exactly what "generic app" looks like, and in a category
+ * Play treats as sensitive a cropped torso is a listing risk as well. These
+ * read as private, ordinary places, which is the actual promise: you can do
+ * this anywhere and nobody can tell.
+ *
+ * Images are Pexels, free for commercial use, no attribution required.
+ * Bundled rather than fetched, so the first screen never waits on a network
+ * that might not be there.
  */
 
-// The key lives in AuthContext, which is what consumes it after sign-up.
+const { width, height } = Dimensions.get('window');
+const ART_H = Math.round(height * 0.52);
 
-type QuestionKey = 'goal' | 'experience' | 'minutes';
-
-interface Question {
-  key: QuestionKey;
-  titleKey: string;
-  captionKey: string;
-  options: { value: string; labelKey: string }[];
-}
-
-const QUESTIONS: Question[] = [
+const SLIDES = [
   {
-    key: 'goal',
-    titleKey: 'quiz.goalTitle',
-    captionKey: 'quiz.goalCaption',
-    options: [
-      { value: 'bladder', labelKey: 'quiz.goalBladder' },
-      { value: 'performance', labelKey: 'quiz.goalPerformance' },
-      { value: 'recovery', labelKey: 'quiz.goalRecovery' },
-      { value: 'strength', labelKey: 'quiz.goalStrength' },
-    ],
+    key: 'private',
+    art: require('../../assets/onboarding/private.jpg'),
+    titleKey: 'onboarding.slide1Title',
+    bodyKey: 'onboarding.slide1Body',
   },
   {
-    key: 'experience',
-    titleKey: 'quiz.experienceTitle',
-    captionKey: 'quiz.experienceCaption',
-    options: [
-      { value: 'never', labelKey: 'quiz.experienceNever' },
-      { value: 'some', labelKey: 'quiz.experienceSome' },
-      { value: 'regular', labelKey: 'quiz.experienceRegular' },
-    ],
+    key: 'anywhere',
+    art: require('../../assets/onboarding/anywhere.jpg'),
+    titleKey: 'onboarding.slide2Title',
+    bodyKey: 'onboarding.slide2Body',
   },
   {
-    key: 'minutes',
-    titleKey: 'quiz.minutesTitle',
-    captionKey: 'quiz.minutesCaption',
-    options: [
-      { value: '1', labelKey: 'quiz.minutes1' },
-      { value: '2', labelKey: 'quiz.minutes2' },
-      { value: '3', labelKey: 'quiz.minutes3' },
-      { value: '5', labelKey: 'quiz.minutes5' },
-    ],
+    key: 'routine',
+    art: require('../../assets/onboarding/routine.jpg'),
+    titleKey: 'onboarding.slide4Title',
+    bodyKey: 'onboarding.slide4Body',
   },
 ];
 
 /**
- * Turn the answers into a starting level.
+ * Fades the photograph into the page rather than cutting it off.
  *
- * Minutes decide it outright, because a level IS its session length here.
- * Experience only ever pulls DOWN: someone who has never done this and picks
- * five minutes gets level 2, not level 5. Erring low is deliberate - a first
- * session that feels easy gets repeated, one that feels impossible does not,
- * and the app raises the level on its own once "too easy" comes back.
+ * A hard edge between a photo and a solid ground is the detail that makes an
+ * app look assembled instead of designed. Drawn with react-native-svg because
+ * no gradient package is installed, and adding a native dependency for one
+ * rectangle is not worth the build risk.
  */
-const levelFromAnswers = (answers: Partial<Record<QuestionKey, string>>): number => {
-  const fromMinutes = Number(answers.minutes ?? '2');
-  const level = Number.isFinite(fromMinutes) ? Math.min(5, Math.max(1, fromMinutes)) : 2;
-  if (answers.experience === 'never') return Math.min(level, 2);
-  if (answers.experience === 'some') return Math.min(level, 4);
-  return level;
-};
+const Scrim = () => (
+  <Svg width={width} height={ART_H} style={StyleSheet.absoluteFill} pointerEvents="none">
+    <Defs>
+      <LinearGradient id="obScrim" x1="0" y1="0" x2="0" y2="1">
+        <Stop offset="0" stopColor={COLORS.bg} stopOpacity="0.5" />
+        <Stop offset="0.45" stopColor={COLORS.bg} stopOpacity="0.3" />
+        <Stop offset="0.82" stopColor={COLORS.bg} stopOpacity="0.92" />
+        <Stop offset="1" stopColor={COLORS.bg} stopOpacity="1" />
+      </LinearGradient>
+    </Defs>
+    <Rect width={width} height={ART_H} fill="url(#obScrim)" />
+  </Svg>
+);
 
 interface OnboardingScreenProps {
   onComplete: () => void;
 }
 
-const CheckIcon = () => (
-  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M5 13l4 4L19 7"
-      stroke={COLORS.onAccent}
-      strokeWidth={2.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
+  const listRef = useRef<FlatList>(null);
 
-  // 0 = the hook, 1..3 = questions, 4 = the plan.
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Partial<Record<QuestionKey, string>>>({});
-  const [pending, setPending] = useState<string | null>(null);
+  const [index, setIndex] = useState(0);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const isLast = index === SLIDES.length - 1;
 
-  const fade = useRef(new Animated.Value(1)).current;
-
-  // Asked once on mount, not on every render - it is a native round trip, and
-  // in the body it fired again on each of the three answer taps.
-  const reduceMotion = useRef(false);
-  useEffect(() => {
-    let alive = true;
-    AccessibilityInfo.isReduceMotionEnabled()
-      .then((v) => {
-        if (alive) reduceMotion.current = v;
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
+  const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const next = Math.round(e.nativeEvent.contentOffset.x / width);
+    setIndex((cur) => (cur === next ? cur : next));
   }, []);
-
-  const question = step >= 1 && step <= QUESTIONS.length ? QUESTIONS[step - 1] : null;
-  const isResult = step === QUESTIONS.length + 1;
-  const level = levelFromAnswers(answers);
-
-  // Cross-fade between steps. Sliding the whole screen would fight the back
-  // gesture, and a hard cut makes three fast taps feel like a flicker.
-  const goTo = useCallback(
-    (next: number) => {
-      if (reduceMotion.current) {
-        setStep(next);
-        return;
-      }
-      Animated.timing(fade, {
-        toValue: 0,
-        duration: 110,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }).start(() => {
-        setStep(next);
-        Animated.timing(fade, {
-          toValue: 1,
-          duration: 160,
-          easing: Easing.out(Easing.quad),
-          useNativeDriver: true,
-        }).start();
-      });
-    },
-    [fade],
-  );
-
-  const choose = (key: QuestionKey, value: string) => {
-    setPending(value);
-    const next = { ...answers, [key]: value };
-    setAnswers(next);
-    // Let the selected state paint before moving on, so the tap is
-    // acknowledged rather than the screen just changing under the finger.
-    setTimeout(() => {
-      setPending(null);
-      if (step === QUESTIONS.length) {
-        AsyncStorage.setItem(
-          ONBOARDING_QUIZ_KEY,
-          JSON.stringify({ ...next, level: levelFromAnswers(next) }),
-        ).catch(() => {});
-      }
-      goTo(step + 1);
-    }, 220);
-  };
 
   // Finishing lands on the plans. Dismissing the sheet drops the guest into the
   // free basics, which becomes the stack root.
@@ -215,138 +129,63 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     });
   };
 
-  const back = () => goTo(Math.max(0, step - 1));
+  const advance = () => {
+    if (isLast) {
+      finish();
+      return;
+    }
+    listRef.current?.scrollToIndex({ index: index + 1, animated: true });
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Watermark />
-
-      <View style={styles.header}>
-        {step > 0 ? (
-          <TouchableOpacity onPress={back} style={styles.headerBtn} hitSlop={10}
-            accessibilityRole="button" accessibilityLabel={t('quiz.back')}>
-            <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2}
-                strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.headerBtn} />
-        )}
-
-        {/* Progress across the three questions only - the hook and the plan are
-            not steps the user is working through. */}
-        {question ? (
-          <View style={styles.progressTrack}>
-            {QUESTIONS.map((q, i) => (
-              <View
-                key={q.key}
-                style={[styles.progressSeg, i < step && styles.progressSegDone]}
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      <FlatList
+        ref={listRef}
+        data={SLIDES}
+        horizontal
+        pagingEnabled
+        bounces={false}
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        keyExtractor={(s) => s.key}
+        getItemLayout={(_d, i) => ({ length: width, offset: width * i, index: i })}
+        renderItem={({ item }) => (
+          <View style={styles.slide}>
+            <View style={styles.art}>
+              <Image
+                source={item.art}
+                style={styles.artImage}
+                resizeMode="cover"
+                accessibilityRole="image"
+                accessible={false}
               />
-            ))}
-          </View>
-        ) : (
-          <View style={styles.progressTrack} />
-        )}
-
-        <TouchableOpacity onPress={finish} style={styles.headerBtn} hitSlop={10}
-          accessibilityRole="button" accessibilityLabel={t('quiz.skip')}>
-          <Text style={styles.skipText}>{t('quiz.skip')}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Animated.View style={[styles.body, { opacity: fade }]}>
-        {step === 0 && (
-          <View style={styles.introWrap}>
-            <View style={styles.introVisual}>
-              <OnboardingArt active />
+              <Scrim />
             </View>
-            <Text style={styles.introTitle}>{t('onboarding.slide1Title')}</Text>
-            <Text style={styles.introBody}>{t('onboarding.slide1Body')}</Text>
-          </View>
-        )}
-
-        {question && (
-          <View style={styles.questionWrap}>
-            <Text style={styles.stepCount}>
-              {t('quiz.stepOf', { current: step, total: QUESTIONS.length })}
-            </Text>
-            <Text style={styles.questionTitle}>{t(question.titleKey)}</Text>
-            <Text style={styles.questionCaption}>{t(question.captionKey)}</Text>
-
-            <View style={styles.options}>
-              {question.options.map((opt) => {
-                const selected =
-                  pending === opt.value || answers[question.key] === opt.value;
-                return (
-                  <TouchableOpacity
-                    key={opt.value}
-                    style={[styles.option, selected && styles.optionSelected]}
-                    onPress={() => choose(question.key, opt.value)}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                  >
-                    <Text
-                      style={[styles.optionText, selected && styles.optionTextSelected]}
-                    >
-                      {t(opt.labelKey)}
-                    </Text>
-                    {selected ? (
-                      <View style={styles.optionCheck}>
-                        <CheckIcon />
-                      </View>
-                    ) : (
-                      <View style={styles.optionDot} />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={styles.copy}>
+              <Text style={styles.title}>{t(item.titleKey)}</Text>
+              <Text style={styles.body}>{t(item.bodyKey)}</Text>
             </View>
           </View>
         )}
-
-        {isResult && (
-          <View style={styles.resultWrap}>
-            <Text style={styles.resultEyebrow}>{t('quiz.resultEyebrow')}</Text>
-            <Text style={styles.resultTitle}>
-              {t('quiz.resultLevel', { level })}
-            </Text>
-
-            <View style={styles.resultCard}>
-              <View style={styles.resultRow}>
-                <Text style={styles.resultRowLabel}>{t('quiz.resultPerDay')}</Text>
-                <Text style={styles.resultRowValue}>{t('quiz.resultTwoSessions')}</Text>
-              </View>
-              <View style={styles.resultDivider} />
-              <View style={styles.resultRow}>
-                <Text style={styles.resultRowLabel}>{t('quiz.resultEachSession')}</Text>
-                <Text style={styles.resultRowValue}>
-                  {t('quiz.resultMinutes', { count: level })}
-                </Text>
-              </View>
-              <View style={styles.resultDivider} />
-              <View style={styles.resultRow}>
-                <Text style={styles.resultRowLabel}>{t('quiz.resultAdjusts')}</Text>
-                <Text style={styles.resultRowValue}>{t('quiz.resultAutomatic')}</Text>
-              </View>
-            </View>
-
-            <Text style={styles.resultNote}>{t('quiz.resultNote')}</Text>
-          </View>
-        )}
-      </Animated.View>
+      />
 
       <View style={styles.footer}>
-        {step === 0 && (
-          <TouchableOpacity style={styles.cta} onPress={() => goTo(1)}>
-            <Text style={styles.ctaText}>{t('quiz.startCta')}</Text>
-          </TouchableOpacity>
-        )}
-        {isResult && (
-          <TouchableOpacity style={styles.cta} onPress={finish}>
-            <Text style={styles.ctaText}>{t('quiz.resultCta')}</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.dots}>
+          {SLIDES.map((s, i) => (
+            <View key={s.key} style={[styles.dot, i === index && styles.dotOn]} />
+          ))}
+        </View>
+
+        <TouchableOpacity style={styles.cta} onPress={advance} accessibilityRole="button">
+          {/* "Continue" on the way through, not "Skip" - the button advances,
+              and labelling an advance control Skip is a lie about what it does.
+              Reuses progress.continue rather than minting a second key holding
+              the identical word in 29 locales. */}
+          <Text style={styles.ctaText}>
+            {isLast ? t('onboarding.getStarted') : t('progress.continue')}
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.loginLink} onPress={goToLogin}>
           <Text style={styles.loginLinkText}>
@@ -369,120 +208,32 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACE.lg,
-    paddingTop: SPACE.sm,
-    gap: SPACE.md,
-  },
-  headerBtn: {
-    minWidth: 56,
-    height: 44,
-    justifyContent: 'center',
-  },
-  skipText: { ...TYPE.bodySm, color: COLORS.textMuted, textAlign: 'right' },
+  slide: { width, flex: 1 },
+  art: { height: ART_H, width, backgroundColor: COLORS.surface },
+  artImage: { height: ART_H, width },
 
-  progressTrack: { flex: 1, flexDirection: 'row', gap: 6 },
-  progressSeg: {
+  copy: {
     flex: 1,
-    height: 4,
-    borderRadius: RADIUS.pill,
-    backgroundColor: 'rgba(242, 245, 238, 0.12)',
-  },
-  progressSegDone: { backgroundColor: COLORS.accent },
-
-  body: { flex: 1, paddingHorizontal: SPACE.xl },
-
-  introWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  introVisual: { marginBottom: SPACE.xl },
-  introTitle: {
-    ...TYPE.display,
-    color: COLORS.white,
-    textAlign: 'center',
-    marginBottom: SPACE.md,
-  },
-  introBody: {
-    ...TYPE.body,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    lineHeight: 22,
-    maxWidth: 340,
-  },
-
-  questionWrap: { flex: 1, justifyContent: 'center' },
-  stepCount: {
-    ...TYPE.overline,
-    color: COLORS.accent,
-    marginBottom: SPACE.sm,
-  },
-  questionTitle: { ...TYPE.title, color: COLORS.white, marginBottom: SPACE.xs },
-  questionCaption: {
-    ...TYPE.bodySm,
-    color: COLORS.textMuted,
-    marginBottom: SPACE.xl,
-  },
-  options: { gap: SPACE.md },
-  option: {
-    minHeight: 60,
-    borderRadius: RADIUS.lg,
-    backgroundColor: COLORS.surface2,
-    ...GLASS,
-    paddingHorizontal: SPACE.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: SPACE.xl,
+    paddingTop: SPACE.xl,
     gap: SPACE.md,
   },
-  optionSelected: {
-    borderColor: COLORS.accent,
-    backgroundColor: 'rgba(193, 255, 114, 0.12)',
-  },
-  optionText: { ...TYPE.section, color: COLORS.white, flex: 1 },
-  optionTextSelected: { color: COLORS.white },
-  optionDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1.5,
-    borderColor: 'rgba(242, 245, 238, 0.22)',
-  },
-  optionCheck: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: COLORS.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  title: { ...TYPE.display, color: COLORS.white },
+  // Body weight, not a muted decorative grey: this is the only sentence on the
+  // screen, so it has to clear the text contrast threshold on a near-black
+  // ground rather than the 3:1 allowed for large or non-text elements.
+  body: { ...TYPE.body, color: COLORS.textMuted, lineHeight: 23, maxWidth: 380 },
 
-  resultWrap: { flex: 1, justifyContent: 'center' },
-  resultEyebrow: { ...TYPE.overline, color: COLORS.accent, marginBottom: SPACE.sm },
-  resultTitle: { ...TYPE.display, color: COLORS.white, marginBottom: SPACE.xl },
-  resultCard: {
-    borderRadius: RADIUS.lg,
-    backgroundColor: COLORS.surface2,
-    ...GLASS,
-    paddingHorizontal: SPACE.lg,
+  footer: { paddingHorizontal: SPACE.xl, paddingBottom: SPACE.lg, gap: SPACE.lg },
+  dots: { flexDirection: 'row', gap: 7, justifyContent: 'center' },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: 'rgba(242, 245, 238, 0.18)',
   },
-  resultRow: {
-    minHeight: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: SPACE.md,
-  },
-  resultRowLabel: { ...TYPE.body, color: COLORS.textMuted, flex: 1 },
-  resultRowValue: { ...TYPE.section, color: COLORS.white },
-  resultDivider: { height: 1, backgroundColor: COLORS.border },
-  resultNote: {
-    ...TYPE.bodySm,
-    color: COLORS.textDim,
-    marginTop: SPACE.lg,
-    lineHeight: 20,
-  },
+  dotOn: { backgroundColor: COLORS.accent, width: 22 },
 
-  footer: { paddingHorizontal: SPACE.xl, paddingBottom: SPACE.lg, gap: SPACE.md },
   cta: {
     height: 56,
     borderRadius: RADIUS.xl,
@@ -491,7 +242,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ctaText: { ...TYPE.section, color: COLORS.onAccent },
-  loginLink: { alignItems: 'center', paddingVertical: SPACE.sm },
+  loginLink: { alignItems: 'center' },
   loginLinkText: { ...TYPE.bodySm, color: COLORS.textMuted },
   loginLinkStrong: { color: COLORS.accent, fontWeight: '700' },
 });

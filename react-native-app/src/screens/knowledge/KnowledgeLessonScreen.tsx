@@ -25,6 +25,7 @@ import { WhyLesson } from './lessons/WhyLesson';
 import { FindLesson } from './lessons/FindLesson';
 import { FirstLesson } from './lessons/FirstLesson';
 import { Watermark } from '../../components/Watermark';
+import { SwipeSteps } from '../../components/SwipeSteps';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -126,15 +127,20 @@ export const KnowledgeLessonScreen = () => {
         ))}
       </View>
 
-      <View style={styles.body}>
-        {slug === 'why' ? (
-          <WhyLesson {...lessonProps} />
-        ) : slug === 'find' ? (
-          <FindLesson {...lessonProps} />
-        ) : (
-          <FirstLesson {...lessonProps} />
-        )}
-      </View>
+      {/* Swipe left/right between steps as well as the buttons below - the
+          gesture every phone user already has for "next" previously did
+          nothing on these screens. */}
+      <SwipeSteps step={step} count={LAST + 1} onChange={go}>
+        <View style={styles.body}>
+          {slug === 'why' ? (
+            <WhyLesson {...lessonProps} />
+          ) : slug === 'find' ? (
+            <FindLesson {...lessonProps} />
+          ) : (
+            <FirstLesson {...lessonProps} />
+          )}
+        </View>
+      </SwipeSteps>
 
       {/* Navigation */}
       <View style={styles.nav}>
