@@ -25,6 +25,7 @@ import {
   featuredPlan,
   planNameKey,
   planDescriptionKey,
+  planPeriodKey,
 } from '../constants/plans';
 import { planMonths, perMonthLabel, savingsPercent } from '../constants/pricing';
 import { GoogleLogo } from './GoogleLogo';
@@ -132,9 +133,38 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
     };
   }, [visible]);
 
-  const trialDays =
-    PLANS.map((p) => pricing[p.slug]?.freeTrialDays).find((days) => !!days) ?? null;
   const selectedPlanDef = PLANS.find((p) => p.slug === selectedPlan) ?? featuredPlan();
+
+  /**
+   * The trial on THE PLAN THEY PICKED. Everything the user is promised - the
+   * button and the renewal line - reads this and nothing else.
+   *
+   * These were one value taken with `.find()`, which is the first plan that
+   * happens to have a trial. Pick a plan without one and the button still said
+   * "Start 3-Day Free Trial", and the charge landed immediately. A trial claim
+   * has to come from the product being bought.
+   */
+  const selectedTrialDays = pricing[selectedPlanDef.slug]?.freeTrialDays ?? null;
+
+  /**
+   * The banner over the cards says "EVERY plan starts with...", so it may only
+   * appear when that is literally true: every plan carries a trial, and they
+   * agree on the length. Otherwise the offer is stated per plan, below.
+   */
+  const perPlanTrials = PLANS.map((p) => pricing[p.slug]?.freeTrialDays ?? null);
+  const everyPlanTrialDays =
+    perPlanTrials.length > 0 && perPlanTrials.every((d) => d != null && d === perPlanTrials[0])
+      ? perPlanTrials[0]
+      : null;
+
+  // What the next charge actually is, in the reader's own currency and period.
+  const selectedPriceLabel = `${pricing[selectedPlanDef.slug]?.priceString
+    ?? `$${selectedPlanDef.price.toFixed(2)}`}${t(planPeriodKey(selectedPlanDef.slug))}`;
+  // Stated in BOTH directions: with a trial, when it converts; without one,
+  // that the charge is now. Silence about a trial reads as "there is one".
+  const renewalText = selectedTrialDays
+    ? t('paywall.trialThenPrice', { count: selectedTrialDays, price: selectedPriceLabel })
+    : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel });
 
   const close = () => {
     setName('');
@@ -307,7 +337,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                   {/* Only when the store actually serves one to this customer.
                       Reuses the paywall's line rather than minting a second
                       key saying the same sentence in 29 languages. */}
-                  {trialDays ? (
+                  {everyPlanTrialDays ? (
                     <View style={styles.trialBanner}>
                       <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
                         <Path
@@ -325,7 +355,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         />
                       </Svg>
                       <Text style={styles.trialBannerText}>
-                        {t('paywall.everyPlanStartsWithTrial', { count: trialDays })}
+                        {t('paywall.everyPlanStartsWithTrial', { count: everyPlanTrialDays })}
                       </Text>
                     </View>
                   ) : null}
@@ -395,6 +425,14 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                   >
                     <Text style={styles.continueBtnText}>{t('subscribeSheet.continue')}</Text>
                   </TouchableOpacity>
+
+                  {/* What the tap actually costs and when, stated before it.
+                      The sheet previously carried only the generic billing
+                      paragraph, so someone who was NOT getting a trial had
+                      nothing telling them the charge was immediate. */}
+                  <Text style={styles.renewalText}>
+                    {renewalText} {t('paywall.manageOrCancelAnytime')}
+                  </Text>
 
                   <Text style={styles.legalText}>
                     {t('subscribeSheet.billingDisclosure')}{' '}
@@ -514,12 +552,16 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                                 with a free trial" contradicts the banner and
                                 overstates what the next tap does. The paywall
                                 already owns this sentence in every locale. */}
-                            {trialDays
-                              ? t('paywall.startFreeTrialCta', { count: trialDays })
+                            {selectedTrialDays
+                              ? t('paywall.startFreeTrialCta', { count: selectedTrialDays })
                               : t('subscribeSheet.createAccountSubscribe')}
                           </Text>
                         )}
                       </TouchableOpacity>
+                      {/* Repeated at the point of commitment: this button is
+                          the one that starts the charge, and the plans step
+                          may be several taps back. */}
+                      <Text style={styles.renewalText}>{renewalText}</Text>
                       {googleEnabled && googleButton}
                       <TouchableOpacity
                         style={styles.switchLink}
@@ -568,12 +610,16 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                           <Text style={styles.submitBtnText}>{t('subscribeSheet.signingIn')}</Text>
                         ) : (
                           <Text style={styles.submitBtnText}>
-                            {trialDays
-                              ? t('paywall.startFreeTrialCta', { count: trialDays })
+                            {selectedTrialDays
+                              ? t('paywall.startFreeTrialCta', { count: selectedTrialDays })
                               : t('subscribeSheet.signInSubscribe')}
                           </Text>
                         )}
                       </TouchableOpacity>
+                      {/* Repeated at the point of commitment: this button is
+                          the one that starts the charge, and the plans step
+                          may be several taps back. */}
+                      <Text style={styles.renewalText}>{renewalText}</Text>
                       {googleEnabled && googleButton}
                       <TouchableOpacity
                         style={styles.switchLink}
@@ -755,6 +801,13 @@ const styles = StyleSheet.create({
   btnDisabled: { opacity: DISABLED_OPACITY },
   continueBtnText: { ...TYPE.section, color: COLORS.onAccent },
 
+  renewalText: {
+    marginTop: SPACE.md,
+    ...TYPE.caption,
+    lineHeight: 17,
+    textAlign: 'center',
+    color: COLORS.textMuted,
+  },
   legalText: {
     marginTop: SPACE.md,
     ...TYPE.caption,

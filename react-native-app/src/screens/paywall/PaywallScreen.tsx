@@ -379,15 +379,23 @@ export const PaywallScreen = () => {
   // (see getPlanPricing) and there is no current subscription - a plan switch
   // is a product change, never a new trial.
   const trialDays = !activeSub ? selectedPricing?.freeTrialDays ?? null : null;
-  // The trial is the same on every plan, so it is stated once above the cards
-  // rather than badged on each. Read from live store data like every other
-  // trial claim here: if the offer is withdrawn, or this customer has
-  // subscribed before and is therefore ineligible, Play returns no free phase
-  // and this simply does not render. We never advertise a trial the store
-  // will not actually grant.
-  const anyTrialDays = !activeSub
-    ? PLANS.map((plan) => pricing[plan.slug]?.freeTrialDays).find((days) => !!days) ?? null
-    : null;
+  // Stated once above the cards rather than badged on each. Read from live
+  // store data like every other trial claim here: if the offer is withdrawn, or
+  // this customer has subscribed before and is therefore ineligible, Play
+  // returns no free phase and this simply does not render. We never advertise a
+  // trial the store will not actually grant.
+  //
+  // The sentence is "EVERY plan starts with...", so it may only appear when
+  // that is literally true. It used to take `.find()` - the first plan that
+  // happened to have a trial - and print that one number as though it covered
+  // all three, which is a promise the other two plans would not have kept.
+  const perPlanTrials = PLANS.map((plan) => pricing[plan.slug]?.freeTrialDays ?? null);
+  const everyPlanTrialDays =
+    !activeSub
+    && perPlanTrials.length > 0
+    && perPlanTrials.every((d) => d != null && d === perPlanTrials[0])
+      ? perPlanTrials[0]
+      : null;
   // Feeds the renewal disclosure, so the period must be the reader's own, not
   // an English suffix concatenated on.
   const selectedPriceLabel = selectedPlanDef
@@ -441,7 +449,7 @@ export const PaywallScreen = () => {
           {subscribed ? t('paywall.changeYourPlan') : t('paywall.startYourJourney')}
         </Text>
 
-        {anyTrialDays ? (
+        {everyPlanTrialDays ? (
           <View style={styles.trialBanner}>
             <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
               <Path
@@ -459,7 +467,7 @@ export const PaywallScreen = () => {
               />
             </Svg>
             <Text style={styles.trialBannerText}>
-              {t('paywall.everyPlanStartsWithTrial', { count: anyTrialDays })}
+              {t('paywall.everyPlanStartsWithTrial', { count: everyPlanTrialDays })}
             </Text>
           </View>
         ) : null}
