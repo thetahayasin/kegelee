@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { LessonCards } from '../../../components/LessonCards';
-import { COLORS, GLASS } from '../../../theme/colors';
+import { COLORS, GLASS, TYPE } from '../../../theme/colors';
 
 interface Props {
   step: number;
@@ -46,8 +46,15 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
     // arriving after another, in the order the argument needs them.
     return (
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.h1}>{t('why.aMuscleYouCanTrain')}</Text>
-        <LessonCards lines={[t('why.cardRealMuscle'), t('why.cardAnywhere')]} />
+        {/* Smaller than the other steps' h1. Those carry a list or a stack of
+            cards underneath, so a display-sized line reads as a heading over
+            content; here it IS most of the step, and at 28px it stopped
+            looking like a title and started looking like a slogan. One card,
+            not two: the second sold training in public - "on the bus, nobody
+            can tell" - which is a pitch, not something to learn, and
+            onboarding already makes that point once. */}
+        <Text style={styles.h2}>{t('why.aMuscleYouCanTrain')}</Text>
+        <LessonCards lines={[t('why.cardRealMuscle')]} />
       </ScrollView>
     );
   }
@@ -107,6 +114,13 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   scroll: { flexGrow: 1, justifyContent: 'center', paddingVertical: 12 },
+  h2: {
+    ...TYPE.heading,
+    marginBottom: 16,
+    color: COLORS.white,
+    textAlign: 'center',
+    lineHeight: 26,
+  },
   h1: {
     marginBottom: 20,
     fontSize: 28,
