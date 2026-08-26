@@ -210,16 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(apiToken);
     setApiToken(apiToken);
 
-    // "Learn the basics" is per ACCOUNT: the backend's onboarded_at is the only
-    // source of truth for whether this user has finished it. We deliberately do
-    // NOT carry guest basics progress into the account, so every newly registered
-    // user is routed through Learn the basics before the dashboard (a fresh
-    // account comes back with onboarded_at = null). Drop any guest progress so it
-    // can't mark the account onboarded or pre-fill its lesson checkmarks.
     const onboardedAt = userPayload.onboarded_at || null;
-    try {
-      await AsyncStorage.removeItem('@basics_done_guest');
-    } catch {}
 
     // Save to SQLite
     await saveDBUser({
@@ -245,6 +236,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       onboarded: onboardedAt !== null,
       timezone: userPayload.timezone || null,
     };
+
+    // Carry "Learn the basics" progress from the guest session into the
+    // account, BEFORE the gate is computed below.
+    //
+    // The three lessons are the same three screens with or without an account,
+    // and the guest funnel deliberately puts them FIRST: read the basics, then
+    // the plans sheet asks you to sign up. Signing up used to wipe the guest
+    // key, so the reward for converting was doing the whole thing a second
+    // time, starting from a locked lesson 2 and 3. Merge instead - a union, so
+    // an existing account's own progress can only grow, never be overwritten
+    // by a thinner guest set.
+    //
+    // Awaited on purpose: computeBasicsDone below reads this very key, so
+    // writing it first is what lets a guest who finished all three land
+    // directly on Training instead of flashing the basics gate. Nothing is
+    // given away - the paywall gate runs BEFORE the basics gate - and the
+    // login-time sync further down pushes the merged set as completed_lessons,
+    // which is what makes it stick server-side for the next device.
+    try {
+      const guestRaw = await AsyncStorage.getItem('@basics_done_guest');
+      if (guestRaw) {
+        const parse = (raw: string | null): string[] => {
+          try {
+            const v = raw ? JSON.parse(raw) : [];
+            return Array.isArray(v) ? v : [];
+          } catch {
+            return [];
+          }
+        };
+        const userKey = `@basics_done_${localUser.id}`;
+        const merged = Array.from(
+          new Set([...parse(await AsyncStorage.getItem(userKey)), ...parse(guestRaw)]),
+        );
+        await AsyncStorage.setItem(userKey, JSON.stringify(merged));
+        // Only a COMPLETE set opens the gate. Partial progress just restores
+        // the checkmarks and drops the user back on the lesson they stopped at.
+        if (REQUIRED_LESSON_SLUGS.every(s => merged.includes(s))) {
+          await AsyncStorage.setItem(basicsGateKey(localUser.id), '1');
+        }
+      }
+      // Consumed either way: the progress belongs to the account now, and
+      // leaving it behind would hand it to whoever signs in next.
+      await AsyncStorage.removeItem('@basics_done_guest');
+    } catch {}
 
     // Decide the basics gate BEFORE revealing the authenticated navigator. The
     // sign-in payload's basics_completed (admin / lessons done / training
@@ -279,24 +314,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSubscribed(nextSubscribed);
     setBasicsDone(nextBasicsDone);
     setUser(localUser);
-
-    // Migrate guest basics lessons progress to the logged-in user
-    AsyncStorage.getItem('@basics_done_guest')
-      .then(async guestProgress => {
-        if (guestProgress) {
-          const userProgressKey = `@basics_done_${localUser.id}`;
-          const existingUserProgress = await AsyncStorage.getItem(userProgressKey);
-          if (!existingUserProgress) {
-            await AsyncStorage.setItem(userProgressKey, guestProgress);
-          } else {
-            const guestLessons: string[] = JSON.parse(guestProgress);
-            const userLessons: string[] = JSON.parse(existingUserProgress);
-            const merged = Array.from(new Set([...userLessons, ...guestLessons]));
-            await AsyncStorage.setItem(userProgressKey, JSON.stringify(merged));
-          }
-        }
-      })
-      .catch(e => console.warn('Failed to migrate guest progress:', e));
 
     // Request notification permission and trigger background sync
     try {

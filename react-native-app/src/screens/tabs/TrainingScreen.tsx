@@ -170,7 +170,6 @@ export const TrainingScreen = () => {
   const R = 58;
   const arcLength = 2 * Math.PI * R * 0.8;
   const pct = Math.min(1, Math.max(0, done / Math.max(1, required)));
-  const strokeDashoffset = arcLength * (1 - pct);
 
   useEffect(() => {
     let cancelled = false;
@@ -486,6 +485,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
+    // Same inset as heroCard above and the exercise grid below. Without it
+    // this card alone ran edge to edge, so the one element whose job is to
+    // sit between those two was the only one out of line with them.
+    marginHorizontal: SPACE.lg,
     marginTop: 20,
     padding: 14,
     borderRadius: 18,

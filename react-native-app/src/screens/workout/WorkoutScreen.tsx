@@ -11,12 +11,12 @@ import {
   BackHandler,
   Easing,
   TouchableWithoutFeedback,
+  Vibration,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import KeepAwake from 'react-native-keep-awake';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useAuth } from '../../context/AuthContext';
 import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
 import { COLORS } from '../../theme/colors';
@@ -193,20 +193,14 @@ export const WorkoutScreen = () => {
   const timeSubRef = useRef<((s: string) => void) | null>(null);
   const lastPushedRef = useRef({ count: -1, pct: -1, time: '' });
 
-  const hapticOptions = {
-    enableVibrateFallback: true,
-    // Android's haptic setting governs KEYBOARD CLICKS AND UI TAPS. Deferring
-    // to it meant the cue was silent on every phone with touch feedback turned
-    // off - which is a default on plenty of devices and the first thing people
-    // disable for battery - so the in-app toggle looked broken and the buzz
-    // "did not work".
-    //
-    // This is not UI polish. It tells you when to squeeze while your eyes may
-    // be off the screen, which is closer to an alarm than to a keypress, and
-    // the user already has an explicit switch for it in Profile. That switch
-    // is the consent; a second unrelated one is just a way to lose the signal.
-    ignoreAndroidSystemSettings: true,
-  };
+  /**
+   * How long the contract cue buzzes.
+   *
+   * Long enough to read through clothing while your eyes are off the screen,
+   * short enough not to smear into the next beat of a staircase exercise,
+   * whose steps are one second apart.
+   */
+  const CUE_MS = 60;
 
   /**
    * Fire the contract cue.
@@ -214,11 +208,27 @@ export const WorkoutScreen = () => {
    * Extracted because the FIRST step never went through advanceStep - that
    * only runs on a transition - so the opening Contract of every session, the
    * one cue the user is actually waiting for, was silent.
+   *
+   * Uses the plain vibrator rather than react-native-haptic-feedback. That
+   * library stamps every Android vibration VibrationAttributes.USAGE_TOUCH,
+   * and from Android 13 the OS drops USAGE_TOUCH outright when system touch
+   * feedback is off - the exact setting this cue must not depend on.
+   * ignoreAndroidSystemSettings does not rescue it: that flag only skips the
+   * library's own ringer-mode check and its performHapticFeedback path, and
+   * the effect it sends instead is still stamped USAGE_TOUCH. Which is why the
+   * buzz stayed silent on the circle expanding, and on every step of the
+   * staircase exercises, even after the flag was turned on. Vibration.vibrate
+   * sends an untagged one-shot that the touch-feedback setting does not
+   * govern.
+   *
+   * This is not UI polish. It tells you when to squeeze while your eyes may be
+   * off the screen, which is closer to an alarm than to a keypress, and the
+   * Profile switch read into hapticsOn is the consent for it.
    */
   const cueStep = (step: { phase: string } | undefined) => {
     if (!step || !hapticsOn.current || step.phase !== 'contract') return;
     try {
-      ReactNativeHapticFeedback.trigger('impactHeavy', hapticOptions);
+      Vibration.vibrate(CUE_MS);
     } catch {}
   };
 

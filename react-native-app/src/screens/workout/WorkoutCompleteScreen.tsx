@@ -20,7 +20,6 @@ import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress } from '../../services/progression';
 import {
   EXERCISES,
-  LEVELS,
   ExerciseDef,
   exerciseNameKey,
   levelNameKey,
@@ -180,7 +179,7 @@ export const WorkoutCompleteScreen = () => {
 
   /**
    * Run the ring from where the day stood before this session to where it
-   * stands now, then land the tick if that completed the day.
+   * stands now, then land the tick on the session just finished.
    *
    * Sequenced rather than parallel: the tick is the payoff, and arriving while
    * the ring is still travelling gives away the ending. Honours reduce-motion
@@ -190,7 +189,6 @@ export const WorkoutCompleteScreen = () => {
     if (!progress) return;
     const to = Math.min(1, progress.done / progress.required);
     const from = Math.max(0, Math.min(1, (progress.done - 1) / progress.required));
-    const dayComplete = progress.done >= progress.required;
     let cancelled = false;
 
     AccessibilityInfo.isReduceMotionEnabled()
@@ -199,7 +197,7 @@ export const WorkoutCompleteScreen = () => {
         if (cancelled) return;
         if (reduced) {
           ringAnim.setValue(to);
-          tickAnim.setValue(dayComplete ? 1 : 0);
+          tickAnim.setValue(1);
           return;
         }
         ringAnim.setValue(from);
@@ -211,16 +209,12 @@ export const WorkoutCompleteScreen = () => {
             easing: Easing.out(Easing.cubic),
             useNativeDriver: false,
           }),
-          ...(dayComplete
-            ? [
-                Animated.spring(tickAnim, {
-                  toValue: 1,
-                  friction: 5,
-                  tension: 90,
-                  useNativeDriver: false,
-                }),
-              ]
-            : []),
+          Animated.spring(tickAnim, {
+            toValue: 1,
+            friction: 5,
+            tension: 90,
+            useNativeDriver: false,
+          }),
         ]).start();
       });
 
@@ -236,13 +230,6 @@ export const WorkoutCompleteScreen = () => {
       </SafeAreaView>
     );
   }
-
-  // The ring travels from where the day STOOD BEFORE this session to where it
-  // stands now: 0 to a half on the first session, a half to full on the second.
-  // It used to jump straight to the final value, so the one moment the screen
-  // exists to celebrate - the bar moving - never happened.
-  const pct = Math.min(1, progress.done / progress.required);
-  const fromPct = Math.max(0, Math.min(1, (progress.done - 1) / progress.required));
 
   // Generate unlock percentage progress
   const unlockPct = nextUnlock
@@ -282,10 +269,12 @@ export const WorkoutCompleteScreen = () => {
                 rotation={-90}
               />
             </Svg>
-            {/* The tick lands only when the DAY is done. It used to render
-                unconditionally, so finishing session one of two showed a full
-                completion tick on a day that was not complete - the screen
-                said "finished" when the honest answer was "halfway". */}
+            {/* The tick lands after EVERY finished session, first and second
+                alike - it marks the session you just did, which is the thing
+                this screen exists to confirm. The day's own state is not lost
+                to it: the ring behind the tick is still only half filled after
+                session one, and the count under it and the title below both
+                say so in words. */}
             <Animated.View
               style={[
                 styles.tickContainer,
