@@ -102,17 +102,23 @@ try {
 }
 
 # --- 4. Report artifacts ----------------------------------------------------
-$apk = Join-Path $AndroidDir 'app\build\outputs\apk\release\app-release.apk'
-$aab = Join-Path $AndroidDir 'app\build\outputs\bundle\release\app-release.aab'
+# NOT $aab: PowerShell variable names are case-insensitive, so that assignment
+# lands on the [switch]$Aab parameter declared above, and assigning a String to
+# a switch-typed parameter throws ArgumentTransformationMetadataException. With
+# $ErrorActionPreference = 'Stop' that killed the script right here, AFTER a
+# fully successful Gradle build: no artifact report, no signature check, and an
+# exit code of 1 on a release that had in fact been built and signed.
+$apkPath = Join-Path $AndroidDir 'app\build\outputs\apk\release\app-release.apk'
+$aabPath = Join-Path $AndroidDir 'app\build\outputs\bundle\release\app-release.aab'
 
 Write-Step "Build succeeded"
-if (Test-Path $apk) {
-    $sizeMb = [math]::Round((Get-Item $apk).Length / 1MB, 1)
-    Write-Host "APK: $apk  ($sizeMb MB)" -ForegroundColor Green
+if (Test-Path $apkPath) {
+    $sizeMb = [math]::Round((Get-Item $apkPath).Length / 1MB, 1)
+    Write-Host "APK: $apkPath  ($sizeMb MB)" -ForegroundColor Green
 }
-if ($Aab -and (Test-Path $aab)) {
-    $sizeMb = [math]::Round((Get-Item $aab).Length / 1MB, 1)
-    Write-Host "AAB: $aab  ($sizeMb MB)" -ForegroundColor Green
+if ($Aab -and (Test-Path $aabPath)) {
+    $sizeMb = [math]::Round((Get-Item $aabPath).Length / 1MB, 1)
+    Write-Host "AAB: $aabPath  ($sizeMb MB)" -ForegroundColor Green
 }
 
 # --- 5. Best-effort signature verification ----------------------------------
@@ -122,17 +128,17 @@ if (Test-Path $localProps) {
     $line = Select-String -Path $localProps -Pattern '^sdk\.dir=(.+)$' | Select-Object -First 1
     if ($line) { $sdkDir = $line.Matches[0].Groups[1].Value -replace '\\\\', '\' -replace '\\:', ':' }
 }
-if ($sdkDir -and (Test-Path $apk)) {
+if ($sdkDir -and (Test-Path $apkPath)) {
     $apksigner = Get-ChildItem -Path (Join-Path $sdkDir 'build-tools') -Recurse -Filter 'apksigner.bat' -ErrorAction SilentlyContinue |
         Sort-Object FullName -Descending | Select-Object -First 1
     if ($apksigner) {
         Write-Step "Verifying APK signature"
-        & $apksigner.FullName verify --print-certs $apk
+        & $apksigner.FullName verify --print-certs $apkPath
     }
 }
 
 # --- 6. Optional install ----------------------------------------------------
-if ($Install -and (Test-Path $apk)) {
+if ($Install -and (Test-Path $apkPath)) {
     Write-Step "Installing to connected device (adb install -r)"
-    adb install -r $apk
+    adb install -r $apkPath
 }
