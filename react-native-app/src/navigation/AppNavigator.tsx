@@ -55,6 +55,7 @@ export type AuthStackParamList = {
   VerifyEmail: { email: string };
   Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
+  LegalPage: { slug: string; title: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -217,6 +218,13 @@ export const AppNavigator = () => {
         <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
         <AuthStack.Screen name="Knowledge" component={KnowledgeScreen} />
         <AuthStack.Screen name="KnowledgeLesson" component={KnowledgeLessonScreen} />
+        {/* The guest subscribe sheet's legal footnote opens Terms and the
+            Privacy Policy. Without this screen here the sheet had nowhere in
+            the app to send a signed-out reader, so it handed them to the
+            system browser - the paywall shows the same pages in-app once you
+            are signed in. Reads from the synced `pages` table, so it needs no
+            session. */}
+        <AuthStack.Screen name="LegalPage" component={LegalPageScreen} />
       </AuthStack.Navigator>
     );
   }

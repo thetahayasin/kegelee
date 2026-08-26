@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { TouchableOpacity } from './Touchable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { COLORS, DISABLED_OPACITY, TYPE, SPACE, RADIUS, GLASS } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
@@ -78,6 +79,26 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
 }) => {
   const { t } = useTranslation();
   const { register, login, googleNativeLogin } = useAuth();
+  const navigation = useNavigation<any>();
+
+  // A React Native Modal paints above the navigator, so pushing LegalPage
+  // while the sheet is open would open the page underneath it and look like a
+  // dead tap. Hide the sheet for the trip and bring it back when the host
+  // screen regains focus, rather than calling onClose - the hosts treat a
+  // close as a decision (onboarding drops to the basics), and reading the
+  // Terms is not one.
+  const [awayReadingLegal, setAwayReadingLegal] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setAwayReadingLegal(false);
+    }, []),
+  );
+
+  const openLegal = (slug: string, title: string) => {
+    setAwayReadingLegal(true);
+    navigation.navigate('LegalPage', { slug, title });
+  };
   const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState<'plans' | 'auth'>('plans');
@@ -314,7 +335,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       )}
 
       {/* Bottom sheet */}
-      <Modal visible={visible} animationType="slide" transparent onRequestClose={close}>
+      <Modal visible={visible && !awayReadingLegal} animationType="slide" transparent onRequestClose={close}>
         <KeyboardAvoidingView
           style={styles.overlay}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -438,9 +459,20 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                     {t('subscribeSheet.billingDisclosure')}{' '}
                     <Text
                       style={styles.legalLink}
-                      onPress={() => Linking.openURL(`${getWebBaseUrl()}/p/terms`)}
+                      onPress={() => openLegal('terms', t('subscribeSheet.terms'))}
                     >
                       {t('subscribeSheet.terms')}
+                    </Text>
+                    {/* Ampersand rather than a translated "and": it needs no
+                        locale key and reads the same in all 29, RTL included.
+                        The label keys are borrowed from the paywall, which
+                        already links both pages with this exact wording. */}
+                    {' & '}
+                    <Text
+                      style={styles.legalLink}
+                      onPress={() => openLegal('privacy-policy', t('paywall.privacyPolicy'))}
+                    >
+                      {t('paywall.privacyPolicy')}
                     </Text>
                     .
                   </Text>

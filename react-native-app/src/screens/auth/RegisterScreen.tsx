@@ -4,6 +4,7 @@ import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -112,7 +113,17 @@ export const RegisterScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <View style={styles.inner}>
+        {/* Scrollable: this form is four fields plus a hint, a divider, the
+            Google button and the footer link, which overruns a short screen
+            outright and overruns any screen once the keyboard is up. It was a
+            plain View, so the overflow was simply unreachable - no scrolling,
+            no way to get to the button. flexGrow (not flex) on the content
+            container keeps the form centred while it still fits. */}
+        <ScrollView
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.head}>
             <Text style={styles.title}>{t('register.createAccount')}</Text>
             <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
@@ -234,7 +245,7 @@ export const RegisterScreen = () => {
               {t('register.alreadyHaveAnAccount')} <Text style={styles.switchLink}>{t('register.logIn')}</Text>
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -260,9 +271,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inner: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
+    paddingBottom: 24,
   },
   head: { gap: SPACE.sm, marginBottom: SPACE.xl },
   title: { ...TYPE.display, color: COLORS.white },
