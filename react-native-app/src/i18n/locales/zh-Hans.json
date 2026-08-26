@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "完整权限，按月扣费。",
-      "name": "1 个月"
+      "name": "1 个月",
+      "period": "/月"
     },
     "premium-quarterly": {
       "description": "每 3 个月扣费一次。",
-      "name": "3 个月"
+      "name": "3 个月",
+      "period": "/3个月"
     },
     "premium-yearly": {
       "description": "一次付清全年。",
-      "name": "1 年"
+      "name": "1 年",
+      "period": "/年"
     }
   },
   "profile": {

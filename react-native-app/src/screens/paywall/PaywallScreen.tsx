@@ -27,7 +27,7 @@ import {
   planBySlug,
   planNameKey,
   planDescriptionKey,
-  paywallIntervalLabel,
+  planPeriodKey,
 } from '../../constants/plans';
 import {
   initBilling,
@@ -388,8 +388,10 @@ export const PaywallScreen = () => {
   const anyTrialDays = !activeSub
     ? PLANS.map((plan) => pricing[plan.slug]?.freeTrialDays).find((days) => !!days) ?? null
     : null;
+  // Feeds the renewal disclosure, so the period must be the reader's own, not
+  // an English suffix concatenated on.
   const selectedPriceLabel = selectedPlanDef
-    ? `${selectedPricing?.priceString || `$${selectedPlanDef.price.toFixed(2)}`}${paywallIntervalLabel(selectedPlanDef)}`
+    ? `${selectedPricing?.priceString || `$${selectedPlanDef.price.toFixed(2)}`}${t(planPeriodKey(selectedPlanDef.slug))}`
     : '';
 
   return (
@@ -532,7 +534,6 @@ export const PaywallScreen = () => {
                       {pricing[plan.slug]?.priceString
                         || (offeringsUnavailable ? '--' : `$${plan.price.toFixed(2)}`)}
                     </Text>
-                    <Text style={styles.planInterval}>{paywallIntervalLabel(plan)}</Text>
                     {perMonth ? (
                       <Text style={styles.planPerMonth}>
                         {t('common.perMonth', { price: perMonth })}
@@ -857,10 +858,6 @@ const styles = StyleSheet.create({
     // Prices sit in a right-aligned column across stacked plan cards, so the
     // digits need to line up rather than jitter per glyph width.
     fontVariant: ['tabular-nums'],
-  },
-  planInterval: {
-    fontSize: 12,
-    color: COLORS.textMuted,
   },
   message: {
     marginHorizontal: 16,

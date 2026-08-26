@@ -76,26 +76,24 @@ export const planByProductId = (productId: string | null | undefined): PlanDef |
   return PLANS.find((p) => p.store_product_id === normalized) ?? null;
 };
 
-/** Interval label as the subscribe sheet renders it (subscribe-sheet.blade.php). */
-export const sheetIntervalLabel = (plan: PlanDef): string => {
-  if (plan.interval === 'lifetime') return '';
-  if (plan.interval === 'year') return '/year';
-  if (plan.interval === 'month' && plan.interval_count === 3) return '/3 months';
-  if (plan.interval === 'month') return '/month';
-  if (plan.interval === 'week') return '/week';
-  return '/' + plan.interval;
-};
-
-/** Interval label as the paywall renders it (paywall.blade.php, pluralised). */
-export const paywallIntervalLabel = (plan: PlanDef): string => {
-  if (plan.interval === 'lifetime') return '';
-  return (
-    '/' +
-    (plan.interval_count > 1
-      ? `${plan.interval_count} ${plan.interval}s`
-      : plan.interval)
-  );
-};
+/**
+ * The billing period, translated, for the one place it carries weight: the
+ * renewal disclosure under the CTA ("$59.99/year, renews automatically until
+ * cancelled"). That sentence has to state the real period in the reader's own
+ * language.
+ *
+ * This replaces two functions that built the label in English by string
+ * concatenation - '/year', '/3 months' - and printed it into all 29 locales,
+ * on the screen people are asked to pay on. Keyed per slug alongside the plan's
+ * name and description rather than assembled from interval + count, because
+ * each of the three plans has exactly one fixed period: no plural rules to get
+ * wrong in Russian, Polish or Arabic.
+ *
+ * The plan CARDS carry no period suffix at all now. The plan's own name is
+ * "1 Month" / "3 Months" / "1 Year" and is already translated, so a period
+ * glued to the price beside it only repeated it.
+ */
+export const planPeriodKey = (slug: string) => `plans.${slug}.period`;
 
 /**
  * Local expiry estimate for an instant-access record right after a purchase.

@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "전체 이용, 매월 결제.",
-      "name": "1개월"
+      "name": "1개월",
+      "period": "/월"
     },
     "premium-quarterly": {
       "description": "3개월마다 결제.",
-      "name": "3개월"
+      "name": "3개월",
+      "period": "/3개월"
     },
     "premium-yearly": {
       "description": "1년치를 한 번에 결제.",
-      "name": "1년"
+      "name": "1년",
+      "period": "/년"
     }
   },
   "profile": {

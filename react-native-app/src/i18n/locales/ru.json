@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Полный доступ, оплата ежемесячно.",
-      "name": "1 месяц"
+      "name": "1 месяц",
+      "period": "/мес."
     },
     "premium-quarterly": {
       "description": "Оплата раз в 3 месяца.",
-      "name": "3 месяца"
+      "name": "3 месяца",
+      "period": "/3 мес."
     },
     "premium-yearly": {
       "description": "Один платёж за весь год.",
-      "name": "1 год"
+      "name": "1 год",
+      "period": "/год"
     }
   },
   "profile": {

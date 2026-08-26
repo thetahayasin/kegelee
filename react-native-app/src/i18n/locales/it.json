@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Accesso completo, addebito mensile.",
-      "name": "1 mese"
+      "name": "1 mese",
+      "period": "/mese"
     },
     "premium-quarterly": {
       "description": "Addebito ogni 3 mesi.",
-      "name": "3 mesi"
+      "name": "3 mesi",
+      "period": "/3 mesi"
     },
     "premium-yearly": {
       "description": "Un unico pagamento per tutto l’anno.",
-      "name": "1 anno"
+      "name": "1 anno",
+      "period": "/anno"
     }
   },
   "profile": {

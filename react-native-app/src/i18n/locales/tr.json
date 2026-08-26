@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Tam erişim, aylık faturalandırılır.",
-      "name": "1 ay"
+      "name": "1 ay",
+      "period": "/ay"
     },
     "premium-quarterly": {
       "description": "3 ayda bir faturalandırılır.",
-      "name": "3 ay"
+      "name": "3 ay",
+      "period": "/3 ay"
     },
     "premium-yearly": {
       "description": "Tüm yıl için tek ödeme.",
-      "name": "1 yıl"
+      "name": "1 yıl",
+      "period": "/yıl"
     }
   },
   "profile": {

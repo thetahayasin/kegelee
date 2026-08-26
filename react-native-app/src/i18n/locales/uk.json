@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Повний доступ, оплата щомісяця.",
-      "name": "1 місяць"
+      "name": "1 місяць",
+      "period": "/міс."
     },
     "premium-quarterly": {
       "description": "Оплата раз на 3 місяці.",
-      "name": "3 місяці"
+      "name": "3 місяці",
+      "period": "/3 міс."
     },
     "premium-yearly": {
       "description": "Один платіж за весь рік.",
-      "name": "1 рік"
+      "name": "1 рік",
+      "period": "/рік"
     }
   },
   "profile": {

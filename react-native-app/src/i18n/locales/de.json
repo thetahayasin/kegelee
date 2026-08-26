@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Voller Zugriff, monatlich abgerechnet.",
-      "name": "1 Monat"
+      "name": "1 Monat",
+      "period": "/Monat"
     },
     "premium-quarterly": {
       "description": "Alle 3 Monate abgerechnet.",
-      "name": "3 Monate"
+      "name": "3 Monate",
+      "period": "/3 Monate"
     },
     "premium-yearly": {
       "description": "Eine Zahlung für das ganze Jahr.",
-      "name": "1 Jahr"
+      "name": "1 Jahr",
+      "period": "/Jahr"
     }
   },
   "profile": {

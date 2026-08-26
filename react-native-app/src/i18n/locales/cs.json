@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Plný přístup, účtováno měsíčně.",
-      "name": "1 měsíc"
+      "name": "1 měsíc",
+      "period": "/měsíc"
     },
     "premium-quarterly": {
       "description": "Účtováno každé 3 měsíce.",
-      "name": "3 měsíce"
+      "name": "3 měsíce",
+      "period": "/3 měsíce"
     },
     "premium-yearly": {
       "description": "Jedna platba za celý rok.",
-      "name": "1 rok"
+      "name": "1 rok",
+      "period": "/rok"
     }
   },
   "profile": {

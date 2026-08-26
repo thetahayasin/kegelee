@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Volledige toegang, maandelijks gefactureerd.",
-      "name": "1 maand"
+      "name": "1 maand",
+      "period": "/maand"
     },
     "premium-quarterly": {
       "description": "Elke 3 maanden gefactureerd.",
-      "name": "3 maanden"
+      "name": "3 maanden",
+      "period": "/3 maanden"
     },
     "premium-yearly": {
       "description": "Eén betaling voor het hele jaar.",
-      "name": "1 jaar"
+      "name": "1 jaar",
+      "period": "/jaar"
     }
   },
   "profile": {

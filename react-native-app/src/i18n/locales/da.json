@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Fuld adgang, faktureres månedligt.",
-      "name": "1 måned"
+      "name": "1 måned",
+      "period": "/md."
     },
     "premium-quarterly": {
       "description": "Faktureres hver 3. måned.",
-      "name": "3 måneder"
+      "name": "3 måneder",
+      "period": "/3 md."
     },
     "premium-yearly": {
       "description": "Én betaling for hele året.",
-      "name": "1 år"
+      "name": "1 år",
+      "period": "/år"
     }
   },
   "profile": {

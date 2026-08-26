@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "وصول كامل، بفوترة شهرية.",
-      "name": "شهر واحد"
+      "name": "شهر واحد",
+      "period": "/شهر"
     },
     "premium-quarterly": {
       "description": "بفوترة كل 3 أشهر.",
-      "name": "3 أشهر"
+      "name": "3 أشهر",
+      "period": "/3 أشهر"
     },
     "premium-yearly": {
       "description": "دفعة واحدة عن السنة كاملة.",
-      "name": "سنة واحدة"
+      "name": "سنة واحدة",
+      "period": "/سنة"
     }
   },
   "profile": {

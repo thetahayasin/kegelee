@@ -509,7 +509,15 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         {submitting ? (
                           <Text style={styles.submitBtnText}>{t('subscribeSheet.creatingAccount')}</Text>
                         ) : (
-                          <Text style={styles.submitBtnText}>{t('subscribeSheet.createAccountSubscribe')}</Text>
+                          <Text style={styles.submitBtnText}>
+                            {/* "Subscribe" directly under "every plan starts
+                                with a free trial" contradicts the banner and
+                                overstates what the next tap does. The paywall
+                                already owns this sentence in every locale. */}
+                            {trialDays
+                              ? t('paywall.startFreeTrialCta', { count: trialDays })
+                              : t('subscribeSheet.createAccountSubscribe')}
+                          </Text>
                         )}
                       </TouchableOpacity>
                       {googleEnabled && googleButton}
@@ -559,7 +567,11 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         {submitting ? (
                           <Text style={styles.submitBtnText}>{t('subscribeSheet.signingIn')}</Text>
                         ) : (
-                          <Text style={styles.submitBtnText}>{t('subscribeSheet.signInSubscribe')}</Text>
+                          <Text style={styles.submitBtnText}>
+                            {trialDays
+                              ? t('paywall.startFreeTrialCta', { count: trialDays })
+                              : t('subscribeSheet.signInSubscribe')}
+                          </Text>
                         )}
                       </TouchableOpacity>
                       {googleEnabled && googleButton}

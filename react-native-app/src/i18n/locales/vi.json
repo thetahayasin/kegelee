@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Toàn quyền truy cập, thanh toán hằng tháng.",
-      "name": "1 tháng"
+      "name": "1 tháng",
+      "period": "/tháng"
     },
     "premium-quarterly": {
       "description": "Thanh toán mỗi 3 tháng.",
-      "name": "3 tháng"
+      "name": "3 tháng",
+      "period": "/3 tháng"
     },
     "premium-yearly": {
       "description": "Một lần thanh toán cho cả năm.",
-      "name": "1 năm"
+      "name": "1 năm",
+      "period": "/năm"
     }
   },
   "profile": {

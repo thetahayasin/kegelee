@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "เข้าถึงเต็มรูปแบบ เรียกเก็บรายเดือน",
-      "name": "1 เดือน"
+      "name": "1 เดือน",
+      "period": "/เดือน"
     },
     "premium-quarterly": {
       "description": "เรียกเก็บทุก 3 เดือน",
-      "name": "3 เดือน"
+      "name": "3 เดือน",
+      "period": "/3 เดือน"
     },
     "premium-yearly": {
       "description": "จ่ายครั้งเดียวสำหรับทั้งปี",
-      "name": "1 ปี"
+      "name": "1 ปี",
+      "period": "/ปี"
     }
   },
   "profile": {

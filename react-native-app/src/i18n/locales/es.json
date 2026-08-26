@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Acceso completo, facturado cada mes.",
-      "name": "1 mes"
+      "name": "1 mes",
+      "period": "/mes"
     },
     "premium-quarterly": {
       "description": "Facturado cada 3 meses.",
-      "name": "3 meses"
+      "name": "3 meses",
+      "period": "/3 meses"
     },
     "premium-yearly": {
       "description": "Un solo pago por todo el año.",
-      "name": "1 año"
+      "name": "1 año",
+      "period": "/año"
     }
   },
   "profile": {

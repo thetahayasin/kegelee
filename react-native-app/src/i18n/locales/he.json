@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "גישה מלאה, בחיוב חודשי.",
-      "name": "חודש אחד"
+      "name": "חודש אחד",
+      "period": "/חודש"
     },
     "premium-quarterly": {
       "description": "בחיוב כל 3 חודשים.",
-      "name": "3 חודשים"
+      "name": "3 חודשים",
+      "period": "/3 חודשים"
     },
     "premium-yearly": {
       "description": "תשלום אחד לכל השנה.",
-      "name": "שנה אחת"
+      "name": "שנה אחת",
+      "period": "/שנה"
     }
   },
   "profile": {

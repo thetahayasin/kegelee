@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Full tillgång, faktureras varje månad.",
-      "name": "1 månad"
+      "name": "1 månad",
+      "period": "/mån"
     },
     "premium-quarterly": {
       "description": "Faktureras var tredje månad.",
-      "name": "3 månader"
+      "name": "3 månader",
+      "period": "/3 mån"
     },
     "premium-yearly": {
       "description": "En betalning för hela året.",
-      "name": "1 år"
+      "name": "1 år",
+      "period": "/år"
     }
   },
   "profile": {

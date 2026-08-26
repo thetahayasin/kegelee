@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Teljes hozzáférés, havi díjazással.",
-      "name": "1 hónap"
+      "name": "1 hónap",
+      "period": "/hó"
     },
     "premium-quarterly": {
       "description": "3 havonta díjazva.",
-      "name": "3 hónap"
+      "name": "3 hónap",
+      "period": "/3 hónap"
     },
     "premium-yearly": {
       "description": "Egyetlen fizetés az egész évre.",
-      "name": "1 év"
+      "name": "1 év",
+      "period": "/év"
     }
   },
   "profile": {

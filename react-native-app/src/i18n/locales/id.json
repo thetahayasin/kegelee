@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Akses penuh, ditagih setiap bulan.",
-      "name": "1 bulan"
+      "name": "1 bulan",
+      "period": "/bulan"
     },
     "premium-quarterly": {
       "description": "Ditagih setiap 3 bulan.",
-      "name": "3 bulan"
+      "name": "3 bulan",
+      "period": "/3 bulan"
     },
     "premium-yearly": {
       "description": "Satu kali bayar untuk setahun penuh.",
-      "name": "1 tahun"
+      "name": "1 tahun",
+      "period": "/tahun"
     }
   },
   "profile": {

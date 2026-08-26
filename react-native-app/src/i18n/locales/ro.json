@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "Acces complet, facturat lunar.",
-      "name": "1 lună"
+      "name": "1 lună",
+      "period": "/lună"
     },
     "premium-quarterly": {
       "description": "Facturat la fiecare 3 luni.",
-      "name": "3 luni"
+      "name": "3 luni",
+      "period": "/3 luni"
     },
     "premium-yearly": {
       "description": "O singură plată pentru tot anul.",
-      "name": "1 an"
+      "name": "1 an",
+      "period": "/an"
     }
   },
   "profile": {

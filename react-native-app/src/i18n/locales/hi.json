@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "पूरा एक्सेस, हर महीने भुगतान।",
-      "name": "1 महीना"
+      "name": "1 महीना",
+      "period": "/माह"
     },
     "premium-quarterly": {
       "description": "हर 3 महीने पर भुगतान।",
-      "name": "3 महीने"
+      "name": "3 महीने",
+      "period": "/3 माह"
     },
     "premium-yearly": {
       "description": "पूरे साल के लिए एक ही भुगतान।",
-      "name": "1 साल"
+      "name": "1 साल",
+      "period": "/वर्ष"
     }
   },
   "profile": {

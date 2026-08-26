@@ -330,15 +330,18 @@
   "plans": {
     "premium-monthly": {
       "description": "フルアクセス、毎月のお支払い。",
-      "name": "1か月"
+      "name": "1か月",
+      "period": "/月"
     },
     "premium-quarterly": {
       "description": "3か月ごとのお支払い。",
-      "name": "3か月"
+      "name": "3か月",
+      "period": "/3か月"
     },
     "premium-yearly": {
       "description": "1年分をまとめて1回のお支払い。",
-      "name": "1年"
+      "name": "1年",
+      "period": "/年"
     }
   },
   "profile": {
