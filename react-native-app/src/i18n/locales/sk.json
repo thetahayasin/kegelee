@@ -171,6 +171,10 @@
       "top": "Vrchol"
     }
   },
+  "common": {
+    "or": "alebo",
+    "perMonth": "{{price}}/mes."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Niečo sa pokazilo",
     "theAppHitAnUnexpected": "V aplikácii nastala neočakávaná chyba. Skús to prosím znova.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatické obnovenie je vypnuté. Prístup skončí v deň vypršania.",
     "autoRenewOnHint": "Predplatné sa obnovuje automaticky. Kedykoľvek ho môžete spravovať alebo vypnúť v nastaveniach predplatného.",
     "autoRenewal": "Automatické obnovenie",
-    "benefitFeel": "Pocíťte rozdiel",
-    "benefitMeasure": "Merajte svoj pokrok",
-    "benefitReminders": "Nastavte si pripomienky podľa svojho dňa",
-    "benefitStrength": "Vybudujte skutočnú silu panvového dna",
+    "benefitDaily": "Vedená lekcia na každý deň",
+    "benefitExercises": "Každé cvičenie, odomykané postupne",
+    "benefitProgress": "Tvoja séria a história, synchronizované",
+    "benefitReminders": "Pripomienky, ktoré sedia tvojmu dňu",
     "bestValue": "NAJLEPŠIA CENA",
     "billingIsNotAvailableOn": "Na tomto zariadení nie sú platby dostupné. Nižšie môžeš obnoviť skorší nákup.",
     "byContinuingYouAgree": "Pokračovaním súhlasíte s",
@@ -313,7 +317,7 @@
     "signInFirst": "Pred predplatným sa prihláste.",
     "startFreeTrialCta_one": "Začať {{count}} deň zdarma",
     "startFreeTrialCta_other": "Začať {{count}} dní zdarma",
-    "startYourJourney": "Začnite svoju premenu hneď teraz",
+    "startYourJourney": "Odomkni celý program",
     "subscribe": "Predplatiť",
     "subscriptionActivated": "Predplatné je aktívne!",
     "switchToPlan": "Prejsť na {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-mail je povinný.",
     "fullName": "Celé meno",
     "googleSignInFailed": "Prihlásenie cez Google zlyhalo. Skús to znova.",
+    "headline": "Vyber si plán a začni trénovať",
     "nameRequired": "Meno je povinné.",
     "noAccountYetCreateOne": "Ešte nemáš účet? Vytvor si ho",
     "password": "Heslo",
-    "password6Characters1Number": "Heslo (min. 6 znakov, 1 číslica)",
     "passwordRequired": "Heslo je povinné.",
     "passwordRules": "Heslo musí mať aspoň 6 znakov a obsahovať číslicu.",
     "passwordsDoNotMatch": "Heslá sa nezhodujú.",
     "signIn": "Prihlásiť sa",
     "signInSubscribe": "Prihlásiť sa a predplatiť",
     "signingIn": "Prihlasujeme …",
-    "startYourTransformationJourneyNow": "Začni svoju premenu ešte dnes",
     "subscribe": "Predplatiť",
     "terms": "Podmienky"
   },

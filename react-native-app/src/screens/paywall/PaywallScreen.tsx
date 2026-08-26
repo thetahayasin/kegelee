@@ -19,6 +19,7 @@ import {
   subscriptionIsRenewing,
   DBSubscription,
 } from '../../db/queries';
+import { planMonths, perMonthLabel, savingsPercent } from '../../constants/pricing';
 import {
   PLANS,
   PlanDef,
@@ -53,52 +54,6 @@ import { Watermark } from '../../components/Watermark';
  * Settings) it is "Manage Plan": switching plans uses RevenueCat's product-change flow - upgrades switch
  * immediately with time credit, downgrades defer to the end of the paid period.
  */
-/** Billable months in a plan period, or null for periods with no monthly equivalent. */
-const planMonths = (plan: PlanDef): number | null => {
-  if (plan.interval === 'year') return 12 * plan.interval_count;
-  if (plan.interval === 'month') return plan.interval_count;
-  return null;
-};
-
-/**
- * A plan's price expressed per month, reusing the STORE's own formatting.
- *
- * Rather than reformatting through Intl (symbol position and decimal separator
- * vary by locale, and Hermes ships Intl inconsistently), this swaps the numeric
- * run inside the store's own priceString. Whatever currency symbol, placement
- * and separator that market uses are preserved exactly as the store wrote them.
- */
-const perMonthLabel = (pricing: PlanPricing | undefined, months: number | null): string | null => {
-  if (!pricing?.priceString || pricing.price == null || !months || months <= 1) return null;
-  const numeric = pricing.priceString.match(/\d[\d.,\s]*\d|\d/);
-  if (!numeric) return null;
-  const sample = numeric[0];
-  const separator = /,\d{1,2}$/.test(sample) ? ',' : '.';
-  return pricing.priceString.replace(sample, (pricing.price / months).toFixed(2).replace('.', separator));
-};
-
-/**
- * Percentage saved per month against the monthly plan, from LIVE store prices.
- *
- * Never derived from the catalogue: those figures are USD-only and would
- * misstate the saving in every other market, which is exactly why plans.ts
- * refuses to carry a hardcoded discount. Returns null unless both real prices
- * are known, so the badge silently does not render rather than guessing.
- */
-const savingsPercent = (
-  pricing: Record<string, PlanPricing>,
-  plan: PlanDef,
-  months: number | null,
-): number | null => {
-  const monthly = PLANS.find((p) => p.interval === 'month' && p.interval_count === 1);
-  const base = monthly ? pricing[monthly.slug]?.price : null;
-  const own = pricing[plan.slug]?.price;
-  if (!base || !own || !months || months <= 1) return null;
-  const percent = Math.round((1 - own / months / base) * 100);
-  // Anything under ~5% reads as noise and invites "that is not a saving".
-  return percent >= 5 ? percent : null;
-};
-
 /**
  * What premium unlocks. Every line maps to something the app actually ships.
  *
@@ -106,10 +61,10 @@ const savingsPercent = (
  * fully English block on the screen people are asked to pay on.
  */
 const PREMIUM_BENEFIT_KEYS = [
-  'paywall.benefitStrength',
-  'paywall.benefitMeasure',
+  'paywall.benefitExercises',
+  'paywall.benefitDaily',
+  'paywall.benefitProgress',
   'paywall.benefitReminders',
-  'paywall.benefitFeel',
 ] as const;
 
 export const PaywallScreen = () => {
@@ -579,7 +534,9 @@ export const PaywallScreen = () => {
                     </Text>
                     <Text style={styles.planInterval}>{paywallIntervalLabel(plan)}</Text>
                     {perMonth ? (
-                      <Text style={styles.planPerMonth}>{perMonth}/mo</Text>
+                      <Text style={styles.planPerMonth}>
+                        {t('common.perMonth', { price: perMonth })}
+                      </Text>
                     ) : null}
                   </View>
                 </View>

@@ -171,6 +171,10 @@
       "top": "No topo"
     }
   },
+  "common": {
+    "or": "ou",
+    "perMonth": "{{price}}/mês"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Algo deu errado",
     "theAppHitAnUnexpected": "O app encontrou um erro inesperado. Tente novamente.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "A renovação automática está desligada. Seu acesso termina na data de expiração.",
     "autoRenewOnHint": "Sua assinatura é renovada automaticamente. Você pode gerenciar ou desligar isso a qualquer momento nas configurações de assinatura.",
     "autoRenewal": "Renovação automática",
-    "benefitFeel": "Sinta a diferença",
-    "benefitMeasure": "Meça sua evolução",
+    "benefitDaily": "Uma sessão guiada para cada dia",
+    "benefitExercises": "Todos os exercícios, liberados aos poucos",
+    "benefitProgress": "Sua sequência e seu histórico, sincronizados",
     "benefitReminders": "Lembretes que cabem no seu dia",
-    "benefitStrength": "Ganhe força de verdade no assoalho pélvico",
     "bestValue": "MELHOR OFERTA",
     "billingIsNotAvailableOn": "Pagamentos não estão disponíveis neste dispositivo. Você pode restaurar uma compra anterior abaixo.",
     "byContinuingYouAgree": "Ao continuar você concorda com nossos",
@@ -313,7 +317,7 @@
     "signInFirst": "Entre na conta antes de assinar.",
     "startFreeTrialCta_one": "Começar {{count}} dia grátis",
     "startFreeTrialCta_other": "Começar {{count}} dias grátis",
-    "startYourJourney": "Comece sua transformação agora",
+    "startYourJourney": "Desbloqueie o programa inteiro",
     "subscribe": "Assinar",
     "subscriptionActivated": "Assinatura ativada!",
     "switchToPlan": "Mudar para {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "O e-mail é obrigatório.",
     "fullName": "Nome completo",
     "googleSignInFailed": "Falha ao entrar com o Google. Tente de novo.",
+    "headline": "Escolha um plano e comece a treinar",
     "nameRequired": "O nome é obrigatório.",
     "noAccountYetCreateOne": "Ainda não tem conta? Crie uma",
     "password": "Senha",
-    "password6Characters1Number": "Senha (6+ caracteres, 1 número)",
     "passwordRequired": "A senha é obrigatória.",
     "passwordRules": "A senha deve ter pelo menos 6 caracteres e incluir um número.",
     "passwordsDoNotMatch": "As senhas não coincidem.",
     "signIn": "Entrar",
     "signInSubscribe": "Entrar e assinar",
     "signingIn": "Entrando …",
-    "startYourTransformationJourneyNow": "Comece sua transformação agora",
     "subscribe": "Assinar",
     "terms": "Termos"
   },

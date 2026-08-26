@@ -171,6 +171,10 @@
       "top": "Vrchol"
     }
   },
+  "common": {
+    "or": "nebo",
+    "perMonth": "{{price}}/měs."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Něco se pokazilo",
     "theAppHitAnUnexpected": "V aplikaci došlo k neočekávané chybě. Zkus to prosím znovu.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatické obnovení je vypnuté. Přístup skončí k datu vypršení.",
     "autoRenewOnHint": "Předplatné se obnovuje automaticky. Kdykoli je můžete spravovat nebo vypnout v nastavení předplatného.",
     "autoRenewal": "Automatické obnovení",
-    "benefitFeel": "Pociťte rozdíl",
-    "benefitMeasure": "Měřte svůj pokrok",
-    "benefitReminders": "Nastavte si připomínky podle svého dne",
-    "benefitStrength": "Skutečně posilte pánevní dno",
+    "benefitDaily": "Vedená lekce na každý den",
+    "benefitExercises": "Každé cvičení, postupně odemykané",
+    "benefitProgress": "Tvoje série a historie, synchronizované",
+    "benefitReminders": "Připomínky, které sedí tvému dni",
     "bestValue": "NEJLEPŠÍ CENA",
     "billingIsNotAvailableOn": "Na tomto zařízení nejsou platby dostupné. Níže můžeš obnovit dřívější nákup.",
     "byContinuingYouAgree": "Pokračováním souhlasíte s",
@@ -313,7 +317,7 @@
     "signInFirst": "Před předplatným se přihlaste.",
     "startFreeTrialCta_one": "Začít {{count}}denní zkoušku zdarma",
     "startFreeTrialCta_other": "Začít {{count}}denní zkoušku zdarma",
-    "startYourJourney": "Začněte svou proměnu hned teď",
+    "startYourJourney": "Odemkni celý program",
     "subscribe": "Předplatit",
     "subscriptionActivated": "Předplatné je aktivní!",
     "switchToPlan": "Přejít na {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-mail je povinný.",
     "fullName": "Celé jméno",
     "googleSignInFailed": "Přihlášení přes Google se nezdařilo. Zkus to znovu.",
+    "headline": "Vyber si plán a začni trénovat",
     "nameRequired": "Jméno je povinné.",
     "noAccountYetCreateOne": "Ještě nemáš účet? Vytvoř si ho",
     "password": "Heslo",
-    "password6Characters1Number": "Heslo (min. 6 znaků, 1 číslice)",
     "passwordRequired": "Heslo je povinné.",
     "passwordRules": "Heslo musí mít alespoň 6 znaků a obsahovat číslici.",
     "passwordsDoNotMatch": "Hesla se neshodují.",
     "signIn": "Přihlásit se",
     "signInSubscribe": "Přihlásit se a předplatit",
     "signingIn": "Přihlašujeme …",
-    "startYourTransformationJourneyNow": "Začni svou proměnu ještě dnes",
     "subscribe": "Předplatit",
     "terms": "Podmínky"
   },

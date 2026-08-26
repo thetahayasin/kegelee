@@ -171,6 +171,10 @@
       "top": "Zirvede"
     }
   },
+  "common": {
+    "or": "veya",
+    "perMonth": "{{price}}/ay"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Bir şeyler ters gitti",
     "theAppHitAnUnexpected": "Uygulamada beklenmeyen bir hata oluştu. Lütfen tekrar dene.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Otomatik yenileme kapalı. Erişimin bitiş tarihinde sona erecek.",
     "autoRenewOnHint": "Aboneliğin otomatik yenilenir. Abonelik ayarlarından istediğin zaman yönetebilir veya kapatabilirsin.",
     "autoRenewal": "Otomatik yenileme",
-    "benefitFeel": "Farkı hisset",
-    "benefitMeasure": "İlerlemeni ölç",
-    "benefitReminders": "Gününe uyan hatırlatıcılar kur",
-    "benefitStrength": "Pelvik tabanda gerçek güç kazan",
+    "benefitDaily": "Her gün için rehberli seans",
+    "benefitExercises": "Her egzersiz, ilerledikçe açılır",
+    "benefitProgress": "Serin ve geçmişin, senkronize",
+    "benefitReminders": "Gününe uyan hatırlatıcılar",
     "bestValue": "EN İYİ FİYAT",
     "billingIsNotAvailableOn": "Bu cihazda ödeme kullanılamıyor. Aşağıdan önceki bir satın alımı geri yükleyebilirsin.",
     "byContinuingYouAgree": "Devam ederek şunları kabul edersin:",
@@ -313,7 +317,7 @@
     "signInFirst": "Abone olmadan önce giriş yap.",
     "startFreeTrialCta_one": "{{count}} Günlük Ücretsiz Denemeyi Başlat",
     "startFreeTrialCta_other": "{{count}} Günlük Ücretsiz Denemeyi Başlat",
-    "startYourJourney": "Değişimine hemen başla",
+    "startYourJourney": "Programın tamamını aç",
     "subscribe": "Abone ol",
     "subscriptionActivated": "Abonelik etkinleştirildi!",
     "switchToPlan": "{{plan}} planına geç",
@@ -499,17 +503,16 @@
     "emailRequired": "E-posta gereklidir.",
     "fullName": "Ad soyad",
     "googleSignInFailed": "Google ile giriş başarısız oldu. Tekrar deneyin.",
+    "headline": "Bir plan seç ve çalışmaya başla",
     "nameRequired": "Ad gereklidir.",
     "noAccountYetCreateOne": "Henüz hesabın yok mu? Oluştur",
     "password": "Şifre",
-    "password6Characters1Number": "Şifre (en az 6 karakter, 1 rakam)",
     "passwordRequired": "Şifre gereklidir.",
     "passwordRules": "Şifre en az 6 karakter olmalı ve bir rakam içermelidir.",
     "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
     "signIn": "Giriş yap",
     "signInSubscribe": "Giriş yap ve abone ol",
     "signingIn": "Giriş yapılıyor …",
-    "startYourTransformationJourneyNow": "Değişimine hemen başla",
     "subscribe": "Abone ol",
     "terms": "Koşullar"
   },

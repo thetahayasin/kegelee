@@ -171,6 +171,10 @@
       "top": "Вершина"
     }
   },
+  "common": {
+    "or": "або",
+    "perMonth": "{{price}}/міс."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Щось пішло не так",
     "theAppHitAnUnexpected": "У застосунку сталася неочікувана помилка. Спробуй ще раз.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Автопродовження вимкнено. Доступ завершиться в дату закінчення.",
     "autoRenewOnHint": "Підписка продовжується автоматично. Керувати цим або вимкнути можна будь-коли в налаштуваннях підписки.",
     "autoRenewal": "Автопродовження",
-    "benefitFeel": "Відчуйте різницю",
-    "benefitMeasure": "Вимірюйте свій прогрес",
+    "benefitDaily": "Керована сесія на кожен день",
+    "benefitExercises": "Кожна вправа відкривається поступово",
+    "benefitProgress": "Ваша серія та історія синхронізовані",
     "benefitReminders": "Нагадування під ваш день",
-    "benefitStrength": "Наберіть справжню силу тазового дна",
     "bestValue": "НАЙКРАЩА ЦІНА",
     "billingIsNotAvailableOn": "Оплата недоступна на цьому пристрої. Нижче можна відновити попередню покупку.",
     "byContinuingYouAgree": "Продовжуючи, ви приймаєте наші",
@@ -313,7 +317,7 @@
     "signInFirst": "Увійдіть в акаунт перед оформленням підписки.",
     "startFreeTrialCta_one": "Почати {{count}} день безкоштовно",
     "startFreeTrialCta_other": "Почати {{count}} днів безкоштовно",
-    "startYourJourney": "Почніть змінюватися вже зараз",
+    "startYourJourney": "Відкрийте всю програму",
     "subscribe": "Оформити підписку",
     "subscriptionActivated": "Підписку активовано!",
     "switchToPlan": "Перейти на {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Вкажіть електронну пошту.",
     "fullName": "Повне ім’я",
     "googleSignInFailed": "Вхід через Google не вдався. Спробуйте ще раз.",
+    "headline": "Оберіть план і починайте тренуватися",
     "nameRequired": "Вкажіть імʼя.",
     "noAccountYetCreateOne": "Ще немає акаунта? Створи",
     "password": "Пароль",
-    "password6Characters1Number": "Пароль (від 6 символів, 1 цифра)",
     "passwordRequired": "Введіть пароль.",
     "passwordRules": "Пароль має містити щонайменше 6 символів і хоча б одну цифру.",
     "passwordsDoNotMatch": "Паролі не збігаються.",
     "signIn": "Увійти",
     "signInSubscribe": "Увійти й підписатися",
     "signingIn": "Виконуємо вхід …",
-    "startYourTransformationJourneyNow": "Почни свою зміну вже зараз",
     "subscribe": "Оформити підписку",
     "terms": "Умови"
   },

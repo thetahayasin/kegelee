@@ -171,6 +171,10 @@
       "top": "Puncak"
     }
   },
+  "common": {
+    "or": "atau",
+    "perMonth": "{{price}}/bln"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Terjadi kesalahan",
     "theAppHitAnUnexpected": "Aplikasi mengalami kesalahan tak terduga. Silakan coba lagi.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Perpanjangan otomatis nonaktif. Akses kamu berakhir pada tanggal kedaluwarsa.",
     "autoRenewOnHint": "Langganan diperpanjang otomatis. Kamu bisa mengelola atau menonaktifkannya kapan saja di pengaturan langganan.",
     "autoRenewal": "Perpanjangan otomatis",
-    "benefitFeel": "Rasakan bedanya",
-    "benefitMeasure": "Ukur kemajuanmu",
-    "benefitReminders": "Atur pengingat yang cocok dengan harimu",
-    "benefitStrength": "Bangun kekuatan dasar panggul yang nyata",
+    "benefitDaily": "Sesi terpandu untuk setiap hari",
+    "benefitExercises": "Setiap latihan, terbuka seiring waktu",
+    "benefitProgress": "Rentetan dan riwayat Anda, tersinkron",
+    "benefitReminders": "Pengingat yang cocok dengan hari Anda",
     "bestValue": "PALING HEMAT",
     "billingIsNotAvailableOn": "Pembayaran tidak tersedia di perangkat ini. Kamu bisa memulihkan pembelian sebelumnya di bawah.",
     "byContinuingYouAgree": "Dengan melanjutkan kamu menyetujui",
@@ -313,7 +317,7 @@
     "signInFirst": "Masuk dulu sebelum berlangganan.",
     "startFreeTrialCta_one": "Mulai Uji Coba Gratis {{count}} Hari",
     "startFreeTrialCta_other": "Mulai Uji Coba Gratis {{count}} Hari",
-    "startYourJourney": "Mulai perubahanmu sekarang",
+    "startYourJourney": "Buka seluruh program",
     "subscribe": "Berlangganan",
     "subscriptionActivated": "Langganan aktif!",
     "switchToPlan": "Pindah ke {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Email wajib diisi.",
     "fullName": "Nama lengkap",
     "googleSignInFailed": "Masuk dengan Google gagal. Coba lagi.",
+    "headline": "Pilih paket dan mulai berlatih",
     "nameRequired": "Nama wajib diisi.",
     "noAccountYetCreateOne": "Belum punya akun? Buat sekarang",
     "password": "Kata sandi",
-    "password6Characters1Number": "Kata sandi (min. 6 karakter, 1 angka)",
     "passwordRequired": "Kata sandi wajib diisi.",
     "passwordRules": "Kata sandi minimal 6 karakter dan harus memuat angka.",
     "passwordsDoNotMatch": "Kata sandi tidak cocok.",
     "signIn": "Masuk",
     "signInSubscribe": "Masuk & berlangganan",
     "signingIn": "Sedang masuk …",
-    "startYourTransformationJourneyNow": "Mulai perubahanmu sekarang",
     "subscribe": "Berlangganan",
     "terms": "Ketentuan"
   },

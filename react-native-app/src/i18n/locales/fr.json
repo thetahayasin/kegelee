@@ -171,6 +171,10 @@
       "top": "Sommet"
     }
   },
+  "common": {
+    "or": "ou",
+    "perMonth": "{{price}}/mois"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Une erreur est survenue",
     "theAppHitAnUnexpected": "L'application a rencontré une erreur inattendue. Merci de réessayer.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Le renouvellement automatique est désactivé. Votre accès prendra fin à la date d'expiration.",
     "autoRenewOnHint": "Votre abonnement se renouvelle automatiquement. Vous pouvez le gérer ou le désactiver à tout moment dans les réglages d'abonnement.",
     "autoRenewal": "Renouvellement automatique",
-    "benefitFeel": "Sentez la différence",
-    "benefitMeasure": "Mesurez vos progrès",
+    "benefitDaily": "Une séance guidée pour chaque jour",
+    "benefitExercises": "Chaque exercice, débloqué au fil du temps",
+    "benefitProgress": "Votre série et votre historique, synchronisés",
     "benefitReminders": "Des rappels adaptés à votre journée",
-    "benefitStrength": "Renforcez vraiment votre périnée",
     "bestValue": "MEILLEURE OFFRE",
     "billingIsNotAvailableOn": "Les paiements ne sont pas disponibles sur cet appareil. Tu peux restaurer un achat précédent ci-dessous.",
     "byContinuingYouAgree": "En continuant, vous acceptez nos",
@@ -313,7 +317,7 @@
     "signInFirst": "Connectez-vous avant de vous abonner.",
     "startFreeTrialCta_one": "Commencer {{count}} jour gratuit",
     "startFreeTrialCta_other": "Commencer {{count}} jours gratuits",
-    "startYourJourney": "Commencez votre transformation dès maintenant",
+    "startYourJourney": "Débloquez tout le programme",
     "subscribe": "S'abonner",
     "subscriptionActivated": "Abonnement activé !",
     "switchToPlan": "Passer à {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "L’e-mail est obligatoire.",
     "fullName": "Nom complet",
     "googleSignInFailed": "La connexion Google a échoué. Veuillez réessayer.",
+    "headline": "Choisissez une formule et commencez",
     "nameRequired": "Le nom est obligatoire.",
     "noAccountYetCreateOne": "Pas encore de compte ? Crée-en un",
     "password": "Mot de passe",
-    "password6Characters1Number": "Mot de passe (6 caractères min., 1 chiffre)",
     "passwordRequired": "Le mot de passe est obligatoire.",
     "passwordRules": "Le mot de passe doit comporter au moins 6 caractères et un chiffre.",
     "passwordsDoNotMatch": "Les mots de passe ne correspondent pas.",
     "signIn": "Se connecter",
     "signInSubscribe": "Se connecter et s'abonner",
     "signingIn": "Connexion …",
-    "startYourTransformationJourneyNow": "Commence ta transformation dès maintenant",
     "subscribe": "S'abonner",
     "terms": "Conditions"
   },

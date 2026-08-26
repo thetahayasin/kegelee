@@ -171,6 +171,10 @@
       "top": "Huipulla"
     }
   },
+  "common": {
+    "or": "tai",
+    "perMonth": "{{price}}/kk"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Jokin meni pieleen",
     "theAppHitAnUnexpected": "Sovelluksessa tapahtui odottamaton virhe. Yritä uudelleen.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automaattinen uusiminen on pois päältä. Käyttöoikeutesi päättyy päättymispäivänä.",
     "autoRenewOnHint": "Tilauksesi uusiutuu automaattisesti. Voit hallita tai poistaa sen käytöstä milloin tahansa tilausasetuksista.",
     "autoRenewal": "Automaattinen uusiminen",
-    "benefitFeel": "Tunne ero",
-    "benefitMeasure": "Mittaa edistymisesi",
-    "benefitReminders": "Aseta muistutukset päivääsi sopiviksi",
-    "benefitStrength": "Rakenna todellista lantionpohjan voimaa",
+    "benefitDaily": "Ohjattu harjoitus joka päivälle",
+    "benefitExercises": "Jokainen liike, avautuu edetessäsi",
+    "benefitProgress": "Putkesi ja historiasi, synkronoituna",
+    "benefitReminders": "Muistutukset, jotka sopivat päivääsi",
     "bestValue": "PARAS TARJOUS",
     "billingIsNotAvailableOn": "Maksaminen ei ole käytettävissä tällä laitteella. Voit palauttaa aiemman oston alta.",
     "byContinuingYouAgree": "Jatkamalla hyväksyt",
@@ -313,7 +317,7 @@
     "signInFirst": "Kirjaudu sisään ennen tilaamista.",
     "startFreeTrialCta_one": "Aloita {{count}} päivän ilmaisjakso",
     "startFreeTrialCta_other": "Aloita {{count}} päivän ilmaisjakso",
-    "startYourJourney": "Aloita muutoksesi nyt",
+    "startYourJourney": "Avaa koko ohjelma",
     "subscribe": "Tilaa",
     "subscriptionActivated": "Tilaus aktivoitu!",
     "switchToPlan": "Vaihda tilaukseen {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Sähköposti vaaditaan.",
     "fullName": "Koko nimi",
     "googleSignInFailed": "Google-kirjautuminen epäonnistui. Yritä uudelleen.",
+    "headline": "Valitse tilaus ja aloita harjoittelu",
     "nameRequired": "Nimi vaaditaan.",
     "noAccountYetCreateOne": "Eikö sinulla ole vielä tiliä? Luo se",
     "password": "Salasana",
-    "password6Characters1Number": "Salasana (vähintään 6 merkkiä, 1 numero)",
     "passwordRequired": "Salasana vaaditaan.",
     "passwordRules": "Salasanassa on oltava vähintään 6 merkkiä ja numero.",
     "passwordsDoNotMatch": "Salasanat eivät täsmää.",
     "signIn": "Kirjaudu sisään",
     "signInSubscribe": "Kirjaudu sisään ja tilaa",
     "signingIn": "Kirjaudutaan …",
-    "startYourTransformationJourneyNow": "Aloita muutoksesi jo tänään",
     "subscribe": "Tilaa",
     "terms": "Ehdot"
   },

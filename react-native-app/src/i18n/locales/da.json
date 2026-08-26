@@ -171,6 +171,10 @@
       "top": "Toppen"
     }
   },
+  "common": {
+    "or": "eller",
+    "perMonth": "{{price}}/md."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Noget gik galt",
     "theAppHitAnUnexpected": "Appen stødte på en uventet fejl. Prøv igen.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatisk fornyelse er slået fra. Din adgang slutter på udløbsdatoen.",
     "autoRenewOnHint": "Dit abonnement fornyes automatisk. Du kan altid administrere eller slå det fra i abonnementsindstillingerne.",
     "autoRenewal": "Automatisk fornyelse",
-    "benefitFeel": "Mærk forskellen",
-    "benefitMeasure": "Mål din fremgang",
-    "benefitReminders": "Sæt påmindelser, der passer din dag",
-    "benefitStrength": "Opbyg rigtig bækkenbundsstyrke",
+    "benefitDaily": "En guidet session hver dag",
+    "benefitExercises": "Alle øvelser, låst op undervejs",
+    "benefitProgress": "Din række og historik, synkroniseret",
+    "benefitReminders": "Påmindelser, der passer din dag",
     "bestValue": "BEDSTE VÆRDI",
     "billingIsNotAvailableOn": "Betaling er ikke tilgængelig på denne enhed. Du kan gendanne et tidligere køb nedenfor.",
     "byContinuingYouAgree": "Ved at fortsætte accepterer du vores",
@@ -313,7 +317,7 @@
     "signInFirst": "Log ind før du abonnerer.",
     "startFreeTrialCta_one": "Start {{count}} dags gratis prøve",
     "startFreeTrialCta_other": "Start {{count}} dages gratis prøve",
-    "startYourJourney": "Start din forandring nu",
+    "startYourJourney": "Lås hele programmet op",
     "subscribe": "Abonner",
     "subscriptionActivated": "Abonnementet er aktiveret!",
     "switchToPlan": "Skift til {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-mail er påkrævet.",
     "fullName": "Fulde navn",
     "googleSignInFailed": "Google-login mislykkedes. Prøv igen.",
+    "headline": "Vælg en plan, og kom i gang",
     "nameRequired": "Navn er påkrævet.",
     "noAccountYetCreateOne": "Har du ikke en konto endnu? Opret en",
     "password": "Adgangskode",
-    "password6Characters1Number": "Adgangskode (mindst 6 tegn, 1 tal)",
     "passwordRequired": "Adgangskode er påkrævet.",
     "passwordRules": "Adgangskoden skal være mindst 6 tegn og indeholde et tal.",
     "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
     "signIn": "Log ind",
     "signInSubscribe": "Log ind og abonnér",
     "signingIn": "Logger ind …",
-    "startYourTransformationJourneyNow": "Start din forandring i dag",
     "subscribe": "Abonnér",
     "terms": "Vilkår"
   },

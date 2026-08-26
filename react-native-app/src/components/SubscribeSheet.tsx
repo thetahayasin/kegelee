@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   Modal,
   ScrollView,
   ActivityIndicator,
@@ -15,19 +14,21 @@ import {
 import { TouchableOpacity } from './Touchable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
-import { COLORS, DISABLED_OPACITY } from '../theme/colors';
+import { COLORS, DISABLED_OPACITY, TYPE, SPACE, RADIUS, GLASS } from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 import { getAppSetting } from '../db/queries';
 import { getWebBaseUrl } from '../services/api';
 import { nativeGoogleSignIn } from '../services/googleAuth';
-import { setPendingPlan } from '../services/billing';
+import { setPendingPlan, getPlanPricing, PlanPricing } from '../services/billing';
 import {
   PLANS,
   featuredPlan,
   planNameKey,
-  sheetIntervalLabel,
+  planDescriptionKey,
 } from '../constants/plans';
+import { planMonths, perMonthLabel, savingsPercent } from '../constants/pricing';
 import { GoogleLogo } from './GoogleLogo';
+import { AuthField } from './AuthField';
 
 /**
  * Bottom-sheet paywall for guests (web: App\Livewire\App\SubscribeSheet).
@@ -86,6 +87,10 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleEnabled, setGoogleEnabled] = useState(true);
+  // Live store prices, exactly as the paywall reads them. Without this the
+  // sheet rendered the catalogue's USD figure to every market - a number the
+  // Play sheet on the very next tap would contradict.
+  const [pricing, setPricing] = useState<Record<string, PlanPricing>>({});
 
   // Auth fields
   const [name, setName] = useState('');
@@ -108,6 +113,28 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
       setSelectedPlan(featuredPlan().slug);
     }
   }, [visible]);
+
+  // Fetched on open rather than at mount: this component is rendered behind
+  // every guest funnel screen, and a store round-trip on each of them buys
+  // nothing until the sheet is actually on screen. An empty result is not an
+  // error - the rows fall back to the catalogue price and simply advertise no
+  // trial, which is the one claim we must never make on a guess.
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
+    getPlanPricing()
+      .then((p) => {
+        if (!cancelled) setPricing(p);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [visible]);
+
+  const trialDays =
+    PLANS.map((p) => pricing[p.slug]?.freeTrialDays).find((days) => !!days) ?? null;
+  const selectedPlanDef = PLANS.find((p) => p.slug === selectedPlan) ?? featuredPlan();
 
   const close = () => {
     setName('');
@@ -228,7 +255,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
     <>
       <View style={styles.dividerRow}>
         <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>or</Text>
+        <Text style={styles.dividerText}>{t('common.or')}</Text>
         <View style={styles.dividerLine} />
       </View>
       <TouchableOpacity style={styles.googleBtn} onPress={handleGoogle} disabled={googleLoading}>
@@ -271,40 +298,91 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
               {step === 'plans' ? (
                 <>
                   <View style={styles.titleRow}>
-                    <Text style={styles.title}>{t('subscribeSheet.startYourTransformationJourneyNow')}</Text>
+                    <Text style={styles.title}>{t('subscribeSheet.headline')}</Text>
                     <TouchableOpacity style={styles.roundBtn} onPress={close} accessibilityLabel={t('subscribeSheet.close')}>
                       {closeIcon}
                     </TouchableOpacity>
                   </View>
 
+                  {/* Only when the store actually serves one to this customer.
+                      Reuses the paywall's line rather than minting a second
+                      key saying the same sentence in 29 languages. */}
+                  {trialDays ? (
+                    <View style={styles.trialBanner}>
+                      <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+                        <Path
+                          d="M12 6v6l4 2"
+                          stroke={COLORS.accent}
+                          strokeWidth={2.5}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <Path
+                          d="M12 3a9 9 0 1 0 9 9"
+                          stroke={COLORS.accent}
+                          strokeWidth={2.5}
+                          strokeLinecap="round"
+                        />
+                      </Svg>
+                      <Text style={styles.trialBannerText}>
+                        {t('paywall.everyPlanStartsWithTrial', { count: trialDays })}
+                      </Text>
+                    </View>
+                  ) : null}
+
                   <View style={styles.plansWrap}>
                     {PLANS.map((plan) => {
                       const sel = selectedPlan === plan.slug;
+                      const months = planMonths(plan);
+                      const perMonth = perMonthLabel(pricing[plan.slug], months);
+                      const savings = savingsPercent(pricing, plan, months);
                       return (
                         <TouchableOpacity
                           key={plan.slug}
                           activeOpacity={0.85}
+                          accessibilityRole="radio"
+                          accessibilityState={{ selected: sel }}
                           style={[styles.planRow, sel && styles.planRowSelected]}
                           onPress={() => setSelectedPlan(plan.slug)}
                         >
-                          {/* Radio indicator */}
                           <View style={[styles.radio, sel && styles.radioSelected]}>
                             {sel && <View style={styles.radioDot} />}
                           </View>
+
                           <View style={styles.planInfo}>
-                            <View style={styles.planInfoRow}>
-                              <Text style={styles.planName}>{t(planNameKey(plan.slug))}</Text>
-                              <View style={styles.planPriceWrap}>
-                                <Text style={styles.planPrice}>${plan.price.toFixed(2)}</Text>
-                                <Text style={styles.planInterval}>{sheetIntervalLabel(plan)}</Text>
-                              </View>
-                            </View>
+                            {/* The plan NAME already carries the period ("1
+                                Year", "3 Months") and is translated, so the
+                                price needs no English "/year" glued to it -
+                                which is what the sheet used to print into
+                                every locale. */}
+                            <Text style={styles.planName}>{t(planNameKey(plan.slug))}</Text>
+                            <Text style={styles.planDescription} numberOfLines={1}>
+                              {t(planDescriptionKey(plan.slug))}
+                            </Text>
                           </View>
-                          {plan.is_featured && (
+
+                          <View style={styles.planPriceWrap}>
+                            <Text style={styles.planPrice}>
+                              {pricing[plan.slug]?.priceString ?? `$${plan.price.toFixed(2)}`}
+                            </Text>
+                            {perMonth ? (
+                              <Text style={styles.planPerMonth}>
+                                {t('common.perMonth', { price: perMonth })}
+                              </Text>
+                            ) : null}
+                          </View>
+
+                          {savings ? (
+                            <View style={styles.savingsPill}>
+                              <Text style={styles.savingsPillText}>
+                                {t('paywall.savePercent', { percent: savings })}
+                              </Text>
+                            </View>
+                          ) : plan.is_featured ? (
                             <View style={styles.featuredBadge}>
                               <Text style={styles.featuredBadgeText}>{t('subscribeSheet.bestValue')}</Text>
                             </View>
-                          )}
+                          ) : null}
                         </TouchableOpacity>
                       );
                     })}
@@ -355,58 +433,73 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                     </TouchableOpacity>
                   </View>
 
+                  {/* What they picked, carried into the form. The sheet used to
+                      drop the plan entirely at this step, so the screen asking
+                      for a password no longer said what was being bought - and
+                      the button under it promises to subscribe. */}
+                  <View style={styles.planSummary}>
+                    <Text style={styles.planSummaryName}>
+                      {t(planNameKey(selectedPlanDef.slug))}
+                    </Text>
+                    <Text style={styles.planSummaryPrice}>
+                      {pricing[selectedPlanDef.slug]?.priceString
+                        ?? `$${selectedPlanDef.price.toFixed(2)}`}
+                    </Text>
+                  </View>
+
                   {authMode === 'register' ? (
                     <View style={styles.form}>
-                      <View>
-                        <TextInput
-                          style={styles.input}
-                          placeholder={t('subscribeSheet.fullName')}
-                          placeholderTextColor={COLORS.textMuted}
-                          autoComplete="name"
-                          value={name}
-                          onChangeText={setName}
-                        />
-                        {errors.name ? <Text style={styles.fieldError}>{errors.name}</Text> : null}
-                      </View>
-                      <View>
-                        <TextInput
-                          style={styles.input}
-                          placeholder={t('subscribeSheet.emailAddress')}
-                          placeholderTextColor={COLORS.textMuted}
-                          autoCapitalize="none"
-                          keyboardType="email-address"
-                          autoComplete="email"
-                          value={email}
-                          onChangeText={setEmail}
-                        />
-                        {errors.email ? <Text style={styles.fieldError}>{errors.email}</Text> : null}
-                      </View>
-                      <View>
-                        <TextInput
-                          style={styles.input}
-                          placeholder={t('subscribeSheet.password6Characters1Number')}
-                          placeholderTextColor={COLORS.textMuted}
-                          secureTextEntry
-                          autoComplete="new-password"
-                          value={password}
-                          onChangeText={setPassword}
-                        />
-                        {errors.password ? <Text style={styles.fieldError}>{errors.password}</Text> : null}
-                      </View>
-                      <View>
-                        <TextInput
-                          style={styles.input}
-                          placeholder={t('subscribeSheet.confirmPassword')}
-                          placeholderTextColor={COLORS.textMuted}
-                          secureTextEntry
-                          autoComplete="new-password"
-                          value={passwordConfirmation}
-                          onChangeText={setPasswordConfirmation}
-                        />
-                        {errors.password_confirmation ? (
-                          <Text style={styles.fieldError}>{errors.password_confirmation}</Text>
-                        ) : null}
-                      </View>
+                      <AuthField
+                        label={t('subscribeSheet.fullName')}
+                        placeholder={t('subscribeSheet.fullName')}
+                        autoComplete="name"
+                        textContentType="name"
+                        returnKeyType="next"
+                        value={name}
+                        onChangeText={setName}
+                        errorText={errors.name}
+                      />
+                      <AuthField
+                        label={t('subscribeSheet.emailAddress')}
+                        placeholder="you@example.com"
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        autoComplete="email"
+                        textContentType="emailAddress"
+                        returnKeyType="next"
+                        value={email}
+                        onChangeText={setEmail}
+                        errorText={errors.email}
+                      />
+                      <AuthField
+                        label={t('subscribeSheet.password')}
+                        placeholder="••••••••"
+                        secure
+                        autoCapitalize="none"
+                        autoComplete="new-password"
+                        textContentType="newPassword"
+                        returnKeyType="next"
+                        value={password}
+                        onChangeText={setPassword}
+                        errorText={errors.password}
+                      />
+                      {/* Stated up front rather than sprung as an error after
+                          submitting - a rule you cannot see until you break it
+                          is a trap. Same line the Register screen shows. */}
+                      <Text style={styles.hint}>{t('register.passwordHint')}</Text>
+                      <AuthField
+                        label={t('subscribeSheet.confirmPassword')}
+                        placeholder="••••••••"
+                        secure
+                        autoCapitalize="none"
+                        autoComplete="new-password"
+                        textContentType="newPassword"
+                        returnKeyType="go"
+                        value={passwordConfirmation}
+                        onChangeText={setPasswordConfirmation}
+                        onSubmitEditing={handleRegister}
+                        errorText={errors.password_confirmation}
+                      />
                       {message ? <Text style={styles.fieldError}>{message}</Text> : null}
                       <TouchableOpacity
                         style={styles.submitBtn}
@@ -432,31 +525,31 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                     </View>
                   ) : (
                     <View style={styles.form}>
-                      <View>
-                        <TextInput
-                          style={styles.input}
-                          placeholder={t('subscribeSheet.emailAddress')}
-                          placeholderTextColor={COLORS.textMuted}
-                          autoCapitalize="none"
-                          keyboardType="email-address"
-                          autoComplete="email"
-                          value={email}
-                          onChangeText={setEmail}
-                        />
-                        {errors.email ? <Text style={styles.fieldError}>{errors.email}</Text> : null}
-                      </View>
-                      <View>
-                        <TextInput
-                          style={styles.input}
-                          placeholder={t('subscribeSheet.password')}
-                          placeholderTextColor={COLORS.textMuted}
-                          secureTextEntry
-                          autoComplete="current-password"
-                          value={password}
-                          onChangeText={setPassword}
-                        />
-                        {errors.password ? <Text style={styles.fieldError}>{errors.password}</Text> : null}
-                      </View>
+                      <AuthField
+                        label={t('subscribeSheet.emailAddress')}
+                        placeholder="you@example.com"
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        autoComplete="email"
+                        textContentType="emailAddress"
+                        returnKeyType="next"
+                        value={email}
+                        onChangeText={setEmail}
+                        errorText={errors.email}
+                      />
+                      <AuthField
+                        label={t('subscribeSheet.password')}
+                        placeholder="••••••••"
+                        secure
+                        autoCapitalize="none"
+                        autoComplete="current-password"
+                        textContentType="password"
+                        returnKeyType="go"
+                        value={password}
+                        onChangeText={setPassword}
+                        onSubmitEditing={handleLogin}
+                        errorText={errors.password}
+                      />
                       {message ? <Text style={styles.fieldError}>{message}</Text> : null}
                       <TouchableOpacity
                         style={styles.submitBtn}
@@ -492,264 +585,231 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
 };
 
 const styles = StyleSheet.create({
+  /**
+   * Rebuilt on the shared tokens.
+   *
+   * This sheet predated the design system and was the last surface still
+   * inventing its own scale: font sizes 10/11/12/14/15/18/20, radii 12/16/40,
+   * and raw `rgba(255,255,255,0.1)` borders, none of which lined up with the
+   * TYPE / SPACE / RADIUS / COLORS the screens around it were rebuilt on. That
+   * mismatch - not any one element - is what made the buying screen read as
+   * generic next to the rest of the app.
+   */
   bar: {
     position: 'absolute',
     start: 0,
     end: 0,
     bottom: 0,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: 'rgba(6,8,16,0.97)',
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.navBar,
+    paddingHorizontal: SPACE.xl,
+    paddingTop: SPACE.lg,
   },
   barBtn: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: RADIUS.xl,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  barBtnText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.onAccent,
-  },
+  barBtnText: { ...TYPE.section, color: COLORS.onAccent },
+
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    start: 0,
-    end: 0,
-    bottom: 0,
-  },
+  backdrop: { position: 'absolute', top: 0, start: 0, end: 0, bottom: 0 },
   panel: {
     maxHeight: '90%',
     backgroundColor: COLORS.surface,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
-    padding: 24,
+    borderTopColor: COLORS.borderStrong,
+    paddingHorizontal: SPACE.xl,
+    paddingTop: SPACE.lg,
   },
   handle: {
     alignSelf: 'center',
-    width: 48,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    marginBottom: 20,
+    width: 44,
+    height: 5,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.borderStrong,
+    marginBottom: SPACE.lg,
   },
+
   titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: SPACE.md,
   },
-  title: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: 'bold',
-    lineHeight: 27,
-    color: COLORS.white,
-  },
+  title: { ...TYPE.title, flex: 1, color: COLORS.white, lineHeight: 32 },
   roundBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.surface2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plansWrap: {
-    marginTop: 16,
-    gap: 10,
+
+  trialBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACE.sm,
+    alignSelf: 'flex-start',
+    marginTop: SPACE.md,
+    paddingVertical: SPACE.sm,
+    paddingHorizontal: SPACE.md,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accentWash,
   },
+  trialBannerText: { ...TYPE.bodySm, color: COLORS.accentSoft, fontWeight: '700' },
+
+  // Room above for the badge that straddles the first card's top edge.
+  plansWrap: { marginTop: SPACE.xl, gap: SPACE.md },
   planRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
+    gap: SPACE.md,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
     backgroundColor: COLORS.surface2,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACE.lg,
+    paddingHorizontal: SPACE.lg,
   },
   planRowSelected: {
     borderColor: COLORS.accent,
-    backgroundColor: 'rgba(193,255,114,0.10)',
+    backgroundColor: COLORS.accentWash,
   },
   radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: RADIUS.pill,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: COLORS.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  radioSelected: {
-    borderColor: COLORS.accent,
-  },
+  radioSelected: { borderColor: COLORS.accent },
   radioDot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
+    borderRadius: RADIUS.pill,
     backgroundColor: COLORS.accent,
   },
-  planInfo: {
-    flex: 1,
-  },
-  planInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  planName: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  planPriceWrap: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  planPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  planInterval: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-  },
-  featuredBadge: {
+  planInfo: { flex: 1, gap: 2 },
+  planName: { ...TYPE.section, color: COLORS.white },
+  planDescription: { ...TYPE.caption, color: COLORS.textMuted },
+  planPriceWrap: { alignItems: 'flex-end' },
+  planPrice: { ...TYPE.section, color: COLORS.white },
+  planPerMonth: { ...TYPE.caption, color: COLORS.textMuted, marginTop: 1 },
+
+  // Both ride the card's top edge, and only one is ever shown: a real saving
+  // outranks "best value", which is a claim rather than a number.
+  savingsPill: {
     position: 'absolute',
-    top: -10,
-    end: 16,
+    top: -9,
+    end: SPACE.lg,
     backgroundColor: COLORS.accent,
-    borderRadius: 999,
-    paddingHorizontal: 10,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACE.sm,
     paddingVertical: 2,
   },
-  featuredBadgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: COLORS.onAccent,
-    letterSpacing: 0.5,
+  savingsPillText: { ...TYPE.overline, fontSize: 10, color: COLORS.onAccent },
+  featuredBadge: {
+    position: 'absolute',
+    top: -9,
+    end: SPACE.lg,
+    backgroundColor: COLORS.surface3,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACE.sm,
+    paddingVertical: 2,
   },
+  featuredBadgeText: { ...TYPE.overline, fontSize: 10, color: COLORS.accentSoft },
+
   continueBtn: {
-    marginTop: 20,
+    marginTop: SPACE.xl,
     height: 56,
-    borderRadius: 16,
+    borderRadius: RADIUS.xl,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnDisabled: {
-    opacity: DISABLED_OPACITY,
-  },
-  continueBtnText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.onAccent,
-  },
+  btnDisabled: { opacity: DISABLED_OPACITY },
+  continueBtnText: { ...TYPE.section, color: COLORS.onAccent },
+
   legalText: {
-    marginTop: 12,
+    marginTop: SPACE.md,
+    ...TYPE.caption,
     fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
-    color: COLORS.textMuted,
+    color: COLORS.textDim,
   },
-  legalLink: {
-    color: COLORS.accent,
-    textDecorationLine: 'underline',
-  },
+  legalLink: { color: COLORS.accent, textDecorationLine: 'underline' },
+
   authHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 16,
+    gap: SPACE.md,
+    marginBottom: SPACE.lg,
   },
-  authTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.white,
+  authTitle: { ...TYPE.heading, color: COLORS.white },
+  authClose: { marginStart: 'auto' },
+
+  planSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: SPACE.md,
+    marginBottom: SPACE.xl,
+    paddingVertical: SPACE.md,
+    paddingHorizontal: SPACE.lg,
+    borderRadius: RADIUS.md,
+    ...GLASS,
+    borderColor: 'rgba(193,255,114,0.30)',
+    backgroundColor: COLORS.accentWash,
   },
-  authClose: {
-    marginStart: 'auto',
-  },
-  form: {
-    gap: 12,
-  },
-  input: {
-    height: 48,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    backgroundColor: COLORS.surface2,
-    paddingHorizontal: 16,
-    fontSize: 14,
-    color: COLORS.white,
-  },
-  fieldError: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#f87171',
-  },
+  planSummaryName: { ...TYPE.body, color: COLORS.white, fontWeight: '700' },
+  planSummaryPrice: { ...TYPE.body, color: COLORS.accentSoft, fontWeight: '700' },
+
+  form: { gap: SPACE.lg },
+  hint: { ...TYPE.caption, color: COLORS.textDim, marginTop: -SPACE.md },
+  fieldError: { ...TYPE.caption, color: COLORS.danger },
+
   submitBtn: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: RADIUS.xl,
     backgroundColor: COLORS.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  submitBtnText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.onAccent,
-  },
+  submitBtnText: { ...TYPE.section, color: COLORS.onAccent },
+
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginVertical: 4,
+    gap: SPACE.md,
   },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  dividerText: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
+  dividerText: { ...TYPE.bodySm, color: COLORS.textDim },
+
   googleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    height: 48,
-    borderRadius: 12,
+    gap: SPACE.md,
+    height: 56,
+    borderRadius: RADIUS.xl,
     backgroundColor: '#ffffff',
   },
-  googleBtnText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1f1f1f',
-  },
-  switchLink: {
-    marginTop: 4,
-    alignItems: 'center',
-  },
-  switchLinkText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.accent,
-  },
+  googleBtnText: { ...TYPE.body, fontSize: 15, fontWeight: '600', color: '#1f1f1f' },
+
+  switchLink: { alignItems: 'center', paddingVertical: SPACE.xs },
+  switchLinkText: { ...TYPE.body, color: COLORS.accent, fontWeight: '700' },
 });

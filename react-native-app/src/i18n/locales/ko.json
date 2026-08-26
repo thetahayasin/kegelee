@@ -171,6 +171,10 @@
       "top": "정상"
     }
   },
+  "common": {
+    "or": "또는",
+    "perMonth": "{{price}}/월"
+  },
   "errorBoundary": {
     "somethingWentWrong": "문제가 발생했어요",
     "theAppHitAnUnexpected": "앱에 예기치 않은 오류가 발생했어요. 다시 시도해 주세요.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "자동 갱신이 꺼져 있습니다. 만료일에 이용이 종료됩니다.",
     "autoRenewOnHint": "구독은 자동으로 갱신됩니다. 구독 설정에서 언제든 관리하거나 끌 수 있습니다.",
     "autoRenewal": "자동 갱신",
-    "benefitFeel": "차이를 느껴보세요",
-    "benefitMeasure": "변화를 측정하세요",
-    "benefitReminders": "하루 일과에 맞는 알림 설정",
-    "benefitStrength": "골반저근을 실제로 강화",
+    "benefitDaily": "매일을 위한 가이드 세션",
+    "benefitExercises": "모든 운동이 진행에 따라 해제",
+    "benefitProgress": "연속 기록과 히스토리 동기화",
+    "benefitReminders": "하루 일정에 맞는 알림",
     "bestValue": "가장 알뜰한 선택",
     "billingIsNotAvailableOn": "이 기기에서는 결제를 이용할 수 없어요. 아래에서 이전 구매를 복원할 수 있어요.",
     "byContinuingYouAgree": "계속하면 다음에 동의하게 됩니다:",
@@ -313,7 +317,7 @@
     "signInFirst": "구독하기 전에 로그인하세요.",
     "startFreeTrialCta_one": "{{count}}일 무료 체험 시작",
     "startFreeTrialCta_other": "{{count}}일 무료 체험 시작",
-    "startYourJourney": "지금 변화를 시작하세요",
+    "startYourJourney": "전체 프로그램 잠금 해제",
     "subscribe": "구독하기",
     "subscriptionActivated": "구독이 시작되었어요!",
     "switchToPlan": "{{plan}}(으)로 변경",
@@ -499,17 +503,16 @@
     "emailRequired": "이메일을 입력하세요.",
     "fullName": "이름",
     "googleSignInFailed": "Google 로그인에 실패했습니다. 다시 시도하세요.",
+    "headline": "플랜을 선택하고 훈련을 시작하세요",
     "nameRequired": "이름을 입력하세요.",
     "noAccountYetCreateOne": "아직 계정이 없으신가요? 만들기",
     "password": "비밀번호",
-    "password6Characters1Number": "비밀번호 (6자 이상, 숫자 1개 이상)",
     "passwordRequired": "비밀번호를 입력하세요.",
     "passwordRules": "비밀번호는 6자 이상이어야 하며 숫자를 포함해야 합니다.",
     "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다.",
     "signIn": "로그인",
     "signInSubscribe": "로그인하고 구독하기",
     "signingIn": "로그인 중…",
-    "startYourTransformationJourneyNow": "지금 변화를 시작하세요",
     "subscribe": "구독하기",
     "terms": "이용약관"
   },

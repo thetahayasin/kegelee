@@ -171,6 +171,10 @@
       "top": "จุดสูงสุด"
     }
   },
+  "common": {
+    "or": "หรือ",
+    "perMonth": "{{price}}/เดือน"
+  },
   "errorBoundary": {
     "somethingWentWrong": "เกิดข้อผิดพลาด",
     "theAppHitAnUnexpected": "แอปพบข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "การต่ออายุอัตโนมัติปิดอยู่ สิทธิ์การใช้งานจะสิ้นสุดในวันหมดอายุ",
     "autoRenewOnHint": "การสมัครสมาชิกจะต่ออายุอัตโนมัติ คุณจัดการหรือปิดได้ทุกเมื่อในการตั้งค่าการสมัครสมาชิก",
     "autoRenewal": "ต่ออายุอัตโนมัติ",
-    "benefitFeel": "สัมผัสความต่าง",
-    "benefitMeasure": "วัดความก้าวหน้าของคุณ",
-    "benefitReminders": "ตั้งการเตือนให้เข้ากับวันของคุณ",
-    "benefitStrength": "สร้างความแข็งแรงของอุ้งเชิงกรานจริง ๆ",
+    "benefitDaily": "เซสชันแบบมีคำแนะนำสำหรับทุกวัน",
+    "benefitExercises": "ทุกท่าฝึก ปลดล็อกไปตามลำดับ",
+    "benefitProgress": "สถิติต่อเนื่องและประวัติของคุณ ซิงก์ไว้",
+    "benefitReminders": "การเตือนที่เข้ากับวันของคุณ",
     "bestValue": "คุ้มที่สุด",
     "billingIsNotAvailableOn": "อุปกรณ์นี้ไม่รองรับการชำระเงิน คุณสามารถกู้คืนการซื้อก่อนหน้าได้ด้านล่าง",
     "byContinuingYouAgree": "การดำเนินการต่อถือว่าคุณยอมรับ",
@@ -313,7 +317,7 @@
     "signInFirst": "เข้าสู่ระบบก่อนสมัครสมาชิก",
     "startFreeTrialCta_one": "เริ่มทดลองใช้ฟรี {{count}} วัน",
     "startFreeTrialCta_other": "เริ่มทดลองใช้ฟรี {{count}} วัน",
-    "startYourJourney": "เริ่มเปลี่ยนแปลงตัวเองวันนี้",
+    "startYourJourney": "ปลดล็อกโปรแกรมทั้งหมด",
     "subscribe": "สมัครสมาชิก",
     "subscriptionActivated": "เปิดใช้งานการสมัครสมาชิกแล้ว",
     "switchToPlan": "เปลี่ยนเป็น {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "ต้องกรอกอีเมล",
     "fullName": "ชื่อ-นามสกุล",
     "googleSignInFailed": "เข้าสู่ระบบด้วย Google ไม่สำเร็จ กรุณาลองใหม่",
+    "headline": "เลือกแพ็กเกจแล้วเริ่มฝึก",
     "nameRequired": "ต้องกรอกชื่อ",
     "noAccountYetCreateOne": "ยังไม่มีบัญชี? สร้างเลย",
     "password": "รหัสผ่าน",
-    "password6Characters1Number": "รหัสผ่าน (อย่างน้อย 6 ตัว มีตัวเลข 1 ตัว)",
     "passwordRequired": "ต้องกรอกรหัสผ่าน",
     "passwordRules": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษรและมีตัวเลข",
     "passwordsDoNotMatch": "รหัสผ่านไม่ตรงกัน",
     "signIn": "เข้าสู่ระบบ",
     "signInSubscribe": "เข้าสู่ระบบและสมัครสมาชิก",
     "signingIn": "กำลังเข้าสู่ระบบ…",
-    "startYourTransformationJourneyNow": "เริ่มต้นเปลี่ยนแปลงตัวเองวันนี้",
     "subscribe": "สมัครสมาชิก",
     "terms": "ข้อกำหนด"
   },

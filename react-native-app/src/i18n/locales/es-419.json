@@ -171,6 +171,10 @@
       "top": "Arriba"
     }
   },
+  "common": {
+    "or": "o",
+    "perMonth": "{{price}}/mes"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Algo salió mal",
     "theAppHitAnUnexpected": "La aplicación tuvo un error inesperado. Vuelve a intentarlo.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "La renovación automática está desactivada. Tu acceso terminará en la fecha de vencimiento.",
     "autoRenewOnHint": "Tu suscripción se renueva automáticamente. Puedes administrarla o desactivarla cuando quieras desde la configuración de suscripción.",
     "autoRenewal": "Renovación automática",
-    "benefitFeel": "Siente la diferencia",
-    "benefitMeasure": "Mide tu progreso",
-    "benefitReminders": "Programa recordatorios que se adapten a tu día",
-    "benefitStrength": "Gana fuerza real en el piso pélvico",
+    "benefitDaily": "Una sesión guiada para cada día",
+    "benefitExercises": "Todos los ejercicios, se desbloquean sobre la marcha",
+    "benefitProgress": "Tu racha y tu historial, sincronizados",
+    "benefitReminders": "Recordatorios que se adaptan a tu día",
     "bestValue": "MEJOR VALOR",
     "billingIsNotAvailableOn": "Los pagos no están disponibles en este dispositivo. Puedes restaurar una compra anterior abajo.",
     "byContinuingYouAgree": "Al continuar aceptas nuestros",
@@ -313,7 +317,7 @@
     "signInFirst": "Inicia sesión antes de suscribirte.",
     "startFreeTrialCta_one": "Comenzar {{count}} día gratis",
     "startFreeTrialCta_other": "Comenzar {{count}} días gratis",
-    "startYourJourney": "Comienza hoy tu transformación",
+    "startYourJourney": "Desbloquea el programa completo",
     "subscribe": "Suscribirse",
     "subscriptionActivated": "¡Suscripción activada!",
     "switchToPlan": "Cambiar a {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "El correo es obligatorio.",
     "fullName": "Nombre completo",
     "googleSignInFailed": "Falló el inicio de sesión con Google. Inténtalo de nuevo.",
+    "headline": "Elige un plan y empieza a entrenar",
     "nameRequired": "El nombre es obligatorio.",
     "noAccountYetCreateOne": "¿Todavía no tienes cuenta? Crea una",
     "password": "Contraseña",
-    "password6Characters1Number": "Contraseña (6+ caracteres, 1 número)",
     "passwordRequired": "La contraseña es obligatoria.",
     "passwordRules": "La contraseña debe tener al menos 6 caracteres e incluir un número.",
     "passwordsDoNotMatch": "Las contraseñas no coinciden.",
     "signIn": "Iniciar sesión",
     "signInSubscribe": "Iniciar sesión y suscribirse",
     "signingIn": "Iniciando sesión …",
-    "startYourTransformationJourneyNow": "Comienza tu transformación ahora",
     "subscribe": "Suscribirse",
     "terms": "Términos"
   },

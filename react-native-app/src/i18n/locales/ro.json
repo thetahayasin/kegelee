@@ -171,6 +171,10 @@
       "top": "În vârf"
     }
   },
+  "common": {
+    "or": "sau",
+    "perMonth": "{{price}}/lună"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Ceva n-a mers bine",
     "theAppHitAnUnexpected": "Aplicația a întâmpinat o eroare neașteptată. Te rugăm să încerci din nou.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Reînnoirea automată este dezactivată. Accesul se încheie la data expirării.",
     "autoRenewOnHint": "Abonamentul se reînnoiește automat. Îl poți gestiona sau dezactiva oricând din setările abonamentului.",
     "autoRenewal": "Reînnoire automată",
-    "benefitFeel": "Simte diferența",
-    "benefitMeasure": "Măsoară-ți progresul",
-    "benefitReminders": "Memento-uri potrivite zilei tale",
-    "benefitStrength": "Construiește forță reală în planșeul pelvin",
+    "benefitDaily": "O sesiune ghidată pentru fiecare zi",
+    "benefitExercises": "Fiecare exercițiu, deblocat pe parcurs",
+    "benefitProgress": "Seria și istoricul tău, sincronizate",
+    "benefitReminders": "Mementouri care se potrivesc zilei tale",
     "bestValue": "CEA MAI BUNĂ OFERTĂ",
     "billingIsNotAvailableOn": "Plățile nu sunt disponibile pe acest dispozitiv. Poți restaura o achiziție anterioară mai jos.",
     "byContinuingYouAgree": "Continuând, ești de acord cu",
@@ -313,7 +317,7 @@
     "signInFirst": "Conectează-te înainte de a te abona.",
     "startFreeTrialCta_one": "Începe {{count}} zi gratuită",
     "startFreeTrialCta_other": "Începe {{count}} zile gratuite",
-    "startYourJourney": "Începe-ți transformarea acum",
+    "startYourJourney": "Deblochează tot programul",
     "subscribe": "Abonează-te",
     "subscriptionActivated": "Abonament activat!",
     "switchToPlan": "Treci la {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-mailul este obligatoriu.",
     "fullName": "Nume complet",
     "googleSignInFailed": "Autentificarea cu Google a eșuat. Încearcă din nou.",
+    "headline": "Alege un plan și începe antrenamentul",
     "nameRequired": "Numele este obligatoriu.",
     "noAccountYetCreateOne": "Încă nu ai cont? Creează unul",
     "password": "Parolă",
-    "password6Characters1Number": "Parolă (min. 6 caractere, 1 cifră)",
     "passwordRequired": "Parola este obligatorie.",
     "passwordRules": "Parola trebuie să aibă cel puțin 6 caractere și să conțină o cifră.",
     "passwordsDoNotMatch": "Parolele nu coincid.",
     "signIn": "Autentificare",
     "signInSubscribe": "Autentifică-te și abonează-te",
     "signingIn": "Se face autentificarea …",
-    "startYourTransformationJourneyNow": "Începe-ți transformarea chiar acum",
     "subscribe": "Abonează-te",
     "terms": "Termeni"
   },

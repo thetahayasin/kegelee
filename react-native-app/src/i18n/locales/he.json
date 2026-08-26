@@ -171,6 +171,10 @@
       "top": "בפסגה"
     }
   },
+  "common": {
+    "or": "או",
+    "perMonth": "{{price}}/חודש"
+  },
   "errorBoundary": {
     "somethingWentWrong": "משהו השתבש",
     "theAppHitAnUnexpected": "האפליקציה נתקלה בשגיאה בלתי צפויה. נסה שוב.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "החידוש האוטומטי כבוי. הגישה שלך תסתיים בתאריך התפוגה.",
     "autoRenewOnHint": "המנוי מתחדש אוטומטית. אפשר לנהל או לכבות זאת בכל עת בהגדרות המנוי.",
     "autoRenewal": "חידוש אוטומטי",
-    "benefitFeel": "הרגישו את ההבדל",
-    "benefitMeasure": "מדדו את ההתקדמות",
+    "benefitDaily": "אימון מודרך לכל יום",
+    "benefitExercises": "כל תרגיל, נפתח בהדרגה",
+    "benefitProgress": "הרצף וההיסטוריה שלכם, מסונכרנים",
     "benefitReminders": "תזכורות שמתאימות ליום שלכם",
-    "benefitStrength": "בנו כוח אמיתי ברצפת האגן",
     "bestValue": "הכי משתלם",
     "billingIsNotAvailableOn": "תשלום אינו זמין במכשיר הזה. אפשר לשחזר רכישה קודמת למטה.",
     "byContinuingYouAgree": "בהמשך אתם מסכימים ל",
@@ -313,7 +317,7 @@
     "signInFirst": "התחברו לפני ההרשמה למנוי.",
     "startFreeTrialCta_one": "התחילו יום ניסיון חינם",
     "startFreeTrialCta_other": "התחילו {{count}} ימי ניסיון חינם",
-    "startYourJourney": "התחילו את השינוי שלכם עכשיו",
+    "startYourJourney": "פתחו את התוכנית כולה",
     "subscribe": "הרשמה למנוי",
     "subscriptionActivated": "המנוי הופעל!",
     "switchToPlan": "מעבר ל{{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "חובה להזין אימייל.",
     "fullName": "שם מלא",
     "googleSignInFailed": "ההתחברות עם Google נכשלה. נסו שוב.",
+    "headline": "בחרו תוכנית והתחילו להתאמן",
     "nameRequired": "חובה להזין שם.",
     "noAccountYetCreateOne": "עדיין אין לך חשבון? צור אחד",
     "password": "סיסמה",
-    "password6Characters1Number": "סיסמה (לפחות 6 תווים, ספרה אחת)",
     "passwordRequired": "חובה להזין סיסמה.",
     "passwordRules": "הסיסמה חייבת להיות באורך 6 תווים לפחות ולכלול ספרה.",
     "passwordsDoNotMatch": "הסיסמאות אינן תואמות.",
     "signIn": "התחברות",
     "signInSubscribe": "התחבר והירשם למנוי",
     "signingIn": "מתחברים…",
-    "startYourTransformationJourneyNow": "התחל את השינוי שלך כבר עכשיו",
     "subscribe": "הירשם למנוי",
     "terms": "תנאים"
   },

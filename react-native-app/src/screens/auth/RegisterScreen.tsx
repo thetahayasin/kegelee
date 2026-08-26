@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -208,7 +207,7 @@ export const RegisterScreen = () => {
 
           <View style={styles.dividerContainer}>
             <View style={styles.divider} />
-            <Text style={styles.dividerText}>or</Text>
+            <Text style={styles.dividerText}>{t('common.or')}</Text>
             <View style={styles.divider} />
           </View>
 

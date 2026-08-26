@@ -171,6 +171,10 @@
       "top": "القمة"
     }
   },
+  "common": {
+    "or": "أو",
+    "perMonth": "{{price}}/شهر"
+  },
   "errorBoundary": {
     "somethingWentWrong": "حدث خطأ ما",
     "theAppHitAnUnexpected": "واجه التطبيق خطأً غير متوقع. يرجى المحاولة مرة أخرى.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "التجديد التلقائي متوقف. سينتهي وصولك في تاريخ الانتهاء.",
     "autoRenewOnHint": "يتجدد اشتراكك تلقائيًا. يمكنك إدارته أو إيقافه في أي وقت من إعدادات الاشتراك.",
     "autoRenewal": "التجديد التلقائي",
-    "benefitFeel": "اشعر بالفرق",
-    "benefitMeasure": "قِس تقدمك",
-    "benefitReminders": "اضبط تذكيرات تناسب يومك",
-    "benefitStrength": "قوِّ عضلات قاع الحوض فعليًا",
+    "benefitDaily": "جلسة موجَّهة لكل يوم",
+    "benefitExercises": "كل تمرين، يُفتح تباعًا",
+    "benefitProgress": "تتابعك وسجلّك، متزامنان",
+    "benefitReminders": "تذكيرات تناسب يومك",
     "bestValue": "أفضل قيمة",
     "billingIsNotAvailableOn": "الدفع غير متاح على هذا الجهاز. يمكنك استعادة عملية شراء سابقة أدناه.",
     "byContinuingYouAgree": "بالمتابعة فإنك توافق على",
@@ -313,7 +317,7 @@
     "signInFirst": "سجّل الدخول قبل الاشتراك.",
     "startFreeTrialCta_one": "ابدأ تجربة مجانية ليوم واحد",
     "startFreeTrialCta_other": "ابدأ تجربة مجانية لمدة {{count}} أيام",
-    "startYourJourney": "ابدأ رحلة التغيير الآن",
+    "startYourJourney": "افتح البرنامج بالكامل",
     "subscribe": "اشترك",
     "subscriptionActivated": "تم تفعيل الاشتراك!",
     "switchToPlan": "التبديل إلى {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "البريد الإلكتروني مطلوب.",
     "fullName": "الاسم الكامل",
     "googleSignInFailed": "فشل تسجيل الدخول عبر Google. حاول مرة أخرى.",
+    "headline": "اختر خطة وابدأ التدريب",
     "nameRequired": "الاسم مطلوب.",
     "noAccountYetCreateOne": "ليس لديك حساب بعد؟ أنشئ واحدًا",
     "password": "كلمة المرور",
-    "password6Characters1Number": "كلمة المرور (6 أحرف على الأقل، ورقم واحد)",
     "passwordRequired": "كلمة المرور مطلوبة.",
     "passwordRules": "يجب أن تتكوّن كلمة المرور من 6 أحرف على الأقل وأن تحتوي على رقم.",
     "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
     "signIn": "تسجيل الدخول",
     "signInSubscribe": "تسجيل الدخول والاشتراك",
     "signingIn": "جارٍ تسجيل الدخول…",
-    "startYourTransformationJourneyNow": "ابدأ رحلة التغيير الآن",
     "subscribe": "اشترك",
     "terms": "الشروط"
   },

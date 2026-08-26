@@ -171,6 +171,10 @@
       "top": "Toppen"
     }
   },
+  "common": {
+    "or": "eller",
+    "perMonth": "{{price}}/md."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Noe gikk galt",
     "theAppHitAnUnexpected": "Appen støtte på en uventet feil. Prøv igjen.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatisk fornyelse er av. Tilgangen din slutter på utløpsdatoen.",
     "autoRenewOnHint": "Abonnementet fornyes automatisk. Du kan når som helst administrere eller slå det av i abonnementsinnstillingene.",
     "autoRenewal": "Automatisk fornyelse",
-    "benefitFeel": "Kjenn forskjellen",
-    "benefitMeasure": "Mål fremgangen din",
-    "benefitReminders": "Sett påminnelser som passer dagen din",
-    "benefitStrength": "Bygg ekte bekkenbunnsstyrke",
+    "benefitDaily": "En veiledet økt for hver dag",
+    "benefitExercises": "Hver øvelse, låses opp underveis",
+    "benefitProgress": "Rekken og historikken din, synkronisert",
+    "benefitReminders": "Påminnelser som passer dagen din",
     "bestValue": "BESTE VERDI",
     "billingIsNotAvailableOn": "Betaling er ikke tilgjengelig på denne enheten. Du kan gjenopprette et tidligere kjøp nedenfor.",
     "byContinuingYouAgree": "Ved å fortsette godtar du våre",
@@ -313,7 +317,7 @@
     "signInFirst": "Logg inn før du abonnerer.",
     "startFreeTrialCta_one": "Start {{count}} dag gratis",
     "startFreeTrialCta_other": "Start {{count}} dager gratis",
-    "startYourJourney": "Start endringen din nå",
+    "startYourJourney": "Lås opp hele programmet",
     "subscribe": "Abonner",
     "subscriptionActivated": "Abonnementet er aktivert!",
     "switchToPlan": "Bytt til {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-post er påkrevd.",
     "fullName": "Fullt navn",
     "googleSignInFailed": "Google-innlogging mislyktes. Prøv igjen.",
+    "headline": "Velg et abonnement og kom i gang",
     "nameRequired": "Navn er påkrevd.",
     "noAccountYetCreateOne": "Har du ikke konto ennå? Opprett en",
     "password": "Passord",
-    "password6Characters1Number": "Passord (minst 6 tegn, 1 tall)",
     "passwordRequired": "Passord er påkrevd.",
     "passwordRules": "Passordet må være minst 6 tegn og inneholde et tall.",
     "passwordsDoNotMatch": "Passordene er ikke like.",
     "signIn": "Logg inn",
     "signInSubscribe": "Logg inn og abonner",
     "signingIn": "Logger inn …",
-    "startYourTransformationJourneyNow": "Start endringen din i dag",
     "subscribe": "Abonner",
     "terms": "Vilkår"
   },

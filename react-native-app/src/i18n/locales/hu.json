@@ -171,6 +171,10 @@
       "top": "Csúcson"
     }
   },
+  "common": {
+    "or": "vagy",
+    "perMonth": "{{price}}/hó"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Valami hiba történt",
     "theAppHitAnUnexpected": "Az alkalmazásban váratlan hiba lépett fel. Kérjük, próbáld újra.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Az automatikus megújítás ki van kapcsolva. A hozzáférésed a lejárat napján véget ér.",
     "autoRenewOnHint": "Az előfizetésed automatikusan megújul. Bármikor kezelheted vagy kikapcsolhatod az előfizetési beállításokban.",
     "autoRenewal": "Automatikus megújítás",
-    "benefitFeel": "Érezd a különbséget",
-    "benefitMeasure": "Mérd a fejlődésed",
-    "benefitReminders": "Állíts be a napodhoz illő emlékeztetőket",
-    "benefitStrength": "Építs valódi gátizomerőt",
+    "benefitDaily": "Vezetett edzés minden napra",
+    "benefitExercises": "Minden gyakorlat, fokozatosan feloldva",
+    "benefitProgress": "A sorozatod és az előzményeid, szinkronban",
+    "benefitReminders": "Emlékeztetők, amik illenek a napodhoz",
     "bestValue": "LEGJOBB ÁR",
     "billingIsNotAvailableOn": "Ezen az eszközön nem érhető el a fizetés. Lent visszaállíthatod egy korábbi vásárlásod.",
     "byContinuingYouAgree": "A folytatással elfogadod a",
@@ -313,7 +317,7 @@
     "signInFirst": "Előfizetés előtt jelentkezz be.",
     "startFreeTrialCta_one": "{{count}} napos ingyenes próba indítása",
     "startFreeTrialCta_other": "{{count}} napos ingyenes próba indítása",
-    "startYourJourney": "Kezdd el a változást most",
+    "startYourJourney": "Nyisd meg a teljes programot",
     "subscribe": "Előfizetés",
     "subscriptionActivated": "Az előfizetés aktiválva!",
     "switchToPlan": "Váltás erre: {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Az e-mail megadása kötelező.",
     "fullName": "Teljes név",
     "googleSignInFailed": "A Google-bejelentkezés nem sikerült. Próbáld újra.",
+    "headline": "Válassz csomagot, és kezdd el",
     "nameRequired": "A név megadása kötelező.",
     "noAccountYetCreateOne": "Még nincs fiókod? Hozz létre egyet",
     "password": "Jelszó",
-    "password6Characters1Number": "Jelszó (legalább 6 karakter, 1 szám)",
     "passwordRequired": "A jelszó megadása kötelező.",
     "passwordRules": "A jelszónak legalább 6 karakteresnek kell lennie, és tartalmaznia kell egy számot.",
     "passwordsDoNotMatch": "A jelszavak nem egyeznek.",
     "signIn": "Bejelentkezés",
     "signInSubscribe": "Bejelentkezés és előfizetés",
     "signingIn": "Bejelentkezés …",
-    "startYourTransformationJourneyNow": "Kezdd el a változást még ma",
     "subscribe": "Előfizetek",
     "terms": "Feltételek"
   },

@@ -171,6 +171,10 @@
       "top": "Szczyt"
     }
   },
+  "common": {
+    "or": "lub",
+    "perMonth": "{{price}}/mies."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Coś poszło nie tak",
     "theAppHitAnUnexpected": "W aplikacji wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatyczne odnawianie jest wyłączone. Dostęp wygaśnie w dniu zakończenia.",
     "autoRenewOnHint": "Subskrypcja odnawia się automatycznie. Możesz nią zarządzać lub ją wyłączyć w ustawieniach subskrypcji.",
     "autoRenewal": "Odnawianie automatyczne",
-    "benefitFeel": "Poczuj różnicę",
-    "benefitMeasure": "Mierz swoje postępy",
-    "benefitReminders": "Ustaw przypomnienia pod swój dzień",
-    "benefitStrength": "Zbuduj prawdziwą siłę dna miednicy",
+    "benefitDaily": "Prowadzona sesja na każdy dzień",
+    "benefitExercises": "Każde ćwiczenie, odblokowywane po kolei",
+    "benefitProgress": "Twoja passa i historia, zsynchronizowane",
+    "benefitReminders": "Przypomnienia dopasowane do twojego dnia",
     "bestValue": "NAJLEPSZA OFERTA",
     "billingIsNotAvailableOn": "Płatności nie są dostępne na tym urządzeniu. Poniżej możesz przywrócić wcześniejszy zakup.",
     "byContinuingYouAgree": "Kontynuując, akceptujesz nasze",
@@ -313,7 +317,7 @@
     "signInFirst": "Zaloguj się przed wykupieniem subskrypcji.",
     "startFreeTrialCta_one": "Zacznij {{count}} dzień za darmo",
     "startFreeTrialCta_other": "Zacznij {{count}} dni za darmo",
-    "startYourJourney": "Zacznij swoją przemianę już teraz",
+    "startYourJourney": "Odblokuj cały program",
     "subscribe": "Subskrybuj",
     "subscriptionActivated": "Subskrypcja aktywowana!",
     "switchToPlan": "Przejdź na {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-mail jest wymagany.",
     "fullName": "Imię i nazwisko",
     "googleSignInFailed": "Logowanie przez Google nie powiodło się. Spróbuj ponownie.",
+    "headline": "Wybierz plan i zacznij trenować",
     "nameRequired": "Imię jest wymagane.",
     "noAccountYetCreateOne": "Nie masz jeszcze konta? Załóż je",
     "password": "Hasło",
-    "password6Characters1Number": "Hasło (min. 6 znaków, 1 cyfra)",
     "passwordRequired": "Hasło jest wymagane.",
     "passwordRules": "Hasło musi mieć co najmniej 6 znaków i zawierać cyfrę.",
     "passwordsDoNotMatch": "Hasła nie są takie same.",
     "signIn": "Zaloguj się",
     "signInSubscribe": "Zaloguj się i subskrybuj",
     "signingIn": "Logowanie …",
-    "startYourTransformationJourneyNow": "Zacznij swoją przemianę już teraz",
     "subscribe": "Subskrybuj",
     "terms": "Regulamin"
   },

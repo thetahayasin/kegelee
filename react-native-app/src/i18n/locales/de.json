@@ -171,6 +171,10 @@
       "top": "Ganz oben"
     }
   },
+  "common": {
+    "or": "oder",
+    "perMonth": "{{price}}/Mon."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Etwas ist schiefgelaufen",
     "theAppHitAnUnexpected": "Die App hat einen unerwarteten Fehler festgestellt. Bitte versuche es erneut.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Die automatische Verlängerung ist aus. Dein Zugang endet am Ablaufdatum.",
     "autoRenewOnHint": "Dein Abo verlängert sich automatisch. Du kannst das jederzeit in den Abo-Einstellungen verwalten oder abschalten.",
     "autoRenewal": "Automatische Verlängerung",
-    "benefitFeel": "Spüre den Unterschied",
-    "benefitMeasure": "Miss deinen Fortschritt",
+    "benefitDaily": "Eine geführte Einheit für jeden Tag",
+    "benefitExercises": "Jede Übung, nach und nach freigeschaltet",
+    "benefitProgress": "Deine Serie und Historie, synchronisiert",
     "benefitReminders": "Erinnerungen, die zu deinem Tag passen",
-    "benefitStrength": "Echte Beckenbodenkraft aufbauen",
     "bestValue": "BESTER WERT",
     "billingIsNotAvailableOn": "Zahlungen sind auf diesem Gerät nicht verfügbar. Du kannst unten einen früheren Kauf wiederherstellen.",
     "byContinuingYouAgree": "Mit dem Fortfahren akzeptierst du unsere",
@@ -313,7 +317,7 @@
     "signInFirst": "Melde dich an, bevor du ein Abo abschließt.",
     "startFreeTrialCta_one": "{{count}} Tag gratis starten",
     "startFreeTrialCta_other": "{{count}} Tage gratis starten",
-    "startYourJourney": "Starte jetzt deine Veränderung",
+    "startYourJourney": "Das ganze Programm freischalten",
     "subscribe": "Abonnieren",
     "subscriptionActivated": "Abo aktiviert!",
     "switchToPlan": "Zu {{plan}} wechseln",
@@ -499,17 +503,16 @@
     "emailRequired": "E-Mail ist erforderlich.",
     "fullName": "Vollständiger Name",
     "googleSignInFailed": "Google-Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
+    "headline": "Plan wählen und loslegen",
     "nameRequired": "Name ist erforderlich.",
     "noAccountYetCreateOne": "Noch kein Konto? Jetzt erstellen",
     "password": "Passwort",
-    "password6Characters1Number": "Passwort (mind. 6 Zeichen, 1 Zahl)",
     "passwordRequired": "Passwort ist erforderlich.",
     "passwordRules": "Das Passwort muss mindestens 6 Zeichen lang sein und eine Zahl enthalten.",
     "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
     "signIn": "Anmelden",
     "signInSubscribe": "Anmelden & abonnieren",
     "signingIn": "Anmeldung läuft …",
-    "startYourTransformationJourneyNow": "Starte jetzt deine Veränderung",
     "subscribe": "Abonnieren",
     "terms": "AGB"
   },

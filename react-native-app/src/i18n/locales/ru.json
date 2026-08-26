@@ -171,6 +171,10 @@
       "top": "Вершина"
     }
   },
+  "common": {
+    "or": "или",
+    "perMonth": "{{price}}/мес."
+  },
   "errorBoundary": {
     "somethingWentWrong": "Что-то пошло не так",
     "theAppHitAnUnexpected": "В приложении произошла непредвиденная ошибка. Попробуй ещё раз.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Автопродление отключено. Доступ закончится в дату окончания.",
     "autoRenewOnHint": "Подписка продлевается автоматически. Управлять этим или отключить можно в любой момент в настройках подписки.",
     "autoRenewal": "Автопродление",
-    "benefitFeel": "Почувствуйте разницу",
-    "benefitMeasure": "Измеряйте свой прогресс",
+    "benefitDaily": "Ведомая тренировка на каждый день",
+    "benefitExercises": "Каждое упражнение открывается по ходу",
+    "benefitProgress": "Ваша серия и история синхронизированы",
     "benefitReminders": "Напоминания под ваш день",
-    "benefitStrength": "Наберите настоящую силу тазового дна",
     "bestValue": "ЛУЧШАЯ ЦЕНА",
     "billingIsNotAvailableOn": "Оплата недоступна на этом устройстве. Ниже можно восстановить прошлую покупку.",
     "byContinuingYouAgree": "Продолжая, вы принимаете наши",
@@ -313,7 +317,7 @@
     "signInFirst": "Войдите в аккаунт перед оформлением подписки.",
     "startFreeTrialCta_one": "Начать {{count}} день бесплатно",
     "startFreeTrialCta_other": "Начать {{count}} дней бесплатно",
-    "startYourJourney": "Начните меняться прямо сейчас",
+    "startYourJourney": "Откройте всю программу",
     "subscribe": "Оформить подписку",
     "subscriptionActivated": "Подписка активирована!",
     "switchToPlan": "Перейти на {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Укажите электронную почту.",
     "fullName": "Полное имя",
     "googleSignInFailed": "Вход через Google не удался. Попробуйте снова.",
+    "headline": "Выберите план и начните тренироваться",
     "nameRequired": "Укажите имя.",
     "noAccountYetCreateOne": "Ещё нет аккаунта? Создай",
     "password": "Пароль",
-    "password6Characters1Number": "Пароль (от 6 символов, 1 цифра)",
     "passwordRequired": "Введите пароль.",
     "passwordRules": "Пароль должен содержать не менее 6 символов и хотя бы одну цифру.",
     "passwordsDoNotMatch": "Пароли не совпадают.",
     "signIn": "Войти",
     "signInSubscribe": "Войти и подписаться",
     "signingIn": "Выполняем вход …",
-    "startYourTransformationJourneyNow": "Начни своё преображение прямо сейчас",
     "subscribe": "Оформить подписку",
     "terms": "Условия"
   },

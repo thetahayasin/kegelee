@@ -171,6 +171,10 @@
       "top": "Đỉnh"
     }
   },
+  "common": {
+    "or": "hoặc",
+    "perMonth": "{{price}}/tháng"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Đã xảy ra lỗi",
     "theAppHitAnUnexpected": "Ứng dụng gặp lỗi không mong muốn. Vui lòng thử lại.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Tự động gia hạn đang tắt. Quyền truy cập sẽ kết thúc vào ngày hết hạn.",
     "autoRenewOnHint": "Gói của bạn tự động gia hạn. Bạn có thể quản lý hoặc tắt bất cứ lúc nào trong cài đặt gói đăng ký.",
     "autoRenewal": "Tự động gia hạn",
-    "benefitFeel": "Cảm nhận sự khác biệt",
-    "benefitMeasure": "Đo tiến bộ của bạn",
-    "benefitReminders": "Đặt nhắc nhở hợp với ngày của bạn",
-    "benefitStrength": "Xây dựng sức mạnh sàn chậu thật sự",
+    "benefitDaily": "Buổi tập có hướng dẫn cho mỗi ngày",
+    "benefitExercises": "Mọi bài tập, mở khóa dần theo tiến độ",
+    "benefitProgress": "Chuỗi ngày và lịch sử của bạn, được đồng bộ",
+    "benefitReminders": "Nhắc nhở hợp với lịch của bạn",
     "bestValue": "GIÁ TỐT NHẤT",
     "billingIsNotAvailableOn": "Không thể thanh toán trên thiết bị này. Bạn có thể khôi phục giao dịch trước đó ở bên dưới.",
     "byContinuingYouAgree": "Tiếp tục nghĩa là bạn đồng ý với",
@@ -313,7 +317,7 @@
     "signInFirst": "Hãy đăng nhập trước khi đăng ký.",
     "startFreeTrialCta_one": "Bắt đầu {{count}} ngày dùng thử miễn phí",
     "startFreeTrialCta_other": "Bắt đầu {{count}} ngày dùng thử miễn phí",
-    "startYourJourney": "Bắt đầu thay đổi ngay hôm nay",
+    "startYourJourney": "Mở khóa toàn bộ chương trình",
     "subscribe": "Đăng ký",
     "subscriptionActivated": "Đã kích hoạt gói đăng ký!",
     "switchToPlan": "Chuyển sang {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Vui lòng nhập email.",
     "fullName": "Họ và tên",
     "googleSignInFailed": "Đăng nhập bằng Google không thành công. Hãy thử lại.",
+    "headline": "Chọn gói và bắt đầu tập",
     "nameRequired": "Vui lòng nhập tên.",
     "noAccountYetCreateOne": "Chưa có tài khoản? Tạo ngay",
     "password": "Mật khẩu",
-    "password6Characters1Number": "Mật khẩu (từ 6 ký tự, có 1 chữ số)",
     "passwordRequired": "Vui lòng nhập mật khẩu.",
     "passwordRules": "Mật khẩu phải có ít nhất 6 ký tự và chứa một chữ số.",
     "passwordsDoNotMatch": "Mật khẩu không khớp.",
     "signIn": "Đăng nhập",
     "signInSubscribe": "Đăng nhập và đăng ký",
     "signingIn": "Đang đăng nhập …",
-    "startYourTransformationJourneyNow": "Bắt đầu thay đổi ngay hôm nay",
     "subscribe": "Đăng ký",
     "terms": "Điều khoản"
   },

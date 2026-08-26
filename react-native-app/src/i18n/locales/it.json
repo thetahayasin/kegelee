@@ -171,6 +171,10 @@
       "top": "In cima"
     }
   },
+  "common": {
+    "or": "oppure",
+    "perMonth": "{{price}}/mese"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Qualcosa è andato storto",
     "theAppHitAnUnexpected": "L'app ha riscontrato un errore imprevisto. Riprova.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Il rinnovo automatico è disattivato. L'accesso terminerà alla data di scadenza.",
     "autoRenewOnHint": "L'abbonamento si rinnova automaticamente. Puoi gestirlo o disattivarlo quando vuoi dalle impostazioni dell'abbonamento.",
     "autoRenewal": "Rinnovo automatico",
-    "benefitFeel": "Senti la differenza",
-    "benefitMeasure": "Misura i tuoi progressi",
-    "benefitReminders": "Promemoria su misura per la tua giornata",
-    "benefitStrength": "Costruisci vera forza del pavimento pelvico",
+    "benefitDaily": "Una sessione guidata per ogni giorno",
+    "benefitExercises": "Ogni esercizio, sbloccato strada facendo",
+    "benefitProgress": "La tua serie e il tuo storico, sincronizzati",
+    "benefitReminders": "Promemoria che si adattano alla tua giornata",
     "bestValue": "MIGLIORE OFFERTA",
     "billingIsNotAvailableOn": "I pagamenti non sono disponibili su questo dispositivo. Puoi ripristinare un acquisto precedente qui sotto.",
     "byContinuingYouAgree": "Continuando accetti i nostri",
@@ -313,7 +317,7 @@
     "signInFirst": "Accedi prima di abbonarti.",
     "startFreeTrialCta_one": "Inizia {{count}} giorno di prova gratuita",
     "startFreeTrialCta_other": "Inizia {{count}} giorni di prova gratuita",
-    "startYourJourney": "Inizia ora il tuo percorso",
+    "startYourJourney": "Sblocca tutto il programma",
     "subscribe": "Abbonati",
     "subscriptionActivated": "Abbonamento attivato!",
     "switchToPlan": "Passa a {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "L’email è obbligatoria.",
     "fullName": "Nome completo",
     "googleSignInFailed": "Accesso con Google non riuscito. Riprova.",
+    "headline": "Scegli un piano e inizia ad allenarti",
     "nameRequired": "Il nome è obbligatorio.",
     "noAccountYetCreateOne": "Non hai ancora un account? Creane uno",
     "password": "Password",
-    "password6Characters1Number": "Password (almeno 6 caratteri, 1 numero)",
     "passwordRequired": "La password è obbligatoria.",
     "passwordRules": "La password deve avere almeno 6 caratteri e contenere un numero.",
     "passwordsDoNotMatch": "Le password non coincidono.",
     "signIn": "Accedi",
     "signInSubscribe": "Accedi e abbonati",
     "signingIn": "Accesso in corso …",
-    "startYourTransformationJourneyNow": "Inizia subito la tua trasformazione",
     "subscribe": "Abbonati",
     "terms": "Termini"
   },

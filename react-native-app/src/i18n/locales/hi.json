@@ -171,6 +171,10 @@
       "top": "शिखर"
     }
   },
+  "common": {
+    "or": "या",
+    "perMonth": "{{price}}/माह"
+  },
   "errorBoundary": {
     "somethingWentWrong": "कुछ गड़बड़ हो गई",
     "theAppHitAnUnexpected": "ऐप में एक अनपेक्षित त्रुटि आ गई। कृपया दोबारा कोशिश करें।",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "ऑटो-रिन्यूअल बंद है। समाप्ति तिथि पर आपकी पहुँच खत्म हो जाएगी।",
     "autoRenewOnHint": "आपकी सदस्यता अपने आप रिन्यू होती है। इसे कभी भी सदस्यता सेटिंग्स से प्रबंधित या बंद कर सकते हैं।",
     "autoRenewal": "स्वतः नवीनीकरण",
-    "benefitFeel": "फर्क महसूस करें",
-    "benefitMeasure": "अपनी प्रगति मापें",
-    "benefitReminders": "अपने दिन के हिसाब से रिमाइंडर सेट करें",
-    "benefitStrength": "पेल्विक फ्लोर की असली ताकत बनाएँ",
+    "benefitDaily": "हर दिन के लिए गाइडेड सेशन",
+    "benefitExercises": "हर एक्सरसाइज़, आगे बढ़ते हुए अनलॉक",
+    "benefitProgress": "आपकी स्ट्रीक और हिस्ट्री, सिंक में",
+    "benefitReminders": "आपके दिन के हिसाब से रिमाइंडर",
     "bestValue": "सबसे किफ़ायती",
     "billingIsNotAvailableOn": "इस डिवाइस पर भुगतान उपलब्ध नहीं है। आप नीचे पिछली खरीदारी बहाल कर सकते हैं।",
     "byContinuingYouAgree": "जारी रखने पर आप सहमत हैं हमारी",
@@ -313,7 +317,7 @@
     "signInFirst": "सदस्यता लेने से पहले साइन इन करें।",
     "startFreeTrialCta_one": "{{count}} दिन का मुफ्त ट्रायल शुरू करें",
     "startFreeTrialCta_other": "{{count}} दिन का मुफ्त ट्रायल शुरू करें",
-    "startYourJourney": "अपना बदलाव आज ही शुरू करें",
+    "startYourJourney": "पूरा प्रोग्राम अनलॉक करें",
     "subscribe": "सदस्यता लें",
     "subscriptionActivated": "सदस्यता सक्रिय हो गई!",
     "switchToPlan": "{{plan}} पर जाएँ",
@@ -499,17 +503,16 @@
     "emailRequired": "ईमेल ज़रूरी है।",
     "fullName": "पूरा नाम",
     "googleSignInFailed": "Google से साइन इन विफल रहा। फिर कोशिश करें।",
+    "headline": "प्लान चुनें और ट्रेनिंग शुरू करें",
     "nameRequired": "नाम ज़रूरी है।",
     "noAccountYetCreateOne": "अभी तक खाता नहीं है? बनाएँ",
     "password": "पासवर्ड",
-    "password6Characters1Number": "पासवर्ड (कम से कम 6 अक्षर, 1 अंक)",
     "passwordRequired": "पासवर्ड ज़रूरी है।",
     "passwordRules": "पासवर्ड कम से कम 6 अक्षरों का हो और उसमें एक अंक हो।",
     "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते।",
     "signIn": "साइन इन करें",
     "signInSubscribe": "लॉग इन करें और सदस्यता लें",
     "signingIn": "लॉग इन हो रहा है…",
-    "startYourTransformationJourneyNow": "अपना बदलाव आज से शुरू करें",
     "subscribe": "सदस्यता लें",
     "terms": "नियम"
   },

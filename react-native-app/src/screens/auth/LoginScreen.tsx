@@ -255,7 +255,7 @@ export const LoginScreen = () => {
             <>
               <View style={styles.dividerContainer}>
                 <View style={styles.divider} />
-                <Text style={styles.dividerText}>or</Text>
+                <Text style={styles.dividerText}>{t('common.or')}</Text>
                 <View style={styles.divider} />
               </View>
 

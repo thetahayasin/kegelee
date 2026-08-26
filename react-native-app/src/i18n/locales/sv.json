@@ -171,6 +171,10 @@
       "top": "Toppen"
     }
   },
+  "common": {
+    "or": "eller",
+    "perMonth": "{{price}}/mån"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Något gick fel",
     "theAppHitAnUnexpected": "Appen stötte på ett oväntat fel. Försök igen.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatisk förnyelse är av. Din åtkomst slutar på utgångsdatumet.",
     "autoRenewOnHint": "Prenumerationen förnyas automatiskt. Du kan när som helst hantera eller stänga av det i prenumerationsinställningarna.",
     "autoRenewal": "Automatisk förnyelse",
-    "benefitFeel": "Känn skillnaden",
-    "benefitMeasure": "Mät dina framsteg",
+    "benefitDaily": "Ett guidat pass för varje dag",
+    "benefitExercises": "Varje övning, upplåst efter hand",
+    "benefitProgress": "Din svit och historik, synkade",
     "benefitReminders": "Påminnelser som passar din dag",
-    "benefitStrength": "Bygg riktig bäckenbottenstyrka",
     "bestValue": "BÄSTA VÄRDET",
     "billingIsNotAvailableOn": "Betalning är inte tillgänglig på den här enheten. Du kan återställa ett tidigare köp nedan.",
     "byContinuingYouAgree": "Genom att fortsätta godkänner du våra",
@@ -313,7 +317,7 @@
     "signInFirst": "Logga in innan du prenumererar.",
     "startFreeTrialCta_one": "Börja {{count}} dag gratis",
     "startFreeTrialCta_other": "Börja {{count}} dagar gratis",
-    "startYourJourney": "Börja din förändring nu",
+    "startYourJourney": "Lås upp hela programmet",
     "subscribe": "Prenumerera",
     "subscriptionActivated": "Prenumerationen är aktiverad!",
     "switchToPlan": "Byt till {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-post krävs.",
     "fullName": "Fullständigt namn",
     "googleSignInFailed": "Google-inloggningen misslyckades. Försök igen.",
+    "headline": "Välj ett abonnemang och börja träna",
     "nameRequired": "Namn krävs.",
     "noAccountYetCreateOne": "Har du inget konto än? Skapa ett",
     "password": "Lösenord",
-    "password6Characters1Number": "Lösenord (minst 6 tecken, 1 siffra)",
     "passwordRequired": "Lösenord krävs.",
     "passwordRules": "Lösenordet måste vara minst 6 tecken och innehålla en siffra.",
     "passwordsDoNotMatch": "Lösenorden matchar inte.",
     "signIn": "Logga in",
     "signInSubscribe": "Logga in och prenumerera",
     "signingIn": "Loggar in …",
-    "startYourTransformationJourneyNow": "Börja din förändring redan idag",
     "subscribe": "Prenumerera",
     "terms": "Villkor"
   },

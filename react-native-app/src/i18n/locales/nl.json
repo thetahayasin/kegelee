@@ -171,6 +171,10 @@
       "top": "Bovenaan"
     }
   },
+  "common": {
+    "or": "of",
+    "perMonth": "{{price}}/mnd"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Er is iets misgegaan",
     "theAppHitAnUnexpected": "De app liep tegen een onverwachte fout aan. Probeer het opnieuw.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Automatisch verlengen staat uit. Je toegang stopt op de vervaldatum.",
     "autoRenewOnHint": "Je abonnement wordt automatisch verlengd. Je kunt dit altijd beheren of uitzetten in de abonnementsinstellingen.",
     "autoRenewal": "Automatische verlenging",
-    "benefitFeel": "Voel het verschil",
-    "benefitMeasure": "Meet je vooruitgang",
+    "benefitDaily": "Een begeleide sessie voor elke dag",
+    "benefitExercises": "Elke oefening, onderweg ontgrendeld",
+    "benefitProgress": "Je reeks en geschiedenis, gesynchroniseerd",
     "benefitReminders": "Herinneringen die bij je dag passen",
-    "benefitStrength": "Bouw echte bekkenbodemkracht op",
     "bestValue": "BESTE KEUZE",
     "billingIsNotAvailableOn": "Betalen is niet beschikbaar op dit apparaat. Je kunt hieronder een eerdere aankoop herstellen.",
     "byContinuingYouAgree": "Door verder te gaan ga je akkoord met onze",
@@ -313,7 +317,7 @@
     "signInFirst": "Log in voordat je een abonnement neemt.",
     "startFreeTrialCta_one": "Start {{count}} dag gratis",
     "startFreeTrialCta_other": "Start {{count}} dagen gratis",
-    "startYourJourney": "Begin vandaag met je verandering",
+    "startYourJourney": "Ontgrendel het hele programma",
     "subscribe": "Abonneren",
     "subscriptionActivated": "Abonnement geactiveerd!",
     "switchToPlan": "Overstappen naar {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "E-mail is verplicht.",
     "fullName": "Volledige naam",
     "googleSignInFailed": "Inloggen met Google is mislukt. Probeer het opnieuw.",
+    "headline": "Kies een abonnement en begin",
     "nameRequired": "Naam is verplicht.",
     "noAccountYetCreateOne": "Nog geen account? Maak er een aan",
     "password": "Wachtwoord",
-    "password6Characters1Number": "Wachtwoord (6+ tekens, 1 cijfer)",
     "passwordRequired": "Wachtwoord is verplicht.",
     "passwordRules": "Het wachtwoord moet minstens 6 tekens bevatten en een cijfer.",
     "passwordsDoNotMatch": "De wachtwoorden komen niet overeen.",
     "signIn": "Inloggen",
     "signInSubscribe": "Inloggen en abonneren",
     "signingIn": "Inloggen …",
-    "startYourTransformationJourneyNow": "Begin nu aan je transformatie",
     "subscribe": "Abonneren",
     "terms": "Voorwaarden"
   },

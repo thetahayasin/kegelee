@@ -171,6 +171,10 @@
       "top": "Top"
     }
   },
+  "common": {
+    "or": "or",
+    "perMonth": "{{price}}/mo"
+  },
   "errorBoundary": {
     "somethingWentWrong": "Something went wrong",
     "theAppHitAnUnexpected": "The app hit an unexpected error. Please try again.",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "Auto-renewal is off. Your access will end at the expiry date.",
     "autoRenewOnHint": "Your subscription renews automatically. You can manage or turn this off anytime from your subscription settings.",
     "autoRenewal": "Auto-renewal",
-    "benefitFeel": "Feel the difference",
-    "benefitMeasure": "Measure your progress",
-    "benefitReminders": "Set reminders that fit your day",
-    "benefitStrength": "Build real pelvic floor strength",
+    "benefitDaily": "A guided session for each day",
+    "benefitExercises": "Every exercise, unlocked as you go",
+    "benefitProgress": "Your streak and history, synced",
+    "benefitReminders": "Reminders that fit your day",
     "bestValue": "BEST VALUE",
     "billingIsNotAvailableOn": "Billing is not available on this device. You can restore a previous purchase below.",
     "byContinuingYouAgree": "By continuing you agree to our",
@@ -313,7 +317,7 @@
     "signInFirst": "Sign in before subscribing.",
     "startFreeTrialCta_one": "Start {{count}}-Day Free Trial",
     "startFreeTrialCta_other": "Start {{count}}-Day Free Trial",
-    "startYourJourney": "Start your transformation journey now",
+    "startYourJourney": "Unlock the whole program",
     "subscribe": "Subscribe",
     "subscriptionActivated": "Subscription activated!",
     "switchToPlan": "Switch to {{plan}}",
@@ -499,17 +503,16 @@
     "emailRequired": "Email is required.",
     "fullName": "Full name",
     "googleSignInFailed": "Google sign-in failed. Please try again.",
+    "headline": "Pick a plan and start training",
     "nameRequired": "Name is required.",
     "noAccountYetCreateOne": "No account yet? Create one",
     "password": "Password",
-    "password6Characters1Number": "Password (6+ characters, 1 number)",
     "passwordRequired": "Password is required.",
     "passwordRules": "Password must be at least 6 characters and include a number.",
     "passwordsDoNotMatch": "Passwords don't match.",
     "signIn": "Sign in",
     "signInSubscribe": "Sign in & subscribe",
     "signingIn": "Signing in…",
-    "startYourTransformationJourneyNow": "Start your transformation journey now",
     "subscribe": "Subscribe",
     "terms": "Terms"
   },

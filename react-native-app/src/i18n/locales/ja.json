@@ -171,6 +171,10 @@
       "top": "頂点"
     }
   },
+  "common": {
+    "or": "または",
+    "perMonth": "{{price}}/月"
+  },
   "errorBoundary": {
     "somethingWentWrong": "問題が発生しました",
     "theAppHitAnUnexpected": "予期しないエラーが発生しました。もう一度お試しください。",
@@ -283,10 +287,10 @@
     "autoRenewOffHint": "自動更新はオフです。有効期限日でアクセスが終了します。",
     "autoRenewOnHint": "サブスクリプションは自動更新されます。サブスクリプション設定からいつでも管理・オフにできます。",
     "autoRenewal": "自動更新",
-    "benefitFeel": "違いを実感",
-    "benefitMeasure": "進捗を記録",
-    "benefitReminders": "生活に合うリマインダー",
-    "benefitStrength": "骨盤底筋を本当に鍛える",
+    "benefitDaily": "毎日のガイド付きセッション",
+    "benefitExercises": "すべてのエクササイズが順に解放",
+    "benefitProgress": "連続記録と履歴を同期",
+    "benefitReminders": "一日の流れに合うリマインダー",
     "bestValue": "いちばんお得",
     "billingIsNotAvailableOn": "このデバイスでは購入を利用できません。下から以前の購入を復元できます。",
     "byContinuingYouAgree": "続けると、次に同意したことになります:",
@@ -313,7 +317,7 @@
     "signInFirst": "登録の前にログインしてください。",
     "startFreeTrialCta_one": "{{count}}日間の無料トライアルを開始",
     "startFreeTrialCta_other": "{{count}}日間の無料トライアルを開始",
-    "startYourJourney": "今日から変わりはじめよう",
+    "startYourJourney": "プログラムをすべて解放",
     "subscribe": "登録する",
     "subscriptionActivated": "サブスクリプションが有効になりました",
     "switchToPlan": "{{plan}}に変更",
@@ -499,17 +503,16 @@
     "emailRequired": "メールアドレスを入力してください。",
     "fullName": "氏名",
     "googleSignInFailed": "Google ログインに失敗しました。もう一度お試しください。",
+    "headline": "プランを選んでトレーニングを始める",
     "nameRequired": "名前を入力してください。",
     "noAccountYetCreateOne": "アカウントをお持ちでないですか？ 作成する",
     "password": "パスワード",
-    "password6Characters1Number": "パスワード（6文字以上、数字1つ以上）",
     "passwordRequired": "パスワードを入力してください。",
     "passwordRules": "パスワードは6文字以上で、数字を含める必要があります。",
     "passwordsDoNotMatch": "パスワードが一致しません。",
     "signIn": "ログイン",
     "signInSubscribe": "ログインして登録",
     "signingIn": "ログイン中…",
-    "startYourTransformationJourneyNow": "今日から変化を始めましょう",
     "subscribe": "登録する",
     "terms": "利用規約"
   },
