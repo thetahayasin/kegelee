@@ -88,15 +88,24 @@ export const SettingsSections = () => {
         const rcUrl = await getRevenueCatManagementUrl(user.id).catch(() => null);
         if (rcUrl) {
           setManageUrl(rcUrl);
-        } else if (sub.store === 'google_play') {
+        } else {
+          // Fallback when RevenueCat has no management URL for us - offline, an
+          // API hiccup, or a row it does not know about.
+          //
+          // This used to be gated on `sub.store === 'google_play'`, a value
+          // nothing ever writes: purchases are recorded with store
+          // 'revenuecat'. So the branch was unreachable and every fallback
+          // landed on the bare subscriptions LIST, where the user has to pick
+          // this app out of every subscription they own before they can reach
+          // the cancel or resubscribe button. We already hold both halves of
+          // the deep link locally, so build it whenever we can and keep the
+          // list as the last resort.
           const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
           const sku = planBySlug(sub.plan_slug)?.store_product_id;
           setManageUrl(
             'https://play.google.com/store/account/subscriptions' +
               (sku && packageName ? `?sku=${sku}&package=${packageName}` : ''),
           );
-        } else {
-          setManageUrl('https://play.google.com/store/account/subscriptions');
         }
       } else {
         setManageUrl(null);
