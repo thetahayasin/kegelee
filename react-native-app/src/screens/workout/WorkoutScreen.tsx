@@ -195,7 +195,31 @@ export const WorkoutScreen = () => {
 
   const hapticOptions = {
     enableVibrateFallback: true,
-    ignoreAndroidSystemSettings: false,
+    // Android's haptic setting governs KEYBOARD CLICKS AND UI TAPS. Deferring
+    // to it meant the cue was silent on every phone with touch feedback turned
+    // off - which is a default on plenty of devices and the first thing people
+    // disable for battery - so the in-app toggle looked broken and the buzz
+    // "did not work".
+    //
+    // This is not UI polish. It tells you when to squeeze while your eyes may
+    // be off the screen, which is closer to an alarm than to a keypress, and
+    // the user already has an explicit switch for it in Profile. That switch
+    // is the consent; a second unrelated one is just a way to lose the signal.
+    ignoreAndroidSystemSettings: true,
+  };
+
+  /**
+   * Fire the contract cue.
+   *
+   * Extracted because the FIRST step never went through advanceStep - that
+   * only runs on a transition - so the opening Contract of every session, the
+   * one cue the user is actually waiting for, was silent.
+   */
+  const cueStep = (step: { phase: string } | undefined) => {
+    if (!step || !hapticsOn.current || step.phase !== 'contract') return;
+    try {
+      ReactNativeHapticFeedback.trigger('impactHeavy', hapticOptions);
+    } catch {}
   };
 
   // `haptics_enabled` shipped in the schema defaults but nothing ever read it,
@@ -243,6 +267,14 @@ export const WorkoutScreen = () => {
         elapsedRef.current = 0;
         setPlaylist(session.steps);
         setLoading(false);
+        // The opening Contract of a full session. advanceStep only runs on a
+        // transition, so without this the very first cue - the one the user is
+        // actually waiting for - never fired. Trials already had it.
+        cueStep(session.steps[0]);
+        // The opening Contract of the session. advanceStep only runs on a
+        // transition, so without this the very first cue - the one the user is
+        // waiting for - never fired.
+        cueStep(session.steps[0]);
       } catch (e) {
         console.error(e);
         setLoading(false);
@@ -349,17 +381,11 @@ export const WorkoutScreen = () => {
       setIndex(nextIdx);
       pushTickDisplays(true);
 
-      // Buzz on CONTRACT only.
-      //
-      // Previously relax got its own (lighter) buzz, which made the cue
-      // useless: something vibrated at every transition, so the phone stopped
-      // telling you which one you were entering. Silence on relax is the
-      // signal - a buzz now means squeeze, and nothing else does.
-      try {
-        if (hapticsOn.current && nextStep.phase === 'contract') {
-          ReactNativeHapticFeedback.trigger('impactMedium', hapticOptions);
-        }
-      } catch {}
+      // Buzz on CONTRACT only. Relax used to get its own lighter buzz, which
+      // made the cue useless: something vibrated at every transition, so the
+      // phone stopped telling you which phase you were entering. Silence on
+      // relax is the signal - a buzz means squeeze, and nothing else does.
+      cueStep(nextStep);
     }
   };
 
@@ -490,6 +516,7 @@ export const WorkoutScreen = () => {
     // New array reference re-runs the timer effect and starts a fresh loop.
     setPlaylist([...session.steps]);
     pushTickDisplays(true);
+    cueStep(session.steps[0]);
     KeepAwake.activate();
   };
 

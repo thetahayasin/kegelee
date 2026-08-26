@@ -61,8 +61,8 @@ const SLIDES = [
   {
     key: 'routine',
     art: require('../../assets/onboarding/routine.jpg'),
-    titleKey: 'onboarding.slide4Title',
-    bodyKey: 'onboarding.slide4Body',
+    titleKey: 'onboarding.slide3Title',
+    bodyKey: 'onboarding.slide3Body',
   },
 ];
 
@@ -139,6 +139,17 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      <View style={styles.skipRow} pointerEvents="box-none">
+        <TouchableOpacity
+          onPress={finish}
+          hitSlop={12}
+          style={styles.skipBtn}
+          accessibilityRole="button"
+        >
+          <Text style={styles.skipText}>{t('quiz.skip')}</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         ref={listRef}
         data={SLIDES}
@@ -207,6 +218,19 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
+
+  // Floats over the photograph, inside the top safe area. The scrim already
+  // darkens that corner, so the label reads without a chip behind it.
+  skipRow: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 5,
+    paddingTop: SPACE.xxl,
+    paddingRight: SPACE.lg,
+  },
+  skipBtn: { paddingHorizontal: SPACE.md, paddingVertical: SPACE.sm },
+  skipText: { ...TYPE.bodySm, color: COLORS.white, fontWeight: '600' },
 
   slide: { width, flex: 1 },
   art: { height: ART_H, width, backgroundColor: COLORS.surface },

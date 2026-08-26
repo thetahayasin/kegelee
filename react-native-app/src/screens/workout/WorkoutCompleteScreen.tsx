@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -7,6 +7,9 @@ import {
   ActivityIndicator,
   ScrollView,
   Modal,
+  Animated,
+  Easing,
+  AccessibilityInfo,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +27,12 @@ import {
 } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import Svg, { Circle, Path } from 'react-native-svg';
+
+// strokeDashoffset is an SVG attribute, so the sweep has to be JS-driven -
+// the native driver cannot carry it. The tick is animated on its OWN node
+// for the same reason the onboarding art was rewritten: two drivers on one
+// node is an invariant violation, and it crashed the app once already.
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 import { Watermark } from '../../components/Watermark';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 
@@ -40,6 +49,13 @@ export const WorkoutCompleteScreen = () => {
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState<any>(null);
   const [progress, setProgress] = useState<any>(null);
+
+  // Both animations are JS-driven. strokeDashoffset forces it for the ring,
+  // and the tick follows suit rather than mixing drivers - separate nodes make
+  // that safe, but the one time this app mixed them it crashed on launch, so
+  // the rule here is simply: one driver per screen.
+  const ringAnim = useRef(new Animated.Value(0)).current;
+  const tickAnim = useRef(new Animated.Value(0)).current;
   const [calendarDays, setCalendarDays] = useState<any[]>([]);
   const [askFeedback, setAskFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
@@ -162,6 +178,57 @@ export const WorkoutCompleteScreen = () => {
     }
   };
 
+  /**
+   * Run the ring from where the day stood before this session to where it
+   * stands now, then land the tick if that completed the day.
+   *
+   * Sequenced rather than parallel: the tick is the payoff, and arriving while
+   * the ring is still travelling gives away the ending. Honours reduce-motion
+   * by jumping to the final state, which still shows the right numbers.
+   */
+  useEffect(() => {
+    if (!progress) return;
+    const to = Math.min(1, progress.done / progress.required);
+    const from = Math.max(0, Math.min(1, (progress.done - 1) / progress.required));
+    const dayComplete = progress.done >= progress.required;
+    let cancelled = false;
+
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduced) => {
+        if (cancelled) return;
+        if (reduced) {
+          ringAnim.setValue(to);
+          tickAnim.setValue(dayComplete ? 1 : 0);
+          return;
+        }
+        ringAnim.setValue(from);
+        tickAnim.setValue(0);
+        Animated.sequence([
+          Animated.timing(ringAnim, {
+            toValue: to,
+            duration: 850,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: false,
+          }),
+          ...(dayComplete
+            ? [
+                Animated.spring(tickAnim, {
+                  toValue: 1,
+                  friction: 5,
+                  tension: 90,
+                  useNativeDriver: false,
+                }),
+              ]
+            : []),
+        ]).start();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [progress, ringAnim, tickAnim]);
+
   if (loading || !position || !progress) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -170,9 +237,12 @@ export const WorkoutCompleteScreen = () => {
     );
   }
 
-  // Calculate Dashoffset for today's sessions progress ring
+  // The ring travels from where the day STOOD BEFORE this session to where it
+  // stands now: 0 to a half on the first session, a half to full on the second.
+  // It used to jump straight to the final value, so the one moment the screen
+  // exists to celebrate - the bar moving - never happened.
   const pct = Math.min(1, progress.done / progress.required);
-  const strokeDashoffset = COMPLETED_CIRCUMFERENCE * (1 - pct);
+  const fromPct = Math.max(0, Math.min(1, (progress.done - 1) / progress.required));
 
   // Generate unlock percentage progress
   const unlockPct = nextUnlock
@@ -195,7 +265,7 @@ export const WorkoutCompleteScreen = () => {
                 stroke="rgba(255,255,255,0.08)"
                 strokeWidth={12}
               />
-              <Circle
+              <AnimatedCircle
                 cx={COMPLETED_CIRCLE_SIZE / 2}
                 cy={COMPLETED_CIRCLE_SIZE / 2}
                 r={COMPLETED_R}
@@ -204,12 +274,34 @@ export const WorkoutCompleteScreen = () => {
                 strokeWidth={12}
                 strokeLinecap="round"
                 strokeDasharray={`${COMPLETED_CIRCUMFERENCE} ${COMPLETED_CIRCUMFERENCE}`}
-                strokeDashoffset={strokeDashoffset}
+                strokeDashoffset={ringAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [COMPLETED_CIRCUMFERENCE, 0],
+                })}
                 origin={`${COMPLETED_CIRCLE_SIZE / 2}, ${COMPLETED_CIRCLE_SIZE / 2}`}
                 rotation={-90}
               />
             </Svg>
-            <View style={styles.tickContainer}>
+            {/* The tick lands only when the DAY is done. It used to render
+                unconditionally, so finishing session one of two showed a full
+                completion tick on a day that was not complete - the screen
+                said "finished" when the honest answer was "halfway". */}
+            <Animated.View
+              style={[
+                styles.tickContainer,
+                {
+                  opacity: tickAnim,
+                  transform: [
+                    {
+                      scale: tickAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.4, 1],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
               <Svg width={72} height={72} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M5 13l4 4L19 7"
@@ -219,10 +311,13 @@ export const WorkoutCompleteScreen = () => {
                   strokeLinejoin="round"
                 />
               </Svg>
-            </View>
+            </Animated.View>
           </View>
           <Text style={styles.badgeCountText}>
-            {progress.done}/{progress.required} sessions today
+            {t('workoutComplete.sessionsToday', {
+              done: progress.done,
+              required: progress.required,
+            })}
           </Text>
         </View>
 

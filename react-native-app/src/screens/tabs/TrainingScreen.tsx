@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -7,6 +7,9 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  Animated,
+  Easing,
+  AccessibilityInfo,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,9 +21,13 @@ import {
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress } from '../../services/progression';
-import { EXERCISES, LEVELS, exerciseNameKey } from '../../constants/catalogues';
+import { EXERCISES, LEVELS, exerciseNameKey, levelNameKey } from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
+
+// strokeDashoffset is an SVG attribute the native driver cannot carry, so
+// this arc is JS-driven - the same trade the workout ring makes.
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 
@@ -37,7 +44,7 @@ export const TrainingScreen = () => {
   const [complete, setComplete] = useState(false);
   const [month, setMonth] = useState(1);
   const [day, setDay] = useState(1);
-  const [, setCompletedDays] = useState(0);
+  const [completedDays, setCompletedDays] = useState(0);
   const [bestMeasurement, setBestMeasurement] = useState<number | null>(null);
 
   // Exercise list with unlocked state
@@ -128,16 +135,64 @@ export const TrainingScreen = () => {
   };
 
   const levelDef = user ? LEVELS[user.level_id] : null;
+
+  /**
+   * The next exercise the user will earn, and how close they are.
+   *
+   * The soonest LOCKED one, not simply the next in the catalogue: unlock days
+   * are not evenly spaced, so ordering by the threshold is the only way to get
+   * the one that actually arrives next.
+   */
+  const nextUnlock = exerciseItems
+    .filter((ex) => !ex.unlocked)
+    .sort((a, b) => a.unlock_after_days - b.unlock_after_days)[0];
+
+  const unlockPct = nextUnlock?.unlock_after_days
+    ? Math.min(100, Math.round((completedDays / nextUnlock.unlock_after_days) * 100))
+    : 0;
   const sessionLength = t('training.minutes', {
     count: levelDef ? Math.floor(levelDef.total_session_seconds / 60) : 1,
   });
 
   // Gauge geometry. An 80% arc (288deg) with the 72deg gap rotated to the
   // bottom - the +126deg puts the gap's centre at 90deg, i.e. straight down.
+  /**
+   * The day arc fills on arrival rather than being drawn already finished.
+   *
+   * Its own comment calls this "the one thing a returning user opens the app
+   * to check", and a number that is simply present states a fact where the
+   * same number arriving reads as progress. Re-runs whenever the count
+   * changes, so finishing a session and coming back animates the new value in
+   * rather than snapping to it.
+   */
+  const dayArc = useRef(new Animated.Value(0)).current;
+
   const R = 58;
   const arcLength = 2 * Math.PI * R * 0.8;
   const pct = Math.min(1, Math.max(0, done / Math.max(1, required)));
   const strokeDashoffset = arcLength * (1 - pct);
+
+  useEffect(() => {
+    let cancelled = false;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduced) => {
+        if (cancelled) return;
+        if (reduced) {
+          dayArc.setValue(pct);
+          return;
+        }
+        Animated.timing(dayArc, {
+          toValue: pct,
+          duration: 750,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }).start();
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pct, dayArc]);
 
   if (loading) {
     return (
@@ -205,7 +260,7 @@ export const TrainingScreen = () => {
                     strokeDasharray={`${arcLength} 999`}
                     strokeLinecap="round"
                   />
-                  <Circle
+                  <AnimatedCircle
                     cx={66}
                     cy={66}
                     r={R}
@@ -213,7 +268,10 @@ export const TrainingScreen = () => {
                     stroke={COLORS.accent}
                     strokeWidth={9}
                     strokeDasharray={`${arcLength} 999`}
-                    strokeDashoffset={strokeDashoffset}
+                    strokeDashoffset={dayArc.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [arcLength, 0],
+                    })}
                     strokeLinecap="round"
                   />
                 </Svg>
@@ -247,6 +305,14 @@ export const TrainingScreen = () => {
                 <Text style={styles.durationText}>{sessionLength}</Text>
               </View>
 
+              {levelDef && (
+                <View style={styles.levelChip}>
+                  <Text style={styles.levelChipText}>
+                    {t(levelNameKey(levelDef.number))}
+                  </Text>
+                </View>
+              )}
+
               {complete && (
                 <View style={styles.completeBadge}>
                   <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
@@ -275,6 +341,31 @@ export const TrainingScreen = () => {
             </Text>
           </View>
         </View>
+
+        {/* What you are working towards.
+            The grid shows locked exercises with a day count, but a bare "6
+            days" says nothing about how far along you are - 6 days left out of
+            7 and out of 30 read identically. This is the one exercise coming
+            next, with the distance actually travelled. */}
+        {nextUnlock && (
+          <View style={styles.unlockCard}>
+            <View style={styles.unlockArt}>
+              <EquipmentIcon slug={nextUnlock.slug} size={44} />
+            </View>
+            <View style={styles.unlockBody}>
+              <Text style={styles.unlockOverline}>{t('workoutComplete.nextToUnlock')}</Text>
+              <Text style={styles.unlockName} numberOfLines={1}>
+                {t(exerciseNameKey(nextUnlock.slug))}
+              </Text>
+              <View style={styles.unlockBarBg}>
+                <View style={[styles.unlockBarFill, { width: `${unlockPct}%` }]} />
+              </View>
+            </View>
+            <Text style={styles.unlockDays}>
+              {t('training.daysLeft', { count: nextUnlock.daysLeft })}
+            </Text>
+          </View>
+        )}
 
         {/* Exercises. Was a horizontal rail, which hid most of the set
             off-screen and gave no sense of how much there is to unlock. */}
@@ -377,6 +468,54 @@ export const TrainingScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  levelChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(193, 255, 114, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(193, 255, 114, 0.30)',
+  },
+  levelChipText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: COLORS.accent,
+    letterSpacing: 0.2,
+  },
+  unlockCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    marginTop: 20,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  unlockArt: { opacity: 0.55 },
+  unlockBody: { flex: 1, gap: 5 },
+  unlockOverline: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: COLORS.textDim,
+  },
+  unlockName: { fontSize: 15, fontWeight: '700', color: COLORS.white },
+  unlockBarBg: {
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: 'rgba(242, 245, 238, 0.10)',
+    overflow: 'hidden',
+  },
+  unlockBarFill: { height: 5, borderRadius: 999, backgroundColor: COLORS.accent },
+  unlockDays: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    fontVariant: ['tabular-nums'],
+  },
   container: { flex: 1, backgroundColor: COLORS.bg },
   loadingContainer: {
     flex: 1,
