@@ -14,6 +14,8 @@ import { COLORS } from '../../theme/colors';
 import { getDBConnection } from '../../db/sqlite';
 import Svg, { Path } from 'react-native-svg';
 import { HtmlRenderer } from '../../components/HtmlRenderer';
+import { api } from '../../services/api';
+import { savePage } from '../../db/queries';
 import { Watermark } from '../../components/Watermark';
 
 type RouteParams = {
@@ -24,7 +26,7 @@ type RouteParams = {
 };
 
 export const LegalPageScreen = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'LegalPage'>>();
   const navigation = useNavigation<NavigationProp<any>>();
 
@@ -40,8 +42,8 @@ export const LegalPageScreen = () => {
           'SELECT content FROM pages WHERE slug = ? LIMIT 1',
           [slug]
         );
-        if (res[0].rows.length > 0) {
-          setContent(res[0].rows.item(0).content || '');
+        if (res[0].rows.length > 0 && res[0].rows.item(0).content) {
+          setContent(res[0].rows.item(0).content);
         } else {
           // If not found in SQLite (e.g. offline before first sync), show fallback
           if (slug === 'about-basics') {
@@ -56,7 +58,26 @@ How to perform:
 Consistency is key: Train daily for the best results.`
             );
           } else {
-            setContent(t('legalPage.offlineNotice'));
+            // Nothing local yet. That is the NORMAL state for a signed-out
+            // reader: `pages` is filled by the authenticated sync, so a guest
+            // who reaches Terms from the subscribe sheet has an empty table
+            // and used to be told the app was offline while it plainly was
+            // not. /pages/{slug} needs no user token, so fetch it directly and
+            // keep the copy for next time. The notice is now what it claims to
+            // be - the genuinely-offline case.
+            const remote = await api.pullPage(slug, i18n.language);
+            if (remote.ok && remote.data?.content) {
+              setContent(remote.data.content);
+              await savePage({
+                slug,
+                title: remote.data.title || title,
+                content: remote.data.content,
+                sort_order: 0,
+                is_published: 1,
+              });
+            } else {
+              setContent(t('legalPage.offlineNotice'));
+            }
           }
         }
       } catch (e) {
@@ -66,7 +87,10 @@ Consistency is key: Train daily for the best results.`
       }
     };
     fetchPageContent();
-  }, [slug]);
+    // i18n.language included on purpose: the remote fetch is
+    // language-specific, so switching language re-reads the page in the
+    // new one instead of leaving the previous language's copy on screen.
+  }, [slug, title, i18n.language, t]);
 
   return (
     <SafeAreaView style={styles.container}>
