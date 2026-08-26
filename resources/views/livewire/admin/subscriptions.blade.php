@@ -44,30 +44,30 @@
     </div>
 
     {{-- Table --}}
-    <div class="overflow-hidden rounded-2xl border border-white/5 bg-surface">
-        <table class="w-full text-sm">
-            <thead class="border-b border-white/5 text-left text-muted">
-                <tr>
-                    <th class="p-4 font-medium">User</th>
-                    <th class="p-4 font-medium">Plan</th>
-                    <th class="p-4 font-medium">Status</th>
-                    <th class="p-4 font-medium">Store</th>
-                    <th class="p-4 font-medium">Ends</th>
-                    <th class="p-4 font-medium text-right">Actions</th>
+    <div class="overflow-x-auto rounded-2xl border border-white/5 bg-surface">
+        <table class="w-full min-w-[920px] text-sm">
+            <thead class="border-b border-white/5 text-left">
+                <tr class="text-[11px] uppercase tracking-wider text-dim">
+                    <th class="px-4 py-3 font-semibold">User</th>
+                    <th class="px-4 py-3 font-semibold">Plan</th>
+                    <th class="px-4 py-3 font-semibold">Status</th>
+                    <th class="px-4 py-3 font-semibold">Renewal</th>
+                    <th class="px-4 py-3 font-semibold">Store</th>
+                    <th class="px-4 py-3 font-semibold text-right">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($subscriptions as $sub)
                     {{-- Main row --}}
                     <tr class="border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors" wire:key="row-{{ $sub->id }}">
-                        <td class="p-4">
-                            <button wire:click="toggleExpand({{ $sub->id }})" class="text-left">
-                                <p class="font-medium">{{ $sub->user?->name ?? '—' }}</p>
-                                <p class="text-xs text-muted">{{ $sub->user?->email ?? '' }}</p>
+                        <td class="px-4 py-3">
+                            <button wire:click="toggleExpand({{ $sub->id }})" class="block max-w-[230px] text-left">
+                                <p class="truncate font-medium">{{ $sub->user?->name ?? '—' }}</p>
+                                <p class="truncate text-xs text-muted">{{ $sub->user?->email ?? '' }}</p>
                             </button>
                         </td>
-                        <td class="p-4">{{ $sub->plan?->name ?? '—' }}</td>
-                        <td class="p-4">
+                        <td class="px-4 py-3 whitespace-nowrap">{{ $sub->plan?->name ?? '—' }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
                             @php($statusColor = match($sub->status) {
                                 'active' => 'bg-success/15 text-success',
                                 'trialing' => 'bg-accent/15 text-accent',
@@ -76,22 +76,48 @@
                                 'expired' => 'bg-white/5 text-muted',
                                 default => 'bg-white/10 text-muted',
                             })
-                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusColor }}">
-                                {{ ucfirst(str_replace('_', ' ', $sub->status)) }}
-                            </span>
-                        </td>
-                        <td class="p-4 capitalize text-muted">{{ str_replace('_', ' ', $sub->store ?? '—') }}</td>
-                        <td class="p-4 text-muted">
-                            @if ($sub->ends_at)
-                                <span class="{{ $sub->ends_at->isPast() ? 'text-accent-soft' : '' }}">
-                                    {{ $sub->ends_at->format('j M Y') }}
+                            <div class="flex flex-col gap-1">
+                                <span class="w-fit rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusColor }}">
+                                    {{ ucfirst(str_replace('_', ' ', $sub->status)) }}
                                 </span>
+                                {{-- Whether they can actually train right now. A
+                                     canceled or past-due row still can. --}}
+                                @if ($sub->isEntitled())
+                                    <span class="flex items-center gap-1.5 text-[11px] text-success">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-success"></span>Has access
+                                    </span>
+                                @else
+                                    <span class="flex items-center gap-1.5 text-[11px] text-dim">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-white/25"></span>No access
+                                    </span>
+                                @endif
+                            </div>
+                        </td>
+
+                        {{-- Renewal: the question the old table could not answer.
+                             auto_renewing is written by both webhooks and was
+                             shown nowhere, so a subscription switched off in
+                             Google Play looked identical to a healthy one right
+                             up until the day it expired. --}}
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            @if (! $sub->ends_at)
+                                <span class="text-xs font-semibold text-success">Lifetime</span>
                             @else
-                                <span class="text-success text-xs">Lifetime</span>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-xs font-medium {{ $sub->willRenew() ? 'text-content' : 'text-muted' }}">
+                                        {{ $sub->willRenew() ? 'Renews' : 'Ends' }}
+                                        <span class="tabular-nums">{{ $sub->ends_at->format('j M Y') }}</span>
+                                    </span>
+                                    <span class="text-[11px] {{ $sub->ends_at->isPast() ? 'text-accent-soft' : 'text-dim' }}">
+                                        {{ $sub->ends_at->diffForHumans() }}
+                                    </span>
+                                </div>
                             @endif
                         </td>
-                        <td class="p-4">
-                            <div class="flex items-center justify-end gap-2">
+
+                        <td class="px-4 py-3 whitespace-nowrap capitalize text-muted">{{ str_replace('_', ' ', $sub->store ?? '—') }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-end gap-1.5 whitespace-nowrap">
                                 {{-- Extend --}}
                                 <button wire:click="openExtend({{ $sub->id }})"
                                         title="Extend / set new end date"
