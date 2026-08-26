@@ -199,36 +199,13 @@
     "tryItNow": "Testa nu"
   },
   "find": {
-    "flow_stopMidway": "Stoppa halvvägs",
-    "flow_thatSqueeze": "Precis det knipet!",
-    "flow_youPee": "Du kissar",
-    "keepGoing": "Fortsätt så …",
-    "onlyDoThePeeTest": "Gör kisstestet bara en gång",
     "onlyDoThePeeTestDesc": "Det är bara ett sätt att hitta musklerna, inte en övning. Att ofta stoppa strålen är inte bra för blåsan.",
-    "pressAndHold": "Tryck och håll",
-    "squeezeNow": "Knip!",
-    "squeezeOnlyThoseMuscles": "Spänn bara de musklerna",
     "squeezeOnlyThoseMusclesDesc": "En annan ledtråd: knip som om du höll emot en fjärt. Mage, ben och rumpa förblir helt avslappnade.",
-    "stopTheFlowBody": "Nästa gång du kissar, stoppa strålen försiktigt halvvägs. Musklerna du just använde är din bäckenbotten.",
-    "thatExactSqueezeIsThe": "Precis den sammandragningen är rörelsen du ska träna.",
-    "theEasiestWayToFind": "Enklaste sättet att hitta dem",
-    "tryItNow": "Testa nu",
-    "tryItNowBody": "Håll cirkeln nedtryckt. Medan du håller, knip de musklerna. Släpp samtidigt.",
-    "twoQuickRules": "Två korta regler",
-    "youFoundThem": "Du hittade dem!",
-    "youFoundThemBody": "Det där knipet och släppet är allt en knipövning är. Du är redo för din första övning."
+    "stopTheFlowBody": "Nästa gång du kissar, stoppa strålen försiktigt halvvägs. Musklerna du just använde är din bäckenbotten."
   },
   "first": {
-    "contract": "Spänn",
     "followTheCircle": "Följ cirkeln. Knip... och slappna av.",
-    "niceWork": "Snyggt jobbat!",
-    "nowYouTry": "Nu är det din tur",
-    "start": "Starta",
-    "tenSecondsReady": "Tio sekunder {{exercise}}. Knip vid varje {{contract}} och släpp på {{relax}}. Redo?",
     "thatWasARealExercise": "Det där var en riktig övning. Varje pass fungerar precis så här, en cirkel i taget.",
-    "theCircleIsYourGuide": "Cirkeln sätter takten",
-    "theCircleIsYourGuideBody": "Varje övning följer den här cirkeln. När den lyser och växer kniper du. När skenet tonar bort slappnar du av. Ordet inuti säger alltid vad du ska göra.",
-    "thisIsTrembling": "Det här är Darrning",
     "yourFirstExerciseQuickFlicks": "Din första övning: snabba spänningar. Spänn vid Spänn, släpp vid Slappna av."
   },
   "knowledge": {
@@ -563,23 +540,9 @@
     "verifyEmail": "Verifiera e-post"
   },
   "why": {
-    "aMuscleYouCanTrain": "En muskel du kan träna",
-    "benefit_bladder_desc": "Färre läckage och färre trängningar.",
-    "benefit_bladder_title": "Bättre blåskontroll",
-    "benefit_confidence_desc": "Framsteg som byggs vecka för vecka.",
-    "benefit_confidence_title": "Varaktigt självförtroende",
-    "benefit_core_desc": "Hjälper hållningen och ländryggen.",
-    "benefit_core_title": "En stöttad bål",
-    "benefit_performance_desc": "Mer kontroll och uthållighet i intimiteten.",
-    "benefit_performance_title": "Starkare prestation",
     "cardRealMuscle": "En riktig muskel. Träna den så blir den starkare.",
-    "doingItRightIsEverything": "Allt hänger på att du gör rätt",
-    "learnItOnceAndEvery": "Lär dig det en gång, så räknas varje träningsminut på riktigt.",
     "squeezeTheWrongMusclesAnd": "Spänner du fel muskler får du ingenting ut av det.",
-    "tapToSeeWhatChanges": "Tryck på någon för att se vad som förändras",
-    "theNextLessonShowsYou": "Nästa lektion visar exakt var dina muskler sitter.",
-    "thenYouDoYourFirst": "Sedan gör du din första riktiga övning, styrd av cirkeln.",
-    "whatYouGain": "Vad du får ut av det"
+    "theNextLessonShowsYou": "Nästa lektion visar exakt var dina muskler sitter."
   },
   "workout": {
     "back": "Tillbaka",

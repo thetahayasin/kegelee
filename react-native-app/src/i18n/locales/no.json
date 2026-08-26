@@ -199,36 +199,13 @@
     "tryItNow": "Prøv nå"
   },
   "find": {
-    "flow_stopMidway": "Stopp halvveis",
-    "flow_thatSqueeze": "Akkurat det knipet!",
-    "flow_youPee": "Du tisser",
-    "keepGoing": "Fortsett sånn …",
-    "onlyDoThePeeTest": "Gjør tissetesten bare én gang",
     "onlyDoThePeeTestDesc": "Det er bare en måte å finne musklene på, ikke en øvelse. Å stoppe strålen ofte er ikke bra for blæren.",
-    "pressAndHold": "Trykk og hold",
-    "squeezeNow": "Knip!",
-    "squeezeOnlyThoseMuscles": "Stram bare de musklene",
     "squeezeOnlyThoseMusclesDesc": "Et annet hint: knip som om du holdt igjen en promp. Mage, bein og rumpe forblir helt avslappet.",
-    "stopTheFlowBody": "Neste gang du tisser, stopp strålen forsiktig halvveis. Musklene du nettopp brukte, er bekkenbunnen din.",
-    "thatExactSqueezeIsThe": "Akkurat den sammentrekningen er bevegelsen du skal trene.",
-    "theEasiestWayToFind": "Den enkleste måten å finne dem på",
-    "tryItNow": "Prøv det nå",
-    "tryItNowBody": "Trykk og hold på sirkelen. Mens du holder, kniper du de musklene. Slipp samtidig.",
-    "twoQuickRules": "To korte regler",
-    "youFoundThem": "Du fant dem!",
-    "youFoundThemBody": "Det knipet og den slippen er alt en knipeøvelse er. Du er klar for din første øvelse."
+    "stopTheFlowBody": "Neste gang du tisser, stopp strålen forsiktig halvveis. Musklene du nettopp brukte, er bekkenbunnen din."
   },
   "first": {
-    "contract": "Stram",
     "followTheCircle": "Følg sirkelen. Knip... og slapp av.",
-    "niceWork": "Bra jobbet!",
-    "nowYouTry": "Nå er det din tur",
-    "start": "Start",
-    "tenSecondsReady": "Ti sekunder med {{exercise}}. Knip ved hver {{contract}}, og slipp på {{relax}}. Klar?",
     "thatWasARealExercise": "Det var en ekte øvelse. Hver økt fungerer nøyaktig slik, én sirkel om gangen.",
-    "theCircleIsYourGuide": "Sirkelen setter rytmen",
-    "theCircleIsYourGuideBody": "Hver øvelse følger denne sirkelen. Når den lyser og vokser, kniper du. Når lyset blekner, slapper du av. Ordet inni sier alltid hva du skal gjøre.",
-    "thisIsTrembling": "Dette er Skjelving",
     "yourFirstExerciseQuickFlicks": "Din første øvelse: raske sammentrekninger. Stram ved Stram, slipp ved Slapp av."
   },
   "knowledge": {
@@ -563,23 +540,9 @@
     "verifyEmail": "Bekreft e-post"
   },
   "why": {
-    "aMuscleYouCanTrain": "En muskel du kan trene",
-    "benefit_bladder_desc": "Færre lekkasjer og færre plutselige trangfølelser.",
-    "benefit_bladder_title": "Bedre blærekontroll",
-    "benefit_confidence_desc": "Framgang som bygges uke for uke.",
-    "benefit_confidence_title": "Varig selvtillit",
-    "benefit_core_desc": "Hjelper holdningen og korsryggen.",
-    "benefit_core_title": "En støttet kjerne",
-    "benefit_performance_desc": "Mer kontroll og utholdenhet i intimiteten.",
-    "benefit_performance_title": "Sterkere prestasjon",
     "cardRealMuscle": "En ekte muskel. Tren den, så blir den sterkere.",
-    "doingItRightIsEverything": "Alt handler om å gjøre det riktig",
-    "learnItOnceAndEvery": "Lær det én gang, så teller hvert minutt med trening virkelig.",
     "squeezeTheWrongMusclesAnd": "Strammer du feil muskler, får du ingenting igjen for det.",
-    "tapToSeeWhatChanges": "Trykk på en for å se hva som endrer seg",
-    "theNextLessonShowsYou": "Neste leksjon viser deg nøyaktig hvor musklene dine sitter.",
-    "thenYouDoYourFirst": "Deretter gjør du din første ekte øvelse, styrt av sirkelen.",
-    "whatYouGain": "Hva du får ut av det"
+    "theNextLessonShowsYou": "Neste leksjon viser deg nøyaktig hvor musklene dine sitter."
   },
   "workout": {
     "back": "Tilbake",

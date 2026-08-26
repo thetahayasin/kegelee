@@ -199,36 +199,13 @@
     "tryItNow": "Prøv nu"
   },
   "find": {
-    "flow_stopMidway": "Stop halvvejs",
-    "flow_thatSqueeze": "Præcis det knib!",
-    "flow_youPee": "Du tisser",
-    "keepGoing": "Bliv ved …",
-    "onlyDoThePeeTest": "Lav kun tissetesten én gang",
     "onlyDoThePeeTestDesc": "Det er kun en måde at finde musklerne på, ikke en øvelse. At stoppe strålen ofte er ikke godt for din blære.",
-    "pressAndHold": "Tryk og hold",
-    "squeezeNow": "Knib!",
-    "squeezeOnlyThoseMuscles": "Spænd kun de muskler",
     "squeezeOnlyThoseMusclesDesc": "Et andet fingerpeg: knib, som om du holdt på en prut. Mave, ben og balder forbliver helt afslappede.",
-    "stopTheFlowBody": "Næste gang du tisser, så stop strålen forsigtigt halvvejs. De muskler, du lige brugte, er din bækkenbund.",
-    "thatExactSqueezeIsThe": "Præcis den sammentrækning er den bevægelse, du skal træne.",
-    "theEasiestWayToFind": "Den nemmeste måde at finde dem på",
-    "tryItNow": "Prøv det nu",
-    "tryItNowBody": "Tryk og hold på cirklen. Mens du holder, kniber du de muskler sammen. Slip samtidig.",
-    "twoQuickRules": "To korte regler",
-    "youFoundThem": "Du fandt dem!",
-    "youFoundThemBody": "Det knib og den slip er alt, hvad en knibeøvelse er. Du er klar til din første øvelse."
+    "stopTheFlowBody": "Næste gang du tisser, så stop strålen forsigtigt halvvejs. De muskler, du lige brugte, er din bækkenbund."
   },
   "first": {
-    "contract": "Spænd",
     "followTheCircle": "Følg cirklen. Knib... og slap af.",
-    "niceWork": "Flot klaret!",
-    "nowYouTry": "Nu er det din tur",
-    "start": "Start",
-    "tenSecondsReady": "Ti sekunders {{exercise}}. Knib ved hvert {{contract}}, og slip ved {{relax}}. Klar?",
     "thatWasARealExercise": "Det var en rigtig øvelse. Hver session fungerer præcis sådan, én cirkel ad gangen.",
-    "theCircleIsYourGuide": "Cirklen sætter rytmen",
-    "theCircleIsYourGuideBody": "Hver øvelse følger denne cirkel. Når den lyser og vokser, kniber du. Når lyset falmer, slapper du af. Ordet indeni fortæller dig altid, hvad du skal gøre.",
-    "thisIsTrembling": "Det her er Dirren",
     "yourFirstExerciseQuickFlicks": "Din første øvelse: hurtige spænd. Spænd ved Spænd, slip ved Slap af."
   },
   "knowledge": {
@@ -563,23 +540,9 @@
     "verifyEmail": "Bekræft e-mail"
   },
   "why": {
-    "aMuscleYouCanTrain": "En muskel, du kan træne",
-    "benefit_bladder_desc": "Færre lækager og færre pludselige trængninger.",
-    "benefit_bladder_title": "Bedre blærekontrol",
-    "benefit_confidence_desc": "Fremgang, der bygges uge for uge.",
-    "benefit_confidence_title": "Varig selvtillid",
-    "benefit_core_desc": "Hjælper holdningen og lænden.",
-    "benefit_core_title": "En støttet kerne",
-    "benefit_performance_desc": "Mere kontrol og udholdenhed i intimiteten.",
-    "benefit_performance_title": "Stærkere præstation",
     "cardRealMuscle": "En rigtig muskel. Træn den, og den bliver stærkere.",
-    "doingItRightIsEverything": "Det handler om at gøre det rigtigt",
-    "learnItOnceAndEvery": "Lær det én gang, så tæller hvert minuts træning virkelig.",
     "squeezeTheWrongMusclesAnd": "Spænder du de forkerte muskler, får du ikke noget ud af det.",
-    "tapToSeeWhatChanges": "Tryk på en for at se, hvad der ændrer sig",
-    "theNextLessonShowsYou": "Næste lektion viser dig præcis, hvor dine muskler sidder.",
-    "thenYouDoYourFirst": "Derefter laver du din første rigtige øvelse, guidet af cirklen.",
-    "whatYouGain": "Hvad du får ud af det"
+    "theNextLessonShowsYou": "Næste lektion viser dig præcis, hvor dine muskler sidder."
   },
   "workout": {
     "back": "Tilbage",

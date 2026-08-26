@@ -199,36 +199,13 @@
     "tryItNow": "Pruébalo ahora"
   },
   "find": {
-    "flow_stopMidway": "Corta a mitad",
-    "flow_thatSqueeze": "¡Ese apretón!",
-    "flow_youPee": "Orinas",
-    "keepGoing": "Sigue así …",
-    "onlyDoThePeeTest": "Haz la prueba al orinar solo una vez",
     "onlyDoThePeeTestDesc": "Es solo una forma de localizar los músculos, no un ejercicio. Cortar el chorro a menudo no es bueno para la vejiga.",
-    "pressAndHold": "Mantén pulsado",
-    "squeezeNow": "¡Aprieta!",
-    "squeezeOnlyThoseMuscles": "Contrae solo esos músculos",
     "squeezeOnlyThoseMusclesDesc": "Otra pista: aprieta como si aguantaras un gas. El abdomen, las piernas y los glúteos siguen completamente relajados.",
-    "stopTheFlowBody": "La próxima vez que orines, corta el chorro suavemente a mitad. Los músculos que acabas de usar son tu suelo pélvico.",
-    "thatExactSqueezeIsThe": "Esa contracción exacta es el movimiento que vas a entrenar.",
-    "theEasiestWayToFind": "La forma más fácil de encontrarlos",
-    "tryItNow": "Pruébalo ahora",
-    "tryItNowBody": "Mantén pulsado el círculo. Mientras lo mantienes, aprieta esos músculos. Suelta a la vez.",
-    "twoQuickRules": "Dos reglas rápidas",
-    "youFoundThem": "¡Los has encontrado!",
-    "youFoundThemBody": "Ese apretón y esa soltura son todo lo que es un Kegel. Ya estás listo para tu primer ejercicio."
+    "stopTheFlowBody": "La próxima vez que orines, corta el chorro suavemente a mitad. Los músculos que acabas de usar son tu suelo pélvico."
   },
   "first": {
-    "contract": "Contrae",
     "followTheCircle": "Sigue el círculo. Aprieta... y relaja.",
-    "niceWork": "¡Bien hecho!",
-    "nowYouTry": "Ahora te toca a ti",
-    "start": "Empezar",
-    "tenSecondsReady": "Diez segundos de {{exercise}}. Aprieta en cada {{contract}} y suelta en {{relax}}. ¿Listo?",
     "thatWasARealExercise": "Eso ha sido un ejercicio de verdad. Cada sesión funciona exactamente así, un círculo cada vez.",
-    "theCircleIsYourGuide": "El círculo te guía",
-    "theCircleIsYourGuideBody": "Todos los ejercicios siguen este círculo. Cuando brilla y crece, aprieta. Cuando el brillo se apaga, relaja. La palabra de dentro siempre te dice qué hacer.",
-    "thisIsTrembling": "Esto es Temblor",
     "yourFirstExerciseQuickFlicks": "Tu primer ejercicio: contracciones rápidas. Aprieta en Contrae y suelta en Relaja."
   },
   "knowledge": {
@@ -563,23 +540,9 @@
     "verifyEmail": "Verificar correo"
   },
   "why": {
-    "aMuscleYouCanTrain": "Un músculo que puedes entrenar",
-    "benefit_bladder_desc": "Menos escapes y menos urgencias.",
-    "benefit_bladder_title": "Mejor control de la vejiga",
-    "benefit_confidence_desc": "Avances que se acumulan semana a semana.",
-    "benefit_confidence_title": "Confianza duradera",
-    "benefit_core_desc": "Ayuda a la postura y a la zona lumbar.",
-    "benefit_core_title": "Un core bien sostenido",
-    "benefit_performance_desc": "Más control y resistencia en la intimidad.",
-    "benefit_performance_title": "Mejor rendimiento",
     "cardRealMuscle": "Un músculo real. Entrénalo y se fortalece.",
-    "doingItRightIsEverything": "Hacerlo bien lo es todo",
-    "learnItOnceAndEvery": "Apréndelo una vez y cada minuto de entrenamiento contará de verdad.",
     "squeezeTheWrongMusclesAnd": "Si contraes los músculos equivocados, no consigues nada.",
-    "tapToSeeWhatChanges": "Toca cualquiera para ver qué cambia",
-    "theNextLessonShowsYou": "La siguiente lección te muestra exactamente dónde están tus músculos.",
-    "thenYouDoYourFirst": "Después harás tu primer ejercicio real, guiado por el círculo.",
-    "whatYouGain": "Lo que ganas"
+    "theNextLessonShowsYou": "La siguiente lección te muestra exactamente dónde están tus músculos."
   },
   "workout": {
     "back": "Atrás",

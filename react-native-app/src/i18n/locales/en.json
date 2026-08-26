@@ -199,36 +199,13 @@
     "tryItNow": "Try it now"
   },
   "find": {
-    "flow_stopMidway": "Stop midway",
-    "flow_thatSqueeze": "That squeeze!",
-    "flow_youPee": "You pee",
-    "keepGoing": "Keep going...",
-    "onlyDoThePeeTest": "Only do the pee test once",
     "onlyDoThePeeTestDesc": "It is just a way to find the muscles, not an exercise. Stopping your pee often is not good for your bladder.",
-    "pressAndHold": "Press & hold",
-    "squeezeNow": "Squeeze!",
-    "squeezeOnlyThoseMuscles": "Squeeze only those muscles",
     "squeezeOnlyThoseMusclesDesc": "Another cue: squeeze as if holding back gas. Your belly, legs and buttocks stay completely relaxed.",
-    "stopTheFlowBody": "Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor.",
-    "thatExactSqueezeIsThe": "That exact squeeze is the move you will train.",
-    "theEasiestWayToFind": "The easiest way to find them",
-    "tryItNow": "Try it now",
-    "tryItNowBody": "Press and hold the circle. While you hold it, squeeze those muscles. Let go together.",
-    "twoQuickRules": "Two quick rules",
-    "youFoundThem": "You found them!",
-    "youFoundThemBody": "That squeeze and release is all a Kegel is. You are ready for your first exercise."
+    "stopTheFlowBody": "Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor."
   },
   "first": {
-    "contract": "Contract",
     "followTheCircle": "Follow the circle. Squeeze... and relax.",
-    "niceWork": "Nice work!",
-    "nowYouTry": "Now you try",
-    "start": "Start",
-    "tenSecondsReady": "Ten seconds of {{exercise}}. Squeeze on every {{contract}}, let go on {{relax}}. Ready?",
     "thatWasARealExercise": "That was a real exercise. Every session works exactly like this, one circle at a time.",
-    "theCircleIsYourGuide": "The circle is your guide",
-    "theCircleIsYourGuideBody": "Every exercise follows this circle. When it glows and swells, squeeze. When the glow fades, relax. The word inside always tells you what to do.",
-    "thisIsTrembling": "This is Trembling",
     "yourFirstExerciseQuickFlicks": "Your first exercise: quick flicks. Squeeze on Contract, let go on Relax."
   },
   "knowledge": {
@@ -563,23 +540,9 @@
     "verifyEmail": "Verify Email"
   },
   "why": {
-    "aMuscleYouCanTrain": "A muscle you can train",
-    "benefit_bladder_desc": "Fewer leaks and urgent moments.",
-    "benefit_bladder_title": "Better bladder control",
-    "benefit_confidence_desc": "Gains that build week after week.",
-    "benefit_confidence_title": "Lasting confidence",
-    "benefit_core_desc": "Helps posture and lower back.",
-    "benefit_core_title": "A supported core",
-    "benefit_performance_desc": "More control and stamina in intimacy.",
-    "benefit_performance_title": "Stronger performance",
     "cardRealMuscle": "A real muscle. Train it and it gets stronger.",
-    "doingItRightIsEverything": "Doing it right is everything",
-    "learnItOnceAndEvery": "Learn it once, and every minute you train actually counts.",
     "squeezeTheWrongMusclesAnd": "Squeeze the wrong muscles and you get nothing back.",
-    "tapToSeeWhatChanges": "Tap any one to see what changes",
-    "theNextLessonShowsYou": "The next lesson shows you exactly where your muscles are.",
-    "thenYouDoYourFirst": "Then you do your first real exercise, guided by the circle.",
-    "whatYouGain": "What you gain"
+    "theNextLessonShowsYou": "The next lesson shows you exactly where your muscles are."
   },
   "workout": {
     "back": "Back",
