@@ -265,7 +265,8 @@
     "passwordRules": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษรและมีตัวเลข",
     "resetPassword": "รีเซ็ตรหัสผ่าน",
     "resetPasswordCta": "รีเซ็ตรหัสผ่าน",
-    "sendCodeCta": "ส่งรหัส"
+    "sendCodeCta": "ส่งรหัส",
+    "subtitle": "ยินดีต้อนรับกลับมา เริ่มต่อจากที่ค้างไว้ได้เลย"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "มีบัญชีอยู่แล้ว?",
@@ -417,10 +418,12 @@
     "logIn": "เข้าสู่ระบบ",
     "name": "ชื่อ",
     "password": "รหัสผ่าน",
+    "passwordHint": "อย่างน้อย 6 ตัวอักษร และต้องมีตัวเลขอย่างน้อยหนึ่งตัว",
     "passwordNeedsNumber": "รหัสผ่านต้องมีตัวเลขอย่างน้อยหนึ่งตัว",
     "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
     "passwordsDoNotMatch": "รหัสผ่านไม่ตรงกัน",
-    "registrationFailed": "สมัครสมาชิกไม่สำเร็จ"
+    "registrationFailed": "สมัครสมาชิกไม่สำเร็จ",
+    "subtitle": "ใช้เวลาแค่นาทีเดียว ความคืบหน้าของคุณจะซิงก์ข้ามอุปกรณ์"
   },
   "reminders": {
     "channelName": "การแจ้งเตือนการฝึก",

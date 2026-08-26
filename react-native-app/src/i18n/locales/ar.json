@@ -265,7 +265,8 @@
     "passwordRules": "يجب أن تتكوّن كلمة المرور من 6 أحرف على الأقل وأن تحتوي على رقم.",
     "resetPassword": "إعادة تعيين كلمة المرور",
     "resetPasswordCta": "إعادة تعيين كلمة المرور",
-    "sendCodeCta": "إرسال الرمز"
+    "sendCodeCta": "إرسال الرمز",
+    "subtitle": "أهلًا بعودتك. تابع من حيث توقفت."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "لديك حساب بالفعل؟",
@@ -417,10 +418,12 @@
     "logIn": "تسجيل الدخول",
     "name": "الاسم",
     "password": "كلمة المرور",
+    "passwordHint": "6 أحرف على الأقل، بينها رقم واحد.",
     "passwordNeedsNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل.",
     "passwordTooShort": "يجب أن تتكوّن كلمة المرور من 6 أحرف على الأقل.",
     "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين.",
-    "registrationFailed": "فشل التسجيل."
+    "registrationFailed": "فشل التسجيل.",
+    "subtitle": "يستغرق دقيقة. يُزامَن تقدّمك عبر أجهزتك."
   },
   "reminders": {
     "channelName": "تذكيرات التدريب",

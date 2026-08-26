@@ -265,7 +265,8 @@
     "passwordRules": "Parola trebuie să aibă cel puțin 6 caractere și să conțină o cifră.",
     "resetPassword": "Resetează parola",
     "resetPasswordCta": "Resetează parola",
-    "sendCodeCta": "Trimite codul"
+    "sendCodeCta": "Trimite codul",
+    "subtitle": "Bine ai revenit. Continuă de unde ai rămas."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Ai deja un cont?",
@@ -417,10 +418,12 @@
     "logIn": "Autentifică-te",
     "name": "Nume",
     "password": "Parolă",
+    "passwordHint": "Cel puțin 6 caractere, dintre care o cifră.",
     "passwordNeedsNumber": "Parola trebuie să conțină cel puțin o cifră.",
     "passwordTooShort": "Parola trebuie să aibă cel puțin 6 caractere.",
     "passwordsDoNotMatch": "Parolele nu coincid.",
-    "registrationFailed": "Înregistrarea a eșuat."
+    "registrationFailed": "Înregistrarea a eșuat.",
+    "subtitle": "Durează un minut. Progresul tău se sincronizează între dispozitive."
   },
   "reminders": {
     "channelName": "Mementouri de antrenament",

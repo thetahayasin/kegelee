@@ -265,7 +265,8 @@
     "passwordRules": "पासवर्ड कम से कम 6 अक्षरों का हो और उसमें एक अंक हो।",
     "resetPassword": "पासवर्ड रीसेट करें",
     "resetPasswordCta": "पासवर्ड रीसेट करें",
-    "sendCodeCta": "कोड भेजें"
+    "sendCodeCta": "कोड भेजें",
+    "subtitle": "वापस स्वागत है। जहाँ छोड़ा था, वहीं से शुरू करें।"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "पहले से खाता है?",
@@ -417,10 +418,12 @@
     "logIn": "लॉग इन करें",
     "name": "नाम",
     "password": "पासवर्ड",
+    "passwordHint": "कम से कम 6 अक्षर, जिनमें एक अंक हो।",
     "passwordNeedsNumber": "पासवर्ड में कम से कम एक अंक होना चाहिए।",
     "passwordTooShort": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
     "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते।",
-    "registrationFailed": "पंजीकरण विफल रहा।"
+    "registrationFailed": "पंजीकरण विफल रहा।",
+    "subtitle": "एक मिनट लगता है। आपकी प्रगति सभी डिवाइस पर सिंक होती है।"
   },
   "reminders": {
     "channelName": "अभ्यास रिमाइंडर",

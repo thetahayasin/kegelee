@@ -265,7 +265,8 @@
     "passwordRules": "הסיסמה חייבת להיות באורך 6 תווים לפחות ולכלול ספרה.",
     "resetPassword": "איפוס סיסמה",
     "resetPasswordCta": "איפוס סיסמה",
-    "sendCodeCta": "שליחת קוד"
+    "sendCodeCta": "שליחת קוד",
+    "subtitle": "טוב לראות אתכם שוב. תמשיכו מהמקום שבו הפסקתם."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "כבר יש לך חשבון?",
@@ -417,10 +418,12 @@
     "logIn": "התחבר",
     "name": "שם",
     "password": "סיסמה",
+    "passwordHint": "לפחות 6 תווים, כולל ספרה אחת.",
     "passwordNeedsNumber": "הסיסמה חייבת לכלול לפחות ספרה אחת.",
     "passwordTooShort": "הסיסמה חייבת להיות באורך 6 תווים לפחות.",
     "passwordsDoNotMatch": "הסיסמאות אינן תואמות.",
-    "registrationFailed": "ההרשמה נכשלה."
+    "registrationFailed": "ההרשמה נכשלה.",
+    "subtitle": "לוקח דקה. ההתקדמות שלכם מסתנכרנת בין המכשירים."
   },
   "reminders": {
     "channelName": "תזכורות אימון",

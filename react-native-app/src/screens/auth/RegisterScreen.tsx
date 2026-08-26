@@ -14,7 +14,8 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../theme/colors';
+import { AuthField } from '../../components/AuthField';
+import { COLORS, TYPE, SPACE, RADIUS, DISABLED_OPACITY } from '../../theme/colors';
 import { getWebBaseUrl } from '../../services/api';
 import { nativeGoogleSignIn } from '../../services/googleAuth';
 import Svg, { Path } from 'react-native-svg';
@@ -113,7 +114,10 @@ export const RegisterScreen = () => {
         style={styles.keyboardView}
       >
         <View style={styles.inner}>
-          <Text style={styles.title}>{t('register.createAccount')}</Text>
+          <View style={styles.head}>
+            <Text style={styles.title}>{t('register.createAccount')}</Text>
+            <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
+          </View>
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -131,47 +135,69 @@ export const RegisterScreen = () => {
           ) : null}
 
           <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder={t('register.name')}
-              placeholderTextColor={COLORS.textMuted}
+            <AuthField
+              label={t('register.name')}
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
+              autoComplete="name"
+              textContentType="name"
+              returnKeyType="next"
             />
 
-            <TextInput
-              style={styles.input}
-              placeholder={t('register.email')}
-              placeholderTextColor={COLORS.textMuted}
+            <AuthField
+              label={t('register.email')}
+              placeholder="you@example.com"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
             />
 
-            <TextInput
-              style={styles.input}
-              placeholder={t('register.password')}
-              placeholderTextColor={COLORS.textMuted}
+            <AuthField
+              label={t('register.password')}
+              placeholder="••••••••"
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secure
               autoCapitalize="none"
+              autoComplete="new-password"
+              textContentType="newPassword"
+              returnKeyType="next"
             />
 
-            <TextInput
-              style={styles.input}
-              placeholder={t('register.confirmPassword')}
-              placeholderTextColor={COLORS.textMuted}
+            {/* Stated up front, not revealed as an error after submitting.
+                A rule the user cannot see until they break it is a trap. */}
+            <Text style={styles.hint}>{t('register.passwordHint')}</Text>
+
+            <AuthField
+              label={t('register.confirmPassword')}
+              placeholder="••••••••"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              secureTextEntry
+              secure
               autoCapitalize="none"
+              autoComplete="new-password"
+              textContentType="newPassword"
+              returnKeyType="go"
+              onSubmitEditing={handleRegister}
+              errorText={
+                confirmPassword.length > 0 && confirmPassword !== password
+                  ? t('register.passwordsDoNotMatch')
+                  : null
+              }
             />
 
-            <TouchableOpacity style={styles.btn} onPress={handleRegister} disabled={loading}>
+            <TouchableOpacity
+              style={[styles.btn, loading && styles.btnDisabled]}
+              onPress={handleRegister}
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: loading, busy: loading }}
+            >
               {loading ? (
                 <ActivityIndicator color={COLORS.onAccent} />
               ) : (
@@ -239,40 +265,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  form: {
-    marginBottom: 20,
-  },
-  input: {
-    height: 52,
-    backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    color: COLORS.white,
-    fontSize: 16,
-    marginBottom: 16,
-  },
+  head: { gap: SPACE.sm, marginBottom: SPACE.xl },
+  title: { ...TYPE.display, color: COLORS.white },
+  subtitle: { ...TYPE.body, color: COLORS.textMuted, lineHeight: 22 },
+  form: { gap: SPACE.lg, marginBottom: SPACE.lg },
+  hint: { ...TYPE.caption, color: COLORS.textDim, marginTop: -SPACE.sm },
   btn: {
     backgroundColor: COLORS.accent,
-    height: 52,
-    borderRadius: 12,
+    height: 56,
+    borderRadius: RADIUS.xl,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: SPACE.xs,
   },
-  btnText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.onAccent,
-  },
+  btnDisabled: { opacity: DISABLED_OPACITY },
+  btnText: { ...TYPE.section, color: COLORS.onAccent },
   switchContainer: {
     marginTop: 32,
     alignItems: 'center',

@@ -265,7 +265,8 @@
     "passwordRules": "Hasło musi mieć co najmniej 6 znaków i zawierać cyfrę.",
     "resetPassword": "Zresetuj hasło",
     "resetPasswordCta": "Zresetuj hasło",
-    "sendCodeCta": "Wyślij kod"
+    "sendCodeCta": "Wyślij kod",
+    "subtitle": "Witaj z powrotem. Kontynuuj tam, gdzie skończyłeś."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Masz już konto?",
@@ -417,10 +418,12 @@
     "logIn": "Zaloguj się",
     "name": "Imię",
     "password": "Hasło",
+    "passwordHint": "Co najmniej 6 znaków, w tym cyfra.",
     "passwordNeedsNumber": "Hasło musi zawierać co najmniej jedną cyfrę.",
     "passwordTooShort": "Hasło musi mieć co najmniej 6 znaków.",
     "passwordsDoNotMatch": "Hasła nie są takie same.",
-    "registrationFailed": "Rejestracja nie powiodła się."
+    "registrationFailed": "Rejestracja nie powiodła się.",
+    "subtitle": "Zajmie minutę. Twoje postępy synchronizują się między urządzeniami."
   },
   "reminders": {
     "channelName": "Przypomnienia treningowe",

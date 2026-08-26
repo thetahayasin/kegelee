@@ -265,7 +265,8 @@
     "passwordRules": "Mật khẩu phải có ít nhất 6 ký tự và chứa một chữ số.",
     "resetPassword": "Đặt lại mật khẩu",
     "resetPasswordCta": "Đặt lại mật khẩu",
-    "sendCodeCta": "Gửi mã"
+    "sendCodeCta": "Gửi mã",
+    "subtitle": "Chào bạn trở lại. Tiếp tục từ chỗ bạn đã dừng."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Đã có tài khoản?",
@@ -417,10 +418,12 @@
     "logIn": "Đăng nhập",
     "name": "Tên",
     "password": "Mật khẩu",
+    "passwordHint": "Ít nhất 6 ký tự, trong đó có một chữ số.",
     "passwordNeedsNumber": "Mật khẩu phải chứa ít nhất một chữ số.",
     "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự.",
     "passwordsDoNotMatch": "Mật khẩu không khớp.",
-    "registrationFailed": "Đăng ký không thành công."
+    "registrationFailed": "Đăng ký không thành công.",
+    "subtitle": "Chỉ mất một phút. Tiến trình của bạn đồng bộ giữa các thiết bị."
   },
   "reminders": {
     "channelName": "Lời nhắc tập luyện",

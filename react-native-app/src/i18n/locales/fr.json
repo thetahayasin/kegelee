@@ -265,7 +265,8 @@
     "passwordRules": "Le mot de passe doit comporter au moins 6 caractères et un chiffre.",
     "resetPassword": "Réinitialiser le mot de passe",
     "resetPasswordCta": "Réinitialiser le mot de passe",
-    "sendCodeCta": "Envoyer le code"
+    "sendCodeCta": "Envoyer le code",
+    "subtitle": "Bon retour. Reprenez là où vous vous êtes arrêté."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Tu as déjà un compte ?",
@@ -417,10 +418,12 @@
     "logIn": "Se connecter",
     "name": "Nom",
     "password": "Mot de passe",
+    "passwordHint": "Au moins 6 caractères, dont un chiffre.",
     "passwordNeedsNumber": "Le mot de passe doit contenir au moins un chiffre.",
     "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères.",
     "passwordsDoNotMatch": "Les mots de passe ne correspondent pas.",
-    "registrationFailed": "L’inscription a échoué."
+    "registrationFailed": "L’inscription a échoué.",
+    "subtitle": "Une minute suffit. Votre progression est synchronisée sur tous vos appareils."
   },
   "reminders": {
     "channelName": "Rappels d’entraînement",

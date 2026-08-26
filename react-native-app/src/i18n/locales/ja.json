@@ -265,7 +265,8 @@
     "passwordRules": "パスワードは6文字以上で、数字を含める必要があります。",
     "resetPassword": "パスワードをリセット",
     "resetPasswordCta": "パスワードを再設定",
-    "sendCodeCta": "コードを送信"
+    "sendCodeCta": "コードを送信",
+    "subtitle": "おかえりなさい。前回の続きから始めましょう。"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
@@ -417,10 +418,12 @@
     "logIn": "ログイン",
     "name": "名前",
     "password": "パスワード",
+    "passwordHint": "6文字以上、数字を1つ以上含めてください。",
     "passwordNeedsNumber": "パスワードには数字を1つ以上含めてください。",
     "passwordTooShort": "パスワードは6文字以上にしてください。",
     "passwordsDoNotMatch": "パスワードが一致しません。",
-    "registrationFailed": "登録に失敗しました。"
+    "registrationFailed": "登録に失敗しました。",
+    "subtitle": "1分で終わります。進捗は端末間で同期されます。"
   },
   "reminders": {
     "channelName": "トレーニングのリマインダー",

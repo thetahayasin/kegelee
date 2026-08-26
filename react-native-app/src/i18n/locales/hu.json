@@ -265,7 +265,8 @@
     "passwordRules": "A jelszónak legalább 6 karakteresnek kell lennie, és tartalmaznia kell egy számot.",
     "resetPassword": "Jelszó visszaállítása",
     "resetPasswordCta": "Jelszó visszaállítása",
-    "sendCodeCta": "Kód küldése"
+    "sendCodeCta": "Kód küldése",
+    "subtitle": "Üdv újra. Folytasd ott, ahol abbahagytad."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Van már fiókod?",
@@ -417,10 +418,12 @@
     "logIn": "Bejelentkezés",
     "name": "Név",
     "password": "Jelszó",
+    "passwordHint": "Legalább 6 karakter, köztük egy szám.",
     "passwordNeedsNumber": "A jelszónak tartalmaznia kell legalább egy számot.",
     "passwordTooShort": "A jelszónak legalább 6 karakteresnek kell lennie.",
     "passwordsDoNotMatch": "A jelszavak nem egyeznek.",
-    "registrationFailed": "A regisztráció nem sikerült."
+    "registrationFailed": "A regisztráció nem sikerült.",
+    "subtitle": "Egy perc az egész. A haladásod szinkronizálódik az eszközeid között."
   },
   "reminders": {
     "channelName": "Edzésemlékeztetők",

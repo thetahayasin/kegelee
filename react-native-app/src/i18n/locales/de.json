@@ -265,7 +265,8 @@
     "passwordRules": "Das Passwort muss mindestens 6 Zeichen lang sein und eine Zahl enthalten.",
     "resetPassword": "Passwort zurücksetzen",
     "resetPasswordCta": "Passwort zurücksetzen",
-    "sendCodeCta": "Code senden"
+    "sendCodeCta": "Code senden",
+    "subtitle": "Willkommen zurück. Mach da weiter, wo du aufgehört hast."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
@@ -417,10 +418,12 @@
     "logIn": "Anmelden",
     "name": "Name",
     "password": "Passwort",
+    "passwordHint": "Mindestens 6 Zeichen, davon eine Zahl.",
     "passwordNeedsNumber": "Das Passwort muss mindestens eine Zahl enthalten.",
     "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
     "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
-    "registrationFailed": "Registrierung fehlgeschlagen."
+    "registrationFailed": "Registrierung fehlgeschlagen.",
+    "subtitle": "Dauert eine Minute. Dein Fortschritt wird auf allen Geräten synchronisiert."
   },
   "reminders": {
     "channelName": "Trainingserinnerungen",

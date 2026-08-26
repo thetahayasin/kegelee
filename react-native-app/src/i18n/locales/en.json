@@ -265,7 +265,8 @@
     "passwordRules": "Password must be at least 6 characters and include a number.",
     "resetPassword": "Reset Password",
     "resetPasswordCta": "Reset Password",
-    "sendCodeCta": "Send Code"
+    "sendCodeCta": "Send Code",
+    "subtitle": "Welcome back. Pick up where you left off."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Already have an account?",
@@ -417,10 +418,12 @@
     "logIn": "Log in",
     "name": "Name",
     "password": "Password",
+    "passwordHint": "At least 6 characters, including a number.",
     "passwordNeedsNumber": "Password must contain at least one number.",
     "passwordTooShort": "Password must be at least 6 characters.",
     "passwordsDoNotMatch": "Passwords do not match.",
-    "registrationFailed": "Registration failed."
+    "registrationFailed": "Registration failed.",
+    "subtitle": "Takes a minute. Your progress syncs across devices."
   },
   "reminders": {
     "channelName": "Training Reminders",

@@ -265,7 +265,8 @@
     "passwordRules": "Пароль має містити щонайменше 6 символів і хоча б одну цифру.",
     "resetPassword": "Скинути пароль",
     "resetPasswordCta": "Скинути пароль",
-    "sendCodeCta": "Надіслати код"
+    "sendCodeCta": "Надіслати код",
+    "subtitle": "З поверненням. Продовжте з того місця, де зупинилися."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Уже маєш акаунт?",
@@ -417,10 +418,12 @@
     "logIn": "Увійти",
     "name": "Ім’я",
     "password": "Пароль",
+    "passwordHint": "Щонайменше 6 символів, включно з цифрою.",
     "passwordNeedsNumber": "Пароль має містити хоча б одну цифру.",
     "passwordTooShort": "Пароль має містити щонайменше 6 символів.",
     "passwordsDoNotMatch": "Паролі не збігаються.",
-    "registrationFailed": "Реєстрація не вдалася."
+    "registrationFailed": "Реєстрація не вдалася.",
+    "subtitle": "Займе хвилину. Ваш прогрес синхронізується між пристроями."
   },
   "reminders": {
     "channelName": "Нагадування про тренування",

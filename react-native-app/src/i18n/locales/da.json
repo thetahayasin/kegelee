@@ -265,7 +265,8 @@
     "passwordRules": "Adgangskoden skal være mindst 6 tegn og indeholde et tal.",
     "resetPassword": "Nulstil adgangskode",
     "resetPasswordCta": "Nulstil adgangskode",
-    "sendCodeCta": "Send kode"
+    "sendCodeCta": "Send kode",
+    "subtitle": "Velkommen tilbage. Fortsæt, hvor du slap."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Har du allerede en konto?",
@@ -417,10 +418,12 @@
     "logIn": "Log ind",
     "name": "Navn",
     "password": "Adgangskode",
+    "passwordHint": "Mindst 6 tegn, heraf et tal.",
     "passwordNeedsNumber": "Adgangskoden skal indeholde mindst ét tal.",
     "passwordTooShort": "Adgangskoden skal være mindst 6 tegn.",
     "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
-    "registrationFailed": "Registreringen mislykkedes."
+    "registrationFailed": "Registreringen mislykkedes.",
+    "subtitle": "Tager et minut. Din fremgang synkroniseres mellem enheder."
   },
   "reminders": {
     "channelName": "Træningspåmindelser",

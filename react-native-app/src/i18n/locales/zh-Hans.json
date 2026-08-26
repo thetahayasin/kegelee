@@ -265,7 +265,8 @@
     "passwordRules": "密码至少 6 位，并且需要包含数字。",
     "resetPassword": "重置密码",
     "resetPasswordCta": "重置密码",
-    "sendCodeCta": "发送验证码"
+    "sendCodeCta": "发送验证码",
+    "subtitle": "欢迎回来。从上次的地方继续。"
   },
   "onboarding": {
     "alreadyHaveAnAccount": "已有账号？",
@@ -417,10 +418,12 @@
     "logIn": "登录",
     "name": "姓名",
     "password": "密码",
+    "passwordHint": "至少 6 个字符，且包含一个数字。",
     "passwordNeedsNumber": "密码至少需要包含一个数字。",
     "passwordTooShort": "密码至少需要 6 位。",
     "passwordsDoNotMatch": "两次输入的密码不一致。",
-    "registrationFailed": "注册失败。"
+    "registrationFailed": "注册失败。",
+    "subtitle": "只需一分钟。你的进度会在设备之间同步。"
   },
   "reminders": {
     "channelName": "训练提醒",

@@ -265,7 +265,8 @@
     "passwordRules": "Kata sandi minimal 6 karakter dan harus memuat angka.",
     "resetPassword": "Reset kata sandi",
     "resetPasswordCta": "Reset kata sandi",
-    "sendCodeCta": "Kirim kode"
+    "sendCodeCta": "Kirim kode",
+    "subtitle": "Selamat datang kembali. Lanjutkan dari tempatmu berhenti."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Sudah punya akun?",
@@ -417,10 +418,12 @@
     "logIn": "Masuk",
     "name": "Nama",
     "password": "Kata sandi",
+    "passwordHint": "Minimal 6 karakter, termasuk satu angka.",
     "passwordNeedsNumber": "Kata sandi harus memuat setidaknya satu angka.",
     "passwordTooShort": "Kata sandi minimal 6 karakter.",
     "passwordsDoNotMatch": "Kata sandi tidak cocok.",
-    "registrationFailed": "Pendaftaran gagal."
+    "registrationFailed": "Pendaftaran gagal.",
+    "subtitle": "Butuh semenit. Progresmu tersinkron di semua perangkat."
   },
   "reminders": {
     "channelName": "Pengingat Latihan",

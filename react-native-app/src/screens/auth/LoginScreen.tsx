@@ -17,7 +17,8 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../theme/colors';
+import { AuthField } from '../../components/AuthField';
+import { COLORS, TYPE, SPACE, RADIUS, DISABLED_OPACITY } from '../../theme/colors';
 import Svg, { Path } from 'react-native-svg';
 import { api, getWebBaseUrl } from '../../services/api';
 import { nativeGoogleSignIn } from '../../services/googleAuth';
@@ -179,7 +180,10 @@ export const LoginScreen = () => {
         style={styles.keyboardView}
       >
         <View style={styles.inner}>
-          <Text style={styles.title}>{t('login.logIn')}</Text>
+          <View style={styles.head}>
+            <Text style={styles.title}>{t('login.logIn')}</Text>
+            <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
+          </View>
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -197,25 +201,29 @@ export const LoginScreen = () => {
           ) : null}
 
           <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder={t('login.email')}
-              placeholderTextColor={COLORS.textMuted}
+            <AuthField
+              label={t('login.email')}
+              placeholder="you@example.com"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
             />
 
-            <TextInput
-              style={styles.input}
-              placeholder={t('login.password')}
-              placeholderTextColor={COLORS.textMuted}
+            <AuthField
+              label={t('login.password')}
+              placeholder="••••••••"
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secure
               autoCapitalize="none"
+              autoComplete="password"
+              textContentType="password"
+              returnKeyType="go"
+              onSubmitEditing={handleLogin}
             />
 
             <TouchableOpacity
@@ -228,7 +236,13 @@ export const LoginScreen = () => {
               <Text style={styles.forgotText}>{t('login.forgotPassword')}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btn} onPress={handleLogin} disabled={loading}>
+            <TouchableOpacity
+              style={[styles.btn, loading && styles.btnDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: loading, busy: loading }}
+            >
               {loading ? (
                 <ActivityIndicator color={COLORS.onAccent} />
               ) : (
@@ -404,47 +418,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  form: {
-    marginBottom: 20,
-  },
+  // Used by the reset-password modal, which keeps plain inputs. Matched to
+  // AuthField so the two do not disagree when the modal opens over the form.
   input: {
-    height: 52,
+    minHeight: 56,
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: COLORS.border,
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACE.lg,
+    paddingVertical: SPACE.md,
     color: COLORS.white,
     fontSize: 16,
-    marginBottom: 16,
+    marginBottom: SPACE.lg,
   },
-  forgotBtn: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-  },
-  forgotText: {
-    color: COLORS.textMuted,
-    fontSize: 14,
-  },
+  head: { gap: SPACE.sm, marginBottom: SPACE.xl },
+  title: { ...TYPE.display, color: COLORS.white },
+  subtitle: { ...TYPE.body, color: COLORS.textMuted, lineHeight: 22 },
+  form: { gap: SPACE.lg, marginBottom: SPACE.lg },
+  forgotBtn: { alignSelf: 'flex-end', paddingVertical: SPACE.xs },
+  forgotText: { ...TYPE.bodySm, color: COLORS.accent, fontWeight: '600' },
   btn: {
     backgroundColor: COLORS.accent,
-    height: 52,
-    borderRadius: 12,
+    height: 56,
+    borderRadius: RADIUS.xl,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: SPACE.xs,
   },
-  btnText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.onAccent,
-  },
+  // A control that looks identical while it works reads as an app that
+  // ignored the tap.
+  btnDisabled: { opacity: DISABLED_OPACITY },
+  btnText: { ...TYPE.section, color: COLORS.onAccent },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',

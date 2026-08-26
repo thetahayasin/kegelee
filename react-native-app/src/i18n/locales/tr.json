@@ -265,7 +265,8 @@
     "passwordRules": "Şifre en az 6 karakter olmalı ve bir rakam içermelidir.",
     "resetPassword": "Şifreyi sıfırla",
     "resetPasswordCta": "Şifreyi sıfırla",
-    "sendCodeCta": "Kod gönder"
+    "sendCodeCta": "Kod gönder",
+    "subtitle": "Tekrar hoş geldin. Kaldığın yerden devam et."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Zaten hesabın var mı?",
@@ -417,10 +418,12 @@
     "logIn": "Giriş yap",
     "name": "Ad",
     "password": "Şifre",
+    "passwordHint": "En az 6 karakter, en az bir rakam içermeli.",
     "passwordNeedsNumber": "Şifre en az bir rakam içermelidir.",
     "passwordTooShort": "Şifre en az 6 karakter olmalıdır.",
     "passwordsDoNotMatch": "Şifreler eşleşmiyor.",
-    "registrationFailed": "Kayıt başarısız oldu."
+    "registrationFailed": "Kayıt başarısız oldu.",
+    "subtitle": "Bir dakika sürer. İlerlemen cihazlar arasında senkronize olur."
   },
   "reminders": {
     "channelName": "Antrenman Hatırlatıcıları",

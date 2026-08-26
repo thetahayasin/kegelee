@@ -265,7 +265,8 @@
     "passwordRules": "Heslo musí mít alespoň 6 znaků a obsahovat číslici.",
     "resetPassword": "Obnovit heslo",
     "resetPasswordCta": "Obnovit heslo",
-    "sendCodeCta": "Odeslat kód"
+    "sendCodeCta": "Odeslat kód",
+    "subtitle": "Vítej zpátky. Navaž tam, kde jsi skončil."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Už máš účet?",
@@ -417,10 +418,12 @@
     "logIn": "Přihlásit se",
     "name": "Jméno",
     "password": "Heslo",
+    "passwordHint": "Alespoň 6 znaků, z toho jedna číslice.",
     "passwordNeedsNumber": "Heslo musí obsahovat alespoň jednu číslici.",
     "passwordTooShort": "Heslo musí mít alespoň 6 znaků.",
     "passwordsDoNotMatch": "Hesla se neshodují.",
-    "registrationFailed": "Registrace se nezdařila."
+    "registrationFailed": "Registrace se nezdařila.",
+    "subtitle": "Zabere to minutu. Tvůj pokrok se synchronizuje mezi zařízeními."
   },
   "reminders": {
     "channelName": "Tréninková připomenutí",

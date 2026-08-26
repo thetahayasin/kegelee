@@ -265,7 +265,8 @@
     "passwordRules": "비밀번호는 6자 이상이어야 하며 숫자를 포함해야 합니다.",
     "resetPassword": "비밀번호 재설정",
     "resetPasswordCta": "비밀번호 재설정",
-    "sendCodeCta": "코드 보내기"
+    "sendCodeCta": "코드 보내기",
+    "subtitle": "다시 오셨네요. 이어서 시작하세요."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
@@ -417,10 +418,12 @@
     "logIn": "로그인",
     "name": "이름",
     "password": "비밀번호",
+    "passwordHint": "6자 이상, 숫자를 하나 이상 포함해 주세요.",
     "passwordNeedsNumber": "비밀번호에 숫자를 하나 이상 포함해야 합니다.",
     "passwordTooShort": "비밀번호는 6자 이상이어야 합니다.",
     "passwordsDoNotMatch": "비밀번호가 일치하지 않습니다.",
-    "registrationFailed": "가입에 실패했습니다."
+    "registrationFailed": "가입에 실패했습니다.",
+    "subtitle": "1분이면 됩니다. 진행 상황은 기기 간에 동기화됩니다."
   },
   "reminders": {
     "channelName": "훈련 알림",

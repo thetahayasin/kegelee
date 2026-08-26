@@ -265,7 +265,8 @@
     "passwordRules": "Salasanassa on oltava vähintään 6 merkkiä ja numero.",
     "resetPassword": "Palauta salasana",
     "resetPasswordCta": "Palauta salasana",
-    "sendCodeCta": "Lähetä koodi"
+    "sendCodeCta": "Lähetä koodi",
+    "subtitle": "Tervetuloa takaisin. Jatka siitä, mihin jäit."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
@@ -417,10 +418,12 @@
     "logIn": "Kirjaudu sisään",
     "name": "Nimi",
     "password": "Salasana",
+    "passwordHint": "Vähintään 6 merkkiä, joista yksi numero.",
     "passwordNeedsNumber": "Salasanassa on oltava vähintään yksi numero.",
     "passwordTooShort": "Salasanassa on oltava vähintään 6 merkkiä.",
     "passwordsDoNotMatch": "Salasanat eivät täsmää.",
-    "registrationFailed": "Rekisteröinti epäonnistui."
+    "registrationFailed": "Rekisteröinti epäonnistui.",
+    "subtitle": "Vie minuutin. Edistymisesi synkronoituu laitteiden välillä."
   },
   "reminders": {
     "channelName": "Harjoitusmuistutukset",

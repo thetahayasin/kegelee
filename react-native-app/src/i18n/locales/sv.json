@@ -265,7 +265,8 @@
     "passwordRules": "Lösenordet måste vara minst 6 tecken och innehålla en siffra.",
     "resetPassword": "Återställ lösenord",
     "resetPasswordCta": "Återställ lösenord",
-    "sendCodeCta": "Skicka kod"
+    "sendCodeCta": "Skicka kod",
+    "subtitle": "Välkommen tillbaka. Fortsätt där du slutade."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Har du redan ett konto?",
@@ -417,10 +418,12 @@
     "logIn": "Logga in",
     "name": "Namn",
     "password": "Lösenord",
+    "passwordHint": "Minst 6 tecken, varav en siffra.",
     "passwordNeedsNumber": "Lösenordet måste innehålla minst en siffra.",
     "passwordTooShort": "Lösenordet måste vara minst 6 tecken.",
     "passwordsDoNotMatch": "Lösenorden matchar inte.",
-    "registrationFailed": "Registreringen misslyckades."
+    "registrationFailed": "Registreringen misslyckades.",
+    "subtitle": "Tar en minut. Dina framsteg synkas mellan enheter."
   },
   "reminders": {
     "channelName": "Träningspåminnelser",

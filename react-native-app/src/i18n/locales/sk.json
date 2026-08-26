@@ -265,7 +265,8 @@
     "passwordRules": "Heslo musí mať aspoň 6 znakov a obsahovať číslicu.",
     "resetPassword": "Obnoviť heslo",
     "resetPasswordCta": "Obnoviť heslo",
-    "sendCodeCta": "Odoslať kód"
+    "sendCodeCta": "Odoslať kód",
+    "subtitle": "Vitaj späť. Nadviaž tam, kde si skončil."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Už máš účet?",
@@ -417,10 +418,12 @@
     "logIn": "Prihlásiť sa",
     "name": "Meno",
     "password": "Heslo",
+    "passwordHint": "Aspoň 6 znakov, z toho jedna číslica.",
     "passwordNeedsNumber": "Heslo musí obsahovať aspoň jednu číslicu.",
     "passwordTooShort": "Heslo musí mať aspoň 6 znakov.",
     "passwordsDoNotMatch": "Heslá sa nezhodujú.",
-    "registrationFailed": "Registrácia zlyhala."
+    "registrationFailed": "Registrácia zlyhala.",
+    "subtitle": "Zaberie to minútu. Tvoj pokrok sa synchronizuje medzi zariadeniami."
   },
   "reminders": {
     "channelName": "Tréningové pripomienky",
