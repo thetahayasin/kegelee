@@ -199,13 +199,36 @@
     "tryItNow": "Vyzkoušet hned"
   },
   "find": {
+    "flow_stopMidway": "Zastav v půlce",
+    "flow_thatSqueeze": "Přesně tenhle stah!",
+    "flow_youPee": "Močíš",
+    "keepGoing": "Jen tak dál …",
+    "onlyDoThePeeTest": "Test při močení udělej jen jednou",
     "onlyDoThePeeTestDesc": "Je to jen způsob, jak svaly najít, ne cvik. Časté zastavování proudu močovému měchýři neprospívá.",
+    "pressAndHold": "Stiskni a podrž",
+    "squeezeNow": "Stáhni!",
+    "squeezeOnlyThoseMuscles": "Stahuj jen tyhle svaly",
     "squeezeOnlyThoseMusclesDesc": "Další vodítko: stáhni se, jako bys zadržoval větry. Břicho, nohy a hýždě zůstávají úplně uvolněné.",
-    "stopTheFlowBody": "Až budeš příště močit, jemně zastav proud v půlce. Svaly, které jsi právě použil, jsou tvoje pánevní dno."
+    "stopTheFlowBody": "Až budeš příště močit, jemně zastav proud v půlce. Svaly, které jsi právě použil, jsou tvoje pánevní dno.",
+    "thatExactSqueezeIsThe": "Přesně tenhle stah je pohyb, který budeš trénovat.",
+    "theEasiestWayToFind": "Nejjednodušší způsob, jak je najít",
+    "tryItNow": "Zkus to teď",
+    "tryItNowBody": "Stiskni a podrž kruh. Zatímco držíš, stáhni ty svaly. Pusť najednou.",
+    "twoQuickRules": "Dvě krátká pravidla",
+    "youFoundThem": "Našel jsi je!",
+    "youFoundThemBody": "Ten stah a povolení je všechno, co Kegelův cvik je. Jsi připravený na svůj první cvik."
   },
   "first": {
+    "contract": "Stáhni",
     "followTheCircle": "Sleduj kruh. Stáhni... a povol.",
+    "niceWork": "Skvělá práce!",
+    "nowYouTry": "Teď to zkus ty",
+    "start": "Začít",
+    "tenSecondsReady": "Deset sekund cviku {{exercise}}. Stáhni se při každém {{contract}} a pusť při {{relax}}. Připravený?",
     "thatWasARealExercise": "To byl opravdový cvik. Každá lekce probíhá přesně takhle, jeden kruh po druhém.",
+    "theCircleIsYourGuide": "Kruh ti udává rytmus",
+    "theCircleIsYourGuideBody": "Každý cvik sleduje tenhle kruh. Když se rozzáří a zvětší, stáhni se. Když záře zeslábne, povol. Slovo uvnitř ti vždycky řekne, co dělat.",
+    "thisIsTrembling": "Tohle je Chvění",
     "yourFirstExerciseQuickFlicks": "Tvůj první cvik: rychlé stahy. Stahuj při Stáhni, povol při Uvolni."
   },
   "knowledge": {
@@ -540,9 +563,23 @@
     "verifyEmail": "Ověřit e-mail"
   },
   "why": {
+    "aMuscleYouCanTrain": "Sval, který můžeš trénovat",
+    "benefit_bladder_desc": "Méně úniků a méně náhlého nutkání.",
+    "benefit_bladder_title": "Lepší kontrola měchýře",
+    "benefit_confidence_desc": "Pokrok, který roste týden po týdnu.",
+    "benefit_confidence_title": "Trvalá jistota",
+    "benefit_core_desc": "Pomáhá držení těla a bederní páteři.",
+    "benefit_core_title": "Podepřený střed těla",
+    "benefit_performance_desc": "Více kontroly a výdrže v intimitě.",
+    "benefit_performance_title": "Lepší výkon",
     "cardRealMuscle": "Opravdový sval. Trénuj ho a zesílí.",
+    "doingItRightIsEverything": "Správné provedení je všechno",
+    "learnItOnceAndEvery": "Nauč se to jednou a každá minuta tréninku pak opravdu bude mít smysl.",
     "squeezeTheWrongMusclesAnd": "Když stáhneš špatné svaly, nic z toho nebudeš mít.",
-    "theNextLessonShowsYou": "Další lekce ti přesně ukáže, kde tvoje svaly jsou."
+    "tapToSeeWhatChanges": "Klepni na kterýkoli a uvidíš, co se změní",
+    "theNextLessonShowsYou": "Další lekce ti přesně ukáže, kde tvoje svaly jsou.",
+    "thenYouDoYourFirst": "Potom si dáš svůj první opravdový cvik, vedený kruhem.",
+    "whatYouGain": "Co tím získáš"
   },
   "workout": {
     "back": "Zpět",

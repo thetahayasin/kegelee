@@ -199,13 +199,36 @@
     "tryItNow": "Kipróbálom"
   },
   "find": {
+    "flow_stopMidway": "Állítsd meg félúton",
+    "flow_thatSqueeze": "Pontosan ez a szorítás!",
+    "flow_youPee": "Vizelsz",
+    "keepGoing": "Így tovább …",
+    "onlyDoThePeeTest": "A vizelés közbeni tesztet csak egyszer végezd el",
     "onlyDoThePeeTestDesc": "Ez csak arra jó, hogy megtaláld az izmokat, nem gyakorlat. A sugár gyakori megállítása nem tesz jót a hólyagnak.",
+    "pressAndHold": "Nyomd és tartsd",
+    "squeezeNow": "Szoríts!",
+    "squeezeOnlyThoseMuscles": "Csak azokat az izmokat szorítsd össze",
     "squeezeOnlyThoseMusclesDesc": "Másik támpont: szoríts úgy, mintha szelet tartanál vissza. A has, a láb és a fenék teljesen ellazulva marad.",
-    "stopTheFlowBody": "Legközelebb, amikor vizelsz, félúton finoman állítsd meg a sugarat. Az izmok, amelyeket most használtál, a medencefeneked."
+    "stopTheFlowBody": "Legközelebb, amikor vizelsz, félúton finoman állítsd meg a sugarat. Az izmok, amelyeket most használtál, a medencefeneked.",
+    "thatExactSqueezeIsThe": "Pontosan ez az összeszorítás az a mozdulat, amit edzeni fogsz.",
+    "theEasiestWayToFind": "A legegyszerűbb módja, hogy megtaláld őket",
+    "tryItNow": "Próbáld ki most",
+    "tryItNowBody": "Nyomd meg és tartsd a kört. Amíg tartod, szorítsd össze azokat az izmokat. Engedd el egyszerre.",
+    "twoQuickRules": "Két rövid szabály",
+    "youFoundThem": "Megtaláltad!",
+    "youFoundThemBody": "Ez a szorítás és elengedés minden, ami egy Kegel-gyakorlat. Készen állsz az első gyakorlatodra."
   },
   "first": {
+    "contract": "Szorítsd",
     "followTheCircle": "Kövesd a kört. Szoríts... és lazíts.",
+    "niceWork": "Szép munka!",
+    "nowYouTry": "Most te jössz",
+    "start": "Kezdés",
+    "tenSecondsReady": "Tíz másodperc {{exercise}}. Szoríts minden {{contract}} jelnél, és engedd el a {{relax}} jelnél. Kezdhetjük?",
     "thatWasARealExercise": "Ez egy valódi gyakorlat volt. Minden alkalom pontosan így működik, egyszerre egy kör.",
+    "theCircleIsYourGuide": "A kör adja a ritmust",
+    "theCircleIsYourGuideBody": "Minden gyakorlat ezt a kört követi. Amikor felfénylik és nő, szoríts. Amikor a fény elhalványul, lazíts. A benne lévő szó mindig megmondja, mit tegyél.",
+    "thisIsTrembling": "Ez a Remegés",
     "yourFirstExerciseQuickFlicks": "Az első gyakorlatod: gyors összehúzások. Szorítsd a Szorítsd jelnél, engedd el a Lazíts jelnél."
   },
   "knowledge": {
@@ -540,9 +563,23 @@
     "verifyEmail": "E-mail megerősítése"
   },
   "why": {
+    "aMuscleYouCanTrain": "Egy izom, amit edzeni tudsz",
+    "benefit_bladder_desc": "Kevesebb csepegés és kevesebb hirtelen inger.",
+    "benefit_bladder_title": "Jobb hólyagkontroll",
+    "benefit_confidence_desc": "Eredmények, amelyek hétről hétre épülnek.",
+    "benefit_confidence_title": "Tartós magabiztosság",
+    "benefit_core_desc": "Segíti a tartást és a derekat.",
+    "benefit_core_title": "Megtámasztott törzs",
+    "benefit_performance_desc": "Több kontroll és állóképesség az intimitásban.",
+    "benefit_performance_title": "Erősebb teljesítmény",
     "cardRealMuscle": "Igazi izom. Edzd, és erősebb lesz.",
+    "doingItRightIsEverything": "Minden azon múlik, hogy jól csinálod-e",
+    "learnItOnceAndEvery": "Tanuld meg egyszer, és onnantól az edzés minden perce tényleg számít.",
     "squeezeTheWrongMusclesAnd": "Ha rossz izmokat szorítasz össze, semmit nem nyersz vele.",
-    "theNextLessonShowsYou": "A következő lecke pontosan megmutatja, hol vannak ezek az izmok."
+    "tapToSeeWhatChanges": "Koppints bármelyikre, hogy lásd, mi változik",
+    "theNextLessonShowsYou": "A következő lecke pontosan megmutatja, hol vannak ezek az izmok.",
+    "thenYouDoYourFirst": "Utána a kör vezetésével elvégzed az első igazi gyakorlatod.",
+    "whatYouGain": "Mit nyersz vele"
   },
   "workout": {
     "back": "Vissza",

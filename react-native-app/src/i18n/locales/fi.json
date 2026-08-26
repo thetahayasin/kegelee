@@ -199,13 +199,36 @@
     "tryItNow": "Kokeile nyt"
   },
   "find": {
+    "flow_stopMidway": "Pysäytä puolivälissä",
+    "flow_thatSqueeze": "Juuri tuo jännitys!",
+    "flow_youPee": "Käyt pissalla",
+    "keepGoing": "Jatka samaan malliin …",
+    "onlyDoThePeeTest": "Tee virtsaamistesti vain kerran",
     "onlyDoThePeeTestDesc": "Tämä on vain tapa löytää lihakset, ei harjoitus. Suihkun toistuva pysäyttäminen ei ole hyväksi rakolle.",
+    "pressAndHold": "Paina ja pidä",
+    "squeezeNow": "Jännitä!",
+    "squeezeOnlyThoseMuscles": "Jännitä vain näitä lihaksia",
     "squeezeOnlyThoseMusclesDesc": "Toinen vinkki: jännitä kuin pidättäisit ilmavaivoja. Vatsa, jalat ja pakarat pysyvät täysin rentoina.",
-    "stopTheFlowBody": "Kun seuraavan kerran käyt pissalla, pysäytä suihku varovasti puolivälissä. Lihakset, joita juuri käytit, ovat lantionpohjasi."
+    "stopTheFlowBody": "Kun seuraavan kerran käyt pissalla, pysäytä suihku varovasti puolivälissä. Lihakset, joita juuri käytit, ovat lantionpohjasi.",
+    "thatExactSqueezeIsThe": "Juuri tuo jännitys on se liike, jota harjoittelet.",
+    "theEasiestWayToFind": "Helpoin tapa löytää ne",
+    "tryItNow": "Kokeile nyt",
+    "tryItNowBody": "Paina ympyrää pohjassa. Pidon aikana jännitä noita lihaksia. Päästä irti samaan aikaan.",
+    "twoQuickRules": "Kaksi lyhyttä sääntöä",
+    "youFoundThem": "Löysit ne!",
+    "youFoundThemBody": "Tuo jännitys ja rentoutus on kaikki, mitä Kegel on. Olet valmis ensimmäiseen harjoitukseesi."
   },
   "first": {
+    "contract": "Jännitä",
     "followTheCircle": "Seuraa ympyrää. Jännitä... ja rentoudu.",
+    "niceWork": "Hienoa työtä!",
+    "nowYouTry": "Nyt on sinun vuorosi",
+    "start": "Aloita",
+    "tenSecondsReady": "Kymmenen sekuntia liikettä {{exercise}}. Jännitä jokaisella {{contract}} ja päästä irti kohdassa {{relax}}. Valmiina?",
     "thatWasARealExercise": "Tuo oli oikea harjoitus. Jokainen sessio toimii juuri näin, yksi ympyrä kerrallaan.",
+    "theCircleIsYourGuide": "Ympyrä näyttää rytmin",
+    "theCircleIsYourGuideBody": "Jokainen liike seuraa tätä ympyrää. Kun se hehkuu ja kasvaa, jännitä. Kun hehku himmenee, rentoudu. Sisällä oleva sana kertoo aina, mitä tehdä.",
+    "thisIsTrembling": "Tämä on Värinä",
     "yourFirstExerciseQuickFlicks": "Ensimmäinen harjoituksesi: nopeat jännitykset. Jännitä kohdassa Jännitä ja päästä irti kohdassa Rentouta."
   },
   "knowledge": {
@@ -540,9 +563,23 @@
     "verifyEmail": "Vahvista sähköposti"
   },
   "why": {
+    "aMuscleYouCanTrain": "Lihas, jota voit harjoittaa",
+    "benefit_bladder_desc": "Vähemmän vuotoja ja äkillistä tarvetta.",
+    "benefit_bladder_title": "Parempi rakon hallinta",
+    "benefit_confidence_desc": "Edistystä, joka kasvaa viikko viikolta.",
+    "benefit_confidence_title": "Kestävä itsevarmuus",
+    "benefit_core_desc": "Auttaa ryhtiä ja alaselkää.",
+    "benefit_core_title": "Tuettu keskivartalo",
+    "benefit_performance_desc": "Enemmän hallintaa ja kestävyyttä läheisyydessä.",
+    "benefit_performance_title": "Vahvempi suorituskyky",
     "cardRealMuscle": "Oikea lihas. Treenaa sitä, niin se vahvistuu.",
+    "doingItRightIsEverything": "Oikea suoritus ratkaisee kaiken",
+    "learnItOnceAndEvery": "Opettele se kerran, niin jokainen harjoitusminuutti todella merkitsee.",
     "squeezeTheWrongMusclesAnd": "Jos jännität vääriä lihaksia, siitä ei ole mitään hyötyä.",
-    "theNextLessonShowsYou": "Seuraava oppitunti näyttää tarkalleen, missä lihaksesi ovat."
+    "tapToSeeWhatChanges": "Napauta mitä tahansa nähdäksesi, mikä muuttuu",
+    "theNextLessonShowsYou": "Seuraava oppitunti näyttää tarkalleen, missä lihaksesi ovat.",
+    "thenYouDoYourFirst": "Sen jälkeen teet ensimmäisen oikean harjoituksesi ympyrän opastamana.",
+    "whatYouGain": "Mitä hyödyt"
   },
   "workout": {
     "back": "Takaisin",

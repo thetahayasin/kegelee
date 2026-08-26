@@ -199,13 +199,36 @@
     "tryItNow": "Hemen dene"
   },
   "find": {
+    "flow_stopMidway": "Yarıda durdur",
+    "flow_thatSqueeze": "İşte o kasılma!",
+    "flow_youPee": "İdrara çıkıyorsun",
+    "keepGoing": "Devam et …",
+    "onlyDoThePeeTest": "İdrar testini yalnızca bir kez yap",
     "onlyDoThePeeTestDesc": "Bu sadece kasları bulmanın bir yolu, bir egzersiz değil. Akışı sık sık durdurmak mesanen için iyi değildir.",
+    "pressAndHold": "Basılı tut",
+    "squeezeNow": "Kas!",
+    "squeezeOnlyThoseMuscles": "Yalnızca o kasları sık",
     "squeezeOnlyThoseMusclesDesc": "Başka bir ipucu: gaz tutuyormuş gibi kas. Karın, bacaklar ve kalçalar tamamen gevşek kalır.",
-    "stopTheFlowBody": "Bir dahaki idrara çıkışında akışı yarı yolda nazikçe durdur. Az önce kullandığın kaslar pelvik tabanın."
+    "stopTheFlowBody": "Bir dahaki idrara çıkışında akışı yarı yolda nazikçe durdur. Az önce kullandığın kaslar pelvik tabanın.",
+    "thatExactSqueezeIsThe": "İşte tam olarak bu sıkma hareketi çalıştıracağın harekettir.",
+    "theEasiestWayToFind": "Onları bulmanın en kolay yolu",
+    "tryItNow": "Şimdi dene",
+    "tryItNowBody": "Daireye basılı tut. Tutarken o kasları sık. Aynı anda bırak.",
+    "twoQuickRules": "İki kısa kural",
+    "youFoundThem": "Onları buldun!",
+    "youFoundThemBody": "O kasılma ve bırakma, bir Kegel egzersizinin tamamıdır. İlk egzersizin için hazırsın."
   },
   "first": {
+    "contract": "Sık",
     "followTheCircle": "Daireyi takip et. Kas... ve gevşe.",
+    "niceWork": "Güzel iş!",
+    "nowYouTry": "Şimdi sıra sende",
+    "start": "Başla",
+    "tenSecondsReady": "On saniye {{exercise}}. Her {{contract}} işaretinde kas, {{relax}} işaretinde bırak. Hazır mısın?",
     "thatWasARealExercise": "Bu gerçek bir egzersizdi. Her seans tam olarak böyle işler, her seferinde bir daire.",
+    "theCircleIsYourGuide": "Daire sana rehberlik eder",
+    "theCircleIsYourGuideBody": "Her egzersiz bu daireyi izler. Daire parlayıp büyüdüğünde kas. Parıltı söndüğünde gevşe. İçindeki kelime sana her zaman ne yapacağını söyler.",
+    "thisIsTrembling": "Bu Titreme",
     "yourFirstExerciseQuickFlicks": "İlk egzersizin: hızlı sıkmalar. Sık dediğinde sık, Gevşe dediğinde bırak."
   },
   "knowledge": {
@@ -540,9 +563,23 @@
     "verifyEmail": "E-postayı doğrula"
   },
   "why": {
+    "aMuscleYouCanTrain": "Çalıştırabileceğin bir kas",
+    "benefit_bladder_desc": "Daha az kaçırma ve daha az ani sıkışma.",
+    "benefit_bladder_title": "Daha iyi mesane kontrolü",
+    "benefit_confidence_desc": "Hafta hafta artan kazanımlar.",
+    "benefit_confidence_title": "Kalıcı özgüven",
+    "benefit_core_desc": "Duruşa ve bel bölgesine yardımcı olur.",
+    "benefit_core_title": "Desteklenmiş bir merkez",
+    "benefit_performance_desc": "Yakınlıkta daha fazla kontrol ve dayanıklılık.",
+    "benefit_performance_title": "Daha güçlü performans",
     "cardRealMuscle": "Gerçek bir kas. Çalıştır, güçlenir.",
+    "doingItRightIsEverything": "Doğru yapmak her şeydir",
+    "learnItOnceAndEvery": "Bir kez öğren, sonra her antrenman dakikası gerçekten işe yarar.",
     "squeezeTheWrongMusclesAnd": "Yanlış kasları sıkarsan hiçbir şey elde edemezsin.",
-    "theNextLessonShowsYou": "Sonraki ders kaslarının tam olarak nerede olduğunu gösteriyor."
+    "tapToSeeWhatChanges": "Neyin değiştiğini görmek için birine dokun",
+    "theNextLessonShowsYou": "Sonraki ders kaslarının tam olarak nerede olduğunu gösteriyor.",
+    "thenYouDoYourFirst": "Ardından dairenin rehberliğinde ilk gerçek egzersizini yaparsın.",
+    "whatYouGain": "Neler kazanırsın"
   },
   "workout": {
     "back": "Geri",

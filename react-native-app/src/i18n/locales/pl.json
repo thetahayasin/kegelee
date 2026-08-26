@@ -199,13 +199,36 @@
     "tryItNow": "Wypróbuj teraz"
   },
   "find": {
+    "flow_stopMidway": "Zatrzymaj w połowie",
+    "flow_thatSqueeze": "Właśnie to napięcie!",
+    "flow_youPee": "Oddajesz mocz",
+    "keepGoing": "Tak trzymaj …",
+    "onlyDoThePeeTest": "Test podczas oddawania moczu zrób tylko raz",
     "onlyDoThePeeTestDesc": "To tylko sposób na znalezienie mięśni, nie ćwiczenie. Częste zatrzymywanie strumienia nie służy pęcherzowi.",
+    "pressAndHold": "Naciśnij i przytrzymaj",
+    "squeezeNow": "Napnij!",
+    "squeezeOnlyThoseMuscles": "Napinaj tylko te mięśnie",
     "squeezeOnlyThoseMusclesDesc": "Inna wskazówka: napnij tak, jakbyś powstrzymywał gazy. Brzuch, nogi i pośladki pozostają całkowicie rozluźnione.",
-    "stopTheFlowBody": "Następnym razem, gdy będziesz oddawać mocz, delikatnie zatrzymaj strumień w połowie. Mięśnie, których właśnie użyłeś, to twoje dno miednicy."
+    "stopTheFlowBody": "Następnym razem, gdy będziesz oddawać mocz, delikatnie zatrzymaj strumień w połowie. Mięśnie, których właśnie użyłeś, to twoje dno miednicy.",
+    "thatExactSqueezeIsThe": "Dokładnie to napięcie to ruch, który będziesz trenować.",
+    "theEasiestWayToFind": "Najprostszy sposób, by je znaleźć",
+    "tryItNow": "Spróbuj teraz",
+    "tryItNowBody": "Naciśnij i przytrzymaj okrąg. Trzymając go, napnij te mięśnie. Puśćcie razem.",
+    "twoQuickRules": "Dwie krótkie zasady",
+    "youFoundThem": "Znalazłeś je!",
+    "youFoundThemBody": "To napięcie i rozluźnienie to wszystko, czym jest ćwiczenie Kegla. Jesteś gotowy na swoje pierwsze ćwiczenie."
   },
   "first": {
+    "contract": "Napnij",
     "followTheCircle": "Podążaj za okręgiem. Napnij... i rozluźnij.",
+    "niceWork": "Dobra robota!",
+    "nowYouTry": "Teraz twoja kolej",
+    "start": "Start",
+    "tenSecondsReady": "Dziesięć sekund ćwiczenia {{exercise}}. Napinaj przy każdym {{contract}}, puszczaj przy {{relax}}. Gotowy?",
     "thatWasARealExercise": "To było prawdziwe ćwiczenie. Każda sesja wygląda dokładnie tak, jeden okrąg po drugim.",
+    "theCircleIsYourGuide": "Okrąg jest twoim przewodnikiem",
+    "theCircleIsYourGuideBody": "Każde ćwiczenie podąża za tym okręgiem. Gdy rozświetla się i rośnie, napinaj. Gdy blask gaśnie, rozluźniaj. Słowo w środku zawsze mówi ci, co robić.",
+    "thisIsTrembling": "To jest Drżenie",
     "yourFirstExerciseQuickFlicks": "Twoje pierwsze ćwiczenie: szybkie napięcia. Napinaj przy Napnij, rozluźniaj przy Rozluźnij."
   },
   "knowledge": {
@@ -540,9 +563,23 @@
     "verifyEmail": "Zweryfikuj e-mail"
   },
   "why": {
+    "aMuscleYouCanTrain": "Mięsień, który możesz trenować",
+    "benefit_bladder_desc": "Mniej popuszczania i nagłych parć.",
+    "benefit_bladder_title": "Lepsza kontrola pęcherza",
+    "benefit_confidence_desc": "Postępy, które rosną tydzień po tygodniu.",
+    "benefit_confidence_title": "Trwała pewność siebie",
+    "benefit_core_desc": "Pomaga postawie i dolnym plecom.",
+    "benefit_core_title": "Wsparty core",
+    "benefit_performance_desc": "Więcej kontroli i wytrzymałości w intymności.",
+    "benefit_performance_title": "Lepsze osiągi",
     "cardRealMuscle": "Prawdziwy mięsień. Trenuj go, a się wzmocni.",
+    "doingItRightIsEverything": "Wszystko zależy od poprawnego wykonania",
+    "learnItOnceAndEvery": "Naucz się raz, a każda minuta treningu naprawdę się liczy.",
     "squeezeTheWrongMusclesAnd": "Jeśli napniesz niewłaściwe mięśnie, nic z tego nie będzie.",
-    "theNextLessonShowsYou": "Następna lekcja pokaże ci dokładnie, gdzie są twoje mięśnie."
+    "tapToSeeWhatChanges": "Dotknij dowolnego, aby zobaczyć, co się zmienia",
+    "theNextLessonShowsYou": "Następna lekcja pokaże ci dokładnie, gdzie są twoje mięśnie.",
+    "thenYouDoYourFirst": "Potem wykonasz swoje pierwsze prawdziwe ćwiczenie, prowadzony przez okrąg.",
+    "whatYouGain": "Co zyskujesz"
   },
   "workout": {
     "back": "Wstecz",
