@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Hai già un account?",
     "getStarted": "Inizia",
     "logIn": "Accedi",
-    "perDay": "AL GIORNO",
-    "secondsHeld": "secondi tenuti",
     "slide1Body": "Più controllo, più resistenza, sensazioni migliori. Il pavimento pelvico è un muscolo e si allena come tale.",
     "slide1Title": "Più forte a letto",
     "slide2Body": "Niente palestra, niente attrezzi, niente da togliere. Sul divano, alla scrivania, in autobus. Nessuno se ne accorge.",
     "slide2Title": "Da 1 a 5 minuti al giorno",
     "slide3Body": "Misura quanto riesci a tenere. E guarda quel numero salire settimana dopo settimana.",
-    "slide3Title": "Guarda che funziona",
-    "slide4Body": "Se smetti il muscolo cede, come in qualsiasi allenamento. Scegli un orario e al resto pensa il promemoria.",
-    "slide4Title": "Funziona solo se continui"
+    "slide3Title": "Guarda che funziona"
   },
   "paywall": {
     "autoRenewOffHint": "Il rinnovo automatico è disattivato. L'accesso terminerà alla data di scadenza.",
@@ -350,7 +346,6 @@
     "profile": "Profilo",
     "scheduleReminders": "Programma e promemoria",
     "setTheDifficultyOfKegel": "Imposta la difficoltà del programma di allenamento Kegel",
-    "settingsA11y": "Impostazioni",
     "theHigherTheLevelThe": "Più alto è il livello, più duro è l'allenamento",
     "vibration": "Vibrazione",
     "vibrationHint": "Vibra quando è il momento di contrarre"
@@ -373,37 +368,7 @@
     "yourHold": "la tua tenuta"
   },
   "quiz": {
-    "back": "Indietro",
-    "experienceCaption": "Sii sincero. Serve solo a decidere da dove parti.",
-    "experienceNever": "Mai",
-    "experienceRegular": "Sì, regolarmente",
-    "experienceSome": "Provato qualche volta",
-    "experienceTitle": "Hai già allenato questi muscoli?",
-    "goalBladder": "Controllo della vescica",
-    "goalCaption": "Da questo dipende cosa ti mostriamo per primo.",
-    "goalPerformance": "Prestazione e resistenza",
-    "goalRecovery": "Recupero dopo un intervento o un parto",
-    "goalStrength": "Forza generale",
-    "goalTitle": "Cosa ti porta qui?",
-    "minutes1": "1 minuto",
-    "minutes2": "2 minuti",
-    "minutes3": "3 minuti",
-    "minutes5": "5 minuti",
-    "minutesCaption": "Due sessioni al giorno. Puoi cambiarlo più avanti.",
-    "minutesTitle": "Quanto tempo per sessione?",
-    "resultAdjusts": "Difficoltà",
-    "resultAutomatic": "Si regola da sola",
-    "resultCta": "Vedi i piani",
-    "resultEachSession": "Ogni sessione",
-    "resultEyebrow": "IL TUO PIANO",
-    "resultLevel": "Livello {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "L'app alza o abbassa il tuo livello in base a come è andata ogni sessione. Non resti mai fermo al punto di partenza.",
-    "resultPerDay": "Al giorno",
-    "resultTwoSessions": "2 sessioni",
-    "skip": "Salta",
-    "startCta": "Rispondi a 3 domande",
-    "stepOf": "Domanda {{current}} di {{total}}"
+    "skip": "Salta"
   },
   "register": {
     "alreadyHaveAnAccount": "Hai già un account?",
@@ -434,7 +399,6 @@
     "active": "Attivo",
     "addTime": "Aggiungi orario",
     "allowExactBody": "I tuoi promemoria sono impostati.\n\nPerché scattino all’ora esatta, consenti \"Sveglie e promemoria\" per Kegelee - altrimenti potrebbero arrivare con qualche minuto di ritardo.",
-    "allowExactReminders": "Consenti promemoria precisi",
     "allowExactTitle": "Consenti promemoria precisi",
     "daysLeft_one": "manca {{count}} giorno",
     "daysLeft_other": "mancano {{count}} giorni",
@@ -495,11 +459,9 @@
     "resetProgress2": "Reimpostare i progressi?",
     "resetSuccessBody": "I tuoi progressi di allenamento sono stati cancellati.",
     "resetSuccessTitle": "Azzerato",
-    "resetSuccessful": "Reimpostazione riuscita",
     "restartBody": "Chiudi e riapri l’app per completare il cambio di direzione del layout.",
     "restartRequired": "Riavvio necessario",
     "sendCode": "Invia codice",
-    "settings": "Impostazioni",
     "subActive": "Attivo",
     "subCancelled": "Annullato",
     "subExpired": "Scaduto",
@@ -510,11 +472,9 @@
     "subscription": "Abbonamento",
     "tapToChangePlan": "Tocca per cambiare piano",
     "terms": "Termini",
-    "thisDoes": "Questo significa",
     "trialEndsNoRenew": "La prova gratuita termina il {{date}}. Non si rinnoverà.",
     "trialEndsThenBilling": "La prova gratuita termina il {{date}}, poi inizia l’addebito.",
-    "updatePaymentMethod": "Aggiorna il metodo di pagamento in Google Play.",
-    "weEmailedA6Digit": "Abbiamo inviato un codice a 6 cifre a"
+    "updatePaymentMethod": "Aggiorna il metodo di pagamento in Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Hai già un account? Accedi",
@@ -526,7 +486,6 @@
     "continue": "Continua",
     "continueWithGoogle": "Continua con Google",
     "couldNotOpenGoogle": "Impossibile aprire l’accesso con Google. Riprova.",
-    "couldNotOpenGoogleSign": "Impossibile aprire l'accesso con Google. Riprova.",
     "couldNotReachServer": "Impossibile raggiungere il server. Controlla la connessione e riprova.",
     "createAccount": "Crea account",
     "createAccountSubscribe": "Crea un account e abbonati",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Un muscolo che puoi allenare",
-    "aRealMuscleBody": "Il tuo pavimento pelvico è un muscolo vero. Allenalo qualche minuto al giorno e diventa più forte, come in qualsiasi altro allenamento. Niente pillole, niente effetti collaterali, e i risultati durano.",
-    "andYouCanDoIt": "E puoi farlo ovunque, in qualsiasi momento. Seduto, in piedi, sull'autobus. Nessuno se ne accorge.",
     "benefit_bladder_desc": "Meno perdite e meno urgenze.",
     "benefit_bladder_title": "Miglior controllo della vescica",
     "benefit_confidence_desc": "Progressi che crescono settimana dopo settimana.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Tocca per contrarre",
     "theNextLessonShowsYou": "La prossima lezione ti mostra esattamente dove sono i tuoi muscoli.",
     "thenYouDoYourFirst": "Poi farai il tuo primo vero esercizio, guidato dal cerchio.",
-    "whatYouGain": "Cosa ci guadagni",
-    "worthTwoMinutesOfYour": "Vale due minuti del tuo tempo"
+    "whatYouGain": "Cosa ci guadagni"
   },
   "workout": {
     "back": "Indietro",

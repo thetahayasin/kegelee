@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "पहले से खाता है?",
     "getStarted": "शुरू करें",
     "logIn": "लॉग इन करें",
-    "perDay": "प्रतिदिन",
-    "secondsHeld": "सेकंड रोका",
     "slide1Body": "बेहतर नियंत्रण, ज़्यादा सहनशक्ति, बेहतर अनुभूति। पेल्विक फ्लोर एक मांसपेशी है, और इसे मांसपेशी की तरह ही मज़बूत किया जाता है।",
     "slide1Title": "बिस्तर पर बेहतर",
     "slide2Body": "न जिम, न उपकरण, न कुछ उतारना। सोफ़े पर, डेस्क पर, बस में। किसी को पता नहीं चलेगा।",
     "slide2Title": "रोज़ 1 से 5 मिनट",
     "slide3Body": "मापिए कि आप कितनी देर रोक पाते हैं। और देखिए वह संख्या हर हफ़्ते बढ़ती जाती है।",
-    "slide3Title": "असर खुद देखिए",
-    "slide4Body": "छोड़ देंगे तो मांसपेशी फिर ढीली पड़ जाएगी, किसी भी कसरत की तरह। एक समय चुन लें, बाकी रिमाइंडर सँभाल लेगा।",
-    "slide4Title": "यह तभी काम करता है जब आप लगे रहें"
+    "slide3Title": "असर खुद देखिए"
   },
   "paywall": {
     "autoRenewOffHint": "ऑटो-रिन्यूअल बंद है। समाप्ति तिथि पर आपकी पहुँच खत्म हो जाएगी।",
@@ -350,7 +346,6 @@
     "profile": "प्रोफ़ाइल",
     "scheduleReminders": "समय-सारणी और रिमाइंडर",
     "setTheDifficultyOfKegel": "केगेल अभ्यास कार्यक्रम की कठिनाई तय करें",
-    "settingsA11y": "सेटिंग",
     "theHigherTheLevelThe": "स्तर जितना ऊँचा, अभ्यास उतना कठिन",
     "vibration": "कंपन",
     "vibrationHint": "कसने का समय आने पर कंपन करता है"
@@ -373,37 +368,7 @@
     "yourHold": "आपकी पकड़"
   },
   "quiz": {
-    "back": "वापस",
-    "experienceCaption": "सच बताइए। इससे बस शुरुआत का स्तर तय होता है।",
-    "experienceNever": "कभी नहीं",
-    "experienceRegular": "हाँ, नियमित रूप से",
-    "experienceSome": "कुछ बार कोशिश की",
-    "experienceTitle": "क्या आपने पहले यह अभ्यास किया है?",
-    "goalBladder": "मूत्राशय पर नियंत्रण",
-    "goalCaption": "इसी से तय होता है कि हम आपको पहले क्या दिखाएँ।",
-    "goalPerformance": "प्रदर्शन और सहनशक्ति",
-    "goalRecovery": "सर्जरी या प्रसव के बाद रिकवरी",
-    "goalStrength": "सामान्य ताक़त",
-    "goalTitle": "आप यहाँ किस वजह से आए?",
-    "minutes1": "1 मिनट",
-    "minutes2": "2 मिनट",
-    "minutes3": "3 मिनट",
-    "minutes5": "5 मिनट",
-    "minutesCaption": "दिन में दो सत्र। बाद में बदल सकते हैं।",
-    "minutesTitle": "हर सत्र कितनी देर का?",
-    "resultAdjusts": "कठिनाई",
-    "resultAutomatic": "ख़ुद समायोजित होती है",
-    "resultCta": "योजनाएँ देखें",
-    "resultEachSession": "हर सत्र",
-    "resultEyebrow": "आपकी योजना",
-    "resultLevel": "स्तर {{level}}",
-    "resultMinutes": "{{count}} मिनट",
-    "resultNote": "हर सत्र कैसा लगा, उसके हिसाब से ऐप आपका स्तर बढ़ाता या घटाता है। आप वहीं अटके नहीं रहते जहाँ से शुरू किया था।",
-    "resultPerDay": "हर दिन",
-    "resultTwoSessions": "2 सत्र",
-    "skip": "छोड़ें",
-    "startCta": "3 सवालों के जवाब दें",
-    "stepOf": "सवाल {{current}} / {{total}}"
+    "skip": "छोड़ें"
   },
   "register": {
     "alreadyHaveAnAccount": "पहले से खाता है?",
@@ -434,7 +399,6 @@
     "active": "सक्रिय",
     "addTime": "समय जोड़ें",
     "allowExactBody": "आपके रिमाइंडर सेट हैं।\n\nठीक समय पर बजने के लिए Kegelee को \"अलार्म और रिमाइंडर\" की अनुमति दें, वरना वे कुछ मिनट देर से आ सकते हैं।",
-    "allowExactReminders": "सटीक रिमाइंडर की अनुमति दें",
     "allowExactTitle": "सटीक रिमाइंडर की अनुमति दें",
     "daysLeft_one": "{{count}} दिन बाकी",
     "daysLeft_other": "{{count}} दिन बाकी",
@@ -495,11 +459,9 @@
     "resetProgress2": "प्रगति रीसेट करें?",
     "resetSuccessBody": "आपकी अभ्यास प्रगति मिटा दी गई है।",
     "resetSuccessTitle": "रीसेट हुआ",
-    "resetSuccessful": "रीसेट सफल रहा",
     "restartBody": "लेआउट की दिशा बदलने के लिए ऐप बंद करके दोबारा खोलें।",
     "restartRequired": "पुनः आरंभ आवश्यक",
     "sendCode": "कोड भेजें",
-    "settings": "सेटिंग्स",
     "subActive": "सक्रिय",
     "subCancelled": "रद्द",
     "subExpired": "समाप्त",
@@ -510,11 +472,9 @@
     "subscription": "सदस्यता",
     "tapToChangePlan": "प्लान बदलने के लिए टैप करें",
     "terms": "नियम",
-    "thisDoes": "इसका मतलब है",
     "trialEndsNoRenew": "मुफ़्त परीक्षण {{date}} को खत्म होगा। यह नवीनीकृत नहीं होगा।",
     "trialEndsThenBilling": "मुफ़्त परीक्षण {{date}} को खत्म होगा, उसके बाद भुगतान शुरू हो जाएगा।",
-    "updatePaymentMethod": "Google Play में भुगतान का तरीका अपडेट करें।",
-    "weEmailedA6Digit": "हमने 6 अंकों का कोड भेजा है"
+    "updatePaymentMethod": "Google Play में भुगतान का तरीका अपडेट करें।"
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "पहले से खाता है? लॉग इन करें",
@@ -526,7 +486,6 @@
     "continue": "जारी रखें",
     "continueWithGoogle": "Google से जारी रखें",
     "couldNotOpenGoogle": "Google साइन इन नहीं खुल सका। फिर कोशिश करें।",
-    "couldNotOpenGoogleSign": "Google साइन-इन नहीं खुल सका। कृपया दोबारा कोशिश करें।",
     "couldNotReachServer": "सर्वर से संपर्क नहीं हो सका। अपना कनेक्शन जाँचें और फिर कोशिश करें।",
     "createAccount": "खाता बनाएँ",
     "createAccountSubscribe": "खाता बनाएँ और सदस्यता लें",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "एक मांसपेशी जिसे आप मज़बूत कर सकते हैं",
-    "aRealMuscleBody": "आपका पेल्विक फ्लोर एक असली मांसपेशी है। रोज़ कुछ मिनट अभ्यास करें और यह मज़बूत होती जाएगी, ठीक किसी भी और कसरत की तरह। न गोलियाँ, न दुष्प्रभाव, और नतीजे टिकते हैं।",
-    "andYouCanDoIt": "और यह आप कहीं भी, कभी भी कर सकते हैं। बैठे हुए, खड़े हुए, बस में। किसी को पता नहीं चलेगा।",
     "benefit_bladder_desc": "कम रिसाव और कम अचानक ज़ोर।",
     "benefit_bladder_title": "मूत्राशय पर बेहतर नियंत्रण",
     "benefit_confidence_desc": "हर हफ़्ते बढ़ती हुई बढ़त।",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "कसने के लिए टैप करें",
     "theNextLessonShowsYou": "अगला पाठ आपको ठीक-ठीक बताएगा कि आपकी मांसपेशियाँ कहाँ हैं।",
     "thenYouDoYourFirst": "उसके बाद आप गोले के मार्गदर्शन में अपना पहला असली व्यायाम करेंगे।",
-    "whatYouGain": "आपको क्या मिलेगा",
-    "worthTwoMinutesOfYour": "आपके दो मिनट के लायक"
+    "whatYouGain": "आपको क्या मिलेगा"
   },
   "workout": {
     "back": "वापस",

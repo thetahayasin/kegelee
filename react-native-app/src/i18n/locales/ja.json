@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
     "getStarted": "はじめる",
     "logIn": "ログイン",
-    "perDay": "1日あたり",
-    "secondsHeld": "秒キープ",
     "slide1Body": "コントロールも、持続力も、感覚も変わります。骨盤底筋は筋肉です。だから鍛えられます。",
     "slide1Title": "夜の自信に",
     "slide2Body": "ジムも器具もいりません。脱ぐものもありません。ソファでも、デスクでも、バスの中でも。誰にも気づかれません。",
     "slide2Title": "1日1〜5分",
     "slide3Body": "どれだけ長く保てるかを測定。その数字が週ごとに伸びていきます。",
-    "slide3Title": "効果は数字で見えます",
-    "slide4Body": "やめれば筋肉は元に戻ります。ほかのトレーニングと同じです。時間を決めれば、あとはリマインダーが引き受けます。",
-    "slide4Title": "続けたときだけ効きます"
+    "slide3Title": "効果は数字で見えます"
   },
   "paywall": {
     "autoRenewOffHint": "自動更新はオフです。有効期限日でアクセスが終了します。",
@@ -350,7 +346,6 @@
     "profile": "プロフィール",
     "scheduleReminders": "スケジュールとリマインダー",
     "setTheDifficultyOfKegel": "ケーゲルトレーニングの難易度を設定します",
-    "settingsA11y": "設定",
     "theHigherTheLevelThe": "レベルが上がるほどトレーニングは難しくなります",
     "vibration": "バイブレーション",
     "vibrationHint": "締めるタイミングで振動します"
@@ -373,37 +368,7 @@
     "yourHold": "あなたの保持"
   },
   "quiz": {
-    "back": "戻る",
-    "experienceCaption": "正直にお答えください。開始地点を決めるだけです。",
-    "experienceNever": "まったくない",
-    "experienceRegular": "はい、定期的に",
-    "experienceSome": "何度か試した",
-    "experienceTitle": "これまでに鍛えたことは？",
-    "goalBladder": "尿もれ・尿意の改善",
-    "goalCaption": "これで最初にお見せする内容が決まります。",
-    "goalPerformance": "パフォーマンスと持久力",
-    "goalRecovery": "手術や出産からの回復",
-    "goalStrength": "全体的な強さ",
-    "goalTitle": "何をきっかけに来ましたか？",
-    "minutes1": "1分",
-    "minutes2": "2分",
-    "minutes3": "3分",
-    "minutes5": "5分",
-    "minutesCaption": "1日2回です。あとから変更できます。",
-    "minutesTitle": "1回あたりの時間は？",
-    "resultAdjusts": "難易度",
-    "resultAutomatic": "自動で調整",
-    "resultCta": "プランを見る",
-    "resultEachSession": "1回あたり",
-    "resultEyebrow": "あなたのプラン",
-    "resultLevel": "レベル {{level}}",
-    "resultMinutes": "{{count}} 分",
-    "resultNote": "アプリは、各セッションの手ごたえに応じてレベルを上げ下げします。始めた場所に留まり続けることはありません。",
-    "resultPerDay": "1日あたり",
-    "resultTwoSessions": "2回",
-    "skip": "スキップ",
-    "startCta": "3つの質問に答える",
-    "stepOf": "質問 {{current}} / {{total}}"
+    "skip": "スキップ"
   },
   "register": {
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
@@ -434,7 +399,6 @@
     "active": "オン",
     "addTime": "時間を追加",
     "allowExactBody": "リマインダーを設定しました。\n\n正確な時刻に鳴らすには、Kegelee に「アラームとリマインダー」を許可してください。許可しない場合、数分遅れることがあります。",
-    "allowExactReminders": "正確なリマインダーを許可",
     "allowExactTitle": "正確なリマインダーを許可",
     "daysLeft_one": "残り {{count}} 日",
     "daysLeft_other": "残り {{count}} 日",
@@ -495,11 +459,9 @@
     "resetProgress2": "進捗をリセットしますか？",
     "resetSuccessBody": "トレーニングの記録を消去しました。",
     "resetSuccessTitle": "リセットしました",
-    "resetSuccessful": "リセットが完了しました",
     "restartBody": "レイアウトの方向を切り替えるため、アプリを一度終了してから開き直してください。",
     "restartRequired": "再起動が必要です",
     "sendCode": "コードを送信",
-    "settings": "設定",
     "subActive": "有効",
     "subCancelled": "解約済み",
     "subExpired": "期限切れ",
@@ -510,11 +472,9 @@
     "subscription": "サブスクリプション",
     "tapToChangePlan": "タップしてプランを変更",
     "terms": "利用規約",
-    "thisDoes": "これは次を意味します",
     "trialEndsNoRenew": "無料トライアルは {{date}} に終了します。更新はされません。",
     "trialEndsThenBilling": "無料トライアルは {{date}} に終了し、その後お支払いが始まります。",
-    "updatePaymentMethod": "Google Play でお支払い方法を更新してください。",
-    "weEmailedA6Digit": "6桁のコードを次のアドレスに送信しました"
+    "updatePaymentMethod": "Google Play でお支払い方法を更新してください。"
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "すでにアカウントをお持ちですか？ ログイン",
@@ -526,7 +486,6 @@
     "continue": "続ける",
     "continueWithGoogle": "Googleで続行",
     "couldNotOpenGoogle": "Google ログインを開けませんでした。もう一度お試しください。",
-    "couldNotOpenGoogleSign": "Googleログインを開けませんでした。もう一度お試しください。",
     "couldNotReachServer": "サーバーに接続できませんでした。通信環境を確認してもう一度お試しください。",
     "createAccount": "アカウントを作成",
     "createAccountSubscribe": "アカウントを作成して登録",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "鍛えられる筋肉です",
-    "aRealMuscleBody": "骨盤底筋は本物の筋肉です。1日数分鍛えれば、ほかのトレーニングと同じように強くなります。薬も副作用も不要で、結果は続きます。",
-    "andYouCanDoIt": "しかもいつでもどこでもできます。座っていても、立っていても、バスの中でも。誰にも気づかれません。",
     "benefit_bladder_desc": "尿もれや急な尿意が減ります。",
     "benefit_bladder_title": "膀胱のコントロール向上",
     "benefit_confidence_desc": "週を追うごとに積み上がる成果。",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "タップして締める",
     "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。",
     "thenYouDoYourFirst": "そのあと、円のガイドに合わせて最初の本格的なエクササイズを行います。",
-    "whatYouGain": "得られること",
-    "worthTwoMinutesOfYour": "2分の価値があります"
+    "whatYouGain": "得られること"
   },
   "workout": {
     "back": "戻る",

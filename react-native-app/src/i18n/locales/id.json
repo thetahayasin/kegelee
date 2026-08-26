@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Sudah punya akun?",
     "getStarted": "Mulai",
     "logIn": "Masuk",
-    "perDay": "PER HARI",
-    "secondsHeld": "detik ditahan",
     "slide1Body": "Lebih banyak kontrol, lebih tahan lama, sensasi lebih baik. Dasar panggul adalah otot, dan dilatih seperti otot.",
     "slide1Title": "Lebih kuat di ranjang",
     "slide2Body": "Tanpa gym, tanpa alat, tanpa melepas apa pun. Di sofa, di meja kerja, di bus. Tak ada yang tahu.",
     "slide2Title": "1 sampai 5 menit sehari",
     "slide3Body": "Ukur berapa lama kamu bisa menahan. Dan lihat angka itu naik dari minggu ke minggu.",
-    "slide3Title": "Lihat hasilnya",
-    "slide4Body": "Berhenti latihan dan ototnya melemah lagi, sama seperti otot mana pun. Pilih waktunya, sisanya biar pengingat yang urus.",
-    "slide4Title": "Hanya berhasil kalau kamu terus jalan"
+    "slide3Title": "Lihat hasilnya"
   },
   "paywall": {
     "autoRenewOffHint": "Perpanjangan otomatis nonaktif. Akses kamu berakhir pada tanggal kedaluwarsa.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Jadwal & pengingat",
     "setTheDifficultyOfKegel": "Atur tingkat kesulitan program latihan Kegel",
-    "settingsA11y": "Pengaturan",
     "theHigherTheLevelThe": "Makin tinggi levelnya, makin berat latihannya",
     "vibration": "Getaran",
     "vibrationHint": "Bergetar saat waktunya mengencangkan"
@@ -373,37 +368,7 @@
     "yourHold": "tahananmu"
   },
   "quiz": {
-    "back": "Kembali",
-    "experienceCaption": "Jujur saja. Ini hanya menentukan titik mulaimu.",
-    "experienceNever": "Belum pernah",
-    "experienceRegular": "Ya, rutin",
-    "experienceSome": "Pernah coba beberapa kali",
-    "experienceTitle": "Pernah melatih ini sebelumnya?",
-    "goalBladder": "Kontrol kandung kemih",
-    "goalCaption": "Ini menentukan apa yang kami tampilkan lebih dulu.",
-    "goalPerformance": "Performa dan daya tahan",
-    "goalRecovery": "Pemulihan setelah operasi atau melahirkan",
-    "goalStrength": "Kekuatan umum",
-    "goalTitle": "Apa yang membawamu ke sini?",
-    "minutes1": "1 menit",
-    "minutes2": "2 menit",
-    "minutes3": "3 menit",
-    "minutes5": "5 menit",
-    "minutesCaption": "Dua sesi sehari. Bisa diubah nanti.",
-    "minutesTitle": "Berapa lama tiap sesi?",
-    "resultAdjusts": "Kesulitan",
-    "resultAutomatic": "Menyesuaikan sendiri",
-    "resultCta": "Lihat paket",
-    "resultEachSession": "Tiap sesi",
-    "resultEyebrow": "RENCANAMU",
-    "resultLevel": "Level {{level}}",
-    "resultMinutes": "{{count}} mnt",
-    "resultNote": "Aplikasi menaikkan atau menurunkan levelmu berdasarkan bagaimana rasanya tiap sesi. Kamu tidak pernah terjebak di titik awal.",
-    "resultPerDay": "Per hari",
-    "resultTwoSessions": "2 sesi",
-    "skip": "Lewati",
-    "startCta": "Jawab 3 pertanyaan",
-    "stepOf": "Pertanyaan {{current}} dari {{total}}"
+    "skip": "Lewati"
   },
   "register": {
     "alreadyHaveAnAccount": "Sudah punya akun?",
@@ -434,7 +399,6 @@
     "active": "Aktif",
     "addTime": "Tambah waktu",
     "allowExactBody": "Pengingatmu sudah diatur.\n\nAgar berbunyi tepat waktu, izinkan \"Alarm dan pengingat\" untuk Kegelee - kalau tidak, bisa terlambat beberapa menit.",
-    "allowExactReminders": "Izinkan pengingat tepat waktu",
     "allowExactTitle": "Izinkan pengingat tepat waktu",
     "daysLeft_one": "tersisa {{count}} hari",
     "daysLeft_other": "tersisa {{count}} hari",
@@ -495,11 +459,9 @@
     "resetProgress2": "Reset kemajuan?",
     "resetSuccessBody": "Kemajuan latihanmu telah dihapus.",
     "resetSuccessTitle": "Direset",
-    "resetSuccessful": "Reset berhasil",
     "restartBody": "Tutup dan buka kembali aplikasi untuk menyelesaikan perubahan arah tata letak.",
     "restartRequired": "Perlu dimulai ulang",
     "sendCode": "Kirim kode",
-    "settings": "Pengaturan",
     "subActive": "Aktif",
     "subCancelled": "Dibatalkan",
     "subExpired": "Kedaluwarsa",
@@ -510,11 +472,9 @@
     "subscription": "Langganan",
     "tapToChangePlan": "Ketuk untuk mengganti paket",
     "terms": "Ketentuan",
-    "thisDoes": "Ini berarti",
     "trialEndsNoRenew": "Uji coba gratis berakhir pada {{date}}. Tidak akan diperpanjang.",
     "trialEndsThenBilling": "Uji coba gratis berakhir pada {{date}}, setelah itu penagihan dimulai.",
-    "updatePaymentMethod": "Perbarui metode pembayaran di Google Play.",
-    "weEmailedA6Digit": "Kami mengirim kode 6 digit ke"
+    "updatePaymentMethod": "Perbarui metode pembayaran di Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Sudah punya akun? Masuk",
@@ -526,7 +486,6 @@
     "continue": "Lanjut",
     "continueWithGoogle": "Lanjutkan dengan Google",
     "couldNotOpenGoogle": "Tidak dapat membuka login Google. Coba lagi.",
-    "couldNotOpenGoogleSign": "Tidak bisa membuka login Google. Silakan coba lagi.",
     "couldNotReachServer": "Tidak dapat menghubungi server. Periksa koneksimu dan coba lagi.",
     "createAccount": "Buat akun",
     "createAccountSubscribe": "Buat akun & berlangganan",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Otot yang bisa kamu latih",
-    "aRealMuscleBody": "Dasar panggulmu adalah otot sungguhan. Latih beberapa menit sehari dan ia menguat, sama seperti latihan otot lainnya. Tanpa pil, tanpa efek samping, dan hasilnya bertahan.",
-    "andYouCanDoIt": "Dan kamu bisa melakukannya di mana saja, kapan saja. Duduk, berdiri, di dalam bus. Tidak ada yang tahu.",
     "benefit_bladder_desc": "Lebih sedikit rembes dan rasa mendesak.",
     "benefit_bladder_title": "Kontrol kandung kemih lebih baik",
     "benefit_confidence_desc": "Kemajuan yang bertambah minggu demi minggu.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Ketuk untuk mengencangkan",
     "theNextLessonShowsYou": "Pelajaran berikutnya menunjukkan letak persis otot-ototmu.",
     "thenYouDoYourFirst": "Setelah itu kamu melakukan latihan pertamamu, dipandu oleh lingkaran.",
-    "whatYouGain": "Apa yang kamu dapat",
-    "worthTwoMinutesOfYour": "Sepadan dengan dua menit waktumu"
+    "whatYouGain": "Apa yang kamu dapat"
   },
   "workout": {
     "back": "Kembali",

@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Har du allerede en konto?",
     "getStarted": "Kom i gang",
     "logIn": "Log ind",
-    "perDay": "PR. DAG",
-    "secondsHeld": "sekunder holdt",
     "slide1Body": "Mere kontrol, mere udholdenhed, bedre fornemmelse. Bækkenbunden er en muskel og trænes som en.",
     "slide1Title": "Stærkere i sengen",
     "slide2Body": "Intet fitnesscenter, intet udstyr, intet at tage af. I sofaen, ved skrivebordet, i bussen. Ingen opdager noget.",
     "slide2Title": "1 til 5 minutter om dagen",
     "slide3Body": "Mål, hvor længe du kan holde. Og se tallet stige uge efter uge.",
-    "slide3Title": "Se at det virker",
-    "slide4Body": "Stopper du, falder musklen af igen, som ved al anden træning. Vælg et tidspunkt, og lad påmindelsen klare resten.",
-    "slide4Title": "Det virker kun, hvis du bliver ved"
+    "slide3Title": "Se at det virker"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisk fornyelse er slået fra. Din adgang slutter på udløbsdatoen.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Plan og påmindelser",
     "setTheDifficultyOfKegel": "Vælg sværhedsgraden for Kegel-træningsprogrammet",
-    "settingsA11y": "Indstillinger",
     "theHigherTheLevelThe": "Jo højere niveau, jo hårdere træning",
     "vibration": "Vibration",
     "vibrationHint": "Vibrerer, når du skal spænde"
@@ -373,37 +368,7 @@
     "yourHold": "dit hold"
   },
   "quiz": {
-    "back": "Tilbage",
-    "experienceCaption": "Vær ærlig. Det afgør kun, hvor du starter.",
-    "experienceNever": "Aldrig",
-    "experienceRegular": "Ja, regelmæssigt",
-    "experienceSome": "Prøvet et par gange",
-    "experienceTitle": "Har du trænet det her før?",
-    "goalBladder": "Blærekontrol",
-    "goalCaption": "Det afgør, hvad vi viser dig først.",
-    "goalPerformance": "Præstation og udholdenhed",
-    "goalRecovery": "Restitution efter operation eller fødsel",
-    "goalStrength": "Generel styrke",
-    "goalTitle": "Hvad bringer dig hertil?",
-    "minutes1": "1 minut",
-    "minutes2": "2 minutter",
-    "minutes3": "3 minutter",
-    "minutes5": "5 minutter",
-    "minutesCaption": "To sessioner om dagen. Du kan ændre det senere.",
-    "minutesTitle": "Hvor længe pr. session?",
-    "resultAdjusts": "Sværhedsgrad",
-    "resultAutomatic": "Justerer sig selv",
-    "resultCta": "Se planerne",
-    "resultEachSession": "Hver session",
-    "resultEyebrow": "DIN PLAN",
-    "resultLevel": "Niveau {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Appen hæver eller sænker dit niveau ud fra, hvordan sessionen føltes. Du sidder aldrig fast, hvor du startede.",
-    "resultPerDay": "Om dagen",
-    "resultTwoSessions": "2 sessioner",
-    "skip": "Spring over",
-    "startCta": "Besvar 3 spørgsmål",
-    "stepOf": "Spørgsmål {{current}} af {{total}}"
+    "skip": "Spring over"
   },
   "register": {
     "alreadyHaveAnAccount": "Har du allerede en konto?",
@@ -434,7 +399,6 @@
     "active": "Aktiv",
     "addTime": "Tilføj tidspunkt",
     "allowExactBody": "Dine påmindelser er indstillet.\n\nFor at de udløses på det præcise tidspunkt, skal du tillade \"Alarmer og påmindelser\" for Kegelee - ellers kan de komme et par minutter for sent.",
-    "allowExactReminders": "Tillad præcise påmindelser",
     "allowExactTitle": "Tillad præcise påmindelser",
     "daysLeft_one": "{{count}} dag tilbage",
     "daysLeft_other": "{{count}} dage tilbage",
@@ -495,11 +459,9 @@
     "resetProgress2": "Nulstil fremgangen?",
     "resetSuccessBody": "Dine træningsfremskridt er ryddet.",
     "resetSuccessTitle": "Nulstillet",
-    "resetSuccessful": "Nulstilling gennemført",
     "restartBody": "Luk og åbn appen igen for at fuldføre skiftet af layoutretning.",
     "restartRequired": "Genstart påkrævet",
     "sendCode": "Send kode",
-    "settings": "Indstillinger",
     "subActive": "Aktiv",
     "subCancelled": "Opsagt",
     "subExpired": "Udløbet",
@@ -510,11 +472,9 @@
     "subscription": "Abonnement",
     "tapToChangePlan": "Tryk for at skifte abonnement",
     "terms": "Vilkår",
-    "thisDoes": "Det betyder",
     "trialEndsNoRenew": "Den gratis prøveperiode slutter {{date}}. Den fornyes ikke.",
     "trialEndsThenBilling": "Den gratis prøveperiode slutter {{date}}, derefter starter betalingen.",
-    "updatePaymentMethod": "Opdater din betalingsmetode i Google Play.",
-    "weEmailedA6Digit": "Vi har sendt en 6-cifret kode til"
+    "updatePaymentMethod": "Opdater din betalingsmetode i Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Har du allerede en konto? Log ind",
@@ -526,7 +486,6 @@
     "continue": "Fortsæt",
     "continueWithGoogle": "Fortsæt med Google",
     "couldNotOpenGoogle": "Kunne ikke åbne Google-login. Prøv igen.",
-    "couldNotOpenGoogleSign": "Google-login kunne ikke åbnes. Prøv igen.",
     "couldNotReachServer": "Kunne ikke nå serveren. Tjek din internetforbindelse, og prøv igen.",
     "createAccount": "Opret konto",
     "createAccountSubscribe": "Opret konto og abonnér",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "En muskel, du kan træne",
-    "aRealMuscleBody": "Din bækkenbund er en rigtig muskel. Træn den et par minutter om dagen, så bliver den stærkere, ligesom ved al anden træning. Ingen piller, ingen bivirkninger, og resultaterne holder.",
-    "andYouCanDoIt": "Og du kan gøre det hvor som helst, når som helst. Siddende, stående, i bussen. Ingen opdager det.",
     "benefit_bladder_desc": "Færre lækager og færre pludselige trængninger.",
     "benefit_bladder_title": "Bedre blærekontrol",
     "benefit_confidence_desc": "Fremgang, der bygges uge for uge.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Tryk for at knibe",
     "theNextLessonShowsYou": "Næste lektion viser dig præcis, hvor dine muskler sidder.",
     "thenYouDoYourFirst": "Derefter laver du din første rigtige øvelse, guidet af cirklen.",
-    "whatYouGain": "Hvad du får ud af det",
-    "worthTwoMinutesOfYour": "To minutter af din tid værd"
+    "whatYouGain": "Hvad du får ud af det"
   },
   "workout": {
     "back": "Tilbage",

@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
     "getStarted": "Aloita",
     "logIn": "Kirjaudu sisään",
-    "perDay": "PÄIVÄSSÄ",
-    "secondsHeld": "sekuntia pidetty",
     "slide1Body": "Enemmän hallintaa, enemmän kestävyyttä, parempi tuntemus. Lantionpohja on lihas ja sitä treenataan kuin lihasta.",
     "slide1Title": "Vahvempi sängyssä",
     "slide2Body": "Ei salia, ei välineitä, ei mitään riisuttavaa. Sohvalla, työpöydän ääressä, bussissa. Kukaan ei huomaa.",
     "slide2Title": "1–5 minuuttia päivässä",
     "slide3Body": "Mittaa, kuinka kauan jaksat pitää. Ja katso luvun nousevan viikko viikolta.",
-    "slide3Title": "Näe että se toimii",
-    "slide4Body": "Jos lopetat, lihas veltostuu, kuten missä tahansa treenissä. Valitse kellonaika, muistutus hoitaa loput.",
-    "slide4Title": "Se toimii vain, jos jatkat"
+    "slide3Title": "Näe että se toimii"
   },
   "paywall": {
     "autoRenewOffHint": "Automaattinen uusiminen on pois päältä. Käyttöoikeutesi päättyy päättymispäivänä.",
@@ -350,7 +346,6 @@
     "profile": "Profiili",
     "scheduleReminders": "Aikataulu ja muistutukset",
     "setTheDifficultyOfKegel": "Valitse Kegel-harjoitusohjelman vaikeustaso",
-    "settingsA11y": "Asetukset",
     "theHigherTheLevelThe": "Mitä korkeampi taso, sitä kovempi harjoitus",
     "vibration": "Värinä",
     "vibrationHint": "Värisee, kun on aika jännittää"
@@ -373,37 +368,7 @@
     "yourHold": "pitosi"
   },
   "quiz": {
-    "back": "Takaisin",
-    "experienceCaption": "Ole rehellinen. Tämä määrittää vain aloituskohdan.",
-    "experienceNever": "En koskaan",
-    "experienceRegular": "Kyllä, säännöllisesti",
-    "experienceSome": "Kokeillut pari kertaa",
-    "experienceTitle": "Oletko harjoittanut tätä aiemmin?",
-    "goalBladder": "Rakon hallinta",
-    "goalCaption": "Tämä ratkaisee, mitä näytämme sinulle ensin.",
-    "goalPerformance": "Suorituskyky ja kestävyys",
-    "goalRecovery": "Toipuminen leikkauksen tai synnytyksen jälkeen",
-    "goalStrength": "Yleinen voima",
-    "goalTitle": "Mikä toi sinut tänne?",
-    "minutes1": "1 minuutti",
-    "minutes2": "2 minuuttia",
-    "minutes3": "3 minuuttia",
-    "minutes5": "5 minuuttia",
-    "minutesCaption": "Kaksi harjoitusta päivässä. Voit muuttaa tätä myöhemmin.",
-    "minutesTitle": "Kuinka kauan per harjoitus?",
-    "resultAdjusts": "Vaikeustaso",
-    "resultAutomatic": "Säätyy itsestään",
-    "resultCta": "Katso vaihtoehdot",
-    "resultEachSession": "Per harjoitus",
-    "resultEyebrow": "SINUN SUUNNITELMASI",
-    "resultLevel": "Taso {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Sovellus nostaa tai laskee tasoasi sen mukaan, miltä harjoitus tuntui. Et jää koskaan jumiin lähtötasolle.",
-    "resultPerDay": "Päivässä",
-    "resultTwoSessions": "2 harjoitusta",
-    "skip": "Ohita",
-    "startCta": "Vastaa 3 kysymykseen",
-    "stepOf": "Kysymys {{current}}/{{total}}"
+    "skip": "Ohita"
   },
   "register": {
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
@@ -434,7 +399,6 @@
     "active": "Käytössä",
     "addTime": "Lisää aika",
     "allowExactBody": "Muistutuksesi on asetettu.\n\nJotta ne laukeavat täsmälleen ajallaan, salli Kegeleelle \"Herätykset ja muistutukset\" - muuten ne voivat tulla muutaman minuutin myöhässä.",
-    "allowExactReminders": "Salli tarkat muistutukset",
     "allowExactTitle": "Salli tarkat muistutukset",
     "daysLeft_one": "{{count}} päivä jäljellä",
     "daysLeft_other": "{{count}} päivää jäljellä",
@@ -495,11 +459,9 @@
     "resetProgress2": "Nollataanko edistyminen?",
     "resetSuccessBody": "Harjoitteluedistymisesi on tyhjennetty.",
     "resetSuccessTitle": "Nollattu",
-    "resetSuccessful": "Nollaus onnistui",
     "restartBody": "Sulje ja avaa sovellus uudelleen, jotta asettelun suunta vaihtuu.",
     "restartRequired": "Uudelleenkäynnistys vaaditaan",
     "sendCode": "Lähetä koodi",
-    "settings": "Asetukset",
     "subActive": "Aktiivinen",
     "subCancelled": "Peruttu",
     "subExpired": "Päättynyt",
@@ -510,11 +472,9 @@
     "subscription": "Tilaus",
     "tapToChangePlan": "Vaihda tilaus napauttamalla",
     "terms": "Ehdot",
-    "thisDoes": "Tämä tarkoittaa",
     "trialEndsNoRenew": "Ilmainen kokeilu päättyy {{date}}. Se ei uusiudu.",
     "trialEndsThenBilling": "Ilmainen kokeilu päättyy {{date}}, minkä jälkeen laskutus alkaa.",
-    "updatePaymentMethod": "Päivitä maksutapasi Google Playssä.",
-    "weEmailedA6Digit": "Lähetimme 6-numeroisen koodin osoitteeseen"
+    "updatePaymentMethod": "Päivitä maksutapasi Google Playssä."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Onko sinulla jo tili? Kirjaudu sisään",
@@ -526,7 +486,6 @@
     "continue": "Jatka",
     "continueWithGoogle": "Jatka Google-tilillä",
     "couldNotOpenGoogle": "Google-kirjautumista ei voitu avata. Yritä uudelleen.",
-    "couldNotOpenGoogleSign": "Google-kirjautumista ei voitu avata. Yritä uudelleen.",
     "couldNotReachServer": "Palvelimeen ei saatu yhteyttä. Tarkista verkkoyhteytesi ja yritä uudelleen.",
     "createAccount": "Luo tili",
     "createAccountSubscribe": "Luo tili ja tilaa",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Lihas, jota voit harjoittaa",
-    "aRealMuscleBody": "Lantionpohjasi on oikea lihas. Harjoita sitä muutama minuutti päivässä, niin se vahvistuu aivan kuten missä tahansa treenissä. Ei pillereitä, ei sivuvaikutuksia, ja tulokset kestävät.",
-    "andYouCanDoIt": "Ja voit tehdä sen missä ja milloin vain. Istuen, seisten, bussissa. Kukaan ei huomaa.",
     "benefit_bladder_desc": "Vähemmän vuotoja ja äkillistä tarvetta.",
     "benefit_bladder_title": "Parempi rakon hallinta",
     "benefit_confidence_desc": "Edistystä, joka kasvaa viikko viikolta.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Jännitä napauttamalla",
     "theNextLessonShowsYou": "Seuraava oppitunti näyttää tarkalleen, missä lihaksesi ovat.",
     "thenYouDoYourFirst": "Sen jälkeen teet ensimmäisen oikean harjoituksesi ympyrän opastamana.",
-    "whatYouGain": "Mitä hyödyt",
-    "worthTwoMinutesOfYour": "Kahden minuutin arvoinen"
+    "whatYouGain": "Mitä hyödyt"
   },
   "workout": {
     "back": "Takaisin",

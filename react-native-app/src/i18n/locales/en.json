@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Already have an account?",
     "getStarted": "Get Started",
     "logIn": "Log in",
-    "perDay": "PER DAY",
-    "secondsHeld": "seconds held",
     "slide1Body": "More control, more stamina, better sensation. Your pelvic floor is a muscle, and it trains like one.",
     "slide1Title": "Stronger in bed",
     "slide2Body": "No gym, no equipment, nothing to take off. On the sofa, at your desk, on the bus. Nobody can tell.",
     "slide2Title": "1 to 5 minutes a day",
     "slide3Body": "Measure how long you can hold. Watch that number climb week after week.",
-    "slide3Title": "See it working",
-    "slide4Body": "Stop training and the muscle fades, the same as any other. Pick a time, and let the reminder handle the rest.",
-    "slide4Title": "It only works if you keep going"
+    "slide3Title": "See it working"
   },
   "paywall": {
     "autoRenewOffHint": "Auto-renewal is off. Your access will end at the expiry date.",
@@ -350,7 +346,6 @@
     "profile": "Profile",
     "scheduleReminders": "Schedule & reminders",
     "setTheDifficultyOfKegel": "Set the difficulty of Kegel Training program",
-    "settingsA11y": "Settings",
     "theHigherTheLevelThe": "The higher the level, the harder the training",
     "vibration": "Vibration",
     "vibrationHint": "Buzz when it is time to squeeze"
@@ -373,37 +368,7 @@
     "yourHold": "your hold"
   },
   "quiz": {
-    "back": "Back",
-    "experienceCaption": "Be honest. It only sets where you start.",
-    "experienceNever": "Never",
-    "experienceRegular": "Yes, regularly",
-    "experienceSome": "Tried it a few times",
-    "experienceTitle": "Have you trained this before?",
-    "goalBladder": "Bladder control",
-    "goalCaption": "This shapes what we show you first.",
-    "goalPerformance": "Performance and stamina",
-    "goalRecovery": "Recovery after surgery or birth",
-    "goalStrength": "General strength",
-    "goalTitle": "What brought you here?",
-    "minutes1": "1 minute",
-    "minutes2": "2 minutes",
-    "minutes3": "3 minutes",
-    "minutes5": "5 minutes",
-    "minutesCaption": "Two sessions a day. You can change this later.",
-    "minutesTitle": "How long per session?",
-    "resultAdjusts": "Difficulty",
-    "resultAutomatic": "Adjusts itself",
-    "resultCta": "See plans",
-    "resultEachSession": "Each session",
-    "resultEyebrow": "YOUR PLAN",
-    "resultLevel": "Level {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "The app raises or lowers your level based on how each session felt. You are never stuck where you started.",
-    "resultPerDay": "Per day",
-    "resultTwoSessions": "2 sessions",
-    "skip": "Skip",
-    "startCta": "Answer 3 questions",
-    "stepOf": "Question {{current}} of {{total}}"
+    "skip": "Skip"
   },
   "register": {
     "alreadyHaveAnAccount": "Already have an account?",
@@ -434,7 +399,6 @@
     "active": "Active",
     "addTime": "Add time",
     "allowExactBody": "Your reminders are set.\n\nTo fire them at the exact time, allow \"Alarms & reminders\" for Kegelee - otherwise they may arrive a few minutes late.",
-    "allowExactReminders": "Allow exact reminders",
     "allowExactTitle": "Allow exact reminders",
     "daysLeft_one": "{{count}} day left",
     "daysLeft_other": "{{count}} days left",
@@ -495,11 +459,9 @@
     "resetProgress2": "Reset progress?",
     "resetSuccessBody": "Your training progress has been cleared.",
     "resetSuccessTitle": "Reset Successful",
-    "resetSuccessful": "Reset Successful",
     "restartBody": "Close and reopen the app to finish switching the layout direction.",
     "restartRequired": "Restart required",
     "sendCode": "Send code",
-    "settings": "Settings",
     "subActive": "Active",
     "subCancelled": "Cancelled",
     "subExpired": "Expired",
@@ -510,11 +472,9 @@
     "subscription": "Subscription",
     "tapToChangePlan": "Tap to change plan",
     "terms": "Terms",
-    "thisDoes": "This does",
     "trialEndsNoRenew": "Free trial ends {{date}}. It will not renew.",
     "trialEndsThenBilling": "Free trial ends {{date}}, then billing starts.",
-    "updatePaymentMethod": "Update your payment method in Google Play.",
-    "weEmailedA6Digit": "We emailed a 6-digit code to"
+    "updatePaymentMethod": "Update your payment method in Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Already have an account? Sign in",
@@ -526,7 +486,6 @@
     "continue": "Continue",
     "continueWithGoogle": "Continue with Google",
     "couldNotOpenGoogle": "Could not open Google sign-in. Please try again.",
-    "couldNotOpenGoogleSign": "Could not open Google sign-in. Please try again.",
     "couldNotReachServer": "Could not reach the server. Check your internet connection and try again.",
     "createAccount": "Create account",
     "createAccountSubscribe": "Create account & subscribe",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "A muscle you can train",
-    "aRealMuscleBody": "Your pelvic floor is a real muscle. Train it a few minutes a day and it gets stronger, just like any workout. No pills, no side effects, and the results last.",
-    "andYouCanDoIt": "And you can do it anywhere, anytime. Sitting, standing, on the bus. Nobody can tell.",
     "benefit_bladder_desc": "Fewer leaks and urgent moments.",
     "benefit_bladder_title": "Better bladder control",
     "benefit_confidence_desc": "Gains that build week after week.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Tap to squeeze",
     "theNextLessonShowsYou": "The next lesson shows you exactly where your muscles are.",
     "thenYouDoYourFirst": "Then you do your first real exercise, guided by the circle.",
-    "whatYouGain": "What you gain",
-    "worthTwoMinutesOfYour": "Worth two minutes of your time"
+    "whatYouGain": "What you gain"
   },
   "workout": {
     "back": "Back",

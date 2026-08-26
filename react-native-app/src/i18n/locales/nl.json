@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Heb je al een account?",
     "getStarted": "Aan de slag",
     "logIn": "Inloggen",
-    "perDay": "PER DAG",
-    "secondsHeld": "seconden vastgehouden",
     "slide1Body": "Meer controle, meer uithoudingsvermogen, een beter gevoel. Je bekkenbodem is een spier en traint als een spier.",
     "slide1Title": "Sterker in bed",
     "slide2Body": "Geen sportschool, geen apparaten, niets uittrekken. Op de bank, achter je bureau, in de bus. Niemand ziet het.",
     "slide2Title": "1 tot 5 minuten per dag",
     "slide3Body": "Meet hoe lang je het volhoudt. En zie dat getal week na week oplopen.",
-    "slide3Title": "Zie dat het werkt",
-    "slide4Body": "Stop je, dan zakt de spier weg, net als bij elke training. Kies een tijd en laat de herinnering de rest doen.",
-    "slide4Title": "Het werkt alleen als je doorgaat"
+    "slide3Title": "Zie dat het werkt"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisch verlengen staat uit. Je toegang stopt op de vervaldatum.",
@@ -350,7 +346,6 @@
     "profile": "Profiel",
     "scheduleReminders": "Schema en herinneringen",
     "setTheDifficultyOfKegel": "Stel de moeilijkheidsgraad van het Kegel-trainingsprogramma in",
-    "settingsA11y": "Instellingen",
     "theHigherTheLevelThe": "Hoe hoger het niveau, hoe zwaarder de training",
     "vibration": "Trillen",
     "vibrationHint": "Trilt wanneer je moet aanspannen"
@@ -373,37 +368,7 @@
     "yourHold": "jouw houdtijd"
   },
   "quiz": {
-    "back": "Terug",
-    "experienceCaption": "Wees eerlijk. Het bepaalt alleen waar je begint.",
-    "experienceNever": "Nooit",
-    "experienceRegular": "Ja, regelmatig",
-    "experienceSome": "Een paar keer geprobeerd",
-    "experienceTitle": "Heb je dit eerder getraind?",
-    "goalBladder": "Blaascontrole",
-    "goalCaption": "Dit bepaalt wat we je als eerste laten zien.",
-    "goalPerformance": "Prestatie en uithoudingsvermogen",
-    "goalRecovery": "Herstel na een operatie of bevalling",
-    "goalStrength": "Algemene kracht",
-    "goalTitle": "Wat brengt je hier?",
-    "minutes1": "1 minuut",
-    "minutes2": "2 minuten",
-    "minutes3": "3 minuten",
-    "minutes5": "5 minuten",
-    "minutesCaption": "Twee sessies per dag. Je kunt dit later aanpassen.",
-    "minutesTitle": "Hoe lang per sessie?",
-    "resultAdjusts": "Moeilijkheid",
-    "resultAutomatic": "Past zichzelf aan",
-    "resultCta": "Bekijk de opties",
-    "resultEachSession": "Per sessie",
-    "resultEyebrow": "JOUW PLAN",
-    "resultLevel": "Niveau {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "De app verhoogt of verlaagt je niveau op basis van hoe elke sessie voelde. Je blijft nooit steken waar je begon.",
-    "resultPerDay": "Per dag",
-    "resultTwoSessions": "2 sessies",
-    "skip": "Overslaan",
-    "startCta": "3 vragen beantwoorden",
-    "stepOf": "Vraag {{current}} van {{total}}"
+    "skip": "Overslaan"
   },
   "register": {
     "alreadyHaveAnAccount": "Heb je al een account?",
@@ -434,7 +399,6 @@
     "active": "Actief",
     "addTime": "Tijd toevoegen",
     "allowExactBody": "Je herinneringen staan ingesteld.\n\nOm ze op het exacte tijdstip af te laten gaan, geef Kegelee toestemming voor \"Wekkers en herinneringen\" - anders komen ze mogelijk een paar minuten later.",
-    "allowExactReminders": "Exacte herinneringen toestaan",
     "allowExactTitle": "Exacte herinneringen toestaan",
     "daysLeft_one": "nog {{count}} dag",
     "daysLeft_other": "nog {{count}} dagen",
@@ -495,11 +459,9 @@
     "resetProgress2": "Voortgang resetten?",
     "resetSuccessBody": "Je trainingsvoortgang is gewist.",
     "resetSuccessTitle": "Gewist",
-    "resetSuccessful": "Reset gelukt",
     "restartBody": "Sluit de app en open hem opnieuw om de layoutrichting te wijzigen.",
     "restartRequired": "Herstart vereist",
     "sendCode": "Code versturen",
-    "settings": "Instellingen",
     "subActive": "Actief",
     "subCancelled": "Opgezegd",
     "subExpired": "Verlopen",
@@ -510,11 +472,9 @@
     "subscription": "Abonnement",
     "tapToChangePlan": "Tik om je abonnement te wijzigen",
     "terms": "Voorwaarden",
-    "thisDoes": "Dit betekent",
     "trialEndsNoRenew": "De gratis proefperiode eindigt op {{date}}. Hij wordt niet verlengd.",
     "trialEndsThenBilling": "De gratis proefperiode eindigt op {{date}}, daarna start de facturatie.",
-    "updatePaymentMethod": "Werk je betaalmethode bij in Google Play.",
-    "weEmailedA6Digit": "We hebben een 6-cijferige code gestuurd naar"
+    "updatePaymentMethod": "Werk je betaalmethode bij in Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Heb je al een account? Log in",
@@ -526,7 +486,6 @@
     "continue": "Doorgaan",
     "continueWithGoogle": "Doorgaan met Google",
     "couldNotOpenGoogle": "Kon Google-inloggen niet openen. Probeer het opnieuw.",
-    "couldNotOpenGoogleSign": "Kon inloggen met Google niet openen. Probeer het opnieuw.",
     "couldNotReachServer": "Kon de server niet bereiken. Controleer je internetverbinding en probeer het opnieuw.",
     "createAccount": "Account aanmaken",
     "createAccountSubscribe": "Account aanmaken en abonneren",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Een spier die je kunt trainen",
-    "aRealMuscleBody": "Je bekkenbodem is een echte spier. Train hem een paar minuten per dag en hij wordt sterker, net als bij elke andere training. Geen pillen, geen bijwerkingen, en het resultaat blijft.",
-    "andYouCanDoIt": "En je kunt het overal en altijd doen. Zittend, staand, in de bus. Niemand die het merkt.",
     "benefit_bladder_desc": "Minder lekken en minder plotselinge aandrang.",
     "benefit_bladder_title": "Betere blaascontrole",
     "benefit_confidence_desc": "Winst die week na week groeit.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Tik om aan te spannen",
     "theNextLessonShowsYou": "De volgende les laat je precies zien waar je spieren zitten.",
     "thenYouDoYourFirst": "Daarna doe je je eerste echte oefening, geleid door de cirkel.",
-    "whatYouGain": "Wat het je oplevert",
-    "worthTwoMinutesOfYour": "Twee minuten van je tijd waard"
+    "whatYouGain": "Wat het je oplevert"
   },
   "workout": {
     "back": "Terug",

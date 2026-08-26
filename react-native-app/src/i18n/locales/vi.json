@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Đã có tài khoản?",
     "getStarted": "Bắt đầu",
     "logIn": "Đăng nhập",
-    "perDay": "MỖI NGÀY",
-    "secondsHeld": "giây giữ",
     "slide1Body": "Kiểm soát tốt hơn, bền hơn, cảm giác rõ hơn. Sàn chậu là một cơ, và nó tập được như mọi cơ khác.",
     "slide1Title": "Mạnh mẽ hơn trên giường",
     "slide2Body": "Không phòng gym, không dụng cụ, không phải cởi gì cả. Trên ghế sofa, ở bàn làm việc, trên xe buýt. Không ai nhận ra.",
     "slide2Title": "1 đến 5 phút mỗi ngày",
     "slide3Body": "Đo xem bạn giữ được bao lâu. Và nhìn con số đó tăng lên từng tuần.",
-    "slide3Title": "Thấy rõ hiệu quả",
-    "slide4Body": "Ngừng tập thì cơ lại yếu đi, giống như mọi loại cơ khác. Chọn một giờ, phần còn lại để lời nhắc lo.",
-    "slide4Title": "Chỉ hiệu quả nếu bạn theo đến cùng"
+    "slide3Title": "Thấy rõ hiệu quả"
   },
   "paywall": {
     "autoRenewOffHint": "Tự động gia hạn đang tắt. Quyền truy cập sẽ kết thúc vào ngày hết hạn.",
@@ -350,7 +346,6 @@
     "profile": "Hồ sơ",
     "scheduleReminders": "Lịch và nhắc nhở",
     "setTheDifficultyOfKegel": "Chọn độ khó cho chương trình tập Kegel",
-    "settingsA11y": "Cài đặt",
     "theHigherTheLevelThe": "Cấp độ càng cao thì bài tập càng nặng",
     "vibration": "Rung",
     "vibrationHint": "Rung khi đến lúc siết"
@@ -373,37 +368,7 @@
     "yourHold": "lần giữ của bạn"
   },
   "quiz": {
-    "back": "Quay lại",
-    "experienceCaption": "Hãy trung thực. Nó chỉ quyết định điểm bắt đầu.",
-    "experienceNever": "Chưa bao giờ",
-    "experienceRegular": "Có, đều đặn",
-    "experienceSome": "Đã thử vài lần",
-    "experienceTitle": "Bạn từng tập cái này chưa?",
-    "goalBladder": "Kiểm soát bàng quang",
-    "goalCaption": "Điều này quyết định chúng tôi cho bạn xem gì trước.",
-    "goalPerformance": "Phong độ và sức bền",
-    "goalRecovery": "Hồi phục sau phẫu thuật hoặc sinh nở",
-    "goalStrength": "Sức mạnh tổng thể",
-    "goalTitle": "Điều gì đưa bạn đến đây?",
-    "minutes1": "1 phút",
-    "minutes2": "2 phút",
-    "minutes3": "3 phút",
-    "minutes5": "5 phút",
-    "minutesCaption": "Hai buổi mỗi ngày. Bạn có thể đổi sau.",
-    "minutesTitle": "Mỗi buổi bao lâu?",
-    "resultAdjusts": "Độ khó",
-    "resultAutomatic": "Tự điều chỉnh",
-    "resultCta": "Xem các gói",
-    "resultEachSession": "Mỗi buổi",
-    "resultEyebrow": "KẾ HOẠCH CỦA BẠN",
-    "resultLevel": "Cấp {{level}}",
-    "resultMinutes": "{{count}} phút",
-    "resultNote": "Ứng dụng nâng hoặc hạ cấp độ dựa trên cảm nhận của bạn sau mỗi buổi. Bạn không bao giờ mắc kẹt ở nơi đã bắt đầu.",
-    "resultPerDay": "Mỗi ngày",
-    "resultTwoSessions": "2 buổi",
-    "skip": "Bỏ qua",
-    "startCta": "Trả lời 3 câu hỏi",
-    "stepOf": "Câu {{current}}/{{total}}"
+    "skip": "Bỏ qua"
   },
   "register": {
     "alreadyHaveAnAccount": "Đã có tài khoản?",
@@ -434,7 +399,6 @@
     "active": "Đang bật",
     "addTime": "Thêm giờ",
     "allowExactBody": "Lời nhắc của bạn đã được đặt.\n\nĐể chúng báo đúng giờ, hãy cho phép \"Báo thức và lời nhắc\" cho Kegelee - nếu không chúng có thể đến trễ vài phút.",
-    "allowExactReminders": "Cho phép nhắc nhở chính xác",
     "allowExactTitle": "Cho phép lời nhắc đúng giờ",
     "daysLeft_one": "còn {{count}} ngày",
     "daysLeft_other": "còn {{count}} ngày",
@@ -495,11 +459,9 @@
     "resetProgress2": "Đặt lại tiến độ?",
     "resetSuccessBody": "Tiến độ tập luyện của bạn đã được xóa.",
     "resetSuccessTitle": "Đã đặt lại",
-    "resetSuccessful": "Đặt lại thành công",
     "restartBody": "Đóng và mở lại ứng dụng để hoàn tất việc đổi hướng bố cục.",
     "restartRequired": "Cần khởi động lại",
     "sendCode": "Gửi mã",
-    "settings": "Cài đặt",
     "subActive": "Đang hoạt động",
     "subCancelled": "Đã hủy",
     "subExpired": "Đã hết hạn",
@@ -510,11 +472,9 @@
     "subscription": "Gói đăng ký",
     "tapToChangePlan": "Chạm để đổi gói",
     "terms": "Điều khoản",
-    "thisDoes": "Điều này có nghĩa là",
     "trialEndsNoRenew": "Bản dùng thử miễn phí kết thúc vào {{date}}. Sẽ không gia hạn.",
     "trialEndsThenBilling": "Bản dùng thử miễn phí kết thúc vào {{date}}, sau đó bắt đầu tính phí.",
-    "updatePaymentMethod": "Cập nhật phương thức thanh toán trong Google Play.",
-    "weEmailedA6Digit": "Chúng tôi đã gửi mã 6 chữ số tới"
+    "updatePaymentMethod": "Cập nhật phương thức thanh toán trong Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Đã có tài khoản? Đăng nhập",
@@ -526,7 +486,6 @@
     "continue": "Tiếp tục",
     "continueWithGoogle": "Tiếp tục với Google",
     "couldNotOpenGoogle": "Không mở được đăng nhập Google. Hãy thử lại.",
-    "couldNotOpenGoogleSign": "Không mở được đăng nhập Google. Vui lòng thử lại.",
     "couldNotReachServer": "Không kết nối được máy chủ. Hãy kiểm tra kết nối và thử lại.",
     "createAccount": "Tạo tài khoản",
     "createAccountSubscribe": "Tạo tài khoản và đăng ký",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Một nhóm cơ bạn có thể rèn luyện",
-    "aRealMuscleBody": "Sàn chậu của bạn là một cơ thật sự. Tập vài phút mỗi ngày là nó khỏe lên, giống như mọi cơ khác. Không thuốc men, không tác dụng phụ, và kết quả thì bền.",
-    "andYouCanDoIt": "Và bạn có thể tập ở bất cứ đâu, bất cứ lúc nào. Ngồi, đứng, trên xe buýt. Không ai nhận ra.",
     "benefit_bladder_desc": "Ít rò rỉ và ít cơn buồn gấp hơn.",
     "benefit_bladder_title": "Kiểm soát bàng quang tốt hơn",
     "benefit_confidence_desc": "Tiến bộ dồn lại theo từng tuần.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Chạm để siết",
     "theNextLessonShowsYou": "Bài học tiếp theo sẽ chỉ cho bạn chính xác vị trí các cơ đó.",
     "thenYouDoYourFirst": "Sau đó bạn sẽ thực hiện bài tập thật đầu tiên, theo nhịp của vòng tròn.",
-    "whatYouGain": "Bạn nhận được gì",
-    "worthTwoMinutesOfYour": "Đáng để dành hai phút"
+    "whatYouGain": "Bạn nhận được gì"
   },
   "workout": {
     "back": "Quay lại",

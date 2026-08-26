@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
     "getStarted": "Loslegen",
     "logIn": "Anmelden",
-    "perDay": "PRO TAG",
-    "secondsHeld": "Sekunden gehalten",
     "slide1Body": "Mehr Kontrolle, mehr Ausdauer, intensiveres Gefühl. Dein Beckenboden ist ein Muskel und lässt sich trainieren wie einer.",
     "slide1Title": "Stärker im Bett",
     "slide2Body": "Kein Fitnessstudio, keine Geräte, nichts ausziehen. Auf dem Sofa, am Schreibtisch, im Bus. Niemand merkt es.",
     "slide2Title": "1 bis 5 Minuten am Tag",
     "slide3Body": "Miss, wie lange du halten kannst. Und sieh zu, wie die Zahl Woche für Woche steigt.",
-    "slide3Title": "Sieh, dass es wirkt",
-    "slide4Body": "Hörst du auf, lässt der Muskel nach, wie bei jedem Training. Such dir eine Uhrzeit, den Rest übernimmt die Erinnerung.",
-    "slide4Title": "Es wirkt nur, wenn du dranbleibst"
+    "slide3Title": "Sieh, dass es wirkt"
   },
   "paywall": {
     "autoRenewOffHint": "Die automatische Verlängerung ist aus. Dein Zugang endet am Ablaufdatum.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Zeitplan & Erinnerungen",
     "setTheDifficultyOfKegel": "Lege den Schwierigkeitsgrad des Kegel-Trainings fest",
-    "settingsA11y": "Einstellungen",
     "theHigherTheLevelThe": "Je höher die Stufe, desto härter das Training",
     "vibration": "Vibration",
     "vibrationHint": "Vibriert, wenn du anspannen sollst"
@@ -373,37 +368,7 @@
     "yourHold": "dein Halt"
   },
   "quiz": {
-    "back": "Zurück",
-    "experienceCaption": "Sei ehrlich. Es legt nur fest, wo du anfängst.",
-    "experienceNever": "Noch nie",
-    "experienceRegular": "Ja, regelmäßig",
-    "experienceSome": "Ein paar Mal probiert",
-    "experienceTitle": "Hast du das schon trainiert?",
-    "goalBladder": "Blasenkontrolle",
-    "goalCaption": "Danach richtet sich, was wir dir zuerst zeigen.",
-    "goalPerformance": "Leistung und Ausdauer",
-    "goalRecovery": "Erholung nach OP oder Geburt",
-    "goalStrength": "Allgemeine Kraft",
-    "goalTitle": "Was führt dich her?",
-    "minutes1": "1 Minute",
-    "minutes2": "2 Minuten",
-    "minutes3": "3 Minuten",
-    "minutes5": "5 Minuten",
-    "minutesCaption": "Zwei Einheiten am Tag. Du kannst das später ändern.",
-    "minutesTitle": "Wie lange pro Einheit?",
-    "resultAdjusts": "Schwierigkeit",
-    "resultAutomatic": "Passt sich an",
-    "resultCta": "Pläne ansehen",
-    "resultEachSession": "Pro Einheit",
-    "resultEyebrow": "DEIN PLAN",
-    "resultLevel": "Stufe {{level}}",
-    "resultMinutes": "{{count}} Min.",
-    "resultNote": "Die App hebt oder senkt deine Stufe, je nachdem wie sich eine Einheit angefühlt hat. Du bleibst nie dort stecken, wo du angefangen hast.",
-    "resultPerDay": "Pro Tag",
-    "resultTwoSessions": "2 Einheiten",
-    "skip": "Überspringen",
-    "startCta": "3 Fragen beantworten",
-    "stepOf": "Frage {{current}} von {{total}}"
+    "skip": "Überspringen"
   },
   "register": {
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
@@ -434,7 +399,6 @@
     "active": "Aktiv",
     "addTime": "Zeit hinzufügen",
     "allowExactBody": "Deine Erinnerungen sind eingestellt.\n\nDamit sie exakt zur Zeit ausgelöst werden, erlaube \"Wecker und Erinnerungen\" für Kegelee - sonst kommen sie eventuell ein paar Minuten später.",
-    "allowExactReminders": "Exakte Erinnerungen erlauben",
     "allowExactTitle": "Exakte Erinnerungen erlauben",
     "daysLeft_one": "noch {{count}} Tag",
     "daysLeft_other": "noch {{count}} Tage",
@@ -495,11 +459,9 @@
     "resetProgress2": "Fortschritt zurücksetzen?",
     "resetSuccessBody": "Dein Trainingsfortschritt wurde gelöscht.",
     "resetSuccessTitle": "Zurückgesetzt",
-    "resetSuccessful": "Erfolgreich zurückgesetzt",
     "restartBody": "Schließe die App und öffne sie erneut, um die Layoutrichtung zu übernehmen.",
     "restartRequired": "Neustart erforderlich",
     "sendCode": "Code senden",
-    "settings": "Einstellungen",
     "subActive": "Aktiv",
     "subCancelled": "Gekündigt",
     "subExpired": "Abgelaufen",
@@ -510,11 +472,9 @@
     "subscription": "Abo",
     "tapToChangePlan": "Zum Ändern des Tarifs tippen",
     "terms": "AGB",
-    "thisDoes": "Das bedeutet",
     "trialEndsNoRenew": "Die kostenlose Testphase endet am {{date}}. Sie verlängert sich nicht.",
     "trialEndsThenBilling": "Die kostenlose Testphase endet am {{date}}, danach beginnt die Abrechnung.",
-    "updatePaymentMethod": "Aktualisiere deine Zahlungsmethode in Google Play.",
-    "weEmailedA6Digit": "Wir haben einen 6-stelligen Code gesendet an"
+    "updatePaymentMethod": "Aktualisiere deine Zahlungsmethode in Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Du hast schon ein Konto? Anmelden",
@@ -526,7 +486,6 @@
     "continue": "Weiter",
     "continueWithGoogle": "Mit Google fortfahren",
     "couldNotOpenGoogle": "Google-Anmeldung konnte nicht geöffnet werden. Bitte versuche es erneut.",
-    "couldNotOpenGoogleSign": "Google-Anmeldung konnte nicht geöffnet werden. Bitte versuche es erneut.",
     "couldNotReachServer": "Der Server ist nicht erreichbar. Prüfe deine Internetverbindung und versuche es erneut.",
     "createAccount": "Konto erstellen",
     "createAccountSubscribe": "Konto erstellen & abonnieren",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Ein Muskel, den du trainieren kannst",
-    "aRealMuscleBody": "Dein Beckenboden ist ein echter Muskel. Trainiere ihn ein paar Minuten am Tag, und er wird stärker, wie bei jedem anderen Training. Keine Pillen, keine Nebenwirkungen, und die Ergebnisse bleiben.",
-    "andYouCanDoIt": "Und du kannst es überall und jederzeit tun. Im Sitzen, im Stehen, im Bus. Niemand merkt es.",
     "benefit_bladder_desc": "Weniger Tröpfeln und weniger plötzlicher Drang.",
     "benefit_bladder_title": "Bessere Blasenkontrolle",
     "benefit_confidence_desc": "Fortschritte, die Woche für Woche wachsen.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Zum Anspannen tippen",
     "theNextLessonShowsYou": "Die nächste Lektion zeigt dir genau, wo deine Muskeln sind.",
     "thenYouDoYourFirst": "Dann machst du deine erste echte Übung, geführt vom Kreis.",
-    "whatYouGain": "Was du gewinnst",
-    "worthTwoMinutesOfYour": "Zwei Minuten deiner Zeit wert"
+    "whatYouGain": "Was du gewinnst"
   },
   "workout": {
     "back": "Zurück",

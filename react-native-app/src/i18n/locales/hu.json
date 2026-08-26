@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Van már fiókod?",
     "getStarted": "Kezdjük",
     "logIn": "Bejelentkezés",
-    "perDay": "NAPONTA",
-    "secondsHeld": "másodperc tartás",
     "slide1Body": "Több kontroll, több állóképesség, jobb érzés. A medencefenék egy izom, és úgy is edzhető.",
     "slide1Title": "Erősebb az ágyban",
     "slide2Body": "Nincs edzőterem, nincs eszköz, nincs mit levenni. A kanapén, az íróasztalnál, a buszon. Senki nem veszi észre.",
     "slide2Title": "Napi 1–5 perc",
     "slide3Body": "Mérd, meddig bírod tartani. És nézd, ahogy a szám hétről hétre nő.",
-    "slide3Title": "Lásd, hogy működik",
-    "slide4Body": "Ha abbahagyod, az izom visszaesik, ahogy bármelyik másik. Válassz egy időpontot, a többit intézi az emlékeztető.",
-    "slide4Title": "Csak akkor működik, ha kitartasz"
+    "slide3Title": "Lásd, hogy működik"
   },
   "paywall": {
     "autoRenewOffHint": "Az automatikus megújítás ki van kapcsolva. A hozzáférésed a lejárat napján véget ér.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Ütemezés és emlékeztetők",
     "setTheDifficultyOfKegel": "Állítsd be a Kegel-edzésprogram nehézségét",
-    "settingsA11y": "Beállítások",
     "theHigherTheLevelThe": "Minél magasabb a szint, annál nehezebb az edzés",
     "vibration": "Rezgés",
     "vibrationHint": "Rezeg, amikor szorítani kell"
@@ -373,37 +368,7 @@
     "yourHold": "a te tartásod"
   },
   "quiz": {
-    "back": "Vissza",
-    "experienceCaption": "Légy őszinte. Csak a kiindulópontot állítja be.",
-    "experienceNever": "Soha",
-    "experienceRegular": "Igen, rendszeresen",
-    "experienceSome": "Párszor kipróbáltam",
-    "experienceTitle": "Edzetted már ezt korábban?",
-    "goalBladder": "Hólyagkontroll",
-    "goalCaption": "Ez határozza meg, mit mutatunk elsőként.",
-    "goalPerformance": "Teljesítmény és állóképesség",
-    "goalRecovery": "Felépülés műtét vagy szülés után",
-    "goalStrength": "Általános erő",
-    "goalTitle": "Mi hozott ide?",
-    "minutes1": "1 perc",
-    "minutes2": "2 perc",
-    "minutes3": "3 perc",
-    "minutes5": "5 perc",
-    "minutesCaption": "Napi két gyakorlás. Később módosíthatod.",
-    "minutesTitle": "Mennyi ideig tartson egy gyakorlás?",
-    "resultAdjusts": "Nehézség",
-    "resultAutomatic": "Magától igazodik",
-    "resultCta": "Csomagok megtekintése",
-    "resultEachSession": "Gyakorlásonként",
-    "resultEyebrow": "A TERVED",
-    "resultLevel": "{{level}}. szint",
-    "resultMinutes": "{{count}} perc",
-    "resultNote": "Az app emeli vagy csökkenti a szintedet aszerint, hogyan érezted magad a gyakorlás után. Sosem ragadsz ott, ahol elkezdted.",
-    "resultPerDay": "Naponta",
-    "resultTwoSessions": "2 gyakorlás",
-    "skip": "Kihagyás",
-    "startCta": "Válaszolj 3 kérdésre",
-    "stepOf": "{{current}}. kérdés a {{total}}-ből"
+    "skip": "Kihagyás"
   },
   "register": {
     "alreadyHaveAnAccount": "Van már fiókod?",
@@ -434,7 +399,6 @@
     "active": "Aktív",
     "addTime": "Időpont hozzáadása",
     "allowExactBody": "Az emlékeztetőid be vannak állítva.\n\nHogy pontosan időben szóljanak, engedélyezd a Kegelee-nek az \"Ébresztők és emlékeztetők\" jogot - különben pár perc késéssel érkezhetnek.",
-    "allowExactReminders": "Pontos emlékeztetők engedélyezése",
     "allowExactTitle": "Pontos emlékeztetők engedélyezése",
     "daysLeft_one": "{{count}} nap van hátra",
     "daysLeft_other": "{{count}} nap van hátra",
@@ -495,11 +459,9 @@
     "resetProgress2": "Visszaállítod a haladást?",
     "resetSuccessBody": "Az edzési haladásod törölve lett.",
     "resetSuccessTitle": "Visszaállítva",
-    "resetSuccessful": "Sikeres visszaállítás",
     "restartBody": "Zárd be és nyisd meg újra az alkalmazást az elrendezés irányának váltásához.",
     "restartRequired": "Újraindítás szükséges",
     "sendCode": "Kód küldése",
-    "settings": "Beállítások",
     "subActive": "Aktív",
     "subCancelled": "Lemondva",
     "subExpired": "Lejárt",
@@ -510,11 +472,9 @@
     "subscription": "Előfizetés",
     "tapToChangePlan": "Koppints a csomag módosításához",
     "terms": "Feltételek",
-    "thisDoes": "Ez azt jelenti",
     "trialEndsNoRenew": "Az ingyenes próbaidőszak {{date}} véget ér. Nem újul meg.",
     "trialEndsThenBilling": "Az ingyenes próbaidőszak {{date}} véget ér, utána indul a számlázás.",
-    "updatePaymentMethod": "Frissítsd a fizetési módot a Google Playen.",
-    "weEmailedA6Digit": "6 jegyű kódot küldtünk ide"
+    "updatePaymentMethod": "Frissítsd a fizetési módot a Google Playen."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Van már fiókod? Jelentkezz be",
@@ -526,7 +486,6 @@
     "continue": "Tovább",
     "continueWithGoogle": "Folytatás Google-fiókkal",
     "couldNotOpenGoogle": "Nem sikerült megnyitni a Google-bejelentkezést. Próbáld újra.",
-    "couldNotOpenGoogleSign": "A Google-bejelentkezést nem sikerült megnyitni. Kérjük, próbáld újra.",
     "couldNotReachServer": "Nem sikerült elérni a szervert. Ellenőrizd a kapcsolatot, és próbáld újra.",
     "createAccount": "Fiók létrehozása",
     "createAccountSubscribe": "Fiók létrehozása és előfizetés",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Egy izom, amit edzeni tudsz",
-    "aRealMuscleBody": "A medencefeneked valódi izom. Edzd napi pár percet, és erősödik, mint bármelyik másik izom. Nincsenek tabletták, nincsenek mellékhatások, és az eredmény kitart.",
-    "andYouCanDoIt": "És bárhol, bármikor csinálhatod. Ülve, állva, a buszon. Senki nem veszi észre.",
     "benefit_bladder_desc": "Kevesebb csepegés és kevesebb hirtelen inger.",
     "benefit_bladder_title": "Jobb hólyagkontroll",
     "benefit_confidence_desc": "Eredmények, amelyek hétről hétre épülnek.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Koppints a szorításhoz",
     "theNextLessonShowsYou": "A következő lecke pontosan megmutatja, hol vannak ezek az izmok.",
     "thenYouDoYourFirst": "Utána a kör vezetésével elvégzed az első igazi gyakorlatod.",
-    "whatYouGain": "Mit nyersz vele",
-    "worthTwoMinutesOfYour": "Megér két percet"
+    "whatYouGain": "Mit nyersz vele"
   },
   "workout": {
     "back": "Vissza",

@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Tu as déjà un compte ?",
     "getStarted": "Commencer",
     "logIn": "Se connecter",
-    "perDay": "PAR JOUR",
-    "secondsHeld": "secondes tenues",
     "slide1Body": "Plus de contrôle, plus d'endurance, de meilleures sensations. Le périnée est un muscle, et il s'entraîne comme tel.",
     "slide1Title": "Plus fort au lit",
     "slide2Body": "Pas de salle de sport, pas de matériel, rien à enlever. Sur le canapé, au bureau, dans le bus. Personne ne s'en rend compte.",
     "slide2Title": "1 à 5 minutes par jour",
     "slide3Body": "Mesurez combien de temps vous tenez. Et regardez ce chiffre monter semaine après semaine.",
-    "slide3Title": "Voyez que ça marche",
-    "slide4Body": "Si vous arrêtez, le muscle faiblit, comme pour n'importe quel entraînement. Choisissez une heure, le rappel s'occupe du reste.",
-    "slide4Title": "Ça ne marche que si vous continuez"
+    "slide3Title": "Voyez que ça marche"
   },
   "paywall": {
     "autoRenewOffHint": "Le renouvellement automatique est désactivé. Votre accès prendra fin à la date d'expiration.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Planning et rappels",
     "setTheDifficultyOfKegel": "Choisis la difficulté du programme d'entraînement Kegel",
-    "settingsA11y": "Réglages",
     "theHigherTheLevelThe": "Plus le niveau est élevé, plus l'entraînement est difficile",
     "vibration": "Vibration",
     "vibrationHint": "Vibre au moment de contracter"
@@ -373,37 +368,7 @@
     "yourHold": "votre maintien"
   },
   "quiz": {
-    "back": "Retour",
-    "experienceCaption": "Soyez honnête. Cela ne fixe que votre point de départ.",
-    "experienceNever": "Jamais",
-    "experienceRegular": "Oui, régulièrement",
-    "experienceSome": "Essayé quelques fois",
-    "experienceTitle": "Avez-vous déjà fait ces exercices ?",
-    "goalBladder": "Contrôle de la vessie",
-    "goalCaption": "Cela détermine ce que nous vous montrons en premier.",
-    "goalPerformance": "Performance et endurance",
-    "goalRecovery": "Récupération après une opération ou un accouchement",
-    "goalStrength": "Force générale",
-    "goalTitle": "Qu'est-ce qui vous amène ?",
-    "minutes1": "1 minute",
-    "minutes2": "2 minutes",
-    "minutes3": "3 minutes",
-    "minutes5": "5 minutes",
-    "minutesCaption": "Deux séances par jour. Modifiable plus tard.",
-    "minutesTitle": "Combien de temps par séance ?",
-    "resultAdjusts": "Difficulté",
-    "resultAutomatic": "S'ajuste seule",
-    "resultCta": "Voir les formules",
-    "resultEachSession": "Par séance",
-    "resultEyebrow": "VOTRE PLAN",
-    "resultLevel": "Niveau {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "L'app monte ou descend votre niveau selon votre ressenti après chaque séance. Vous ne restez jamais bloqué au point de départ.",
-    "resultPerDay": "Par jour",
-    "resultTwoSessions": "2 séances",
-    "skip": "Passer",
-    "startCta": "Répondre à 3 questions",
-    "stepOf": "Question {{current}} sur {{total}}"
+    "skip": "Passer"
   },
   "register": {
     "alreadyHaveAnAccount": "Tu as déjà un compte ?",
@@ -434,7 +399,6 @@
     "active": "Actif",
     "addTime": "Ajouter un horaire",
     "allowExactBody": "Vos rappels sont réglés.\n\nPour qu’ils se déclenchent à l’heure exacte, autorisez « Alarmes et rappels » pour Kegelee - sinon ils peuvent arriver avec quelques minutes de retard.",
-    "allowExactReminders": "Autoriser les rappels précis",
     "allowExactTitle": "Autoriser les rappels précis",
     "daysLeft_one": "{{count}} jour restant",
     "daysLeft_other": "{{count}} jours restants",
@@ -495,11 +459,9 @@
     "resetProgress2": "Réinitialiser les progrès ?",
     "resetSuccessBody": "Votre progression d’entraînement a été effacée.",
     "resetSuccessTitle": "Réinitialisé",
-    "resetSuccessful": "Réinitialisation réussie",
     "restartBody": "Ferme et rouvre l’app pour terminer le changement de sens de la mise en page.",
     "restartRequired": "Redémarrage nécessaire",
     "sendCode": "Envoyer le code",
-    "settings": "Paramètres",
     "subActive": "Actif",
     "subCancelled": "Annulé",
     "subExpired": "Expiré",
@@ -510,11 +472,9 @@
     "subscription": "Abonnement",
     "tapToChangePlan": "Touchez pour changer de forfait",
     "terms": "Conditions",
-    "thisDoes": "Cela signifie",
     "trialEndsNoRenew": "L’essai gratuit se termine le {{date}}. Il ne sera pas renouvelé.",
     "trialEndsThenBilling": "L’essai gratuit se termine le {{date}}, la facturation commence ensuite.",
-    "updatePaymentMethod": "Mettez à jour votre moyen de paiement dans Google Play.",
-    "weEmailedA6Digit": "Nous avons envoyé un code à 6 chiffres à"
+    "updatePaymentMethod": "Mettez à jour votre moyen de paiement dans Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Tu as déjà un compte ? Connecte-toi",
@@ -526,7 +486,6 @@
     "continue": "Continuer",
     "continueWithGoogle": "Continuer avec Google",
     "couldNotOpenGoogle": "Impossible d’ouvrir la connexion Google. Veuillez réessayer.",
-    "couldNotOpenGoogleSign": "Impossible d'ouvrir la connexion Google. Merci de réessayer.",
     "couldNotReachServer": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
     "createAccount": "Créer un compte",
     "createAccountSubscribe": "Créer un compte et s'abonner",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Un muscle que tu peux entraîner",
-    "aRealMuscleBody": "Votre périnée est un vrai muscle. Entraînez-le quelques minutes par jour et il se renforce, comme n’importe quel autre. Pas de pilules, pas d’effets secondaires, et les résultats durent.",
-    "andYouCanDoIt": "Et tu peux le faire partout, à tout moment. Assis, debout, dans le bus. Personne ne le voit.",
     "benefit_bladder_desc": "Moins de fuites et d’envies pressantes.",
     "benefit_bladder_title": "Meilleur contrôle de la vessie",
     "benefit_confidence_desc": "Des progrès qui s’accumulent semaine après semaine.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Touchez pour contracter",
     "theNextLessonShowsYou": "La prochaine leçon te montre exactement où se trouvent tes muscles.",
     "thenYouDoYourFirst": "Ensuite tu fais ton premier vrai exercice, guidé par le cercle.",
-    "whatYouGain": "Ce que tu y gagnes",
-    "worthTwoMinutesOfYour": "Deux minutes de ton temps bien investies"
+    "whatYouGain": "Ce que tu y gagnes"
   },
   "workout": {
     "back": "Retour",

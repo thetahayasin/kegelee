@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "لديك حساب بالفعل؟",
     "getStarted": "لنبدأ",
     "logIn": "تسجيل الدخول",
-    "perDay": "يوميًا",
-    "secondsHeld": "ثانية ثبات",
     "slide1Body": "تحكّم أكبر، وقدرة أطول، وإحساس أوضح. قاع الحوض عضلة، ويُدرَّب كأي عضلة.",
     "slide1Title": "أقوى في العلاقة",
     "slide2Body": "لا نادي رياضي، ولا أجهزة، ولا شيء تخلعه. على الأريكة، أمام المكتب، في الحافلة. لن يلاحظ أحد.",
     "slide2Title": "من دقيقة إلى خمس يوميًا",
     "slide3Body": "قِس المدة التي تستطيع الثبات فيها، وراقب الرقم يرتفع أسبوعًا بعد أسبوع.",
-    "slide3Title": "النتيجة تظهر بالأرقام",
-    "slide4Body": "إن توقفت تراجعت العضلة، كأي تدريب آخر. اختر وقتًا، ودع التذكير يتكفل بالباقي.",
-    "slide4Title": "لن ينجح إلا إذا واصلت"
+    "slide3Title": "النتيجة تظهر بالأرقام"
   },
   "paywall": {
     "autoRenewOffHint": "التجديد التلقائي متوقف. سينتهي وصولك في تاريخ الانتهاء.",
@@ -350,7 +346,6 @@
     "profile": "الملف الشخصي",
     "scheduleReminders": "الجدول والتذكيرات",
     "setTheDifficultyOfKegel": "اختر مستوى صعوبة برنامج تمارين كيجل",
-    "settingsA11y": "الإعدادات",
     "theHigherTheLevelThe": "كلما ارتفع المستوى، ازدادت صعوبة التدريب",
     "vibration": "الاهتزاز",
     "vibrationHint": "يهتز عندما يحين وقت الشدّ"
@@ -373,37 +368,7 @@
     "yourHold": "مدة ثباتك"
   },
   "quiz": {
-    "back": "رجوع",
-    "experienceCaption": "كن صادقًا. هذا يحدد نقطة البداية فقط.",
-    "experienceNever": "أبدًا",
-    "experienceRegular": "نعم، بانتظام",
-    "experienceSome": "جرّبت بضع مرات",
-    "experienceTitle": "هل دربت هذه العضلات من قبل؟",
-    "goalBladder": "التحكّم في المثانة",
-    "goalCaption": "هذا يحدد ما نعرضه عليك أولًا.",
-    "goalPerformance": "الأداء والقدرة على الاستمرار",
-    "goalRecovery": "التعافي بعد عملية أو ولادة",
-    "goalStrength": "القوة العامة",
-    "goalTitle": "ما الذي جاء بك إلى هنا؟",
-    "minutes1": "دقيقة واحدة",
-    "minutes2": "دقيقتان",
-    "minutes3": "3 دقائق",
-    "minutes5": "5 دقائق",
-    "minutesCaption": "جلستان يوميًا. يمكنك تغيير ذلك لاحقًا.",
-    "minutesTitle": "كم من الوقت لكل جلسة؟",
-    "resultAdjusts": "الصعوبة",
-    "resultAutomatic": "تُضبط تلقائيًا",
-    "resultCta": "عرض الخطط",
-    "resultEachSession": "كل جلسة",
-    "resultEyebrow": "خطتك",
-    "resultLevel": "المستوى {{level}}",
-    "resultMinutes": "{{count}} دقيقة",
-    "resultNote": "يرفع التطبيق مستواك أو يخفضه بحسب شعورك بعد كل جلسة. لن تبقى عالقًا عند نقطة البداية أبدًا.",
-    "resultPerDay": "يوميًا",
-    "resultTwoSessions": "جلستان",
-    "skip": "تخطٍّ",
-    "startCta": "أجب عن 3 أسئلة",
-    "stepOf": "السؤال {{current}} من {{total}}"
+    "skip": "تخطٍّ"
   },
   "register": {
     "alreadyHaveAnAccount": "لديك حساب بالفعل؟",
@@ -434,7 +399,6 @@
     "active": "مفعّل",
     "addTime": "إضافة وقت",
     "allowExactBody": "تم ضبط تذكيراتك.\n\nلتنطلق في وقتها بالضبط، اسمح لتطبيق Kegelee بـ \"المنبّهات والتذكيرات\" - وإلا فقد تصل متأخرة ببضع دقائق.",
-    "allowExactReminders": "السماح بالتذكيرات الدقيقة",
     "allowExactTitle": "السماح بالتذكيرات الدقيقة",
     "daysLeft_one": "بقي {{count}} يوم",
     "daysLeft_other": "بقي {{count}} يومًا",
@@ -495,11 +459,9 @@
     "resetProgress2": "إعادة تعيين التقدّم؟",
     "resetSuccessBody": "تم مسح تقدّمك التدريبي.",
     "resetSuccessTitle": "تمت إعادة التعيين",
-    "resetSuccessful": "تمت إعادة التعيين بنجاح",
     "restartBody": "أغلق التطبيق وأعد فتحه لإكمال تغيير اتجاه التخطيط.",
     "restartRequired": "يلزم إعادة التشغيل",
     "sendCode": "إرسال الرمز",
-    "settings": "الإعدادات",
     "subActive": "نشط",
     "subCancelled": "ملغى",
     "subExpired": "منتهٍ",
@@ -510,11 +472,9 @@
     "subscription": "الاشتراك",
     "tapToChangePlan": "اضغط لتغيير الخطة",
     "terms": "الشروط",
-    "thisDoes": "هذا يعني",
     "trialEndsNoRenew": "تنتهي التجربة المجانية في {{date}}. ولن تتجدّد.",
     "trialEndsThenBilling": "تنتهي التجربة المجانية في {{date}}، وبعدها يبدأ الاشتراك المدفوع.",
-    "updatePaymentMethod": "حدّث طريقة الدفع في Google Play.",
-    "weEmailedA6Digit": "أرسلنا رمزًا من 6 أرقام إلى"
+    "updatePaymentMethod": "حدّث طريقة الدفع في Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "لديك حساب بالفعل؟ سجّل الدخول",
@@ -526,7 +486,6 @@
     "continue": "متابعة",
     "continueWithGoogle": "المتابعة باستخدام Google",
     "couldNotOpenGoogle": "تعذّر فتح تسجيل الدخول عبر Google. حاول مرة أخرى.",
-    "couldNotOpenGoogleSign": "تعذّر فتح تسجيل الدخول عبر Google. يرجى المحاولة مرة أخرى.",
     "couldNotReachServer": "تعذّر الوصول إلى الخادم. تحقق من اتصالك وحاول مرة أخرى.",
     "createAccount": "إنشاء حساب",
     "createAccountSubscribe": "إنشاء حساب والاشتراك",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "عضلة يمكنك تدريبها",
-    "aRealMuscleBody": "قاع حوضك عضلة حقيقية. درّبها بضع دقائق يوميًا فتقوى، تمامًا كأي تمرين آخر. لا حبوب، ولا آثار جانبية، والنتائج تدوم.",
-    "andYouCanDoIt": "ويمكنك أداؤها في أي مكان وأي وقت. جالسًا أو واقفًا أو في الحافلة. لن يلاحظ أحد.",
     "benefit_bladder_desc": "تسرّب أقل ولحظات إلحاح أقل.",
     "benefit_bladder_title": "تحكّم أفضل في المثانة",
     "benefit_confidence_desc": "مكاسب تتراكم أسبوعًا بعد أسبوع.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "اضغط للشدّ",
     "theNextLessonShowsYou": "الدرس التالي يوضّح لك بالضبط أين تقع عضلاتك.",
     "thenYouDoYourFirst": "بعد ذلك تؤدي تمرينك الحقيقي الأول بإرشاد الدائرة.",
-    "whatYouGain": "ما الذي ستكسبه",
-    "worthTwoMinutesOfYour": "يستحق دقيقتين من وقتك"
+    "whatYouGain": "ما الذي ستكسبه"
   },
   "workout": {
     "back": "رجوع",

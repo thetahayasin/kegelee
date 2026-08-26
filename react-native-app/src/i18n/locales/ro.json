@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Ai deja un cont?",
     "getStarted": "Începe",
     "logIn": "Autentifică-te",
-    "perDay": "PE ZI",
-    "secondsHeld": "secunde menținute",
     "slide1Body": "Mai mult control, mai multă rezistență, senzații mai bune. Planșeul pelvin e un mușchi și se antrenează ca atare.",
     "slide1Title": "Mai puternic în pat",
     "slide2Body": "Fără sală, fără echipament, fără să dai ceva jos. Pe canapea, la birou, în autobuz. Nimeni nu observă.",
     "slide2Title": "1 până la 5 minute pe zi",
     "slide3Body": "Măsoară cât reușești să menții. Și urmărește cum crește numărul de la o săptămână la alta.",
-    "slide3Title": "Vezi că funcționează",
-    "slide4Body": "Dacă te oprești, mușchiul cedează, ca la orice antrenament. Alege o oră, iar de restul se ocupă mementoul.",
-    "slide4Title": "Funcționează doar dacă ții ritmul"
+    "slide3Title": "Vezi că funcționează"
   },
   "paywall": {
     "autoRenewOffHint": "Reînnoirea automată este dezactivată. Accesul se încheie la data expirării.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Program și memento-uri",
     "setTheDifficultyOfKegel": "Setează dificultatea programului de antrenament Kegel",
-    "settingsA11y": "Setări",
     "theHigherTheLevelThe": "Cu cât nivelul e mai mare, cu atât antrenamentul e mai greu",
     "vibration": "Vibrație",
     "vibrationHint": "Vibrează când e momentul să contracți"
@@ -373,37 +368,7 @@
     "yourHold": "menținerea ta"
   },
   "quiz": {
-    "back": "Înapoi",
-    "experienceCaption": "Fii sincer. Stabilește doar de unde pornești.",
-    "experienceNever": "Niciodată",
-    "experienceRegular": "Da, cu regularitate",
-    "experienceSome": "Am încercat de câteva ori",
-    "experienceTitle": "Ai mai antrenat asta înainte?",
-    "goalBladder": "Controlul vezicii",
-    "goalCaption": "Asta decide ce îți arătăm primul.",
-    "goalPerformance": "Performanță și rezistență",
-    "goalRecovery": "Recuperare după operație sau naștere",
-    "goalStrength": "Forță generală",
-    "goalTitle": "Ce te aduce aici?",
-    "minutes1": "1 minut",
-    "minutes2": "2 minute",
-    "minutes3": "3 minute",
-    "minutes5": "5 minute",
-    "minutesCaption": "Două sesiuni pe zi. Poți schimba mai târziu.",
-    "minutesTitle": "Cât să dureze o sesiune?",
-    "resultAdjusts": "Dificultate",
-    "resultAutomatic": "Se ajustează singură",
-    "resultCta": "Vezi planurile",
-    "resultEachSession": "Fiecare sesiune",
-    "resultEyebrow": "PLANUL TĂU",
-    "resultLevel": "Nivelul {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Aplicația îți urcă sau coboară nivelul în funcție de cum a mers sesiunea. Nu rămâi niciodată blocat unde ai început.",
-    "resultPerDay": "Pe zi",
-    "resultTwoSessions": "2 sesiuni",
-    "skip": "Sari peste",
-    "startCta": "Răspunde la 3 întrebări",
-    "stepOf": "Întrebarea {{current}} din {{total}}"
+    "skip": "Sari peste"
   },
   "register": {
     "alreadyHaveAnAccount": "Ai deja un cont?",
@@ -434,7 +399,6 @@
     "active": "Activ",
     "addTime": "Adaugă oră",
     "allowExactBody": "Mementourile tale sunt setate.\n\nCa să se declanșeze la ora exactă, permite \"Alarme și mementouri\" pentru Kegelee - altfel pot ajunge cu câteva minute întârziere.",
-    "allowExactReminders": "Permite memento-uri exacte",
     "allowExactTitle": "Permite mementouri exacte",
     "daysLeft_one": "a mai rămas {{count}} zi",
     "daysLeft_other": "au mai rămas {{count}} zile",
@@ -495,11 +459,9 @@
     "resetProgress2": "Resetezi evoluția?",
     "resetSuccessBody": "Progresul tău de antrenament a fost șters.",
     "resetSuccessTitle": "Resetat",
-    "resetSuccessful": "Resetare reușită",
     "restartBody": "Închide și redeschide aplicația pentru a finaliza schimbarea direcției aspectului.",
     "restartRequired": "Este necesară repornirea",
     "sendCode": "Trimite codul",
-    "settings": "Setări",
     "subActive": "Activ",
     "subCancelled": "Anulat",
     "subExpired": "Expirat",
@@ -510,11 +472,9 @@
     "subscription": "Abonament",
     "tapToChangePlan": "Atinge pentru a schimba abonamentul",
     "terms": "Termeni",
-    "thisDoes": "Asta înseamnă",
     "trialEndsNoRenew": "Perioada gratuită se încheie pe {{date}}. Nu se va reînnoi.",
     "trialEndsThenBilling": "Perioada gratuită se încheie pe {{date}}, apoi începe facturarea.",
-    "updatePaymentMethod": "Actualizează metoda de plată în Google Play.",
-    "weEmailedA6Digit": "Am trimis un cod din 6 cifre la"
+    "updatePaymentMethod": "Actualizează metoda de plată în Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Ai deja un cont? Autentifică-te",
@@ -526,7 +486,6 @@
     "continue": "Continuă",
     "continueWithGoogle": "Continuă cu Google",
     "couldNotOpenGoogle": "Nu am putut deschide autentificarea cu Google. Încearcă din nou.",
-    "couldNotOpenGoogleSign": "Autentificarea cu Google nu a putut fi deschisă. Te rugăm să încerci din nou.",
     "couldNotReachServer": "Nu am putut contacta serverul. Verifică-ți conexiunea și încearcă din nou.",
     "createAccount": "Creează cont",
     "createAccountSubscribe": "Creează cont și abonează-te",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Un mușchi pe care îl poți antrena",
-    "aRealMuscleBody": "Planșeul tău pelvin este un mușchi adevărat. Antrenează-l câteva minute pe zi și devine mai puternic, ca la orice alt antrenament. Fără pastile, fără efecte secundare, iar rezultatele durează.",
-    "andYouCanDoIt": "Și o poți face oriunde, oricând. Așezat, în picioare, în autobuz. Nimeni nu observă.",
     "benefit_bladder_desc": "Mai puține scurgeri și mai puține urgențe.",
     "benefit_bladder_title": "Control mai bun al vezicii",
     "benefit_confidence_desc": "Progrese care se adună săptămână de săptămână.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Atinge pentru a contracta",
     "theNextLessonShowsYou": "Lecția următoare îți arată exact unde sunt mușchii tăi.",
     "thenYouDoYourFirst": "Apoi faci primul tău exercițiu real, ghidat de cerc.",
-    "whatYouGain": "Ce câștigi",
-    "worthTwoMinutesOfYour": "Merită două minute din timpul tău"
+    "whatYouGain": "Ce câștigi"
   },
   "workout": {
     "back": "Înapoi",

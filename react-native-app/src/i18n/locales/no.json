@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Har du allerede en konto?",
     "getStarted": "Kom i gang",
     "logIn": "Logg inn",
-    "perDay": "PER DAG",
-    "secondsHeld": "sekunder holdt",
     "slide1Body": "Mer kontroll, mer utholdenhet, bedre følelse. Bekkenbunnen er en muskel og trenes som en.",
     "slide1Title": "Sterkere i senga",
     "slide2Body": "Ingen treningssenter, ikke noe utstyr, ingenting å ta av. I sofaen, ved skrivebordet, på bussen. Ingen merker noe.",
     "slide2Title": "1 til 5 minutter om dagen",
     "slide3Body": "Mål hvor lenge du klarer å holde. Og se tallet klatre uke etter uke.",
-    "slide3Title": "Se at det virker",
-    "slide4Body": "Slutter du, svekkes muskelen igjen, som ved all annen trening. Velg et tidspunkt, så tar påminnelsen resten.",
-    "slide4Title": "Det virker bare hvis du holder ut"
+    "slide3Title": "Se at det virker"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisk fornyelse er av. Tilgangen din slutter på utløpsdatoen.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Plan og påminnelser",
     "setTheDifficultyOfKegel": "Velg vanskelighetsgrad for Kegel-treningsprogrammet",
-    "settingsA11y": "Innstillinger",
     "theHigherTheLevelThe": "Jo høyere nivå, jo hardere trening",
     "vibration": "Vibrasjon",
     "vibrationHint": "Vibrerer når du skal stramme"
@@ -373,37 +368,7 @@
     "yourHold": "ditt hold"
   },
   "quiz": {
-    "back": "Tilbake",
-    "experienceCaption": "Vær ærlig. Det avgjør bare hvor du starter.",
-    "experienceNever": "Aldri",
-    "experienceRegular": "Ja, regelmessig",
-    "experienceSome": "Prøvd noen ganger",
-    "experienceTitle": "Har du trent dette før?",
-    "goalBladder": "Blærekontroll",
-    "goalCaption": "Det avgjør hva vi viser deg først.",
-    "goalPerformance": "Prestasjon og utholdenhet",
-    "goalRecovery": "Restitusjon etter operasjon eller fødsel",
-    "goalStrength": "Generell styrke",
-    "goalTitle": "Hva bringer deg hit?",
-    "minutes1": "1 minutt",
-    "minutes2": "2 minutter",
-    "minutes3": "3 minutter",
-    "minutes5": "5 minutter",
-    "minutesCaption": "To økter om dagen. Du kan endre det senere.",
-    "minutesTitle": "Hvor lenge per økt?",
-    "resultAdjusts": "Vanskelighetsgrad",
-    "resultAutomatic": "Justerer seg selv",
-    "resultCta": "Se planene",
-    "resultEachSession": "Hver økt",
-    "resultEyebrow": "DIN PLAN",
-    "resultLevel": "Nivå {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Appen hever eller senker nivået ditt ut fra hvordan økten føltes. Du blir aldri stående der du startet.",
-    "resultPerDay": "Per dag",
-    "resultTwoSessions": "2 økter",
-    "skip": "Hopp over",
-    "startCta": "Svar på 3 spørsmål",
-    "stepOf": "Spørsmål {{current}} av {{total}}"
+    "skip": "Hopp over"
   },
   "register": {
     "alreadyHaveAnAccount": "Har du allerede en konto?",
@@ -434,7 +399,6 @@
     "active": "Aktiv",
     "addTime": "Legg til tidspunkt",
     "allowExactBody": "Påminnelsene dine er satt opp.\n\nFor at de skal utløses på nøyaktig tidspunkt, tillat \"Alarmer og påminnelser\" for Kegelee - ellers kan de komme noen minutter for sent.",
-    "allowExactReminders": "Tillat nøyaktige påminnelser",
     "allowExactTitle": "Tillat nøyaktige påminnelser",
     "daysLeft_one": "{{count}} dag igjen",
     "daysLeft_other": "{{count}} dager igjen",
@@ -495,11 +459,9 @@
     "resetProgress2": "Tilbakestille fremgangen?",
     "resetSuccessBody": "Treningsframgangen din er slettet.",
     "resetSuccessTitle": "Tilbakestilt",
-    "resetSuccessful": "Tilbakestilling fullført",
     "restartBody": "Lukk og åpne appen på nytt for å fullføre bytte av layoutretning.",
     "restartRequired": "Omstart kreves",
     "sendCode": "Send kode",
-    "settings": "Innstillinger",
     "subActive": "Aktivt",
     "subCancelled": "Avsluttet",
     "subExpired": "Utløpt",
@@ -510,11 +472,9 @@
     "subscription": "Abonnement",
     "tapToChangePlan": "Trykk for å bytte abonnement",
     "terms": "Vilkår",
-    "thisDoes": "Det betyr",
     "trialEndsNoRenew": "Den gratis prøveperioden slutter {{date}}. Den fornyes ikke.",
     "trialEndsThenBilling": "Den gratis prøveperioden slutter {{date}}, deretter starter betalingen.",
-    "updatePaymentMethod": "Oppdater betalingsmåten din i Google Play.",
-    "weEmailedA6Digit": "Vi sendte en 6-sifret kode til"
+    "updatePaymentMethod": "Oppdater betalingsmåten din i Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Har du allerede en konto? Logg inn",
@@ -526,7 +486,6 @@
     "continue": "Fortsett",
     "continueWithGoogle": "Fortsett med Google",
     "couldNotOpenGoogle": "Kunne ikke åpne Google-innlogging. Prøv igjen.",
-    "couldNotOpenGoogleSign": "Kunne ikke åpne Google-innlogging. Prøv igjen.",
     "couldNotReachServer": "Kunne ikke nå serveren. Sjekk internettforbindelsen og prøv igjen.",
     "createAccount": "Opprett konto",
     "createAccountSubscribe": "Opprett konto og abonner",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "En muskel du kan trene",
-    "aRealMuscleBody": "Bekkenbunnen din er en ekte muskel. Tren den noen minutter om dagen, så blir den sterkere, akkurat som ved all annen trening. Ingen piller, ingen bivirkninger, og resultatene varer.",
-    "andYouCanDoIt": "Og du kan gjøre det hvor som helst, når som helst. Sittende, stående, på bussen. Ingen merker det.",
     "benefit_bladder_desc": "Færre lekkasjer og færre plutselige trangfølelser.",
     "benefit_bladder_title": "Bedre blærekontroll",
     "benefit_confidence_desc": "Framgang som bygges uke for uke.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Trykk for å knipe",
     "theNextLessonShowsYou": "Neste leksjon viser deg nøyaktig hvor musklene dine sitter.",
     "thenYouDoYourFirst": "Deretter gjør du din første ekte øvelse, styrt av sirkelen.",
-    "whatYouGain": "Hva du får ut av det",
-    "worthTwoMinutesOfYour": "Verdt to minutter av tiden din"
+    "whatYouGain": "Hva du får ut av det"
   },
   "workout": {
     "back": "Tilbake",

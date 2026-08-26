@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "已有账号？",
     "getStarted": "开始",
     "logIn": "登录",
-    "perDay": "每天",
-    "secondsHeld": "秒保持",
     "slide1Body": "更强的控制力、更好的耐力、更清晰的感受。盆底肌是肌肉，就该像肌肉一样练。",
     "slide1Title": "床上更有底气",
     "slide2Body": "不用健身房，不用器械，不用脱掉什么。在沙发上、办公桌前、公交车上。没人看得出来。",
     "slide2Title": "每天 1 到 5 分钟",
     "slide3Body": "测量你能坚持多久，看着这个数字一周比一周高。",
-    "slide3Title": "效果看得见",
-    "slide4Body": "一旦停练，肌肉就会退回去，和任何训练一样。定个时间，剩下的交给提醒。",
-    "slide4Title": "只有坚持下去才有用"
+    "slide3Title": "效果看得见"
   },
   "paywall": {
     "autoRenewOffHint": "自动续订已关闭，到期后将无法继续使用。",
@@ -350,7 +346,6 @@
     "profile": "个人资料",
     "scheduleReminders": "日程与提醒",
     "setTheDifficultyOfKegel": "设置凯格尔训练计划的难度",
-    "settingsA11y": "设置",
     "theHigherTheLevelThe": "等级越高，训练越难",
     "vibration": "振动",
     "vibrationHint": "该收缩时震动提醒"
@@ -373,37 +368,7 @@
     "yourHold": "你的保持时长"
   },
   "quiz": {
-    "back": "返回",
-    "experienceCaption": "如实回答即可，这只决定你的起点。",
-    "experienceNever": "从没练过",
-    "experienceRegular": "是的，经常练",
-    "experienceSome": "试过几次",
-    "experienceTitle": "你以前练过吗？",
-    "goalBladder": "膀胱控制",
-    "goalCaption": "这决定我们最先给你看什么。",
-    "goalPerformance": "表现与耐力",
-    "goalRecovery": "术后或产后恢复",
-    "goalStrength": "整体力量",
-    "goalTitle": "是什么让你来到这里？",
-    "minutes1": "1 分钟",
-    "minutes2": "2 分钟",
-    "minutes3": "3 分钟",
-    "minutes5": "5 分钟",
-    "minutesCaption": "每天两次。之后可以随时更改。",
-    "minutesTitle": "每次练多久？",
-    "resultAdjusts": "难度",
-    "resultAutomatic": "自动调整",
-    "resultCta": "查看方案",
-    "resultEachSession": "每次",
-    "resultEyebrow": "你的计划",
-    "resultLevel": "第 {{level}} 级",
-    "resultMinutes": "{{count}} 分钟",
-    "resultNote": "应用会根据你每次训练后的感受升级或降级。你永远不会卡在起点。",
-    "resultPerDay": "每天",
-    "resultTwoSessions": "2 次",
-    "skip": "跳过",
-    "startCta": "回答 3 个问题",
-    "stepOf": "第 {{current}} / {{total}} 题"
+    "skip": "跳过"
   },
   "register": {
     "alreadyHaveAnAccount": "已有账号？",
@@ -434,7 +399,6 @@
     "active": "已开启",
     "addTime": "添加时间",
     "allowExactBody": "你的提醒已设置。\n\n若要它们准时响起，请为 Kegelee 允许「闹钟和提醒」权限，否则可能会晚几分钟。",
-    "allowExactReminders": "允许精确提醒",
     "allowExactTitle": "允许精确提醒",
     "daysLeft_one": "还剩 {{count}} 天",
     "daysLeft_other": "还剩 {{count}} 天",
@@ -495,11 +459,9 @@
     "resetProgress2": "要重置进度吗？",
     "resetSuccessBody": "你的训练进度已清空。",
     "resetSuccessTitle": "已重置",
-    "resetSuccessful": "重置成功",
     "restartBody": "请关闭并重新打开应用，以完成布局方向的切换。",
     "restartRequired": "需要重启",
     "sendCode": "发送验证码",
-    "settings": "设置",
     "subActive": "使用中",
     "subCancelled": "已取消",
     "subExpired": "已过期",
@@ -510,11 +472,9 @@
     "subscription": "订阅",
     "tapToChangePlan": "点按以更换套餐",
     "terms": "条款",
-    "thisDoes": "这表示",
     "trialEndsNoRenew": "免费试用将于 {{date}} 结束，不会续期。",
     "trialEndsThenBilling": "免费试用将于 {{date}} 结束，之后开始扣费。",
-    "updatePaymentMethod": "请在 Google Play 更新付款方式。",
-    "weEmailedA6Digit": "我们已将 6 位验证码发送至"
+    "updatePaymentMethod": "请在 Google Play 更新付款方式。"
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "已有账号？登录",
@@ -526,7 +486,6 @@
     "continue": "继续",
     "continueWithGoogle": "使用 Google 继续",
     "couldNotOpenGoogle": "无法打开 Google 登录，请重试。",
-    "couldNotOpenGoogleSign": "无法打开 Google 登录，请重试。",
     "couldNotReachServer": "无法连接服务器。请检查网络后重试。",
     "createAccount": "创建账号",
     "createAccountSubscribe": "创建账号并订阅",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "一块可以锻炼的肌肉",
-    "aRealMuscleBody": "盆底肌是一块真正的肌肉。每天练几分钟，它就会像其他肌肉一样变强。不用吃药，没有副作用，效果也留得住。",
-    "andYouCanDoIt": "而且随时随地都能练。坐着、站着、在公交车上都行，没人看得出来。",
     "benefit_bladder_desc": "漏尿和急迫感都会减少。",
     "benefit_bladder_title": "更好的膀胱控制",
     "benefit_confidence_desc": "一周一周累积起来的进步。",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "点按以收缩",
     "theNextLessonShowsYou": "下一课会告诉你这些肌肉到底在哪里。",
     "thenYouDoYourFirst": "然后你会在圆圈的引导下完成第一个正式动作。",
-    "whatYouGain": "你能获得什么",
-    "worthTwoMinutesOfYour": "值得花你两分钟"
+    "whatYouGain": "你能获得什么"
   },
   "workout": {
     "back": "返回",

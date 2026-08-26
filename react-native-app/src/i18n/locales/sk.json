@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Už máš účet?",
     "getStarted": "Začať",
     "logIn": "Prihlásiť sa",
-    "perDay": "DENNE",
-    "secondsHeld": "sekúnd výdrže",
     "slide1Body": "Viac kontroly, viac výdrže, lepší pocit. Panvové dno je sval a trénuje sa ako sval.",
     "slide1Title": "Silnejší v posteli",
     "slide2Body": "Žiadna posilňovňa, žiadne pomôcky, nič sa nevyzlieka. Na gauči, pri stole, v autobuse. Nikto si nič nevšimne.",
     "slide2Title": "1 až 5 minút denne",
     "slide3Body": "Zmeraj, ako dlho vydržíš. A sleduj, ako to číslo týždeň po týždni rastie.",
-    "slide3Title": "Uvidíš, že to funguje",
-    "slide4Body": "Keď prestaneš, sval povolí, ako pri každom tréningu. Vyber si čas a zvyšok zariadi pripomienka.",
-    "slide4Title": "Funguje to, len keď vydržíš"
+    "slide3Title": "Uvidíš, že to funguje"
   },
   "paywall": {
     "autoRenewOffHint": "Automatické obnovenie je vypnuté. Prístup skončí v deň vypršania.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Rozvrh a pripomienky",
     "setTheDifficultyOfKegel": "Nastav náročnosť tréningového programu Kegel",
-    "settingsA11y": "Nastavenia",
     "theHigherTheLevelThe": "Čím vyššia úroveň, tým náročnejší tréning",
     "vibration": "Vibrácie",
     "vibrationHint": "Zavibruje, keď máš stiahnuť"
@@ -373,37 +368,7 @@
     "yourHold": "tvoje držanie"
   },
   "quiz": {
-    "back": "Späť",
-    "experienceCaption": "Buď úprimný. Určuje to len, kde začneš.",
-    "experienceNever": "Nikdy",
-    "experienceRegular": "Áno, pravidelne",
-    "experienceSome": "Párkrát som to skúsil",
-    "experienceTitle": "Trénoval si to už niekedy?",
-    "goalBladder": "Kontrola močového mechúra",
-    "goalCaption": "Podľa toho sa riadi, čo ti ukážeme ako prvé.",
-    "goalPerformance": "Výkon a výdrž",
-    "goalRecovery": "Zotavenie po operácii alebo pôrode",
-    "goalStrength": "Celková sila",
-    "goalTitle": "Čo ťa sem privádza?",
-    "minutes1": "1 minúta",
-    "minutes2": "2 minúty",
-    "minutes3": "3 minúty",
-    "minutes5": "5 minút",
-    "minutesCaption": "Dve série denne. Neskôr to môžeš zmeniť.",
-    "minutesTitle": "Aká dlhá má byť séria?",
-    "resultAdjusts": "Náročnosť",
-    "resultAutomatic": "Prispôsobí sa sama",
-    "resultCta": "Zobraziť plány",
-    "resultEachSession": "Každá séria",
-    "resultEyebrow": "TVOJ PLÁN",
-    "resultLevel": "Úroveň {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Aplikácia zvyšuje alebo znižuje tvoju úroveň podľa toho, ako ti séria šla. Nikdy neuviazneš tam, kde si začal.",
-    "resultPerDay": "Denne",
-    "resultTwoSessions": "2 série",
-    "skip": "Preskočiť",
-    "startCta": "Odpovedať na 3 otázky",
-    "stepOf": "Otázka {{current}} z {{total}}"
+    "skip": "Preskočiť"
   },
   "register": {
     "alreadyHaveAnAccount": "Už máš účet?",
@@ -434,7 +399,6 @@
     "active": "Aktívne",
     "addTime": "Pridať čas",
     "allowExactBody": "Tvoje pripomienky sú nastavené.\n\nAby sa spúšťali presne načas, povoľ pre Kegelee \"Budíky a pripomienky\" - inak môžu doraziť o pár minút neskôr.",
-    "allowExactReminders": "Povoliť presné pripomienky",
     "allowExactTitle": "Povoliť presné pripomienky",
     "daysLeft_one": "zostáva {{count}} deň",
     "daysLeft_other": "zostáva {{count}} dní",
@@ -495,11 +459,9 @@
     "resetProgress2": "Resetovať pokrok?",
     "resetSuccessBody": "Tvoj tréningový pokrok bol vymazaný.",
     "resetSuccessTitle": "Vynulované",
-    "resetSuccessful": "Reset prebehol úspešne",
     "restartBody": "Zavri a znova otvor aplikáciu, aby sa dokončila zmena smeru rozloženia.",
     "restartRequired": "Vyžaduje reštart",
     "sendCode": "Odoslať kód",
-    "settings": "Nastavenia",
     "subActive": "Aktívne",
     "subCancelled": "Zrušené",
     "subExpired": "Vypršalo",
@@ -510,11 +472,9 @@
     "subscription": "Predplatné",
     "tapToChangePlan": "Klepnutím zmeníš balík",
     "terms": "Podmienky",
-    "thisDoes": "To znamená",
     "trialEndsNoRenew": "Bezplatná skúšobná verzia končí {{date}}. Neobnoví sa.",
     "trialEndsThenBilling": "Bezplatná skúšobná verzia končí {{date}}, potom sa začne účtovanie.",
-    "updatePaymentMethod": "Aktualizuj spôsob platby v Google Play.",
-    "weEmailedA6Digit": "Poslali sme 6-miestny kód na"
+    "updatePaymentMethod": "Aktualizuj spôsob platby v Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Už máš účet? Prihlás sa",
@@ -526,7 +486,6 @@
     "continue": "Pokračovať",
     "continueWithGoogle": "Pokračovať cez Google",
     "couldNotOpenGoogle": "Nepodarilo sa otvoriť prihlásenie cez Google. Skús to znova.",
-    "couldNotOpenGoogleSign": "Prihlásenie cez Google sa nepodarilo otvoriť. Skús to prosím znova.",
     "couldNotReachServer": "Nepodarilo sa spojiť so serverom. Skontroluj pripojenie a skús to znova.",
     "createAccount": "Vytvoriť účet",
     "createAccountSubscribe": "Vytvoriť účet a predplatiť",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Sval, ktorý môžeš trénovať",
-    "aRealMuscleBody": "Tvoje panvové dno je skutočný sval. Trénuj ho pár minút denne a zosilnie, rovnako ako pri akomkoľvek inom tréningu. Žiadne tabletky, žiadne vedľajšie účinky, a výsledky vydržia.",
-    "andYouCanDoIt": "A môžeš to robiť kdekoľvek a kedykoľvek. Posediačky, postojačky, v autobuse. Nikto si to nevšimne.",
     "benefit_bladder_desc": "Menej únikov a menej náhleho nutkania.",
     "benefit_bladder_title": "Lepšia kontrola mechúra",
     "benefit_confidence_desc": "Pokrok, ktorý rastie týždeň po týždni.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Klepnutím stiahni",
     "theNextLessonShowsYou": "Ďalšia lekcia ti presne ukáže, kde tvoje svaly sú.",
     "thenYouDoYourFirst": "Potom si dáš svoj prvý naozajstný cvik, vedený kruhom.",
-    "whatYouGain": "Čo tým získaš",
-    "worthTwoMinutesOfYour": "Stojí to za dve minúty tvojho času"
+    "whatYouGain": "Čo tým získaš"
   },
   "workout": {
     "back": "Späť",

@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Masz już konto?",
     "getStarted": "Zaczynamy",
     "logIn": "Zaloguj się",
-    "perDay": "DZIENNIE",
-    "secondsHeld": "sekund utrzymania",
     "slide1Body": "Więcej kontroli, więcej wytrzymałości, lepsze odczucia. Dno miednicy to mięsień i trenuje się je jak mięsień.",
     "slide1Title": "Mocniej w łóżku",
     "slide2Body": "Bez siłowni, bez sprzętu, bez rozbierania się. Na kanapie, przy biurku, w autobusie. Nikt niczego nie zauważy.",
     "slide2Title": "1 do 5 minut dziennie",
     "slide3Body": "Zmierz, jak długo wytrzymujesz. I patrz, jak ta liczba rośnie tydzień po tygodniu.",
-    "slide3Title": "Zobacz, że działa",
-    "slide4Body": "Przestaniesz, a mięsień osłabnie, tak jak przy każdym treningu. Wybierz porę, resztą zajmie się przypomnienie.",
-    "slide4Title": "Zadziała tylko wtedy, gdy nie odpuścisz"
+    "slide3Title": "Zobacz, że działa"
   },
   "paywall": {
     "autoRenewOffHint": "Automatyczne odnawianie jest wyłączone. Dostęp wygaśnie w dniu zakończenia.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Harmonogram i przypomnienia",
     "setTheDifficultyOfKegel": "Ustaw poziom trudności programu treningu Kegla",
-    "settingsA11y": "Ustawienia",
     "theHigherTheLevelThe": "Im wyższy poziom, tym trudniejszy trening",
     "vibration": "Wibracje",
     "vibrationHint": "Wibruje, gdy trzeba napiąć"
@@ -373,37 +368,7 @@
     "yourHold": "twoje trzymanie"
   },
   "quiz": {
-    "back": "Wstecz",
-    "experienceCaption": "Bądź szczery. To ustala tylko punkt startu.",
-    "experienceNever": "Nigdy",
-    "experienceRegular": "Tak, regularnie",
-    "experienceSome": "Próbowałem kilka razy",
-    "experienceTitle": "Trenowałeś to wcześniej?",
-    "goalBladder": "Kontrola pęcherza",
-    "goalCaption": "To decyduje, co pokażemy ci najpierw.",
-    "goalPerformance": "Sprawność i wytrzymałość",
-    "goalRecovery": "Powrót do formy po operacji lub porodzie",
-    "goalStrength": "Ogólna siła",
-    "goalTitle": "Co cię tu sprowadza?",
-    "minutes1": "1 minuta",
-    "minutes2": "2 minuty",
-    "minutes3": "3 minuty",
-    "minutes5": "5 minut",
-    "minutesCaption": "Dwie sesje dziennie. Możesz to później zmienić.",
-    "minutesTitle": "Ile czasu na sesję?",
-    "resultAdjusts": "Trudność",
-    "resultAutomatic": "Dostosowuje się sama",
-    "resultCta": "Zobacz plany",
-    "resultEachSession": "Każda sesja",
-    "resultEyebrow": "TWÓJ PLAN",
-    "resultLevel": "Poziom {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Aplikacja podnosi lub obniża twój poziom w zależności od tego, jak poszła sesja. Nigdy nie utkniesz tam, gdzie zacząłeś.",
-    "resultPerDay": "Dziennie",
-    "resultTwoSessions": "2 sesje",
-    "skip": "Pomiń",
-    "startCta": "Odpowiedz na 3 pytania",
-    "stepOf": "Pytanie {{current}} z {{total}}"
+    "skip": "Pomiń"
   },
   "register": {
     "alreadyHaveAnAccount": "Masz już konto?",
@@ -434,7 +399,6 @@
     "active": "Aktywne",
     "addTime": "Dodaj porę",
     "allowExactBody": "Twoje przypomnienia są ustawione.\n\nAby uruchamiały się dokładnie o czasie, zezwól aplikacji Kegelee na \"Alarmy i przypomnienia\" - inaczej mogą przyjść kilka minut później.",
-    "allowExactReminders": "Zezwól na dokładne przypomnienia",
     "allowExactTitle": "Zezwól na dokładne przypomnienia",
     "daysLeft_one": "został {{count}} dzień",
     "daysLeft_other": "zostało {{count}} dni",
@@ -495,11 +459,9 @@
     "resetProgress2": "Zresetować postępy?",
     "resetSuccessBody": "Twoje postępy treningowe zostały wyczyszczone.",
     "resetSuccessTitle": "Zresetowano",
-    "resetSuccessful": "Zresetowano pomyślnie",
     "restartBody": "Zamknij i otwórz aplikację ponownie, aby dokończyć zmianę kierunku układu.",
     "restartRequired": "Wymagany restart",
     "sendCode": "Wyślij kod",
-    "settings": "Ustawienia",
     "subActive": "Aktywna",
     "subCancelled": "Anulowana",
     "subExpired": "Wygasła",
@@ -510,11 +472,9 @@
     "subscription": "Subskrypcja",
     "tapToChangePlan": "Dotknij, aby zmienić plan",
     "terms": "Regulamin",
-    "thisDoes": "To oznacza",
     "trialEndsNoRenew": "Bezpłatny okres próbny kończy się {{date}}. Nie odnowi się.",
     "trialEndsThenBilling": "Bezpłatny okres próbny kończy się {{date}}, potem zaczyna się płatność.",
-    "updatePaymentMethod": "Zaktualizuj metodę płatności w Google Play.",
-    "weEmailedA6Digit": "Wysłaliśmy 6-cyfrowy kod na"
+    "updatePaymentMethod": "Zaktualizuj metodę płatności w Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Masz już konto? Zaloguj się",
@@ -526,7 +486,6 @@
     "continue": "Dalej",
     "continueWithGoogle": "Kontynuuj z Google",
     "couldNotOpenGoogle": "Nie udało się otworzyć logowania Google. Spróbuj ponownie.",
-    "couldNotOpenGoogleSign": "Nie udało się otworzyć logowania Google. Spróbuj ponownie.",
     "couldNotReachServer": "Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie.",
     "createAccount": "Załóż konto",
     "createAccountSubscribe": "Załóż konto i subskrybuj",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Mięsień, który możesz trenować",
-    "aRealMuscleBody": "Twoje dno miednicy to prawdziwy mięsień. Trenuj je kilka minut dziennie, a stanie się silniejsze, tak jak przy każdym innym treningu. Bez tabletek, bez skutków ubocznych, a efekty zostają.",
-    "andYouCanDoIt": "I możesz to robić wszędzie i o każdej porze. Siedząc, stojąc, w autobusie. Nikt nie zauważy.",
     "benefit_bladder_desc": "Mniej popuszczania i nagłych parć.",
     "benefit_bladder_title": "Lepsza kontrola pęcherza",
     "benefit_confidence_desc": "Postępy, które rosną tydzień po tygodniu.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Dotknij, aby napiąć",
     "theNextLessonShowsYou": "Następna lekcja pokaże ci dokładnie, gdzie są twoje mięśnie.",
     "thenYouDoYourFirst": "Potem wykonasz swoje pierwsze prawdziwe ćwiczenie, prowadzony przez okrąg.",
-    "whatYouGain": "Co zyskujesz",
-    "worthTwoMinutesOfYour": "Warte dwóch minut twojego czasu"
+    "whatYouGain": "Co zyskujesz"
   },
   "workout": {
     "back": "Wstecz",

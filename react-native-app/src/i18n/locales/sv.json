@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Har du redan ett konto?",
     "getStarted": "Kom igång",
     "logIn": "Logga in",
-    "perDay": "PER DAG",
-    "secondsHeld": "sekunder hållet",
     "slide1Body": "Mer kontroll, mer uthållighet, bättre känsla. Bäckenbotten är en muskel och tränas som en.",
     "slide1Title": "Starkare i sängen",
     "slide2Body": "Inget gym, ingen utrustning, inget att ta av. I soffan, vid skrivbordet, på bussen. Ingen märker något.",
     "slide2Title": "1 till 5 minuter om dagen",
     "slide3Body": "Mät hur länge du orkar hålla. Och se siffran klättra vecka för vecka.",
-    "slide3Title": "Se att det funkar",
-    "slide4Body": "Slutar du träna tappar muskeln, precis som all annan träning. Välj en tid och låt påminnelsen sköta resten.",
-    "slide4Title": "Det funkar bara om du håller i"
+    "slide3Title": "Se att det funkar"
   },
   "paywall": {
     "autoRenewOffHint": "Automatisk förnyelse är av. Din åtkomst slutar på utgångsdatumet.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Schema och påminnelser",
     "setTheDifficultyOfKegel": "Välj svårighetsgrad för Kegel-träningsprogrammet",
-    "settingsA11y": "Inställningar",
     "theHigherTheLevelThe": "Ju högre nivå, desto tuffare träning",
     "vibration": "Vibration",
     "vibrationHint": "Vibrerar när det är dags att spänna"
@@ -373,37 +368,7 @@
     "yourHold": "ditt håll"
   },
   "quiz": {
-    "back": "Tillbaka",
-    "experienceCaption": "Var ärlig. Det avgör bara var du börjar.",
-    "experienceNever": "Aldrig",
-    "experienceRegular": "Ja, regelbundet",
-    "experienceSome": "Provat några gånger",
-    "experienceTitle": "Har du tränat detta förut?",
-    "goalBladder": "Blåskontroll",
-    "goalCaption": "Det avgör vad vi visar dig först.",
-    "goalPerformance": "Prestation och uthållighet",
-    "goalRecovery": "Återhämtning efter operation eller förlossning",
-    "goalStrength": "Allmän styrka",
-    "goalTitle": "Vad förde dig hit?",
-    "minutes1": "1 minut",
-    "minutes2": "2 minuter",
-    "minutes3": "3 minuter",
-    "minutes5": "5 minuter",
-    "minutesCaption": "Två pass om dagen. Du kan ändra det senare.",
-    "minutesTitle": "Hur länge per pass?",
-    "resultAdjusts": "Svårighet",
-    "resultAutomatic": "Justeras automatiskt",
-    "resultCta": "Se planerna",
-    "resultEachSession": "Varje pass",
-    "resultEyebrow": "DIN PLAN",
-    "resultLevel": "Nivå {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "Appen höjer eller sänker din nivå utifrån hur passet kändes. Du fastnar aldrig där du började.",
-    "resultPerDay": "Per dag",
-    "resultTwoSessions": "2 pass",
-    "skip": "Hoppa över",
-    "startCta": "Svara på 3 frågor",
-    "stepOf": "Fråga {{current}} av {{total}}"
+    "skip": "Hoppa över"
   },
   "register": {
     "alreadyHaveAnAccount": "Har du redan ett konto?",
@@ -434,7 +399,6 @@
     "active": "Aktiv",
     "addTime": "Lägg till tid",
     "allowExactBody": "Dina påminnelser är inställda.\n\nFör att de ska gå av på exakt tid, tillåt \"Alarm och påminnelser\" för Kegelee - annars kan de komma några minuter sent.",
-    "allowExactReminders": "Tillåt exakta påminnelser",
     "allowExactTitle": "Tillåt exakta påminnelser",
     "daysLeft_one": "{{count}} dag kvar",
     "daysLeft_other": "{{count}} dagar kvar",
@@ -495,11 +459,9 @@
     "resetProgress2": "Återställa utvecklingen?",
     "resetSuccessBody": "Dina träningsframsteg har rensats.",
     "resetSuccessTitle": "Återställt",
-    "resetSuccessful": "Återställningen lyckades",
     "restartBody": "Stäng och öppna appen igen för att slutföra bytet av layoutriktning.",
     "restartRequired": "Omstart krävs",
     "sendCode": "Skicka kod",
-    "settings": "Inställningar",
     "subActive": "Aktiv",
     "subCancelled": "Avslutad",
     "subExpired": "Utgången",
@@ -510,11 +472,9 @@
     "subscription": "Prenumeration",
     "tapToChangePlan": "Tryck för att byta abonnemang",
     "terms": "Villkor",
-    "thisDoes": "Det innebär",
     "trialEndsNoRenew": "Den kostnadsfria provperioden slutar {{date}}. Den förnyas inte.",
     "trialEndsThenBilling": "Den kostnadsfria provperioden slutar {{date}}, sedan börjar debiteringen.",
-    "updatePaymentMethod": "Uppdatera din betalningsmetod i Google Play.",
-    "weEmailedA6Digit": "Vi skickade en 6-siffrig kod till"
+    "updatePaymentMethod": "Uppdatera din betalningsmetod i Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Har du redan ett konto? Logga in",
@@ -526,7 +486,6 @@
     "continue": "Fortsätt",
     "continueWithGoogle": "Fortsätt med Google",
     "couldNotOpenGoogle": "Kunde inte öppna Google-inloggningen. Försök igen.",
-    "couldNotOpenGoogleSign": "Kunde inte öppna Google-inloggningen. Försök igen.",
     "couldNotReachServer": "Kunde inte nå servern. Kontrollera din anslutning och försök igen.",
     "createAccount": "Skapa konto",
     "createAccountSubscribe": "Skapa konto och prenumerera",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "En muskel du kan träna",
-    "aRealMuscleBody": "Din bäckenbotten är en riktig muskel. Träna den några minuter om dagen så blir den starkare, precis som vid all annan träning. Inga piller, inga biverkningar, och resultatet håller i sig.",
-    "andYouCanDoIt": "Och du kan göra det var som helst, när som helst. Sittande, stående, på bussen. Ingen märker det.",
     "benefit_bladder_desc": "Färre läckage och färre trängningar.",
     "benefit_bladder_title": "Bättre blåskontroll",
     "benefit_confidence_desc": "Framsteg som byggs vecka för vecka.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Tryck för att knipa",
     "theNextLessonShowsYou": "Nästa lektion visar exakt var dina muskler sitter.",
     "thenYouDoYourFirst": "Sedan gör du din första riktiga övning, styrd av cirkeln.",
-    "whatYouGain": "Vad du får ut av det",
-    "worthTwoMinutesOfYour": "Värt två minuter av din tid"
+    "whatYouGain": "Vad du får ut av det"
   },
   "workout": {
     "back": "Tillbaka",

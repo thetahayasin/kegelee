@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Zaten hesabın var mı?",
     "getStarted": "Başla",
     "logIn": "Giriş yap",
-    "perDay": "GÜNDE",
-    "secondsHeld": "saniye tutuldu",
     "slide1Body": "Daha fazla kontrol, daha fazla dayanıklılık, daha iyi hisler. Pelvik taban bir kastır ve kas gibi çalışır.",
     "slide1Title": "Yatakta daha güçlü",
     "slide2Body": "Spor salonu yok, ekipman yok, çıkaracak bir şey yok. Koltukta, masa başında, otobüste. Kimse fark etmez.",
     "slide2Title": "Günde 1 ila 5 dakika",
     "slide3Body": "Ne kadar tutabildiğini ölç. Ve o sayının hafta hafta yükselişini izle.",
-    "slide3Title": "İşe yaradığını gör",
-    "slide4Body": "Bırakırsan kas geri gevşer, her antrenmanda olduğu gibi. Bir saat seç, gerisini hatırlatıcı halleder.",
-    "slide4Title": "Sadece devam edersen işe yarar"
+    "slide3Title": "İşe yaradığını gör"
   },
   "paywall": {
     "autoRenewOffHint": "Otomatik yenileme kapalı. Erişimin bitiş tarihinde sona erecek.",
@@ -350,7 +346,6 @@
     "profile": "Profil",
     "scheduleReminders": "Program ve hatırlatıcılar",
     "setTheDifficultyOfKegel": "Kegel antrenman programının zorluğunu ayarla",
-    "settingsA11y": "Ayarlar",
     "theHigherTheLevelThe": "Seviye yükseldikçe antrenman zorlaşır",
     "vibration": "Titreşim",
     "vibrationHint": "Kasma zamanı geldiğinde titrer"
@@ -373,37 +368,7 @@
     "yourHold": "tutuşun"
   },
   "quiz": {
-    "back": "Geri",
-    "experienceCaption": "Dürüst ol. Sadece nereden başlayacağını belirler.",
-    "experienceNever": "Hiç",
-    "experienceRegular": "Evet, düzenli olarak",
-    "experienceSome": "Birkaç kez denedim",
-    "experienceTitle": "Bunu daha önce çalıştın mı?",
-    "goalBladder": "Mesane kontrolü",
-    "goalCaption": "Bu, sana ilk neyi göstereceğimizi belirler.",
-    "goalPerformance": "Performans ve dayanıklılık",
-    "goalRecovery": "Ameliyat veya doğum sonrası toparlanma",
-    "goalStrength": "Genel güç",
-    "goalTitle": "Seni buraya ne getirdi?",
-    "minutes1": "1 dakika",
-    "minutes2": "2 dakika",
-    "minutes3": "3 dakika",
-    "minutes5": "5 dakika",
-    "minutesCaption": "Günde iki seans. Bunu sonra değiştirebilirsin.",
-    "minutesTitle": "Seans başına ne kadar süre?",
-    "resultAdjusts": "Zorluk",
-    "resultAutomatic": "Kendini ayarlar",
-    "resultCta": "Planları gör",
-    "resultEachSession": "Her seans",
-    "resultEyebrow": "PLANIN",
-    "resultLevel": "Seviye {{level}}",
-    "resultMinutes": "{{count}} dk",
-    "resultNote": "Uygulama, seansın nasıl geçtiğine göre seviyeni yükseltir veya düşürür. Başladığın yerde asla takılı kalmazsın.",
-    "resultPerDay": "Günde",
-    "resultTwoSessions": "2 seans",
-    "skip": "Atla",
-    "startCta": "3 soruyu yanıtla",
-    "stepOf": "Soru {{current}}/{{total}}"
+    "skip": "Atla"
   },
   "register": {
     "alreadyHaveAnAccount": "Zaten hesabın var mı?",
@@ -434,7 +399,6 @@
     "active": "Etkin",
     "addTime": "Saat ekle",
     "allowExactBody": "Hatırlatıcıların ayarlandı.\n\nTam zamanında çalmaları için Kegelee’ye \"Alarmlar ve hatırlatıcılar\" iznini ver - aksi halde birkaç dakika geç gelebilirler.",
-    "allowExactReminders": "Tam zamanlı hatırlatıcılara izin ver",
     "allowExactTitle": "Tam zamanında hatırlatıcılara izin ver",
     "daysLeft_one": "{{count}} gün kaldı",
     "daysLeft_other": "{{count}} gün kaldı",
@@ -495,11 +459,9 @@
     "resetProgress2": "İlerleme sıfırlansın mı?",
     "resetSuccessBody": "Antrenman ilerlemen temizlendi.",
     "resetSuccessTitle": "Sıfırlandı",
-    "resetSuccessful": "Sıfırlama başarılı",
     "restartBody": "Yerleşim yönünü değiştirmeyi tamamlamak için uygulamayı kapatıp yeniden aç.",
     "restartRequired": "Yeniden başlatma gerekli",
     "sendCode": "Kod gönder",
-    "settings": "Ayarlar",
     "subActive": "Etkin",
     "subCancelled": "İptal edildi",
     "subExpired": "Süresi doldu",
@@ -510,11 +472,9 @@
     "subscription": "Abonelik",
     "tapToChangePlan": "Paketi değiştirmek için dokun",
     "terms": "Koşullar",
-    "thisDoes": "Bu şu anlama gelir",
     "trialEndsNoRenew": "Ücretsiz deneme {{date}} tarihinde bitiyor. Yenilenmeyecek.",
     "trialEndsThenBilling": "Ücretsiz deneme {{date}} tarihinde bitiyor, ardından ücretlendirme başlıyor.",
-    "updatePaymentMethod": "Google Play’deki ödeme yöntemini güncelle.",
-    "weEmailedA6Digit": "6 haneli bir kod gönderdiğimiz adres"
+    "updatePaymentMethod": "Google Play’deki ödeme yöntemini güncelle."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Zaten hesabın var mı? Giriş yap",
@@ -526,7 +486,6 @@
     "continue": "Devam et",
     "continueWithGoogle": "Google ile devam et",
     "couldNotOpenGoogle": "Google girişi açılamadı. Tekrar deneyin.",
-    "couldNotOpenGoogleSign": "Google girişi açılamadı. Lütfen tekrar dene.",
     "couldNotReachServer": "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
     "createAccount": "Hesap oluştur",
     "createAccountSubscribe": "Hesap oluştur ve abone ol",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Çalıştırabileceğin bir kas",
-    "aRealMuscleBody": "Pelvik tabanın gerçek bir kastır. Günde birkaç dakika çalıştır, tıpkı diğer antrenmanlarda olduğu gibi güçlenir. Hap yok, yan etki yok ve sonuçlar kalıcı.",
-    "andYouCanDoIt": "Üstelik her yerde, her zaman yapabilirsin. Otururken, ayaktayken, otobüste. Kimse fark etmez.",
     "benefit_bladder_desc": "Daha az kaçırma ve daha az ani sıkışma.",
     "benefit_bladder_title": "Daha iyi mesane kontrolü",
     "benefit_confidence_desc": "Hafta hafta artan kazanımlar.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Kasmak için dokun",
     "theNextLessonShowsYou": "Sonraki ders kaslarının tam olarak nerede olduğunu gösteriyor.",
     "thenYouDoYourFirst": "Ardından dairenin rehberliğinde ilk gerçek egzersizini yaparsın.",
-    "whatYouGain": "Neler kazanırsın",
-    "worthTwoMinutesOfYour": "İki dakikana değer"
+    "whatYouGain": "Neler kazanırsın"
   },
   "workout": {
     "back": "Geri",

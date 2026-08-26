@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "כבר יש לך חשבון?",
     "getStarted": "מתחילים",
     "logIn": "התחבר",
-    "perDay": "ליום",
-    "secondsHeld": "שניות החזקה",
     "slide1Body": "יותר שליטה, יותר סיבולת, תחושה טובה יותר. רצפת האגן היא שריר, ומתאמנים עליה כמו על שריר.",
     "slide1Title": "חזקים יותר במיטה",
     "slide2Body": "בלי חדר כושר, בלי ציוד, בלי להוריד כלום. על הספה, ליד השולחן, באוטובוס. אף אחד לא שם לב.",
     "slide2Title": "1 עד 5 דקות ביום",
     "slide3Body": "מודדים כמה זמן אתם מחזיקים, ורואים את המספר עולה משבוע לשבוע.",
-    "slide3Title": "רואים שזה עובד",
-    "slide4Body": "אם מפסיקים, השריר נחלש בחזרה, כמו בכל אימון. תבחרו שעה, ואת השאר התזכורת תעשה.",
-    "slide4Title": "זה עובד רק אם ממשיכים"
+    "slide3Title": "רואים שזה עובד"
   },
   "paywall": {
     "autoRenewOffHint": "החידוש האוטומטי כבוי. הגישה שלך תסתיים בתאריך התפוגה.",
@@ -350,7 +346,6 @@
     "profile": "פרופיל",
     "scheduleReminders": "לוח זמנים ותזכורות",
     "setTheDifficultyOfKegel": "קבע את רמת הקושי של תוכנית תרגילי קיגל",
-    "settingsA11y": "הגדרות",
     "theHigherTheLevelThe": "ככל שהרמה גבוהה יותר, האימון קשה יותר",
     "vibration": "רטט",
     "vibrationHint": "רוטט כשצריך לכווץ"
@@ -373,37 +368,7 @@
     "yourHold": "ההחזקה שלכם"
   },
   "quiz": {
-    "back": "חזרה",
-    "experienceCaption": "תענו בכנות. זה קובע רק מאיפה מתחילים.",
-    "experienceNever": "אף פעם",
-    "experienceRegular": "כן, באופן קבוע",
-    "experienceSome": "ניסיתי כמה פעמים",
-    "experienceTitle": "אימנתם את זה בעבר?",
-    "goalBladder": "שליטה בשלפוחית",
-    "goalCaption": "זה קובע מה נראה לכם קודם.",
-    "goalPerformance": "ביצועים וסיבולת",
-    "goalRecovery": "החלמה אחרי ניתוח או לידה",
-    "goalStrength": "כוח כללי",
-    "goalTitle": "מה הביא אתכם לכאן?",
-    "minutes1": "דקה אחת",
-    "minutes2": "2 דקות",
-    "minutes3": "3 דקות",
-    "minutes5": "5 דקות",
-    "minutesCaption": "שני אימונים ביום. אפשר לשנות בהמשך.",
-    "minutesTitle": "כמה זמן לכל אימון?",
-    "resultAdjusts": "רמת קושי",
-    "resultAutomatic": "מתכווננת לבד",
-    "resultCta": "לצפייה במסלולים",
-    "resultEachSession": "כל אימון",
-    "resultEyebrow": "התוכנית שלכם",
-    "resultLevel": "רמה {{level}}",
-    "resultMinutes": "{{count}} דק'",
-    "resultNote": "האפליקציה מעלה או מורידה את הרמה שלכם לפי איך שהאימון הרגיש. אתם אף פעם לא נתקעים במקום שבו התחלתם.",
-    "resultPerDay": "ביום",
-    "resultTwoSessions": "2 אימונים",
-    "skip": "דילוג",
-    "startCta": "ענו על 3 שאלות",
-    "stepOf": "שאלה {{current}} מתוך {{total}}"
+    "skip": "דילוג"
   },
   "register": {
     "alreadyHaveAnAccount": "כבר יש לך חשבון?",
@@ -434,7 +399,6 @@
     "active": "פעיל",
     "addTime": "הוספת שעה",
     "allowExactBody": "התזכורות שלכם מוגדרות.\n\nכדי שיופעלו בזמן המדויק, אפשרו ל-Kegelee \"התראות ותזכורות\" - אחרת הן עלולות להגיע באיחור של כמה דקות.",
-    "allowExactReminders": "אפשר תזכורות מדויקות",
     "allowExactTitle": "אפשרו תזכורות מדויקות",
     "daysLeft_one": "נותר {{count}} יום",
     "daysLeft_other": "נותרו {{count}} ימים",
@@ -495,11 +459,9 @@
     "resetProgress2": "לאפס את ההתקדמות?",
     "resetSuccessBody": "התקדמות האימונים שלכם נמחקה.",
     "resetSuccessTitle": "אופס",
-    "resetSuccessful": "האיפוס הושלם",
     "restartBody": "סגור ופתח מחדש את האפליקציה כדי להשלים את שינוי כיוון הפריסה.",
     "restartRequired": "נדרשת הפעלה מחדש",
     "sendCode": "שלח קוד",
-    "settings": "הגדרות",
     "subActive": "פעיל",
     "subCancelled": "בוטל",
     "subExpired": "פג תוקף",
@@ -510,11 +472,9 @@
     "subscription": "מנוי",
     "tapToChangePlan": "הקישו כדי להחליף מסלול",
     "terms": "תנאים",
-    "thisDoes": "המשמעות היא",
     "trialEndsNoRenew": "תקופת הניסיון החינמית מסתיימת ב-{{date}}. היא לא תתחדש.",
     "trialEndsThenBilling": "תקופת הניסיון החינמית מסתיימת ב-{{date}}, ולאחר מכן מתחיל החיוב.",
-    "updatePaymentMethod": "עדכנו את אמצעי התשלום ב-Google Play.",
-    "weEmailedA6Digit": "שלחנו קוד בן 6 ספרות אל"
+    "updatePaymentMethod": "עדכנו את אמצעי התשלום ב-Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "כבר יש לך חשבון? התחבר",
@@ -526,7 +486,6 @@
     "continue": "המשך",
     "continueWithGoogle": "המשך עם Google",
     "couldNotOpenGoogle": "לא ניתן היה לפתוח את ההתחברות עם Google. נסו שוב.",
-    "couldNotOpenGoogleSign": "לא ניתן היה לפתוח את ההתחברות עם Google. נסה שוב.",
     "couldNotReachServer": "לא הצלחנו להגיע לשרת. בדקו את החיבור ונסו שוב.",
     "createAccount": "יצירת חשבון",
     "createAccountSubscribe": "צור חשבון והירשם למנוי",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "שריר שאפשר לאמן",
-    "aRealMuscleBody": "רצפת האגן שלכם היא שריר אמיתי. אמנו אותה כמה דקות ביום והיא תתחזק, בדיוק כמו בכל אימון אחר. בלי כדורים, בלי תופעות לוואי, והתוצאות נשארות.",
-    "andYouCanDoIt": "ואפשר לעשות את זה בכל מקום ובכל זמן. בישיבה, בעמידה, באוטובוס. אף אחד לא שם לב.",
     "benefit_bladder_desc": "פחות דליפות ופחות רגעי דחיפות.",
     "benefit_bladder_title": "שליטה טובה יותר בשלפוחית",
     "benefit_confidence_desc": "התקדמות שנבנית שבוע אחרי שבוע.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "הקישו כדי לכווץ",
     "theNextLessonShowsYou": "השיעור הבא מראה לך בדיוק איפה השרירים שלך נמצאים.",
     "thenYouDoYourFirst": "אחר כך תבצע את התרגיל האמיתי הראשון שלך, בהנחיית העיגול.",
-    "whatYouGain": "מה תרוויח מזה",
-    "worthTwoMinutesOfYour": "שווה שתי דקות מהזמן שלך"
+    "whatYouGain": "מה תרוויח מזה"
   },
   "workout": {
     "back": "חזרה",

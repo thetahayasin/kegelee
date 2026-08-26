@@ -272,16 +272,12 @@
     "alreadyHaveAnAccount": "Já tem uma conta?",
     "getStarted": "Começar",
     "logIn": "Entrar",
-    "perDay": "POR DIA",
-    "secondsHeld": "segundos mantidos",
     "slide1Body": "Mais controle, mais resistência, sensações melhores. O assoalho pélvico é um músculo e treina como um.",
     "slide1Title": "Mais forte na cama",
     "slide2Body": "Sem academia, sem equipamento, sem tirar nada. No sofá, na mesa de trabalho, no ônibus. Ninguém percebe.",
     "slide2Title": "De 1 a 5 minutos por dia",
     "slide3Body": "Meça quanto tempo você aguenta. E veja esse número subir semana após semana.",
-    "slide3Title": "Veja funcionando",
-    "slide4Body": "Se parar, o músculo afrouxa, como em qualquer treino. Escolha um horário e deixe o lembrete cuidar do resto.",
-    "slide4Title": "Só funciona se você continuar"
+    "slide3Title": "Veja funcionando"
   },
   "paywall": {
     "autoRenewOffHint": "A renovação automática está desligada. Seu acesso termina na data de expiração.",
@@ -350,7 +346,6 @@
     "profile": "Perfil",
     "scheduleReminders": "Agenda e lembretes",
     "setTheDifficultyOfKegel": "Defina a dificuldade do programa de treino Kegel",
-    "settingsA11y": "Configurações",
     "theHigherTheLevelThe": "Quanto maior o nível, mais puxado o treino",
     "vibration": "Vibração",
     "vibrationHint": "Vibra na hora de contrair"
@@ -373,37 +368,7 @@
     "yourHold": "sua sustentação"
   },
   "quiz": {
-    "back": "Voltar",
-    "experienceCaption": "Seja sincero. Isso só define onde você começa.",
-    "experienceNever": "Nunca",
-    "experienceRegular": "Sim, com regularidade",
-    "experienceSome": "Tentei algumas vezes",
-    "experienceTitle": "Você já treinou isso antes?",
-    "goalBladder": "Controle da bexiga",
-    "goalCaption": "Isso define o que mostramos primeiro.",
-    "goalPerformance": "Desempenho e resistência",
-    "goalRecovery": "Recuperação após cirurgia ou parto",
-    "goalStrength": "Força geral",
-    "goalTitle": "O que te trouxe aqui?",
-    "minutes1": "1 minuto",
-    "minutes2": "2 minutos",
-    "minutes3": "3 minutos",
-    "minutes5": "5 minutos",
-    "minutesCaption": "Duas sessões por dia. Dá para mudar depois.",
-    "minutesTitle": "Quanto tempo por sessão?",
-    "resultAdjusts": "Dificuldade",
-    "resultAutomatic": "Se ajusta sozinha",
-    "resultCta": "Ver planos",
-    "resultEachSession": "Cada sessão",
-    "resultEyebrow": "SEU PLANO",
-    "resultLevel": "Nível {{level}}",
-    "resultMinutes": "{{count}} min",
-    "resultNote": "O app sobe ou desce seu nível conforme como cada sessão foi. Você nunca fica preso onde começou.",
-    "resultPerDay": "Por dia",
-    "resultTwoSessions": "2 sessões",
-    "skip": "Pular",
-    "startCta": "Responder 3 perguntas",
-    "stepOf": "Pergunta {{current}} de {{total}}"
+    "skip": "Pular"
   },
   "register": {
     "alreadyHaveAnAccount": "Já tem uma conta?",
@@ -434,7 +399,6 @@
     "active": "Ativo",
     "addTime": "Adicionar horário",
     "allowExactBody": "Seus lembretes estão configurados.\n\nPara que disparem na hora exata, permita \"Alarmes e lembretes\" para o Kegelee - caso contrário, podem chegar alguns minutos atrasados.",
-    "allowExactReminders": "Permitir lembretes exatos",
     "allowExactTitle": "Permitir lembretes exatos",
     "daysLeft_one": "resta {{count}} dia",
     "daysLeft_other": "restam {{count}} dias",
@@ -495,11 +459,9 @@
     "resetProgress2": "Redefinir o progresso?",
     "resetSuccessBody": "Seu progresso de treino foi apagado.",
     "resetSuccessTitle": "Redefinido",
-    "resetSuccessful": "Redefinido com sucesso",
     "restartBody": "Feche e abra o app novamente para concluir a mudança de direção do layout.",
     "restartRequired": "Reinício necessário",
     "sendCode": "Enviar código",
-    "settings": "Configurações",
     "subActive": "Ativa",
     "subCancelled": "Cancelada",
     "subExpired": "Expirada",
@@ -510,11 +472,9 @@
     "subscription": "Assinatura",
     "tapToChangePlan": "Toque para mudar de plano",
     "terms": "Termos",
-    "thisDoes": "Isso significa",
     "trialEndsNoRenew": "O teste gratuito termina em {{date}}. Não será renovado.",
     "trialEndsThenBilling": "O teste gratuito termina em {{date}} e depois começa a cobrança.",
-    "updatePaymentMethod": "Atualize sua forma de pagamento no Google Play.",
-    "weEmailedA6Digit": "Enviamos um código de 6 dígitos para"
+    "updatePaymentMethod": "Atualize sua forma de pagamento no Google Play."
   },
   "subscribeSheet": {
     "alreadyHaveAnAccountSign": "Já tem uma conta? Entre",
@@ -526,7 +486,6 @@
     "continue": "Continuar",
     "continueWithGoogle": "Continuar com o Google",
     "couldNotOpenGoogle": "Não foi possível abrir o login do Google. Tente de novo.",
-    "couldNotOpenGoogleSign": "Não foi possível abrir o login do Google. Tente novamente.",
     "couldNotReachServer": "Não foi possível conectar ao servidor. Verifique sua conexão e tente de novo.",
     "createAccount": "Criar conta",
     "createAccountSubscribe": "Criar conta e assinar",
@@ -596,8 +555,6 @@
   },
   "why": {
     "aMuscleYouCanTrain": "Um músculo que você pode treinar",
-    "aRealMuscleBody": "Seu assoalho pélvico é um músculo de verdade. Treine alguns minutos por dia e ele fica mais forte, como em qualquer treino. Sem pílulas, sem efeitos colaterais, e os resultados duram.",
-    "andYouCanDoIt": "E dá para fazer em qualquer lugar, a qualquer hora. Sentado, em pé, no ônibus. Ninguém percebe.",
     "benefit_bladder_desc": "Menos escapes e menos urgência.",
     "benefit_bladder_title": "Melhor controle da bexiga",
     "benefit_confidence_desc": "Ganhos que crescem semana após semana.",
@@ -615,8 +572,7 @@
     "tapToSqueeze": "Toque para contrair",
     "theNextLessonShowsYou": "A próxima lição mostra exatamente onde ficam seus músculos.",
     "thenYouDoYourFirst": "Depois você faz seu primeiro exercício de verdade, guiado pelo círculo.",
-    "whatYouGain": "O que você ganha",
-    "worthTwoMinutesOfYour": "Vale dois minutos do seu tempo"
+    "whatYouGain": "O que você ganha"
   },
   "workout": {
     "back": "Voltar",
