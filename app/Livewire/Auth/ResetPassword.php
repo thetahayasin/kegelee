@@ -50,6 +50,15 @@ class ResetPassword extends Component
             return;
         }
 
+        // Backend recovery is for admins only. The mobile app issues 'reset'
+        // codes through the API for ordinary users, and those codes verify
+        // here too - so re-check the account itself rather than trusting that
+        // a valid code could only have come from the admin-only form above.
+        if (! $user->is_admin) {
+            $this->addError('email', 'No account found for that email.');
+            return;
+        }
+
         $user->update([
             'password' => Hash::make($this->password),
             'email_verified_at' => $user->email_verified_at ?? now(),
@@ -79,8 +88,8 @@ class ResetPassword extends Component
             }
         }
 
-        // Admins recover straight into the backend; everyone else into the app.
-        return $this->redirectRoute($user->is_admin ? 'admin.dashboard' : 'home', navigate: true);
+        // Only admins reach this point, so recovery always lands in the backend.
+        return $this->redirectRoute('admin.dashboard', navigate: true);
     }
 
     public function render()

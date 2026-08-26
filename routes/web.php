@@ -70,14 +70,21 @@ Route::get('/', LandingController::class)->name('landing');
 | Public (no auth): onboarding intro + content pages
 |--------------------------------------------------------------------------
 */
-Route::get('/welcome', App\Onboarding::class)->name('onboarding');
 // Legal / policy pages — always public so they work even when the web app is
 // closed (app_enabled=false) or the marketing homepage is disabled. Required
 // for the Google Play privacy-policy URL.
 Route::view('/legal', 'legal.index')->name('legal.index');
 Route::get('/p/{page:slug}', App\Page\Show::class)->name('page.show');
-Route::get('/knowledge', App\Knowledge\Index::class)->name('knowledge.index');
-Route::get('/knowledge/{lesson}', App\Knowledge\Show::class)->name('knowledge.show');
+
+// Onboarding and the knowledge base are the app's own content, not marketing:
+// public so a signed-out visitor can read them, but closed along with the app.
+// Without 'app.enabled' the knowledge base stayed fully browsable after the
+// app had been switched off from the backend.
+Route::middleware('app.enabled')->group(function () {
+    Route::get('/welcome', App\Onboarding::class)->name('onboarding');
+    Route::get('/knowledge', App\Knowledge\Index::class)->name('knowledge.index');
+    Route::get('/knowledge/{lesson}', App\Knowledge\Show::class)->name('knowledge.show');
+});
 
 /*
 |--------------------------------------------------------------------------

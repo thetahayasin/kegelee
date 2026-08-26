@@ -12,8 +12,16 @@ class LandingController extends Controller
      */
     public function __invoke(SettingsService $settings)
     {
+        // App closed: every onward destination ('/welcome', '/app', the
+        // knowledge base) is behind 'app.enabled', which redirects back here.
+        // Redirecting on would be an infinite loop, so show the homepage and
+        // let its app_disabled notice explain why there is nowhere to go.
+        if (! $settings->get('app_enabled', true)) {
+            return view('landing');
+        }
+
         // When a public marketing homepage is enabled, always show it -
-        // authenticated users navigate to the app via the "Open App" link.
+        // visitors reach the store listing via the "Download" link.
         if ($settings->get('homepage_enabled', true)) {
             return view('landing');
         }

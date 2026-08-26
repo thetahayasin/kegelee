@@ -176,19 +176,13 @@
                 <span>{{ $appName }}</span>
             @endif
         </a>
-        @auth
-            <a href="{{ route('home') }}"
-               class="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
-                Open App
-                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-        @else
-            <a href="{{ $playUrl }}" target="_blank" rel="noopener"
-               class="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
-                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M3.18 23.76c.36.2.8.2 1.17-.02l11.65-6.72-2.6-2.6-10.22 9.34zm-1.61-20.3C1.22 3.9 1 4.4 1 5v14c0 .6.22 1.1.57 1.54l.08.08 7.84-7.84v-.18L1.57 3.46zm17.49 7.9-2.49-1.44-2.9 2.9 2.9 2.9 2.5-1.44c.72-.41.72-1.5-.01-1.92zM4.35.26C3.98.04 3.54.05 3.18.26l10.2 10.2 2.6-2.6L4.35.26z"/></svg>
-                Download
-            </a>
-        @endauth
+        {{-- Always the store link: the web app is not the product any more,
+             so even a signed-in visitor is sent to the Play listing. --}}
+        <a href="{{ $playUrl }}" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white neo-btn hover:opacity-90 transition-opacity">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M3.18 23.76c.36.2.8.2 1.17-.02l11.65-6.72-2.6-2.6-10.22 9.34zm-1.61-20.3C1.22 3.9 1 4.4 1 5v14c0 .6.22 1.1.57 1.54l.08.08 7.84-7.84v-.18L1.57 3.46zm17.49 7.9-2.49-1.44-2.9 2.9 2.9 2.9 2.5-1.44c.72-.41.72-1.5-.01-1.92zM4.35.26C3.98.04 3.54.05 3.18.26l10.2 10.2 2.6-2.6L4.35.26z"/></svg>
+            Download
+        </a>
     </div>
 </nav>
 

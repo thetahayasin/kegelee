@@ -26,8 +26,11 @@ class ForgotPassword extends Component
             return;
         }
         RateLimiter::hit($key, 900);
-        // Only send if the account exists, but always continue (no enumeration).
-        if (User::where('email', $email)->exists()) {
+        // Backend recovery is for admins only. App users reset through the
+        // mobile app, which uses the API flow (/api/auth/reset-code) instead.
+        // Only send if the account exists AND is an admin, but always continue
+        // down the same path either way (no enumeration).
+        if (User::where('email', $email)->where('is_admin', true)->exists()) {
             CodeSender::send($email, 'reset');
         }
 
