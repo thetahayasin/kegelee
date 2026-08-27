@@ -15,12 +15,13 @@ import {
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect, CommonActions } from '@react-navigation/native';
 import KeepAwake from 'react-native-keep-awake';
 import { useAuth } from '../../context/AuthContext';
 import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
 import { COLORS } from '../../theme/colors';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
+import { FREE_SESSION_LEVEL } from '../../services/freeSession';
 import { getDBConnection } from '../../db/sqlite';
 import { recordCompletedSession } from '../../db/queries';
 import { syncNow } from '../../services/sync';
@@ -42,6 +43,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 type RouteParams = {
   Workout: {
     trialSlug?: string;
+    freeSession?: boolean;
   };
 };
 
@@ -147,6 +149,9 @@ export const WorkoutScreen = () => {
 
   const trialSlug = route.params?.trialSlug || null;
   const isTrial = !!trialSlug;
+  // The guest's one free session: a real day-one workout with no account
+  // behind it. Everything user-keyed below is skipped rather than faked.
+  const freeSession = route.params?.freeSession === true;
 
   const [playlist, setPlaylist] = useState<PlaylistStep[]>([]);
   const [loading, setLoading] = useState(true);
@@ -250,6 +255,26 @@ export const WorkoutScreen = () => {
     KeepAwake.activate();
 
     const initWorkout = async () => {
+      // Free session runs with no account, so it is built before the user
+      // guard below and touches neither training_days nor the level.
+      if (freeSession) {
+        const session = buildDailySession(0, FREE_SESSION_LEVEL);
+        if (session.steps.length === 0) {
+          // Should not happen - two exercises unlock at day 0 - but goBack is
+          // inert on the reset stack this screen is the root of, so failing
+          // that way would hang on the loading state forever.
+          navigation.dispatch(
+            CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge' }] }),
+          );
+          return;
+        }
+        remainingRef.current = session.steps[0].seconds;
+        elapsedRef.current = 0;
+        setPlaylist(session.steps);
+        setLoading(false);
+        cueStep(session.steps[0]);
+        return;
+      }
       if (!user) return;
       try {
         const db = await getDBConnection();
@@ -489,6 +514,13 @@ export const WorkoutScreen = () => {
 
     const secs = Math.max(0, Math.round(elapsedRef.current));
 
+    // Nothing to record for a guest, and the real completion screen reads a
+    // user's training days, position and unlocks - none of which exist here.
+    if (freeSession) {
+      (navigation as any).replace('FreeSessionComplete', { duration: secs });
+      return;
+    }
+
     if (user) {
       try {
         // Save session locally to SQLite
@@ -529,6 +561,17 @@ export const WorkoutScreen = () => {
   const handleQuit = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     KeepAwake.deactivate();
+    // The free session is reached by RESETTING the guest stack (so Back cannot
+    // walk into the lesson they just finished), which leaves nothing beneath
+    // it for goBack to pop - quitting would strand them mid-workout with no
+    // exit. Send them to the basics list instead. The session is not marked
+    // used until it completes, so quitting costs them nothing.
+    if (freeSession) {
+      navigation.dispatch(
+        CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge' }] }),
+      );
+      return;
+    }
     navigation.goBack();
   };
   handleQuitRef.current = handleQuit;

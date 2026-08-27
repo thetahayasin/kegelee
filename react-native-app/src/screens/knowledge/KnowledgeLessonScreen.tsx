@@ -28,6 +28,7 @@ import { Watermark } from '../../components/Watermark';
 import { SwipeSteps } from '../../components/SwipeSteps';
 
 import { useAuth } from '../../context/AuthContext';
+import { hasUsedFreeSession } from '../../services/freeSession';
 
 const LAST = 2;
 
@@ -72,8 +73,24 @@ export const KnowledgeLessonScreen = () => {
           updateUserFields({ onboarded: true }).catch(() => {});
         }
       } else {
-        // Guest finished the free lessons: back to the list with the plans
-        // sheet open - the web's knowledge.index?subscribe=1 funnel.
+        // Guest finished the free lessons. Before the plans sheet, give them
+        // the session the first lesson promised them ("then you do your first
+        // real exercise, guided by the circle") - once. Asking for money from
+        // someone who has never used the app is the weakest possible moment to
+        // ask; asking straight after they have finished a real session is the
+        // strongest. Falls through to the old behaviour once it is spent.
+        if (!(await hasUsedFreeSession())) {
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'Workout', params: { freeSession: true } }],
+            }),
+          );
+          return;
+        }
+
+        // Back to the list with the plans sheet open - the web's
+        // knowledge.index?subscribe=1 funnel.
         //
         // RESET rather than navigate. navigate() only pops when Knowledge is
         // already below this screen, which depends on how the guest arrived:

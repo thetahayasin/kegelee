@@ -24,6 +24,7 @@ import { WorkoutCompleteScreen } from '../screens/workout/WorkoutCompleteScreen'
 import { PaywallScreen } from '../screens/paywall/PaywallScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { LegalPageScreen } from '../screens/settings/LegalPageScreen';
+import { FreeSessionCompleteScreen } from '../screens/workout/FreeSessionCompleteScreen';
 import { ExerciseDetailScreen } from '../screens/exercise/ExerciseDetailScreen';
 import { AllExercisesScreen } from '../screens/exercise/AllExercisesScreen';
 import { KnowledgeScreen } from '../screens/knowledge/KnowledgeScreen';
@@ -56,6 +57,8 @@ export type AuthStackParamList = {
   Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
   LegalPage: { slug: string; title: string };
+  Workout: { freeSession?: boolean };
+  FreeSessionComplete: { duration: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -225,6 +228,16 @@ export const AppNavigator = () => {
             are signed in. Reads from the synced `pages` table, so it needs no
             session. */}
         <AuthStack.Screen name="LegalPage" component={LegalPageScreen} />
+        {/* The one free session a guest gets, offered at the end of the basics.
+            The funnel previously went from the last lesson straight to the
+            plans sheet, asking for money from someone who had never used the
+            app - and leaving the first lesson's promise of "then you do your
+            first real exercise" unkept. Both screens are guest-safe: the
+            workout builds day one of level 1 without touching an account, and
+            the completion screen is its own rather than the account-keyed
+            one. */}
+        <AuthStack.Screen name="Workout" component={WorkoutScreen} />
+        <AuthStack.Screen name="FreeSessionComplete" component={FreeSessionCompleteScreen} />
       </AuthStack.Navigator>
     );
   }
