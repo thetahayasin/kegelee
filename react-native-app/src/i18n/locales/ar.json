@@ -199,34 +199,23 @@
     "tryItNow": "جرّبه الآن"
   },
   "find": {
-    "flow_stopMidway": "أوقف في المنتصف",
-    "flow_thatSqueeze": "هذا الشدّ بالضبط!",
-    "flow_youPee": "أنت تتبوّل",
     "keepGoing": "واصل هكذا…",
-    "onlyDoThePeeTest": "قم باختبار التبوّل مرة واحدة فقط",
     "onlyDoThePeeTestDesc": "هذه مجرد طريقة للعثور على العضلات، وليست تمرينًا. إيقاف التبوّل كثيرًا ليس جيدًا لمثانتك.",
     "pressAndHold": "اضغط مع الاستمرار",
     "squeezeNow": "شُدّ!",
-    "squeezeOnlyThoseMuscles": "اشدّ هذه العضلات فقط",
-    "squeezeOnlyThoseMusclesDesc": "إشارة أخرى: شُدّ كأنك تحبس ريحًا. تبقى البطن والساقان والأرداف مرتخية تمامًا.",
     "stopTheFlowBody": "في المرة القادمة أثناء التبوّل، أوقف التدفق برفق في منتصفه. العضلات التي استخدمتها للتو هي قاع حوضك.",
-    "theEasiestWayToFind": "أسهل طريقة للعثور عليها",
     "tryItNow": "جرّب الآن",
     "tryItNowBody": "اضغط مع الاستمرار على الدائرة. أثناء الضغط، شُدّ تلك العضلات. وأطلق معًا.",
-    "twoQuickRules": "قاعدتان سريعتان",
     "youFoundThem": "وجدتها!",
     "youFoundThemBody": "ذلك الشدّ ثم الإرخاء هو كل ما في تمرين كيجل. أنت جاهز لتمرينك الأول."
   },
   "first": {
-    "contract": "اشدّ",
     "followTheCircle": "تابع الدائرة. شُدّ... ثم استرخِ.",
     "niceWork": "عمل رائع!",
     "nowYouTry": "الآن جرّب أنت",
     "start": "ابدأ",
     "tenSecondsReady": "عشر ثوانٍ من {{exercise}}. شُدّ عند كل {{contract}}، وأطلق عند {{relax}}. جاهز؟",
     "thatWasARealExercise": "كان ذلك تمرينًا حقيقيًا. كل جلسة تسير بهذه الطريقة تمامًا، دائرة تلو الأخرى.",
-    "theCircleIsYourGuide": "الدائرة هي دليلك",
-    "theCircleIsYourGuideBody": "كل تمرين يتبع هذه الدائرة. عندما تتوهّج وتتّسع، شُدّ. وعندما يخفت التوهّج، استرخِ. الكلمة في الداخل تخبرك دائمًا بما تفعله.",
     "thisIsTrembling": "هذا تمرين الارتجاف",
     "yourFirstExerciseQuickFlicks": "تمرينك الأول: شدّات سريعة. اشدّ عند كلمة اشدّ، وأرخِ عند كلمة استرخِ."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "تأكيد البريد الإلكتروني"
   },
   "why": {
-    "aMuscleYouCanTrain": "عضلة يمكنك تدريبها",
-    "benefit_bladder_title": "تحكّم أفضل في المثانة",
-    "benefit_confidence_title": "ثقة دائمة",
-    "benefit_core_title": "مركز جسم مدعوم",
-    "benefit_performance_title": "أداء أقوى",
     "cardRealMuscle": "عضلة حقيقية. دربها فتزداد قوة.",
-    "doingItRightIsEverything": "الأداء الصحيح هو كل شيء",
     "squeezeTheWrongMusclesAnd": "إن شددت العضلات الخطأ فلن تحصل على أي نتيجة.",
-    "theNextLessonShowsYou": "الدرس التالي يوضّح لك بالضبط أين تقع عضلاتك.",
-    "thenYouDoYourFirst": "بعد ذلك تؤدي تمرينك الحقيقي الأول بإرشاد الدائرة.",
-    "whatYouGain": "ما الذي ستكسبه"
+    "theNextLessonShowsYou": "الدرس التالي يوضّح لك بالضبط أين تقع عضلاتك."
   },
   "workout": {
     "back": "رجوع",

@@ -11,6 +11,7 @@ import { TouchableOpacity } from '../../../components/Touchable';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { exerciseNameKey } from '../../../constants/catalogues';
 import { COLORS, TYPE } from '../../../theme/colors';
+import { LessonLine } from '../../../components/LessonLine';
 import { getSteps } from '../../../constants/catalogues';
 
 interface Props {
@@ -198,22 +199,12 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 
   // Step 0: static explainer circle
+  // The instruction, read. Step 0 used to draw a STATIC circle frozen at 12 /
+  // Contract with four sentences under it explaining what it would do - a
+  // still picture of an animation the next step then plays for real. The
+  // sentence does that job on its own, and the demo does the rest.
   if (step === 0) {
-    return (
-      <View style={styles.center}>
-        <View style={styles.circleWrap}>
-          <View style={styles.circle}>
-            <Ring offset={CIRC * 0.35} />
-            <View style={styles.circleCenter}>
-              <Text style={styles.count}>12</Text>
-              <Text style={styles.label}>{t('first.contract')}</Text>
-            </View>
-          </View>
-        </View>
-        <Text style={styles.h1}>{t('first.theCircleIsYourGuide')}</Text>
-        <Text style={styles.p}>{t('first.theCircleIsYourGuideBody')}</Text>
-      </View>
-    );
+    return <LessonLine step={step} text={t('first.followTheCircle')} />;
   }
 
   // Step 1: live Trembling demo (looping). Circle sits ABOVE the copy so the
@@ -281,14 +272,12 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  h1: { ...TYPE.heading, marginTop: 24, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
   // Heading when it sits BELOW the pulsing circle (steps 1 & 2). The top margin
   // clears the glow halo (which reaches ~GLOW/2 - SIZE/2 px past the circle edge)
   // so the pulse never bleeds onto the copy.
   h1Below: { ...TYPE.heading, marginTop: 72, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
   p: { marginTop: 12, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
   // Step 0 keeps the circle above the copy with a static (non-glowing) ring.
-  circleWrap: { marginTop: 60, width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   // Pulse steps (1 & 2) put the circle up top; the glow radiates into the empty
   // space above it (below the step dots) rather than over the reading copy below.
   circleWrapTop: { marginTop: 24, width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },

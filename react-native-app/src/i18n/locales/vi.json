@@ -199,34 +199,23 @@
     "tryItNow": "Thử ngay"
   },
   "find": {
-    "flow_stopMidway": "Ngắt giữa chừng",
-    "flow_thatSqueeze": "Chính cái siết đó!",
-    "flow_youPee": "Bạn đi tiểu",
     "keepGoing": "Cứ tiếp tục …",
-    "onlyDoThePeeTest": "Chỉ thử nghiệm khi đi tiểu một lần duy nhất",
     "onlyDoThePeeTestDesc": "Đây chỉ là cách để tìm ra cơ, không phải bài tập. Ngắt dòng tiểu thường xuyên không tốt cho bàng quang.",
     "pressAndHold": "Nhấn giữ",
     "squeezeNow": "Siết!",
-    "squeezeOnlyThoseMuscles": "Chỉ siết những cơ đó",
-    "squeezeOnlyThoseMusclesDesc": "Một gợi ý khác: siết như thể đang nín một hơi. Bụng, chân và mông vẫn thả lỏng hoàn toàn.",
     "stopTheFlowBody": "Lần tới khi đi tiểu, hãy nhẹ nhàng ngắt dòng giữa chừng. Những cơ bạn vừa dùng chính là sàn chậu của bạn.",
-    "theEasiestWayToFind": "Cách dễ nhất để tìm ra chúng",
     "tryItNow": "Thử ngay",
     "tryItNowBody": "Nhấn giữ vòng tròn. Trong lúc giữ, hãy siết những cơ đó. Thả ra cùng lúc.",
-    "twoQuickRules": "Hai quy tắc ngắn gọn",
     "youFoundThem": "Bạn tìm ra rồi!",
     "youFoundThemBody": "Cái siết rồi thả đó chính là toàn bộ bài Kegel. Bạn đã sẵn sàng cho bài tập đầu tiên."
   },
   "first": {
-    "contract": "Siết",
     "followTheCircle": "Bám theo vòng tròn. Siết... rồi thả lỏng.",
     "niceWork": "Làm tốt lắm!",
     "nowYouTry": "Giờ đến lượt bạn",
     "start": "Bắt đầu",
     "tenSecondsReady": "Mười giây {{exercise}}. Siết ở mỗi {{contract}}, thả ở {{relax}}. Sẵn sàng chưa?",
     "thatWasARealExercise": "Vừa rồi là một bài tập thật sự. Mỗi buổi tập đều diễn ra đúng như vậy, từng vòng tròn một.",
-    "theCircleIsYourGuide": "Vòng tròn sẽ dẫn nhịp cho bạn",
-    "theCircleIsYourGuideBody": "Mọi bài tập đều đi theo vòng tròn này. Khi nó sáng lên và phình ra, bạn siết. Khi ánh sáng mờ đi, bạn thả lỏng. Chữ bên trong luôn cho bạn biết phải làm gì.",
     "thisIsTrembling": "Đây là bài Rung",
     "yourFirstExerciseQuickFlicks": "Bài tập đầu tiên: siết nhanh. Siết khi thấy Siết, buông khi thấy Thả lỏng."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "Xác minh email"
   },
   "why": {
-    "aMuscleYouCanTrain": "Một nhóm cơ bạn có thể rèn luyện",
-    "benefit_bladder_title": "Kiểm soát bàng quang tốt hơn",
-    "benefit_confidence_title": "Sự tự tin bền lâu",
-    "benefit_core_title": "Phần lõi được nâng đỡ",
-    "benefit_performance_title": "Phong độ tốt hơn",
     "cardRealMuscle": "Một cơ thật sự. Tập là nó khỏe lên.",
-    "doingItRightIsEverything": "Tập đúng cách là điều quan trọng nhất",
     "squeezeTheWrongMusclesAnd": "Siết sai cơ thì bạn chẳng thu được gì.",
-    "theNextLessonShowsYou": "Bài học tiếp theo sẽ chỉ cho bạn chính xác vị trí các cơ đó.",
-    "thenYouDoYourFirst": "Sau đó bạn sẽ thực hiện bài tập thật đầu tiên, theo nhịp của vòng tròn.",
-    "whatYouGain": "Bạn nhận được gì"
+    "theNextLessonShowsYou": "Bài học tiếp theo sẽ chỉ cho bạn chính xác vị trí các cơ đó."
   },
   "workout": {
     "back": "Quay lại",

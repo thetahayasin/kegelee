@@ -199,34 +199,23 @@
     "tryItNow": "Încearcă acum"
   },
   "find": {
-    "flow_stopMidway": "Oprește la jumătate",
-    "flow_thatSqueeze": "Exact acea contracție!",
-    "flow_youPee": "Urinezi",
     "keepGoing": "Continuă așa …",
-    "onlyDoThePeeTest": "Fă testul la urinare o singură dată",
     "onlyDoThePeeTestDesc": "Este doar o metodă de a găsi mușchii, nu un exercițiu. Oprirea frecventă a jetului nu îi face bine vezicii.",
     "pressAndHold": "Apasă și ține",
     "squeezeNow": "Contractă!",
-    "squeezeOnlyThoseMuscles": "Contractă doar mușchii aceia",
-    "squeezeOnlyThoseMusclesDesc": "Alt indiciu: contractă ca și cum ai reține un gaz. Abdomenul, picioarele și fesele rămân complet relaxate.",
     "stopTheFlowBody": "Data viitoare când urinezi, oprește ușor jetul la jumătate. Mușchii pe care tocmai i-ai folosit sunt planșeul tău pelvin.",
-    "theEasiestWayToFind": "Cel mai simplu mod de a-i găsi",
     "tryItNow": "Încearcă acum",
     "tryItNowBody": "Apasă și ține cercul. Cât timp îl ții, contractă acei mușchi. Eliberează în același timp.",
-    "twoQuickRules": "Două reguli scurte",
     "youFoundThem": "I-ai găsit!",
     "youFoundThemBody": "Acea contracție și relaxare este tot ce înseamnă un exercițiu Kegel. Ești pregătit pentru primul tău exercițiu."
   },
   "first": {
-    "contract": "Contractă",
     "followTheCircle": "Urmărește cercul. Contractă... și relaxează.",
     "niceWork": "Bravo!",
     "nowYouTry": "Acum încearcă tu",
     "start": "Începe",
     "tenSecondsReady": "Zece secunde de {{exercise}}. Contractă la fiecare {{contract}} și eliberează la {{relax}}. Ești gata?",
     "thatWasARealExercise": "Acela a fost un exercițiu adevărat. Fiecare sesiune funcționează exact așa, un cerc pe rând.",
-    "theCircleIsYourGuide": "Cercul îți dă ritmul",
-    "theCircleIsYourGuideBody": "Fiecare exercițiu urmează acest cerc. Când strălucește și crește, contractă. Când strălucirea scade, relaxează. Cuvântul dinăuntru îți spune mereu ce să faci.",
     "thisIsTrembling": "Acesta este Tremurul",
     "yourFirstExerciseQuickFlicks": "Primul tău exercițiu: contracții rapide. Strânge la Contractă, eliberează la Relaxează."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "Verifică e-mailul"
   },
   "why": {
-    "aMuscleYouCanTrain": "Un mușchi pe care îl poți antrena",
-    "benefit_bladder_title": "Control mai bun al vezicii",
-    "benefit_confidence_title": "Încredere de durată",
-    "benefit_core_title": "Un centru susținut",
-    "benefit_performance_title": "Performanță mai bună",
     "cardRealMuscle": "Un mușchi adevărat. Antrenează-l și devine mai puternic.",
-    "doingItRightIsEverything": "Totul ține de execuția corectă",
     "squeezeTheWrongMusclesAnd": "Dacă contracți mușchii greșiți, nu obții nimic.",
-    "theNextLessonShowsYou": "Lecția următoare îți arată exact unde sunt mușchii tăi.",
-    "thenYouDoYourFirst": "Apoi faci primul tău exercițiu real, ghidat de cerc.",
-    "whatYouGain": "Ce câștigi"
+    "theNextLessonShowsYou": "Lecția următoare îți arată exact unde sunt mușchii tăi."
   },
   "workout": {
     "back": "Înapoi",

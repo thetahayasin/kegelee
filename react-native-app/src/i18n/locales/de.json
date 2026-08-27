@@ -199,34 +199,23 @@
     "tryItNow": "Jetzt ausprobieren"
   },
   "find": {
-    "flow_stopMidway": "Halte kurz an",
-    "flow_thatSqueeze": "Genau diese Anspannung!",
-    "flow_youPee": "Du urinierst",
     "keepGoing": "Weiter so …",
-    "onlyDoThePeeTest": "Mach den Urin-Test nur einmal",
     "onlyDoThePeeTestDesc": "Das ist nur ein Weg, die Muskeln zu finden, keine Übung. Den Harnstrahl häufig anzuhalten ist nicht gut für deine Blase.",
     "pressAndHold": "Gedrückt halten",
     "squeezeNow": "Anspannen!",
-    "squeezeOnlyThoseMuscles": "Spanne nur diese Muskeln an",
-    "squeezeOnlyThoseMusclesDesc": "Noch ein Hinweis: Spanne so an, als würdest du Winde zurückhalten. Bauch, Beine und Gesäß bleiben völlig entspannt.",
     "stopTheFlowBody": "Halte beim nächsten Wasserlassen den Strahl sanft auf halbem Weg an. Die Muskeln, die du gerade benutzt hast, sind dein Beckenboden.",
-    "theEasiestWayToFind": "Der einfachste Weg, sie zu finden",
     "tryItNow": "Probiere es jetzt",
     "tryItNowBody": "Halte den Kreis gedrückt. Während du hältst, spanne diese Muskeln an. Lass gemeinsam los.",
-    "twoQuickRules": "Zwei kurze Regeln",
     "youFoundThem": "Du hast sie gefunden!",
     "youFoundThemBody": "Dieses Anspannen und Loslassen ist alles, was ein Kegel ist. Du bist bereit für deine erste Übung."
   },
   "first": {
-    "contract": "Anspannen",
     "followTheCircle": "Folge dem Kreis. Anspannen ... und entspannen.",
     "niceWork": "Gut gemacht!",
     "nowYouTry": "Jetzt bist du dran",
     "start": "Start",
     "tenSecondsReady": "Zehn Sekunden {{exercise}}. Spanne bei jedem {{contract}} an, lass bei {{relax}} los. Bereit?",
     "thatWasARealExercise": "Das war eine echte Übung. Jede Einheit läuft genau so ab, ein Kreis nach dem anderen.",
-    "theCircleIsYourGuide": "Der Kreis führt dich",
-    "theCircleIsYourGuideBody": "Jede Übung folgt diesem Kreis. Wenn er leuchtet und größer wird, spannst du an. Wenn das Leuchten verblasst, entspannst du. Das Wort in der Mitte sagt dir immer, was zu tun ist.",
     "thisIsTrembling": "Das ist Zittern",
     "yourFirstExerciseQuickFlicks": "Deine erste Übung: schnelle Impulse. Anspannen bei Anspannen, loslassen bei Entspannen."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "E-Mail bestätigen"
   },
   "why": {
-    "aMuscleYouCanTrain": "Ein Muskel, den du trainieren kannst",
-    "benefit_bladder_title": "Bessere Blasenkontrolle",
-    "benefit_confidence_title": "Bleibende Sicherheit",
-    "benefit_core_title": "Eine gestützte Körpermitte",
-    "benefit_performance_title": "Stärkere Leistung",
     "cardRealMuscle": "Ein echter Muskel. Trainiere ihn, und er wird stärker.",
-    "doingItRightIsEverything": "Es richtig zu machen ist alles",
     "squeezeTheWrongMusclesAnd": "Spannst du die falschen Muskeln an, bringt es dir nichts.",
-    "theNextLessonShowsYou": "Die nächste Lektion zeigt dir genau, wo deine Muskeln sind.",
-    "thenYouDoYourFirst": "Dann machst du deine erste echte Übung, geführt vom Kreis.",
-    "whatYouGain": "Was du gewinnst"
+    "theNextLessonShowsYou": "Die nächste Lektion zeigt dir genau, wo deine Muskeln sind."
   },
   "workout": {
     "back": "Zurück",

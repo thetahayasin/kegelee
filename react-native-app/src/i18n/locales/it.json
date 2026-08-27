@@ -199,34 +199,23 @@
     "tryItNow": "Provalo ora"
   },
   "find": {
-    "flow_stopMidway": "Fermati a metà",
-    "flow_thatSqueeze": "Ecco la contrazione!",
-    "flow_youPee": "Fai pipì",
     "keepGoing": "Continua così …",
-    "onlyDoThePeeTest": "Fai il test durante la minzione una volta sola",
     "onlyDoThePeeTestDesc": "È solo un modo per individuare i muscoli, non un esercizio. Interrompere spesso il flusso non fa bene alla vescica.",
     "pressAndHold": "Tieni premuto",
     "squeezeNow": "Contrai!",
-    "squeezeOnlyThoseMuscles": "Contrai solo quei muscoli",
-    "squeezeOnlyThoseMusclesDesc": "Un altro spunto: contrai come se trattenessi aria. Pancia, gambe e glutei restano completamente rilassati.",
     "stopTheFlowBody": "La prossima volta che fai pipì, interrompi delicatamente il flusso a metà. I muscoli che hai appena usato sono il tuo pavimento pelvico.",
-    "theEasiestWayToFind": "Il modo più semplice per trovarli",
     "tryItNow": "Provaci ora",
     "tryItNowBody": "Tieni premuto il cerchio. Mentre lo tieni, contrai quei muscoli. Rilascia insieme.",
-    "twoQuickRules": "Due regole veloci",
     "youFoundThem": "Li hai trovati!",
     "youFoundThemBody": "Quella contrazione seguita dal rilascio è tutto ciò che è un Kegel. Sei pronto per il tuo primo esercizio."
   },
   "first": {
-    "contract": "Contrai",
     "followTheCircle": "Segui il cerchio. Contrai... e rilassa.",
     "niceWork": "Ottimo lavoro!",
     "nowYouTry": "Ora prova tu",
     "start": "Inizia",
     "tenSecondsReady": "Dieci secondi di {{exercise}}. Contrai a ogni {{contract}}, lascia andare su {{relax}}. Pronto?",
     "thatWasARealExercise": "Quello era un esercizio vero. Ogni sessione funziona esattamente così, un cerchio alla volta.",
-    "theCircleIsYourGuide": "Il cerchio ti guida",
-    "theCircleIsYourGuideBody": "Ogni esercizio segue questo cerchio. Quando si illumina e si allarga, contrai. Quando la luce svanisce, rilassa. La parola al centro ti dice sempre cosa fare.",
     "thisIsTrembling": "Questo è Tremolio",
     "yourFirstExerciseQuickFlicks": "Il tuo primo esercizio: contrazioni rapide. Stringi su Contrai, lascia su Rilassa."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "Verifica l'e-mail"
   },
   "why": {
-    "aMuscleYouCanTrain": "Un muscolo che puoi allenare",
-    "benefit_bladder_title": "Miglior controllo della vescica",
-    "benefit_confidence_title": "Sicurezza che dura",
-    "benefit_core_title": "Un core sostenuto",
-    "benefit_performance_title": "Prestazioni migliori",
     "cardRealMuscle": "Un muscolo vero. Allenalo e diventa più forte.",
-    "doingItRightIsEverything": "Farlo bene è tutto",
     "squeezeTheWrongMusclesAnd": "Se contrai i muscoli sbagliati, non ottieni nulla.",
-    "theNextLessonShowsYou": "La prossima lezione ti mostra esattamente dove sono i tuoi muscoli.",
-    "thenYouDoYourFirst": "Poi farai il tuo primo vero esercizio, guidato dal cerchio.",
-    "whatYouGain": "Cosa ci guadagni"
+    "theNextLessonShowsYou": "La prossima lezione ti mostra esattamente dove sono i tuoi muscoli."
   },
   "workout": {
     "back": "Indietro",

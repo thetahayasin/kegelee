@@ -199,34 +199,23 @@
     "tryItNow": "今すぐ試す"
   },
   "find": {
-    "flow_stopMidway": "途中で止める",
-    "flow_thatSqueeze": "その締めです！",
-    "flow_youPee": "排尿する",
     "keepGoing": "その調子です…",
-    "onlyDoThePeeTest": "排尿時のテストは一度だけにしてください",
     "onlyDoThePeeTestDesc": "これは筋肉を見つけるための方法であって、エクササイズではありません。頻繁に尿を止めるのは膀胱によくありません。",
     "pressAndHold": "長押し",
     "squeezeNow": "締めて！",
-    "squeezeOnlyThoseMuscles": "その筋肉だけを締めます",
-    "squeezeOnlyThoseMusclesDesc": "もうひとつの目安は、おならを我慢するように締めることです。おなか、脚、おしりは完全に力を抜いたままにします。",
     "stopTheFlowBody": "次にトイレへ行ったとき、尿の流れを途中でそっと止めてみてください。そのとき使った筋肉が骨盤底筋です。",
-    "theEasiestWayToFind": "見つけるいちばん簡単な方法",
     "tryItNow": "やってみましょう",
     "tryItNowBody": "円を長押ししてください。押している間、その筋肉を締めます。同時に放しましょう。",
-    "twoQuickRules": "2つの簡単なルール",
     "youFoundThem": "見つかりました！",
     "youFoundThemBody": "その締めて放す動きが、骨盤底トレーニングのすべてです。はじめてのエクササイズの準備ができました。"
   },
   "first": {
-    "contract": "締める",
     "followTheCircle": "円に合わせて。締めて……ゆるめて。",
     "niceWork": "その調子です！",
     "nowYouTry": "今度はあなたの番です",
     "start": "スタート",
     "tenSecondsReady": "{{exercise}}を10秒。{{contract}}のたびに締め、{{relax}}で放します。準備はいいですか？",
     "thatWasARealExercise": "いまのが本物のエクササイズです。どのセッションもまったく同じように、円ひとつずつ進みます。",
-    "theCircleIsYourGuide": "円がガイドになります",
-    "theCircleIsYourGuideBody": "すべてのエクササイズはこの円に従います。円が光って大きくなったら締め、光が消えたらゆるめます。中の言葉が、いつでもやるべきことを教えてくれます。",
     "thisIsTrembling": "これがトレンブリングです",
     "yourFirstExerciseQuickFlicks": "最初のエクササイズは素早い締めです。「締める」で締め、「ゆるめる」で力を抜きます。"
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "メールアドレスを確認"
   },
   "why": {
-    "aMuscleYouCanTrain": "鍛えられる筋肉です",
-    "benefit_bladder_title": "膀胱のコントロール向上",
-    "benefit_confidence_title": "続く自信",
-    "benefit_core_title": "支えられた体幹",
-    "benefit_performance_title": "パフォーマンスの向上",
     "cardRealMuscle": "本物の筋肉です。鍛えれば強くなります。",
-    "doingItRightIsEverything": "正しく行うことがすべてです",
     "squeezeTheWrongMusclesAnd": "違う筋肉を締めても効果はありません。",
-    "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。",
-    "thenYouDoYourFirst": "そのあと、円のガイドに合わせて最初の本格的なエクササイズを行います。",
-    "whatYouGain": "得られること"
+    "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。"
   },
   "workout": {
     "back": "戻る",

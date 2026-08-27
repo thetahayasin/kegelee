@@ -199,34 +199,23 @@
     "tryItNow": "Nu uitproberen"
   },
   "find": {
-    "flow_stopMidway": "Stop halverwege",
-    "flow_thatSqueeze": "Precies dat knijpen!",
-    "flow_youPee": "Je plast",
     "keepGoing": "Ga zo door …",
-    "onlyDoThePeeTest": "Doe de plastest maar één keer",
     "onlyDoThePeeTestDesc": "Het is alleen een manier om de spieren te vinden, geen oefening. Je plas vaak afbreken is niet goed voor je blaas.",
     "pressAndHold": "Ingedrukt houden",
     "squeezeNow": "Knijpen!",
-    "squeezeOnlyThoseMuscles": "Span alleen die spieren aan",
-    "squeezeOnlyThoseMusclesDesc": "Nog een aanwijzing: knijp alsof je een wind ophoudt. Buik, benen en billen blijven volledig ontspannen.",
     "stopTheFlowBody": "Stop de volgende keer dat je plast de straal halverwege rustig af. De spieren die je net gebruikte zijn je bekkenbodem.",
-    "theEasiestWayToFind": "De makkelijkste manier om ze te vinden",
     "tryItNow": "Probeer het nu",
     "tryItNowBody": "Houd de cirkel ingedrukt. Terwijl je hem vasthoudt, knijp je die spieren aan. Laat samen los.",
-    "twoQuickRules": "Twee korte regels",
     "youFoundThem": "Je hebt ze gevonden!",
     "youFoundThemBody": "Dat knijpen en loslaten is alles wat een kegel is. Je bent klaar voor je eerste oefening."
   },
   "first": {
-    "contract": "Aanspannen",
     "followTheCircle": "Volg de cirkel. Aanspannen... en ontspannen.",
     "niceWork": "Goed gedaan!",
     "nowYouTry": "Nu jij",
     "start": "Starten",
     "tenSecondsReady": "Tien seconden {{exercise}}. Knijp bij elke {{contract}} en laat los bij {{relax}}. Klaar?",
     "thatWasARealExercise": "Dat was een echte oefening. Elke sessie werkt precies zo, één cirkel per keer.",
-    "theCircleIsYourGuide": "De cirkel is je gids",
-    "theCircleIsYourGuideBody": "Elke oefening volgt deze cirkel. Als hij oplicht en groter wordt, knijp je aan. Als de gloed wegvalt, ontspan je. Het woord erin vertelt je altijd wat je moet doen.",
     "thisIsTrembling": "Dit is Trillen",
     "yourFirstExerciseQuickFlicks": "Je eerste oefening: korte pulsjes. Aanspannen bij Aanspannen, loslaten bij Ontspannen."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "E-mail verifiëren"
   },
   "why": {
-    "aMuscleYouCanTrain": "Een spier die je kunt trainen",
-    "benefit_bladder_title": "Betere blaascontrole",
-    "benefit_confidence_title": "Blijvend zelfvertrouwen",
-    "benefit_core_title": "Een ondersteund midden",
-    "benefit_performance_title": "Sterkere prestaties",
     "cardRealMuscle": "Een echte spier. Train hem en hij wordt sterker.",
-    "doingItRightIsEverything": "Het goed doen is alles",
     "squeezeTheWrongMusclesAnd": "Span je de verkeerde spieren aan, dan levert het niets op.",
-    "theNextLessonShowsYou": "De volgende les laat je precies zien waar je spieren zitten.",
-    "thenYouDoYourFirst": "Daarna doe je je eerste echte oefening, geleid door de cirkel.",
-    "whatYouGain": "Wat het je oplevert"
+    "theNextLessonShowsYou": "De volgende les laat je precies zien waar je spieren zitten."
   },
   "workout": {
     "back": "Terug",

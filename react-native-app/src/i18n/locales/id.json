@@ -199,34 +199,23 @@
     "tryItNow": "Coba sekarang"
   },
   "find": {
-    "flow_stopMidway": "Berhenti di tengah",
-    "flow_thatSqueeze": "Kencangan itu!",
-    "flow_youPee": "Kamu buang air kecil",
     "keepGoing": "Terus begitu …",
-    "onlyDoThePeeTest": "Lakukan tes saat buang air kecil hanya sekali",
     "onlyDoThePeeTestDesc": "Ini hanya cara menemukan ototnya, bukan latihan. Sering menahan aliran tidak baik untuk kandung kemih.",
     "pressAndHold": "Tekan dan tahan",
     "squeezeNow": "Kencangkan!",
-    "squeezeOnlyThoseMuscles": "Kencangkan hanya otot-otot itu",
-    "squeezeOnlyThoseMusclesDesc": "Petunjuk lain: kencangkan seperti sedang menahan angin. Perut, kaki, dan bokong tetap benar-benar rileks.",
     "stopTheFlowBody": "Lain kali saat buang air kecil, hentikan alirannya perlahan di tengah. Otot yang baru saja kamu pakai adalah dasar panggulmu.",
-    "theEasiestWayToFind": "Cara termudah menemukannya",
     "tryItNow": "Coba sekarang",
     "tryItNowBody": "Tekan dan tahan lingkarannya. Selagi menahan, kencangkan otot-otot itu. Lepaskan bersamaan.",
-    "twoQuickRules": "Dua aturan singkat",
     "youFoundThem": "Kamu menemukannya!",
     "youFoundThemBody": "Kencangan dan pelepasan itulah keseluruhan latihan Kegel. Kamu siap untuk latihan pertamamu."
   },
   "first": {
-    "contract": "Kencangkan",
     "followTheCircle": "Ikuti lingkarannya. Kencangkan... lalu rileks.",
     "niceWork": "Kerja bagus!",
     "nowYouTry": "Sekarang giliranmu",
     "start": "Mulai",
     "tenSecondsReady": "Sepuluh detik {{exercise}}. Kencangkan di setiap {{contract}}, lepaskan di {{relax}}. Siap?",
     "thatWasARealExercise": "Itu tadi latihan sungguhan. Setiap sesi bekerja persis seperti ini, satu lingkaran demi satu lingkaran.",
-    "theCircleIsYourGuide": "Lingkaran jadi panduanmu",
-    "theCircleIsYourGuideBody": "Setiap latihan mengikuti lingkaran ini. Saat ia menyala dan membesar, kencangkan. Saat cahayanya meredup, rileks. Kata di dalamnya selalu memberitahumu apa yang harus dilakukan.",
     "thisIsTrembling": "Ini Getaran",
     "yourFirstExerciseQuickFlicks": "Latihan pertamamu: kontraksi cepat. Kencangkan saat Kencangkan, lepaskan saat Rileks."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "Verifikasi email"
   },
   "why": {
-    "aMuscleYouCanTrain": "Otot yang bisa kamu latih",
-    "benefit_bladder_title": "Kontrol kandung kemih lebih baik",
-    "benefit_confidence_title": "Percaya diri yang bertahan",
-    "benefit_core_title": "Inti tubuh yang tersangga",
-    "benefit_performance_title": "Performa lebih kuat",
     "cardRealMuscle": "Otot sungguhan. Latih dan dia menguat.",
-    "doingItRightIsEverything": "Melakukannya dengan benar adalah segalanya",
     "squeezeTheWrongMusclesAnd": "Kalau salah otot yang dikencangkan, hasilnya nihil.",
-    "theNextLessonShowsYou": "Pelajaran berikutnya menunjukkan letak persis otot-ototmu.",
-    "thenYouDoYourFirst": "Setelah itu kamu melakukan latihan pertamamu, dipandu oleh lingkaran.",
-    "whatYouGain": "Apa yang kamu dapat"
+    "theNextLessonShowsYou": "Pelajaran berikutnya menunjukkan letak persis otot-ototmu."
   },
   "workout": {
     "back": "Kembali",

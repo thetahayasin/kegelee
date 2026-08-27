@@ -199,34 +199,23 @@
     "tryItNow": "נסה עכשיו"
   },
   "find": {
-    "flow_stopMidway": "עצרו באמצע",
-    "flow_thatSqueeze": "בדיוק הכיווץ הזה!",
-    "flow_youPee": "אתם משתינים",
     "keepGoing": "תמשיך ככה…",
-    "onlyDoThePeeTest": "בצע את בדיקת ההשתנה פעם אחת בלבד",
     "onlyDoThePeeTestDesc": "זו רק דרך למצוא את השרירים, לא תרגיל. עצירה תכופה של הזרם אינה טובה לשלפוחית.",
     "pressAndHold": "לחצו והחזיקו",
     "squeezeNow": "כווצו!",
-    "squeezeOnlyThoseMuscles": "כווץ רק את השרירים האלה",
-    "squeezeOnlyThoseMusclesDesc": "רמז נוסף: כווצו כאילו אתם עוצרים גזים. הבטן, הרגליים והישבן נשארים רפויים לחלוטין.",
     "stopTheFlowBody": "בפעם הבאה שאתם משתינים, עצרו בעדינות את הזרם באמצע. השרירים שהרגע השתמשתם בהם הם רצפת האגן שלכם.",
-    "theEasiestWayToFind": "הדרך הקלה ביותר למצוא אותם",
     "tryItNow": "נסו עכשיו",
     "tryItNowBody": "לחצו והחזיקו את המעגל. בזמן ההחזקה, כווצו את השרירים האלה. שחררו יחד.",
-    "twoQuickRules": "שני כללים קצרים",
     "youFoundThem": "מצאתם אותם!",
     "youFoundThemBody": "הכיווץ והשחרור הזה הם כל מה שתרגיל קיגל הוא. אתם מוכנים לתרגיל הראשון שלכם."
   },
   "first": {
-    "contract": "כווץ",
     "followTheCircle": "עקבו אחרי המעגל. כווצו... והרפו.",
     "niceWork": "עבודה יפה!",
     "nowYouTry": "עכשיו תורך",
     "start": "התחל",
     "tenSecondsReady": "עשר שניות של {{exercise}}. כווצו בכל {{contract}}, ושחררו ב{{relax}}. מוכנים?",
     "thatWasARealExercise": "זה היה תרגיל אמיתי. כל אימון עובד בדיוק ככה, מעגל אחרי מעגל.",
-    "theCircleIsYourGuide": "העיגול מכתיב את הקצב",
-    "theCircleIsYourGuideBody": "כל תרגיל עוקב אחרי המעגל הזה. כשהוא נדלק ומתרחב, כווצו. כשהזוהר דועך, הרפו. המילה שבפנים תמיד אומרת לכם מה לעשות.",
     "thisIsTrembling": "זהו תרגיל הרעד",
     "yourFirstExerciseQuickFlicks": "התרגיל הראשון שלך: כיווצים מהירים. כווץ כשמופיע כווץ, שחרר כשמופיע הרפה."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "אימות אימייל"
   },
   "why": {
-    "aMuscleYouCanTrain": "שריר שאפשר לאמן",
-    "benefit_bladder_title": "שליטה טובה יותר בשלפוחית",
-    "benefit_confidence_title": "ביטחון מתמשך",
-    "benefit_core_title": "ליבה נתמכת",
-    "benefit_performance_title": "ביצועים חזקים יותר",
     "cardRealMuscle": "שריר אמיתי. תאמנו אותו והוא יתחזק.",
-    "doingItRightIsEverything": "הביצוע הנכון הוא העיקר",
     "squeezeTheWrongMusclesAnd": "אם תכווץ את השרירים הלא נכונים, לא תקבל מזה כלום.",
-    "theNextLessonShowsYou": "השיעור הבא מראה לך בדיוק איפה השרירים שלך נמצאים.",
-    "thenYouDoYourFirst": "אחר כך תבצע את התרגיל האמיתי הראשון שלך, בהנחיית העיגול.",
-    "whatYouGain": "מה תרוויח מזה"
+    "theNextLessonShowsYou": "השיעור הבא מראה לך בדיוק איפה השרירים שלך נמצאים."
   },
   "workout": {
     "back": "חזרה",

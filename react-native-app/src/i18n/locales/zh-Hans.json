@@ -199,34 +199,23 @@
     "tryItNow": "立即体验"
   },
   "find": {
-    "flow_stopMidway": "中途停住",
-    "flow_thatSqueeze": "就是这一收！",
-    "flow_youPee": "你在小便",
     "keepGoing": "继续保持…",
-    "onlyDoThePeeTest": "排尿测试只做一次",
     "onlyDoThePeeTestDesc": "这只是找到肌肉的方法，不是练习。经常憋停尿流对膀胱并不好。",
     "pressAndHold": "按住",
     "squeezeNow": "收缩！",
-    "squeezeOnlyThoseMuscles": "只收缩这些肌肉",
-    "squeezeOnlyThoseMusclesDesc": "另一个提示：像忍住排气那样收缩。腹部、双腿和臀部都保持完全放松。",
     "stopTheFlowBody": "下次小便时，在中途轻轻把尿流停住。你刚刚用到的那块肌肉，就是盆底肌。",
-    "theEasiestWayToFind": "找到它们最简单的方法",
     "tryItNow": "现在试试",
     "tryItNowBody": "按住这个圆圈。按住的时候收缩那些肌肉，然后一起放开。",
-    "twoQuickRules": "两条简单规则",
     "youFoundThem": "你找到了！",
     "youFoundThemBody": "这一收一放，就是凯格尔运动的全部。你已经可以开始第一个练习了。"
   },
   "first": {
-    "contract": "收缩",
     "followTheCircle": "跟着圆圈。收缩……然后放松。",
     "niceWork": "做得好！",
     "nowYouTry": "现在换你试试",
     "start": "开始",
     "tenSecondsReady": "十秒钟的{{exercise}}。每次{{contract}}时收缩，{{relax}}时放开。准备好了吗？",
     "thatWasARealExercise": "刚刚那就是一次真正的练习。每一次训练都完全是这样，一个圆圈接一个圆圈。",
-    "theCircleIsYourGuide": "圆圈会为你引导节奏",
-    "theCircleIsYourGuideBody": "每个动作都跟着这个圆圈走。它发亮、变大时收缩，光芒淡下去时放松。圆圈里的字始终告诉你该做什么。",
     "thisIsTrembling": "这就是快速颤动",
     "yourFirstExerciseQuickFlicks": "你的第一个动作：快速收缩。看到“收缩”时用力，看到“放松”时松开。"
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "验证邮箱"
   },
   "why": {
-    "aMuscleYouCanTrain": "一块可以锻炼的肌肉",
-    "benefit_bladder_title": "更好的膀胱控制",
-    "benefit_confidence_title": "持久的自信",
-    "benefit_core_title": "被撑住的核心",
-    "benefit_performance_title": "更强的表现",
     "cardRealMuscle": "一块真正的肌肉。练了就会变强。",
-    "doingItRightIsEverything": "做对了才有意义",
     "squeezeTheWrongMusclesAnd": "收缩错了肌肉，就什么效果都没有。",
-    "theNextLessonShowsYou": "下一课会告诉你这些肌肉到底在哪里。",
-    "thenYouDoYourFirst": "然后你会在圆圈的引导下完成第一个正式动作。",
-    "whatYouGain": "你能获得什么"
+    "theNextLessonShowsYou": "下一课会告诉你这些肌肉到底在哪里。"
   },
   "workout": {
     "back": "返回",

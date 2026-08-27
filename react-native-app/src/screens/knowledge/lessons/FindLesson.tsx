@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   Animated,
   Easing,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { COLORS, GLASS, TYPE } from '../../../theme/colors';
+import { LessonLine } from '../../../components/LessonLine';
 
 interface Props {
   step: number;
@@ -25,12 +25,6 @@ const CIRC = 2 * Math.PI * R;
 // Animating strokeDashoffset directly on the SVG circle, rather than feeding it
 // from React state, is what makes the ring sweep smoothly.
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-const FLOW = [
-  { icon: 'M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z', key: 'youPee' },
-  { icon: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4 13H8V9h8v6z', key: 'stopMidway' },
-  { icon: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', key: 'thatSqueeze' },
-];
 
 export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   const { t } = useTranslation();
@@ -92,55 +86,15 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   // Animated.Value keeps this effect stable across renders.
   useEffect(() => () => progress.stopAnimation(), [progress]);
 
+  // Where the muscles are, then the rule that keeps the pee test safe. Both
+  // are statements, so both are just read - the doing happens on step 2, which
+  // is the one thing in this lesson worth demonstrating.
   if (step === 0) {
-    return (
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.h1}>{t('find.theEasiestWayToFind')}</Text>
-        <Text style={styles.p}>{t('find.stopTheFlowBody')}</Text>
-        <View style={styles.flowRow}>
-          {FLOW.map(f => (
-            <View key={f.key} style={styles.flowCard}>
-              <Svg width={40} height={40} viewBox="0 0 24 24" fill={COLORS.accent}>
-                <Path d={f.icon} />
-              </Svg>
-              <Text style={styles.flowLabel}>{t(`find.flow_${f.key}`)}</Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    );
+    return <LessonLine step={step} text={t('find.stopTheFlowBody')} />;
   }
 
   if (step === 1) {
-    return (
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.h1}>{t('find.twoQuickRules')}</Text>
-        <View style={{ gap: 12, marginTop: 22 }}>
-          <View style={styles.ruleCard}>
-            <View style={[styles.ruleIcon, { backgroundColor: 'rgba(255,77,77,0.15)' }]}>
-              <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-                <Path d="M18 6L6 18M6 6l12 12" stroke={COLORS.danger} strokeWidth={2.5} strokeLinecap="round" />
-              </Svg>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.ruleTitle}>{t('find.onlyDoThePeeTest')}</Text>
-              <Text style={styles.ruleDesc}>{t('find.onlyDoThePeeTestDesc')}</Text>
-            </View>
-          </View>
-          <View style={styles.ruleCard}>
-            <View style={[styles.ruleIcon, { backgroundColor: 'rgba(193,255,114,0.15)' }]}>
-              <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-                <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.ruleTitle}>{t('find.squeezeOnlyThoseMuscles')}</Text>
-              <Text style={styles.ruleDesc}>{t('find.squeezeOnlyThoseMusclesDesc')}</Text>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    );
+    return <LessonLine step={step} text={t('find.onlyDoThePeeTestDesc')} />;
   }
 
   return (
@@ -199,38 +153,10 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingVertical: 12 },
   // One scale across all three lessons. 28px bold read as a slogan rather than
   // a heading, especially on the steps where the heading is most of the step.
   h1: { ...TYPE.heading, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
   p: { marginTop: 14, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
-  flowRow: { flexDirection: 'row', gap: 12, marginTop: 26 },
-  flowCard: {
-    flex: 1,
-    alignItems: 'center',
-    borderRadius: 16,
-    ...GLASS,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
-    backgroundColor: COLORS.surface,
-    paddingVertical: 20,
-    paddingHorizontal: 6,
-  },
-  flowLabel: { marginTop: 12, fontSize: 14, fontWeight: 'bold', color: COLORS.white, textAlign: 'center' },
-  ruleCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 16,
-    borderRadius: 16,
-    ...GLASS,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
-    backgroundColor: COLORS.surface,
-    padding: 18,
-  },
-  ruleIcon: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  ruleTitle: { fontSize: 17, fontWeight: 'bold', color: COLORS.white },
-  ruleDesc: { marginTop: 4, fontSize: 14, lineHeight: 21, color: COLORS.textMuted },
   holdArea: { marginTop: 30, width: 250, height: 250, alignItems: 'center', justifyContent: 'center' },
   holdGlow: {
     position: 'absolute',

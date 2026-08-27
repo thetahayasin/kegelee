@@ -199,34 +199,23 @@
     "tryItNow": "Essayer maintenant"
   },
   "find": {
-    "flow_stopMidway": "Arrêtez à mi-parcours",
-    "flow_thatSqueeze": "Cette contraction !",
-    "flow_youPee": "Vous urinez",
     "keepGoing": "Continue …",
-    "onlyDoThePeeTest": "Ne fais le test aux toilettes qu'une seule fois",
     "onlyDoThePeeTestDesc": "C’est seulement une façon de repérer les muscles, pas un exercice. Arrêter souvent le jet n’est pas bon pour votre vessie.",
     "pressAndHold": "Appuyez longuement",
     "squeezeNow": "Contractez !",
-    "squeezeOnlyThoseMuscles": "Contracte uniquement ces muscles",
-    "squeezeOnlyThoseMusclesDesc": "Autre repère : contractez comme pour retenir un gaz. Le ventre, les jambes et les fessiers restent totalement détendus.",
     "stopTheFlowBody": "La prochaine fois que vous urinez, arrêtez doucement le jet à mi-parcours. Les muscles que vous venez d’utiliser sont votre périnée.",
-    "theEasiestWayToFind": "Le moyen le plus simple de les trouver",
     "tryItNow": "Essayez maintenant",
     "tryItNowBody": "Appuyez longuement sur le cercle. Pendant que vous maintenez, contractez ces muscles. Relâchez en même temps.",
-    "twoQuickRules": "Deux règles rapides",
     "youFoundThem": "Vous les avez trouvés !",
     "youFoundThemBody": "Cette contraction suivie du relâchement, c’est tout ce qu’est un Kegel. Vous êtes prêt pour votre premier exercice."
   },
   "first": {
-    "contract": "Contracte",
     "followTheCircle": "Suivez le cercle. Contractez... et relâchez.",
     "niceWork": "Bien joué !",
     "nowYouTry": "À vous d'essayer",
     "start": "Commencer",
     "tenSecondsReady": "Dix secondes de {{exercise}}. Contractez à chaque {{contract}}, relâchez sur {{relax}}. Prêt ?",
     "thatWasARealExercise": "C’était un vrai exercice. Chaque séance fonctionne exactement comme ça, un cercle à la fois.",
-    "theCircleIsYourGuide": "Le cercle te guide",
-    "theCircleIsYourGuideBody": "Chaque exercice suit ce cercle. Quand il s’illumine et grandit, contractez. Quand la lueur s’estompe, relâchez. Le mot à l’intérieur vous dit toujours quoi faire.",
     "thisIsTrembling": "Voici le Tremblement",
     "yourFirstExerciseQuickFlicks": "Ton premier exercice : des contractions rapides. Contracte sur Contracte, relâche sur Relâche."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "Vérifier l'e-mail"
   },
   "why": {
-    "aMuscleYouCanTrain": "Un muscle que tu peux entraîner",
-    "benefit_bladder_title": "Meilleur contrôle de la vessie",
-    "benefit_confidence_title": "Une confiance durable",
-    "benefit_core_title": "Un centre du corps soutenu",
-    "benefit_performance_title": "Meilleures performances",
     "cardRealMuscle": "Un vrai muscle. Entraînez-le et il se renforce.",
-    "doingItRightIsEverything": "Bien le faire change tout",
     "squeezeTheWrongMusclesAnd": "Si tu contractes les mauvais muscles, tu n'obtiens rien.",
-    "theNextLessonShowsYou": "La prochaine leçon te montre exactement où se trouvent tes muscles.",
-    "thenYouDoYourFirst": "Ensuite tu fais ton premier vrai exercice, guidé par le cercle.",
-    "whatYouGain": "Ce que tu y gagnes"
+    "theNextLessonShowsYou": "La prochaine leçon te montre exactement où se trouvent tes muscles."
   },
   "workout": {
     "back": "Retour",

@@ -199,34 +199,23 @@
     "tryItNow": "지금 해보기"
   },
   "find": {
-    "flow_stopMidway": "중간에 멈춥니다",
-    "flow_thatSqueeze": "바로 그 조임!",
-    "flow_youPee": "소변을 봅니다",
     "keepGoing": "그대로 유지하세요…",
-    "onlyDoThePeeTest": "소변 테스트는 한 번만 하세요",
     "onlyDoThePeeTestDesc": "이건 근육을 찾는 방법일 뿐 운동이 아닙니다. 소변 흐름을 자주 멈추는 것은 방광에 좋지 않습니다.",
     "pressAndHold": "길게 누르기",
     "squeezeNow": "조이세요!",
-    "squeezeOnlyThoseMuscles": "그 근육만 조이세요",
-    "squeezeOnlyThoseMusclesDesc": "또 하나의 힌트: 방귀를 참듯이 조여 보세요. 배, 다리, 엉덩이는 완전히 힘을 뺀 상태를 유지합니다.",
     "stopTheFlowBody": "다음에 소변을 볼 때 중간에 흐름을 살짝 멈춰 보세요. 방금 사용한 근육이 바로 골반저근입니다.",
-    "theEasiestWayToFind": "가장 쉽게 찾는 방법",
     "tryItNow": "지금 해보세요",
     "tryItNowBody": "원을 길게 누르세요. 누르고 있는 동안 그 근육을 조입니다. 함께 놓으세요.",
-    "twoQuickRules": "간단한 두 가지 규칙",
     "youFoundThem": "찾으셨네요!",
     "youFoundThemBody": "그렇게 조였다 푸는 것이 케겔 운동의 전부입니다. 이제 첫 번째 운동을 할 준비가 됐습니다."
   },
   "first": {
-    "contract": "조이기",
     "followTheCircle": "원을 따라가세요. 조이고... 이완하세요.",
     "niceWork": "잘하셨어요!",
     "nowYouTry": "이제 직접 해보세요",
     "start": "시작",
     "tenSecondsReady": "{{exercise}} 10초. {{contract}}마다 조이고 {{relax}}에서 놓으세요. 준비되셨나요?",
     "thatWasARealExercise": "방금 그게 진짜 운동이었습니다. 모든 세션이 정확히 이렇게, 원 하나씩 진행됩니다.",
-    "theCircleIsYourGuide": "원이 안내해 줘요",
-    "theCircleIsYourGuideBody": "모든 운동은 이 원을 따라갑니다. 원이 빛나며 커지면 조이고, 빛이 사그라들면 이완하세요. 안에 있는 단어가 항상 무엇을 할지 알려줍니다.",
     "thisIsTrembling": "이것이 트렘블링이에요",
     "yourFirstExerciseQuickFlicks": "첫 번째 운동은 빠른 조이기예요. ‘조이기’에서 조이고 ‘이완’에서 힘을 빼세요."
   },
@@ -562,17 +551,9 @@
     "verifyEmail": "이메일 인증"
   },
   "why": {
-    "aMuscleYouCanTrain": "훈련할 수 있는 근육이에요",
-    "benefit_bladder_title": "더 나은 방광 조절",
-    "benefit_confidence_title": "오래가는 자신감",
-    "benefit_core_title": "받쳐주는 코어",
-    "benefit_performance_title": "더 강한 퍼포먼스",
     "cardRealMuscle": "진짜 근육입니다. 단련하면 강해집니다.",
-    "doingItRightIsEverything": "제대로 하는 것이 전부예요",
     "squeezeTheWrongMusclesAnd": "엉뚱한 근육을 조이면 아무 효과가 없어요.",
-    "theNextLessonShowsYou": "다음 레슨에서 근육의 정확한 위치를 알려드려요.",
-    "thenYouDoYourFirst": "그다음 원의 안내에 따라 첫 번째 실제 운동을 해요.",
-    "whatYouGain": "얻을 수 있는 것"
+    "theNextLessonShowsYou": "다음 레슨에서 근육의 정확한 위치를 알려드려요."
   },
   "workout": {
     "back": "뒤로",
