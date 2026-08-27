@@ -59,6 +59,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   const remRef = useRef(TREMBLING[0].seconds);
   const loopRef = useRef(false);
   const timerRef = useRef<any>(null);
+  const lastTickAtRef = useRef(0);
 
   const glowScale = useRef(new Animated.Value(0.58)).current;
   const glowOpacity = useRef(new Animated.Value(0.08)).current;
@@ -79,8 +80,22 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     setI(0);
     setRemaining(TREMBLING[0].seconds);
     setPlaying(true);
+    lastTickAtRef.current = Date.now();
     timerRef.current = setInterval(() => {
-      remRef.current -= 0.05;
+      // Wall-clock step, matching the real session's timer.
+      //
+      // This subtracted a flat 0.05 per tick, which assumes setInterval fires
+      // exactly every 50ms. It does not - it slips under JS-thread load - so
+      // the demo's "ten seconds" took longer than ten real seconds and the
+      // rhythm it taught was slower than the exercise it is teaching. The
+      // workout screen hit this same bug and fixed it by measuring elapsed
+      // time instead; the demo has to agree with the session, not approximate
+      // it. Clamped at 250ms for the same reason: a GC pause or a backgrounded
+      // app should cost one step, not skip half the demo.
+      const now = Date.now();
+      const dt = Math.min(0.25, Math.max(0, (now - lastTickAtRef.current) / 1000));
+      lastTickAtRef.current = now;
+      remRef.current = Math.max(0, remRef.current - dt);
       if (remRef.current <= 0.0001) {
         if (iRef.current >= TREMBLING.length - 1) {
           if (loopRef.current) {
