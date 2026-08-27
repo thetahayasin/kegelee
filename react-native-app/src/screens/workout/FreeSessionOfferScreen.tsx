@@ -8,7 +8,6 @@ import Svg, { Path } from 'react-native-svg';
 import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { LESSON_TEXT } from '../../components/LessonLine';
 import { Watermark } from '../../components/Watermark';
-import { markFreeSessionUsed } from '../../services/freeSession';
 
 /**
  * Offers the free session rather than starting it.
@@ -18,9 +17,12 @@ import { markFreeSessionUsed } from '../../services/freeSession';
  * the reader could see what was about to happen, decide to do it, or know it
  * was a one-off. An offer costs one tap and buys all three.
  *
- * Declining spends it, which is the honest reading of "once": the offer was
- * made and turned down. Quitting the workout partway does NOT, because that is
- * someone who accepted and got interrupted.
+ * Nothing here spends the session. Declining an offer is not the same as
+ * having seen the product, and neither is being interrupted halfway - only
+ * FINISHING one is. A guest who says "not now" can still start it from the
+ * basics list, which keeps offering it until it has actually been completed
+ * once. Spending it on a decline would burn the whole point of the feature on
+ * a tap someone made before they knew what it was.
  */
 export const FreeSessionOfferScreen = () => {
   const { t } = useTranslation();
@@ -42,7 +44,6 @@ export const FreeSessionOfferScreen = () => {
     );
 
   const decline = useCallback(() => {
-    markFreeSessionUsed().catch(() => {});
     navigation.dispatch(
       CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge', params: { subscribe: true } }] }),
     );
