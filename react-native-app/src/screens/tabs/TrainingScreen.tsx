@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
+  AccessibilityInfo,
   ActivityIndicator,
-  RefreshControl,
   Animated,
   Easing,
-  AccessibilityInfo,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -169,6 +170,22 @@ export const TrainingScreen = () => {
 
   const R = 58;
   const arcLength = 2 * Math.PI * R * 0.8;
+
+  // Exact pixels, not a percentage.
+  //
+  // The grid was three cards at 31.5% inside a row with a 12px gap. Percentage
+  // widths measure against the container while the gaps are fixed pixels, so
+  // the row needed 94.5% PLUS 24px and only ever fitted two - every third card
+  // wrapped and each row rendered with an empty third column. Deriving the
+  // width from the space actually left over after the padding and the gaps is
+  // the only version that cannot drift, and it stays right on any screen
+  // width, in split screen, and on rotation.
+  const { width: windowWidth } = useWindowDimensions();
+  const cardWidth = Math.floor((windowWidth - SPACE.lg * 2 - SPACE.md * 2) / 3);
+  const exerciseCardStyle = useMemo(
+    () => [styles.exerciseCard, { width: cardWidth }],
+    [cardWidth],
+  );
   const pct = Math.min(1, Math.max(0, done / Math.max(1, required)));
 
   useEffect(() => {
@@ -425,7 +442,7 @@ export const TrainingScreen = () => {
                       count: ex.daysLeft,
                     })
               }
-              style={styles.exerciseCard}
+              style={exerciseCardStyle}
               onPress={() =>
                 navigation.navigate('ExerciseDetail', {
                   slug: ex.slug,
@@ -646,11 +663,11 @@ const styles = StyleSheet.create({
     gap: SPACE.md,
   },
   exerciseCard: {
-    // Three per row, accounting for the two 12px gaps between them. Two-up
-    // with a 104pt tile made each card nearly half the screen, so four
-    // exercises filled a phone and the rest of the set was a scroll away -
-    // the grid existed precisely to show how much there is to unlock.
-    width: '31.5%',
+    // Width is set at the call site from the real available space; see
+    // cardWidth. Two-up with a 104pt tile made each card nearly half the
+    // screen, so four exercises filled a phone and the rest of the set was a
+    // scroll away - the grid existed precisely to show how much there is to
+    // unlock.
     ...GLASS,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,

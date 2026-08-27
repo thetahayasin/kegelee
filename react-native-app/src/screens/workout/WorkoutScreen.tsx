@@ -731,7 +731,24 @@ export const WorkoutScreen = () => {
   const getTimeLabel = () => {
     const s = getTotalRemaining();
     if (s > 30) {
-      return t('workout.minutesLeft', { count: Math.ceil(s / 60) });
+      // ROUND, not ceil.
+      //
+      // buildDailySession deliberately overshoots its target when landing just
+      // over is closer than stopping short - the steps have to complete whole
+      // contract/relax cycles - so a level-3 session aiming at 180s is built as
+      // ~186s. Ceiling that announced "4 min" for the first few seconds of
+      // every session, a whole minute more than the length Training had just
+      // advertised, before dropping to 3 once the clock passed 180.
+      //
+      // Rounding rather than flooring: floor would fix the opening number but
+      // then report the minute BELOW the one remaining for most of the session
+      // (179s reading "2 min"), and drop a minute earlier than the reader
+      // expects. Rounding is right at both ends - it absorbs the few seconds of
+      // build slack without under-reporting the rest of the way.
+      //
+      // Cannot reach zero: this branch only runs above 30s, and 31/60 rounds
+      // to 1.
+      return t('workout.minutesLeft', { count: Math.round(s / 60) });
     }
     return t('workout.secondsLeft', { count: s });
   };
