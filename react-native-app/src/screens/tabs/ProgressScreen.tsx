@@ -62,11 +62,26 @@ export const ProgressScreen = () => {
       if (items.length > 0) {
         const lastItem = items[0];
         const dateObj = new Date(lastItem.measured_at);
+        // Readable, not numeric. The bare toLocaleDateString gave "27/08/2026"
+        // - a date the reader has to decode, and one whose day/month order is
+        // ambiguous the moment the locale is not the one they expect. Asking
+        // for a named month is both clearer and unambiguous, and Intl renders
+        // it in the device language with that language's own field order, so
+        // no string of ours needs translating.
+        const dateFormat: Intl.DateTimeFormatOptions = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        };
         let label = (() => {
           try {
-            return dateObj.toLocaleDateString(i18n.language);
+            return dateObj.toLocaleDateString(i18n.language, dateFormat);
           } catch {
-            return dateObj.toLocaleDateString();
+            try {
+              return dateObj.toLocaleDateString(undefined, dateFormat);
+            } catch {
+              return dateObj.toLocaleDateString();
+            }
           }
         })();
         // Check if today

@@ -248,7 +248,7 @@ export const TrainingScreen = () => {
               }
             >
               <View style={{ transform: [{ rotate: '126deg' }] }}>
-                <Svg width={132} height={132} viewBox="0 0 132 132">
+                <Svg width={108} height={108} viewBox="0 0 132 132">
                   <Circle
                     cx={66}
                     cy={66}
@@ -295,31 +295,58 @@ export const TrainingScreen = () => {
 
           {/* Action strip, seated on the card one elevation step forward. */}
           <View style={styles.actionStrip}>
-            <View style={styles.actionMetaRow}>
-              <View style={styles.durationRow}>
-                <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+            {/* Three columns, evenly divided, rather than three differently
+                shaped chips pushed to the edges of a row. A pill, a bordered
+                chip and a badge each styled to their own rules read as three
+                unrelated objects that happened to land on the same line - and
+                when the day was not complete the third simply vanished,
+                leaving the other two re-spaced. Equal cells with a rule
+                between them hold their positions and read as one strip of
+                facts about today. No new copy: the same values, arranged. */}
+            <View style={styles.metaColumns}>
+              <View style={styles.metaCell}>
+                <Svg width={15} height={15} viewBox="0 0 24 24" fill="none">
                   <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={1.8} />
                   <Path d="M12 8v4l3 2" stroke={COLORS.textMuted} strokeWidth={1.8} strokeLinecap="round" />
                 </Svg>
-                <Text style={styles.durationText}>{sessionLength}</Text>
+                <Text style={styles.metaValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                  {sessionLength}
+                </Text>
               </View>
 
-              {levelDef && (
-                <View style={styles.levelChip}>
-                  <Text style={styles.levelChipText}>
-                    {t(levelNameKey(levelDef.number))}
-                  </Text>
-                </View>
-              )}
+              <View style={styles.metaDivider} />
 
-              {complete && (
-                <View style={styles.completeBadge}>
-                  <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
-                    <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
-                  </Svg>
-                  <Text style={styles.completeBadgeText}>{t('training.complete')}</Text>
-                </View>
-              )}
+              <View style={styles.metaCell}>
+                <Text
+                  style={[styles.metaValue, styles.metaValueAccent]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.7}
+                >
+                  {levelDef ? t(levelNameKey(levelDef.number)) : '-'}
+                </Text>
+              </View>
+
+              <View style={styles.metaDivider} />
+
+              {/* Always occupied: the cell shows the count until the day is
+                  done, then the tick. Nothing moves when it flips. */}
+              <View style={styles.metaCell}>
+                {complete ? (
+                  <>
+                    <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                      <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
+                    </Svg>
+                    <Text style={[styles.metaValue, styles.metaValueAccent]} numberOfLines={1}>
+                      {t('training.complete')}
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={styles.metaValue} numberOfLines={1}>
+                    {done}/{required}
+                  </Text>
+                )}
+              </View>
             </View>
 
             <TouchableOpacity
@@ -384,7 +411,7 @@ export const TrainingScreen = () => {
         </View>
 
         <View style={styles.exerciseGrid}>
-          {exerciseItems.slice(0, 8).map((ex) => (
+          {exerciseItems.slice(0, 9).map((ex) => (
             <TouchableOpacity
               key={ex.slug}
               disabled={!ex.unlocked}
@@ -408,12 +435,11 @@ export const TrainingScreen = () => {
               }
             >
               <View style={!ex.unlocked && styles.lockedArt}>
-                {/* Sized against the CARD, not in isolation: these cards are
-                    half the screen wide, so a 72pt tile sat as a small square
-                    marooned in the middle of one with the label doing all the
-                    work. The equipment is what makes a card identifiable at a
-                    glance, so it gets the space. */}
-                <EquipmentIcon slug={ex.slug} size={104} />
+                {/* Sized against the card: at three per row the tile carries
+                    the identification and the label underneath is a
+                    confirmation, so it takes most of the width without
+                    dominating the screen the way 104 did at two per row. */}
+                <EquipmentIcon slug={ex.slug} size={62} />
               </View>
               <Text
                 style={[styles.exerciseName, !ex.unlocked && styles.exerciseNameLocked]}
@@ -472,20 +498,6 @@ export const TrainingScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  levelChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: 'rgba(193, 255, 114, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(193, 255, 114, 0.30)',
-  },
-  levelChipText: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    color: COLORS.accent,
-    letterSpacing: 0.2,
-  },
   unlockCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -561,8 +573,10 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
   },
-  heroBody: { paddingHorizontal: SPACE.xl, paddingTop: 28, paddingBottom: SPACE.xl, alignItems: 'center' },
-  ringWrap: { width: 132, height: 132, justifyContent: 'center', alignItems: 'center' },
+  // Tightened: the card opened the screen and took most of it, pushing the
+  // exercises below the fold on a short phone.
+  heroBody: { paddingHorizontal: SPACE.xl, paddingTop: 18, paddingBottom: SPACE.lg, alignItems: 'center' },
+  ringWrap: { width: 108, height: 108, justifyContent: 'center', alignItems: 'center' },
   ringCentre: {
     position: 'absolute',
     top: 0,
@@ -572,7 +586,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ringCount: { fontSize: 36, fontWeight: '800', letterSpacing: -1.4, color: COLORS.white },
+  ringCount: { fontSize: 30, fontWeight: '800', letterSpacing: -1.2, color: COLORS.white },
   ringSlash: { color: COLORS.textDim, fontWeight: '800' },
   ringTotal: { color: COLORS.textMuted, fontWeight: '800' },
   ringLabel: { ...TYPE.overline, fontSize: 10, color: COLORS.textDim, marginTop: 3 },
@@ -587,24 +601,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACE.xl,
     paddingVertical: SPACE.lg,
   },
-  actionMetaRow: {
+  metaColumns: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: SPACE.md,
   },
-  durationRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  durationText: { ...TYPE.bodySm, color: COLORS.textMuted },
-  completeBadge: {
+  metaCell: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.accentWash,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: RADIUS.pill,
+    justifyContent: 'center',
     gap: 5,
+    minHeight: 20,
   },
-  completeBadgeText: { ...TYPE.overline, fontSize: 10, color: COLORS.accent },
+  metaDivider: { width: 1, height: 18, backgroundColor: COLORS.border },
+  metaValue: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.textMuted },
+  metaValueAccent: { color: COLORS.accent },
   startBtn: {
     backgroundColor: COLORS.accent,
     borderRadius: RADIUS.md,
@@ -634,13 +646,16 @@ const styles = StyleSheet.create({
     gap: SPACE.md,
   },
   exerciseCard: {
-    // Two per row, accounting for the 12px gap between them.
-    width: '48%',
-    flexGrow: 1,
+    // Three per row, accounting for the two 12px gaps between them. Two-up
+    // with a 104pt tile made each card nearly half the screen, so four
+    // exercises filled a phone and the rest of the set was a scroll away -
+    // the grid existed precisely to show how much there is to unlock.
+    width: '31.5%',
     ...GLASS,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
-    padding: 14,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
     alignItems: 'center',
   },
   // Locked art is dimmed but the card itself stays at full opacity, so a
@@ -648,12 +663,12 @@ const styles = StyleSheet.create({
   lockedArt: { opacity: 0.4 },
   exerciseName: {
     color: COLORS.white,
-    fontSize: 15,
+    fontSize: 12.5,
     fontWeight: '700',
     letterSpacing: -0.2,
     textAlign: 'center',
     width: '100%',
-    marginTop: SPACE.md,
+    marginTop: SPACE.sm,
   },
   exerciseNameLocked: { color: COLORS.textMuted },
   exerciseStatus: { ...TYPE.caption, color: COLORS.accent, fontWeight: '600', marginTop: 2 },

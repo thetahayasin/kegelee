@@ -156,16 +156,22 @@ export const ProfileScreen = () => {
 
         {/* A row, not a link: the whole point is that it is one tap. */}
         <View style={styles.menuRow}>
+          {/* "Haptics", not "Vibration". The row toggles the app's own cue,
+              while the phone has a system vibration switch of its own that can
+              silence it - two things called the same thing, one of which the
+              app cannot control. The hint now states the dependency up front
+              rather than leaving it to the warning that only appears once the
+              cue has already failed to be felt. */}
           <View style={styles.vibrationLabel}>
-            <Text style={styles.menuLabel}>{t('profile.vibration')}</Text>
-            <Text style={styles.menuHint}>{t('profile.vibrationHint')}</Text>
+            <Text style={styles.menuLabel}>{t('profile.haptics')}</Text>
+            <Text style={styles.menuHint}>{t('profile.hapticsHint')}</Text>
           </View>
           <Switch
             value={hapticsEnabled}
             onValueChange={toggleHaptics}
             trackColor={{ false: 'rgba(242, 245, 238, 0.16)', true: COLORS.accent }}
             thumbColor={COLORS.white}
-            accessibilityLabel={t('profile.vibration')}
+            accessibilityLabel={t('profile.haptics')}
           />
         </View>
 
