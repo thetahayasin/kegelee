@@ -10,8 +10,8 @@ import {
 import { TouchableOpacity } from '../../../components/Touchable';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { exerciseNameKey } from '../../../constants/catalogues';
-import { COLORS, TYPE } from '../../../theme/colors';
-import { LessonLine } from '../../../components/LessonLine';
+import { COLORS } from '../../../theme/colors';
+import { LessonLine, LESSON_TEXT } from '../../../components/LessonLine';
 import { getSteps } from '../../../constants/catalogues';
 
 interface Props {
@@ -222,8 +222,8 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
           </View>
         </View>
-        <Text style={styles.h1Below}>{t('first.thisIsTrembling')}</Text>
-        <Text style={styles.p}>
+        <Text style={styles.h1Below} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.3}>{t('first.thisIsTrembling')}</Text>
+        <Text style={styles.p} numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
           {t('first.yourFirstExerciseQuickFlicks')}
         </Text>
       </View>
@@ -254,8 +254,8 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           )}
         </View>
       </View>
-      <Text style={styles.h1Below}>{tried ? t('first.niceWork') : t('first.nowYouTry')}</Text>
-      <Text style={styles.p}>
+      <Text style={styles.h1Below} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.3}>{tried ? t('first.niceWork') : t('first.nowYouTry')}</Text>
+      <Text style={styles.p} numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
         {tried
           ? t('first.thatWasARealExercise')
           : playing
@@ -275,8 +275,10 @@ const styles = StyleSheet.create({
   // Heading when it sits BELOW the pulsing circle (steps 1 & 2). The top margin
   // clears the glow halo (which reaches ~GLOW/2 - SIZE/2 px past the circle edge)
   // so the pulse never bleeds onto the copy.
-  h1Below: { ...TYPE.heading, marginTop: 72, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
-  p: { marginTop: 12, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
+  h1Below: { ...LESSON_TEXT, marginTop: 72, color: COLORS.white, textAlign: 'center' },
+  // The instruction for the thing you are about to do, so it is read, not
+  // skimmed. 16 under a 28px heading looked like fine print next to it.
+  p: { marginTop: 12, fontSize: 19, lineHeight: 27, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
   // Step 0 keeps the circle above the copy with a static (non-glowing) ring.
   // Pulse steps (1 & 2) put the circle up top; the glow radiates into the empty
   // space above it (below the step dots) rather than over the reading copy below.

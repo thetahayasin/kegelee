@@ -25,6 +25,7 @@ import { PaywallScreen } from '../screens/paywall/PaywallScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { LegalPageScreen } from '../screens/settings/LegalPageScreen';
 import { FreeSessionCompleteScreen } from '../screens/workout/FreeSessionCompleteScreen';
+import { FreeSessionOfferScreen } from '../screens/workout/FreeSessionOfferScreen';
 import { ExerciseDetailScreen } from '../screens/exercise/ExerciseDetailScreen';
 import { AllExercisesScreen } from '../screens/exercise/AllExercisesScreen';
 import { KnowledgeScreen } from '../screens/knowledge/KnowledgeScreen';
@@ -57,6 +58,7 @@ export type AuthStackParamList = {
   Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
   LegalPage: { slug: string; title: string };
+  FreeSessionOffer: undefined;
   Workout: { freeSession?: boolean };
   FreeSessionComplete: { duration: number };
 };
@@ -236,6 +238,7 @@ export const AppNavigator = () => {
             workout builds day one of level 1 without touching an account, and
             the completion screen is its own rather than the account-keyed
             one. */}
+        <AuthStack.Screen name="FreeSessionOffer" component={FreeSessionOfferScreen} />
         <AuthStack.Screen name="Workout" component={WorkoutScreen} />
         <AuthStack.Screen name="FreeSessionComplete" component={FreeSessionCompleteScreen} />
       </AuthStack.Navigator>

@@ -553,7 +553,8 @@
   "why": {
     "cardRealMuscle": "本物の筋肉です。鍛えれば強くなります。",
     "squeezeTheWrongMusclesAnd": "違う筋肉を締めても効果はありません。",
-    "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。"
+    "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。",
+    "thenYouDoYourFirst": "そのあと、円のガイドに合わせて最初の本格的なエクササイズを行います。"
   },
   "workout": {
     "back": "戻る",

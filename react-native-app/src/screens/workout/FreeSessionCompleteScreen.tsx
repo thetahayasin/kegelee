@@ -138,8 +138,24 @@ export const FreeSessionCompleteScreen = () => {
           </Animated.View>
         </View>
 
-        <Text style={styles.title}>{t('workoutComplete.sessionComplete')}</Text>
-        <Text style={styles.sub}>{t('workoutComplete.keepGoing')}</Text>
+        <Text
+          style={styles.title}
+          numberOfLines={2}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
+          maxFontSizeMultiplier={1.3}
+        >
+          {t('workoutComplete.sessionComplete')}
+        </Text>
+        <Text
+          style={styles.sub}
+          numberOfLines={3}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+          maxFontSizeMultiplier={1.3}
+        >
+          {t('workoutComplete.keepGoing')}
+        </Text>
       </View>
 
       {/* One button, not two. A "Not now" alongside it would be a fake choice:
@@ -149,7 +165,7 @@ export const FreeSessionCompleteScreen = () => {
           one. */}
       <View style={styles.cta}>
         <TouchableOpacity style={styles.primary} onPress={toPlans}>
-          <Text style={styles.primaryText}>{t('subscribeSheet.subscribe')}</Text>
+          <Text style={styles.primaryText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} maxFontSizeMultiplier={1.2}>{t('subscribeSheet.subscribe')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

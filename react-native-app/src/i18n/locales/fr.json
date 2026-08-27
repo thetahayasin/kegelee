@@ -553,7 +553,8 @@
   "why": {
     "cardRealMuscle": "Un vrai muscle. Entraînez-le et il se renforce.",
     "squeezeTheWrongMusclesAnd": "Si tu contractes les mauvais muscles, tu n'obtiens rien.",
-    "theNextLessonShowsYou": "La prochaine leçon te montre exactement où se trouvent tes muscles."
+    "theNextLessonShowsYou": "La prochaine leçon te montre exactement où se trouvent tes muscles.",
+    "thenYouDoYourFirst": "Ensuite tu fais ton premier vrai exercice, guidé par le cercle."
   },
   "workout": {
     "back": "Retour",

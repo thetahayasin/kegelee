@@ -9,8 +9,8 @@ import {
   Pressable,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { COLORS, GLASS, TYPE } from '../../../theme/colors';
-import { LessonLine } from '../../../components/LessonLine';
+import { COLORS, GLASS } from '../../../theme/colors';
+import { LessonLine, LESSON_TEXT } from '../../../components/LessonLine';
 
 interface Props {
   step: number;
@@ -99,10 +99,10 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
 
   return (
     <View style={styles.center}>
-      <Text style={styles.h1}>
+      <Text style={styles.h1} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.3}>
         {doneHold ? t('find.youFoundThem') : t('find.tryItNow')}
       </Text>
-      <Text style={styles.p}>
+      <Text style={styles.p} numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
         {doneHold ? t('find.youFoundThemBody') : t('find.tryItNowBody')}
       </Text>
 
@@ -155,8 +155,12 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // One scale across all three lessons. 28px bold read as a slogan rather than
   // a heading, especially on the steps where the heading is most of the step.
-  h1: { ...TYPE.heading, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
-  p: { marginTop: 14, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
+  // Same scale as the text-only steps. This step still leads with a line of
+  // text; it just has something to do underneath it.
+  h1: { ...LESSON_TEXT, color: COLORS.white, textAlign: 'center' },
+  // The instruction for the thing you are about to do, so it is read, not
+  // skimmed. 16 under a 28px heading looked like fine print next to it.
+  p: { marginTop: 14, fontSize: 19, lineHeight: 27, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
   holdArea: { marginTop: 30, width: 250, height: 250, alignItems: 'center', justifyContent: 'center' },
   holdGlow: {
     position: 'absolute',

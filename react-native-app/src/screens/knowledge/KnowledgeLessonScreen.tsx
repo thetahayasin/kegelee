@@ -80,11 +80,11 @@ export const KnowledgeLessonScreen = () => {
         // ask; asking straight after they have finished a real session is the
         // strongest. Falls through to the old behaviour once it is spent.
         if (!(await hasUsedFreeSession())) {
+          // The OFFER, not the session. Dropping someone straight into a live
+          // timer they never agreed to start gives them no moment to see what
+          // is happening or decide to do it.
           navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: 'Workout', params: { freeSession: true } }],
-            }),
+            CommonActions.reset({ index: 0, routes: [{ name: 'FreeSessionOffer' }] }),
           );
           return;
         }
