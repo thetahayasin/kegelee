@@ -21,7 +21,7 @@ import { useAuth } from '../../context/AuthContext';
 import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
 import { COLORS } from '../../theme/colors';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
-import { FREE_SESSION_LEVEL } from '../../services/freeSession';
+import { FREE_SESSION_LEVEL, freeSessionExitReset } from '../../services/freeSession';
 import { getDBConnection } from '../../db/sqlite';
 import { recordCompletedSession } from '../../db/queries';
 import { syncNow } from '../../services/sync';
@@ -145,7 +145,7 @@ export const WorkoutScreen = () => {
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'Workout'>>();
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const trialSlug = route.params?.trialSlug || null;
   const isTrial = !!trialSlug;
@@ -263,9 +263,7 @@ export const WorkoutScreen = () => {
           // Should not happen - two exercises unlock at day 0 - but goBack is
           // inert on the reset stack this screen is the root of, so failing
           // that way would hang on the loading state forever.
-          navigation.dispatch(
-            CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge' }] }),
-          );
+          navigation.dispatch(CommonActions.reset(freeSessionExitReset(isAuthenticated)));
           return;
         }
         remainingRef.current = session.steps[0].seconds;
@@ -561,15 +559,15 @@ export const WorkoutScreen = () => {
   const handleQuit = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     KeepAwake.deactivate();
-    // The free session is reached by RESETTING the guest stack (so Back cannot
-    // walk into the lesson they just finished), which leaves nothing beneath
-    // it for goBack to pop - quitting would strand them mid-workout with no
-    // exit. Send them to the basics list instead. The session is not marked
-    // used until it completes, so quitting costs them nothing.
+    // The free session is reached by RESETTING the stack (so Back cannot walk
+    // into the lesson they just finished), which leaves nothing beneath it for
+    // goBack to pop - quitting would strand them mid-workout with no exit.
+    // Send them to the basics list instead, keeping the paywall underneath for
+    // an account so quitting does not also cost them the way to subscribe. The
+    // session is not marked used until it completes, so quitting costs them
+    // nothing either way.
     if (freeSession) {
-      navigation.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge' }] }),
-      );
+      navigation.dispatch(CommonActions.reset(freeSessionExitReset(isAuthenticated)));
       return;
     }
     navigation.goBack();

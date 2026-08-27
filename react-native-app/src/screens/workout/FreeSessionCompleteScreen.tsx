@@ -67,7 +67,14 @@ export const FreeSessionCompleteScreen = () => {
   // basics list and the plans sheet opens over it; a signed-in account goes to
   // the paywall itself, which is the screen it dismissed to get here - now
   // reached having actually trained rather than before seeing anything.
-  const toPlans = () =>
+  //
+  // The mark is awaited here as well as fired on mount, because the guest
+  // branch races it: the basics list decides whether to open the plans sheet
+  // by READING that flag, and if the tap beats the write the funnel arrives at
+  // the ask and silently declines to make it. Marking twice writes the same
+  // value to the same key, so the only thing this costs is the race.
+  const toPlans = async () => {
+    await markFreeSessionUsed(user?.id).catch(() => {});
     navigation.dispatch(
       isAuthenticated
         ? CommonActions.reset({ index: 0, routes: [{ name: 'Paywall' }] })
@@ -76,6 +83,7 @@ export const FreeSessionCompleteScreen = () => {
             routes: [{ name: 'Knowledge', params: { subscribe: true } }],
           }),
     );
+  };
 
   // This screen REPLACED the workout, which was itself the root of a reset
   // stack, so there is nothing beneath it: Android back would close the app on

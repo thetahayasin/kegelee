@@ -9,6 +9,7 @@ import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { LESSON_TEXT } from '../../components/LessonLine';
 import { Watermark } from '../../components/Watermark';
 import { useAuth } from '../../context/AuthContext';
+import { freeSessionExitReset } from '../../services/freeSession';
 
 /**
  * Offers the free session rather than starting it.
@@ -45,16 +46,13 @@ export const FreeSessionOfferScreen = () => {
       CommonActions.reset({ index: 0, routes: [{ name: 'Workout', params: { freeSession: true } }] }),
     );
 
-  // Guests reset to the basics list, where the plans sheet opens itself.
-  // A signed-in account is inside the subscription gate and simply goes back
-  // to the basics it came from - its paywall is a screen, not a sheet.
+  // Both identities land on the basics list. The difference is what is left
+  // underneath: an account keeps its paywall in the stack, so Back, the
+  // Subscribe button and the Log out escape hatch all still lead somewhere.
+  // See freeSessionExitReset - resetting to a bare [Knowledge] here was what
+  // stranded signed-in accounts with no way to pay and no way out.
   const decline = useCallback(() => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Knowledge', params: isAuthenticated ? undefined : { subscribe: true } }],
-      }),
-    );
+    navigation.dispatch(CommonActions.reset(freeSessionExitReset(isAuthenticated)));
   }, [navigation, isAuthenticated]);
 
   // Android back is a decline, not an escape hatch: this screen is the root of

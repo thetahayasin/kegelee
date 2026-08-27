@@ -39,14 +39,17 @@ import { COLORS, RADIUS } from '../theme/colors';
 
 export type RootStackParamList = {
   MainTabs: undefined;
-  Workout: { trialSlug?: string };
+  // freeSession belongs here too: the subscription gate below mounts Workout
+  // and dispatches it with { freeSession: true }, so declaring it only on the
+  // guest stack made the gate's own free session an untyped route.
+  Workout: { trialSlug?: string; freeSession?: boolean };
   WorkoutComplete: { duration: number; levelId: number };
   Paywall: undefined;
   Settings: undefined;
   LegalPage: { slug: string; title: string };
   ExerciseDetail: { slug: string; unlocked: boolean; daysLeft: number };
   AllExercises: undefined;
-  Knowledge: undefined;
+  Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
   // Reachable for a signed-in account that has not subscribed yet: the paywall
   // dismisses into the same funnel a guest gets.

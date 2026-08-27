@@ -107,7 +107,7 @@ export const initBilling = async (userId?: number | string | null): Promise<bool
     return configurePromise;
   }
 
-  configurePromise = (async () => {
+  const attempt = (async () => {
     try {
       const apiKey = await configuredApiKey();
       if (!configuredAppUserId) {
@@ -127,11 +127,21 @@ export const initBilling = async (userId?: number | string | null): Promise<bool
       }
       return true;
     } catch {
+      // A FAILED attempt must not be remembered. The memo above returns the
+      // cached promise for any anonymous caller (`!appUserId`), so one
+      // configure that lost a race with the network - the very first thing the
+      // guest subscribe sheet does on open - used to answer `false` for the
+      // rest of the process. Every later getPlanPricing() short-circuited, the
+      // sheet showed the USD catalogue figure to every market on earth, and
+      // the paywall said billing was unavailable on a perfectly good phone,
+      // until the app was force-killed. Clearing it makes the next call retry.
+      configurePromise = null;
       return false;
     }
   })();
 
-  return configurePromise;
+  configurePromise = attempt;
+  return attempt;
 };
 
 /**
@@ -847,4 +857,28 @@ export const takePendingPlan = async (): Promise<string | null> => {
   } catch {
     return null;
   }
+};
+
+/**
+ * Read the stashed plan WITHOUT spending it.
+ *
+ * takePendingPlan() consumes on read, which threw the plan away on every path
+ * that read it and then did not act: the paywall unmounting mid-await, or the
+ * caller deciding there was nothing to resume. The person had picked a plan,
+ * created an account and verified an email specifically to buy that plan, and
+ * the funnel quietly forgot which one - dropping them on a paywall they had
+ * already filled in once. Peek, act, then clear.
+ */
+export const peekPendingPlan = async (): Promise<string | null> => {
+  try {
+    return await AsyncStorage.getItem(PENDING_PLAN_KEY);
+  } catch {
+    return null;
+  }
+};
+
+export const clearPendingPlan = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(PENDING_PLAN_KEY);
+  } catch {}
 };

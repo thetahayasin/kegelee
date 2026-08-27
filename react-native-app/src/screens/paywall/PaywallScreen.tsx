@@ -34,7 +34,8 @@ import {
   requestPlanPurchase,
   restoreRevenueCatPurchases,
   recordCompletedPurchase,
-  takePendingPlan,
+  peekPendingPlan,
+  clearPendingPlan,
   getPlanPricing,
   describePurchaseFailure,
   refreshCustomerInfo,
@@ -81,10 +82,25 @@ export const PaywallScreen = () => {
   const [pricing, setPricing] = useState<Record<string, PlanPricing>>({});
   const [purchasing, setPurchasing] = useState(false);
   const [billingReady, setBillingReady] = useState(true);
-  // True once offerings have loaded and matched no plan - purchasing is
-  // impossible until the store/RevenueCat catalogue is fixed.
-  const [offeringsUnavailable, setOfferingsUnavailable] = useState(false);
+  // Where the store lookup got to.
+  //
+  // This was a single `offeringsUnavailable` boolean, which conflated three
+  // very different states and got two of them wrong. While the lookup was
+  // still in flight the cards printed the catalogue's USD figure, so a reader
+  // in Delhi or Warsaw watched the price change under them a second later -
+  // the one screen where a number that moves costs you the sale. And a single
+  // transient failure (mount while the phone was still finding the network)
+  // latched "unavailable" for the life of the screen: prices stuck at "--",
+  // CTA disabled, no retry short of killing the app, on the only screen an
+  // unsubscribed account can reach.
+  const [pricingState, setPricingState] =
+    useState<'loading' | 'ready' | 'failed'>('loading');
   const [message, setMessage] = useState<string | null>(null);
+  // Not every message is a failure: a pending Play payment and "you already
+  // own this, restoring now" are both good news. Colouring those like errors
+  // reads as "your money did not go through", which is how you get a second
+  // charge attempt and a support ticket.
+  const [messageTone, setMessageTone] = useState<'info' | 'error'>('error');
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -92,8 +108,9 @@ export const PaywallScreen = () => {
   // padding. It was a hardcoded 200, which the bar outgrew as soon as the CTA
   // disclosure wrapped to more lines ("3-day free trial, then ... unless you
   // cancel before the trial ends"), so the last plan card slid underneath it.
-  // 200 stays as the first-render estimate until onLayout reports the truth.
-  const [bottomBarHeight, setBottomBarHeight] = useState(200);
+  // The estimate is only for the first frame; onLayout reports the truth.
+  // 160 now the legal paragraph and Restore have moved into the page.
+  const [bottomBarHeight, setBottomBarHeight] = useState(160);
   const insets = useSafeAreaInsets();
 
   // Keep the live subscription in a ref so CTA presses after a re-render still
@@ -107,6 +124,20 @@ export const PaywallScreen = () => {
   // that call pointed at the current handler instead of the one captured when
   // the callback was created.
   const handleRestoreRef = useRef<(() => Promise<void>) | null>(null);
+  // Same reason: the backoff poll is created once per [user, gateOpen] and has
+  // to reach the CURRENT price loader and the CURRENT lookup state, or it
+  // would either retry forever or never retry at all.
+  const loadPricingRef = useRef<(() => void) | null>(null);
+  const pricingStateRef = useRef<'loading' | 'ready' | 'failed'>('loading');
+  // One mounted flag for the async work that outlives a fast dismissal, rather
+  // than a local per-effect one that the retry path cannot see.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const subscribed = !!activeSub;
   // Whether this screen was pushed onto an existing stack (Settings -> Manage
@@ -151,6 +182,7 @@ export const PaywallScreen = () => {
 
         const result = await recordCompletedPurchase(user.id, purchase);
         if (result === 'unmatched') {
+          setMessageTone('error');
           setMessage(t('paywall.purchaseReceivedButPlanCould'));
           return;
         }
@@ -181,6 +213,10 @@ export const PaywallScreen = () => {
         }
         // The raw code and SDK string are for us, not for the customer.
         console.warn('[billing] purchase failed', failure.code, failure.detail);
+        // "Play is still processing your payment" and "you already own this,
+        // restoring it now" are outcomes, not errors. Both mean the money is
+        // fine and nothing needs doing again.
+        setMessageTone(failure.pending || failure.restorable ? 'info' : 'error');
         setMessage(t(failure.messageKey));
         if (failure.restorable) {
           // They already own it. Restoring is the fix; asking them to buy
@@ -226,6 +262,13 @@ export const PaywallScreen = () => {
       // screen unmounts by itself the moment either lands.
       syncNow(user.id).catch(() => {});
       refreshCustomerInfo(user.id).catch(() => {});
+      // Same network coming back is the same reason to re-ask the store. A
+      // paywall that opened while the phone had no signal is otherwise stuck
+      // showing "--" behind a dead button for as long as it stays open, which
+      // on the gate root means for as long as the app is running.
+      if (pricingStateRef.current !== 'ready') {
+        loadPricingRef.current?.();
+      }
       delay = Math.min(delay * 2, 300_000);
       timer = setTimeout(tick, delay);
     };
@@ -237,6 +280,44 @@ export const PaywallScreen = () => {
     };
   }, [user, gateOpen]);
 
+  // Ask the store for prices and trial eligibility, and be re-runnable.
+  //
+  // Kept out of the mount effect precisely so it can be called again: from the
+  // backoff poll above when the network returns, and from the retry the
+  // customer can tap. One failed lookup used to be final.
+  const loadPricing = useCallback(async () => {
+    if (!user) return;
+    setPricingState((s) => (s === 'ready' ? s : 'loading'));
+    try {
+      const ready = await initBilling(user.id);
+      if (!mountedRef.current) return;
+      setBillingReady(ready);
+      if (!ready) {
+        setMessageTone('error');
+        setMessage(t('paywall.billingIsNotAvailableOn'));
+        setPricingState('failed');
+        return;
+      }
+      // A retry that succeeds has to clear the notice the failure put up, or
+      // the screen tells someone billing is unavailable on a device that has
+      // just quoted them three prices.
+      setMessage((m) => (m === t('paywall.billingIsNotAvailableOn') ? null : m));
+      const p = await getPlanPricing(user.id);
+      if (!mountedRef.current) return;
+      pricingRef.current = p;
+      setPricing(p);
+      // No package matched any plan: the store or RevenueCat has no
+      // purchasable products for this build (empty/misconfigured offering,
+      // wrong SDK key, product not live). Say so and block the CTA rather
+      // than showing catalogue prices behind a button that can only fail
+      // once tapped.
+      setPricingState(Object.keys(p).length === 0 ? 'failed' : 'ready');
+    } catch {
+      if (mountedRef.current) setPricingState('failed');
+    }
+  }, [user, t]);
+  loadPricingRef.current = loadPricing;
+
   // Mount: warm the billing connection, load the current subscription,
   // pre-select the featured plan (or the CURRENT plan for subscribers, so
   // they can switch), then continue a purchase the subscribe sheet started
@@ -246,28 +327,7 @@ export const PaywallScreen = () => {
     let mounted = true;
     (async () => {
       if (user) {
-        const ready = await initBilling(user.id);
-        if (mounted && !ready) {
-          setBillingReady(false);
-          setMessage(t('paywall.billingIsNotAvailableOn'));
-        }
-        if (ready) {
-          getPlanPricing(user.id)
-            .then((p) => {
-              if (!mounted) return;
-              setPricing(p);
-              pricingRef.current = p;
-              // No package matched any plan: the store or RevenueCat has no
-              // purchasable products for this build (empty/misconfigured
-              // offering, wrong SDK key, product not live). Say so and block
-              // the CTA rather than showing catalogue prices behind a button
-              // that can only fail once tapped.
-              setOfferingsUnavailable(Object.keys(p).length === 0);
-            })
-            .catch(() => {
-              if (mounted) setOfferingsUnavailable(true);
-            });
-        }
+        loadPricing();
       }
       // A subscription can renew (or be bought on another device) while the
       // app is closed, leaving the local rows stale - and no other screen is
@@ -297,13 +357,29 @@ export const PaywallScreen = () => {
             : current.plan_slug ?? featuredPlan().slug,
       );
 
-      const pendingSlug = await takePendingPlan();
+      // PEEK, then clear only once it has been acted on.
+      //
+      // Consuming on read threw the choice away whenever this screen was torn
+      // down mid-await, which is exactly what happens when the gate opens
+      // underneath it. Someone who picked a plan in the sheet, created an
+      // account and typed a verification code to buy THAT plan would come back
+      // to a paywall that had forgotten which one - and to a purchase flow
+      // that never resumed.
+      const pendingSlug = await peekPendingPlan();
       if (!mounted) return;
       const pending = planBySlug(pendingSlug);
-      if (pending && !current) {
-        setSelectedPlan(pending.slug);
-        subscribe(pending, current);
+      if (!pending) {
+        return;
       }
+      if (current) {
+        // Nothing left to resume - they already hold a subscription. Drop it
+        // so it cannot fire at some unrelated moment later.
+        clearPendingPlan();
+        return;
+      }
+      clearPendingPlan();
+      setSelectedPlan(pending.slug);
+      subscribe(pending, current);
     })();
     return () => {
       mounted = false;
@@ -341,11 +417,13 @@ export const PaywallScreen = () => {
     try {
       const purchase = await restoreRevenueCatPurchases(user.id);
       if (!purchase) {
+        setMessageTone('info');
         setMessage(t('paywall.noActiveSubscriptionWasFound'));
         return;
       }
       const result = await recordCompletedPurchase(user.id, purchase);
       if (result === 'unmatched') {
+        setMessageTone('error');
         setMessage(t('paywall.restoredPurchaseCouldNotBe'));
         return;
       }
@@ -358,6 +436,7 @@ export const PaywallScreen = () => {
       const failure = describePurchaseFailure(e);
       if (!failure.cancelled) {
         console.warn('[billing] restore failed', failure.code, failure.detail);
+        setMessageTone(failure.pending ? 'info' : 'error');
         setMessage(t(failure.messageKey));
       }
     } finally {
@@ -365,6 +444,12 @@ export const PaywallScreen = () => {
     }
   };
   handleRestoreRef.current = handleRestore;
+  pricingStateRef.current = pricingState;
+  // Purchasing is impossible only when the store told us so. While the lookup
+  // is still in flight the cards show a placeholder rather than a price we
+  // would have to correct, and the CTA waits with them.
+  const pricesPending = pricingState === 'loading';
+  const offeringsUnavailable = pricingState === 'failed';
   const selectedPlanDef = planBySlug(selectedPlan);
   // "Switch to X" only describes a real product change. After a cancellation
   // any purchase is a fresh one, so the CTA must not promise a switch that
@@ -515,6 +600,16 @@ export const PaywallScreen = () => {
               <TouchableOpacity
                 key={plan.slug}
                 activeOpacity={0.85}
+                // The cards ARE a radio group - one of three, exactly one
+                // chosen - and only the guest sheet said so. A screen reader
+                // on the paywall announced three unrelated buttons and never
+                // which one was selected, on the screen where the selection
+                // decides what gets charged.
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`${t(planNameKey(plan.slug))}, ${
+                  pricing[plan.slug]?.priceString ?? ''
+                }`}
                 style={[styles.planCard, selected && styles.planCardSelected]}
                 onPress={() => setSelectedPlan(plan.slug)}
               >
@@ -538,10 +633,20 @@ export const PaywallScreen = () => {
                     ) : null}
                   </View>
                   <View style={styles.planPriceWrap}>
-                    <Text style={styles.planPrice}>
-                      {pricing[plan.slug]?.priceString
-                        || (offeringsUnavailable ? '--' : `$${plan.price.toFixed(2)}`)}
-                    </Text>
+                    {/* Never a price we would have to take back. The store's
+                        own localized string, or a placeholder while we are
+                        still asking - not the USD catalogue figure, which is
+                        the wrong number in every market but one and reads as
+                        a bait-and-switch when it changes a second later. */}
+                    {pricing[plan.slug]?.priceString ? (
+                      <Text style={styles.planPrice}>
+                        {pricing[plan.slug]?.priceString}
+                      </Text>
+                    ) : pricesPending ? (
+                      <View style={styles.pricePlaceholder} />
+                    ) : (
+                      <Text style={styles.planPrice}>--</Text>
+                    )}
                     {perMonth ? (
                       <Text style={styles.planPerMonth}>
                         {t('common.perMonth', { price: perMonth })}
@@ -554,11 +659,79 @@ export const PaywallScreen = () => {
           })}
         </View>
 
+        {/* A store lookup that failed is usually the network, not a broken
+            catalogue, so it gets a retry rather than a dead end. Without one
+            the only cure for opening the paywall a second too early was
+            force-killing the app. */}
         {offeringsUnavailable ? (
-          <Text style={styles.message}>{t('paywall.offeringsUnavailable')}</Text>
+          <View style={styles.retryWrap}>
+            <Text style={styles.message}>{t('paywall.offeringsUnavailable')}</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={loadPricing}>
+              {/* Borrowed rather than minted: this exact word already exists,
+                  translated, in all 29 locales. */}
+              <Text style={styles.retryBtnText}>{t('progress.tryAgain')}</Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
 
-        {message ? <Text style={styles.message}>{message}</Text> : null}
+        {message ? (
+          <Text
+            style={[
+              styles.message,
+              messageTone === 'error' ? styles.messageError : styles.messageInfo,
+            ]}
+          >
+            {message}
+          </Text>
+        ) : null}
+
+        {/* The fine print and the recovery action, moved off the fixed bar.
+            They were pinned to the bottom of the screen, where three
+            sentences of legal text plus a Restore link grew the bar past
+            200px - a third of a small phone - and pushed the plan cards, the
+            only thing on this screen anyone is deciding between, below the
+            fold. Both belong in the page; neither is what the reader is here
+            to do. The renewal disclosure stays on the bar, next to the button
+            it describes, which is where Play requires it.
+
+            Still shown to subscribers, as it always was: switching a plan is
+            still a purchase, and these are the only links to those pages from
+            this screen.
+
+            The trailing "and the app store terms." went with the move. It was
+            a bare English literal at the end of an otherwise fully translated
+            paragraph, printed verbatim into all 29 locales - and the sentence
+            before it already names the app store. */}
+        <Text style={styles.legalText}>
+          {t('paywall.paymentProcessedSecurely')}{' '}
+          {t('paywall.uninstallingDoesNotCancel')}{' '}
+          {t('paywall.byContinuingYouAgree')}{' '}
+          <Text
+            style={styles.legalLink}
+            onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: t('paywall.terms') })}
+          >
+            {t('paywall.terms')}
+          </Text>
+          {', '}
+          <Text
+            style={styles.legalLink}
+            onPress={() =>
+              navigation.navigate('LegalPage', { slug: 'privacy-policy', title: t('paywall.privacyPolicy') })
+            }
+          >
+            {t('paywall.privacyPolicy')}
+          </Text>
+          .
+        </Text>
+        {!subscribed && (
+          <TouchableOpacity
+            style={styles.restoreBtn}
+            onPress={handleRestore}
+            disabled={purchasing}
+          >
+            <Text style={styles.restoreBtnText}>{t('paywall.restorePurchases')}</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Fixed bottom CTA bar */}
@@ -569,10 +742,12 @@ export const PaywallScreen = () => {
         <TouchableOpacity
           style={[
             styles.continueBtn,
-            (!selectedPlan || purchasing || !billingReady || offeringsUnavailable) &&
+            (!selectedPlan || purchasing || !billingReady || offeringsUnavailable || pricesPending) &&
               styles.continueBtnDisabled,
           ]}
-          disabled={!selectedPlan || purchasing || !billingReady || offeringsUnavailable}
+          disabled={
+            !selectedPlan || purchasing || !billingReady || offeringsUnavailable || pricesPending
+          }
           onPress={() => selectedPlanDef && subscribe(selectedPlanDef, activeSubRef.current)}
         >
           {purchasing ? (
@@ -589,12 +764,27 @@ export const PaywallScreen = () => {
             </Text>
           )}
         </TouchableOpacity>
-        {/* Directly under the CTA, not at the end.
-            It was last - below the renewal terms, the legal paragraph and
-            Restore purchases - which puts the second most important action on
-            the screen for a brand new account underneath a block of fine print
-            and a rare recovery action. Subscribe and its alternative belong
-            next to each other.
+        {/* The renewal disclosure sits DIRECTLY under the button it describes,
+            with nothing between them. Play requires the terms at the point of
+            purchase, and a reader should not have to step over an alternative
+            action to find out what the button charges them. */}
+        {!purchasing && selectedPlanDef && !offeringsUnavailable && !pricesPending ? (
+          <Text style={styles.renewalText}>
+            {trialDays
+              ? t('paywall.trialThenPrice', { count: trialDays, price: selectedPriceLabel })
+              : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel })}{' '}
+            {t('paywall.manageOrCancelAnytime')}
+          </Text>
+        ) : null}
+        {/* Kept on the bar rather than buried under the fine print - a new
+            account needs a visible way past the price, or the only exit it can
+            find is the one that uninstalls the app.
+
+            Quiet, though. Bold white at body size directly beside the primary
+            CTA reads as the second half of a pair of equal choices, and this
+            one is not: it is the way out for someone who is not ready. Muted
+            weight keeps it findable without competing with the button the
+            screen exists for.
 
             Only on the gate root; opened from Settings as Manage Plan the
             header X already does this. */}
@@ -605,48 +795,6 @@ export const PaywallScreen = () => {
           >
             <Text style={styles.exploreBtnText}>{t('workoutComplete.notNow')}</Text>
           </TouchableOpacity>
-        )}
-        {!purchasing && (
-          <>
-            {selectedPlanDef && !offeringsUnavailable ? (
-              <Text style={styles.renewalText}>
-                {trialDays
-                  ? t('paywall.trialThenPrice', { count: trialDays, price: selectedPriceLabel })
-                  : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel })}{' '}
-                {t('paywall.manageOrCancelAnytime')}
-              </Text>
-            ) : null}
-            <Text style={styles.legalText}>
-              {t('paywall.paymentProcessedSecurely')}{' '}
-              {t('paywall.uninstallingDoesNotCancel')}{' '}
-              {t('paywall.byContinuingYouAgree')}{' '}
-              <Text
-                style={styles.legalLink}
-                onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: t('paywall.terms') })}
-              >
-                {t('paywall.terms')}
-              </Text>
-              {', '}
-              <Text
-                style={styles.legalLink}
-                onPress={() =>
-                  navigation.navigate('LegalPage', { slug: 'privacy-policy', title: t('paywall.privacyPolicy') })
-                }
-              >
-                {t('paywall.privacyPolicy')}
-              </Text>{' '}
-              and the app store terms.
-            </Text>
-            {!subscribed && (
-              <TouchableOpacity
-                style={styles.restoreBtn}
-                onPress={handleRestore}
-                disabled={purchasing}
-              >
-                <Text style={styles.restoreBtnText}>{t('paywall.restorePurchases')}</Text>
-              </TouchableOpacity>
-            )}
-          </>
         )}
       </View>
 
@@ -888,7 +1036,37 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
     fontSize: 14,
-    color: COLORS.accentSoft,
+  },
+  // A store or payment failure is not a promotion. It was rendered in the
+  // accent tint, which on this screen is the colour of every good thing -
+  // trial banners, savings pills, the buy button - so "Google Play declined
+  // the payment" arrived looking like an offer.
+  messageError: { color: COLORS.danger },
+  messageInfo: { color: COLORS.accentSoft },
+  retryWrap: {
+    alignItems: 'center',
+  },
+  retryBtn: {
+    marginTop: SPACE.md,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    borderRadius: RADIUS.pill,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+  },
+  retryBtnText: {
+    ...TYPE.bodySm,
+    fontWeight: '700',
+    color: COLORS.white,
+  },
+  // Stands in for the price while the store is still answering. Sized to the
+  // text it replaces so the card does not resize when the real figure lands.
+  pricePlaceholder: {
+    width: 62,
+    height: 19,
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.surface2,
   },
   bottomBar: {
     position: 'absolute',
@@ -917,10 +1095,10 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
     color: COLORS.onAccent,
   },
-  exploreBtn: { alignItems: 'center', paddingVertical: SPACE.md },
-  exploreBtnText: { ...TYPE.body, color: COLORS.white, fontWeight: '700' },
+  exploreBtn: { alignItems: 'center', paddingVertical: SPACE.md, minHeight: 44 },
+  exploreBtnText: { ...TYPE.body, color: COLORS.textMuted, fontWeight: '600' },
   restoreBtn: {
-    marginTop: 10,
+    marginTop: SPACE.lg,
     alignSelf: 'center',
     minHeight: 44,
     justifyContent: 'center',
@@ -940,11 +1118,12 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   legalText: {
-    marginTop: 8,
+    marginTop: SPACE.xl,
+    paddingHorizontal: SPACE.xl,
     fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
-    color: COLORS.textMuted,
+    color: COLORS.textDim,
   },
   legalLink: {
     color: COLORS.accent,

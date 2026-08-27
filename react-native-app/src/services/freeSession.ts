@@ -71,3 +71,29 @@ export const migrateFreeSessionToAccount = async (userId: number): Promise<void>
     // Worst case the account is offered a session the guest already used.
   }
 };
+
+/**
+ * Where leaving the free session WITHOUT finishing it lands - declining the
+ * offer, or quitting mid-workout.
+ *
+ * Every one of those exits used to reset to a bare `[Knowledge]`, which is
+ * correct for a guest and a trap for an account. The free session is reached
+ * by RESETTING the stack, so on the subscription gate that reset threw the
+ * Paywall away: Knowledge became the only route, its back button vanished with
+ * nothing beneath it, its Subscribe button was hidden precisely because the
+ * session was still unspent, and the Log out escape hatch lives on the paywall
+ * that had just been discarded. A signed-in account that said "not now" to a
+ * free session could therefore neither pay nor sign out - the one funnel state
+ * with no way forward and no way back.
+ *
+ * Keeping the paywall underneath costs nothing on either path and makes Back,
+ * the Subscribe button and Log out all work again.
+ *
+ * Guests land on the basics with the sticky Subscribe bar still on screen, and
+ * deliberately WITHOUT `subscribe: true`: the plans sheet is not the right
+ * answer to someone who has a free session still waiting for them.
+ */
+export const freeSessionExitReset = (isAuthenticated: boolean) =>
+  isAuthenticated
+    ? { index: 1, routes: [{ name: 'Paywall' }, { name: 'Knowledge' }] }
+    : { index: 0, routes: [{ name: 'Knowledge' }] };

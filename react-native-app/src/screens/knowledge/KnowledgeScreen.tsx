@@ -45,7 +45,12 @@ export const KnowledgeScreen = () => {
   // once on mount: this screen is what the guest returns to after declining
   // the offer, after quitting the workout, and after finishing it, and only
   // the last of those spends it.
-  const [freeSessionLeft, setFreeSessionLeft] = useState(false);
+  //
+  // `null` until the read lands, and the distinction matters: the auto-opening
+  // plans sheet below now waits on this answer, and defaulting to "spent"
+  // while the read is in flight would fire the paywall at the very people who
+  // still have a free session waiting for them.
+  const [freeSessionLeft, setFreeSessionLeft] = useState<boolean | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -77,9 +82,19 @@ export const KnowledgeScreen = () => {
   // The ref makes it once per mount: dismissing the sheet has to mean
   // dismissed, or the screen becomes a trap. The 350ms lets the list settle
   // first, matching the web funnel.
+  //
+  // "Run out of free material" now includes the free session. It did not, and
+  // that was the funnel asking for money over the top of a free session it was
+  // still holding: a guest who finished the lessons, declined the offer (or
+  // quit the workout, or simply closed the app and came back) landed here and
+  // got the plans sheet in the face, with the "Try it now" button rendered
+  // underneath the modal where they could not see it. The strongest moment to
+  // ask is straight after a completed session; the weakest is instead of one.
   const promptedRef = useRef(false);
   useEffect(() => {
-    if (isAuthenticated || !allCompleted || promptedRef.current) return;
+    if (isAuthenticated || !allCompleted || freeSessionLeft !== false || promptedRef.current) {
+      return;
+    }
     promptedRef.current = true;
     if (route.params?.subscribe) {
       navigation.setParams({ subscribe: undefined } as any);
@@ -87,7 +102,7 @@ export const KnowledgeScreen = () => {
     const timer = setTimeout(() => setSheetVisible(true), 350);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, allCompleted]);
+  }, [isAuthenticated, allCompleted, freeSessionLeft]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -172,7 +187,7 @@ export const KnowledgeScreen = () => {
             it sat inside the bar's own ~130px band and was drawn underneath
             it: invisible, and on a screen that did not scroll far enough to
             reveal it either. */}
-        {!subscribed && allCompleted && freeSessionLeft && (
+        {!subscribed && allCompleted && freeSessionLeft === true && (
           <TouchableOpacity
             style={styles.tryBtn}
             onPress={() => (navigation as any).navigate('FreeSessionOffer')}
@@ -191,25 +206,50 @@ export const KnowledgeScreen = () => {
 
         {/* Only while still gated: once basics are done this screen is a review
             page (opened from Training), where the button is noise. */}
-        {/* The ask, once they have finished the basics and used their session.
-            A guest gets the plans sheet instead; this is the signed-in path,
-            where the paywall is a real screen they came from rather than a
-            sheet. */}
-        {isAuthenticated && !subscribed && allCompleted && !freeSessionLeft && (
-          <TouchableOpacity
-            style={styles.tryBtn}
-            onPress={() => (navigation as any).navigate('Paywall')}
-          >
-            <Text
-              style={styles.tryBtnText}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.8}
-              maxFontSizeMultiplier={1.2}
+        {/* The ask, once they have finished the basics. A guest gets the plans
+            sheet (and the sticky bar) instead; this is the signed-in path,
+            where the paywall is a real screen rather than a sheet.
+
+            It used to require the free session to be SPENT, which meant the
+            only account that could see a buy button was one that had already
+            trained. Anyone who declined the offer had no Subscribe button, no
+            sticky bar, and - after the reset that brought them here threw the
+            paywall away - no Back either. There is never a good reason to hide
+            the way to pay from someone who is being asked to pay, so it is now
+            always present: primary once the session is spent, a quiet second
+            option while the free session is still the better next step. */}
+        {isAuthenticated && !subscribed && allCompleted && (
+          freeSessionLeft === false ? (
+            <TouchableOpacity
+              style={styles.tryBtn}
+              onPress={() => (navigation as any).navigate('Paywall')}
             >
-              {t('subscribeSheet.subscribe')}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={styles.tryBtnText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                maxFontSizeMultiplier={1.2}
+              >
+                {t('subscribeSheet.subscribe')}
+              </Text>
+            </TouchableOpacity>
+          ) : freeSessionLeft === true ? (
+            <TouchableOpacity
+              style={styles.secondaryBtn}
+              onPress={() => (navigation as any).navigate('Paywall')}
+            >
+              <Text
+                style={styles.secondaryBtnText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                maxFontSizeMultiplier={1.2}
+              >
+                {t('subscribeSheet.subscribe')}
+              </Text>
+            </TouchableOpacity>
+          ) : null
         )}
 
         {/* Only for an account that can actually train. An unsubscribed one
@@ -326,6 +366,19 @@ const styles = StyleSheet.create({
     color: COLORS.onAccent,
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  // The buy path while the free session is still the better next step: present
+  // and tappable, but not competing with the accent button above it.
+  secondaryBtn: {
+    marginTop: -4,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  secondaryBtnText: {
+    color: COLORS.textMuted,
+    fontWeight: '600',
+    fontSize: 15,
   },
   continueBtn: {
     backgroundColor: COLORS.accent,

@@ -67,7 +67,6 @@ type FieldErrors = {
   name?: string;
   email?: string;
   password?: string;
-  password_confirmation?: string;
 };
 
 export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
@@ -113,12 +112,17 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
   // sheet rendered the catalogue's USD figure to every market - a number the
   // Play sheet on the very next tap would contradict.
   const [pricing, setPricing] = useState<Record<string, PlanPricing>>({});
+  // Whether the store has answered yet. Without it the sheet opened printing
+  // the catalogue's USD number and swapped it for the reader's own currency a
+  // beat later - the first price this funnel ever shows, visibly corrected in
+  // front of the person deciding whether to trust it. A placeholder for that
+  // beat costs nothing; a price that changes costs the sale.
+  const [pricesLoaded, setPricesLoaded] = useState(false);
 
   // Auth fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
   useEffect(() => {
     getAppSetting('google_login_enabled', '1')
@@ -146,9 +150,16 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
     let cancelled = false;
     getPlanPricing()
       .then((p) => {
-        if (!cancelled) setPricing(p);
+        if (cancelled) return;
+        setPricing(p);
+        setPricesLoaded(true);
       })
-      .catch(() => {});
+      // A failed lookup still ends the wait: the rows fall back to the
+      // catalogue price, which is all we have. Leaving the placeholder up
+      // forever would hide the plans entirely.
+      .catch(() => {
+        if (!cancelled) setPricesLoaded(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -191,7 +202,6 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
     setName('');
     setEmail('');
     setPassword('');
-    setPasswordConfirmation('');
     setErrors({});
     setMessage(null);
     onClose();
@@ -212,9 +222,7 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
     else if (password.length < 6 || !/[0-9]/.test(password)) {
       next.password = t('subscribeSheet.passwordRules');
     }
-    if (password !== passwordConfirmation) {
-      next.password_confirmation = t('subscribeSheet.passwordsDoNotMatch');
-    }
+    // No confirmation field to check any more - see the form below.
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
@@ -413,9 +421,13 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                           </View>
 
                           <View style={styles.planPriceWrap}>
-                            <Text style={styles.planPrice}>
-                              {pricing[plan.slug]?.priceString ?? `$${plan.price.toFixed(2)}`}
-                            </Text>
+                            {pricesLoaded ? (
+                              <Text style={styles.planPrice}>
+                                {pricing[plan.slug]?.priceString ?? `$${plan.price.toFixed(2)}`}
+                              </Text>
+                            ) : (
+                              <View style={styles.pricePlaceholder} />
+                            )}
                             {perMonth ? (
                               <Text style={styles.planPerMonth}>
                                 {t('common.perMonth', { price: perMonth })}
@@ -450,10 +462,18 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                   {/* What the tap actually costs and when, stated before it.
                       The sheet previously carried only the generic billing
                       paragraph, so someone who was NOT getting a trial had
-                      nothing telling them the charge was immediate. */}
-                  <Text style={styles.renewalText}>
-                    {renewalText} {t('paywall.manageOrCancelAnytime')}
-                  </Text>
+                      nothing telling them the charge was immediate.
+
+                      Held back until the store has answered, for the same
+                      reason the price itself is: quoting a figure in the
+                      wrong currency and correcting it a second later is worse
+                      than a moment's silence, and the disclosure that matters
+                      is the one on the button that actually charges. */}
+                  {pricesLoaded ? (
+                    <Text style={styles.renewalText}>
+                      {renewalText} {t('paywall.manageOrCancelAnytime')}
+                    </Text>
+                  ) : null}
 
                   <Text style={styles.legalText}>
                     {t('subscribeSheet.billingDisclosure')}{' '}
@@ -541,6 +561,14 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         onChangeText={setEmail}
                         errorText={errors.email}
                       />
+                      {/* No "Confirm password" beneath this one.
+                          AuthField already carries a reveal toggle, so the
+                          typo it was guarding against can be checked by
+                          looking - and a fourth box on the highest-drop-off
+                          step of the paid funnel, with its own error state to
+                          fail on, costs more accounts than it saves. The
+                          backend does not ask for a confirmation either; only
+                          this form did. */}
                       <AuthField
                         label={t('subscribeSheet.password')}
                         placeholder="••••••••"
@@ -548,28 +576,16 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                         autoCapitalize="none"
                         autoComplete="new-password"
                         textContentType="newPassword"
-                        returnKeyType="next"
+                        returnKeyType="go"
                         value={password}
                         onChangeText={setPassword}
+                        onSubmitEditing={handleRegister}
                         errorText={errors.password}
                       />
                       {/* Stated up front rather than sprung as an error after
                           submitting - a rule you cannot see until you break it
                           is a trap. Same line the Register screen shows. */}
                       <Text style={styles.hint}>{t('register.passwordHint')}</Text>
-                      <AuthField
-                        label={t('subscribeSheet.confirmPassword')}
-                        placeholder="••••••••"
-                        secure
-                        autoCapitalize="none"
-                        autoComplete="new-password"
-                        textContentType="newPassword"
-                        returnKeyType="go"
-                        value={passwordConfirmation}
-                        onChangeText={setPasswordConfirmation}
-                        onSubmitEditing={handleRegister}
-                        errorText={errors.password_confirmation}
-                      />
                       {message ? <Text style={styles.fieldError}>{message}</Text> : null}
                       <TouchableOpacity
                         style={styles.submitBtn}
@@ -797,6 +813,14 @@ const styles = StyleSheet.create({
   planDescription: { ...TYPE.caption, color: COLORS.textMuted },
   planPriceWrap: { alignItems: 'flex-end' },
   planPrice: { ...TYPE.section, color: COLORS.white },
+  // Same footprint as the price it stands in for, so the row does not jump
+  // when the store answers.
+  pricePlaceholder: {
+    width: 58,
+    height: 17,
+    borderRadius: RADIUS.sm,
+    backgroundColor: COLORS.surface3,
+  },
   planPerMonth: { ...TYPE.caption, color: COLORS.textMuted, marginTop: 1 },
 
   // Both ride the card's top edge, and only one is ever shown: a real saving
