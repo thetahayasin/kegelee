@@ -629,6 +629,23 @@ export const PaywallScreen = () => {
                 <Text style={styles.restoreBtnText}>{t('paywall.restorePurchases')}</Text>
               </TouchableOpacity>
             )}
+            {/* A way past the price, for someone who has not seen the app yet.
+                On the gate root this screen used to be the entire account: a
+                new sign-up met a price with nothing behind it and no exit but
+                logging out. Dismissing drops them into the basics, and the
+                funnel brings them back here after they have actually trained -
+                which is the moment the ask is worth making. Only on the gate
+                root; opened from Settings as Manage Plan the header X already
+                does this. */}
+            {!subscribed && !canClose && (
+              <TouchableOpacity
+                style={styles.exploreBtn}
+                onPress={() => navigation.navigate('Knowledge' as never)}
+                disabled={purchasing}
+              >
+                <Text style={styles.exploreBtnText}>{t('workoutComplete.notNow')}</Text>
+              </TouchableOpacity>
+            )}
           </>
         )}
       </View>
@@ -900,6 +917,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
     color: COLORS.onAccent,
   },
+  exploreBtn: { alignItems: 'center', paddingVertical: SPACE.md },
+  exploreBtnText: { ...TYPE.body, color: COLORS.white, fontWeight: '700' },
   restoreBtn: {
     marginTop: 10,
     alignSelf: 'center',

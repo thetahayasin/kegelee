@@ -38,7 +38,7 @@ export const KnowledgeScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<AuthStackParamList, 'Knowledge'>>();
-  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, subscribed, user } = useAuth();
   const [done, setDone] = useState<string[]>([]);
   const [sheetVisible, setSheetVisible] = useState(false);
   // Whether the one free session is still available. Re-read on focus, not
@@ -53,7 +53,7 @@ export const KnowledgeScreen = () => {
       AsyncStorage.getItem(key)
         .then(v => setDone(v ? JSON.parse(v) : []))
         .catch(() => {});
-      hasUsedFreeSession()
+      hasUsedFreeSession(user?.id)
         .then(used => setFreeSessionLeft(!used))
         .catch(() => setFreeSessionLeft(false));
     }, [user]),
@@ -172,7 +172,7 @@ export const KnowledgeScreen = () => {
             it sat inside the bar's own ~130px band and was drawn underneath
             it: invisible, and on a screen that did not scroll far enough to
             reveal it either. */}
-        {!isAuthenticated && allCompleted && freeSessionLeft && (
+        {!subscribed && allCompleted && freeSessionLeft && (
           <TouchableOpacity
             style={styles.tryBtn}
             onPress={() => (navigation as any).navigate('FreeSessionOffer')}
@@ -191,7 +191,32 @@ export const KnowledgeScreen = () => {
 
         {/* Only while still gated: once basics are done this screen is a review
             page (opened from Training), where the button is noise. */}
-        {isAuthenticated && allCompleted && !basicsDone && (
+        {/* The ask, once they have finished the basics and used their session.
+            A guest gets the plans sheet instead; this is the signed-in path,
+            where the paywall is a real screen they came from rather than a
+            sheet. */}
+        {isAuthenticated && !subscribed && allCompleted && !freeSessionLeft && (
+          <TouchableOpacity
+            style={styles.tryBtn}
+            onPress={() => (navigation as any).navigate('Paywall')}
+          >
+            <Text
+              style={styles.tryBtnText}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              maxFontSizeMultiplier={1.2}
+            >
+              {t('subscribeSheet.subscribe')}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Only for an account that can actually train. An unsubscribed one
+            is held by the subscription gate, which sits BEFORE the basics gate
+            - so this button flipped a gate that was not the one stopping them
+            and appeared to do nothing at all. */}
+        {isAuthenticated && subscribed && allCompleted && !basicsDone && (
           <TouchableOpacity
             style={styles.continueBtn}
             onPress={() => {

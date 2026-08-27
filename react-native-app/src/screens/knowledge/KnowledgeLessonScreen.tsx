@@ -36,7 +36,7 @@ export const KnowledgeLessonScreen = () => {
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, 'KnowledgeLesson'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, subscribed, user } = useAuth();
   const { slug, index } = route.params;
 
   const [step, setStep] = useState(0);
@@ -56,6 +56,25 @@ export const KnowledgeLessonScreen = () => {
       }
     } catch {}
     if (isLastLesson) {
+      if (isAuthenticated && !subscribed) {
+        // Signed in, still behind the subscription gate. Record the basics -
+        // they did finish them, and it should not be lost once they pay - but
+        // the gate holding them is the subscription one, so flipping the
+        // basics gate alone would look like the Done button doing nothing.
+        // Continue the funnel instead: the free session if it is still theirs,
+        // otherwise the ask, now that there is something behind it.
+        markBasicsDone();
+        updateUserFields({ onboarded: true }).catch(() => {});
+        const unused = await hasUsedFreeSession(user?.id);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: unused ? 'FreeSessionOffer' : 'Paywall' }],
+          }),
+        );
+        return;
+      }
+
       if (isAuthenticated) {
         if (basicsDone) {
           // Reviewing after onboarding (opened from Training): the gate is
@@ -79,7 +98,7 @@ export const KnowledgeLessonScreen = () => {
         // someone who has never used the app is the weakest possible moment to
         // ask; asking straight after they have finished a real session is the
         // strongest. Falls through to the old behaviour once it is spent.
-        if (!(await hasUsedFreeSession())) {
+        if (!(await hasUsedFreeSession(user?.id))) {
           // The OFFER, not the session. Dropping someone straight into a live
           // timer they never agreed to start gives them no moment to see what
           // is happening or decide to do it.

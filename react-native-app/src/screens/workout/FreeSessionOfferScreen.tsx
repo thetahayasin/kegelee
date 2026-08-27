@@ -8,6 +8,7 @@ import Svg, { Path } from 'react-native-svg';
 import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { LESSON_TEXT } from '../../components/LessonLine';
 import { Watermark } from '../../components/Watermark';
+import { useAuth } from '../../context/AuthContext';
 
 /**
  * Offers the free session rather than starting it.
@@ -27,6 +28,7 @@ import { Watermark } from '../../components/Watermark';
 export const FreeSessionOfferScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
+  const { isAuthenticated } = useAuth();
 
   const fade = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -43,11 +45,17 @@ export const FreeSessionOfferScreen = () => {
       CommonActions.reset({ index: 0, routes: [{ name: 'Workout', params: { freeSession: true } }] }),
     );
 
+  // Guests reset to the basics list, where the plans sheet opens itself.
+  // A signed-in account is inside the subscription gate and simply goes back
+  // to the basics it came from - its paywall is a screen, not a sheet.
   const decline = useCallback(() => {
     navigation.dispatch(
-      CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge', params: { subscribe: true } }] }),
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Knowledge', params: isAuthenticated ? undefined : { subscribe: true } }],
+      }),
     );
-  }, [navigation]);
+  }, [navigation, isAuthenticated]);
 
   // Android back is a decline, not an escape hatch: this screen is the root of
   // a reset stack, so without this it would close the app.

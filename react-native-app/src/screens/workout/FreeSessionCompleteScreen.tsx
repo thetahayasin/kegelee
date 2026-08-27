@@ -8,6 +8,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { Watermark } from '../../components/Watermark';
 import { markFreeSessionUsed } from '../../services/freeSession';
+import { useAuth } from '../../context/AuthContext';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const SIZE = 208;
@@ -31,6 +32,7 @@ const CIRC = 2 * Math.PI * R;
 export const FreeSessionCompleteScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
+  const { isAuthenticated, user } = useAuth();
 
   const ringAnim = useRef(new Animated.Value(0)).current;
   const tickAnim = useRef(new Animated.Value(0)).current;
@@ -39,7 +41,7 @@ export const FreeSessionCompleteScreen = () => {
     // Reaching this screen is what spends the free session. Quitting partway
     // through does not, so a misfire early on does not cost someone the only
     // look at the product they were ever going to get.
-    markFreeSessionUsed().catch(() => {});
+    markFreeSessionUsed(user?.id).catch(() => {});
 
     // One driver for the whole screen. strokeDashoffset cannot run natively,
     // and this app has crashed once before by mixing drivers on one visual.
@@ -57,16 +59,22 @@ export const FreeSessionCompleteScreen = () => {
         useNativeDriver: false,
       }),
     ]).start();
-  }, [ringAnim, tickAnim]);
+  }, [ringAnim, tickAnim, user?.id]);
 
   // Back to the basics list with the plans sheet open - the same funnel end the
   // third lesson used to jump to directly, now reached having actually trained.
+  // Where the ask lives depends on who finished. A guest goes back to the
+  // basics list and the plans sheet opens over it; a signed-in account goes to
+  // the paywall itself, which is the screen it dismissed to get here - now
+  // reached having actually trained rather than before seeing anything.
   const toPlans = () =>
     navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Knowledge', params: { subscribe: true } }],
-      }),
+      isAuthenticated
+        ? CommonActions.reset({ index: 0, routes: [{ name: 'Paywall' }] })
+        : CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Knowledge', params: { subscribe: true } }],
+          }),
     );
 
   // This screen REPLACED the workout, which was itself the root of a reset

@@ -14,7 +14,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * on, and reinstalling to get a second free session is a lot of effort to
  * avoid a paywall the second session would only push them back towards.
  */
-const KEY = '@free_session_used_guest';
+// Per identity, not one global flag. A guest keeps their own; once there is an
+// account the session belongs to that account, so signing in does not silently
+// consume the guest's chance and two accounts on one phone each get theirs.
+const keyFor = (userId?: number | null) =>
+  userId ? `@free_session_used_${userId}` : '@free_session_used_guest';
 
 /** Day-one of level 1: the session a brand-new subscriber would actually get,
  *  not a shortened demo. Showing the real thing is the argument. */
@@ -23,18 +27,18 @@ export const FREE_SESSION_LEVEL = 1;
 /** Marked on COMPLETION, not on start. Quitting thirty seconds in should not
  *  burn the one chance to see what the app does - that would cost exactly the
  *  conversion this whole flow exists to win. */
-export const markFreeSessionUsed = async (): Promise<void> => {
+export const markFreeSessionUsed = async (userId?: number | null): Promise<void> => {
   try {
-    await AsyncStorage.setItem(KEY, '1');
+    await AsyncStorage.setItem(keyFor(userId), '1');
   } catch {
     // A failed write means they may get a second free session. Harmless next
     // to the alternative: throwing here would break the completion screen.
   }
 };
 
-export const hasUsedFreeSession = async (): Promise<boolean> => {
+export const hasUsedFreeSession = async (userId?: number | null): Promise<boolean> => {
   try {
-    return (await AsyncStorage.getItem(KEY)) === '1';
+    return (await AsyncStorage.getItem(keyFor(userId))) === '1';
   } catch {
     // Unreadable storage: offer the session. Erring towards letting someone
     // try the product is the whole point of it existing.

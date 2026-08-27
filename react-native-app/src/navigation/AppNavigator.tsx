@@ -48,6 +48,10 @@ export type RootStackParamList = {
   AllExercises: undefined;
   Knowledge: undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
+  // Reachable for a signed-in account that has not subscribed yet: the paywall
+  // dismisses into the same funnel a guest gets.
+  FreeSessionOffer: undefined;
+  FreeSessionComplete: { duration: number };
 };
 
 export type AuthStackParamList = {
@@ -259,6 +263,20 @@ export const AppNavigator = () => {
       <Stack.Navigator key="paywall-gate" screenOptions={{ headerShown: false }} initialRouteName="Paywall">
         <Stack.Screen name="Paywall" component={PaywallScreen} />
         <Stack.Screen name="LegalPage" component={LegalPageScreen} />
+        {/* The paywall opens the stack but is no longer the whole of it.
+            A new account used to land on a price with nothing behind it and no
+            way past - asked to pay for something they had not seen, which is
+            the weakest possible moment to ask and loses the ones who would
+            have converted after using it. Dismissing the paywall now drops
+            into the same funnel a guest gets: the basics, then the free
+            session, then the ask again on the back of having actually trained.
+            Nothing here is reachable without an account, and none of it needs
+            a subscription. */}
+        <Stack.Screen name="Knowledge" component={KnowledgeScreen} />
+        <Stack.Screen name="KnowledgeLesson" component={KnowledgeLessonScreen} />
+        <Stack.Screen name="FreeSessionOffer" component={FreeSessionOfferScreen} />
+        <Stack.Screen name="Workout" component={WorkoutScreen} />
+        <Stack.Screen name="FreeSessionComplete" component={FreeSessionCompleteScreen} />
       </Stack.Navigator>
     );
   }
