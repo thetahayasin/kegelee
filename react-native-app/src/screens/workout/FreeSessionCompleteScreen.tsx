@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing, BackHandler } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, CommonActions, NavigationProp } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, CommonActions, NavigationProp } from '@react-navigation/native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { Watermark } from '../../components/Watermark';
@@ -69,6 +69,21 @@ export const FreeSessionCompleteScreen = () => {
       }),
     );
 
+  // This screen REPLACED the workout, which was itself the root of a reset
+  // stack, so there is nothing beneath it: Android back would close the app on
+  // the exact screen the whole flow exists to reach. Send it where the button
+  // goes instead.
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        toPlans();
+        return true;
+      });
+      return () => sub.remove();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <Watermark />
@@ -127,14 +142,14 @@ export const FreeSessionCompleteScreen = () => {
         <Text style={styles.sub}>{t('workoutComplete.keepGoing')}</Text>
       </View>
 
+      {/* One button, not two. A "Not now" alongside it would be a fake choice:
+          Knowledge opens the plans sheet by itself for any guest who has
+          finished the basics, so both buttons led to exactly the same place.
+          Offering a decline that does not decline is worse than not offering
+          one. */}
       <View style={styles.cta}>
         <TouchableOpacity style={styles.primary} onPress={toPlans}>
           <Text style={styles.primaryText}>{t('subscribeSheet.subscribe')}</Text>
-        </TouchableOpacity>
-        {/* Not a dead end: declining returns to the basics list rather than
-            trapping them on a screen whose only exit is the price. */}
-        <TouchableOpacity style={styles.secondary} onPress={toPlans}>
-          <Text style={styles.secondaryText}>{t('workoutComplete.notNow')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -157,6 +172,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryText: { ...TYPE.section, color: COLORS.onAccent },
-  secondary: { height: 48, alignItems: 'center', justifyContent: 'center' },
-  secondaryText: { ...TYPE.body, color: COLORS.textMuted },
 });

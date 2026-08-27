@@ -830,7 +830,14 @@ export const WorkoutScreen = () => {
       {/* Per-exercise help: pause and open the tutorial for the current move.
           Kept in the layout (placeholder when hidden) so the ring never shifts. */}
       <View style={styles.helpRow}>
-        {!isTrial && currentStep.slug !== 'rest' ? (
+        {/* Hidden for the free session. Its "Watch tutorial" button opens
+            ExerciseDetail, which is not registered in the guest stack - and
+            registering it would not help, because its own "Try it now" starts
+            a trialSlug workout whose init path returns early without a user
+            and hangs on the loading state. A guest tapping help would have hit
+            a dead control in the middle of the one session meant to sell them
+            the app. */}
+        {!isTrial && !freeSession && currentStep.slug !== 'rest' ? (
           <TouchableOpacity
             style={styles.helpBtn}
             onPress={() => {
