@@ -48,7 +48,7 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
             not two: the second sold training in public - "on the bus, nobody
             can tell" - which is a pitch, not something to learn, and
             onboarding already makes that point once. */}
-        <Text style={styles.h2}>{t('why.aMuscleYouCanTrain')}</Text>
+        <Text style={styles.h1}>{t('why.aMuscleYouCanTrain')}</Text>
         <LessonCards lines={[t('why.cardRealMuscle')]} />
       </ScrollView>
     );
@@ -100,20 +100,12 @@ export const WhyLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   scroll: { flexGrow: 1, justifyContent: 'center', paddingVertical: 12 },
-  h2: {
+  h1: {
     ...TYPE.heading,
     marginBottom: 16,
     color: COLORS.white,
     textAlign: 'center',
     lineHeight: 26,
-  },
-  h1: {
-    marginBottom: 20,
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    textAlign: 'center',
-    lineHeight: 34,
   },
   lead: {
     fontSize: 15,

@@ -10,7 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { COLORS, GLASS } from '../../../theme/colors';
+import { COLORS, GLASS, TYPE } from '../../../theme/colors';
 
 interface Props {
   step: number;
@@ -107,7 +107,6 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
           ))}
         </View>
-        <Text style={styles.p}>{t('find.thatExactSqueezeIsThe')}</Text>
       </ScrollView>
     );
   }
@@ -201,7 +200,9 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingVertical: 12 },
-  h1: { fontSize: 28, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', lineHeight: 34 },
+  // One scale across all three lessons. 28px bold read as a slogan rather than
+  // a heading, especially on the steps where the heading is most of the step.
+  h1: { ...TYPE.heading, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
   p: { marginTop: 14, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
   flowRow: { flexDirection: 'row', gap: 12, marginTop: 26 },
   flowCard: {

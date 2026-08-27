@@ -10,7 +10,7 @@ import {
 import { TouchableOpacity } from '../../../components/Touchable';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { exerciseNameKey } from '../../../constants/catalogues';
-import { COLORS } from '../../../theme/colors';
+import { COLORS, TYPE } from '../../../theme/colors';
 import { getSteps } from '../../../constants/catalogues';
 
 interface Props {
@@ -281,11 +281,11 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  h1: { marginTop: 24, fontSize: 28, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', lineHeight: 34 },
+  h1: { ...TYPE.heading, marginTop: 24, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
   // Heading when it sits BELOW the pulsing circle (steps 1 & 2). The top margin
   // clears the glow halo (which reaches ~GLOW/2 - SIZE/2 px past the circle edge)
   // so the pulse never bleeds onto the copy.
-  h1Below: { marginTop: 72, fontSize: 28, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', lineHeight: 34 },
+  h1Below: { ...TYPE.heading, marginTop: 72, color: COLORS.white, textAlign: 'center', lineHeight: 26 },
   p: { marginTop: 12, fontSize: 16, lineHeight: 24, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
   // Step 0 keeps the circle above the copy with a static (non-glowing) ring.
   circleWrap: { marginTop: 60, width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
