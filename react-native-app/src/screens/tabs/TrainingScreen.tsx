@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AccessibilityInfo,
@@ -10,7 +10,6 @@ import {
   StyleSheet,
   Text,
   View,
-  useWindowDimensions,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,6 +27,10 @@ import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 // strokeDashoffset is an SVG attribute the native driver cannot carry, so
 // this arc is JS-driven - the same trade the workout ring makes.
+// Half the space between two cards; each cell carries it on every side, so
+// adjacent cells add up to a full gutter and the outer edges get half.
+const GRID_GUTTER = 6;
+
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
@@ -170,22 +173,6 @@ export const TrainingScreen = () => {
 
   const R = 58;
   const arcLength = 2 * Math.PI * R * 0.8;
-
-  // Exact pixels, not a percentage.
-  //
-  // The grid was three cards at 31.5% inside a row with a 12px gap. Percentage
-  // widths measure against the container while the gaps are fixed pixels, so
-  // the row needed 94.5% PLUS 24px and only ever fitted two - every third card
-  // wrapped and each row rendered with an empty third column. Deriving the
-  // width from the space actually left over after the padding and the gaps is
-  // the only version that cannot drift, and it stays right on any screen
-  // width, in split screen, and on rotation.
-  const { width: windowWidth } = useWindowDimensions();
-  const cardWidth = Math.floor((windowWidth - SPACE.lg * 2 - SPACE.md * 2) / 3);
-  const exerciseCardStyle = useMemo(
-    () => [styles.exerciseCard, { width: cardWidth }],
-    [cardWidth],
-  );
   const pct = Math.min(1, Math.max(0, done / Math.max(1, required)));
 
   useEffect(() => {
@@ -442,7 +429,7 @@ export const TrainingScreen = () => {
                       count: ex.daysLeft,
                     })
               }
-              style={exerciseCardStyle}
+              style={styles.exerciseCell}
               onPress={() =>
                 navigation.navigate('ExerciseDetail', {
                   slug: ex.slug,
@@ -451,30 +438,32 @@ export const TrainingScreen = () => {
                 })
               }
             >
-              <View style={!ex.unlocked && styles.lockedArt}>
-                {/* Sized against the card: at three per row the tile carries
-                    the identification and the label underneath is a
-                    confirmation, so it takes most of the width without
-                    dominating the screen the way 104 did at two per row. */}
-                <EquipmentIcon slug={ex.slug} size={62} />
-              </View>
-              <Text
-                style={[styles.exerciseName, !ex.unlocked && styles.exerciseNameLocked]}
-                numberOfLines={1}
-              >
-                {t(exerciseNameKey(ex.slug))}
-              </Text>
-              {ex.unlocked ? (
-                <Text style={styles.exerciseStatus}>{t('training.available')}</Text>
-              ) : (
-                <View style={styles.lockRow}>
-                  <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
-                    <Rect x={4} y={10} width={16} height={11} rx={2.5} stroke={COLORS.textDim} strokeWidth={2.4} />
-                    <Path d="M8 10V7a4 4 0 1 1 8 0v3" stroke={COLORS.textDim} strokeWidth={2.4} strokeLinecap="round" />
-                  </Svg>
-                  <Text style={styles.exerciseStatusLocked}>{t('training.daysLeft', { count: ex.daysLeft })}</Text>
+              <View style={styles.exerciseCard}>
+                <View style={!ex.unlocked && styles.lockedArt}>
+                  {/* Sized against the card: at three per row the tile carries
+                      the identification and the label underneath is a
+                      confirmation, so it takes most of the width without
+                      dominating the screen the way 104 did at two per row. */}
+                  <EquipmentIcon slug={ex.slug} size={62} />
                 </View>
-              )}
+                <Text
+                  style={[styles.exerciseName, !ex.unlocked && styles.exerciseNameLocked]}
+                  numberOfLines={1}
+                >
+                  {t(exerciseNameKey(ex.slug))}
+                </Text>
+                {ex.unlocked ? (
+                  <Text style={styles.exerciseStatus}>{t('training.available')}</Text>
+                ) : (
+                  <View style={styles.lockRow}>
+                    <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
+                      <Rect x={4} y={10} width={16} height={11} rx={2.5} stroke={COLORS.textDim} strokeWidth={2.4} />
+                      <Path d="M8 10V7a4 4 0 1 1 8 0v3" stroke={COLORS.textDim} strokeWidth={2.4} strokeLinecap="round" />
+                    </Svg>
+                    <Text style={styles.exerciseStatusLocked}>{t('training.daysLeft', { count: ex.daysLeft })}</Text>
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -656,18 +645,34 @@ const styles = StyleSheet.create({
   sectionTitleCompact: { ...TYPE.section, color: COLORS.white },
   seeAllBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   seeAllText: { ...TYPE.bodySm, color: COLORS.textMuted, fontWeight: '600' },
+  // Thirds that cannot drift.
+  //
+  // This was three cards at 31.5% inside a row with a 12px `gap`. Percentage
+  // widths measure against the container and gaps do not, so the row needed
+  // 94.5% PLUS 24px, only ever fitted two, and left every third slot empty.
+  // Computing an exact pixel width in JS fixed that but bought a hidden
+  // coupling: the arithmetic had to know this container's padding, and would
+  // have silently drifted the moment any parent changed.
+  //
+  // A cell of exactly one third, with the gutter as padding INSIDE it, needs
+  // no measurement and no knowledge of its surroundings - three of them are
+  // 100% by definition, on any width, in split screen, at any font scale. The
+  // grid's own padding is reduced by one gutter so the visible card edges
+  // still line up with the sections above and below.
   exerciseGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: SPACE.lg,
-    gap: SPACE.md,
+    paddingHorizontal: SPACE.lg - GRID_GUTTER,
+  },
+  exerciseCell: {
+    width: '33.333%',
+    padding: GRID_GUTTER,
   },
   exerciseCard: {
-    // Width is set at the call site from the real available space; see
-    // cardWidth. Two-up with a 104pt tile made each card nearly half the
-    // screen, so four exercises filled a phone and the rest of the set was a
-    // scroll away - the grid existed precisely to show how much there is to
-    // unlock.
+    // The visual surface only; the cell above owns the width. Two-up with a
+    // 104pt tile made each card nearly half the screen, so four exercises
+    // filled a phone and the rest of the set was a scroll away - the grid
+    // existed precisely to show how much there is to unlock.
     ...GLASS,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
