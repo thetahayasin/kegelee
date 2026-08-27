@@ -204,19 +204,14 @@
     "pressAndHold": "Trykk og hold",
     "squeezeNow": "Knip!",
     "stopTheFlowBody": "Neste gang du tisser, stopp strålen forsiktig halvveis. Musklene du nettopp brukte, er bekkenbunnen din.",
-    "tryItNow": "Prøv det nå",
     "tryItNowBody": "Trykk og hold på sirkelen. Mens du holder, kniper du de musklene. Slipp samtidig.",
-    "youFoundThem": "Du fant dem!",
     "youFoundThemBody": "Det knipet og den slippen er alt en knipeøvelse er. Du er klar for din første øvelse."
   },
   "first": {
     "followTheCircle": "Følg sirkelen. Knip... og slapp av.",
-    "niceWork": "Bra jobbet!",
-    "nowYouTry": "Nå er det din tur",
     "start": "Start",
     "tenSecondsReady": "Ti sekunder med {{exercise}}. Knip ved hver {{contract}}, og slipp på {{relax}}. Klar?",
     "thatWasARealExercise": "Det var en ekte øvelse. Hver økt fungerer nøyaktig slik, én sirkel om gangen.",
-    "thisIsTrembling": "Dette er Skjelving",
     "yourFirstExerciseQuickFlicks": "Din første øvelse: raske sammentrekninger. Stram ved Stram, slipp ved Slapp av."
   },
   "knowledge": {

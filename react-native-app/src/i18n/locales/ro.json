@@ -204,19 +204,14 @@
     "pressAndHold": "Apasă și ține",
     "squeezeNow": "Contractă!",
     "stopTheFlowBody": "Data viitoare când urinezi, oprește ușor jetul la jumătate. Mușchii pe care tocmai i-ai folosit sunt planșeul tău pelvin.",
-    "tryItNow": "Încearcă acum",
     "tryItNowBody": "Apasă și ține cercul. Cât timp îl ții, contractă acei mușchi. Eliberează în același timp.",
-    "youFoundThem": "I-ai găsit!",
     "youFoundThemBody": "Acea contracție și relaxare este tot ce înseamnă un exercițiu Kegel. Ești pregătit pentru primul tău exercițiu."
   },
   "first": {
     "followTheCircle": "Urmărește cercul. Contractă... și relaxează.",
-    "niceWork": "Bravo!",
-    "nowYouTry": "Acum încearcă tu",
     "start": "Începe",
     "tenSecondsReady": "Zece secunde de {{exercise}}. Contractă la fiecare {{contract}} și eliberează la {{relax}}. Ești gata?",
     "thatWasARealExercise": "Acela a fost un exercițiu adevărat. Fiecare sesiune funcționează exact așa, un cerc pe rând.",
-    "thisIsTrembling": "Acesta este Tremurul",
     "yourFirstExerciseQuickFlicks": "Primul tău exercițiu: contracții rapide. Strânge la Contractă, eliberează la Relaxează."
   },
   "knowledge": {

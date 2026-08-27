@@ -204,19 +204,14 @@
     "pressAndHold": "Tekan dan tahan",
     "squeezeNow": "Kencangkan!",
     "stopTheFlowBody": "Lain kali saat buang air kecil, hentikan alirannya perlahan di tengah. Otot yang baru saja kamu pakai adalah dasar panggulmu.",
-    "tryItNow": "Coba sekarang",
     "tryItNowBody": "Tekan dan tahan lingkarannya. Selagi menahan, kencangkan otot-otot itu. Lepaskan bersamaan.",
-    "youFoundThem": "Kamu menemukannya!",
     "youFoundThemBody": "Kencangan dan pelepasan itulah keseluruhan latihan Kegel. Kamu siap untuk latihan pertamamu."
   },
   "first": {
     "followTheCircle": "Ikuti lingkarannya. Kencangkan... lalu rileks.",
-    "niceWork": "Kerja bagus!",
-    "nowYouTry": "Sekarang giliranmu",
     "start": "Mulai",
     "tenSecondsReady": "Sepuluh detik {{exercise}}. Kencangkan di setiap {{contract}}, lepaskan di {{relax}}. Siap?",
     "thatWasARealExercise": "Itu tadi latihan sungguhan. Setiap sesi bekerja persis seperti ini, satu lingkaran demi satu lingkaran.",
-    "thisIsTrembling": "Ini Getaran",
     "yourFirstExerciseQuickFlicks": "Latihan pertamamu: kontraksi cepat. Kencangkan saat Kencangkan, lepaskan saat Rileks."
   },
   "knowledge": {

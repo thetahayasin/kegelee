@@ -204,19 +204,14 @@
     "pressAndHold": "Tieni premuto",
     "squeezeNow": "Contrai!",
     "stopTheFlowBody": "La prossima volta che fai pipì, interrompi delicatamente il flusso a metà. I muscoli che hai appena usato sono il tuo pavimento pelvico.",
-    "tryItNow": "Provaci ora",
     "tryItNowBody": "Tieni premuto il cerchio. Mentre lo tieni, contrai quei muscoli. Rilascia insieme.",
-    "youFoundThem": "Li hai trovati!",
     "youFoundThemBody": "Quella contrazione seguita dal rilascio è tutto ciò che è un Kegel. Sei pronto per il tuo primo esercizio."
   },
   "first": {
     "followTheCircle": "Segui il cerchio. Contrai... e rilassa.",
-    "niceWork": "Ottimo lavoro!",
-    "nowYouTry": "Ora prova tu",
     "start": "Inizia",
     "tenSecondsReady": "Dieci secondi di {{exercise}}. Contrai a ogni {{contract}}, lascia andare su {{relax}}. Pronto?",
     "thatWasARealExercise": "Quello era un esercizio vero. Ogni sessione funziona esattamente così, un cerchio alla volta.",
-    "thisIsTrembling": "Questo è Tremolio",
     "yourFirstExerciseQuickFlicks": "Il tuo primo esercizio: contrazioni rapide. Stringi su Contrai, lascia su Rilassa."
   },
   "knowledge": {

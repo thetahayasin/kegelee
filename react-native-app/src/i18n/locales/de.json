@@ -204,19 +204,14 @@
     "pressAndHold": "Gedrückt halten",
     "squeezeNow": "Anspannen!",
     "stopTheFlowBody": "Halte beim nächsten Wasserlassen den Strahl sanft auf halbem Weg an. Die Muskeln, die du gerade benutzt hast, sind dein Beckenboden.",
-    "tryItNow": "Probiere es jetzt",
     "tryItNowBody": "Halte den Kreis gedrückt. Während du hältst, spanne diese Muskeln an. Lass gemeinsam los.",
-    "youFoundThem": "Du hast sie gefunden!",
     "youFoundThemBody": "Dieses Anspannen und Loslassen ist alles, was ein Kegel ist. Du bist bereit für deine erste Übung."
   },
   "first": {
     "followTheCircle": "Folge dem Kreis. Anspannen ... und entspannen.",
-    "niceWork": "Gut gemacht!",
-    "nowYouTry": "Jetzt bist du dran",
     "start": "Start",
     "tenSecondsReady": "Zehn Sekunden {{exercise}}. Spanne bei jedem {{contract}} an, lass bei {{relax}} los. Bereit?",
     "thatWasARealExercise": "Das war eine echte Übung. Jede Einheit läuft genau so ab, ein Kreis nach dem anderen.",
-    "thisIsTrembling": "Das ist Zittern",
     "yourFirstExerciseQuickFlicks": "Deine erste Übung: schnelle Impulse. Anspannen bei Anspannen, loslassen bei Entspannen."
   },
   "knowledge": {

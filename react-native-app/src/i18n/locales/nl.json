@@ -204,19 +204,14 @@
     "pressAndHold": "Ingedrukt houden",
     "squeezeNow": "Knijpen!",
     "stopTheFlowBody": "Stop de volgende keer dat je plast de straal halverwege rustig af. De spieren die je net gebruikte zijn je bekkenbodem.",
-    "tryItNow": "Probeer het nu",
     "tryItNowBody": "Houd de cirkel ingedrukt. Terwijl je hem vasthoudt, knijp je die spieren aan. Laat samen los.",
-    "youFoundThem": "Je hebt ze gevonden!",
     "youFoundThemBody": "Dat knijpen en loslaten is alles wat een kegel is. Je bent klaar voor je eerste oefening."
   },
   "first": {
     "followTheCircle": "Volg de cirkel. Aanspannen... en ontspannen.",
-    "niceWork": "Goed gedaan!",
-    "nowYouTry": "Nu jij",
     "start": "Starten",
     "tenSecondsReady": "Tien seconden {{exercise}}. Knijp bij elke {{contract}} en laat los bij {{relax}}. Klaar?",
     "thatWasARealExercise": "Dat was een echte oefening. Elke sessie werkt precies zo, één cirkel per keer.",
-    "thisIsTrembling": "Dit is Trillen",
     "yourFirstExerciseQuickFlicks": "Je eerste oefening: korte pulsjes. Aanspannen bij Aanspannen, loslaten bij Ontspannen."
   },
   "knowledge": {

@@ -204,19 +204,14 @@
     "pressAndHold": "Pressione e segure",
     "squeezeNow": "Contraia!",
     "stopTheFlowBody": "Da próxima vez que urinar, interrompa suavemente o jato pela metade. Os músculos que você acabou de usar são o seu assoalho pélvico.",
-    "tryItNow": "Experimente agora",
     "tryItNowBody": "Pressione e segure o círculo. Enquanto segura, contraia esses músculos. Solte junto.",
-    "youFoundThem": "Você achou!",
     "youFoundThemBody": "Essa contração seguida do relaxamento é tudo o que um Kegel é. Você está pronto para o seu primeiro exercício."
   },
   "first": {
     "followTheCircle": "Siga o círculo. Contraia... e relaxe.",
-    "niceWork": "Muito bem!",
-    "nowYouTry": "Agora é a sua vez",
     "start": "Começar",
     "tenSecondsReady": "Dez segundos de {{exercise}}. Contraia a cada {{contract}} e solte em {{relax}}. Pronto?",
     "thatWasARealExercise": "Isso foi um exercício de verdade. Cada sessão funciona exatamente assim, um círculo de cada vez.",
-    "thisIsTrembling": "Isto é Tremor",
     "yourFirstExerciseQuickFlicks": "Seu primeiro exercício: contrações rápidas. Aperte em Contraia e solte em Relaxe."
   },
   "knowledge": {

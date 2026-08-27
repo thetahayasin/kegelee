@@ -204,19 +204,14 @@
     "pressAndHold": "Paina ja pidä",
     "squeezeNow": "Jännitä!",
     "stopTheFlowBody": "Kun seuraavan kerran käyt pissalla, pysäytä suihku varovasti puolivälissä. Lihakset, joita juuri käytit, ovat lantionpohjasi.",
-    "tryItNow": "Kokeile nyt",
     "tryItNowBody": "Paina ympyrää pohjassa. Pidon aikana jännitä noita lihaksia. Päästä irti samaan aikaan.",
-    "youFoundThem": "Löysit ne!",
     "youFoundThemBody": "Tuo jännitys ja rentoutus on kaikki, mitä Kegel on. Olet valmis ensimmäiseen harjoitukseesi."
   },
   "first": {
     "followTheCircle": "Seuraa ympyrää. Jännitä... ja rentoudu.",
-    "niceWork": "Hienoa työtä!",
-    "nowYouTry": "Nyt on sinun vuorosi",
     "start": "Aloita",
     "tenSecondsReady": "Kymmenen sekuntia liikettä {{exercise}}. Jännitä jokaisella {{contract}} ja päästä irti kohdassa {{relax}}. Valmiina?",
     "thatWasARealExercise": "Tuo oli oikea harjoitus. Jokainen sessio toimii juuri näin, yksi ympyrä kerrallaan.",
-    "thisIsTrembling": "Tämä on Värinä",
     "yourFirstExerciseQuickFlicks": "Ensimmäinen harjoituksesi: nopeat jännitykset. Jännitä kohdassa Jännitä ja päästä irti kohdassa Rentouta."
   },
   "knowledge": {

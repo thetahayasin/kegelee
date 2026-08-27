@@ -222,8 +222,13 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             </View>
           </View>
         </View>
-        <Text style={styles.h1Below} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.3}>{t('first.thisIsTrembling')}</Text>
-        <Text style={styles.p} numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
+        <Text
+          style={styles.line}
+          numberOfLines={5}
+          adjustsFontSizeToFit
+          minimumFontScale={0.65}
+          maxFontSizeMultiplier={1.3}
+        >
           {t('first.yourFirstExerciseQuickFlicks')}
         </Text>
       </View>
@@ -254,8 +259,13 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           )}
         </View>
       </View>
-      <Text style={styles.h1Below} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.3}>{tried ? t('first.niceWork') : t('first.nowYouTry')}</Text>
-      <Text style={styles.p} numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
+      <Text
+        style={styles.line}
+        numberOfLines={5}
+        adjustsFontSizeToFit
+        minimumFontScale={0.65}
+        maxFontSizeMultiplier={1.3}
+      >
         {tried
           ? t('first.thatWasARealExercise')
           : playing
@@ -272,13 +282,14 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  // Heading when it sits BELOW the pulsing circle (steps 1 & 2). The top margin
-  // clears the glow halo (which reaches ~GLOW/2 - SIZE/2 px past the circle edge)
-  // so the pulse never bleeds onto the copy.
-  h1Below: { ...LESSON_TEXT, marginTop: 72, color: COLORS.white, textAlign: 'center' },
-  // The instruction for the thing you are about to do, so it is read, not
-  // skimmed. 16 under a 28px heading looked like fine print next to it.
-  p: { marginTop: 12, fontSize: 19, lineHeight: 27, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
+  // The one text style on this screen, identical to the text-only slides.
+  line: {
+    ...LESSON_TEXT,
+    marginTop: 72,
+    color: COLORS.white,
+    textAlign: 'center',
+    maxWidth: 360,
+  },
   // Step 0 keeps the circle above the copy with a static (non-glowing) ring.
   // Pulse steps (1 & 2) put the circle up top; the glow radiates into the empty
   // space above it (below the step dots) rather than over the reading copy below.

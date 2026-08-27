@@ -204,19 +204,14 @@
     "pressAndHold": "Tryck och håll",
     "squeezeNow": "Knip!",
     "stopTheFlowBody": "Nästa gång du kissar, stoppa strålen försiktigt halvvägs. Musklerna du just använde är din bäckenbotten.",
-    "tryItNow": "Testa nu",
     "tryItNowBody": "Håll cirkeln nedtryckt. Medan du håller, knip de musklerna. Släpp samtidigt.",
-    "youFoundThem": "Du hittade dem!",
     "youFoundThemBody": "Det där knipet och släppet är allt en knipövning är. Du är redo för din första övning."
   },
   "first": {
     "followTheCircle": "Följ cirkeln. Knip... och slappna av.",
-    "niceWork": "Snyggt jobbat!",
-    "nowYouTry": "Nu är det din tur",
     "start": "Starta",
     "tenSecondsReady": "Tio sekunder {{exercise}}. Knip vid varje {{contract}} och släpp på {{relax}}. Redo?",
     "thatWasARealExercise": "Det där var en riktig övning. Varje pass fungerar precis så här, en cirkel i taget.",
-    "thisIsTrembling": "Det här är Darrning",
     "yourFirstExerciseQuickFlicks": "Din första övning: snabba spänningar. Spänn vid Spänn, släpp vid Slappna av."
   },
   "knowledge": {

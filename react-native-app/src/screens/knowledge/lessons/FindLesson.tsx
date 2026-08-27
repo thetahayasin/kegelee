@@ -99,10 +99,18 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
 
   return (
     <View style={styles.center}>
-      <Text style={styles.h1} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={1.3}>
-        {doneHold ? t('find.youFoundThem') : t('find.tryItNow')}
-      </Text>
-      <Text style={styles.p} numberOfLines={4} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
+      {/* One line, same white and same size as every other slide. This step
+          used to stack a short label over a smaller muted paragraph, so the
+          lesson changed typeface halfway through depending on whether the step
+          had something to do. The label was a caption for the sentence under
+          it; the sentence says it. */}
+      <Text
+        style={styles.line}
+        numberOfLines={5}
+        adjustsFontSizeToFit
+        minimumFontScale={0.65}
+        maxFontSizeMultiplier={1.3}
+      >
         {doneHold ? t('find.youFoundThemBody') : t('find.tryItNowBody')}
       </Text>
 
@@ -153,14 +161,13 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  // One scale across all three lessons. 28px bold read as a slogan rather than
-  // a heading, especially on the steps where the heading is most of the step.
-  // Same scale as the text-only steps. This step still leads with a line of
-  // text; it just has something to do underneath it.
-  h1: { ...LESSON_TEXT, color: COLORS.white, textAlign: 'center' },
-  // The instruction for the thing you are about to do, so it is read, not
-  // skimmed. 16 under a 28px heading looked like fine print next to it.
-  p: { marginTop: 14, fontSize: 19, lineHeight: 27, color: COLORS.textMuted, textAlign: 'center', maxWidth: 360 },
+  // The one text style on this screen, identical to the text-only slides.
+  line: {
+    ...LESSON_TEXT,
+    color: COLORS.white,
+    textAlign: 'center',
+    maxWidth: 360,
+  },
   holdArea: { marginTop: 30, width: 250, height: 250, alignItems: 'center', justifyContent: 'center' },
   holdGlow: {
     position: 'absolute',
@@ -181,6 +188,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   holdRing: { position: 'absolute' },
-  holdLabel: { fontSize: 18, fontWeight: 'bold', color: COLORS.white },
-  holdSub: { marginTop: 4, fontSize: 12, color: COLORS.textMuted },
+  // Inside the 250px hold circle, so it cannot take the slide's 28px - but it
+  // was small enough to read as secondary next to it. Raised, and the sub-line
+  // is white rather than muted grey.
+  holdLabel: { fontSize: 22, fontWeight: 'bold', color: COLORS.white },
+  holdSub: { marginTop: 6, fontSize: 16, fontWeight: '600', color: COLORS.white, opacity: 0.75 },
 });

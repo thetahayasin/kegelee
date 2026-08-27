@@ -204,19 +204,14 @@
     "pressAndHold": "Appuyez longuement",
     "squeezeNow": "Contractez !",
     "stopTheFlowBody": "La prochaine fois que vous urinez, arrêtez doucement le jet à mi-parcours. Les muscles que vous venez d’utiliser sont votre périnée.",
-    "tryItNow": "Essayez maintenant",
     "tryItNowBody": "Appuyez longuement sur le cercle. Pendant que vous maintenez, contractez ces muscles. Relâchez en même temps.",
-    "youFoundThem": "Vous les avez trouvés !",
     "youFoundThemBody": "Cette contraction suivie du relâchement, c’est tout ce qu’est un Kegel. Vous êtes prêt pour votre premier exercice."
   },
   "first": {
     "followTheCircle": "Suivez le cercle. Contractez... et relâchez.",
-    "niceWork": "Bien joué !",
-    "nowYouTry": "À vous d'essayer",
     "start": "Commencer",
     "tenSecondsReady": "Dix secondes de {{exercise}}. Contractez à chaque {{contract}}, relâchez sur {{relax}}. Prêt ?",
     "thatWasARealExercise": "C’était un vrai exercice. Chaque séance fonctionne exactement comme ça, un cercle à la fois.",
-    "thisIsTrembling": "Voici le Tremblement",
     "yourFirstExerciseQuickFlicks": "Ton premier exercice : des contractions rapides. Contracte sur Contracte, relâche sur Relâche."
   },
   "knowledge": {

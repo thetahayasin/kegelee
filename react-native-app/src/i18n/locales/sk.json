@@ -204,19 +204,14 @@
     "pressAndHold": "Stlač a podrž",
     "squeezeNow": "Stiahni!",
     "stopTheFlowBody": "Keď budeš nabudúce močiť, jemne zastav prúd v polovici. Svaly, ktoré si práve použil, sú tvoje panvové dno.",
-    "tryItNow": "Skús to teraz",
     "tryItNowBody": "Stlač a podrž kruh. Kým držíš, stiahni tie svaly. Pusti naraz.",
-    "youFoundThem": "Našiel si ich!",
     "youFoundThemBody": "Ten sťah a povolenie je všetko, čím Kegelov cvik je. Si pripravený na svoj prvý cvik."
   },
   "first": {
     "followTheCircle": "Sleduj kruh. Stiahni... a povoľ.",
-    "niceWork": "Skvelá práca!",
-    "nowYouTry": "Teraz to skús ty",
     "start": "Začať",
     "tenSecondsReady": "Desať sekúnd cviku {{exercise}}. Stiahni sa pri každom {{contract}} a pusti pri {{relax}}. Pripravený?",
     "thatWasARealExercise": "To bol skutočný cvik. Každá lekcia prebieha presne takto, jeden kruh po druhom.",
-    "thisIsTrembling": "Toto je Chvenie",
     "yourFirstExerciseQuickFlicks": "Tvoj prvý cvik: rýchle stiahnutia. Sťahuj pri Stiahni, povoľ pri Uvoľni."
   },
   "knowledge": {

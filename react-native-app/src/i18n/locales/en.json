@@ -204,19 +204,14 @@
     "pressAndHold": "Press & hold",
     "squeezeNow": "Squeeze!",
     "stopTheFlowBody": "Next time you pee, gently stop the flow midway. The muscles you just used are your pelvic floor.",
-    "tryItNow": "Try it now",
     "tryItNowBody": "Press and hold the circle. While you hold it, squeeze those muscles. Let go together.",
-    "youFoundThem": "You found them!",
     "youFoundThemBody": "That squeeze and release is all a Kegel is. You are ready for your first exercise."
   },
   "first": {
     "followTheCircle": "Follow the circle. Squeeze... and relax.",
-    "niceWork": "Nice work!",
-    "nowYouTry": "Now you try",
     "start": "Start",
     "tenSecondsReady": "Ten seconds of {{exercise}}. Squeeze on every {{contract}}, let go on {{relax}}. Ready?",
     "thatWasARealExercise": "That was a real exercise. Every session works exactly like this, one circle at a time.",
-    "thisIsTrembling": "This is Trembling",
     "yourFirstExerciseQuickFlicks": "Your first exercise: quick flicks. Squeeze on Contract, let go on Relax."
   },
   "knowledge": {

@@ -115,9 +115,10 @@ export const KnowledgeScreen = () => {
           // Clear the sticky Subscribe bar on the guest funnel - and the free
           // session button too when it is showing, or the last lesson card
           // ends up underneath it.
-          !isAuthenticated && {
-            paddingBottom: allCompleted && freeSessionLeft ? 190 : 120,
-          },
+          // Clear the sticky Subscribe bar, which is absolutely positioned at
+          // bottom: 0 and runs about 130px tall once its safe-area padding is
+          // added. 120 left the last item tucked under its top edge.
+          !isAuthenticated && { paddingBottom: 150 },
         ]}
       >
         {BASICS_LESSONS.map((lesson, i) => {
@@ -160,6 +161,34 @@ export const KnowledgeScreen = () => {
           );
         })}
 
+        {/* The way back to the free session.
+            The offer appears once, at the end of the last lesson. Someone who
+            taps "Not now" there - or quits the workout partway, or closes the
+            app mid-lesson and comes back tomorrow - would otherwise never see
+            it again, having never actually used the product. Only FINISHING a
+            session spends it, so it keeps being offered here until then.
+
+            Inside the ScrollView, not pinned above the Subscribe bar. Pinned,
+            it sat inside the bar's own ~130px band and was drawn underneath
+            it: invisible, and on a screen that did not scroll far enough to
+            reveal it either. */}
+        {!isAuthenticated && allCompleted && freeSessionLeft && (
+          <TouchableOpacity
+            style={styles.tryBtn}
+            onPress={() => (navigation as any).navigate('FreeSessionOffer')}
+          >
+            <Text
+              style={styles.tryBtnText}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              maxFontSizeMultiplier={1.2}
+            >
+              {t('workoutComplete.tryItNow')}
+            </Text>
+          </TouchableOpacity>
+        )}
+
         {/* Only while still gated: once basics are done this screen is a review
             page (opened from Training), where the button is noise. */}
         {isAuthenticated && allCompleted && !basicsDone && (
@@ -178,31 +207,6 @@ export const KnowledgeScreen = () => {
           </TouchableOpacity>
         )}
       </ScrollView>
-
-      {/* The way back to the free session.
-          The offer appears once, at the end of the last lesson. Someone who
-          taps "Not now" there - or who quits the workout partway, or who closes
-          the app mid-lesson and comes back later - would otherwise never see it
-          again, having never actually used the product. It is only spent by
-          FINISHING a session, so it keeps being offered here until then. */}
-      {!isAuthenticated && allCompleted && freeSessionLeft && (
-        <View style={styles.tryBar}>
-          <TouchableOpacity
-            style={styles.tryBtn}
-            onPress={() => (navigation as any).navigate('FreeSessionOffer')}
-          >
-            <Text
-              style={styles.tryBtnText}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.8}
-              maxFontSizeMultiplier={1.2}
-            >
-              {t('workoutComplete.tryItNow')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       {/* Guest sales funnel: sticky Subscribe bar + plans/auth bottom sheet
           (web: @livewire('app.subscribe-sheet') on knowledge.index). */}
@@ -285,16 +289,8 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     lineHeight: 24,
   },
-  // Sits above the sticky Subscribe bar the SubscribeSheet renders, so the
-  // free session is offered before the price rather than under it.
-  tryBar: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 84,
-    paddingHorizontal: 20,
-  },
   tryBtn: {
+    marginTop: 24,
     backgroundColor: COLORS.accent,
     borderRadius: 24,
     height: 52,

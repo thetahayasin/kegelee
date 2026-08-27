@@ -204,19 +204,14 @@
     "pressAndHold": "Tryk og hold",
     "squeezeNow": "Knib!",
     "stopTheFlowBody": "Næste gang du tisser, så stop strålen forsigtigt halvvejs. De muskler, du lige brugte, er din bækkenbund.",
-    "tryItNow": "Prøv det nu",
     "tryItNowBody": "Tryk og hold på cirklen. Mens du holder, kniber du de muskler sammen. Slip samtidig.",
-    "youFoundThem": "Du fandt dem!",
     "youFoundThemBody": "Det knib og den slip er alt, hvad en knibeøvelse er. Du er klar til din første øvelse."
   },
   "first": {
     "followTheCircle": "Følg cirklen. Knib... og slap af.",
-    "niceWork": "Flot klaret!",
-    "nowYouTry": "Nu er det din tur",
     "start": "Start",
     "tenSecondsReady": "Ti sekunders {{exercise}}. Knib ved hvert {{contract}}, og slip ved {{relax}}. Klar?",
     "thatWasARealExercise": "Det var en rigtig øvelse. Hver session fungerer præcis sådan, én cirkel ad gangen.",
-    "thisIsTrembling": "Det her er Dirren",
     "yourFirstExerciseQuickFlicks": "Din første øvelse: hurtige spænd. Spænd ved Spænd, slip ved Slap af."
   },
   "knowledge": {

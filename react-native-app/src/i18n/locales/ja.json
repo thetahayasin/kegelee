@@ -204,19 +204,14 @@
     "pressAndHold": "長押し",
     "squeezeNow": "締めて！",
     "stopTheFlowBody": "次にトイレへ行ったとき、尿の流れを途中でそっと止めてみてください。そのとき使った筋肉が骨盤底筋です。",
-    "tryItNow": "やってみましょう",
     "tryItNowBody": "円を長押ししてください。押している間、その筋肉を締めます。同時に放しましょう。",
-    "youFoundThem": "見つかりました！",
     "youFoundThemBody": "その締めて放す動きが、骨盤底トレーニングのすべてです。はじめてのエクササイズの準備ができました。"
   },
   "first": {
     "followTheCircle": "円に合わせて。締めて……ゆるめて。",
-    "niceWork": "その調子です！",
-    "nowYouTry": "今度はあなたの番です",
     "start": "スタート",
     "tenSecondsReady": "{{exercise}}を10秒。{{contract}}のたびに締め、{{relax}}で放します。準備はいいですか？",
     "thatWasARealExercise": "いまのが本物のエクササイズです。どのセッションもまったく同じように、円ひとつずつ進みます。",
-    "thisIsTrembling": "これがトレンブリングです",
     "yourFirstExerciseQuickFlicks": "最初のエクササイズは素早い締めです。「締める」で締め、「ゆるめる」で力を抜きます。"
   },
   "knowledge": {

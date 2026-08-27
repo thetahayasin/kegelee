@@ -204,19 +204,14 @@
     "pressAndHold": "Naciśnij i przytrzymaj",
     "squeezeNow": "Napnij!",
     "stopTheFlowBody": "Następnym razem, gdy będziesz oddawać mocz, delikatnie zatrzymaj strumień w połowie. Mięśnie, których właśnie użyłeś, to twoje dno miednicy.",
-    "tryItNow": "Spróbuj teraz",
     "tryItNowBody": "Naciśnij i przytrzymaj okrąg. Trzymając go, napnij te mięśnie. Puśćcie razem.",
-    "youFoundThem": "Znalazłeś je!",
     "youFoundThemBody": "To napięcie i rozluźnienie to wszystko, czym jest ćwiczenie Kegla. Jesteś gotowy na swoje pierwsze ćwiczenie."
   },
   "first": {
     "followTheCircle": "Podążaj za okręgiem. Napnij... i rozluźnij.",
-    "niceWork": "Dobra robota!",
-    "nowYouTry": "Teraz twoja kolej",
     "start": "Start",
     "tenSecondsReady": "Dziesięć sekund ćwiczenia {{exercise}}. Napinaj przy każdym {{contract}}, puszczaj przy {{relax}}. Gotowy?",
     "thatWasARealExercise": "To było prawdziwe ćwiczenie. Każda sesja wygląda dokładnie tak, jeden okrąg po drugim.",
-    "thisIsTrembling": "To jest Drżenie",
     "yourFirstExerciseQuickFlicks": "Twoje pierwsze ćwiczenie: szybkie napięcia. Napinaj przy Napnij, rozluźniaj przy Rozluźnij."
   },
   "knowledge": {

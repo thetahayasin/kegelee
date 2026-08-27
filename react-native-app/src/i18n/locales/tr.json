@@ -204,19 +204,14 @@
     "pressAndHold": "Basılı tut",
     "squeezeNow": "Kas!",
     "stopTheFlowBody": "Bir dahaki idrara çıkışında akışı yarı yolda nazikçe durdur. Az önce kullandığın kaslar pelvik tabanın.",
-    "tryItNow": "Şimdi dene",
     "tryItNowBody": "Daireye basılı tut. Tutarken o kasları sık. Aynı anda bırak.",
-    "youFoundThem": "Onları buldun!",
     "youFoundThemBody": "O kasılma ve bırakma, bir Kegel egzersizinin tamamıdır. İlk egzersizin için hazırsın."
   },
   "first": {
     "followTheCircle": "Daireyi takip et. Kas... ve gevşe.",
-    "niceWork": "Güzel iş!",
-    "nowYouTry": "Şimdi sıra sende",
     "start": "Başla",
     "tenSecondsReady": "On saniye {{exercise}}. Her {{contract}} işaretinde kas, {{relax}} işaretinde bırak. Hazır mısın?",
     "thatWasARealExercise": "Bu gerçek bir egzersizdi. Her seans tam olarak böyle işler, her seferinde bir daire.",
-    "thisIsTrembling": "Bu Titreme",
     "yourFirstExerciseQuickFlicks": "İlk egzersizin: hızlı sıkmalar. Sık dediğinde sık, Gevşe dediğinde bırak."
   },
   "knowledge": {

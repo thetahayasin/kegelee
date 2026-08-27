@@ -204,19 +204,14 @@
     "pressAndHold": "Mantén presionado",
     "squeezeNow": "¡Aprieta!",
     "stopTheFlowBody": "La próxima vez que orines, corta el chorro suavemente a la mitad. Los músculos que acabas de usar son tu piso pélvico.",
-    "tryItNow": "Pruébalo ahora",
     "tryItNowBody": "Mantén presionado el círculo. Mientras lo mantienes, aprieta esos músculos. Suelta al mismo tiempo.",
-    "youFoundThem": "¡Los encontraste!",
     "youFoundThemBody": "Ese apretón y esa soltura son todo lo que es un Kegel. Ya estás listo para tu primer ejercicio."
   },
   "first": {
     "followTheCircle": "Sigue el círculo. Aprieta... y relaja.",
-    "niceWork": "¡Bien hecho!",
-    "nowYouTry": "Ahora te toca a ti",
     "start": "Comenzar",
     "tenSecondsReady": "Diez segundos de {{exercise}}. Aprieta en cada {{contract}} y suelta en {{relax}}. ¿Listo?",
     "thatWasARealExercise": "Eso fue un ejercicio de verdad. Cada sesión funciona exactamente así, un círculo a la vez.",
-    "thisIsTrembling": "Esto es Temblor",
     "yourFirstExerciseQuickFlicks": "Tu primer ejercicio: contracciones rápidas. Aprieta en Contrae y suelta en Relaja."
   },
   "knowledge": {

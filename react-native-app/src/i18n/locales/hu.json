@@ -204,19 +204,14 @@
     "pressAndHold": "Nyomd és tartsd",
     "squeezeNow": "Szoríts!",
     "stopTheFlowBody": "Legközelebb, amikor vizelsz, félúton finoman állítsd meg a sugarat. Az izmok, amelyeket most használtál, a medencefeneked.",
-    "tryItNow": "Próbáld ki most",
     "tryItNowBody": "Nyomd meg és tartsd a kört. Amíg tartod, szorítsd össze azokat az izmokat. Engedd el egyszerre.",
-    "youFoundThem": "Megtaláltad!",
     "youFoundThemBody": "Ez a szorítás és elengedés minden, ami egy Kegel-gyakorlat. Készen állsz az első gyakorlatodra."
   },
   "first": {
     "followTheCircle": "Kövesd a kört. Szoríts... és lazíts.",
-    "niceWork": "Szép munka!",
-    "nowYouTry": "Most te jössz",
     "start": "Kezdés",
     "tenSecondsReady": "Tíz másodperc {{exercise}}. Szoríts minden {{contract}} jelnél, és engedd el a {{relax}} jelnél. Kezdhetjük?",
     "thatWasARealExercise": "Ez egy valódi gyakorlat volt. Minden alkalom pontosan így működik, egyszerre egy kör.",
-    "thisIsTrembling": "Ez a Remegés",
     "yourFirstExerciseQuickFlicks": "Az első gyakorlatod: gyors összehúzások. Szorítsd a Szorítsd jelnél, engedd el a Lazíts jelnél."
   },
   "knowledge": {
