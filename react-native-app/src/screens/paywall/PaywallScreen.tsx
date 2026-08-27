@@ -589,6 +589,23 @@ export const PaywallScreen = () => {
             </Text>
           )}
         </TouchableOpacity>
+        {/* Directly under the CTA, not at the end.
+            It was last - below the renewal terms, the legal paragraph and
+            Restore purchases - which puts the second most important action on
+            the screen for a brand new account underneath a block of fine print
+            and a rare recovery action. Subscribe and its alternative belong
+            next to each other.
+
+            Only on the gate root; opened from Settings as Manage Plan the
+            header X already does this. */}
+        {!purchasing && !subscribed && !canClose && (
+          <TouchableOpacity
+            style={styles.exploreBtn}
+            onPress={() => navigation.navigate('Knowledge' as never)}
+          >
+            <Text style={styles.exploreBtnText}>{t('workoutComplete.notNow')}</Text>
+          </TouchableOpacity>
+        )}
         {!purchasing && (
           <>
             {selectedPlanDef && !offeringsUnavailable ? (
@@ -627,23 +644,6 @@ export const PaywallScreen = () => {
                 disabled={purchasing}
               >
                 <Text style={styles.restoreBtnText}>{t('paywall.restorePurchases')}</Text>
-              </TouchableOpacity>
-            )}
-            {/* A way past the price, for someone who has not seen the app yet.
-                On the gate root this screen used to be the entire account: a
-                new sign-up met a price with nothing behind it and no exit but
-                logging out. Dismissing drops them into the basics, and the
-                funnel brings them back here after they have actually trained -
-                which is the moment the ask is worth making. Only on the gate
-                root; opened from Settings as Manage Plan the header X already
-                does this. */}
-            {!subscribed && !canClose && (
-              <TouchableOpacity
-                style={styles.exploreBtn}
-                onPress={() => navigation.navigate('Knowledge' as never)}
-                disabled={purchasing}
-              >
-                <Text style={styles.exploreBtnText}>{t('workoutComplete.notNow')}</Text>
               </TouchableOpacity>
             )}
           </>

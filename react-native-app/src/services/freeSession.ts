@@ -45,3 +45,29 @@ export const hasUsedFreeSession = async (userId?: number | null): Promise<boolea
     return false;
   }
 };
+
+/**
+ * Carry the guest's spent session onto the account they just made.
+ *
+ * Guest lesson progress already migrates at sign-in; the session did not, so
+ * someone who used their free session as a guest and then created an account
+ * was offered a second one under the new key - and the funnel asked them to
+ * train again before it would ask them to pay, which delays the only moment
+ * that converts.
+ *
+ * The guest marker is cleared either way, for the same reason the lesson
+ * progress is: it belongs to this account now, and leaving it behind would
+ * charge it to whoever signs in on this device next - or deny the next guest a
+ * session they never had.
+ */
+export const migrateFreeSessionToAccount = async (userId: number): Promise<void> => {
+  try {
+    const guestUsed = (await AsyncStorage.getItem(keyFor(null))) === '1';
+    if (guestUsed) {
+      await AsyncStorage.setItem(keyFor(userId), '1');
+    }
+    await AsyncStorage.removeItem(keyFor(null));
+  } catch {
+    // Worst case the account is offered a session the guest already used.
+  }
+};

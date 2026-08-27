@@ -8,6 +8,7 @@ import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
 import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo, purchaseRecordedAt } from '../services/billing';
+import { migrateFreeSessionToAccount } from '../services/freeSession';
 import { BASICS_LESSONS } from '../constants/basics';
 import i18n from '../i18n';
 
@@ -280,6 +281,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // leaving it behind would hand it to whoever signs in next.
       await AsyncStorage.removeItem('@basics_done_guest');
     } catch {}
+
+    // The free session moves with the lessons, for the same reason.
+    await migrateFreeSessionToAccount(localUser.id);
 
     // Decide the basics gate BEFORE revealing the authenticated navigator. The
     // sign-in payload's basics_completed (admin / lessons done / training
