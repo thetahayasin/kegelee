@@ -7,7 +7,7 @@ import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiv
 import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
 import { cancelAllReminders } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
-import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo } from '../services/billing';
+import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo, purchaseRecordedAt } from '../services/billing';
 import { BASICS_LESSONS } from '../constants/basics';
 import i18n from '../i18n';
 
@@ -544,7 +544,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // plan_id. recordCompletedPurchase writes plan_id: null, so a null
           // one is still nothing but our own optimistic grant.
           const serverConfirmed = active.plan_id != null;
-          const grantedAt = Date.parse(active.started_at || '');
+          // When WE recorded the purchase, not when the subscription first
+          // began. started_at carries RevenueCat's originalPurchaseDate, which
+          // is months old for anyone resubscribing, restoring, switching plans
+          // or reinstalling - so measuring the grace window from it expired
+          // that window before the customer had finished paying, and this
+          // branch closed the gate on them seconds after markSubscribed opened
+          // it. Falls back to started_at only for rows written before this was
+          // recorded, which are old enough that the distinction is moot.
+          const recordedAt = await purchaseRecordedAt(user.id).catch(() => null);
+          const grantedAt = recordedAt ?? Date.parse(active.started_at || '');
           const stillInGrace =
             !Number.isFinite(grantedAt) ||
             Date.now() - grantedAt < UNVERIFIED_GRACE_MS;

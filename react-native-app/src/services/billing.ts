@@ -707,6 +707,44 @@ export type RecordResult = 'recorded' | 'duplicate' | 'unmatched';
  * the RevenueCat identifiers so Laravel can verify the customer before saving
  * its authoritative subscription row.
  */
+/**
+ * When THIS device recorded a purchase, as opposed to when the subscription
+ * originally began.
+ *
+ * The gate grants unconfirmed access for a grace window while the backend
+ * catches up, and it used to measure that window from the row's started_at.
+ * That field carries RevenueCat's originalPurchaseDate - the FIRST ever
+ * purchase on the account - so for anyone resubscribing, restoring, switching
+ * plans or reinstalling it is months old. The window was therefore already
+ * expired the instant they paid: markSubscribed opened the gate, the next sync
+ * read a months-old started_at with a still-null plan_id, and closed it again.
+ * The paywall came back, kept polling, and only stuck once the server
+ * confirmed the row - which is the "it fixes itself after a few restarts"
+ * report.
+ *
+ * Recorded separately so the grace window measures the thing it is actually
+ * about: how long ago we took the money without the server agreeing yet.
+ */
+const grantKey = (userId: number | string) => `@purchase_recorded_at_${userId}`;
+
+export const markPurchaseRecorded = async (userId: number): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(grantKey(userId), String(Date.now()));
+  } catch {
+    // Falls back to started_at in the gate check; never worth throwing here.
+  }
+};
+
+export const purchaseRecordedAt = async (userId: number): Promise<number | null> => {
+  try {
+    const v = await AsyncStorage.getItem(grantKey(userId));
+    const n = v ? Number(v) : NaN;
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+};
+
 export const recordCompletedPurchase = async (
   userId: number,
   purchase: CompletedPurchase,
@@ -762,6 +800,9 @@ export const recordCompletedPurchase = async (
     canceled_at: null,
     auto_renewing: purchase.autoRenewing ? 1 : 0,
   });
+
+  // Stamp the LOCAL grant, not the subscription's own start date.
+  await markPurchaseRecorded(userId);
 
   try {
     await api.pushState({
