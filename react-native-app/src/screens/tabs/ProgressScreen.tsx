@@ -413,7 +413,14 @@ export const ProgressScreen = () => {
                 <Path d="M15 19l-7-7 7-7" stroke={COLORS.textMuted} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
               </Svg>
             </TouchableOpacity>
-            <Text style={styles.overlayHeaderTitle}>{t('progress.progressTracker')}</Text>
+            <Text
+              style={styles.overlayHeaderTitle}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {t('progress.progressTracker')}
+            </Text>
           </View>
 
           <View style={styles.overlayCenter}>
@@ -518,6 +525,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 28,
     fontWeight: 'bold',
+    flexShrink: 1,
     color: COLORS.white,
   },
   summaryRow: {
@@ -702,6 +710,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   overlayHeaderTitle: {
+    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.white,

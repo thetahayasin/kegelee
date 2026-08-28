@@ -697,6 +697,16 @@ export const restoreRevenueCatPurchases = async (userId: number): Promise<Comple
   }
 
   const customerInfo = await Purchases.restorePurchases();
+  // Restore answers one question: does this person hold the entitlement NOW.
+  //
+  // Without this guard a lapsed subscriber got a CompletedPurchase built from
+  // their long-finished subscription, complete with an expiry in the past.
+  // The caller wrote it down as active and opened the gate, then the next
+  // sync read the same row, saw the past expiry, and shut the gate again -
+  // the app let them in for about two seconds, every single time they tapped
+  // the button. "No active subscription was found to restore" is the true
+  // answer and was always the one they should have got.
+  if (!hasActiveEntitlement(customerInfo)) return null;
   return completedFromCustomerInfo(customerInfo);
 };
 
@@ -710,7 +720,7 @@ export const getRevenueCatManagementUrl = async (userId: number): Promise<string
   }
 };
 
-export type RecordResult = 'recorded' | 'duplicate' | 'unmatched';
+export type RecordResult = 'recorded' | 'duplicate' | 'unmatched' | 'expired';
 
 /**
  * Store a completed RevenueCat purchase locally for instant access, then push
@@ -794,6 +804,15 @@ export const recordCompletedPurchase = async (
       canceled_at: new Date().toISOString(),
       auto_renewing: 0,
     });
+  }
+
+  // An entitlement that has already run out is not access, and writing it
+  // down as `active` would put a row in the table that every later read has
+  // to disagree with. A null expiry is fine - some products have none, and
+  // getActiveSubscription treats it as open-ended.
+  const expiresAt = purchase.endsAt ? Date.parse(purchase.endsAt) : null;
+  if (expiresAt !== null && Number.isFinite(expiresAt) && expiresAt <= Date.now()) {
+    return 'expired';
   }
 
   const startedAt = purchase.startedAt || new Date().toISOString();

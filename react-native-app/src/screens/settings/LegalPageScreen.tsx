@@ -153,7 +153,9 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: COLORS.white,
-    maxWidth: '80%',
+    // flex, not a percentage guess: the back button beside it is a fixed
+    // width, so the title should simply take what is left.
+    flexShrink: 1,
   },
   bodyText: {
     fontSize: 15,

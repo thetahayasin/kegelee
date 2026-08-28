@@ -534,6 +534,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 28,
     fontWeight: 'bold',
+    flexShrink: 1,
     color: COLORS.white,
   },
   remindersCard: {

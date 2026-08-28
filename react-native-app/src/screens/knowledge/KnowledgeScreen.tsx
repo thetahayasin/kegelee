@@ -18,7 +18,7 @@ import {
 } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { COLORS, GLASS, DISABLED_OPACITY } from '../../theme/colors';
+import { COLORS, GLASS, DISABLED_OPACITY, SPACE } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { Watermark } from '../../components/Watermark';
 import { SubscribeSheet } from '../../components/SubscribeSheet';
@@ -121,7 +121,14 @@ export const KnowledgeScreen = () => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Watermark />
 
+      {/* Three columns, not a centred title with buttons floating over it.
+          The sides were position:absolute, so nothing reserved room for them
+          and the title simply ran underneath - "Learn the basics" is short in
+          English and long in most other languages, and this header carries a
+          control on BOTH edges, so it collided first and worst. Real columns
+          cannot overlap at any string length. */}
       <View style={styles.header}>
+        <View style={styles.headerSide}>
         {navigation.canGoBack() ? (
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -129,7 +136,18 @@ export const KnowledgeScreen = () => {
             </Svg>
           </TouchableOpacity>
         ) : null}
-        <Text style={styles.headerTitle}>{t('knowledge.learnTheBasics')}</Text>
+        </View>
+
+        <Text
+          style={styles.headerTitle}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
+        >
+          {t('knowledge.learnTheBasics')}
+        </Text>
+
+        <View style={[styles.headerSide, styles.headerSideEnd]}>
         {/* The corner opposite Back is the identity control: Log in for a
             guest, Log out for an account that is still behind a gate.
 
@@ -164,6 +182,7 @@ export const KnowledgeScreen = () => {
             )}
           </TouchableOpacity>
         ) : null}
+        </View>
       </View>
 
       <ScrollView
@@ -336,31 +355,37 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    gap: SPACE.sm,
+    paddingHorizontal: SPACE.lg,
+    paddingVertical: SPACE.lg,
   },
+  // Both gutters reserve a touch target's worth of space even when empty, so
+  // the title stays centred whether or not there is a back button.
+  headerSide: { minWidth: 44, alignItems: 'flex-start', justifyContent: 'center' },
+  headerSideEnd: { alignItems: 'flex-end' },
   backBtn: {
-    position: 'absolute',
-    start: 16,
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   loginLink: {
-    position: 'absolute',
-    end: 16,
-    height: 36,
+    minHeight: 44,
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    paddingStart: SPACE.xs,
   },
   loginLinkText: { fontSize: 15, fontWeight: '600', color: COLORS.accent },
   // Muted, not accent. Log in is an invitation and earns the lime; log out is
   // an escape hatch, and dressing it in the app's one "act here" colour would
   // make leaving the loudest thing in the header.
   logoutLinkText: { fontSize: 15, fontWeight: '600', color: COLORS.textMuted },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
   scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 16 },
   card: {
     flexDirection: 'row',

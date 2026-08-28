@@ -195,7 +195,18 @@ export const AllExercisesScreen = () => {
             <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('allExercises.exercises')}</Text>
+        {/* Title flexes between the button and the trailing gutter rather
+            than being centred underneath an absolutely positioned one. */}
+        <Text
+          style={styles.headerTitle}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
+        >
+          {t('allExercises.exercises')}
+        </Text>
+        {/* Balances the back button so the title sits centred. */}
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -253,22 +264,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: SPACE.lg,
+    gap: SPACE.sm,
+    paddingHorizontal: SPACE.md,
     paddingVertical: SPACE.lg,
   },
+  headerSpacer: { width: 44 },
   backBtn: {
-    position: 'absolute',
-    // Logical, not `left`: the back chevron has to follow the reading
-    // direction, or it lands on the wrong edge in Arabic, Hebrew and Urdu.
-    start: SPACE.md,
-    // 36px was under both the iOS HIG and Material minimum target.
     width: 44,
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { ...TYPE.title, color: COLORS.white },
+  headerTitle: { ...TYPE.title, flex: 1, textAlign: 'center', color: COLORS.white },
   scroll: { paddingHorizontal: SPACE.lg, paddingTop: SPACE.sm, paddingBottom: 40, gap: SPACE.md },
   row: {
     ...GLASS,

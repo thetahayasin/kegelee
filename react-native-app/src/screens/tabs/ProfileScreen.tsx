@@ -317,6 +317,8 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     ...TYPE.display,
+    // See TrainingScreen: shrink rather than push the row's other control out.
+    flexShrink: 1,
     color: COLORS.white,
   },
   identityContainer: {

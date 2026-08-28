@@ -194,6 +194,31 @@ export const PaywallScreen = () => {
   // either, because the X replaced it.
   const canClose = navigation.canGoBack();
 
+  /**
+   * Open the gate only if the row we just wrote actually grants access.
+   *
+   * markSubscribed() used to be called on any recordCompletedPurchase that
+   * did not come back 'unmatched'. That is a different question from the one
+   * the gate asks, and the two could disagree: restoring a subscription that
+   * had already run out wrote an 'active' row with an expiry in the past,
+   * this screen let the customer in, and the next sync called
+   * getActiveSubscription - which correctly refuses a past expiry - and threw
+   * them straight back out. Two seconds inside the app, repeatable on every
+   * tap of Restore.
+   *
+   * Asking getActiveSubscription here means the screen and the gate cannot
+   * reach different conclusions: it is literally the same function.
+   */
+  const openGateIfEntitled = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
+    const row = await getActiveSubscription(user.id).catch(() => null);
+    if (!row) return false;
+    setActiveSub(row);
+    activeSubRef.current = row;
+    markSubscribed();
+    return true;
+  }, [user, markSubscribed]);
+
   const subscribe = useCallback(
     async (plan: PlanDef, current: DBSubscription | null) => {
       setMessage(null);
@@ -244,7 +269,16 @@ export const PaywallScreen = () => {
         // CTA and Play's own sheet both already stated the renewal terms.
         // Reached from Settings the navigator does not move, so the notice
         // still shows as the confirmation it was written to be.
-        markSubscribed();
+        if (!(await openGateIfEntitled())) {
+          // Play took the money but what came back does not entitle anyone.
+          // Say so instead of opening a door that shuts again on the next
+          // sync; support can sort out a purchase we can see, and cannot
+          // sort out one the customer never mentioned because the app
+          // appeared to work for two seconds.
+          setMessageTone('error');
+          setMessage(t('paywall.purchaseReceivedButPlanCould'));
+          return;
+        }
         setAutoRenewing(purchase.autoRenewing);
         setShowAutoRenewalNotice(true);
       } catch (e: any) {
@@ -270,9 +304,11 @@ export const PaywallScreen = () => {
         setPurchasing(false);
       }
     },
-    // markSubscribed is useCallback-stable in AuthContext, so listing it does
-    // not re-create this handler on every render.
-    [user, markSubscribed, t],
+    // The gate is now opened through openGateIfEntitled rather than by
+    // calling markSubscribed here, and that helper is memoised on the same
+    // stable [user, markSubscribed] - so this handler is not re-created on
+    // every render either.
+    [user, openGateIfEntitled, t],
   );
 
   // Keep looking for an entitlement for as long as this screen is the whole
@@ -475,9 +511,14 @@ export const PaywallScreen = () => {
         setMessage(t('paywall.restoredPurchaseCouldNotBe'));
         return;
       }
-      // Same as the purchase path: the entitlement is real and on disk, so
-      // the gate opens now rather than on a tap that may never come.
-      markSubscribed();
+      // 'expired' means the store handed back a subscription that has already
+      // finished. There is nothing to restore, and it is the same answer as
+      // finding nothing at all.
+      if (result === 'expired' || !(await openGateIfEntitled())) {
+        setMessageTone('info');
+        setMessage(t('paywall.noActiveSubscriptionWasFound'));
+        return;
+      }
       setAutoRenewing(purchase.autoRenewing);
       setShowAutoRenewalNotice(true);
     } catch (e: any) {
@@ -539,8 +580,14 @@ export const PaywallScreen = () => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Watermark />
 
-      {/* Header */}
+      {/* Header: three real columns.
+          The left control was position:absolute over a centred title, so
+          nothing reserved room for it and "Log out" ran straight under the
+          title - harmless in English, plainly broken in Hungarian
+          ("Kijelentkezés") and every other language where the word is long.
+          A column cannot overlap its neighbour. */}
       <View style={styles.header}>
+        <View style={styles.headerSide}>
         {canClose ? (
           <TouchableOpacity
             style={styles.headerLeftBtn}
@@ -565,10 +612,18 @@ export const PaywallScreen = () => {
             {loggingOut ? (
               <ActivityIndicator size="small" color={COLORS.textMuted} />
             ) : (
-              <Text style={styles.logoutText}>{t('paywall.logOut')}</Text>
+              <Text
+                style={styles.logoutText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
+                {t('paywall.logOut')}
+              </Text>
             )}
           </TouchableOpacity>
         )}
+        </View>
         {/* Some of these run long once translated ("Előfizetés
             kezelése", "Reînnoiește planul"), and the header centres the
             title between an absolutely positioned left button and the edge,
@@ -585,6 +640,8 @@ export const PaywallScreen = () => {
               ? t('paywall.renewPlan')
               : t('paywall.premium')}
         </Text>
+        {/* Balances the left column so the title reads as centred. */}
+        <View style={styles.headerSide} />
       </View>
 
       <ScrollView
@@ -970,13 +1027,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    gap: SPACE.sm,
+    paddingHorizontal: SPACE.md,
+    paddingVertical: SPACE.lg,
   },
+  // Capped so a long "Log out" shrinks its own column instead of eating the
+  // title's; empty on the right, where it only reserves matching space.
+  headerSide: { minWidth: 44, maxWidth: '32%', justifyContent: 'center' },
   headerLeftBtn: {
-    position: 'absolute',
-    start: SPACE.md,
     // 36px sat under both the iOS HIG and Material minimum target.
     width: 44,
     height: 44,
@@ -985,8 +1043,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logoutBtn: {
-    position: 'absolute',
-    start: SPACE.md,
     minHeight: 44,
     justifyContent: 'center',
     borderRadius: RADIUS.pill,
@@ -1000,9 +1056,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...TYPE.heading,
     color: COLORS.white,
-    // Clears the 44pt left button plus its inset at both ends, so a long
-    // translated title shrinks inside the gap instead of running under it.
-    maxWidth: '62%',
+    flex: 1,
     textAlign: 'center',
   },
   scroll: {

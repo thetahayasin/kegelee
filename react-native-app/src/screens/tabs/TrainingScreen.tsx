@@ -713,7 +713,9 @@ const styles = StyleSheet.create({
     paddingTop: SPACE.xl,
     paddingBottom: SPACE.lg,
   },
-  pageTitle: { ...TYPE.display, color: COLORS.white },
+  // flexShrink, so a long translated title gives way rather than shoving the
+  // control at the other end of the row off the screen.
+  pageTitle: { ...TYPE.display, flexShrink: 1, color: COLORS.white },
   infoBtnInline: {
     width: 44,
     height: 44,
