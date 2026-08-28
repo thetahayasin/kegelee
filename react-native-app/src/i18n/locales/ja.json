@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "トレーニングのリマインダー",
+    "lapseBody": "数日空きました。短いセッション1回で習慣を取り戻せます。",
+    "lapseTitle": "いつでも再開できます",
     "notificationBody": "今日の骨盤底トレーニングの時間です！",
-    "notificationTitle": "骨盤底トレーニング"
+    "notificationTitle": "骨盤底トレーニング",
+    "nudgeChannelName": "お知らせ",
+    "trialEndingBody": "Google Play で解約しない限り、サブスクリプションが開始されます。",
+    "trialEndingTitle": "無料トライアルは明日終了します"
   },
   "schedule": {
     "active": "オン",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}}回で今日は達成",
     "sessionsCompleteToday_other": "{{count}}回で今日は達成",
     "startWorkout": "トレーニングを開始",
+    "streakDays_one": "{{count}}日連続",
+    "streakDays_other": "{{count}}日連続",
     "todayIsDone": "今日は達成しました",
     "trainAgain": "もう一度トレーニング",
     "training": "トレーニング",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "コードが届きませんか？ 再送信",
     "enterSixDigitCode": "6桁の確認コードを入力してください。",
     "failedToResendCode": "コードを再送できませんでした。",
+    "resendIn_one": "{{count}}秒後に再送信",
+    "resendIn_other": "{{count}}秒後に再送信",
+    "sentCodeTo": "6桁の確認コードを次の宛先に送信しました",
     "verificationFailed": "確認に失敗しました。もう一度お試しください。",
     "verifyCode": "コードを確認",
     "verifyEmail": "メールアドレスを確認"

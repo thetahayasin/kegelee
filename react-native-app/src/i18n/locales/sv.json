@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Träningspåminnelser",
+    "lapseBody": "Det har gått några dagar. Ett kort pass räcker för att komma igång igen.",
+    "lapseTitle": "Redo när du är",
     "notificationBody": "Dags för ditt dagliga knippass!",
-    "notificationTitle": "Knipträning"
+    "notificationTitle": "Knipträning",
+    "nudgeChannelName": "Påminnelser",
+    "trialEndingBody": "Din prenumeration startar om du inte avslutar den i Google Play.",
+    "trialEndingTitle": "Din gratis provperiod slutar i morgon"
   },
   "schedule": {
     "active": "Aktiv",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} pass avslutar dagen",
     "sessionsCompleteToday_other": "{{count}} pass avslutar dagen",
     "startWorkout": "Starta passet",
+    "streakDays_one": "{{count}} dags svit",
+    "streakDays_other": "{{count}} dagars svit",
     "todayIsDone": "Dagen är klar",
     "trainAgain": "Träna igen",
     "training": "Träning",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Fick du ingen kod? Skicka igen",
     "enterSixDigitCode": "Ange en 6-siffrig verifieringskod.",
     "failedToResendCode": "Kunde inte skicka koden igen.",
+    "resendIn_one": "Skicka igen om {{count}} s",
+    "resendIn_other": "Skicka igen om {{count}} s",
+    "sentCodeTo": "Vi har skickat en 6-siffrig verifieringskod till",
     "verificationFailed": "Verifieringen misslyckades. Försök igen.",
     "verifyCode": "Verifiera kod",
     "verifyEmail": "Verifiera e-post"

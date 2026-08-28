@@ -22,6 +22,7 @@ import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
 import { COLORS } from '../../theme/colors';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
 import { FREE_SESSION_LEVEL, freeSessionExitReset } from '../../services/freeSession';
+import { scheduleLapseNudge } from '../../services/reminders';
 import { getDBConnection } from '../../db/sqlite';
 import { recordCompletedSession } from '../../db/queries';
 import { syncNow } from '../../services/sync';
@@ -523,6 +524,12 @@ export const WorkoutScreen = () => {
       try {
         // Save session locally to SQLite
         await recordCompletedSession(user.id, currentStep?.slug || null, secs, user.level_id);
+        // Push the lapse check-in back another 72 hours. Doing this on every
+        // completed session means an active user perpetually postpones it and
+        // never sees it - it only ever arrives for someone who has actually
+        // gone quiet, which until now was someone the app had no way of
+        // contacting at all.
+        scheduleLapseNudge().catch(() => {});
         // Sync with Laravel server in background
         syncNow(user.id).catch(() => {});
       } catch (e) {

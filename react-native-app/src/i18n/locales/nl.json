@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Trainingsherinneringen",
+    "lapseBody": "Er zijn een paar dagen voorbij. Eén korte sessie is genoeg om de gewoonte weer op te pakken.",
+    "lapseTitle": "Klaar wanneer jij het bent",
     "notificationBody": "Tijd voor je dagelijkse kegelsessie!",
-    "notificationTitle": "Kegeltraining"
+    "notificationTitle": "Kegeltraining",
+    "nudgeChannelName": "Check-ins",
+    "trialEndingBody": "Je abonnement start, tenzij je opzegt in Google Play.",
+    "trialEndingTitle": "Je gratis proefperiode eindigt morgen"
   },
   "schedule": {
     "active": "Actief",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} sessie maakt vandaag af",
     "sessionsCompleteToday_other": "{{count}} sessies maken vandaag af",
     "startWorkout": "Training starten",
+    "streakDays_one": "{{count}} dag op rij",
+    "streakDays_other": "{{count}} dagen op rij",
     "todayIsDone": "Vandaag zit erop",
     "trainAgain": "Nog een keer trainen",
     "training": "Training",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Geen code ontvangen? Opnieuw versturen",
     "enterSixDigitCode": "Voer een verificatiecode van 6 cijfers in.",
     "failedToResendCode": "Kon de code niet opnieuw versturen.",
+    "resendIn_one": "Opnieuw versturen over {{count}} s",
+    "resendIn_other": "Opnieuw versturen over {{count}} s",
+    "sentCodeTo": "We hebben een 6-cijferige verificatiecode gestuurd naar",
     "verificationFailed": "Verificatie mislukt. Probeer het opnieuw.",
     "verifyCode": "Code verifiëren",
     "verifyEmail": "E-mail verifiëren"

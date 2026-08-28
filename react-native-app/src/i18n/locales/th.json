@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "การแจ้งเตือนการฝึก",
+    "lapseBody": "ผ่านมาสองสามวันแล้ว เซสชันสั้น ๆ ครั้งเดียวก็กลับมาสร้างนิสัยได้",
+    "lapseTitle": "พร้อมเมื่อคุณพร้อม",
     "notificationBody": "ถึงเวลาฝึกคีเกลประจำวันของคุณแล้ว!",
-    "notificationTitle": "ฝึกคีเกล"
+    "notificationTitle": "ฝึกคีเกล",
+    "nudgeChannelName": "การแจ้งเตือน",
+    "trialEndingBody": "การสมัครสมาชิกของคุณจะเริ่มขึ้น เว้นแต่คุณจะยกเลิกใน Google Play",
+    "trialEndingTitle": "ช่วงทดลองใช้ฟรีของคุณจะสิ้นสุดพรุ่งนี้"
   },
   "schedule": {
     "active": "เปิดอยู่",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "อีก {{count}} รอบก็ครบวันนี้",
     "sessionsCompleteToday_other": "อีก {{count}} รอบก็ครบวันนี้",
     "startWorkout": "เริ่มฝึก",
+    "streakDays_one": "ต่อเนื่อง {{count}} วัน",
+    "streakDays_other": "ต่อเนื่อง {{count}} วัน",
     "todayIsDone": "วันนี้ครบแล้ว",
     "trainAgain": "ฝึกอีกครั้ง",
     "training": "การฝึก",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "ไม่ได้รับรหัส? ส่งอีกครั้ง",
     "enterSixDigitCode": "กรุณากรอกรหัสยืนยัน 6 หลัก",
     "failedToResendCode": "ส่งรหัสอีกครั้งไม่สำเร็จ",
+    "resendIn_one": "ส่งอีกครั้งใน {{count}} วินาที",
+    "resendIn_other": "ส่งอีกครั้งใน {{count}} วินาที",
+    "sentCodeTo": "เราได้ส่งรหัสยืนยัน 6 หลักไปที่",
     "verificationFailed": "ยืนยันไม่สำเร็จ กรุณาลองใหม่",
     "verifyCode": "ยืนยันรหัส",
     "verifyEmail": "ยืนยันอีเมล"

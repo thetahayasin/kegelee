@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Antrenman Hatırlatıcıları",
+    "lapseBody": "Birkaç gün geçti. Kısa bir seans alışkanlığa geri dönmek için yeterli.",
+    "lapseTitle": "Sen hazır olduğunda",
     "notificationBody": "Günlük Kegel seansının vakti geldi!",
-    "notificationTitle": "Kegel Antrenmanı"
+    "notificationTitle": "Kegel Antrenmanı",
+    "nudgeChannelName": "Hatırlatmalar",
+    "trialEndingBody": "Google Play’de iptal etmezseniz aboneliğiniz başlayacak.",
+    "trialEndingTitle": "Ücretsiz deneme süreniz yarın sona eriyor"
   },
   "schedule": {
     "active": "Etkin",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} seans bugünü tamamlar",
     "sessionsCompleteToday_other": "{{count}} seans bugünü tamamlar",
     "startWorkout": "Antrenmanı başlat",
+    "streakDays_one": "{{count}} günlük seri",
+    "streakDays_other": "{{count}} günlük seri",
     "todayIsDone": "Bugünlük bu kadar",
     "trainAgain": "Tekrar çalış",
     "training": "Antrenman",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Kod gelmedi mi? Yeniden gönder",
     "enterSixDigitCode": "6 haneli bir doğrulama kodu girin.",
     "failedToResendCode": "Kod tekrar gönderilemedi.",
+    "resendIn_one": "{{count}} sn içinde yeniden gönder",
+    "resendIn_other": "{{count}} sn içinde yeniden gönder",
+    "sentCodeTo": "6 haneli doğrulama kodunu şu adrese gönderdik",
     "verificationFailed": "Doğrulama başarısız oldu. Tekrar deneyin.",
     "verifyCode": "Kodu doğrula",
     "verifyEmail": "E-postayı doğrula"

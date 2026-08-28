@@ -39,6 +39,9 @@ export const AllExercisesScreen = () => {
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
+  const [loadFailed, setLoadFailed] = useState(false);
+  // Bumped by the retry to re-run the load effect.
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!isFocused) return;
@@ -81,9 +84,15 @@ export const AllExercisesScreen = () => {
             };
           });
 
-        if (!cancelled) setRows(list);
+        if (!cancelled) {
+          setRows(list);
+          setLoadFailed(false);
+        }
       } catch (e) {
         console.error('Failed to load exercises list', e);
+        // Say so and offer the retry rather than presenting an empty
+        // catalogue as though the user had simply unlocked nothing.
+        if (!cancelled) setLoadFailed(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -93,12 +102,31 @@ export const AllExercisesScreen = () => {
     return () => {
       cancelled = true;
     };
-  }, [isFocused, user]);
+  }, [isFocused, user, reloadKey]);
 
   if (loading) {
     return (
       <SafeAreaView style={styles.loading}>
         <ActivityIndicator size="large" color={COLORS.accent} />
+      </SafeAreaView>
+    );
+  }
+
+  if (loadFailed) {
+    return (
+      <SafeAreaView style={styles.loading}>
+        <Text style={styles.errorText}>{t('errorBoundary.theAppHitAnUnexpected')}</Text>
+        <TouchableOpacity
+          style={styles.errorRetryBtn}
+          accessibilityRole="button"
+          onPress={() => {
+            setLoading(true);
+            setLoadFailed(false);
+            setReloadKey((k) => k + 1);
+          }}
+        >
+          <Text style={styles.errorRetryText}>{t('progress.tryAgain')}</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -206,6 +234,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  errorText: {
+    ...TYPE.body,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    paddingHorizontal: SPACE.xl,
+  },
+  errorRetryBtn: {
+    marginTop: SPACE.lg,
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    borderRadius: RADIUS.pill,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+  },
+  errorRetryText: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.white },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

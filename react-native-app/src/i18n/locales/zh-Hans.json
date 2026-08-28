@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "训练提醒",
+    "lapseBody": "已经过了几天。一次短练习就能重新养成习惯。",
+    "lapseTitle": "随时可以继续",
     "notificationBody": "到了每天的凯格尔训练时间！",
-    "notificationTitle": "凯格尔训练"
+    "notificationTitle": "凯格尔训练",
+    "nudgeChannelName": "提醒",
+    "trialEndingBody": "除非您在 Google Play 中取消，否则订阅将开始。",
+    "trialEndingTitle": "您的免费试用将于明天结束"
   },
   "schedule": {
     "active": "已开启",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} 组即可完成今天",
     "sessionsCompleteToday_other": "{{count}} 组即可完成今天",
     "startWorkout": "开始训练",
+    "streakDays_one": "连续 {{count}} 天",
+    "streakDays_other": "连续 {{count}} 天",
     "todayIsDone": "今天已完成",
     "trainAgain": "再练一次",
     "training": "训练",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "没收到验证码？重新发送",
     "enterSixDigitCode": "请输入 6 位验证码。",
     "failedToResendCode": "验证码重新发送失败。",
+    "resendIn_one": "{{count}} 秒后重新发送",
+    "resendIn_other": "{{count}} 秒后重新发送",
+    "sentCodeTo": "我们已将 6 位验证码发送至",
     "verificationFailed": "验证失败，请重试。",
     "verifyCode": "验证验证码",
     "verifyEmail": "验证邮箱"

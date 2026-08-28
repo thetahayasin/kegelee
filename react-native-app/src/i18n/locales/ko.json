@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "훈련 알림",
+    "lapseBody": "며칠 지났습니다. 짧은 세션 한 번이면 습관을 되찾을 수 있습니다.",
+    "lapseTitle": "준비되면 언제든지",
     "notificationBody": "오늘의 케겔 세션 시간입니다!",
-    "notificationTitle": "케겔 훈련"
+    "notificationTitle": "케겔 훈련",
+    "nudgeChannelName": "알림",
+    "trialEndingBody": "Google Play에서 취소하지 않으면 구독이 시작됩니다.",
+    "trialEndingTitle": "무료 체험이 내일 종료됩니다"
   },
   "schedule": {
     "active": "켜짐",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}}회면 오늘이 완료됩니다",
     "sessionsCompleteToday_other": "{{count}}회면 오늘이 완료됩니다",
     "startWorkout": "운동 시작",
+    "streakDays_one": "{{count}}일 연속",
+    "streakDays_other": "{{count}}일 연속",
     "todayIsDone": "오늘은 끝났어요",
     "trainAgain": "다시 운동하기",
     "training": "훈련",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "코드를 받지 못하셨나요? 다시 보내기",
     "enterSixDigitCode": "6자리 인증 코드를 입력하세요.",
     "failedToResendCode": "코드를 다시 보내지 못했습니다.",
+    "resendIn_one": "{{count}}초 후 재전송",
+    "resendIn_other": "{{count}}초 후 재전송",
+    "sentCodeTo": "6자리 인증 코드를 다음 주소로 보냈습니다",
     "verificationFailed": "인증에 실패했습니다. 다시 시도하세요.",
     "verifyCode": "코드 확인",
     "verifyEmail": "이메일 인증"

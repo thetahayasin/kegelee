@@ -24,6 +24,7 @@ import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/qu
 import { planBySlug } from '../../constants/plans';
 import { getRevenueCatManagementUrl } from '../../services/billing';
 import { getDBConnection } from '../../db/sqlite';
+import { formatSubscriptionDate } from '../../utils/localDate';
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 
@@ -180,16 +181,10 @@ export const SettingsSections = () => {
   // Every field here is synced from the backend, which derives it from
   // RevenueCat webhooks - so a cancellation, trial or billing failure shows
   // truthfully, and access is never implied to end before RevenueCat says so.
-  const formatSubDate = (iso: string | null): string => {
-    if (!iso) return '';
-    const d = new Date(iso);
-    return isNaN(d.getTime())
-      ? ''
-      : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  };
+  // Shared with the home screen's subscription banner - see localDate.
 
   const subStatus = String(subscription?.status || '').toLowerCase();
-  const subEnds = formatSubDate(subscription?.ends_at ?? null);
+  const subEnds = formatSubscriptionDate(subscription?.ends_at ?? null);
   const subRenews = Number(subscription?.auto_renewing) === 1;
 
   let subscriptionLabel = t('settings.subActive');
@@ -197,7 +192,7 @@ export const SettingsSections = () => {
 
   if (subStatus === 'trialing') {
     subscriptionLabel = t('settings.subTrial');
-    const trialEnds = formatSubDate(subscription?.trial_ends_at ?? null) || subEnds;
+    const trialEnds = formatSubscriptionDate(subscription?.trial_ends_at ?? null) || subEnds;
     subscriptionDetail = subRenews
       ? trialEnds && t('settings.trialEndsThenBilling', { date: trialEnds })
       : trialEnds && t('settings.trialEndsNoRenew', { date: trialEnds });

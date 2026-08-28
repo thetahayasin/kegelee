@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import notifee from '@notifee/react-native';
 import { api, setApiToken } from '../services/api';
 import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions } from '../db/queries';
 import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
-import { cancelAllReminders } from '../services/reminders';
+import { cancelAllReminders, cancelAllNudges, scheduleTrialEndingWarning } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
 import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo, purchaseRecordedAt } from '../services/billing';
 import { migrateFreeSessionToAccount } from '../services/freeSession';
@@ -319,18 +318,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setBasicsDone(nextBasicsDone);
     setUser(localUser);
 
-    // Request notification permission and trigger background sync
-    try {
-      await notifee.requestPermission();
-    } catch (e) {
-      console.warn('Failed to request Notifee notification permission', e);
-    }
+    // No notification-permission prompt here.
+    //
+    // It used to fire on this line: a bare system dialog thrown at someone who
+    // had just typed a password and had not yet seen a single screen of the
+    // app, with nothing on it explaining what the notifications were for. On
+    // Android 13+ that is the worst possible moment to ask - the answer is
+    // reflexive, and a refusal is effectively permanent. Every one of those
+    // refusals silently disabled the reminders feature for good, which is the
+    // only mechanism the app has for bringing anyone back.
+    //
+    // scheduleReminders() already requests permission at the point someone
+    // actually sets a reminder, where the reason is self-evident and the ask
+    // follows the user's own intent instead of preceding it. That is the only
+    // place it should happen, and it covers the sync path below too.
 
     // Clear any reminders left over from a previously signed-in user before the
     // sync below reschedules this account's own reminders from the backend. This
     // covers both login and first-time register ("getting started"), so a new
     // user never inherits the previous person's notifications.
     await cancelAllReminders();
+    await cancelAllNudges();
 
     // Starting level from the onboarding quiz.
     //
@@ -542,6 +550,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         const active = await getActiveSubscription(user.id).catch(() => null);
+
+        // Keep the trial warning in step with whatever the sync just learned.
+        // Passing a null trial_ends_at cancels it, so this one call covers
+        // every transition: a trial starting, converting, being cancelled, or
+        // having been bought on another device entirely. The trial's end date
+        // was previously known to the app and told to nobody - a conversion
+        // moment missed, and the kind of unannounced charge people dispute.
+        scheduleTrialEndingWarning(
+          String(active?.status || '').toLowerCase() === 'trialing'
+            ? active?.trial_ends_at ?? null
+            : null,
+        ).catch(() => {});
 
         if (active) {
           // A row the backend has acknowledged comes back from the pull with a

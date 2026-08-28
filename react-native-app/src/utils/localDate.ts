@@ -35,3 +35,22 @@ export const getLocalDateString = (timezone?: string | null): string => {
     return `${year}-${month}-${day}`;
   }
 };
+
+/**
+ * A subscription date as the reader's own locale writes it.
+ *
+ * Lived inside SettingsScreen, which was fine while Settings was the only
+ * place that showed one. The home screen now states a trial's end date and a
+ * cancelled subscription's last day too, and two copies of a date format are
+ * two chances for the same date to be written two ways in one app.
+ *
+ * Empty string for anything unparseable, so a caller can treat "no date" and
+ * "bad date" identically - both mean: say the thing without the date.
+ */
+export const formatSubscriptionDate = (iso: string | null | undefined): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return isNaN(d.getTime())
+    ? ''
+    : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+};

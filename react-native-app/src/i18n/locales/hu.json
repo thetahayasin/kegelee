@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Edzésemlékeztetők",
+    "lapseBody": "Eltelt néhány nap. Egy rövid gyakorlás elég, hogy visszatérj a szokáshoz.",
+    "lapseTitle": "Várlak, amikor készen állsz",
     "notificationBody": "Itt az ideje a napi Kegel-alkalmadnak!",
-    "notificationTitle": "Kegel-edzés"
+    "notificationTitle": "Kegel-edzés",
+    "nudgeChannelName": "Emlékeztetők",
+    "trialEndingBody": "Az előfizetésed elindul, hacsak nem mondod le a Google Play áruházban.",
+    "trialEndingTitle": "Az ingyenes próbaidőszakod holnap véget ér"
   },
   "schedule": {
     "active": "Aktív",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} kör zárja a napot",
     "sessionsCompleteToday_other": "{{count}} kör zárja a napot",
     "startWorkout": "Edzés indítása",
+    "streakDays_one": "{{count}} napos sorozat",
+    "streakDays_other": "{{count}} napos sorozat",
     "todayIsDone": "A mai nap megvan",
     "trainAgain": "Újra edzés",
     "training": "Edzés",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Nem kaptad meg a kódot? Küldés újra",
     "enterSixDigitCode": "Adj meg egy 6 jegyű megerősítő kódot.",
     "failedToResendCode": "Nem sikerült újraküldeni a kódot.",
+    "resendIn_one": "Újraküldés {{count}} mp múlva",
+    "resendIn_other": "Újraküldés {{count}} mp múlva",
+    "sentCodeTo": "Küldtünk egy 6 jegyű megerősítő kódot ide:",
     "verificationFailed": "A megerősítés nem sikerült. Próbáld újra.",
     "verifyCode": "Kód ellenőrzése",
     "verifyEmail": "E-mail megerősítése"

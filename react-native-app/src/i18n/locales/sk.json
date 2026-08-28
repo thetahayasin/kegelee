@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Tréningové pripomienky",
+    "lapseBody": "Prešlo niekoľko dní. Jedna krátka lekcia stačí na návrat k návyku.",
+    "lapseTitle": "Keď budete chcieť",
     "notificationBody": "Je čas na tvoju každodennú Kegelovu lekciu!",
-    "notificationTitle": "Kegelov tréning"
+    "notificationTitle": "Kegelov tréning",
+    "nudgeChannelName": "Pripomienky",
+    "trialEndingBody": "Predplatné sa začne, ak ho nezrušíte v Google Play.",
+    "trialEndingTitle": "Bezplatná skúšobná verzia sa končí zajtra"
   },
   "schedule": {
     "active": "Aktívne",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} séria dokončí dnešok",
     "sessionsCompleteToday_other": "{{count}} série dokončia dnešok",
     "startWorkout": "Začať tréning",
+    "streakDays_one": "Séria {{count}} deň",
+    "streakDays_other": "Séria {{count}} dní",
     "todayIsDone": "Dnešok je hotový",
     "trainAgain": "Cvičiť znova",
     "training": "Tréning",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Neprišiel kód? Poslať znova",
     "enterSixDigitCode": "Zadaj 6-miestny overovací kód.",
     "failedToResendCode": "Kód sa nepodarilo odoslať znova.",
+    "resendIn_one": "Odoslať znova o {{count}} s",
+    "resendIn_other": "Odoslať znova o {{count}} s",
+    "sentCodeTo": "Poslali sme šesťmiestny overovací kód na",
     "verificationFailed": "Overenie zlyhalo. Skús to znova.",
     "verifyCode": "Overiť kód",
     "verifyEmail": "Overiť e-mail"

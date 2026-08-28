@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, StyleSheet, Animated, Easing, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing, BackHandler, AccessibilityInfo } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, CommonActions, NavigationProp } from '@react-navigation/native';
@@ -43,22 +43,44 @@ export const FreeSessionCompleteScreen = () => {
     // look at the product they were ever going to get.
     markFreeSessionUsed(user?.id).catch(() => {});
 
-    // One driver for the whole screen. strokeDashoffset cannot run natively,
-    // and this app has crashed once before by mixing drivers on one visual.
-    Animated.sequence([
-      Animated.timing(ringAnim, {
-        toValue: 1,
-        duration: 850,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-      Animated.spring(tickAnim, {
-        toValue: 1,
-        friction: 5,
-        tension: 90,
-        useNativeDriver: false,
-      }),
-    ]).start();
+    // Honour reduce-motion, like the Training hero and the real completion
+    // screen already do. An 850ms sweep followed by a spring-scaled tick is
+    // exactly the kind of thing the setting exists to switch off - and this
+    // screen is the guest funnel's climax, so the people affected are the ones
+    // being asked to subscribe on the very next tap.
+    let cancelled = false;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduced) => {
+        if (cancelled) return;
+        if (reduced) {
+          // The end state, immediately: a full ring and a visible tick. The
+          // information is the point; the animation was only ever the flourish.
+          ringAnim.setValue(1);
+          tickAnim.setValue(1);
+          return;
+        }
+        // One driver for the whole screen. strokeDashoffset cannot run
+        // natively, and this app has crashed once before by mixing drivers on
+        // one visual.
+        Animated.sequence([
+          Animated.timing(ringAnim, {
+            toValue: 1,
+            duration: 850,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: false,
+          }),
+          Animated.spring(tickAnim, {
+            toValue: 1,
+            friction: 5,
+            tension: 90,
+            useNativeDriver: false,
+          }),
+        ]).start();
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [ringAnim, tickAnim, user?.id]);
 
   // Back to the basics list with the plans sheet open - the same funnel end the

@@ -5,6 +5,7 @@ import {
   Text,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -38,9 +39,21 @@ export const KnowledgeScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<AuthStackParamList, 'Knowledge'>>();
-  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, subscribed, user } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, subscribed, user, logout } = useAuth();
   const [done, setDone] = useState<string[]>([]);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // Same shape as the paywall's: the tap has a network round trip behind it,
+  // so it shows it is working rather than looking inert.
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
   // Whether the one free session is still available. Re-read on focus, not
   // once on mount: this screen is what the guest returns to after declining
   // the offer, after quitting the workout, and after finishing it, and only
@@ -117,9 +130,38 @@ export const KnowledgeScreen = () => {
           </TouchableOpacity>
         ) : null}
         <Text style={styles.headerTitle}>{t('knowledge.learnTheBasics')}</Text>
+        {/* The corner opposite Back is the identity control: Log in for a
+            guest, Log out for an account that is still behind a gate.
+
+            Log out was reachable from exactly two places, Settings and the
+            paywall header, and one whole navigator could reach neither. An
+            account that is subscribed but has not finished the basics is held
+            on a stack containing only Knowledge and KnowledgeLesson - no
+            Settings, no paywall - so there was no way to sign out at all, and
+            no way to hand the phone to a second account. On the subscription
+            gate it was merely awkward: the paywall has the control, but only
+            as the stack root, so getting to it from here meant going Back
+            first, or twice from a lesson.
+
+            Hidden once both gates are open, where Profile carries it and a
+            sign-out link on a review page would only be noise. */}
         {!isAuthenticated ? (
           <TouchableOpacity style={styles.loginLink} onPress={() => (navigation as any).navigate('Login')}>
             <Text style={styles.loginLinkText}>{t('knowledge.logIn')}</Text>
+          </TouchableOpacity>
+        ) : !subscribed || !basicsDone ? (
+          <TouchableOpacity
+            style={styles.loginLink}
+            onPress={handleLogout}
+            disabled={loggingOut}
+            accessibilityRole="button"
+            accessibilityLabel={t('settings.logOut')}
+          >
+            {loggingOut ? (
+              <ActivityIndicator size="small" color={COLORS.textMuted} />
+            ) : (
+              <Text style={styles.logoutLinkText}>{t('settings.logOut')}</Text>
+            )}
           </TouchableOpacity>
         ) : null}
       </View>
@@ -314,6 +356,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   loginLinkText: { fontSize: 15, fontWeight: '600', color: COLORS.accent },
+  // Muted, not accent. Log in is an invitation and earns the lime; log out is
+  // an escape hatch, and dressing it in the app's one "act here" colour would
+  // make leaving the loudest thing in the header.
+  logoutLinkText: { fontSize: 15, fontWeight: '600', color: COLORS.textMuted },
   headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
   scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 16 },
   card: {

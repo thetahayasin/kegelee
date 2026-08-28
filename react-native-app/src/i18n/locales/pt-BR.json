@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Lembretes de treino",
+    "lapseBody": "Já se passaram alguns dias. Uma sessão curta basta para retomar o hábito.",
+    "lapseTitle": "Pronto quando você estiver",
     "notificationBody": "Está na hora da sua sessão diária de Kegel!",
-    "notificationTitle": "Treino de Kegel"
+    "notificationTitle": "Treino de Kegel",
+    "nudgeChannelName": "Lembretes",
+    "trialEndingBody": "Sua assinatura começará a menos que você cancele no Google Play.",
+    "trialEndingTitle": "Seu teste gratuito termina amanhã"
   },
   "schedule": {
     "active": "Ativo",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} sessão completa o dia",
     "sessionsCompleteToday_other": "{{count}} sessões completam o dia",
     "startWorkout": "Começar treino",
+    "streakDays_one": "Sequência de {{count}} dia",
+    "streakDays_other": "Sequência de {{count}} dias",
     "todayIsDone": "Hoje está feito",
     "trainAgain": "Treinar de novo",
     "training": "Treino",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Não recebeu o código? Reenviar",
     "enterSixDigitCode": "Digite um código de verificação de 6 dígitos.",
     "failedToResendCode": "Não foi possível reenviar o código.",
+    "resendIn_one": "Reenviar em {{count}} s",
+    "resendIn_other": "Reenviar em {{count}} s",
+    "sentCodeTo": "Enviamos um código de verificação de 6 dígitos para",
     "verificationFailed": "Falha na verificação. Tente de novo.",
     "verifyCode": "Verificar código",
     "verifyEmail": "Verificar e-mail"

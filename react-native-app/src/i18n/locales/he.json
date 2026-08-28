@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "תזכורות אימון",
+    "lapseBody": "עברו כמה ימים. אימון קצר אחד מספיק כדי לחזור להרגל.",
+    "lapseTitle": "מחכה לך",
     "notificationBody": "הגיע הזמן לאימון הקיגל היומי שלכם!",
-    "notificationTitle": "אימון קיגל"
+    "notificationTitle": "אימון קיגל",
+    "nudgeChannelName": "תזכורות",
+    "trialEndingBody": "המנוי יתחיל אלא אם תבטל ב-Google Play.",
+    "trialEndingTitle": "תקופת הניסיון החינמית מסתיימת מחר"
   },
   "schedule": {
     "active": "פעיל",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "אימון אחד משלים את היום",
     "sessionsCompleteToday_other": "{{count}} אימונים משלימים את היום",
     "startWorkout": "התחל אימון",
+    "streakDays_one": "רצף של {{count}} יום",
+    "streakDays_other": "רצף של {{count}} ימים",
     "todayIsDone": "היום הושלם",
     "trainAgain": "להתאמן שוב",
     "training": "אימון",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "לא קיבלת את הקוד? שלח שוב",
     "enterSixDigitCode": "הזינו קוד אימות בן 6 ספרות.",
     "failedToResendCode": "לא הצלחנו לשלוח את הקוד שוב.",
+    "resendIn_one": "שליחה חוזרת בעוד {{count}} שניות",
+    "resendIn_other": "שליחה חוזרת בעוד {{count}} שניות",
+    "sentCodeTo": "שלחנו קוד אימות בן 6 ספרות אל",
     "verificationFailed": "האימות נכשל. נסו שוב.",
     "verifyCode": "אימות הקוד",
     "verifyEmail": "אימות אימייל"

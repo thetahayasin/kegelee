@@ -18,9 +18,11 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import {
   getMaxMeasurement,
+  getActiveSubscription,
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
-import { getPosition, getTodayProgress } from '../../services/progression';
+import { formatSubscriptionDate } from '../../utils/localDate';
+import { getPosition, getTodayProgress, getStreak } from '../../services/progression';
 import { EXERCISES, LEVELS, exerciseNameKey, levelNameKey } from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
@@ -50,6 +52,35 @@ export const TrainingScreen = () => {
   const [day, setDay] = useState(1);
   const [completedDays, setCompletedDays] = useState(0);
   const [bestMeasurement, setBestMeasurement] = useState<number | null>(null);
+  // The chain, not the total. See getStreak.
+  const [streak, setStreak] = useState(0);
+  // A load that failed, rather than a load that returned nothing.
+  //
+  // This screen used to catch its own failure, write it to console.error and
+  // leave the person looking at an empty home screen with no message and no
+  // way to try again - on the one screen they open every day. Same defect the
+  // paywall had with its price lookup: a transient error becoming a
+  // permanently broken screen.
+  const [loadFailed, setLoadFailed] = useState(false);
+  // Whether a load has ever succeeded, so a failed background refresh can be
+  // told apart from a cold screen with nothing on it.
+  const hasDataRef = useRef(false);
+
+  /**
+   * The two subscription states that need saying out loud, on the screen the
+   * subscriber actually opens.
+   *
+   * Both were known to the app and told to nobody. A trial's end date sat in
+   * Settings as a passive line that required going to look for it, so the
+   * conversion was a surprise - which is the charge people dispute. And a
+   * cancelled subscriber carried on exactly as before right up to the day
+   * access died, never once asked to reconsider, despite being the cheapest
+   * subscriber there is to win back: already paid, already part-way into the
+   * habit, and having told us their exact deadline.
+   */
+  const [subNotice, setSubNotice] = useState<
+    { kind: 'trial' | 'cancelled'; text: string } | null
+  >(null);
 
   // Exercise list with unlocked state
   const [exerciseItems, setExerciseItems] = useState<any[]>([]);
@@ -82,6 +113,7 @@ export const TrainingScreen = () => {
       setMonth(pos.month);
       setDay(pos.day);
       setCompletedDays(pos.completed);
+      setStreak(getStreak(user, trainingDays));
 
       setBestMeasurement(best > 0 ? best : null);
 
@@ -96,8 +128,51 @@ export const TrainingScreen = () => {
         };
       });
       setExerciseItems(exList);
+
+      // Subscription notice. Read here rather than in its own effect so it
+      // refreshes with everything else - on focus, and on pull-to-refresh
+      // after a sync has had a chance to change the answer.
+      const sub = await getActiveSubscription(user.id).catch(() => null);
+      const status = String(sub?.status || '').toLowerCase();
+      if (status === 'canceled') {
+        const endsOn = formatSubscriptionDate(sub?.ends_at ?? null);
+        setSubNotice({
+          kind: 'cancelled',
+          text: endsOn
+            ? t('settings.cancelledUntilDate', { date: endsOn })
+            : t('settings.cancelledUntilPeriodEnd'),
+        });
+      } else if (status === 'trialing') {
+        const trialEndsAt = Date.parse(sub?.trial_ends_at || sub?.ends_at || '');
+        // Only in the closing stretch. A banner that sits there for the whole
+        // trial is furniture by day two, and the point is to be noticed on the
+        // day it matters.
+        const withinTwoDays =
+          Number.isFinite(trialEndsAt) && trialEndsAt - Date.now() < 2 * 24 * 60 * 60 * 1000;
+        const endsOn = formatSubscriptionDate(sub?.trial_ends_at ?? sub?.ends_at ?? null);
+        setSubNotice(
+          withinTwoDays && endsOn
+            ? {
+                kind: 'trial',
+                text: Number(sub?.auto_renewing) === 1
+                  ? t('settings.trialEndsThenBilling', { date: endsOn })
+                  : t('settings.trialEndsNoRenew', { date: endsOn }),
+              }
+            : null,
+        );
+      } else {
+        setSubNotice(null);
+      }
+
+      hasDataRef.current = true;
+      setLoadFailed(false);
     } catch (e) {
       console.error('Failed to load training screen data', e);
+      // Only raise the error card when there is nothing on screen to keep. A
+      // background refresh that fails over an already-rendered day should
+      // leave the day where it is rather than replacing good data with an
+      // apology.
+      if (!hasDataRef.current) setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -205,6 +280,30 @@ export const TrainingScreen = () => {
     );
   }
 
+  // Nothing loaded and the attempt failed. Say so and offer the retry, rather
+  // than presenting an empty day as though it were the truth.
+  if (loadFailed) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <Watermark />
+        <View style={styles.errorWrap}>
+          <Text style={styles.errorText}>{t('errorBoundary.theAppHitAnUnexpected')}</Text>
+          <TouchableOpacity
+            style={styles.errorRetryBtn}
+            accessibilityRole="button"
+            onPress={() => {
+              setLoading(true);
+              setLoadFailed(false);
+              loadData();
+            }}
+          >
+            <Text style={styles.errorRetryText}>{t('progress.tryAgain')}</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Watermark />
@@ -235,6 +334,30 @@ export const TrainingScreen = () => {
             </Svg>
           </TouchableOpacity>
         </View>
+
+        {/* Subscription notice. Above the hero because both cases are about a
+            date that is coming, and neither is worth saying quietly. The
+            cancelled one carries the way back; the trial one is information,
+            not an upsell, and gets no button. */}
+        {subNotice && (
+          <View
+            style={[
+              styles.subNotice,
+              subNotice.kind === 'cancelled' && styles.subNoticeCancelled,
+            ]}
+          >
+            <Text style={styles.subNoticeText}>{subNotice.text}</Text>
+            {subNotice.kind === 'cancelled' && (
+              <TouchableOpacity
+                style={styles.subNoticeBtn}
+                accessibilityRole="button"
+                onPress={() => navigation.navigate('Paywall')}
+              >
+                <Text style={styles.subNoticeBtnText}>{t('settings.subscribe')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
         {/* Hero. The ring is the one thing a returning user opens the app to
             check, so it is the screen's single focal point rather than a
@@ -295,6 +418,30 @@ export const TrainingScreen = () => {
             <Text style={styles.heroHeadline}>
               {complete ? t('training.todayIsDone') : t('training.readyWhenYouAre')}
             </Text>
+
+            {/* The chain. Only once there is one to lose - a "0-day streak" on
+                a brand new account is a discouraging way to open an app, and
+                the ring above already carries day one.
+
+                Deliberately not a fourth cell in the strip below: those three
+                are facts about TODAY, and this is the only thing on the screen
+                that says anything about the days behind it. */}
+            {streak > 0 && (
+              <View style={styles.streakPill}>
+                <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.6.7-3.1 1.5-4.3"
+                    stroke={COLORS.accent}
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+                <Text style={styles.streakText} numberOfLines={1}>
+                  {t('training.streakDays', { count: streak })}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Action strip, seated on the card one elevation step forward. */}
@@ -598,6 +745,72 @@ const styles = StyleSheet.create({
   ringLabel: { ...TYPE.overline, fontSize: 10, color: COLORS.textDim, marginTop: 3 },
   heroOverline: { ...TYPE.overline, color: COLORS.textDim, marginTop: SPACE.xl },
   heroHeadline: { ...TYPE.heading, color: COLORS.white, marginTop: 6 },
+  streakPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    gap: 6,
+    marginTop: SPACE.md,
+    paddingHorizontal: SPACE.md,
+    paddingVertical: 6,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accentWash,
+  },
+  streakText: {
+    ...TYPE.caption,
+    fontWeight: '700',
+    color: COLORS.accent,
+    fontVariant: ['tabular-nums'],
+  },
+
+  /* Subscription notice --------------------------------------------------- */
+  subNotice: {
+    marginHorizontal: SPACE.lg,
+    marginBottom: SPACE.lg,
+    padding: SPACE.lg,
+    borderRadius: RADIUS.md + 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+    gap: SPACE.md,
+  },
+  subNoticeCancelled: {
+    borderColor: COLORS.accent,
+    backgroundColor: COLORS.accentWash,
+  },
+  subNoticeText: { ...TYPE.bodySm, color: COLORS.white, lineHeight: 19 },
+  subNoticeBtn: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accent,
+  },
+  subNoticeBtnText: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.onAccent },
+
+  /* Load failure --------------------------------------------------------- */
+  errorWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    gap: SPACE.lg,
+  },
+  errorText: {
+    ...TYPE.body,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  errorRetryBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    borderRadius: RADIUS.pill,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+  },
+  errorRetryText: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.white },
 
   /* Action strip -------------------------------------------------------- */
   actionStrip: {

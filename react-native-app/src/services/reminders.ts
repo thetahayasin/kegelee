@@ -208,3 +208,136 @@ export const openAlarms = async () => {
 };
 
 
+
+/**
+ * One-shot nudges: the lapse check-in and the trial-ending warning.
+ *
+ * Both exist because the app had exactly one way of ever contacting anyone -
+ * the weekly reminders above - and that one way is off until a person goes
+ * looking for it. Someone who trains for a week, stops, and never opened the
+ * Schedule tab heard nothing at all, while continuing to be billed until they
+ * noticed. Someone on a trial was never told it was about to convert, which is
+ * both a conversion moment missed and the kind of surprise charge people
+ * dispute.
+ *
+ * Separate channel from the training reminders, at DEFAULT rather than HIGH:
+ * these are occasional and not time-critical, and burying them in the same
+ * channel would mean turning off one to silence the other.
+ */
+const NUDGE_CHANNEL_ID = 'nudges-v1';
+const LAPSE_NOTIFICATION_ID = 'nudge_lapse';
+const TRIAL_NOTIFICATION_ID = 'nudge_trial_ending';
+
+/** Silence after a completed session before the check-in fires. */
+const LAPSE_DELAY_MS = 72 * 60 * 60 * 1000;
+/** How far ahead of the trial's end the warning lands. */
+const TRIAL_WARNING_LEAD_MS = 24 * 60 * 60 * 1000;
+
+const nudgeChannel = async (): Promise<string> =>
+  notifee.createChannel({
+    id: NUDGE_CHANNEL_ID,
+    name: i18n.t('reminders.nudgeChannelName'),
+    importance: AndroidImportance.DEFAULT,
+    sound: 'default',
+  });
+
+const scheduleOneShot = async (
+  id: string,
+  at: number,
+  title: string,
+  body: string,
+): Promise<void> => {
+  // Never schedule into the past - Notifee rejects it, and for the trial
+  // warning a lead time that has already elapsed is a normal case (someone
+  // subscribing with less than a day of trial left).
+  if (at <= Date.now()) return;
+
+  const channelId = await nudgeChannel();
+  const trigger: TimestampTrigger = {
+    type: TriggerType.TIMESTAMP,
+    timestamp: at,
+    // Same reasoning as the weekly reminders: WorkManager gets deferred
+    // indefinitely in Doze and killed by OEM battery optimisers. Inexact is
+    // fine here - nothing about these is to-the-minute - so this never needs
+    // the exact-alarm permission.
+    alarmManager: { type: AlarmType.SET_AND_ALLOW_WHILE_IDLE },
+  };
+
+  await notifee.createTriggerNotification(
+    {
+      id,
+      title,
+      body,
+      android: { channelId, sound: 'default', pressAction: { id: 'default' } },
+    },
+    trigger,
+  );
+};
+
+/**
+ * Push the check-in back to 72 hours from now.
+ *
+ * Called on every completed session, so an active user perpetually postpones
+ * it and never sees it - which is the point. It only ever arrives for someone
+ * who has actually gone quiet.
+ */
+export const scheduleLapseNudge = async (): Promise<void> => {
+  try {
+    await notifee.cancelTriggerNotification(LAPSE_NOTIFICATION_ID);
+  } catch {}
+  try {
+    await scheduleOneShot(
+      LAPSE_NOTIFICATION_ID,
+      Date.now() + LAPSE_DELAY_MS,
+      i18n.t('reminders.lapseTitle'),
+      i18n.t('reminders.lapseBody'),
+    );
+  } catch (e) {
+    console.warn('Failed to schedule lapse nudge', e);
+  }
+};
+
+export const cancelLapseNudge = async (): Promise<void> => {
+  try {
+    await notifee.cancelTriggerNotification(LAPSE_NOTIFICATION_ID);
+  } catch {}
+};
+
+/**
+ * Warn a day before the trial converts. Passing null (no trial, or it has
+ * already converted) just clears any warning already scheduled, so this can be
+ * called unconditionally whenever the subscription state is read.
+ */
+export const scheduleTrialEndingWarning = async (
+  trialEndsAt: string | null | undefined,
+): Promise<void> => {
+  try {
+    await notifee.cancelTriggerNotification(TRIAL_NOTIFICATION_ID);
+  } catch {}
+  if (!trialEndsAt) return;
+
+  const endsAt = Date.parse(trialEndsAt);
+  if (!Number.isFinite(endsAt)) return;
+
+  try {
+    await scheduleOneShot(
+      TRIAL_NOTIFICATION_ID,
+      endsAt - TRIAL_WARNING_LEAD_MS,
+      i18n.t('reminders.trialEndingTitle'),
+      i18n.t('reminders.trialEndingBody'),
+    );
+  } catch (e) {
+    console.warn('Failed to schedule trial-ending warning', e);
+  }
+};
+
+/**
+ * Drop every one-shot nudge. Called alongside cancelAllReminders when the
+ * signed-in account changes, so one person's check-in cannot fire at the next.
+ */
+export const cancelAllNudges = async (): Promise<void> => {
+  try {
+    await notifee.cancelTriggerNotification(LAPSE_NOTIFICATION_ID);
+    await notifee.cancelTriggerNotification(TRIAL_NOTIFICATION_ID);
+  } catch {}
+};

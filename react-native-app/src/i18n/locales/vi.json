@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Lời nhắc tập luyện",
+    "lapseBody": "Đã vài ngày rồi. Một buổi tập ngắn là đủ để lấy lại thói quen.",
+    "lapseTitle": "Sẵn sàng khi bạn muốn",
     "notificationBody": "Đến giờ tập Kegel hằng ngày của bạn rồi!",
-    "notificationTitle": "Tập Kegel"
+    "notificationTitle": "Tập Kegel",
+    "nudgeChannelName": "Nhắc nhở",
+    "trialEndingBody": "Gói đăng ký của bạn sẽ bắt đầu trừ khi bạn hủy trong Google Play.",
+    "trialEndingTitle": "Bản dùng thử miễn phí của bạn kết thúc vào ngày mai"
   },
   "schedule": {
     "active": "Đang bật",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} buổi là xong hôm nay",
     "sessionsCompleteToday_other": "{{count}} buổi là xong hôm nay",
     "startWorkout": "Bắt đầu buổi tập",
+    "streakDays_one": "Chuỗi {{count}} ngày",
+    "streakDays_other": "Chuỗi {{count}} ngày",
     "todayIsDone": "Hôm nay đã xong",
     "trainAgain": "Tập lại",
     "training": "Luyện tập",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Chưa nhận được mã? Gửi lại",
     "enterSixDigitCode": "Vui lòng nhập mã xác minh 6 chữ số.",
     "failedToResendCode": "Không gửi lại được mã.",
+    "resendIn_one": "Gửi lại sau {{count}} giây",
+    "resendIn_other": "Gửi lại sau {{count}} giây",
+    "sentCodeTo": "Chúng tôi đã gửi mã xác minh gồm 6 chữ số đến",
     "verificationFailed": "Xác minh không thành công. Hãy thử lại.",
     "verifyCode": "Xác minh mã",
     "verifyEmail": "Xác minh email"

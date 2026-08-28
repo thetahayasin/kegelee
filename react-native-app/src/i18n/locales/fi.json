@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Harjoitusmuistutukset",
+    "lapseBody": "Muutama päivä on kulunut. Yksi lyhyt harjoitus riittää palauttamaan rutiinin.",
+    "lapseTitle": "Valmiina, kun sinäkin olet",
     "notificationBody": "On aika tehdä päivittäinen Kegel-harjoitus!",
-    "notificationTitle": "Kegel-harjoittelu"
+    "notificationTitle": "Kegel-harjoittelu",
+    "nudgeChannelName": "Muistutukset",
+    "trialEndingBody": "Tilauksesi alkaa, ellet peruuta sitä Google Playssä.",
+    "trialEndingTitle": "Ilmainen kokeilujaksosi päättyy huomenna"
   },
   "schedule": {
     "active": "Käytössä",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} harjoitus täyttää päivän",
     "sessionsCompleteToday_other": "{{count}} harjoitusta täyttää päivän",
     "startWorkout": "Aloita harjoitus",
+    "streakDays_one": "{{count}} päivän putki",
+    "streakDays_other": "{{count}} päivän putki",
     "todayIsDone": "Tämä päivä on tehty",
     "trainAgain": "Harjoittele uudelleen",
     "training": "Harjoittelu",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Etkö saanut koodia? Lähetä uudelleen",
     "enterSixDigitCode": "Anna 6-numeroinen vahvistuskoodi.",
     "failedToResendCode": "Koodin lähetys uudelleen epäonnistui.",
+    "resendIn_one": "Lähetä uudelleen {{count}} s kuluttua",
+    "resendIn_other": "Lähetä uudelleen {{count}} s kuluttua",
+    "sentCodeTo": "Lähetimme 6-numeroisen vahvistuskoodin osoitteeseen",
     "verificationFailed": "Vahvistus epäonnistui. Yritä uudelleen.",
     "verifyCode": "Vahvista koodi",
     "verifyEmail": "Vahvista sähköposti"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -36,6 +36,23 @@ export const VerifyEmailScreen = () => {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendSuccess, setResendSuccess] = useState('');
+  /**
+   * Seconds before the code can be sent again.
+   *
+   * Resend had no rate limit and no timer, on a step that sits between a
+   * person and a purchase. Email is slow enough that silence reads as failure,
+   * so the tap gets repeated - which sends more mail, invalidates the code
+   * that was already in flight on some backends, and makes the delivery
+   * problem worse rather than better. A visible countdown answers the actual
+   * question, which is "how long do I wait".
+   */
+  const [resendIn, setResendIn] = useState(0);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
 
   const handleVerify = async () => {
     setError('');
@@ -59,6 +76,7 @@ export const VerifyEmailScreen = () => {
   };
 
   const handleResend = async () => {
+    if (resendIn > 0 || resendLoading) return;
     setResendSuccess('');
     setError('');
     setResendLoading(true);
@@ -67,6 +85,10 @@ export const VerifyEmailScreen = () => {
 
     if (res.ok) {
       setResendSuccess(t('verifyEmail.codeResent'));
+      // Only on success. A send that failed should be retryable at once -
+      // making someone wait out a cooldown for our error would be the wrong
+      // way round.
+      setResendIn(60);
     } else {
       setError(res.error || t('verifyEmail.failedToResendCode'));
     }
@@ -81,8 +103,11 @@ export const VerifyEmailScreen = () => {
       >
         <View style={styles.inner}>
           <Text style={styles.title}>{t('verifyEmail.verifyEmail')}</Text>
+          {/* Was a bare English literal - the same defect as the paywall's
+              "and the app store terms.", on a screen every single paying
+              customer passes through on their way to the purchase. */}
           <Text style={styles.subtitle}>
-            We've sent a 6-digit verification code to {'\n'}
+            {t('verifyEmail.sentCodeTo')} {'\n'}
             <Text style={styles.emailHighlight}>{email}</Text>
           </Text>
 
@@ -139,10 +164,15 @@ export const VerifyEmailScreen = () => {
           <TouchableOpacity
             style={styles.resendContainer}
             onPress={handleResend}
-            disabled={resendLoading}
+            disabled={resendLoading || resendIn > 0}
+            accessibilityRole="button"
           >
             {resendLoading ? (
               <ActivityIndicator color={COLORS.accent} />
+            ) : resendIn > 0 ? (
+              <Text style={styles.resendWaitText}>
+                {t('verifyEmail.resendIn', { count: resendIn })}
+              </Text>
             ) : (
               <Text style={styles.resendText}>{t('verifyEmail.didnTReceiveTheCode')}</Text>
             )}
@@ -227,6 +257,14 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontSize: 14,
     fontWeight: '600',
+  },
+  // Muted while counting down: the control is genuinely unavailable, and
+  // accent on a disabled affordance invites the tap it will not accept.
+  resendWaitText: {
+    color: COLORS.textMuted,
+    fontSize: 14,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
   },
   backContainer: {
     marginTop: 32,

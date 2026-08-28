@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "अभ्यास रिमाइंडर",
+    "lapseBody": "कुछ दिन हो गए। आदत दोबारा शुरू करने के लिए एक छोटा सत्र काफी है।",
+    "lapseTitle": "जब आप तैयार हों",
     "notificationBody": "आपके रोज़ाना केगल सत्र का समय हो गया है!",
-    "notificationTitle": "केगल अभ्यास"
+    "notificationTitle": "केगल अभ्यास",
+    "nudgeChannelName": "चेक-इन",
+    "trialEndingBody": "जब तक आप Google Play में रद्द नहीं करते, आपकी सदस्यता शुरू हो जाएगी।",
+    "trialEndingTitle": "आपका मुफ़्त ट्रायल कल समाप्त हो रहा है"
   },
   "schedule": {
     "active": "सक्रिय",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} सत्र से आज पूरा होगा",
     "sessionsCompleteToday_other": "{{count}} सत्र से आज पूरा होगा",
     "startWorkout": "अभ्यास शुरू करें",
+    "streakDays_one": "{{count}} दिन की लय",
+    "streakDays_other": "{{count}} दिन की लय",
     "todayIsDone": "आज का काम हो गया",
     "trainAgain": "फिर से करें",
     "training": "अभ्यास",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "कोड नहीं मिला? दोबारा भेजें",
     "enterSixDigitCode": "6 अंकों का सत्यापन कोड दर्ज करें।",
     "failedToResendCode": "कोड दोबारा नहीं भेजा जा सका।",
+    "resendIn_one": "{{count}} सेकंड में दोबारा भेजें",
+    "resendIn_other": "{{count}} सेकंड में दोबारा भेजें",
+    "sentCodeTo": "हमने 6 अंकों का सत्यापन कोड भेजा है",
     "verificationFailed": "सत्यापन विफल रहा। फिर कोशिश करें।",
     "verifyCode": "कोड सत्यापित करें",
     "verifyEmail": "ईमेल सत्यापित करें"

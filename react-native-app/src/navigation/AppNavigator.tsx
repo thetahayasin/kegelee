@@ -22,7 +22,6 @@ import { ProfileScreen } from '../screens/tabs/ProfileScreen';
 import { WorkoutScreen } from '../screens/workout/WorkoutScreen';
 import { WorkoutCompleteScreen } from '../screens/workout/WorkoutCompleteScreen';
 import { PaywallScreen } from '../screens/paywall/PaywallScreen';
-import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { LegalPageScreen } from '../screens/settings/LegalPageScreen';
 import { FreeSessionCompleteScreen } from '../screens/workout/FreeSessionCompleteScreen';
 import { FreeSessionOfferScreen } from '../screens/workout/FreeSessionOfferScreen';
@@ -45,7 +44,6 @@ export type RootStackParamList = {
   Workout: { trialSlug?: string; freeSession?: boolean };
   WorkoutComplete: { duration: number; levelId: number };
   Paywall: undefined;
-  Settings: undefined;
   LegalPage: { slug: string; title: string };
   ExerciseDetail: { slug: string; unlocked: boolean; daysLeft: number };
   AllExercises: undefined;
@@ -318,7 +316,6 @@ export const AppNavigator = () => {
       {/* "Manage Plan": subscribed users (and gate-bypassing admins) reach the
           paywall from Settings to switch plans with Play's native proration. */}
       <Stack.Screen name="Paywall" component={PaywallScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="LegalPage" component={LegalPageScreen} />
       <Stack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} />
       <Stack.Screen name="AllExercises" component={AllExercisesScreen} />

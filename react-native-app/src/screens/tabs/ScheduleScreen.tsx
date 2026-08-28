@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { useIsFocused } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS } from '../../theme/colors';
+import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import {
   getReminders,
   saveReminder,
@@ -70,6 +70,21 @@ export const ScheduleScreen = () => {
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [times, setTimes] = useState<string[]>(['08:00']);
   const [savingReminders, setSavingReminders] = useState(false);
+  /**
+   * Confirmations and validation, said in the app rather than in a native
+   * dialog.
+   *
+   * Every other surface that has something to tell you - the paywall, the
+   * subscribe sheet, all the auth screens - says it inline. This tab alone
+   * used Alert.alert, so the same class of information arrived in two
+   * entirely different shapes depending on which screen you were on, and the
+   * more interruptive of the two was being spent on "saved".
+   *
+   * The exact-alarm prompt below stays a dialog on purpose: it is a real
+   * either/or that leads out to a system settings screen, which is what a
+   * modal dialog is actually for.
+   */
+  const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
 
   const loadData = async () => {
     if (!user) return;
@@ -144,9 +159,10 @@ export const ScheduleScreen = () => {
 
   const addTime = () => {
     if (times.length >= 5) {
-      Alert.alert(t('schedule.limitReachedTitle'), t('schedule.limitReachedBody'));
+      setNotice({ tone: 'error', text: t('schedule.limitReachedBody') });
       return;
     }
+    setNotice(null);
     setTimes([...times, '08:00']);
   };
 
@@ -193,14 +209,15 @@ export const ScheduleScreen = () => {
       // Trigger background sync to backup to Laravel backend
       syncNow(user.id).catch(() => {});
 
-      if (exactOk) {
-        Alert.alert(
-          t('schedule.remindersSavedTitle'),
-          t('schedule.remindersSavedBody'),
-        );
-      } else {
+      // Saved either way - the exact-alarm permission changes the punctuality
+      // of the reminders, not whether they exist.
+      setNotice({ tone: 'ok', text: t('schedule.remindersSavedBody') });
+
+      if (!exactOk) {
         // Android 12+ needs the "Alarms & reminders" special access for on-time
         // delivery. Reminders still fire without it, just a few minutes late.
+        // Stays a native dialog on purpose: it is a real either/or that leads
+        // out to a system settings screen, which is what a dialog is for.
         Alert.alert(
           t('schedule.allowExactTitle'),
           t('schedule.allowExactBody'),
@@ -212,7 +229,7 @@ export const ScheduleScreen = () => {
       }
     } catch (e) {
       console.error(e);
-      Alert.alert(t('schedule.errorTitle'), t('schedule.failedToSaveReminders'));
+      setNotice({ tone: 'error', text: t('schedule.failedToSaveReminders') });
     } finally {
       setSavingReminders(false);
     }
@@ -258,6 +275,23 @@ export const ScheduleScreen = () => {
             <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </TouchableOpacity>
+
+        {/* Confirmations and validation, in the page. Tappable so it can
+            be put away without waiting for the next save. */}
+        {notice && (
+          <TouchableOpacity
+            style={[styles.notice, notice.tone === 'error' && styles.noticeError]}
+            onPress={() => setNotice(null)}
+            accessibilityRole="button"
+            accessibilityLabel={notice.text}
+          >
+            <Text
+              style={[styles.noticeText, notice.tone === 'error' && styles.noticeTextError]}
+            >
+              {notice.text}
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {/* Month Progress grid */}
         <View style={styles.calendarCard}>
@@ -484,6 +518,20 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginTop: 2,
   },
+  notice: {
+    marginTop: SPACE.md,
+    padding: SPACE.lg,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    backgroundColor: COLORS.accentWash,
+  },
+  noticeError: {
+    borderColor: COLORS.danger,
+    backgroundColor: 'rgba(255,107,107,0.12)',
+  },
+  noticeText: { ...TYPE.bodySm, color: COLORS.accent, lineHeight: 19 },
+  noticeTextError: { color: COLORS.danger },
   calendarCard: {
     marginHorizontal: 16,
     marginTop: 16,

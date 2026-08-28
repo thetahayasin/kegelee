@@ -25,6 +25,9 @@ import {
   levelNameKey,
 } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
+import { getReminders, saveReminder } from '../../db/queries';
+import { scheduleReminders } from '../../services/reminders';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 // strokeDashoffset is an SVG attribute, so the sweep has to be JS-driven -
@@ -65,6 +68,67 @@ export const WorkoutCompleteScreen = () => {
   // "Try the new exercise" prompt, shown when Continue is pressed on the
   // session that just unlocked something.
   const [showUnlockPrompt, setShowUnlockPrompt] = useState(false);
+
+  /**
+   * The reminder offer.
+   *
+   * Reminders were opt-in behind five deliberate actions - find the Schedule
+   * tab, tap the card, open a modal, pick weekdays, pick times, save - and
+   * nothing in the app ever suggested taking any of them. For a twice-a-day
+   * habit product that is the only mechanism that causes a return visit, and
+   * it was switched off for everyone who never went looking.
+   *
+   * Offered here because this is the moment the habit is most obviously worth
+   * having: they have just finished a session, unprompted. Accepting takes one
+   * tap and fills in the plan's own shape - every day, two sessions - rather
+   * than handing them an empty form.
+   */
+  const [offerReminders, setOfferReminders] = useState(false);
+  const [savingReminders, setSavingReminders] = useState(false);
+  const [remindersSaved, setRemindersSaved] = useState(false);
+
+  // Asked at most once per account. A prompt that returns after every session
+  // until it gets the answer it wants is nagging, not offering.
+  const reminderOfferKey = (userId: number) => `@reminder_offer_seen_${userId}`;
+
+  /** Every day, at the two times the plan already asks for. */
+  const DEFAULT_REMINDER_TIMES = ['08:00', '20:00'];
+
+  const acceptReminders = async () => {
+    if (!user) return;
+    setSavingReminders(true);
+    try {
+      // weekday here is the DB index (0 = Monday .. 6 = Sunday), matching
+      // ScheduleScreen's own save loop.
+      for (let weekday = 0; weekday < 7; weekday++) {
+        await saveReminder(user.id, weekday, DEFAULT_REMINDER_TIMES, 1, 0);
+      }
+      // Requests notification permission itself, which is the whole point of
+      // asking here: the system dialog now follows a tap that plainly means
+      // "yes, remind me" instead of arriving cold at sign-in.
+      await scheduleReminders(
+        Array.from({ length: 7 }, (_, weekday) => ({
+          weekday,
+          times: DEFAULT_REMINDER_TIMES,
+          isEnabled: true,
+        })),
+      );
+      setRemindersSaved(true);
+      syncNow(user.id).catch(() => {});
+    } catch (e) {
+      console.warn('Failed to save reminders from the completion offer', e);
+      // Leave the card up so the tap can be repeated; the Schedule tab is the
+      // other way in and is unaffected.
+    } finally {
+      setSavingReminders(false);
+      AsyncStorage.setItem(reminderOfferKey(user.id), '1').catch(() => {});
+    }
+  };
+
+  const declineReminders = () => {
+    setOfferReminders(false);
+    if (user) AsyncStorage.setItem(reminderOfferKey(user.id), '1').catch(() => {});
+  };
 
   const loadData = async () => {
     if (!user) return;
@@ -123,6 +187,26 @@ export const WorkoutCompleteScreen = () => {
         setNextUnlock(nextLocked[0]);
       } else {
         setNextUnlock(null);
+      }
+
+      // 4. Offer reminders, if they have none and have not been asked before.
+      // Deliberately not on the very first session - the offer lands better
+      // once finishing one is a thing they have chosen to do twice - and never
+      // alongside the feedback question, which already owns this screen's
+      // attention on even-numbered sessions.
+      try {
+        const asked = await AsyncStorage.getItem(reminderOfferKey(user.id));
+        if (!asked) {
+          const existing = await getReminders(user.id);
+          const hasAny = existing.some((r) => r.is_enabled === 1);
+          // Odd counts only, which is precisely when askFeedback above is
+          // false - so the two prompts can never share the screen - and from
+          // the third session, by which point finishing one is something they
+          // have chosen to do more than once.
+          setOfferReminders(!hasAny && totalSessions >= 3 && totalSessions % 2 === 1);
+        }
+      } catch {
+        // Never let the offer's own bookkeeping break the completion screen.
       }
     } catch (e) {
       console.error(e);
@@ -343,6 +427,63 @@ export const WorkoutCompleteScreen = () => {
         {feedbackMessage && (
           <View style={styles.feedbackBanner}>
             <Text style={styles.feedbackBannerText}>{feedbackMessage}</Text>
+          </View>
+        )}
+
+        {/* The reminder offer. One tap sets every day at the plan's own two
+            times; the Schedule tab remains the place to change any of it. */}
+        {offerReminders && (
+          <View style={styles.reminderCard}>
+            {remindersSaved ? (
+              <View style={styles.reminderSavedRow}>
+                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M5 13l4 4L19 7"
+                    stroke={COLORS.accent}
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+                <Text style={styles.reminderSavedText}>
+                  {t('schedule.remindersSavedBody')}
+                </Text>
+              </View>
+            ) : (
+              <>
+                <Text style={styles.reminderTitle}>{t('schedule.reminders')}</Text>
+                <Text style={styles.reminderBody}>{t('schedule.setTimesForYourWeek')}</Text>
+                <TouchableOpacity
+                  style={styles.reminderAcceptBtn}
+                  onPress={acceptReminders}
+                  disabled={savingReminders}
+                  accessibilityRole="button"
+                >
+                  {savingReminders ? (
+                    <ActivityIndicator color={COLORS.onAccent} />
+                  ) : (
+                    <Text
+                      style={styles.reminderAcceptText}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.8}
+                    >
+                      {t('schedule.saveAddReminders')}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.reminderDeclineBtn}
+                  onPress={declineReminders}
+                  disabled={savingReminders}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.reminderDeclineText}>
+                    {t('workoutComplete.notNow')}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         )}
 
@@ -579,6 +720,64 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
+  },
+
+  /* Reminder offer ------------------------------------------------------- */
+  reminderCard: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 20,
+    padding: 20,
+  },
+  reminderTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+    color: COLORS.white,
+  },
+  reminderBody: {
+    marginTop: 4,
+    fontSize: 14,
+    lineHeight: 19,
+    color: COLORS.textMuted,
+  },
+  reminderAcceptBtn: {
+    marginTop: 16,
+    height: 50,
+    borderRadius: 16,
+    backgroundColor: COLORS.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reminderAcceptText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.onAccent,
+  },
+  reminderDeclineBtn: {
+    marginTop: 4,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reminderDeclineText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+  },
+  reminderSavedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  reminderSavedText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 19,
+    color: COLORS.textMuted,
   },
   feedbackBannerText: {
     color: COLORS.accentSoft,

@@ -326,12 +326,25 @@ export const ProgressScreen = () => {
             );
           })}
 
-          {/* Bar Chart Bars */}
+          {/* Bar Chart Bars
+              Each column is its own accessible element carrying its period
+              and its value. The trend WAS the content of this screen and had
+              no accessible representation at all - a screen reader met a set
+              of unlabelled views and moved on, so the only thing it could
+              report was the best and last figures in the summary above. */}
           <View style={styles.barsContainer}>
             {bars.map((bar, idx) => {
               const heightPct = bar.value > 0 ? `${Math.min(100, Math.max(8, (bar.value / maxScale) * 100))}%` : '0%';
               return (
-                <View key={idx} style={styles.barColumn}>
+                <View
+                  key={idx}
+                  style={styles.barColumn}
+                  accessible
+                  accessibilityRole="text"
+                  accessibilityLabel={`${bar.label}: ${
+                    bar.value > 0 ? t('progress.seconds', { count: bar.value }) : '-'
+                  }`}
+                >
                   <View style={[styles.bar, { height: heightPct as any }]} />
                 </View>
               );
@@ -340,7 +353,9 @@ export const ProgressScreen = () => {
         </View>
 
         {/* X Axis Labels */}
-        <View style={styles.xLabelsContainer}>
+        {/* Visual only: each bar above now announces its own period, so
+            leaving these readable would repeat every label twice. */}
+        <View style={styles.xLabelsContainer} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
           {bars.map((bar, idx) => (
             <Text key={idx} style={styles.xLabel} numberOfLines={1}>
               {bar.label}

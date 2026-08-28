@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Pengingat Latihan",
+    "lapseBody": "Sudah beberapa hari. Satu sesi singkat cukup untuk kembali ke kebiasaan.",
+    "lapseTitle": "Siap kapan pun kamu siap",
     "notificationBody": "Saatnya sesi Kegel harianmu!",
-    "notificationTitle": "Latihan Kegel"
+    "notificationTitle": "Latihan Kegel",
+    "nudgeChannelName": "Pengingat",
+    "trialEndingBody": "Langganan Anda akan dimulai kecuali Anda membatalkannya di Google Play.",
+    "trialEndingTitle": "Uji coba gratis Anda berakhir besok"
   },
   "schedule": {
     "active": "Aktif",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} sesi menuntaskan hari ini",
     "sessionsCompleteToday_other": "{{count}} sesi menuntaskan hari ini",
     "startWorkout": "Mulai latihan",
+    "streakDays_one": "Rentetan {{count}} hari",
+    "streakDays_other": "Rentetan {{count}} hari",
     "todayIsDone": "Hari ini sudah selesai",
     "trainAgain": "Latihan lagi",
     "training": "Latihan",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Tidak menerima kode? Kirim ulang",
     "enterSixDigitCode": "Masukkan kode verifikasi 6 digit.",
     "failedToResendCode": "Kode gagal dikirim ulang.",
+    "resendIn_one": "Kirim ulang dalam {{count}} d",
+    "resendIn_other": "Kirim ulang dalam {{count}} d",
+    "sentCodeTo": "Kami telah mengirim kode verifikasi 6 digit ke",
     "verificationFailed": "Verifikasi gagal. Coba lagi.",
     "verifyCode": "Verifikasi kode",
     "verifyEmail": "Verifikasi email"

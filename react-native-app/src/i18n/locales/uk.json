@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Нагадування про тренування",
+    "lapseBody": "Минуло кілька днів. Одного короткого заняття достатньо, щоб повернутися до звички.",
+    "lapseTitle": "Готово, коли будете ви",
     "notificationBody": "Час для щоденного заняття Кегеля!",
-    "notificationTitle": "Тренування Кегеля"
+    "notificationTitle": "Тренування Кегеля",
+    "nudgeChannelName": "Нагадування",
+    "trialEndingBody": "Підписка почнеться, якщо ви не скасуєте її в Google Play.",
+    "trialEndingTitle": "Безкоштовний пробний період завершується завтра"
   },
   "schedule": {
     "active": "Увімкнено",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} підхід закриває день",
     "sessionsCompleteToday_other": "{{count}} підходи закривають день",
     "startWorkout": "Почати тренування",
+    "streakDays_one": "Серія {{count}} день",
+    "streakDays_other": "Серія {{count}} днів",
     "todayIsDone": "На сьогодні все",
     "trainAgain": "Позайматися ще",
     "training": "Тренування",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Код не надійшов? Надіслати ще раз",
     "enterSixDigitCode": "Введіть 6-значний код підтвердження.",
     "failedToResendCode": "Не вдалося надіслати код повторно.",
+    "resendIn_one": "Надіслати знову через {{count}} с",
+    "resendIn_other": "Надіслати знову через {{count}} с",
+    "sentCodeTo": "Ми надіслали 6-значний код підтвердження на",
     "verificationFailed": "Підтвердження не вдалося. Спробуйте ще раз.",
     "verifyCode": "Підтвердити код",
     "verifyEmail": "Підтвердити пошту"

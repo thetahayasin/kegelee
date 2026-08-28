@@ -44,6 +44,7 @@ import {
   DEFERRED,
 } from '../../services/billing';
 import { syncNow } from '../../services/sync';
+import { hasUsedFreeSession } from '../../services/freeSession';
 import { Watermark } from '../../components/Watermark';
 
 /**
@@ -101,6 +102,18 @@ export const PaywallScreen = () => {
   // reads as "your money did not go through", which is how you get a second
   // charge attempt and a support ticket.
   const [messageTone, setMessageTone] = useState<'info' | 'error'>('error');
+  /**
+   * Whether the one free session is still this account's to spend.
+   *
+   * It decides where dismissing the paywall goes. Previously it always went to
+   * the basics list, which meant three lessons of reading stood between an
+   * account and the single strongest argument this app has for subscribing -
+   * a real session, finished. The whole free-session flow exists because
+   * asking for money before someone has used the product is the weakest
+   * moment to ask; gating the demo behind the longest stretch of text in the
+   * app was working against that.
+   */
+  const [freeSessionLeft, setFreeSessionLeft] = useState(false);
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -328,6 +341,11 @@ export const PaywallScreen = () => {
     (async () => {
       if (user) {
         loadPricing();
+        hasUsedFreeSession(user.id)
+          .then((used) => {
+            if (mounted) setFreeSessionLeft(!used);
+          })
+          .catch(() => {});
       }
       // A subscription can renew (or be bought on another device) while the
       // app is closed, leaving the local rows stale - and no other screen is
@@ -791,9 +809,21 @@ export const PaywallScreen = () => {
         {!purchasing && !subscribed && !canClose && (
           <TouchableOpacity
             style={styles.exploreBtn}
-            onPress={() => navigation.navigate('Knowledge' as never)}
+            accessibilityRole="button"
+            // Straight to the session while there is still one to give. The
+            // offer screen's own decline drops into the basics with the
+            // paywall kept underneath, so nothing is lost by going here first
+            // - and the label stops being a bare refusal and starts naming
+            // what is actually on the other side of the tap.
+            onPress={() =>
+              navigation.navigate(
+                (freeSessionLeft ? 'FreeSessionOffer' : 'Knowledge') as never,
+              )
+            }
           >
-            <Text style={styles.exploreBtnText}>{t('workoutComplete.notNow')}</Text>
+            <Text style={styles.exploreBtnText}>
+              {freeSessionLeft ? t('workoutComplete.tryItNow') : t('workoutComplete.notNow')}
+            </Text>
           </TouchableOpacity>
         )}
       </View>

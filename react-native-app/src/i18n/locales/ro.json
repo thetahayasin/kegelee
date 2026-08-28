@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Mementouri de antrenament",
+    "lapseBody": "Au trecut câteva zile. O sesiune scurtă e de ajuns ca să reiei obiceiul.",
+    "lapseTitle": "Gata când ești tu",
     "notificationBody": "E timpul pentru sesiunea ta zilnică de Kegel!",
-    "notificationTitle": "Antrenament Kegel"
+    "notificationTitle": "Antrenament Kegel",
+    "nudgeChannelName": "Mementouri",
+    "trialEndingBody": "Abonamentul tău va începe dacă nu îl anulezi în Google Play.",
+    "trialEndingTitle": "Perioada ta de probă gratuită se încheie mâine"
   },
   "schedule": {
     "active": "Activ",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} sesiune încheie ziua",
     "sessionsCompleteToday_other": "{{count}} sesiuni încheie ziua",
     "startWorkout": "Începe antrenamentul",
+    "streakDays_one": "Serie de {{count}} zi",
+    "streakDays_other": "Serie de {{count}} zile",
     "todayIsDone": "Ziua de azi e gata",
     "trainAgain": "Antrenează-te din nou",
     "training": "Antrenament",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Nu ai primit codul? Retrimite",
     "enterSixDigitCode": "Introdu un cod de verificare din 6 cifre.",
     "failedToResendCode": "Nu am putut retrimite codul.",
+    "resendIn_one": "Retrimite în {{count}} s",
+    "resendIn_other": "Retrimite în {{count}} s",
+    "sentCodeTo": "Am trimis un cod de verificare din 6 cifre la",
     "verificationFailed": "Verificarea a eșuat. Încearcă din nou.",
     "verifyCode": "Verifică codul",
     "verifyEmail": "Verifică e-mailul"

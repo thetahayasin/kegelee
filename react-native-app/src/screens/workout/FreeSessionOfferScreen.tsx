@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, StyleSheet, Animated, Easing, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Animated, Easing, BackHandler, AccessibilityInfo } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, CommonActions, NavigationProp } from '@react-navigation/native';
@@ -33,12 +33,29 @@ export const FreeSessionOfferScreen = () => {
 
   const fade = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(fade, {
-      toValue: 1,
-      duration: 420,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: true,
-    }).start();
+    // Reduce-motion lands the offer already visible rather than fading and
+    // sliding it in. Same rule the rest of the app follows; this screen and
+    // the completion screen after it were the two that had been missed, and
+    // they are the two the guest funnel ends on.
+    let cancelled = false;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((reduced) => {
+        if (cancelled) return;
+        if (reduced) {
+          fade.setValue(1);
+          return;
+        }
+        Animated.timing(fade, {
+          toValue: 1,
+          duration: 420,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }).start();
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [fade]);
 
   const start = () =>

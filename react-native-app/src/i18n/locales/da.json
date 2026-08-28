@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "Træningspåmindelser",
+    "lapseBody": "Der er gået et par dage. Én kort session er nok til at komme i gang igen.",
+    "lapseTitle": "Klar, når du er",
     "notificationBody": "Det er tid til din daglige knibesession!",
-    "notificationTitle": "Knibetræning"
+    "notificationTitle": "Knibetræning",
+    "nudgeChannelName": "Check-ins",
+    "trialEndingBody": "Dit abonnement starter, medmindre du annullerer i Google Play.",
+    "trialEndingTitle": "Din gratis prøveperiode slutter i morgen"
   },
   "schedule": {
     "active": "Aktiv",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "{{count}} session fuldfører i dag",
     "sessionsCompleteToday_other": "{{count}} sessioner fuldfører i dag",
     "startWorkout": "Start træning",
+    "streakDays_one": "{{count}} dags stime",
+    "streakDays_other": "{{count}} dages stime",
     "todayIsDone": "Dagen er klaret",
     "trainAgain": "Træn igen",
     "training": "Træning",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "Fik du ikke koden? Send igen",
     "enterSixDigitCode": "Indtast en 6-cifret bekræftelseskode.",
     "failedToResendCode": "Koden kunne ikke sendes igen.",
+    "resendIn_one": "Send igen om {{count}} s",
+    "resendIn_other": "Send igen om {{count}} s",
+    "sentCodeTo": "Vi har sendt en 6-cifret bekræftelseskode til",
     "verificationFailed": "Bekræftelsen mislykkedes. Prøv igen.",
     "verifyCode": "Bekræft kode",
     "verifyEmail": "Bekræft e-mail"

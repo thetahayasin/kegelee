@@ -385,8 +385,13 @@
   },
   "reminders": {
     "channelName": "تذكيرات التدريب",
+    "lapseBody": "مرت بضعة أيام. جلسة قصيرة واحدة تكفي لاستعادة العادة.",
+    "lapseTitle": "جاهز عندما تكون مستعدًا",
     "notificationBody": "حان وقت جلسة كيجل اليومية!",
-    "notificationTitle": "تدريب كيجل"
+    "notificationTitle": "تدريب كيجل",
+    "nudgeChannelName": "تذكيرات المتابعة",
+    "trialEndingBody": "سيبدأ اشتراكك ما لم تقم بالإلغاء في Google Play.",
+    "trialEndingTitle": "تنتهي فترتك التجريبية المجانية غدًا"
   },
   "schedule": {
     "active": "مفعّل",
@@ -530,6 +535,8 @@
     "sessionsCompleteToday_one": "جلسة واحدة تُكمل يومك",
     "sessionsCompleteToday_other": "{{count}} جلسات تُكمل يومك",
     "startWorkout": "ابدأ التمرين",
+    "streakDays_one": "سلسلة {{count}} يوم",
+    "streakDays_other": "سلسلة {{count}} أيام",
     "todayIsDone": "انتهى يومك",
     "trainAgain": "تدرّب مجددًا",
     "training": "التدريب",
@@ -541,6 +548,9 @@
     "didnTReceiveTheCode": "لم يصلك الرمز؟ إعادة الإرسال",
     "enterSixDigitCode": "أدخل رمز تحقق مكوّنًا من 6 أرقام.",
     "failedToResendCode": "تعذّر إرسال الرمز مرة أخرى.",
+    "resendIn_one": "إعادة الإرسال خلال {{count}} ثانية",
+    "resendIn_other": "إعادة الإرسال خلال {{count}} ثانية",
+    "sentCodeTo": "لقد أرسلنا رمز تحقق من 6 أرقام إلى",
     "verificationFailed": "فشل التحقق. حاول مرة أخرى.",
     "verifyCode": "تأكيد الرمز",
     "verifyEmail": "تأكيد البريد الإلكتروني"
