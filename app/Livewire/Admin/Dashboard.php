@@ -43,7 +43,7 @@ class Dashboard extends Component
         $onboarded = (clone $funnelBase)->whereNotNull('onboarding_completed_at')->count();
         $measured = (clone $funnelBase)->whereNotNull('onboarding_baseline_seconds')->count();
         $reachedBasics = (clone $funnelBase)
-            ->whereHas('completedLessons', fn ($q) => $q->wherePivotNotNull('completed_at'))
+            ->whereHas('completedLessons', fn ($q) => $q->whereNotNull('knowledge_lesson_user.completed_at'))
             ->count();
         $demoDone = (clone $funnelBase)->whereNotNull('free_session_completed_at')->count();
         $subscribed = (clone $funnelBase)
