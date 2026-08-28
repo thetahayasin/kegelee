@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, uusiutuu automaattisesti peruutukseen asti.",
     "privacyPolicy": "Tietosuojakäytäntö",
     "purchaseReceivedButPlanCould": "Osto vastaanotettiin, mutta tilausta ei tunnistettu. Ota yhteyttä tukeen.",
+    "renewPlan": "Uusi tilaus",
+    "renewYourPlan": "Uusi tilauksesi",
     "restorePurchases": "Palauta ostot",
     "restoredPurchaseCouldNotBe": "Palautettua ostoa ei voitu yhdistää tilaukseen. Ota yhteyttä tukeen.",
     "savePercent": "SÄÄSTÄ {{percent}} %",

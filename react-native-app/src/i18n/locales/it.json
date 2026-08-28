@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, si rinnova automaticamente fino alla disdetta.",
     "privacyPolicy": "Informativa sulla privacy",
     "purchaseReceivedButPlanCould": "Acquisto ricevuto, ma non è stato possibile identificare il piano. Contatta l'assistenza.",
+    "renewPlan": "Rinnova piano",
+    "renewYourPlan": "Rinnova il tuo piano",
     "restorePurchases": "Ripristina acquisti",
     "restoredPurchaseCouldNotBe": "L'acquisto ripristinato non è stato associato a un piano. Contatta l'assistenza.",
     "savePercent": "RISPARMI IL {{percent}} %",

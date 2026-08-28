@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, förnyas automatiskt tills du säger upp.",
     "privacyPolicy": "Integritetspolicy",
     "purchaseReceivedButPlanCould": "Köpet togs emot, men abonnemanget kunde inte identifieras. Kontakta supporten.",
+    "renewPlan": "Förnya abonnemang",
+    "renewYourPlan": "Förnya ditt abonnemang",
     "restorePurchases": "Återställ köp",
     "restoredPurchaseCouldNotBe": "Det återställda köpet kunde inte kopplas till ett abonnemang. Kontakta supporten.",
     "savePercent": "SPARA {{percent}} %",

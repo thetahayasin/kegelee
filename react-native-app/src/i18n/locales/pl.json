@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, odnawia się automatycznie do czasu anulowania.",
     "privacyPolicy": "Polityka prywatności",
     "purchaseReceivedButPlanCould": "Zakup otrzymany, ale nie udało się dopasować planu. Skontaktuj się z pomocą.",
+    "renewPlan": "Odnów plan",
+    "renewYourPlan": "Odnów swój plan",
     "restorePurchases": "Przywróć zakupy",
     "restoredPurchaseCouldNotBe": "Przywróconego zakupu nie udało się dopasować do planu. Skontaktuj się z pomocą.",
     "savePercent": "OSZCZĘDZASZ {{percent}}%",

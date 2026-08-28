@@ -152,7 +152,37 @@ export const PaywallScreen = () => {
     };
   }, []);
 
-  const subscribed = !!activeSub;
+  // Deliberately no plain `subscribed` here any more. "Holds an
+  // entitlement" and "has a plan to manage" are different questions, and
+  // one boolean answering both is what showed a cancelled customer
+  // "Manage Plan" when they had come to buy one back.
+  /**
+   * Whether this screen is a plan MANAGER or a shop.
+   *
+   * Not the same question as "do they hold an entitlement", and conflating
+   * the two is what greeted a cancelled subscriber - arriving from the home
+   * screen's own "your access ends soon, resubscribe" prompt - with a header
+   * reading "Manage Plan" and a heading reading "Change your plan". They have
+   * no plan to change. They came to buy one back, and the screen answered a
+   * question they had not asked.
+   *
+   * getActiveSubscription deliberately keeps returning a cancelled row until
+   * its paid period ends, because that access is real. Renewal is the line
+   * that matters for framing, and the CTA and the plan list were already
+   * drawn on it - only the words at the top were not.
+   */
+  const managingLivePlan = subscriptionIsRenewing(activeSub);
+  /**
+   * Cancelled, but the paid period has not run out yet.
+   *
+   * The third state, and it needs its own words. Collapsing it into the
+   * brand-new case got the framing less wrong - it stopped saying "Change
+   * your plan" to someone with no plan to change - but it still greeted a
+   * returning customer as a stranger, on a screen they reached by tapping
+   * "your access ends soon" on their own home screen. They know what the app
+   * is. They are here to renew, and the screen should say so.
+   */
+  const renewingLapsedPlan = !!activeSub && !managingLivePlan;
   // Whether this screen was pushed onto an existing stack (Settings -> Manage
   // Plan), or IS the subscription gate's root.
   //
@@ -539,8 +569,21 @@ export const PaywallScreen = () => {
             )}
           </TouchableOpacity>
         )}
-        <Text style={styles.headerTitle}>
-          {subscribed ? t('paywall.managePlan') : t('paywall.premium')}
+        {/* Some of these run long once translated ("Előfizetés
+            kezelése", "Reînnoiește planul"), and the header centres the
+            title between an absolutely positioned left button and the edge,
+            so it shrinks rather than sliding under the button. */}
+        <Text
+          style={styles.headerTitle}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.75}
+        >
+          {managingLivePlan
+            ? t('paywall.managePlan')
+            : renewingLapsedPlan
+              ? t('paywall.renewPlan')
+              : t('paywall.premium')}
         </Text>
       </View>
 
@@ -549,7 +592,11 @@ export const PaywallScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.heading}>
-          {subscribed ? t('paywall.changeYourPlan') : t('paywall.startYourJourney')}
+          {managingLivePlan
+            ? t('paywall.changeYourPlan')
+            : renewingLapsedPlan
+              ? t('paywall.renewYourPlan')
+              : t('paywall.startYourJourney')}
         </Text>
 
         {everyPlanTrialDays ? (
@@ -577,7 +624,7 @@ export const PaywallScreen = () => {
 
         {/* What premium unlocks. Hidden for subscribers, who reach this screen
             as "Manage Plan" and are being asked to switch, not to buy in. */}
-        {!subscribed && (
+        {!managingLivePlan && (
           <View style={styles.benefits}>
             {PREMIUM_BENEFIT_KEYS.map((benefit) => (
               <View key={benefit} style={styles.benefitRow}>
@@ -723,25 +770,42 @@ export const PaywallScreen = () => {
         <Text style={styles.legalText}>
           {t('paywall.paymentProcessedSecurely')}{' '}
           {t('paywall.uninstallingDoesNotCancel')}{' '}
-          {t('paywall.byContinuingYouAgree')}{' '}
-          <Text
-            style={styles.legalLink}
-            onPress={() => navigation.navigate('LegalPage', { slug: 'terms', title: t('paywall.terms') })}
-          >
-            {t('paywall.terms')}
-          </Text>
-          {', '}
-          <Text
-            style={styles.legalLink}
+          {t('paywall.byContinuingYouAgree')}
+        </Text>
+        {/* Real buttons, not onPress on a nested <Text>.
+            The links used to be words inside an 11px paragraph, so the tap
+            target was eleven pixels tall - four times smaller than the 44pt
+            minimum. Most taps missed, which reads as "the link does not
+            work"; then a later one landed and opened a page after the reader
+            had given up and moved on. Nested Text presses inside a ScrollView
+            also have to win the responder from the scroll, which makes the
+            same tiny target worse again. Two proper controls on their own
+            row, each a full touch target. */}
+        <View style={styles.legalLinkRow}>
+          <TouchableOpacity
+            style={styles.legalLinkBtn}
+            accessibilityRole="link"
             onPress={() =>
-              navigation.navigate('LegalPage', { slug: 'privacy-policy', title: t('paywall.privacyPolicy') })
+              navigation.navigate('LegalPage', { slug: 'terms', title: t('paywall.terms') })
             }
           >
-            {t('paywall.privacyPolicy')}
-          </Text>
-          .
-        </Text>
-        {!subscribed && (
+            <Text style={styles.legalLink}>{t('paywall.terms')}</Text>
+          </TouchableOpacity>
+          <Text style={styles.legalDot}>·</Text>
+          <TouchableOpacity
+            style={styles.legalLinkBtn}
+            accessibilityRole="link"
+            onPress={() =>
+              navigation.navigate('LegalPage', {
+                slug: 'privacy-policy',
+                title: t('paywall.privacyPolicy'),
+              })
+            }
+          >
+            <Text style={styles.legalLink}>{t('paywall.privacyPolicy')}</Text>
+          </TouchableOpacity>
+        </View>
+        {!managingLivePlan && (
           <TouchableOpacity
             style={styles.restoreBtn}
             onPress={handleRestore}
@@ -806,7 +870,7 @@ export const PaywallScreen = () => {
 
             Only on the gate root; opened from Settings as Manage Plan the
             header X already does this. */}
-        {!purchasing && !subscribed && !canClose && (
+        {!purchasing && !managingLivePlan && !canClose && (
           <TouchableOpacity
             style={styles.exploreBtn}
             accessibilityRole="button"
@@ -927,6 +991,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...TYPE.heading,
     color: COLORS.white,
+    // Clears the 44pt left button plus its inset at both ends, so a long
+    // translated title shrinks inside the gap instead of running under it.
+    maxWidth: '62%',
+    textAlign: 'center',
   },
   scroll: {
     paddingTop: 8,
@@ -1155,7 +1223,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: COLORS.textDim,
   },
+  legalLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACE.xs,
+    marginTop: SPACE.xs,
+  },
+  legalLinkBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.sm,
+  },
+  legalDot: { fontSize: 12, color: COLORS.textDim },
   legalLink: {
+    fontSize: 12,
+    fontWeight: '600',
     color: COLORS.accent,
     textDecorationLine: 'underline',
   },

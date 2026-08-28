@@ -476,26 +476,33 @@ export const SubscribeSheet: React.FC<SubscribeSheetProps> = ({
                   ) : null}
 
                   <Text style={styles.legalText}>
-                    {t('subscribeSheet.billingDisclosure')}{' '}
-                    <Text
-                      style={styles.legalLink}
+                    {t('subscribeSheet.billingDisclosure')}
+                  </Text>
+                  {/* Same fix as the paywall: these were words inside an 11px
+                      paragraph, so the tap target was 11px tall against a
+                      44pt minimum, and inside a ScrollView the nested Text
+                      press also had to beat the scroll responder. Real
+                      controls on their own row. */}
+                  <View style={styles.legalLinkRow}>
+                    <TouchableOpacity
+                      style={styles.legalLinkBtn}
+                      accessibilityRole="link"
                       onPress={() => openLegal('terms', t('subscribeSheet.terms'))}
                     >
-                      {t('subscribeSheet.terms')}
-                    </Text>
-                    {/* Ampersand rather than a translated "and": it needs no
-                        locale key and reads the same in all 29, RTL included.
-                        The label keys are borrowed from the paywall, which
-                        already links both pages with this exact wording. */}
-                    {' & '}
-                    <Text
-                      style={styles.legalLink}
+                      <Text style={styles.legalLink}>{t('subscribeSheet.terms')}</Text>
+                    </TouchableOpacity>
+                    {/* Middot rather than a translated "and": it needs no
+                        locale key and reads the same in all 29, RTL
+                        included. */}
+                    <Text style={styles.legalDot}>·</Text>
+                    <TouchableOpacity
+                      style={styles.legalLinkBtn}
+                      accessibilityRole="link"
                       onPress={() => openLegal('privacy-policy', t('paywall.privacyPolicy'))}
                     >
-                      {t('paywall.privacyPolicy')}
-                    </Text>
-                    .
-                  </Text>
+                      <Text style={styles.legalLink}>{t('paywall.privacyPolicy')}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
               ) : (
                 <>
@@ -872,7 +879,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: COLORS.textDim,
   },
-  legalLink: { color: COLORS.accent, textDecorationLine: 'underline' },
+  legalLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACE.xs,
+  },
+  legalLinkBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.sm,
+  },
+  legalDot: { fontSize: 12, color: COLORS.textDim },
+  legalLink: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.accent,
+    textDecorationLine: 'underline',
+  },
 
   authHeader: {
     flexDirection: 'row',

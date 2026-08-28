@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, מתחדש אוטומטית עד לביטול.",
     "privacyPolicy": "מדיניות פרטיות",
     "purchaseReceivedButPlanCould": "הרכישה התקבלה, אך לא ניתן היה לזהות את המסלול. פנה לתמיכה.",
+    "renewPlan": "חידוש המנוי",
+    "renewYourPlan": "חדשו את המנוי שלכם",
     "restorePurchases": "שחזור רכישות",
     "restoredPurchaseCouldNotBe": "לא ניתן היה לשייך את הרכישה המשוחזרת למסלול. פנה לתמיכה.",
     "savePercent": "חסכו {{percent}} %",

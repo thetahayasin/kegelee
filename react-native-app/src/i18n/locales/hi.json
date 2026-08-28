@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, रद्द करने तक अपने आप रिन्यू होता है।",
     "privacyPolicy": "गोपनीयता नीति",
     "purchaseReceivedButPlanCould": "खरीदारी मिल गई, लेकिन प्लान की पहचान नहीं हो सकी। सहायता से संपर्क करें।",
+    "renewPlan": "प्लान नवीनीकरण",
+    "renewYourPlan": "अपना प्लान नवीनीकृत करें",
     "restorePurchases": "खरीदारी बहाल करें",
     "restoredPurchaseCouldNotBe": "बहाल की गई खरीदारी किसी प्लान से नहीं जुड़ सकी। सहायता से संपर्क करें।",
     "savePercent": "{{percent}}% बचाएँ",

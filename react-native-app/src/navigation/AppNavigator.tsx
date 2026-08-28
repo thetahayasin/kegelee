@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../context/AuthContext';
+import { appPhase } from './phase';
 import { OnboardingScreen } from '../screens/auth/OnboardingScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { RegisterScreen } from '../screens/auth/RegisterScreen';
@@ -209,8 +210,12 @@ const TabNavigator = () => {
 
 export const AppNavigator = () => {
   const { isAuthenticated, onboarded, setOnboarded, basicsDone, subscribed } = useAuth();
+  // The SAME function App.tsx keys the NavigationContainer with. When these
+  // two disagreed, a purchase swapped the stack while the container replayed
+  // the Paywall route into it - see navigation/phase.
+  const phase = appPhase({ isAuthenticated, subscribed, basicsDone });
 
-  if (!isAuthenticated) {
+  if (phase === 'guest') {
     // Guests share ONE stack. New guests start on the onboarding slides; once
     // onboarding is done they land on Learn the basics (Knowledge) as the root,
     // mirroring the web guest funnel (onboarding -> dismiss -> knowledge.index).
@@ -259,7 +264,7 @@ export const AppNavigator = () => {
   // route middleware order ['subscribed', 'basics']. Purchasing (or a sync
   // revealing a subscription) flips `subscribed` in context, which swaps this
   // navigator away live; admins bypass the gate inside the context compute.
-  if (!subscribed) {
+  if (phase === 'paywall') {
     return (
       <Stack.Navigator key="paywall-gate" screenOptions={{ headerShown: false }} initialRouteName="Paywall">
         <Stack.Screen name="Paywall" component={PaywallScreen} />
@@ -288,7 +293,7 @@ export const AppNavigator = () => {
   // context, which swaps this navigator for the main app below - the transition
   // is driven by state, so it happens live, with no dashboard flash and without
   // needing to reopen the app.
-  if (!basicsDone) {
+  if (phase === 'gate') {
     return (
       // key: this branch and the main stack below render the SAME Stack.Navigator
       // component type, so without distinct keys React updates the mounted

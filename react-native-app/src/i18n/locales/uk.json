@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, продовжується автоматично до скасування.",
     "privacyPolicy": "Політика конфіденційності",
     "purchaseReceivedButPlanCould": "Покупку отримано, але тариф визначити не вдалося. Звернись до підтримки.",
+    "renewPlan": "Продовжити підписку",
+    "renewYourPlan": "Продовжте підписку",
     "restorePurchases": "Відновити покупки",
     "restoredPurchaseCouldNotBe": "Відновлену покупку не вдалося зіставити з тарифом. Звернись до підтримки.",
     "savePercent": "ЕКОНОМІЯ {{percent}} %",

@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}} ต่ออายุอัตโนมัติจนกว่าจะยกเลิก",
     "privacyPolicy": "นโยบายความเป็นส่วนตัว",
     "purchaseReceivedButPlanCould": "ได้รับการซื้อแล้ว แต่ไม่สามารถระบุแพ็กเกจได้ กรุณาติดต่อฝ่ายสนับสนุน",
+    "renewPlan": "ต่ออายุแพ็กเกจ",
+    "renewYourPlan": "ต่ออายุแพ็กเกจของคุณ",
     "restorePurchases": "กู้คืนการซื้อ",
     "restoredPurchaseCouldNotBe": "ไม่สามารถจับคู่การซื้อที่กู้คืนกับแพ็กเกจได้ กรุณาติดต่อฝ่ายสนับสนุน",
     "savePercent": "ประหยัด {{percent}}%",

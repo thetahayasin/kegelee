@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, se reînnoiește automat până la anulare.",
     "privacyPolicy": "Politica de confidențialitate",
     "purchaseReceivedButPlanCould": "Achiziția a fost primită, dar planul nu a putut fi identificat. Contactează asistența.",
+    "renewPlan": "Reînnoiește planul",
+    "renewYourPlan": "Reînnoiește-ți planul",
     "restorePurchases": "Restaurează achizițiile",
     "restoredPurchaseCouldNotBe": "Achiziția restaurată nu a putut fi asociată unui plan. Contactează asistența.",
     "savePercent": "ECONOMISEȘTI {{percent}} %",

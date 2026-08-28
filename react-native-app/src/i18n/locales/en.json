@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, renews automatically until cancelled.",
     "privacyPolicy": "Privacy Policy",
     "purchaseReceivedButPlanCould": "Purchase received but plan could not be matched. Contact support.",
+    "renewPlan": "Renew Plan",
+    "renewYourPlan": "Renew your plan",
     "restorePurchases": "Restore purchases",
     "restoredPurchaseCouldNotBe": "Restored purchase could not be matched to a plan. Contact support.",
     "savePercent": "SAVE {{percent}}%",

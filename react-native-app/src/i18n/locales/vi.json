@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, tự động gia hạn cho đến khi bạn hủy.",
     "privacyPolicy": "Chính sách bảo mật",
     "purchaseReceivedButPlanCould": "Đã nhận giao dịch nhưng không xác định được gói. Hãy liên hệ hỗ trợ.",
+    "renewPlan": "Gia hạn gói",
+    "renewYourPlan": "Gia hạn gói của bạn",
     "restorePurchases": "Khôi phục giao dịch",
     "restoredPurchaseCouldNotBe": "Giao dịch được khôi phục không khớp với gói nào. Hãy liên hệ hỗ trợ.",
     "savePercent": "TIẾT KIỆM {{percent}}%",

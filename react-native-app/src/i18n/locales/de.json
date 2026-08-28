@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, verlängert sich automatisch bis zur Kündigung.",
     "privacyPolicy": "Datenschutzerklärung",
     "purchaseReceivedButPlanCould": "Kauf erhalten, aber der Tarif konnte nicht zugeordnet werden. Bitte kontaktiere den Support.",
+    "renewPlan": "Plan erneuern",
+    "renewYourPlan": "Erneuere deinen Plan",
     "restorePurchases": "Käufe wiederherstellen",
     "restoredPurchaseCouldNotBe": "Der wiederhergestellte Kauf konnte keinem Tarif zugeordnet werden. Bitte kontaktiere den Support.",
     "savePercent": "{{percent}} % SPAREN",

@@ -112,6 +112,7 @@ export const WorkoutCompleteScreen = () => {
           times: DEFAULT_REMINDER_TIMES,
           isEnabled: true,
         })),
+        { requestPermission: true },
       );
       setRemindersSaved(true);
       syncNow(user.id).catch(() => {});

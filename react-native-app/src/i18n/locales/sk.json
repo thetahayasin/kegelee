@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, obnovuje sa automaticky až do zrušenia.",
     "privacyPolicy": "Zásady ochrany osobných údajov",
     "purchaseReceivedButPlanCould": "Nákup bol prijatý, ale tarif sa nepodarilo určiť. Kontaktuj podporu.",
+    "renewPlan": "Obnoviť plán",
+    "renewYourPlan": "Obnovte svoj plán",
     "restorePurchases": "Obnoviť nákupy",
     "restoredPurchaseCouldNotBe": "Obnovený nákup sa nepodarilo priradiť k tarifu. Kontaktuj podporu.",
     "savePercent": "UŠETRÍŠ {{percent}} %",

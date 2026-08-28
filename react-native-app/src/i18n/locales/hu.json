@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, lemondásig automatikusan megújul.",
     "privacyPolicy": "Adatvédelmi tájékoztató",
     "purchaseReceivedButPlanCould": "A vásárlás megérkezett, de a csomagot nem sikerült azonosítani. Fordulj az ügyfélszolgálathoz.",
+    "renewPlan": "Megújítás",
+    "renewYourPlan": "Újítsd meg az előfizetésed",
     "restorePurchases": "Vásárlások visszaállítása",
     "restoredPurchaseCouldNotBe": "A visszaállított vásárlást nem sikerült csomaghoz rendelni. Fordulj az ügyfélszolgálathoz.",
     "savePercent": "SPÓROLJ {{percent}} %-OT",

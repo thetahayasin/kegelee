@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, fornyes automatisk indtil du opsiger.",
     "privacyPolicy": "Privatlivspolitik",
     "purchaseReceivedButPlanCould": "Købet blev modtaget, men abonnementet kunne ikke identificeres. Kontakt support.",
+    "renewPlan": "Forny abonnement",
+    "renewYourPlan": "Forny dit abonnement",
     "restorePurchases": "Gendan køb",
     "restoredPurchaseCouldNotBe": "Det gendannede køb kunne ikke matches med et abonnement. Kontakt support.",
     "savePercent": "SPAR {{percent}} %",

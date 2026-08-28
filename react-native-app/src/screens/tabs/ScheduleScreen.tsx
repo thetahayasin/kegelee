@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   Modal,
-  Alert,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
@@ -80,11 +79,17 @@ export const ScheduleScreen = () => {
    * entirely different shapes depending on which screen you were on, and the
    * more interruptive of the two was being spent on "saved".
    *
-   * The exact-alarm prompt below stays a dialog on purpose: it is a real
-   * either/or that leads out to a system settings screen, which is what a
-   * modal dialog is actually for.
+   * The exact-alarm prompt comes through here too, with an action. It was a
+   * native dialog on the argument that a real either/or leading to a system
+   * screen is what dialogs are for - which is true in the abstract and wrong
+   * here, because it made the one message in this flow that asks for something
+   * look like it came from a different app than the message right before it.
    */
-  const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [notice, setNotice] = useState<{
+    tone: 'ok' | 'error';
+    text: string;
+    action?: { label: string; onPress: () => void };
+  } | null>(null);
 
   const loadData = async () => {
     if (!user) return;
@@ -201,7 +206,7 @@ export const ScheduleScreen = () => {
 
       // Schedule alarms using Notifee helper (exact when permitted, else inexact).
       const exactOk = await isExactAlarmAllowed();
-      await scheduleReminders(reminderConfigs);
+      await scheduleReminders(reminderConfigs, { requestPermission: true });
 
       setRemindersModalVisible(false);
       await loadData();
@@ -210,23 +215,25 @@ export const ScheduleScreen = () => {
       syncNow(user.id).catch(() => {});
 
       // Saved either way - the exact-alarm permission changes the punctuality
-      // of the reminders, not whether they exist.
-      setNotice({ tone: 'ok', text: t('schedule.remindersSavedBody') });
-
-      if (!exactOk) {
-        // Android 12+ needs the "Alarms & reminders" special access for on-time
-        // delivery. Reminders still fire without it, just a few minutes late.
-        // Stays a native dialog on purpose: it is a real either/or that leads
-        // out to a system settings screen, which is what a dialog is for.
-        Alert.alert(
-          t('schedule.allowExactTitle'),
-          t('schedule.allowExactBody'),
-          [
-            { text: t('schedule.notNow'), style: 'cancel' },
-            { text: t('schedule.openSettings'), onPress: () => openExactAlarmSettings() },
-          ],
-        );
-      }
+      // of the reminders, not whether they exist. So the confirmation is the
+      // same sentence in both branches; only the follow-up differs.
+      //
+      // Android 12+ needs the "Alarms & reminders" special access for on-time
+      // delivery. Without it reminders still fire, just a few minutes late,
+      // which is why this offers a route to the setting rather than blocking
+      // on it.
+      setNotice(
+        exactOk
+          ? { tone: 'ok', text: t('schedule.remindersSavedBody') }
+          : {
+              tone: 'ok',
+              text: `${t('schedule.remindersSavedBody')} ${t('schedule.allowExactBody')}`,
+              action: {
+                label: t('schedule.openSettings'),
+                onPress: () => openExactAlarmSettings(),
+              },
+            },
+      );
     } catch (e) {
       console.error(e);
       setNotice({ tone: 'error', text: t('schedule.failedToSaveReminders') });
@@ -276,20 +283,49 @@ export const ScheduleScreen = () => {
           </Svg>
         </TouchableOpacity>
 
-        {/* Confirmations and validation, in the page. Tappable so it can
-            be put away without waiting for the next save. */}
+        {/* Confirmations, validation and the exact-alarm ask, in the page
+            and built like every other card on it - same 16pt gutter, same
+            surface, same radius. The first version was full-bleed accent
+            green, so the one new element on the screen was both wider than
+            everything around it and the only thing wearing the accent as a
+            background. Colour now carries meaning in one small mark and the
+            text, which is how the rest of the app uses it. */}
         {notice && (
           <TouchableOpacity
-            style={[styles.notice, notice.tone === 'error' && styles.noticeError]}
-            onPress={() => setNotice(null)}
-            accessibilityRole="button"
+            style={styles.notice}
+            activeOpacity={notice.action ? 1 : 0.85}
+            onPress={notice.action ? undefined : () => setNotice(null)}
+            accessibilityRole={notice.action ? 'text' : 'button'}
             accessibilityLabel={notice.text}
           >
-            <Text
-              style={[styles.noticeText, notice.tone === 'error' && styles.noticeTextError]}
-            >
-              {notice.text}
-            </Text>
+            <View style={styles.noticeRow}>
+              <View
+                style={[styles.noticeDot, notice.tone === 'error' && styles.noticeDotError]}
+              />
+              <Text style={styles.noticeText}>{notice.text}</Text>
+            </View>
+            {/* Buttons only when there is a real choice to make. "Not now"
+                under "Reminders saved" would be answering a question nobody
+                asked - a plain confirmation just needs a way to go away, and
+                the card itself is that. */}
+            {notice.action && (
+              <View style={styles.noticeActions}>
+                <TouchableOpacity
+                  style={styles.noticeDismissBtn}
+                  onPress={() => setNotice(null)}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.noticeDismissText}>{t('schedule.notNow')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.noticeActionBtn}
+                  onPress={notice.action.onPress}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.noticeActionText}>{notice.action.label}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </TouchableOpacity>
         )}
 
@@ -518,20 +554,48 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginTop: 2,
   },
+  // Matches remindersCard / calendarCard exactly: same gutter, same
+  // surface, same radius, same padding.
   notice: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    ...GLASS,
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    padding: 20,
+  },
+  noticeRow: { flexDirection: 'row', gap: SPACE.md },
+  // The whole of the accent on this card, deliberately.
+  noticeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: 6,
+    backgroundColor: COLORS.accent,
+  },
+  noticeDotError: { backgroundColor: COLORS.danger },
+  noticeText: { flex: 1, ...TYPE.bodySm, color: COLORS.white, lineHeight: 20 },
+  noticeActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: SPACE.sm,
     marginTop: SPACE.md,
-    padding: SPACE.lg,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: COLORS.accent,
-    backgroundColor: COLORS.accentWash,
   },
-  noticeError: {
-    borderColor: COLORS.danger,
-    backgroundColor: 'rgba(255,107,107,0.12)',
+  noticeActionBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.lg,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accent,
   },
-  noticeText: { ...TYPE.bodySm, color: COLORS.accent, lineHeight: 19 },
-  noticeTextError: { color: COLORS.danger },
+  noticeActionText: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.onAccent },
+  noticeDismissBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.md,
+  },
+  noticeDismissText: { ...TYPE.bodySm, fontWeight: '600', color: COLORS.textMuted },
   calendarCard: {
     marginHorizontal: 16,
     marginTop: 16,

@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, renouvelé automatiquement jusqu'à résiliation.",
     "privacyPolicy": "Politique de confidentialité",
     "purchaseReceivedButPlanCould": "Achat reçu, mais la formule n'a pas pu être identifiée. Contacte le support.",
+    "renewPlan": "Renouveler",
+    "renewYourPlan": "Renouvelez votre abonnement",
     "restorePurchases": "Restaurer les achats",
     "restoredPurchaseCouldNotBe": "L'achat restauré n'a pas pu être associé à une formule. Contacte le support.",
     "savePercent": "{{percent}} % D’ÉCONOMIE",

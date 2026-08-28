@@ -22,6 +22,7 @@ import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { appPhase } from './src/navigation/phase';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { initDB } from './src/db/sqlite';
 import { initI18n } from './src/i18n';
@@ -59,21 +60,20 @@ const SplashLoading = () => (
 /**
  * Waits for the session restore before revealing the navigator.
  *
- * The NavigationContainer is keyed by the auth phase (guest / basics gate /
- * main app). Navigation STATE lives in the container, not in the navigators:
- * when AppNavigator swaps stacks on a phase change, a fresh navigator adopts
- * the container's previous state whenever the old route names also exist in
- * the new stack (Knowledge/KnowledgeLesson live in both), so completing the
- * basics re-showed the just-finished lesson instead of landing on MainTabs.
- * Re-keying the container guarantees each phase starts with a clean tree at
- * its own initialRouteName.
+ * The NavigationContainer is keyed by the app phase. Navigation STATE lives
+ * in the container, not in the navigators, so a stack swap without a key
+ * change hands the old routes to the new navigator - which is how finishing
+ * the basics re-showed the finished lesson, and how buying a subscription
+ * left the customer on the paywall. navigation/phase carries the full
+ * account of that and is the single source both this and AppNavigator read.
  */
 const Root = () => {
-  const { isLoading, isAuthenticated, basicsDone } = useAuth();
+  const { isLoading, isAuthenticated, basicsDone, subscribed } = useAuth();
   if (isLoading) {
     return <SplashLoading />;
   }
-  const phase = !isAuthenticated ? 'guest' : basicsDone ? 'app' : 'gate';
+  // Shared with AppNavigator's own branching - see navigation/phase.
+  const phase = appPhase({ isAuthenticated, subscribed, basicsDone });
   return (
     <NavigationContainer key={phase} theme={navTheme}>
       <AppNavigator />

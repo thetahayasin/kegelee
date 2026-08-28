@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, iptal edene kadar otomatik yenilenir.",
     "privacyPolicy": "Gizlilik Politikası",
     "purchaseReceivedButPlanCould": "Satın alma alındı ancak plan eşleştirilemedi. Destek ile iletişime geç.",
+    "renewPlan": "Planı Yenile",
+    "renewYourPlan": "Planını yenile",
     "restorePurchases": "Satın alımları geri yükle",
     "restoredPurchaseCouldNotBe": "Geri yüklenen satın alma bir planla eşleştirilemedi. Destek ile iletişime geç.",
     "savePercent": "%{{percent}} TASARRUF",

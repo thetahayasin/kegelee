@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}، يتجدد تلقائيًا حتى الإلغاء.",
     "privacyPolicy": "سياسة الخصوصية",
     "purchaseReceivedButPlanCould": "تم استلام عملية الشراء، لكن تعذّر تحديد الباقة. يرجى التواصل مع الدعم.",
+    "renewPlan": "تجديد الخطة",
+    "renewYourPlan": "جدّد خطتك",
     "restorePurchases": "استعادة المشتريات",
     "restoredPurchaseCouldNotBe": "تعذّر ربط عملية الشراء المستعادة بأي باقة. يرجى التواصل مع الدعم.",
     "savePercent": "وفّر {{percent}} %",

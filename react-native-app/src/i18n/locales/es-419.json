@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, se renueva automáticamente hasta que canceles.",
     "privacyPolicy": "Política de privacidad",
     "purchaseReceivedButPlanCould": "Compra recibida, pero no se pudo identificar el plan. Comunícate con soporte.",
+    "renewPlan": "Renovar plan",
+    "renewYourPlan": "Renueva tu plan",
     "restorePurchases": "Restaurar compras",
     "restoredPurchaseCouldNotBe": "La compra restaurada no se pudo asociar a un plan. Comunícate con soporte.",
     "savePercent": "AHORRA {{percent}} %",

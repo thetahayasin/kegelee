@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, diperpanjang otomatis sampai dibatalkan.",
     "privacyPolicy": "Kebijakan Privasi",
     "purchaseReceivedButPlanCould": "Pembelian diterima, tetapi paket tidak dapat dikenali. Hubungi dukungan.",
+    "renewPlan": "Perpanjang Paket",
+    "renewYourPlan": "Perpanjang paket Anda",
     "restorePurchases": "Pulihkan pembelian",
     "restoredPurchaseCouldNotBe": "Pembelian yang dipulihkan tidak dapat dicocokkan dengan paket. Hubungi dukungan.",
     "savePercent": "HEMAT {{percent}}%",

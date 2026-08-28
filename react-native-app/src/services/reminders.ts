@@ -84,13 +84,31 @@ export const openExactAlarmSettings = async () => {
 /**
  * Schedules recurring weekly local notifications using Notifee for enabled reminders.
  */
-export const scheduleReminders = async (configs: ReminderConfig[]) => {
+export const scheduleReminders = async (
+  configs: ReminderConfig[],
+  opts?: { requestPermission?: boolean },
+) => {
   try {
     // 1. Cancel any previously scheduled reminder notifications
     await cancelAllReminders();
 
-    // 2. Request permission (highly recommended before scheduling triggers)
-    await notifee.requestPermission();
+    // 2. Ask for permission ONLY when a person is setting reminders.
+    //
+    // This used to be unconditional, which quietly undid the whole point of
+    // taking the prompt out of sign-in: every sync reschedules this account's
+    // reminders from the backend, and the first sync runs at login - so any
+    // returning account with reminders got the system permission dialog
+    // thrown at it on sign-in exactly as before, just from one call deeper.
+    //
+    // Rescheduling is bookkeeping. It happens in the background, the person
+    // did not ask for it, and if they have already refused there is nothing to
+    // be gained by asking again on every launch. The two places that pass
+    // `true` are the two where someone has just tapped a button that plainly
+    // means "yes, remind me": saving on the Schedule tab, and accepting the
+    // offer on the completion screen.
+    if (opts?.requestPermission) {
+      await notifee.requestPermission();
+    }
 
     // 3. Create/retrieve Android notification channel (ignored on iOS).
     // Channels are IMMUTABLE once created: the original 'reminders' channel

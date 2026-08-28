@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}, wordt automatisch verlengd tot je opzegt.",
     "privacyPolicy": "Privacybeleid",
     "purchaseReceivedButPlanCould": "Aankoop ontvangen, maar het abonnement kon niet worden herkend. Neem contact op met support.",
+    "renewPlan": "Verlengen",
+    "renewYourPlan": "Verleng je abonnement",
     "restorePurchases": "Aankopen herstellen",
     "restoredPurchaseCouldNotBe": "De herstelde aankoop kon niet aan een abonnement worden gekoppeld. Neem contact op met support.",
     "savePercent": "BESPAAR {{percent}}%",

@@ -294,6 +294,8 @@
     "priceRenewsAutomatically": "{{price}}，在取消前将自动续订。",
     "privacyPolicy": "隐私政策",
     "purchaseReceivedButPlanCould": "已收到购买，但无法匹配到套餐。请联系客服。",
+    "renewPlan": "续订套餐",
+    "renewYourPlan": "续订您的套餐",
     "restorePurchases": "恢复购买",
     "restoredPurchaseCouldNotBe": "恢复的购买无法匹配到套餐。请联系客服。",
     "savePercent": "立省 {{percent}}%",
