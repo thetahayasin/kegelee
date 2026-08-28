@@ -85,11 +85,18 @@ export const ScheduleScreen = () => {
    * here, because it made the one message in this flow that asks for something
    * look like it came from a different app than the message right before it.
    */
-  const [notice, setNotice] = useState<{
-    tone: 'ok' | 'error';
-    text: string;
-    action?: { label: string; onPress: () => void };
-  } | null>(null);
+  //
+  // Stores WHICH notice, never the words.
+  //
+  // It held resolved strings - `text: t(...)` - which freezes whatever
+  // language was active at the moment of the save. Change language in
+  // Settings afterwards and the card kept its old English body and button
+  // while the dismiss beside them, rendered live in JSX, switched to the new
+  // one. Half a card in each language. Keys go in state; t() belongs in
+  // render, where it re-runs on languageChanged like everything else.
+  const [notice, setNotice] = useState<
+    'saved' | 'savedNeedsExact' | 'timeLimit' | 'saveFailed' | null
+  >(null);
 
   const loadData = async () => {
     if (!user) return;
@@ -164,7 +171,7 @@ export const ScheduleScreen = () => {
 
   const addTime = () => {
     if (times.length >= 5) {
-      setNotice({ tone: 'error', text: t('schedule.limitReachedBody') });
+      setNotice('timeLimit');
       return;
     }
     setNotice(null);
@@ -222,21 +229,10 @@ export const ScheduleScreen = () => {
       // delivery. Without it reminders still fire, just a few minutes late,
       // which is why this offers a route to the setting rather than blocking
       // on it.
-      setNotice(
-        exactOk
-          ? { tone: 'ok', text: t('schedule.remindersSavedBody') }
-          : {
-              tone: 'ok',
-              text: `${t('schedule.remindersSavedBody')} ${t('schedule.allowExactBody')}`,
-              action: {
-                label: t('schedule.openSettings'),
-                onPress: () => openExactAlarmSettings(),
-              },
-            },
-      );
+      setNotice(exactOk ? 'saved' : 'savedNeedsExact');
     } catch (e) {
       console.error(e);
-      setNotice({ tone: 'error', text: t('schedule.failedToSaveReminders') });
+      setNotice('saveFailed');
     } finally {
       setSavingReminders(false);
     }
@@ -290,44 +286,63 @@ export const ScheduleScreen = () => {
             everything around it and the only thing wearing the accent as a
             background. Colour now carries meaning in one small mark and the
             text, which is how the rest of the app uses it. */}
-        {notice && (
-          <TouchableOpacity
-            style={styles.notice}
-            activeOpacity={notice.action ? 1 : 0.85}
-            onPress={notice.action ? undefined : () => setNotice(null)}
-            accessibilityRole={notice.action ? 'text' : 'button'}
-            accessibilityLabel={notice.text}
-          >
-            <View style={styles.noticeRow}>
-              <View
-                style={[styles.noticeDot, notice.tone === 'error' && styles.noticeDotError]}
-              />
-              <Text style={styles.noticeText}>{notice.text}</Text>
-            </View>
-            {/* Buttons only when there is a real choice to make. "Not now"
-                under "Reminders saved" would be answering a question nobody
-                asked - a plain confirmation just needs a way to go away, and
-                the card itself is that. */}
-            {notice.action && (
-              <View style={styles.noticeActions}>
-                <TouchableOpacity
-                  style={styles.noticeDismissBtn}
-                  onPress={() => setNotice(null)}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.noticeDismissText}>{t('schedule.notNow')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.noticeActionBtn}
-                  onPress={notice.action.onPress}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.noticeActionText}>{notice.action.label}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </TouchableOpacity>
-        )}
+        {notice &&
+          (() => {
+            // Resolved HERE, every render, so a language change reaches the
+            // whole card instead of only the parts drawn inline.
+            //
+            // savedNeedsExact uses allowExactBody alone: that string already
+            // opens with "Your reminders are set", so pairing it with
+            // remindersSavedBody said the same thing twice in a row.
+            const isError = notice === 'timeLimit' || notice === 'saveFailed';
+            const needsExact = notice === 'savedNeedsExact';
+            const text =
+              notice === 'saved'
+                ? t('schedule.remindersSavedBody')
+                : needsExact
+                  ? t('schedule.allowExactBody')
+                  : notice === 'timeLimit'
+                    ? t('schedule.limitReachedBody')
+                    : t('schedule.failedToSaveReminders');
+            return (
+              <TouchableOpacity
+                style={styles.notice}
+                activeOpacity={needsExact ? 1 : 0.85}
+                onPress={needsExact ? undefined : () => setNotice(null)}
+                accessibilityRole={needsExact ? 'text' : 'button'}
+                accessibilityLabel={text}
+              >
+                <View style={styles.noticeRow}>
+                  <View style={[styles.noticeDot, isError && styles.noticeDotError]} />
+                  <Text style={styles.noticeText}>{text}</Text>
+                </View>
+                {/* Buttons only when there is a real choice to make. "Not
+                    now" under "Reminders saved" would be answering a
+                    question nobody asked - a plain confirmation just needs a
+                    way to go away, and the card itself is that. */}
+                {needsExact && (
+                  <View style={styles.noticeActions}>
+                    <TouchableOpacity
+                      style={styles.noticeDismissBtn}
+                      onPress={() => setNotice(null)}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.noticeDismissText}>{t('schedule.notNow')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.noticeActionBtn}
+                      onPress={() => openExactAlarmSettings()}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.noticeActionText}>
+                        {t('schedule.openSettings')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })()}
 
         {/* Month Progress grid */}
         <View style={styles.calendarCard}>

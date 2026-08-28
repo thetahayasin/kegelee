@@ -78,8 +78,13 @@ export const TrainingScreen = () => {
    * subscriber there is to win back: already paid, already part-way into the
    * habit, and having told us their exact deadline.
    */
+  // Same rule as the Schedule tab's notice: the STATE carries what to say
+  // and the data it needs, never the finished sentence. Storing t() output
+  // pins the card to whatever language was active when it was computed.
   const [subNotice, setSubNotice] = useState<
-    { kind: 'trial' | 'cancelled'; text: string } | null
+    | { kind: 'cancelled'; endsOn: string | null }
+    | { kind: 'trial'; endsOn: string; renews: boolean }
+    | null
   >(null);
 
   // Exercise list with unlocked state
@@ -135,12 +140,9 @@ export const TrainingScreen = () => {
       const sub = await getActiveSubscription(user.id).catch(() => null);
       const status = String(sub?.status || '').toLowerCase();
       if (status === 'canceled') {
-        const endsOn = formatSubscriptionDate(sub?.ends_at ?? null);
         setSubNotice({
           kind: 'cancelled',
-          text: endsOn
-            ? t('settings.cancelledUntilDate', { date: endsOn })
-            : t('settings.cancelledUntilPeriodEnd'),
+          endsOn: formatSubscriptionDate(sub?.ends_at ?? null) || null,
         });
       } else if (status === 'trialing') {
         const trialEndsAt = Date.parse(sub?.trial_ends_at || sub?.ends_at || '');
@@ -152,12 +154,7 @@ export const TrainingScreen = () => {
         const endsOn = formatSubscriptionDate(sub?.trial_ends_at ?? sub?.ends_at ?? null);
         setSubNotice(
           withinTwoDays && endsOn
-            ? {
-                kind: 'trial',
-                text: Number(sub?.auto_renewing) === 1
-                  ? t('settings.trialEndsThenBilling', { date: endsOn })
-                  : t('settings.trialEndsNoRenew', { date: endsOn }),
-              }
+            ? { kind: 'trial', endsOn, renews: Number(sub?.auto_renewing) === 1 }
             : null,
         );
       } else {
@@ -346,7 +343,16 @@ export const TrainingScreen = () => {
               subNotice.kind === 'cancelled' && styles.subNoticeCancelled,
             ]}
           >
-            <Text style={styles.subNoticeText}>{subNotice.text}</Text>
+            {/* Built at render, so a language change reaches it. */}
+            <Text style={styles.subNoticeText}>
+              {subNotice.kind === 'cancelled'
+                ? subNotice.endsOn
+                  ? t('settings.cancelledUntilDate', { date: subNotice.endsOn })
+                  : t('settings.cancelledUntilPeriodEnd')
+                : subNotice.renews
+                  ? t('settings.trialEndsThenBilling', { date: subNotice.endsOn })
+                  : t('settings.trialEndsNoRenew', { date: subNotice.endsOn })}
+            </Text>
             {subNotice.kind === 'cancelled' && (
               <TouchableOpacity
                 style={styles.subNoticeBtn}

@@ -805,7 +805,16 @@ export const PaywallScreen = () => {
             <Text style={styles.legalLink}>{t('paywall.privacyPolicy')}</Text>
           </TouchableOpacity>
         </View>
-        {!managingLivePlan && (
+        {/* Only when there is genuinely nothing on this device to lose.
+            Restore exists for someone whose entitlement is missing - a
+            reinstall, a new phone, a purchase made on another device. A
+            cancelled subscriber still inside their paid period has their
+            entitlement right here; there is nothing to restore, and offering
+            it on the renew screen just adds a second, wrong-looking answer
+            next to the one they came for. Keyed on the row itself rather
+            than on renewal, which is the distinction that actually matters
+            for this control. */}
+        {!activeSub && (
           <TouchableOpacity
             style={styles.restoreBtn}
             onPress={handleRestore}
