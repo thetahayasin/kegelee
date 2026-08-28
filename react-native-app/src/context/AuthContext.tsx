@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setApiToken } from '../services/api';
-import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions } from '../db/queries';
+import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions, getMeasurements, insertMeasurement } from '../db/queries';
 import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
 import { cancelAllReminders, cancelAllNudges, scheduleTrialEndingWarning } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
@@ -21,6 +21,17 @@ const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
  * would close a cycle.
  */
 export const ONBOARDING_QUIZ_KEY = '@onboarding_quiz';
+
+/**
+ * The onboarding profile waiting to be reported to the backend.
+ *
+ * ONBOARDING_QUIZ_KEY is consumed and deleted the moment an account exists,
+ * because it describes a first run and must not be applied twice. That made
+ * it unavailable to the very next sync, so the answers, the opening hold and
+ * the level they produced never reached the server at all. This is the same
+ * payload, kept until a push has actually taken it.
+ */
+export const ONBOARDING_PUSH_KEY = '@onboarding_profile_pending';
 
 // Durable "gate is open" marker per account. Written when the user finishes
 // the basics on this device AND when a sign-in payload says the account
@@ -360,6 +371,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser({ ...localUser });
           await saveDBUser({ level_id: quizLevel });
         }
+
+        // The hold taken during onboarding becomes this account's FIRST
+        // measurement.
+        //
+        // Without a baseline there is nothing for a later measurement to be
+        // better than, and 'your hold went from 9 seconds to 14' is the only
+        // sentence this app can say that proves it works - the whole category
+        // is invisible otherwise. Guarded on the account having no history of
+        // its own, so signing in on a second device cannot staple a stranger's
+        // first attempt onto a real training record.
+        const baseline = Number(JSON.parse(raw)?.baseline);
+        if (Number.isFinite(baseline) && baseline > 0) {
+          try {
+            const existing = await getMeasurements(localUser.id, 1);
+            if (existing.length === 0) {
+              await insertMeasurement(localUser.id, baseline, 0);
+            }
+          } catch {}
+        }
+
+        // Hand the whole profile to the sync layer before dropping it here.
+        // The backend records it write-once, so a repeat push is harmless and
+        // a lost one is retried on the next sync.
+        try {
+          const parsed = JSON.parse(raw) ?? {};
+          await AsyncStorage.setItem(
+            ONBOARDING_PUSH_KEY,
+            JSON.stringify({
+              experience: parsed.experience ?? null,
+              daily_time: parsed.dailyTime ?? null,
+              baseline_seconds: parsed.baseline ?? 0,
+              level: parsed.level ?? null,
+              skipped: !!parsed.skipped,
+            }),
+          );
+        } catch {}
+
         // Consumed either way - it describes a first run, not a preference.
         await AsyncStorage.removeItem(ONBOARDING_QUIZ_KEY);
       }

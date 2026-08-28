@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone', 'api_token'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone', 'api_token', 'onboarding_experience', 'onboarding_daily_time', 'onboarding_baseline_seconds', 'onboarding_level', 'onboarding_completed_at', 'onboarding_skipped', 'free_session_completed_at'])]
 #[Hidden(['password', 'remember_token', 'api_token'])]
 class User extends Authenticatable
 {
@@ -26,7 +26,56 @@ class User extends Authenticatable
             'onboarded_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'onboarding_completed_at' => 'datetime',
+            'onboarding_skipped' => 'boolean',
+            'onboarding_baseline_seconds' => 'float',
+            'free_session_completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The onboarding answers as words rather than the 0/1/2 the app sends.
+     *
+     * Kept here rather than in the Blade so the admin table and anything
+     * else that ever reads these agree on what a 1 means. Null stays null:
+     * an account from before the quiz existed has no answer, and printing
+     * "Never" for it would be inventing data.
+     */
+    public const ONBOARDING_EXPERIENCE_LABELS = [0 => 'Never trained', 1 => 'Trained a little', 2 => 'Trains regularly'];
+    public const ONBOARDING_TIME_LABELS = [0 => 'A couple of minutes', 1 => 'About five minutes', 2 => 'Ten minutes or more'];
+
+    public function getOnboardingExperienceLabelAttribute(): ?string
+    {
+        return self::ONBOARDING_EXPERIENCE_LABELS[$this->onboarding_experience] ?? null;
+    }
+
+    public function getOnboardingTimeLabelAttribute(): ?string
+    {
+        return self::ONBOARDING_TIME_LABELS[$this->onboarding_daily_time] ?? null;
+    }
+
+    /**
+     * How far into the free funnel this account actually got.
+     *
+     * The whole point of storing any of this: 'signed up' and 'subscribed'
+     * were the only two facts the backend held, and everything that explains
+     * the gap between them happened on the device.
+     */
+    public function getFunnelStageAttribute(): string
+    {
+        if ($this->subscriptions()->whereIn('status', ['active', 'trialing'])->exists()) {
+            return 'subscribed';
+        }
+        if ($this->free_session_completed_at) {
+            return 'demo done';
+        }
+        if ($this->completedLessons()->wherePivotNotNull('completed_at')->exists()) {
+            return 'basics';
+        }
+        if ($this->onboarding_completed_at) {
+            return 'onboarded';
+        }
+        return 'signed up';
     }
 
     public function reminders(): HasMany

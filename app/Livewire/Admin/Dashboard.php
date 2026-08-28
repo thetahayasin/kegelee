@@ -29,7 +29,45 @@ class Dashboard extends Component
             return ['label' => $date->format('j'), 'value' => ($sessionsByDay[$date->toDateString()] ?? collect())->count()];
         });
 
+        // --- The free funnel, as counts ---
+        //
+        // Signed up -> onboarded -> basics -> demo -> subscribed. Every step
+        // between the first and the last used to happen entirely on the
+        // device, so the only two numbers the backend could show were the two
+        // ends, and nothing about where people actually stop.
+        //
+        // Cumulative, not exclusive: someone who subscribed also onboarded, and
+        // a funnel that hid that would read as a collapse rather than a
+        // progression.
+        $funnelBase = User::where('is_admin', false);
+        $onboarded = (clone $funnelBase)->whereNotNull('onboarding_completed_at')->count();
+        $measured = (clone $funnelBase)->whereNotNull('onboarding_baseline_seconds')->count();
+        $reachedBasics = (clone $funnelBase)
+            ->whereHas('completedLessons', fn ($q) => $q->wherePivotNotNull('completed_at'))
+            ->count();
+        $demoDone = (clone $funnelBase)->whereNotNull('free_session_completed_at')->count();
+        $subscribed = (clone $funnelBase)
+            ->whereHas('subscriptions', fn ($q) => $q->whereIn('status', ['active', 'trialing']))
+            ->count();
+
+        $funnel = [
+            ['label' => 'Signed up', 'value' => $totalUsers],
+            ['label' => 'Onboarded', 'value' => $onboarded],
+            ['label' => 'Measured', 'value' => $measured],
+            ['label' => 'Basics started', 'value' => $reachedBasics],
+            ['label' => 'Demo completed', 'value' => $demoDone],
+            ['label' => 'Subscribed', 'value' => $subscribed],
+        ];
+
+        // The opening hold across everyone who took one - the number every
+        // "you have improved" claim is eventually measured against.
+        $avgBaseline = (clone $funnelBase)->whereNotNull('onboarding_baseline_seconds')
+            ->avg('onboarding_baseline_seconds');
+
         return view('livewire.admin.dashboard', [
+            'funnel' => $funnel,
+            'funnelMax' => max(1, $totalUsers),
+            'avgBaseline' => $avgBaseline ? round((float) $avgBaseline, 1) : null,
             'stats' => [
                 ['label' => 'Total users', 'value' => $totalUsers, 'icon' => 'users'],
                 ['label' => 'Today sessions', 'value' => $todaySessions, 'icon' => 'activity'],

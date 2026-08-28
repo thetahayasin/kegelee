@@ -150,6 +150,11 @@ class Users extends Component
             ->withCount([
                 'trainingDays as completed_days_count' => fn ($q) => $q->whereNotNull('completed_at'),
                 'workoutSessions as sessions_count',
+                // Counted in the same query rather than read per row: the
+                // funnel column below needs both for every user on the page,
+                // and asking per row is 40 extra queries for 20 users.
+                'completedLessons as lessons_done_count' => fn ($q) => $q->wherePivotNotNull('completed_at'),
+                'subscriptions as active_subs_count' => fn ($q) => $q->whereIn('status', ['active', 'trialing']),
             ])
             ->latest()
             ->paginate(20);

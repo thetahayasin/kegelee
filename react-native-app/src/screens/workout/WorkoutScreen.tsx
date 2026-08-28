@@ -21,7 +21,7 @@ import { useAuth } from '../../context/AuthContext';
 import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
 import { COLORS } from '../../theme/colors';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
-import { FREE_SESSION_LEVEL, freeSessionExitReset } from '../../services/freeSession';
+import { freeSessionLevel, freeSessionExitReset } from '../../services/freeSession';
 import { scheduleLapseNudge } from '../../services/reminders';
 import { getDBConnection } from '../../db/sqlite';
 import { recordCompletedSession } from '../../db/queries';
@@ -259,7 +259,8 @@ export const WorkoutScreen = () => {
       // Free session runs with no account, so it is built before the user
       // guard below and touches neither training_days nor the level.
       if (freeSession) {
-        const session = buildDailySession(0, FREE_SESSION_LEVEL);
+        // The level the onboarding result promised them, not a fixed 1.
+        const session = buildDailySession(0, await freeSessionLevel());
         if (session.steps.length === 0) {
           // Should not happen - two exercises unlock at day 0 - but goBack is
           // inert on the reset stack this screen is the root of, so failing

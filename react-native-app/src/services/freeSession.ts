@@ -1,4 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// The key the onboarding quiz writes and AuthContext consumes at sign-in,
+// imported rather than re-declared so the three cannot drift apart.
+import { ONBOARDING_QUIZ_KEY } from '../context/AuthContext';
 
 /**
  * The one free training session a guest gets before being asked to pay.
@@ -23,6 +26,29 @@ const keyFor = (userId?: number | null) =>
 /** Day-one of level 1: the session a brand-new subscriber would actually get,
  *  not a shortened demo. Showing the real thing is the argument. */
 export const FREE_SESSION_LEVEL = 1;
+
+/**
+ * The level the free session should actually run at.
+ *
+ * The onboarding quiz ends by telling the reader their starting level, and
+ * the very next thing the funnel offered them was a level 1 session
+ * regardless - so the screen made a promise and the product broke it one tap
+ * later, to the one audience most likely to notice, on their first real
+ * experience of the app.
+ *
+ * Read from the same stash AuthContext consumes at sign-in, so a guest gets
+ * the level they were shown. Falls back to level 1 - where everybody landed
+ * before the quiz existed, and where a skipped quiz should land too.
+ */
+export const freeSessionLevel = async (): Promise<number> => {
+  try {
+    const raw = await AsyncStorage.getItem(ONBOARDING_QUIZ_KEY);
+    const level = Number(raw ? JSON.parse(raw)?.level : NaN);
+    return Number.isFinite(level) && level >= 1 && level <= 5 ? level : FREE_SESSION_LEVEL;
+  } catch {
+    return FREE_SESSION_LEVEL;
+  }
+};
 
 /** Marked on COMPLETION, not on start. Quitting thirty seconds in should not
  *  burn the one chance to see what the app does - that would cost exactly the
@@ -97,3 +123,15 @@ export const freeSessionExitReset = (isAuthenticated: boolean) =>
   isAuthenticated
     ? { index: 1, routes: [{ name: 'Paywall' }, { name: 'Knowledge' }] }
     : { index: 0, routes: [{ name: 'Knowledge' }] };
+
+/**
+ * Whether this device has a completed free session to report to the backend.
+ *
+ * The marker is per-identity and device-local, which is right for gating the
+ * offer but meant the single strongest signal in the funnel never left the
+ * phone. The push sends it; the server stamps a date the first time and
+ * ignores it afterwards, so re-sending is free and losing a push costs
+ * nothing.
+ */
+export const freeSessionCompleted = (userId: number): Promise<boolean> =>
+  hasUsedFreeSession(userId);

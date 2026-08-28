@@ -47,6 +47,8 @@
         <table class="admin-table w-full text-sm">
             <thead class="text-left text-muted"><tr class="border-b border-white/5">
                 <th class="p-4 font-medium">User</th>
+                <th class="p-4 font-medium">Funnel</th>
+                <th class="p-4 font-medium">Start</th>
                 <th class="p-4 font-medium">Days</th>
                 <th class="p-4 font-medium">Sessions</th>
                 <th class="p-4 font-medium">Level</th>
@@ -62,6 +64,56 @@
                             <p class="text-xs text-muted">{{ $user->email }}</p>
                             @if (! $user->email_verified_at)
                                 <span class="mt-1 inline-block rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-400">Unverified</span>
+                            @endif
+                        </td>
+                        @php
+                            // How far into the free funnel this account got.
+                            // Read from columns and eager counts only - no
+                            // query runs inside the loop.
+                            $stage = $user->active_subs_count > 0 ? 'Subscribed'
+                                : ($user->free_session_completed_at ? 'Demo done'
+                                : ($user->lessons_done_count > 0 ? 'Basics'
+                                : ($user->onboarding_completed_at ? 'Onboarded' : 'Signed up')));
+                            // Design tokens only - no raw palette colours.
+                            // app.css maps every utility onto runtime CSS
+                            // variables emitted from the admin settings, so a
+                            // hardcoded emerald would be the one badge on the
+                            // page that ignores a theme change. The ramp is
+                            // weight rather than hue, and lime keeps its one
+                            // job: the goal state.
+                            $stageClass = [
+                                'Subscribed' => 'bg-accent/20 text-accent-soft',
+                                'Demo done'  => 'bg-white/10 text-content',
+                                'Basics'     => 'bg-white/10 text-muted',
+                                'Onboarded'  => 'bg-white/5 text-muted',
+                                'Signed up'  => 'bg-white/5 text-dim',
+                            ][$stage];
+                        @endphp
+                        <td class="p-4">
+                            <span class="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold {{ $stageClass }}">{{ $stage }}</span>
+                            @if ($user->lessons_done_count > 0)
+                                <p class="mt-1 text-[10px] text-muted">{{ $user->lessons_done_count }}/3 lessons</p>
+                            @endif
+                        </td>
+                        <td class="p-4">
+                            @if ($user->onboarding_completed_at)
+                                @if ($user->onboarding_baseline_seconds)
+                                    <p class="text-xs tabular-nums">{{ $user->onboarding_baseline_seconds }}s hold</p>
+                                @else
+                                    <p class="text-xs text-muted">Not measured</p>
+                                @endif
+                                <p class="text-[10px] text-muted">
+                                    {{ $user->onboarding_level ? 'L' . $user->onboarding_level : '--' }}
+                                    @if ($user->onboarding_skipped) &middot; skipped @endif
+                                </p>
+                                @if ($user->onboarding_experience_label)
+                                    <p class="text-[10px] text-muted">{{ $user->onboarding_experience_label }}</p>
+                                @endif
+                                @if ($user->onboarding_time_label)
+                                    <p class="text-[10px] text-muted">{{ $user->onboarding_time_label }}</p>
+                                @endif
+                            @else
+                                <span class="text-xs text-muted">--</span>
                             @endif
                         </td>
                         <td class="p-4 tabular-nums">{{ $user->completed_days_count }}</td>

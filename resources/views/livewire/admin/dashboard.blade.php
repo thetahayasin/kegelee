@@ -62,6 +62,49 @@
         @endforeach
     </div>
 
+    {{-- ─── Free funnel ────────────────────────────────────────────────────── --}}
+    {{-- Signed up through to subscribed. Every step but the two ends used to
+         happen only on the device, so this whole card was unreadable before. --}}
+    <div class="rounded-2xl border border-white/5 bg-surface p-5">
+        <div class="mb-5 flex items-center justify-between">
+            <div>
+                <p class="font-semibold">Free funnel</p>
+                <p class="text-xs text-muted">Where accounts stop, cumulative</p>
+            </div>
+            @if ($avgBaseline)
+                <span class="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                    {{ $avgBaseline }}s average opening hold
+                </span>
+            @endif
+        </div>
+
+        <div class="space-y-3">
+            @foreach ($funnel as $step)
+                @php
+                    $pct = $funnelMax > 0 ? round($step['value'] / $funnelMax * 100) : 0;
+                    // Share of the step above, which is the number that says
+                    // where people actually drop rather than how big the top is.
+                    $prev = $loop->first ? null : $funnel[$loop->index - 1]['value'];
+                    $conv = $prev > 0 ? round($step['value'] / $prev * 100) : null;
+                @endphp
+                <div>
+                    <div class="mb-1 flex items-baseline justify-between text-xs">
+                        <span class="text-muted">{{ $step['label'] }}</span>
+                        <span class="tabular-nums">
+                            {{ number_format($step['value']) }}
+                            @if ($conv !== null)
+                                <span class="ml-1 text-muted">{{ $conv }}%</span>
+                            @endif
+                        </span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-white/5">
+                        <div class="h-2 rounded-full bg-accent" style="width: {{ max(1, $pct) }}%"></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     {{-- ─── Chart ──────────────────────────────────────────────────────────── --}}
     <div class="rounded-2xl border border-white/5 bg-surface p-5">
         <div class="mb-5 flex items-center justify-between">

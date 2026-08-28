@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from './api';
 import i18n from '../i18n';
 import { scheduleReminders } from './reminders';
+import { freeSessionCompleted } from './freeSession';
+import { ONBOARDING_PUSH_KEY } from '../context/AuthContext';
 import {
   getUnsyncedWorkoutSessions,
   getUnsyncedMeasurements,
@@ -174,11 +176,25 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     } catch {}
 
     // Build push payload
+    // The onboarding profile waits in its own key until the server has it;
+    // AuthContext moves it there the moment the quiz is consumed at sign-in.
+    let pendingOnboarding: Record<string, unknown> | null = null;
+    try {
+      const rawOnboarding = await AsyncStorage.getItem(ONBOARDING_PUSH_KEY);
+      pendingOnboarding = rawOnboarding ? JSON.parse(rawOnboarding) : null;
+    } catch {}
+    const freeSessionDone = await freeSessionCompleted(userId).catch(() => false);
+
     const pushPayload = {
       timezone,
       level_id: user.level_id,
       level_started_days: user.level_started_days,
       completed_lessons: localBasicsDone,
+      // The first-run profile and the demo, both recorded write-once on the
+      // server. Re-sent until a pull confirms them, which is why both have to
+      // be safe to receive twice.
+      ...(pendingOnboarding ? { onboarding: pendingOnboarding } : {}),
+      free_session_completed: freeSessionDone,
       workout_sessions: unsyncedSessions.map((s) => ({
         exercise_slug: s.exercise_slug,
         duration_seconds: s.duration_seconds,
@@ -334,6 +350,13 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     // merging the stale start-of-sync copy (empty for a new account) would
     // overwrite - i.e. WIPE - lessons completed mid-sync, closing the basics
     // gate right as the user finishes it.
+    // The server has the first-run profile now, so stop re-sending it. Keyed
+    // on the PULL rather than on the push succeeding: the pull is the only
+    // thing that proves it was stored rather than merely accepted.
+    if (data.onboarding) {
+      await AsyncStorage.removeItem(ONBOARDING_PUSH_KEY).catch(() => {});
+    }
+
     const remoteBasicsDone = data.completed_lessons || [];
     try {
       const currentRaw = await AsyncStorage.getItem(`@basics_done_${userId}`);

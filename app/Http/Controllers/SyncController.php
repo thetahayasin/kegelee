@@ -230,6 +230,52 @@ class SyncController extends Controller
             $synced['reminders']++;
         }
 
+        // --- Onboarding profile (write-once) ---
+        //
+        // Everything here describes a first run, so it is recorded once and
+        // never overwritten. The app re-sends it on every push until a pull
+        // confirms it landed, which means the same payload arrives repeatedly
+        // and must be idempotent - and it also means a later device, signing
+        // in to an account that already has a profile, cannot overwrite the
+        // real first run with its own.
+        $onboarding = $request->input('onboarding');
+        if (is_array($onboarding) && ! $user->onboarding_completed_at) {
+            $experience = $onboarding['experience'] ?? null;
+            $dailyTime = $onboarding['daily_time'] ?? null;
+            $baseline = $onboarding['baseline_seconds'] ?? null;
+            $level = $onboarding['level'] ?? null;
+
+            $user->update([
+                'onboarding_experience' => is_numeric($experience) && $experience >= 0 && $experience <= 2
+                    ? (int) $experience
+                    : null,
+                'onboarding_daily_time' => is_numeric($dailyTime) && $dailyTime >= 0 && $dailyTime <= 2
+                    ? (int) $dailyTime
+                    : null,
+                // A skipped quiz sends 0, which means "not measured" rather
+                // than "measured as nothing" - so it is stored as null and no
+                // later comparison mistakes it for a real opening hold.
+                'onboarding_baseline_seconds' => is_numeric($baseline) && $baseline > 0
+                    ? round((float) $baseline, 1)
+                    : null,
+                'onboarding_level' => is_numeric($level) && $level >= 1 && $level <= 5
+                    ? (int) $level
+                    : null,
+                'onboarding_skipped' => (bool) ($onboarding['skipped'] ?? false),
+                'onboarding_completed_at' => now(),
+            ]);
+        }
+
+        // --- Free demo session (write-once) ---
+        //
+        // The strongest predictor in this funnel of whether someone
+        // subscribes, and it lived in device storage that never left the
+        // phone. Stamped the first time a device reports it and left alone
+        // afterwards, so the date means "when they first finished one".
+        if ($request->boolean('free_session_completed') && ! $user->free_session_completed_at) {
+            $user->update(['free_session_completed_at' => now()]);
+        }
+
         // --- Completed Basics Lessons ---
         $completedSlugs = $request->input('completed_lessons', []);
         $slugToOrder = ['why' => 0, 'find' => 1, 'first' => 2];
@@ -500,6 +546,18 @@ class SyncController extends Controller
                 'canceled_at'          => $s->canceled_at?->toIso8601String(),
                 'auto_renewing'        => (bool) $s->auto_renewing,
             ]),
+            // Echoed back so the device knows the profile landed and can
+            // stop re-sending it, and so a reinstall can tell that this
+            // account already has a first run recorded.
+            'onboarding' => $user->onboarding_completed_at ? [
+                'experience'       => $user->onboarding_experience,
+                'daily_time'       => $user->onboarding_daily_time,
+                'baseline_seconds' => $user->onboarding_baseline_seconds,
+                'level'            => $user->onboarding_level,
+                'skipped'          => (bool) $user->onboarding_skipped,
+                'completed_at'     => $user->onboarding_completed_at->toIso8601String(),
+            ] : null,
+            'free_session_completed_at' => $user->free_session_completed_at?->toIso8601String(),
             'completed_lessons' => $user->completedLessons()
                 ->wherePivotNotNull('completed_at')
                 ->get()

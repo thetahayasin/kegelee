@@ -17,6 +17,9 @@ import { TouchableOpacity } from '../../components/Touchable';
 import type { AuthStackParamList } from '../../navigation/AppNavigator';
 import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
 import { SubscribeSheet } from '../../components/SubscribeSheet';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ONBOARDING_QUIZ_KEY } from '../../context/AuthContext';
+import { OnboardingQuiz, QuizResult } from './OnboardingQuiz';
 
 /**
  * First run: three photographs, three lines, one button.
@@ -100,15 +103,55 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   const [index, setIndex] = useState(0);
   const [sheetVisible, setSheetVisible] = useState(false);
   const isLast = index === SLIDES.length - 1;
+  /**
+   * The slides hand off to the quiz, and the quiz to the plans sheet.
+   *
+   * Kept as a phase inside this screen rather than a route of its own: the
+   * guest stack's reset targets and this screen's onComplete handshake are
+   * already wired, and threading a second route through them buys nothing
+   * except two more places for the back button to land somewhere wrong.
+   */
+  const [quizVisible, setQuizVisible] = useState(false);
 
   const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const next = Math.round(e.nativeEvent.contentOffset.x / width);
     setIndex((cur) => (cur === next ? cur : next));
   }, []);
 
-  // Finishing lands on the plans. Dismissing the sheet drops the guest into the
-  // free basics, which becomes the stack root.
+  // Finishing the slides opens the quiz, not the plans.
+  //
+  // The sheet used to open here, four slides in, which is the weakest moment
+  // there is to name a price: nothing has been established about the reader,
+  // so there is nothing for the number to attach to. It opens after the
+  // result instead, where the reader has just been shown two figures of their
+  // own - the seconds they held, and the level that produces.
   const finish = () => {
+    setQuizVisible(true);
+  };
+
+  /**
+   * Stash the result for the account that does not exist yet.
+   *
+   * AuthContext already reads this key on first sign-in and applies the level,
+   * with a guard so a stale answer cannot pull a returning user's real level
+   * down - that half was written and nothing ever wrote the other. The hold
+   * travels with it and becomes the account's first measurement, which is what
+   * every later 'you have improved' depends on having.
+   */
+  const finishQuiz = (result: QuizResult) => {
+    AsyncStorage.setItem(
+      ONBOARDING_QUIZ_KEY,
+      JSON.stringify({
+        level: result.level,
+        baseline: result.baselineSeconds,
+        experience: result.experience,
+        dailyTime: result.dailyTime,
+        skipped: result.skipped,
+      }),
+    ).catch(() => {
+      // A failed write costs a personalised starting level, not the run.
+    });
+    setQuizVisible(false);
     onComplete();
     setSheetVisible(true);
   };
@@ -136,6 +179,20 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     }
     listRef.current?.scrollToIndex({ index: index + 1, animated: true });
   };
+
+  if (quizVisible) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+        <OnboardingQuiz onDone={finishQuiz} />
+        <SubscribeSheet
+          visible={sheetVisible}
+          showBar={false}
+          onClose={finishToBasics}
+          onNavigateToVerify={goToVerify}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
