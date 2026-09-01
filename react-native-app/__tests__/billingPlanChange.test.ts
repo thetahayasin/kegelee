@@ -43,8 +43,10 @@ import Purchases from 'react-native-purchases';
 import {
   DEFERRED,
   WITH_TIME_PRORATION,
+  PURCHASE_NOT_ENTITLED,
   requestPlanPurchase,
   recordCompletedPurchase,
+  describePurchaseFailure,
 } from '../src/services/billing';
 import { PLANS } from '../src/constants/plans';
 import { saveSubscription, getActiveSubscription } from '../src/db/queries';
@@ -172,10 +174,13 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
       replacementMode: DEFERRED,
     });
 
+    // The SUBSCRIPTION, not the base plan: Play identifies an existing
+    // purchase by subscription id and never reports which base plan runs, so
+    // naming p1y matches no active purchase and the change is declined.
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.objectContaining({ identifier: '$rc_monthly' }),
       null,
-      { oldProductIdentifier: 'premium_monthly:p1y', replacementMode: 'DEFERRED' },
+      { oldProductIdentifier: 'premium_monthly', replacementMode: 'DEFERRED' },
     );
   });
 
@@ -202,7 +207,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.anything(),
       null,
-      expect.objectContaining({ oldProductIdentifier: 'premium_monthly:p3m' }),
+      expect.objectContaining({ oldProductIdentifier: 'premium_monthly' }),
     );
   });
 
@@ -221,22 +226,61 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.anything(),
       null,
-      expect.objectContaining({ oldProductIdentifier: 'premium_monthly:p3m' }),
+      expect.objectContaining({ oldProductIdentifier: 'premium_monthly' }),
     );
   });
 
-  it('still rejects an immediate purchase that entitled nothing', async () => {
-    // No replacement mode: this one was supposed to start now. An entitlement
-    // naming a different product means it did not, and that IS a failure -
-    // the deferred fix must not have relaxed this path too.
+  it('accepts a purchase whose entitlement names another product', async () => {
+    // Success is "do they hold premium now", not "does the entitlement name
+    // exactly what we asked for". Requiring the product match produced a false
+    // failure twice: on a deferred change, and whenever Android's split
+    // product fields did not both arrive. They are entitled; that is the
+    // question.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
       productIdentifier: 'premium_monthly:monthly',
     });
 
-    await expect(requestPlanPurchase(42, monthly)).rejects.toThrow(
-      /did not return an active entitlement/,
-    );
+    await expect(requestPlanPurchase(42, monthly)).resolves.toBeTruthy();
+  });
+
+  it('rejects, with a code, when nothing is entitled at all', async () => {
+    // The real failure this guard is for: Play may well have taken the money
+    // and no entitlement came back. It must not read as a generic fault, and
+    // it must not invite a second payment.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: { originalAppUserId: '42', entitlements: { active: {}, all: {} } },
+      productIdentifier: 'premium_monthly:monthly',
+    });
+
+    await expect(requestPlanPurchase(42, monthly)).rejects.toMatchObject({
+      code: PURCHASE_NOT_ENTITLED,
+    });
+  });
+});
+
+describe('describePurchaseFailure', () => {
+  it('gives the not-entitled case its own message and never says retry', () => {
+    const f = describePurchaseFailure({ code: PURCHASE_NOT_ENTITLED, message: 'x' });
+
+    expect(f.messageKey).toBe('billing.notEntitled');
+    // Retrying cannot help and might pay twice.
+    expect(f.retryable).toBe(false);
+    expect(f.cancelled).toBe(false);
+  });
+
+  it('carries the code out to the customer when it cannot classify', () => {
+    // An unclassified failure that shows nothing teaches nobody anything; a
+    // support screenshot is usually all we ever get.
+    const f = describePurchaseFailure({ code: '9999', message: 'strange' });
+
+    expect(f.messageKey).toBe('billing.unknown');
+    expect(f.code).toBe('9999');
+  });
+
+  it('still treats a user cancel as no error at all', () => {
+    expect(describePurchaseFailure({ code: '1' }).cancelled).toBe(true);
+    expect(describePurchaseFailure({ userCancelled: true }).cancelled).toBe(true);
   });
 });
 

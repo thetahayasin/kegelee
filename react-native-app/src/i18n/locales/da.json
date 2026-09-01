@@ -22,7 +22,8 @@
     "otherAccount": "Dette abonnement tilhører en anden konto. Log ind med den konto, eller kontakt supporten, så flytter vi det.",
     "paymentPending": "Google Play behandler din betaling. Kontant- og voucherbetalinger kan tage et stykke tid. Din adgang låses op automatisk, når den går igennem, så betal ikke igen.",
     "storeProblem": "Google Play har problemer lige nu. Prøv igen om et par minutter.",
-    "unknown": "Noget gik galt, da dit køb skulle gennemføres. Prøv igen. Hvis du er blevet trukket, dukker din adgang op af sig selv."
+    "unknown": "Noget gik galt, da dit køb skulle gennemføres. Prøv igen. Hvis du er blevet trukket, dukker din adgang op af sig selv. [{{code}}]",
+    "notEntitled": "Google Play har gennemført købet, men har endnu ikke givet adgang. Det plejer at løse sig inden for et minut. Betal ikke igen - hvis det ikke løser sig, så kontakt supporten, og vi ordner det."
   },
   "catalogue": {
     "exercises": {

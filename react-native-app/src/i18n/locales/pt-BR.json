@@ -22,7 +22,8 @@
     "otherAccount": "Esta assinatura pertence a outra conta. Entre com aquela conta ou fale com o suporte que a transferimos.",
     "paymentPending": "O Google Play está processando seu pagamento. Pagamentos em dinheiro e com voucher podem demorar. Seu acesso é liberado automaticamente assim que for confirmado, então não pague de novo.",
     "storeProblem": "O Google Play está com problemas agora. Tente de novo em alguns minutos.",
-    "unknown": "Algo deu errado ao concluir sua compra. Tente de novo. Se você foi cobrado, seu acesso vai aparecer sozinho."
+    "unknown": "Algo deu errado ao concluir sua compra. Tente de novo. Se você foi cobrado, seu acesso vai aparecer sozinho. [{{code}}]",
+    "notEntitled": "O Google Play concluiu a compra, mas ainda não liberou o acesso. Costuma resolver em até um minuto. Não pague de novo: se não resolver, fale com o suporte que a gente resolve."
   },
   "catalogue": {
     "exercises": {

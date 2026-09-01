@@ -562,6 +562,26 @@ const RC = {
   OFFLINE_CONNECTION: '35',
 } as const;
 
+/**
+ * Raised when Play completed a purchase but no entitlement came back.
+ *
+ * Carries a code so it classifies like any store failure instead of falling
+ * into the unknown bucket. A bare `new Error` here was indistinguishable from
+ * a genuine store fault, which meant the one case where the customer may have
+ * been charged without getting access read exactly like a network blip.
+ */
+export const PURCHASE_NOT_ENTITLED = 'purchase_not_entitled';
+
+class BillingError extends Error {
+  readonly code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+    this.name = 'BillingError';
+  }
+}
+
 /** A store failure, classified so the UI can respond rather than just apologise. */
 export interface PurchaseFailure {
   /** Raw RevenueCat code. For logs and support, never shown to the customer. */
@@ -609,6 +629,13 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
   // still sets it, so honour whichever arrives.
   if (code === RC.CANCELLED || e?.userCancelled === true) {
     return { ...base, cancelled: true, messageKey: '' };
+  }
+
+  // Ours, not the store's. The money may well have been taken, so this must
+  // never read as "try again" - a second attempt cannot help and might pay
+  // twice.
+  if (code === PURCHASE_NOT_ENTITLED) {
+    return { ...base, messageKey: 'billing.notEntitled' };
   }
 
   switch (code) {
@@ -694,6 +721,10 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
       };
 
     default:
+      // The code goes in front of the customer deliberately. Support cannot
+      // act on "something went wrong", and a screenshot is usually all we
+      // ever get - this is the difference between diagnosing a failure and
+      // guessing at it.
       return {
         ...base,
         retryable: true,
@@ -747,15 +778,32 @@ export const requestPlanPurchase = async (
   // ("we were unable to change your plan") rather than treating it as a
   // resubscribe, and the caller cannot always tell: plan slugs and store
   // product ids are separate identifiers, so a stale or remapped subscription
-  // row can name a different slug that resolves to this very product. Compared
-  // on the normalized id because Play reports the purchased product as
-  // `productId:basePlanId` while the catalogue stores the bare id.
+  // row can name a different slug that resolves to this very product.
+  //
+  // Compared on the FULL id, because all three plans share one subscription -
+  // comparing the parent alone would call every switch a no-op.
   const sameAsCurrent =
     !!oldProductId
     && sameProduct(oldProductId, packageProductId(rcPackage) || plan.store_product_id);
-  const productChangeInfo = oldProductId && !sameAsCurrent
+
+  /**
+   * The product being replaced is named by its SUBSCRIPTION, not its base plan.
+   *
+   * Play identifies an existing purchase by subscription id: a Purchase
+   * reports `premium_monthly` and never mentions which base plan is running.
+   * So RevenueCat can only find the purchase to replace under that id, and a
+   * change naming `premium_monthly:p3m` matches nothing - no old purchase
+   * token reaches the billing flow, and Play declines what then looks like
+   * buying a subscription the account already owns. That is the "Google Play
+   * declined the payment" on an ordinary quarterly-to-yearly upgrade.
+   *
+   * The joined id is still what decides WHETHER this is a change, above; it is
+   * only the replacement target that has to be the parent.
+   */
+  const replacedSubscriptionId = (oldProductId || '').split(':')[0];
+  const productChangeInfo = replacedSubscriptionId && !sameAsCurrent
     ? {
-        oldProductIdentifier: oldProductId,
+        oldProductIdentifier: replacedSubscriptionId,
         replacementMode: opts?.replacementMode ?? WITH_TIME_PRORATION,
       }
     : null;
@@ -789,11 +837,27 @@ export const requestPlanPurchase = async (
   const completed = deferred
     ? completedFromCustomerInfo(customerInfo)
     : completedFromCustomerInfo(customerInfo, productIdentifier || packageProductId(rcPackage));
-  const entitled = deferred
-    ? activeEntitlement(customerInfo)
-    : completed && activeEntitlement(customerInfo, completed.productId);
+
+  /**
+   * Success is "does this person hold premium now".
+   *
+   * NOT "does the entitlement name the exact product we asked for". That
+   * question has produced a false failure twice: a deferred change
+   * legitimately names the old product, and Android splits the entitlement's
+   * product across two fields that do not reliably both arrive on the
+   * CustomerInfo handed back at purchase time. Each time, a purchase Play had
+   * accepted was reported to the customer as an error.
+   *
+   * The entitlement is what access is actually derived from everywhere else in
+   * this app, so it is the honest thing to gate on. Which product it names is
+   * recorded, not required.
+   */
+  const entitled = activeEntitlement(customerInfo);
   if (!completed || !entitled) {
-    throw new Error('RevenueCat did not return an active entitlement for this purchase.');
+    throw new BillingError(
+      PURCHASE_NOT_ENTITLED,
+      'Play completed the purchase but RevenueCat returned no active entitlement.',
+    );
   }
 
   return deferred ? { ...completed, deferred: true } : completed;

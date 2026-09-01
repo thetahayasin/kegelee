@@ -22,7 +22,8 @@
     "otherAccount": "Bu abonelik başka bir hesaba ait. O hesapla giriş yap veya destekle iletişime geç, biz aktaralım.",
     "paymentPending": "Google Play ödemeni işliyor. Nakit ve kupon ödemeleri biraz sürebilir. Ödeme geçtiği anda erişimin otomatik olarak açılır, bu yüzden lütfen tekrar ödeme yapma.",
     "storeProblem": "Google Play şu anda sorun yaşıyor. Birkaç dakika sonra tekrar dene.",
-    "unknown": "Satın alman tamamlanırken bir şeyler ters gitti. Tekrar dene. Ücret alındıysa erişimin kendiliğinden görünecek."
+    "unknown": "Satın alman tamamlanırken bir şeyler ters gitti. Tekrar dene. Ücret alındıysa erişimin kendiliğinden görünecek. [{{code}}]",
+    "notEntitled": "Google Play satın alma işlemini tamamladı ama erişimi henüz vermedi. Genellikle bir dakika içinde düzelir. Tekrar ödeme yapma - düzelmezse destek ekibine yaz, biz hallederiz."
   },
   "catalogue": {
     "exercises": {

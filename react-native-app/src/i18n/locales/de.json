@@ -22,7 +22,8 @@
     "otherAccount": "Dieses Abo gehört zu einem anderen Konto. Melde dich mit diesem Konto an oder wende dich an den Support, wir können es übertragen.",
     "paymentPending": "Deine Zahlung wird von Google Play verarbeitet. Bar- und Gutscheinzahlungen können eine Weile dauern. Dein Zugang wird automatisch freigeschaltet, sobald sie durch ist - bitte zahle nicht noch einmal.",
     "storeProblem": "Google Play hat gerade Probleme. Bitte versuche es in ein paar Minuten erneut.",
-    "unknown": "Beim Abschluss deines Kaufs ist etwas schiefgelaufen. Bitte versuche es erneut. Falls dir etwas berechnet wurde, erscheint dein Zugang von allein."
+    "unknown": "Beim Abschluss deines Kaufs ist etwas schiefgelaufen. Bitte versuche es erneut. Falls dir etwas berechnet wurde, erscheint dein Zugang von allein. [{{code}}]",
+    "notEntitled": "Google Play hat den Kauf abgeschlossen, den Zugang aber noch nicht freigegeben. Das klärt sich meist innerhalb einer Minute. Zahle nicht erneut - falls es bleibt, melde dich beim Support und wir klären das."
   },
   "catalogue": {
     "exercises": {

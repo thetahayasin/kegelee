@@ -22,7 +22,8 @@
     "otherAccount": "Toto predplatné patrí inému účtu. Prihlás sa tým účtom alebo napíš podpore a prevedieme ho.",
     "paymentPending": "Google Play spracúva tvoju platbu. Platby v hotovosti a poukazom môžu chvíľu trvať. Prístup sa odomkne automaticky, len čo prejde, takže neplať znova.",
     "storeProblem": "Google Play má práve problémy. Skús to znova o pár minút.",
-    "unknown": "Pri dokončovaní nákupu sa niečo pokazilo. Skús to znova. Ak ti bolo účtované, prístup sa objaví sám."
+    "unknown": "Pri dokončovaní nákupu sa niečo pokazilo. Skús to znova. Ak ti bolo účtované, prístup sa objaví sám. [{{code}}]",
+    "notEntitled": "Google Play nákup dokončil, ale prístup zatiaľ neudelil. Zvyčajne sa to vyrieši do minúty. Neplatʼ znova - ak to pretrváva, ozvi sa podpore a vyriešime to."
   },
   "catalogue": {
     "exercises": {

@@ -22,7 +22,8 @@
     "otherAccount": "Esta suscripción pertenece a otra cuenta. Inicia sesión con esa cuenta o contacta con soporte y la trasladamos.",
     "paymentPending": "Google Play está procesando tu pago. Los pagos en efectivo y con vale pueden tardar. Tu acceso se desbloqueará automáticamente en cuanto se confirme, así que no vuelvas a pagar.",
     "storeProblem": "Google Play está teniendo problemas ahora mismo. Inténtalo de nuevo en unos minutos.",
-    "unknown": "Algo salió mal al completar tu compra. Inténtalo de nuevo. Si se te ha cobrado, tu acceso aparecerá solo."
+    "unknown": "Algo salió mal al completar tu compra. Inténtalo de nuevo. Si se te ha cobrado, tu acceso aparecerá solo. [{{code}}]",
+    "notEntitled": "Google Play completó la compra, pero aún no ha dado acceso. Suele resolverse en un minuto. No vuelvas a pagar: si no se resuelve, escribe a soporte y lo arreglamos."
   },
   "catalogue": {
     "exercises": {

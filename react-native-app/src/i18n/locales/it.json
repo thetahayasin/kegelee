@@ -22,7 +22,8 @@
     "otherAccount": "Questo abbonamento appartiene a un altro account. Accedi con quell’account oppure contatta l’assistenza e lo trasferiamo noi.",
     "paymentPending": "Google Play sta elaborando il tuo pagamento. I pagamenti in contanti o con voucher possono richiedere tempo. L’accesso si sblocca automaticamente appena viene confermato, quindi non pagare di nuovo.",
     "storeProblem": "Google Play sta avendo problemi in questo momento. Riprova tra qualche minuto.",
-    "unknown": "Qualcosa è andato storto durante l’acquisto. Riprova. Se ti è stato addebitato qualcosa, l’accesso comparirà da solo."
+    "unknown": "Qualcosa è andato storto durante l’acquisto. Riprova. Se ti è stato addebitato qualcosa, l’accesso comparirà da solo. [{{code}}]",
+    "notEntitled": "Google Play ha completato l’acquisto ma non ha ancora dato l’accesso. Di solito si risolve entro un minuto. Non pagare di nuovo: se non si risolve, scrivi al supporto e ce ne occupiamo noi."
   },
   "catalogue": {
     "exercises": {

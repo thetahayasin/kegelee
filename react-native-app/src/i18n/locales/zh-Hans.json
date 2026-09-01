@@ -22,7 +22,8 @@
     "otherAccount": "该订阅属于另一个账号。请用那个账号登录，或联系客服，我们可以帮你转移。",
     "paymentPending": "Google Play 正在处理你的付款。现金和代金券付款可能需要一些时间。款项到账后会自动开通，请不要重复付款。",
     "storeProblem": "Google Play 目前有故障，请几分钟后再试。",
-    "unknown": "完成购买时出了点问题，请重试。如果已扣款，权限会自动出现。"
+    "unknown": "完成购买时出了点问题，请重试。如果已扣款，权限会自动出现。 [{{code}}]",
+    "notEntitled": "Google Play 已完成购买，但尚未开通权限。通常会在一分钟内处理完。请勿重复付款，若仍未开通请联系客服。"
   },
   "catalogue": {
     "exercises": {

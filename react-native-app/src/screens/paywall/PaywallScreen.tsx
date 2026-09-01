@@ -379,7 +379,9 @@ export const PaywallScreen = () => {
         // restoring it now" are outcomes, not errors. Both mean the money is
         // fine and nothing needs doing again.
         setMessageTone(failure.pending || failure.restorable ? 'info' : 'error');
-        setMessage(t(failure.messageKey));
+        // The code rides along for the unclassified case, where it is the
+        // only thing that makes a support screenshot actionable.
+        setMessage(t(failure.messageKey, { code: failure.code || 'none' }));
         if (failure.restorable) {
           // They already own it. Restoring is the fix; asking them to buy
           // again would take a second payment for the same thing.
@@ -606,7 +608,9 @@ export const PaywallScreen = () => {
       if (!failure.cancelled) {
         console.warn('[billing] restore failed', failure.code, failure.detail);
         setMessageTone(failure.pending ? 'info' : 'error');
-        setMessage(t(failure.messageKey));
+        // The code rides along for the unclassified case, where it is the
+        // only thing that makes a support screenshot actionable.
+        setMessage(t(failure.messageKey, { code: failure.code || 'none' }));
       }
     } finally {
       setPurchasing(false);

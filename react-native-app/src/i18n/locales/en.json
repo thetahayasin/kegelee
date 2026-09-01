@@ -22,7 +22,8 @@
     "otherAccount": "This subscription belongs to a different account. Sign in with that account, or contact support and we can move it across.",
     "paymentPending": "Your payment is being processed by Google Play. Cash and voucher payments can take a while. Your access unlocks automatically once it clears, so please do not pay again.",
     "storeProblem": "Google Play is having trouble right now. Please try again in a few minutes.",
-    "unknown": "Something went wrong completing your purchase. Please try again. If you were charged, your access will appear on its own."
+    "unknown": "Something went wrong completing your purchase. Please try again. If you were charged, your access will appear on its own. [{{code}}]",
+    "notEntitled": "Google Play completed the purchase but has not granted access yet. This usually clears within a minute. Do not pay again - if it does not clear, contact support and we will sort it out."
   },
   "catalogue": {
     "exercises": {

@@ -22,7 +22,8 @@
     "otherAccount": "Acest abonament aparține altui cont. Autentifică-te cu acel cont sau contactează asistența și îl mutăm noi.",
     "paymentPending": "Google Play îți procesează plata. Plățile în numerar și cu voucher pot dura. Accesul se deblochează automat imediat ce se confirmă, deci te rugăm să nu plătești din nou.",
     "storeProblem": "Google Play are probleme în acest moment. Încearcă din nou peste câteva minute.",
-    "unknown": "Ceva n-a mers bine la finalizarea achiziției. Încearcă din nou. Dacă ai fost taxat, accesul va apărea de la sine."
+    "unknown": "Ceva n-a mers bine la finalizarea achiziției. Încearcă din nou. Dacă ai fost taxat, accesul va apărea de la sine. [{{code}}]",
+    "notEntitled": "Google Play a finalizat achiziția, dar nu a acordat încă accesul. De obicei se rezolvă într-un minut. Nu plăti din nou - dacă nu se rezolvă, scrie-ne și ne ocupăm."
   },
   "catalogue": {
     "exercises": {

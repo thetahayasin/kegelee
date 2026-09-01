@@ -22,7 +22,8 @@
     "otherAccount": "Langganan ini milik akun lain. Masuk dengan akun tersebut, atau hubungi dukungan dan kami akan memindahkannya.",
     "paymentPending": "Google Play sedang memproses pembayaranmu. Pembayaran tunai dan voucher bisa memakan waktu. Aksesmu terbuka otomatis begitu pembayaran selesai, jadi jangan membayar lagi.",
     "storeProblem": "Google Play sedang bermasalah saat ini. Coba lagi beberapa menit lagi.",
-    "unknown": "Ada yang salah saat menyelesaikan pembelianmu. Coba lagi. Jika kamu sudah ditagih, aksesmu akan muncul sendiri."
+    "unknown": "Ada yang salah saat menyelesaikan pembelianmu. Coba lagi. Jika kamu sudah ditagih, aksesmu akan muncul sendiri. [{{code}}]",
+    "notEntitled": "Google Play menyelesaikan pembelian tetapi belum memberikan akses. Biasanya beres dalam satu menit. Jangan bayar lagi - kalau belum juga beres, hubungi dukungan dan kami bereskan."
   },
   "catalogue": {
     "exercises": {

@@ -22,7 +22,8 @@
     "otherAccount": "Den här prenumerationen tillhör ett annat konto. Logga in med det kontot, eller kontakta supporten så flyttar vi över den.",
     "paymentPending": "Google Play behandlar din betalning. Kontant- och vouchersbetalningar kan ta ett tag. Din tillgång låses upp automatiskt när den går igenom, så betala inte igen.",
     "storeProblem": "Google Play har problem just nu. Försök igen om några minuter.",
-    "unknown": "Något gick fel när ditt köp skulle slutföras. Försök igen. Om du blev debiterad dyker din tillgång upp av sig själv."
+    "unknown": "Något gick fel när ditt köp skulle slutföras. Försök igen. Om du blev debiterad dyker din tillgång upp av sig själv. [{{code}}]",
+    "notEntitled": "Google Play slutförde köpet men har inte gett åtkomst ännu. Det brukar lösa sig inom en minut. Betala inte igen - om det inte löser sig, kontakta supporten så fixar vi det."
   },
   "catalogue": {
     "exercises": {

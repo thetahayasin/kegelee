@@ -22,7 +22,8 @@
     "otherAccount": "Gói đăng ký này thuộc về một tài khoản khác. Hãy đăng nhập bằng tài khoản đó, hoặc liên hệ hỗ trợ để chúng tôi chuyển sang.",
     "paymentPending": "Google Play đang xử lý khoản thanh toán của bạn. Thanh toán tiền mặt và voucher có thể mất một lúc. Quyền truy cập sẽ tự mở ngay khi hoàn tất, nên đừng thanh toán thêm lần nữa.",
     "storeProblem": "Google Play đang gặp sự cố. Hãy thử lại sau vài phút.",
-    "unknown": "Đã xảy ra lỗi khi hoàn tất giao dịch. Hãy thử lại. Nếu bạn đã bị trừ tiền, quyền truy cập sẽ tự xuất hiện."
+    "unknown": "Đã xảy ra lỗi khi hoàn tất giao dịch. Hãy thử lại. Nếu bạn đã bị trừ tiền, quyền truy cập sẽ tự xuất hiện. [{{code}}]",
+    "notEntitled": "Google Play đã hoàn tất giao dịch nhưng chưa cấp quyền truy cập. Việc này thường xử lý xong trong một phút. Đừng thanh toán lại - nếu vẫn chưa được, hãy liên hệ hỗ trợ."
   },
   "catalogue": {
     "exercises": {

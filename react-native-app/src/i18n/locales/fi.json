@@ -22,7 +22,8 @@
     "otherAccount": "Tämä tilaus kuuluu toiselle tilille. Kirjaudu sisään sillä tilillä tai ota yhteyttä tukeen, niin siirrämme sen.",
     "paymentPending": "Google Play käsittelee maksuasi. Käteis- ja lahjakorttimaksut voivat kestää hetken. Käyttöoikeus avautuu automaattisesti, kun maksu menee läpi, joten älä maksa uudelleen.",
     "storeProblem": "Google Playssä on juuri nyt ongelmia. Yritä uudelleen muutaman minuutin kuluttua.",
-    "unknown": "Ostoksesi viimeistelyssä meni jotain pieleen. Yritä uudelleen. Jos sinulta veloitettiin, käyttöoikeus ilmestyy itsestään."
+    "unknown": "Ostoksesi viimeistelyssä meni jotain pieleen. Yritä uudelleen. Jos sinulta veloitettiin, käyttöoikeus ilmestyy itsestään. [{{code}}]",
+    "notEntitled": "Google Play viimeisteli oston, mutta ei ole vielä myöntänyt käyttöoikeutta. Yleensä tämä selviää minuutissa. Älä maksa uudelleen - jos ongelma jää, ota yhteyttä tukeen, niin selvitämme sen."
   },
   "catalogue": {
     "exercises": {

@@ -22,7 +22,8 @@
     "otherAccount": "Dit abonnement hoort bij een ander account. Log in met dat account, of neem contact op met support en wij zetten het over.",
     "paymentPending": "Je betaling wordt verwerkt door Google Play. Contant- en voucherbetalingen kunnen even duren. Je toegang wordt automatisch vrijgegeven zodra het rond is, dus betaal alsjeblieft niet nog een keer.",
     "storeProblem": "Google Play heeft momenteel problemen. Probeer het over een paar minuten opnieuw.",
-    "unknown": "Er ging iets mis bij het afronden van je aankoop. Probeer het opnieuw. Als er is afgeschreven, verschijnt je toegang vanzelf."
+    "unknown": "Er ging iets mis bij het afronden van je aankoop. Probeer het opnieuw. Als er is afgeschreven, verschijnt je toegang vanzelf. [{{code}}]",
+    "notEntitled": "Google Play heeft de aankoop afgerond, maar nog geen toegang gegeven. Dit is meestal binnen een minuut opgelost. Betaal niet opnieuw - blijft het zo, neem dan contact op met support en wij lossen het op."
   },
   "catalogue": {
     "exercises": {

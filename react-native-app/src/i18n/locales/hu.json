@@ -22,7 +22,8 @@
     "otherAccount": "Ez az előfizetés egy másik fiókhoz tartozik. Jelentkezz be azzal a fiókkal, vagy írj az ügyfélszolgálatnak, és átvisszük.",
     "paymentPending": "A Google Play feldolgozza a fizetésedet. A készpénzes és utalványos fizetés eltarthat egy ideig. A hozzáférés automatikusan megnyílik, amint átmegy, ezért kérjük, ne fizess újra.",
     "storeProblem": "A Google Play most akadozik. Próbáld újra néhány perc múlva.",
-    "unknown": "Valami hiba történt a vásárlás befejezésekor. Próbáld újra. Ha terhelés történt, a hozzáférés magától megjelenik."
+    "unknown": "Valami hiba történt a vásárlás befejezésekor. Próbáld újra. Ha terhelés történt, a hozzáférés magától megjelenik. [{{code}}]",
+    "notEntitled": "A Google Play befejezte a vásárlást, de a hozzáférést még nem adta meg. Ez általában egy percen belül rendeződik. Ne fizess újra - ha nem oldódik meg, írj a támogatásnak és megoldjuk."
   },
   "catalogue": {
     "exercises": {

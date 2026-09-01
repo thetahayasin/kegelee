@@ -22,7 +22,8 @@
     "otherAccount": "Ta subskrypcja należy do innego konta. Zaloguj się na tamto konto albo skontaktuj się z pomocą, a przeniesiemy ją.",
     "paymentPending": "Google Play przetwarza twoją płatność. Płatności gotówkowe i voucherami mogą chwilę potrwać. Dostęp odblokuje się automatycznie po zaksięgowaniu, więc nie płać ponownie.",
     "storeProblem": "Google Play ma teraz problemy. Spróbuj ponownie za kilka minut.",
-    "unknown": "Coś poszło nie tak przy finalizowaniu zakupu. Spróbuj ponownie. Jeśli pobrano opłatę, dostęp pojawi się sam."
+    "unknown": "Coś poszło nie tak przy finalizowaniu zakupu. Spróbuj ponownie. Jeśli pobrano opłatę, dostęp pojawi się sam. [{{code}}]",
+    "notEntitled": "Google Play zakończył zakup, ale nie przyznał jeszcze dostępu. Zwykle rozwiązuje się to w ciągu minuty. Nie płać ponownie - jeśli problem zostanie, napisz do wsparcia, a my to załatwimy."
   },
   "catalogue": {
     "exercises": {

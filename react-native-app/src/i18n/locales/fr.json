@@ -22,7 +22,8 @@
     "otherAccount": "Cet abonnement appartient à un autre compte. Connectez-vous avec ce compte, ou contactez le support et nous pourrons le transférer.",
     "paymentPending": "Votre paiement est en cours de traitement par Google Play. Les paiements en espèces ou par bon peuvent prendre du temps. Votre accès se débloquera automatiquement une fois validé, donc ne payez pas une seconde fois.",
     "storeProblem": "Google Play rencontre des difficultés en ce moment. Réessayez dans quelques minutes.",
-    "unknown": "Une erreur est survenue lors de votre achat. Veuillez réessayer. Si vous avez été débité, votre accès apparaîtra tout seul."
+    "unknown": "Une erreur est survenue lors de votre achat. Veuillez réessayer. Si vous avez été débité, votre accès apparaîtra tout seul. [{{code}}]",
+    "notEntitled": "Google Play a finalisé l’achat mais n’a pas encore accordé l’accès. Cela se règle généralement en moins d’une minute. Ne payez pas une seconde fois : si cela persiste, contactez le support et nous réglerons ça."
   },
   "catalogue": {
     "exercises": {
