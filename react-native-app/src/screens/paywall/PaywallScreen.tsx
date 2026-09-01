@@ -42,8 +42,7 @@ import {
   describePurchaseFailure,
   refreshCustomerInfo,
   PlanPricing,
-  WITH_TIME_PRORATION,
-  DEFERRED,
+  replacementModeFor,
 } from '../../services/billing';
 import { syncNow } from '../../services/sync';
 import { formatSubscriptionDate } from '../../utils/localDate';
@@ -308,9 +307,7 @@ export const PaywallScreen = () => {
          */
         const purchase = await requestPlanPurchase(user.id, plan, switching ? {
           oldProductId: currentPlan.store_product_id,
-          replacementMode: isLongerPlan(plan, currentPlan)
-            ? WITH_TIME_PRORATION
-            : DEFERRED,
+          replacementMode: replacementModeFor(planMonths(plan), planMonths(currentPlan)),
         } : undefined);
 
         const result = await recordCompletedPurchase(user.id, purchase);

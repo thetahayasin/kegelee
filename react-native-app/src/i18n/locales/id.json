@@ -317,7 +317,7 @@
     "startYourJourney": "Buka seluruh program",
     "subscribe": "Berlangganan",
     "subscriptionActivated": "Langganan aktif!",
-    "switchStartsLater": "Mulai saat paketmu yang sekarang berakhir.",
+    "switchStartsLater": "Waktu yang sudah kamu bayar tetap berlaku. Harga baru mulai pada perpanjangan berikutnya.",
     "switchQueuedOn": "Paketmu berubah ke {{plan}} pada {{date}}. Kamu tidak ditagih hari ini.",
     "switchQueued": "Paketmu berubah ke {{plan}} saat paketmu yang sekarang berakhir. Kamu tidak ditagih hari ini.",
     "switchStartsNow": "Mulai sekarang. Sisa waktumu dihitung sebagai kredit.",

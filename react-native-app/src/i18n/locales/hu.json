@@ -317,7 +317,7 @@
     "startYourJourney": "Nyisd meg a teljes programot",
     "subscribe": "Előfizetés",
     "subscriptionActivated": "Az előfizetés aktiválva!",
-    "switchStartsLater": "Akkor indul, amikor a jelenlegi csomagod lejár.",
+    "switchStartsLater": "A már kifizetett időszak megmarad. Az új ár a következő megújításkor lép életbe.",
     "switchQueuedOn": "A csomagod {{date}} napján {{plan}} csomagra vált. Ma nem számolunk fel semmit.",
     "switchQueued": "A csomagod {{plan}} csomagra vált, amikor a jelenlegi csomagod lejár. Ma nem számolunk fel semmit.",
     "switchStartsNow": "Most indul. A fel nem használt időt jóváírjuk.",

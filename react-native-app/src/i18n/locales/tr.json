@@ -317,7 +317,7 @@
     "startYourJourney": "Programın tamamını aç",
     "subscribe": "Abone ol",
     "subscriptionActivated": "Abonelik etkinleştirildi!",
-    "switchStartsLater": "Mevcut planın bittiğinde başlar.",
+    "switchStartsLater": "Ödediğin süre sende kalır. Yeni fiyat bir sonraki yenilemede başlar.",
     "switchQueuedOn": "Planın {{date}} tarihinde {{plan}} olarak değişecek. Bugün ücret alınmaz.",
     "switchQueued": "Planın, mevcut planın bittiğinde {{plan}} olarak değişecek. Bugün ücret alınmaz.",
     "switchStartsNow": "Hemen başlar. Kullanmadığın süre mahsup edilir.",

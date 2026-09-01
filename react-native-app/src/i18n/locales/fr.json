@@ -317,7 +317,7 @@
     "startYourJourney": "Débloquez tout le programme",
     "subscribe": "S'abonner",
     "subscriptionActivated": "Abonnement activé !",
-    "switchStartsLater": "Commence à la fin de votre formule actuelle.",
+    "switchStartsLater": "Vous gardez le temps déjà payé. Le nouveau tarif s'applique à votre prochain renouvellement.",
     "switchQueuedOn": "Votre formule passe à {{plan}} le {{date}}. Rien ne vous est facturé aujourd’hui.",
     "switchQueued": "Votre formule passe à {{plan}} à la fin de votre formule actuelle. Rien ne vous est facturé aujourd’hui.",
     "switchStartsNow": "Commence maintenant. Votre temps restant est crédité.",

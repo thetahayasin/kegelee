@@ -317,7 +317,7 @@
     "startYourJourney": "プログラムをすべて解放",
     "subscribe": "登録する",
     "subscriptionActivated": "サブスクリプションが有効になりました",
-    "switchStartsLater": "現在のプランが終了してから開始します。",
+    "switchStartsLater": "支払い済みの期間はそのまま使えます。新しい料金は次回の更新から適用されます。",
     "switchQueuedOn": "{{date}}にプランが{{plan}}に変わります。本日の請求はありません。",
     "switchQueued": "現在のプランが終了すると、プランが{{plan}}に変わります。本日の請求はありません。",
     "switchStartsNow": "すぐに開始します。未使用分は差し引かれます。",

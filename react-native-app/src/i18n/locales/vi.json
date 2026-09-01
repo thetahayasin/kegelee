@@ -317,7 +317,7 @@
     "startYourJourney": "Mở khóa toàn bộ chương trình",
     "subscribe": "Đăng ký",
     "subscriptionActivated": "Đã kích hoạt gói đăng ký!",
-    "switchStartsLater": "Bắt đầu khi gói hiện tại của bạn kết thúc.",
+    "switchStartsLater": "Bạn giữ nguyên thời gian đã thanh toán. Giá mới áp dụng từ lần gia hạn kế tiếp.",
     "switchQueuedOn": "Gói của bạn sẽ đổi sang {{plan}} vào {{date}}. Hôm nay bạn không bị tính phí.",
     "switchQueued": "Gói của bạn sẽ đổi sang {{plan}} khi gói hiện tại của bạn kết thúc. Hôm nay bạn không bị tính phí.",
     "switchStartsNow": "Bắt đầu ngay. Thời gian chưa dùng sẽ được cấn trừ.",

@@ -317,7 +317,7 @@
     "startYourJourney": "Odemkni celý program",
     "subscribe": "Předplatit",
     "subscriptionActivated": "Předplatné je aktivní!",
-    "switchStartsLater": "Začne po skončení současného plánu.",
+    "switchStartsLater": "Zaplacené období ti zůstává. Nová cena začne platit při dalším obnovení.",
     "switchQueuedOn": "Tvůj plán se {{date}} změní na {{plan}}. Dnes ti nic neverúčtujeme.",
     "switchQueued": "Tvůj plán se změní na {{plan}} po skončení současného plánu. Dnes ti nic neverúčtujeme.",
     "switchStartsNow": "Začne hned. Nevyužitý čas se vám započítá.",

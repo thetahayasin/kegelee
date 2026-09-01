@@ -48,6 +48,8 @@ export const WITH_TIME_PRORATION =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITH_TIME_PRORATION ?? 'WITH_TIME_PRORATION';
 export const DEFERRED =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.DEFERRED ?? 'DEFERRED';
+export const WITHOUT_PRORATION =
+  (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITHOUT_PRORATION ?? 'WITHOUT_PRORATION';
 
 // Real SDK types rather than `any`: this file decides who is entitled and what
 // gets charged, so it is the last place that should opt out of type checking.
@@ -766,6 +768,33 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
         messageKey: 'billing.unknown',
       };
   }
+};
+
+/**
+ * Which replacement mode Play should apply when moving between two plans.
+ *
+ * Ranked by BILLING PERIOD, never by price. Price is not the ranking: a
+ * discounted yearly sold below a quarterly would read as a downgrade, and
+ * price-per-month is worse still, since the yearly is the cheapest per month
+ * and would make every upgrade look like a downgrade.
+ *
+ * A longer period is the upgrade: start it now and credit the unused time, so
+ * nobody pays twice for the same days. A shorter period is the downgrade: keep
+ * the period already paid for and charge the cheaper price at the next
+ * renewal.
+ *
+ * The downgrade used to send DEFERRED, which is the same outcome on paper.
+ * Play declined every one of them, which reached the customer as their payment
+ * method being refused. WITHOUT_PRORATION is documented as Play's default
+ * replacement behaviour and carries none of DEFERRED's restrictions.
+ *
+ * An unknown period counts as an upgrade: starting immediately with the old
+ * time credited never costs anybody days they paid for, whereas deferring by
+ * mistake makes them wait for something they have already bought.
+ */
+export const replacementModeFor = (nextMonths: number | null, currentMonths: number | null): string => {
+  if (nextMonths === null || currentMonths === null) return WITH_TIME_PRORATION;
+  return nextMonths >= currentMonths ? WITH_TIME_PRORATION : WITHOUT_PRORATION;
 };
 
 /**

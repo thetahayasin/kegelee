@@ -317,7 +317,7 @@
     "startYourJourney": "Sblocca tutto il programma",
     "subscribe": "Abbonati",
     "subscriptionActivated": "Abbonamento attivato!",
-    "switchStartsLater": "Parte alla fine del tuo piano attuale.",
+    "switchStartsLater": "Mantieni il tempo che hai già pagato. Il nuovo prezzo parte dal prossimo rinnovo.",
     "switchQueuedOn": "Il tuo piano passa a {{plan}} il {{date}}. Oggi non ti viene addebitato nulla.",
     "switchQueued": "Il tuo piano passa a {{plan}} alla fine del tuo piano attuale. Oggi non ti viene addebitato nulla.",
     "switchStartsNow": "Parte subito. Il tempo non usato ti viene accreditato.",

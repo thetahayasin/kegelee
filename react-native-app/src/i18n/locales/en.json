@@ -317,7 +317,7 @@
     "startYourJourney": "Unlock the whole program",
     "subscribe": "Subscribe",
     "subscriptionActivated": "Subscription activated!",
-    "switchStartsLater": "Starts when your current plan ends.",
+    "switchStartsLater": "You keep the time you have paid for. The new price starts at your next renewal.",
     "switchQueuedOn": "Your plan changes to {{plan}} on {{date}}. Nothing is charged today.",
     "switchQueued": "Your plan changes to {{plan}} when your current plan ends. Nothing is charged today.",
     "switchStartsNow": "Starts now. Your unused time is credited.",

@@ -317,7 +317,7 @@
     "startYourJourney": "Lås opp hele programmet",
     "subscribe": "Abonner",
     "subscriptionActivated": "Abonnementet er aktivert!",
-    "switchStartsLater": "Starter når den nåværende planen din utløper.",
+    "switchStartsLater": "Du beholder tiden du har betalt for. Den nye prisen gjelder fra neste fornyelse.",
     "switchQueuedOn": "Planen din endres til {{plan}} den {{date}}. Du belastes ikke i dag.",
     "switchQueued": "Planen din endres til {{plan}} når den nåværende planen din utløper. Du belastes ikke i dag.",
     "switchStartsNow": "Starter nå. Ubrukt tid blir godskrevet.",

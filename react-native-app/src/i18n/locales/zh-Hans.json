@@ -317,7 +317,7 @@
     "startYourJourney": "解锁完整课程",
     "subscribe": "订阅",
     "subscriptionActivated": "订阅已开通！",
-    "switchStartsLater": "在你当前方案结束后开始。",
+    "switchStartsLater": "你已付费的时长会保留。新价格将从下次续订开始生效。",
     "switchQueuedOn": "你的方案将于 {{date}} 变更为 {{plan}}。今天不会扣款。",
     "switchQueued": "你当前方案结束后，你的方案将变更为 {{plan}}。今天不会扣款。",
     "switchStartsNow": "立即生效，未使用的时间会折算给你。",

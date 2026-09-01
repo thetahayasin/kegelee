@@ -317,7 +317,7 @@
     "startYourJourney": "Das ganze Programm freischalten",
     "subscribe": "Abonnieren",
     "subscriptionActivated": "Abo aktiviert!",
-    "switchStartsLater": "Beginnt, wenn dein aktueller Plan endet.",
+    "switchStartsLater": "Die bereits bezahlte Zeit bleibt dir. Der neue Preis gilt ab der nächsten Verlängerung.",
     "switchQueuedOn": "Dein Plan wechselt am {{date}} zu {{plan}}. Heute wird nichts berechnet.",
     "switchQueued": "Dein Plan wechselt zu {{plan}}, wenn dein aktueller Plan endet. Heute wird nichts berechnet.",
     "switchStartsNow": "Beginnt sofort. Deine ungenutzte Zeit wird angerechnet.",

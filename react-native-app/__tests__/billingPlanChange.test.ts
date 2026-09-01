@@ -43,6 +43,8 @@ import Purchases from 'react-native-purchases';
 import {
   DEFERRED,
   WITH_TIME_PRORATION,
+  WITHOUT_PRORATION,
+  replacementModeFor,
   PURCHASE_NOT_ENTITLED,
   requestPlanPurchase,
   recordCompletedPurchase,
@@ -50,6 +52,7 @@ import {
   describePurchaseFailure,
 } from '../src/services/billing';
 import { PLANS } from '../src/constants/plans';
+import { planMonths } from '../src/constants/pricing';
 import { saveSubscription, getActiveSubscription } from '../src/db/queries';
 import { api } from '../src/services/api';
 
@@ -141,6 +144,45 @@ describe('replacement modes', () => {
     expect(typeof WITH_TIME_PRORATION).toBe('string');
     expect(DEFERRED).toBe('DEFERRED');
     expect(WITH_TIME_PRORATION).toBe('WITH_TIME_PRORATION');
+  });
+});
+
+describe('replacementModeFor', () => {
+  const M = (p: typeof monthly) => planMonths(p);
+
+  it('credits unused time when moving to a longer plan', () => {
+    // Upgrade: start now, credit what is left, so nobody pays twice for the
+    // same days.
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITH_TIME_PRORATION);
+    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(WITH_TIME_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITH_TIME_PRORATION);
+  });
+
+  it('keeps the paid period when moving to a shorter plan', () => {
+    // Downgrade. NOT deferred: Play declined every one of those, which reached
+    // the customer as their payment method being refused. WITHOUT_PRORATION is
+    // Play's documented default and reaches the same outcome.
+    expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
+  });
+
+  it('ranks by billing period, never by price', () => {
+    // The yearly is the cheapest per month and the dearest in total, so both
+    // price rankings give a wrong answer here. Twelve months beats one.
+    expect(yearly.price).toBeGreaterThan(monthly.price);
+    expect(replacementModeFor(12, 1)).toBe(WITH_TIME_PRORATION);
+  });
+
+  it('treats the same length as no downgrade', () => {
+    expect(replacementModeFor(3, 3)).toBe(WITH_TIME_PRORATION);
+  });
+
+  it('treats an unmeasurable period as an upgrade', () => {
+    // Starting now with the old time credited never costs anybody days they
+    // paid for; deferring by mistake makes them wait for what they bought.
+    expect(replacementModeFor(null, 3)).toBe(WITH_TIME_PRORATION);
+    expect(replacementModeFor(3, null)).toBe(WITH_TIME_PRORATION);
   });
 });
 

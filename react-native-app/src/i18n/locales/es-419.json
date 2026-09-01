@@ -317,7 +317,7 @@
     "startYourJourney": "Desbloquea el programa completo",
     "subscribe": "Suscribirse",
     "subscriptionActivated": "¡Suscripción activada!",
-    "switchStartsLater": "Empieza cuando termine tu plan actual.",
+    "switchStartsLater": "Conservas el tiempo que ya pagaste. El precio nuevo se aplica en tu próxima renovación.",
     "switchQueuedOn": "Tu plan cambia a {{plan}} el {{date}}. Hoy no se te cobra nada.",
     "switchQueued": "Tu plan cambia a {{plan}} cuando termine tu plan actual. Hoy no se te cobra nada.",
     "switchStartsNow": "Empieza ahora. Se te acredita el tiempo no usado.",
