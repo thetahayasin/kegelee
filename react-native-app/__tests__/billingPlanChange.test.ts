@@ -160,31 +160,17 @@ describe('replacementModeFor', () => {
    * three are documented as valid, so these tests pin observed behaviour over
    * documented behaviour on purpose.
    */
-  it('charges only the difference on an upgrade', () => {
-    // Longer period. The customer pays the difference for the time left and
-    // their renewal date does not move.
-    expect(replacementModeFor(M(yearly), M(monthly))).toBe(CHARGE_PRORATED_PRICE);
-    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(CHARGE_PRORATED_PRICE);
-    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(CHARGE_PRORATED_PRICE);
-  });
-
-  it('keeps the paid period on a downgrade', () => {
-    // Shorter period. Nothing charged today; the cheaper price is taken when
-    // the old period would have renewed.
+  it('uses the accepted mode in both directions', () => {
+    // Four modes tried against a real device on this catalogue and exactly one
+    // was accepted. Google recommends two of the declined three for precisely
+    // the transitions they were declined on, so this pins what the store does
+    // over what the docs say.
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
-  });
-
-  it('treats the same length as no change worth prorating', () => {
     expect(replacementModeFor(3, 3)).toBe(WITHOUT_PRORATION);
-  });
-
-  it('falls back to the accepted mode when a period is unmeasurable', () => {
-    // Guessing toward the untested mode on incomplete information is the
-    // wrong way round.
     expect(replacementModeFor(null, 3)).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(3, null)).toBe(WITHOUT_PRORATION);
   });
 
   it('never sends a mode that was declined on a device', () => {
@@ -198,6 +184,7 @@ describe('replacementModeFor', () => {
       const mode = replacementModeFor(next, current);
       expect(mode).not.toBe(DEFERRED);
       expect(mode).not.toBe(WITH_TIME_PRORATION);
+      expect(mode).not.toBe(CHARGE_PRORATED_PRICE);
     }
   });
 

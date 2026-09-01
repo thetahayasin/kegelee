@@ -779,36 +779,42 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
  * total and the cheapest per month, so both price rankings get the same pair
  * wrong.
  *
- * UPGRADE, to a longer period: CHARGE_PRORATED_PRICE. The customer pays only
- * the difference for the time remaining and their renewal date does not move,
- * which is what Google recommends for an upgrade and what an upgrade should
- * feel like.
+ * WITHOUT_PRORATION, both directions, because it is the only mode Play accepts
+ * on this catalogue. Four have now been tried against a real device:
  *
- * DOWNGRADE, to a shorter period: WITHOUT_PRORATION. The plan moves now,
- * nothing is charged today, and the cheaper price is taken on the date the old
- * period would have renewed. No paid time is lost.
+ *   DEFERRED               declined
+ *   WITH_TIME_PRORATION    declined
+ *   CHARGE_PRORATED_PRICE  declined
+ *   WITHOUT_PRORATION      accepted
  *
- * DEFERRED is the documented recommendation for a downgrade and is not used,
- * because Play declined every one of them on this catalogue. WITH_TIME_PRORATION
- * was declined too. Both reached the customer as their payment method being
- * refused, which is alarming and untrue. Documentation describes what the modes
- * mean; only the store decides which it will accept, and on three base plans of
- * one subscription with three different billing periods it has accepted
- * exactly one so far.
+ * Every one of those is documented as valid for a subscription replacement,
+ * and Google recommends two of the declined three for exactly the transitions
+ * they were declined on. So this pins observed behaviour over documented
+ * behaviour deliberately: a declined change reaches the customer as their
+ * payment method being refused, which is alarming and untrue.
  *
- * CHARGE_PRORATED_PRICE is therefore the untested half of this. If Play
- * declines it too, this function is the single line that needs changing.
+ * The one that works is also the only one that neither takes money today nor
+ * moves the renewal date. That is the likely reason, though not a proven one:
+ * these are three base plans of ONE subscription with three different billing
+ * periods, and switching base plans is more constrained than switching between
+ * separate subscriptions. It is equally possible that proration simply does
+ * not work against test purchases, whose billing periods are compressed to
+ * minutes - which would make this a sandbox artifact rather than a real limit.
+ * Distinguishing the two needs a purchase from an account that is not a
+ * licence tester.
+ *
+ * The behaviour is defensible regardless. The plan changes immediately,
+ * nothing is charged today, and the new price is taken on the date the old
+ * period would have renewed. Nobody pays twice for the same days in either
+ * direction, and nobody waits for what they have already bought.
+ *
+ * Both periods are still taken so this stays the single place that decides.
  */
 export const replacementModeFor = (
-  nextMonths: number | null,
-  currentMonths: number | null,
+  _nextMonths: number | null,
+  _currentMonths: number | null,
 ): string => {
-  // An unmeasurable period is treated as a downgrade here, because
-  // WITHOUT_PRORATION is the mode known to be accepted. Guessing toward the
-  // untested one on incomplete information is the wrong way round.
-  if (nextMonths === null || currentMonths === null) return WITHOUT_PRORATION;
-
-  return nextMonths > currentMonths ? CHARGE_PRORATED_PRICE : WITHOUT_PRORATION;
+  return WITHOUT_PRORATION;
 };
 
 /**
