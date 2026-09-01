@@ -54,37 +54,52 @@ const monthly = PLANS.find((p) => p.slug === 'premium-monthly')!;
 const yearly = PLANS.find((p) => p.slug === 'premium-yearly')!;
 const quarterly = PLANS.find((p) => p.slug === 'premium-quarterly')!;
 
-/** A CustomerInfo whose live entitlement is `productId`. */
-const infoEntitledTo = (productId: string) => ({
-  originalAppUserId: '42',
-  managementURL: null,
-  latestExpirationDate: '2027-01-01T00:00:00Z',
-  entitlements: {
-    active: {
-      premium: {
-        productIdentifier: productId,
-        expirationDate: '2027-01-01T00:00:00Z',
-        latestPurchaseDate: '2026-01-01T00:00:00Z',
+/**
+ * A CustomerInfo entitled to `fullProductId`, in the shape ANDROID sends.
+ *
+ * The entitlement splits the id: `productIdentifier` is the subscription and
+ * `productPlanIdentifier` is the base plan. `subscriptionsByProductIdentifier`
+ * is keyed by the subscription alone, and its values carry no
+ * productIdentifier field at all.
+ *
+ * Getting this wrong is not hypothetical. A fixture that put the joined id in
+ * productIdentifier kept the suite green while every real purchase came back
+ * "plan could not be matched".
+ */
+const infoEntitledTo = (fullProductId: string) => {
+  const [subscriptionId, basePlanId = null] = fullProductId.split(':');
+  return {
+    originalAppUserId: '42',
+    managementURL: null,
+    latestExpirationDate: '2027-01-01T00:00:00Z',
+    entitlements: {
+      active: {
+        premium: {
+          productIdentifier: subscriptionId,
+          productPlanIdentifier: basePlanId,
+          expirationDate: '2027-01-01T00:00:00Z',
+          latestPurchaseDate: '2026-01-01T00:00:00Z',
+          originalPurchaseDate: '2026-01-01T00:00:00Z',
+          willRenew: true,
+          periodType: 'NORMAL',
+        },
+      },
+      all: {},
+    },
+    subscriptionsByProductIdentifier: {
+      [subscriptionId]: {
+        productPlanIdentifier: basePlanId,
+        storeTransactionId: 'GPA.TOKEN-1',
+        purchaseDate: '2026-01-01T00:00:00Z',
         originalPurchaseDate: '2026-01-01T00:00:00Z',
+        expiresDate: '2027-01-01T00:00:00Z',
         willRenew: true,
         periodType: 'NORMAL',
+        managementURL: null,
       },
     },
-    all: {},
-  },
-  subscriptionsByProductIdentifier: {
-    [productId]: {
-      productIdentifier: productId,
-      storeTransactionId: 'GPA.TOKEN-1',
-      purchaseDate: '2026-01-01T00:00:00Z',
-      originalPurchaseDate: '2026-01-01T00:00:00Z',
-      expiresDate: '2027-01-01T00:00:00Z',
-      willRenew: true,
-      periodType: 'NORMAL',
-      managementURL: null,
-    },
-  },
-});
+  };
+};
 
 const packageFor = (productId: string, identifier: string) => ({
   identifier,
@@ -222,6 +237,44 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     await expect(requestPlanPurchase(42, monthly)).rejects.toThrow(
       /did not return an active entitlement/,
     );
+  });
+});
+
+describe('the Android split product id', () => {
+  it('records the base plan, not the bare subscription', async () => {
+    // The purchase that produced "plan could not be matched" in production.
+    // Android reports premium_monthly + p1y as two fields; joining them is the
+    // only way to get an id the catalogue can resolve, because the bare
+    // subscription names all three plans and so resolves to none.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:p1y'),
+      productIdentifier: 'premium_monthly:p1y',
+    });
+
+    const purchase = await requestPlanPurchase(42, yearly);
+
+    expect(purchase.productId).toBe('premium_monthly:p1y');
+
+    const result = await recordCompletedPurchase(42, purchase);
+    expect(result).not.toBe('unmatched');
+    expect(result).toBe('recorded');
+  });
+
+  it('reads the expiry off a subscription keyed by the bare subscription id', async () => {
+    // subscriptionsByProductIdentifier is keyed without the base plan, so a
+    // direct lookup on the joined id misses and the entry has to be rebuilt.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:p3m'),
+      productIdentifier: 'premium_monthly:p3m',
+    });
+
+    const purchase = await requestPlanPurchase(42, quarterly);
+
+    expect(purchase.productId).toBe('premium_monthly:p3m');
+    // Proof the subscription entry was found rather than defaulted: these come
+    // only from subscriptionsByProductIdentifier.
+    expect(purchase.storeTransactionId).toBe('GPA.TOKEN-1');
+    expect(purchase.endsAt).toBe('2027-01-01T00:00:00Z');
   });
 });
 

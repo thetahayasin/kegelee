@@ -249,15 +249,38 @@ export interface CompletedPurchase {
   deferred?: boolean;
 }
 
+/**
+ * The Play product id, joined from the two fields RevenueCat splits it across.
+ *
+ * On Android an entitlement reports `productIdentifier` as the SUBSCRIPTION
+ * (`premium_monthly`) and the base plan separately as `productPlanIdentifier`
+ * (`p3m`). Only the StoreProduct side hands back the joined form. Reading
+ * productIdentifier on its own yields the bare parent, which names all three
+ * plans at once and so resolves to none of them - that is a real purchase
+ * landing as "plan could not be matched".
+ */
+const joinProductId = (
+  productId?: string | null,
+  planId?: string | null,
+): string => {
+  const base = (productId || '').trim();
+  const plan = (planId || '').trim();
+  if (!base || !plan || base.includes(':')) return base;
+  return `${base}:${plan}`;
+};
+
+const entitlementProductId = (ent: any): string =>
+  joinProductId(ent?.productIdentifier, ent?.productPlanIdentifier);
+
 const activeEntitlement = (customerInfo: CustomerInfo, productId?: string) => {
   const active = customerInfo?.entitlements?.active || {};
   const premium = active[REVENUECAT_ENTITLEMENT_ID];
-  if (premium && (!productId || sameProduct(premium.productIdentifier, productId))) {
+  if (premium && (!productId || sameProduct(entitlementProductId(premium), productId))) {
     return premium;
   }
 
   return Object.values(active).find((ent: any) =>
-    !productId || sameProduct(ent?.productIdentifier, productId),
+    !productId || sameProduct(entitlementProductId(ent), productId),
   ) as any;
 };
 
@@ -275,10 +298,19 @@ const subscriptionInfoFor = (
   productId: string,
 ): PurchasesSubscriptionInfo | null => {
   const subscriptions = customerInfo?.subscriptionsByProductIdentifier || {};
-  return subscriptions[productId]
-    || Object.values(subscriptions).find((sub) =>
-        sameProduct(sub?.productIdentifier, productId))
-    || null;
+
+  // Keyed by the product identifier, which on Android is the bare
+  // subscription; the base plan lives on the value. So the joined id has to be
+  // rebuilt per entry rather than looked up directly. PurchasesSubscriptionInfo
+  // has no productIdentifier field at all - scanning for one always found
+  // undefined and fell through to null.
+  const direct = subscriptions[productId];
+  if (direct) return direct;
+
+  const entry = Object.entries(subscriptions).find(([key, sub]) =>
+    sameProduct(joinProductId(key, (sub as any)?.productPlanIdentifier), productId));
+
+  return entry ? entry[1] : null;
 };
 
 const packageProductId = (pkg: PurchasesPackage): string =>
@@ -465,7 +497,15 @@ const completedFromCustomerInfo = (
   fallbackProductId?: string,
 ): CompletedPurchase | null => {
   const entitlement = activeEntitlement(customerInfo, fallbackProductId);
-  const productId = entitlement?.productIdentifier || fallbackProductId;
+
+  // Prefer whichever id actually names a plan. The entitlement is the more
+  // authoritative source, but if its base plan is missing it degrades to the
+  // bare parent, and the StoreProduct id from the purchase itself is then the
+  // better answer rather than recording nothing.
+  const fromEntitlement = entitlementProductId(entitlement);
+  const productId = (planByProductId(fromEntitlement) ? fromEntitlement : '')
+    || fallbackProductId
+    || fromEntitlement;
   if (!productId) return null;
 
   const subInfo = subscriptionInfoFor(customerInfo, productId);
@@ -697,7 +737,7 @@ export const requestPlanPurchase = async (
   if (oldProductId) {
     try {
       const currentInfo = await Purchases.getCustomerInfo();
-      const owned = activeEntitlement(currentInfo)?.productIdentifier;
+      const owned = entitlementProductId(activeEntitlement(currentInfo));
       if (owned) oldProductId = owned;
     } catch {
       // Keep the caller's value; a failed lookup must not block the purchase.
