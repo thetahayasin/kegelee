@@ -5,17 +5,23 @@ import {
   View,
   Text,
   StyleSheet,
+  Dimensions,
+  ScrollView,
   ActivityIndicator,
   Modal,
   Animated,
   I18nManager,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
-import { useIsFocused } from '@react-navigation/native';
+import { TourOverlay } from '../../components/TourOverlay';
+import { PremiumNotice } from '../../components/PremiumNotice';
+import { PROGRESS_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
+import { useIsFocused, useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS } from '../../theme/colors';
+import { tabBarClearance, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
   getMeasurements,
   insertMeasurement,
@@ -23,11 +29,35 @@ import {
 import { getLocalDateString } from '../../services/progression';
 import { syncNow } from '../../services/sync';
 import Svg, { Path } from 'react-native-svg';
+import { track } from '../../services/events';
+
+/**
+ * The three concentric rings behind the hold button.
+ *
+ * They were 380, 300 and 230 flat. 380 is wider than a 360pt phone, so the
+ * outermost ring ran off both sides of the screen - and being a border-only
+ * circle, what showed was two arcs cut off at the edges.
+ *
+ * Proportional now, with the old sizes as the cap so nothing changes on a
+ * phone that always had room. The 0.86 leaves a margin at the widest ring;
+ * the inner two keep their original ratios to it.
+ */
+const RING_MAX = 380;
+const RING_OUTER = Math.min(RING_MAX, Math.round(Dimensions.get('window').width * 0.86));
+const RING_SIZES = [
+  RING_OUTER,
+  Math.round(RING_OUTER * (300 / RING_MAX)),
+  Math.round(RING_OUTER * (230 / RING_MAX)),
+];
 
 export const ProgressScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const isFocused = useIsFocused();
-  const { user } = useAuth();
+  const { user, subscribed } = useAuth();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<'days' | 'weeks' | 'months'>('weeks');
@@ -44,6 +74,27 @@ export const ProgressScreen = () => {
   const [saving, setSaving] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [result, setResult] = useState(0);
+  /**
+   * This tab's tour, shown the first time it is opened.
+   *
+   * Gated on the screen having finished loading: the tour measures real
+   * elements, and pointing at a spinner spotlights nothing.
+   */
+  const [showTour, setShowTour] = useState(false);
+  const tourMeasureRef = useRef<View>(null);
+  const tourChartRef = useRef<View>(null);
+  /**
+   * This screen scrolls now, and the tour has to be told.
+   *
+   * It did not when the tour was written - everything was on one fixed screen,
+   * so a target could always be measured where it stood. Once the screen was
+   * made scroll-safe the Take measurement button moved below the fold on most
+   * phones, and a spotlight is measured in WINDOW coordinates: the tour was
+   * pointing confidently at the part of the screen where the button would have
+   * been if it were visible.
+   */
+  const scrollRef = useRef<ScrollView>(null);
+
 
   const timerRef = useRef<any | null>(null);
   const startRef = useRef<number>(0);
@@ -103,6 +154,13 @@ export const ProgressScreen = () => {
       setBars(calculated.bars);
       setMaxScale(calculated.maxScale);
       setRangeLabel(calculated.rangeLabel);
+
+      // Runs for everybody now. The guard here existed because the screen
+      // used to be a wall for a free account, and there is no point touring a
+      // wall; the tracker is visible to everyone.
+      if (user && !(await hasSeenTour('progress', user.id))) {
+        setShowTour(true);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -247,6 +305,7 @@ export const ProgressScreen = () => {
     setSaving(true);
     try {
       await insertMeasurement(user.id, result, 0); // saved with synced = 0
+      track(user.id, 'measurement_taken', null, { seconds: result });
       setMeasuring(false);
       setDone(false);
       setResult(0);
@@ -280,111 +339,143 @@ export const ProgressScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Watermark />
-      {/* Title Row */}
-      <View style={styles.titleRow}>
-        <Text style={styles.pageTitle}>{t('progress.progressTracker')}</Text>
-      </View>
+      {/* Scroll-safe.
+          Nothing in this stack flexes - the chart area is a fixed 176 and
+          everything else is intrinsic - so the screen is exactly as tall as
+          its content and clips whatever does not fit. That put the Take
+          measurement button off the bottom on a short phone, and the premium
+          notice above made it worse by adding another row. */}
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={{ paddingBottom: tabBarClearance(insets.bottom) }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Title Row */}
+        <View style={styles.titleRow}>
+          <Text style={styles.pageTitle}>{t('progress.progressTracker')}</Text>
+        </View>
 
-      {/* Summary stats */}
-      <View style={styles.summaryRow}>
-        <View style={styles.summaryBox}>
-          <View style={styles.trophyIcon}>
-            <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accent}>
-              <Path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.2 1.8 4 4 4h1.7c.6 1.4 1.7 2.5 3.1 3v2H8v2h8v-2h-3.8v-2c1.4-.5 2.5-1.6 3.1-3H17c2.2 0 4-1.8 4-4V7c0-1.1-.9-2-2-2zM7 10c-1.1 0-2-.9-2-2V7h2v3zm10 0V7h2v1c0 1.1-.9 2-2 2z" />
-            </Svg>
+        {/* Summary stats */}
+        <View style={styles.summaryRow}>
+          <View style={styles.summaryBox}>
+            <View style={styles.trophyIcon}>
+              <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accentText}>
+                <Path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.2 1.8 4 4 4h1.7c.6 1.4 1.7 2.5 3.1 3v2H8v2h8v-2h-3.8v-2c1.4-.5 2.5-1.6 3.1-3H17c2.2 0 4-1.8 4-4V7c0-1.1-.9-2-2-2zM7 10c-1.1 0-2-.9-2-2V7h2v3zm10 0V7h2v1c0 1.1-.9 2-2 2z" />
+              </Svg>
+            </View>
+            <View>
+              <Text style={styles.summaryLabel}>{t('progress.bestResult')}</Text>
+              <Text style={styles.summaryValue}>
+                {best > 0 ? t('progress.seconds', { count: best }) : '-'}
+              </Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.summaryLabel}>{t('progress.bestResult')}</Text>
+
+          <View style={styles.summaryBoxRight}>
+            <Text style={styles.summaryLabel}>{t('progress.lastMeasurement')}</Text>
             <Text style={styles.summaryValue}>
-              {best > 0 ? t('progress.seconds', { count: best }) : '-'}
+              {last ? `${t('progress.seconds', { count: last.seconds })} (${last.label})` : '-'}
             </Text>
           </View>
         </View>
 
-        <View style={styles.summaryBoxRight}>
-          <Text style={styles.summaryLabel}>{t('progress.lastMeasurement')}</Text>
-          <Text style={styles.summaryValue}>
-            {last ? `${t('progress.seconds', { count: last.seconds })} (${last.label})` : '-'}
-          </Text>
-        </View>
-      </View>
+        {!subscribed && <PremiumNotice textKey="premium.noticeProgress" />}
 
-      {/* Chart Section */}
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>{rangeLabel}</Text>
-        <Text style={styles.chartSubtitle}>{t('progress.topResult', { count: best })}</Text>
+        {/* Chart Section */}
+        <View ref={tourChartRef} collapsable={false} style={styles.chartCard}>
+          <Text style={styles.chartTitle}>{rangeLabel}</Text>
+          <Text style={styles.chartSubtitle}>{t('progress.topResult', { count: best })}</Text>
 
-        <View style={styles.chartArea}>
-          {/* Y Axis Gridlines */}
-          {[maxScale, Math.floor(maxScale * 2 / 3), Math.floor(maxScale / 3), 0].map((gVal) => {
-            const topPct = `${(1 - gVal / maxScale) * 100}%`;
-            return (
-              <View key={gVal} style={[styles.gridlineRow, { top: topPct as any }]}>
-                <View style={styles.gridline} />
-                <Text style={styles.yLabel}>{t('progress.seconds', { count: gVal })}</Text>
-              </View>
-            );
-          })}
-
-          {/* Bar Chart Bars
-              Each column is its own accessible element carrying its period
-              and its value. The trend WAS the content of this screen and had
-              no accessible representation at all - a screen reader met a set
-              of unlabelled views and moved on, so the only thing it could
-              report was the best and last figures in the summary above. */}
-          <View style={styles.barsContainer}>
-            {bars.map((bar, idx) => {
-              const heightPct = bar.value > 0 ? `${Math.min(100, Math.max(8, (bar.value / maxScale) * 100))}%` : '0%';
+          <View style={styles.chartArea}>
+            {/* Y Axis Gridlines */}
+            {[maxScale, Math.floor(maxScale * 2 / 3), Math.floor(maxScale / 3), 0].map((gVal) => {
+              const topPct = `${(1 - gVal / maxScale) * 100}%`;
               return (
-                <View
-                  key={idx}
-                  style={styles.barColumn}
-                  accessible
-                  accessibilityRole="text"
-                  accessibilityLabel={`${bar.label}: ${
-                    bar.value > 0 ? t('progress.seconds', { count: bar.value }) : '-'
-                  }`}
-                >
-                  <View style={[styles.bar, { height: heightPct as any }]} />
+                <View key={gVal} style={[styles.gridlineRow, { top: topPct as any }]}>
+                  <View style={styles.gridline} />
+                  <Text style={styles.yLabel}>{t('progress.seconds', { count: gVal })}</Text>
                 </View>
               );
             })}
+
+            {/* Bar Chart Bars
+                Each column is its own accessible element carrying its period
+                and its value. The trend WAS the content of this screen and had
+                no accessible representation at all - a screen reader met a set
+                of unlabelled views and moved on, so the only thing it could
+                report was the best and last figures in the summary above. */}
+            <View style={styles.barsContainer}>
+              {bars.map((bar, idx) => {
+                const heightPct = bar.value > 0 ? `${Math.min(100, Math.max(8, (bar.value / maxScale) * 100))}%` : '0%';
+                return (
+                  <View
+                    key={idx}
+                    style={styles.barColumn}
+                    accessible
+                    accessibilityRole="text"
+                    accessibilityLabel={`${bar.label}: ${
+                      bar.value > 0 ? t('progress.seconds', { count: bar.value }) : '-'
+                    }`}
+                  >
+                    <View style={[styles.bar, { height: heightPct as any }]} />
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* X Axis Labels */}
+          {/* Visual only: each bar above now announces its own period, so
+              leaving these readable would repeat every label twice. */}
+          <View style={styles.xLabelsContainer} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            {bars.map((bar, idx) => (
+              <Text key={idx} style={styles.xLabel} numberOfLines={1}>
+                {bar.label}
+              </Text>
+            ))}
           </View>
         </View>
 
-        {/* X Axis Labels */}
-        {/* Visual only: each bar above now announces its own period, so
-            leaving these readable would repeat every label twice. */}
-        <View style={styles.xLabelsContainer} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          {bars.map((bar, idx) => (
-            <Text key={idx} style={styles.xLabel} numberOfLines={1}>
-              {bar.label}
-            </Text>
+        {/* Range Toggles */}
+        <View style={styles.toggleRow}>
+          {(['days', 'weeks', 'months'] as const).map((tMode) => (
+            <TouchableOpacity
+              key={tMode}
+              style={[styles.toggleBtn, mode === tMode && styles.toggleBtnActive]}
+              onPress={() => setMode(tMode)}
+            >
+              <Text style={[styles.toggleText, mode === tMode && styles.toggleTextActive]}>
+                {t(`progress.range${tMode.charAt(0).toUpperCase()}${tMode.slice(1)}`)}
+              </Text>
+            </TouchableOpacity>
           ))}
         </View>
-      </View>
 
-      {/* Range Toggles */}
-      <View style={styles.toggleRow}>
-        {(['days', 'weeks', 'months'] as const).map((tMode) => (
+        {/* Measure CTA */}
+        <View style={styles.ctaContainer}>
+          <View ref={tourMeasureRef} collapsable={false}>
+          {/* The ask, at the point of use.
+              A free account sees the whole tracker - the chart, the best
+              result, the range tabs - and only meets the subscription when it
+              reaches for the one thing that writes to it. That is a far more
+              honest offer than a page that refuses to show itself, and it is
+              the moment the reader actually wants the feature. */}
           <TouchableOpacity
-            key={tMode}
-            style={[styles.toggleBtn, mode === tMode && styles.toggleBtnActive]}
-            onPress={() => setMode(tMode)}
+            style={styles.ctaBtn}
+            onPress={() => {
+              if (subscribed) {
+                setMeasuring(true);
+                return;
+              }
+              track(user?.id, 'lock_tapped', 'measure');
+              navigation.navigate('Paywall');
+            }}
           >
-            <Text style={[styles.toggleText, mode === tMode && styles.toggleTextActive]}>
-              {t(`progress.range${tMode.charAt(0).toUpperCase()}${tMode.slice(1)}`)}
-            </Text>
+            <Text style={styles.ctaBtnText}>{t('progress.takeMeasurement')}</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Measure CTA */}
-      <View style={styles.ctaContainer}>
-        <TouchableOpacity style={styles.ctaBtn} onPress={() => setMeasuring(true)}>
-          <Text style={styles.ctaBtnText}>{t('progress.takeMeasurement')}</Text>
-        </TouchableOpacity>
-      </View>
+          </View>
+        </View>
+      </ScrollView>
 
       {/* Measurement Overlay Modal */}
       <Modal
@@ -425,7 +516,7 @@ export const ProgressScreen = () => {
 
           <View style={styles.overlayCenter}>
             <View style={styles.ringsContainer}>
-              {[380, 300, 230].map((ring) => (
+              {RING_SIZES.map((ring) => (
                 <View
                   key={ring}
                   style={[
@@ -466,7 +557,7 @@ export const ProgressScreen = () => {
                   <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M12 9v4M12 17h.01M10.3 4.3 2.5 18a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"
-                      stroke={COLORS.accent}
+                      stroke={COLORS.accentText}
                       strokeWidth={1.8}
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -499,11 +590,24 @@ export const ProgressScreen = () => {
           </View>
         </SafeAreaView>
       </Modal>
+
+      <TourOverlay
+        visible={showTour}
+        steps={PROGRESS_TOUR}
+        targets={{ measure: tourMeasureRef, chart: tourChartRef }}
+        onStep={(id) =>
+          scrollRef.current?.scrollTo({ y: id === 'measure' ? 9999 : 0, animated: true })
+        }
+        onDone={(completed) => {
+          setShowTour(false);
+          if (user) markTourSeen('progress', user.id, completed);
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -543,7 +647,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -564,9 +668,9 @@ const styles = StyleSheet.create({
   chartCard: {
     marginHorizontal: 16,
     marginTop: 24,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 20,
     padding: 16,
@@ -596,7 +700,7 @@ const styles = StyleSheet.create({
   gridline: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: COLORS.whiteFaint,
   },
   yLabel: {
     marginStart: 8,
@@ -649,7 +753,7 @@ const styles = StyleSheet.create({
   toggleRow: {
     flexDirection: 'row',
     alignSelf: 'center',
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 24,
     padding: 4,
@@ -728,13 +832,20 @@ const styles = StyleSheet.create({
   },
   ringBackground: {
     position: 'absolute',
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    // borderStrong, matching every other training circle in the app - the
+    // session ring, the two lesson rings. These were on `border`, which is the
+    // hairline weight meant for card edges: about 6% on dark and 10% on light,
+    // so on a light page the outer rings were all but gone while the same
+    // circles elsewhere were clearly drawn.
+    borderColor: COLORS.borderStrong,
     borderWidth: 1,
   },
+  // Sized against the innermost ring rather than fixed at 208, so the button
+  // keeps its place inside them on a narrow phone instead of swallowing them.
   holdBtn: {
-    width: 208,
-    height: 208,
-    borderRadius: 104,
+    width: Math.min(208, RING_SIZES[2] - 16),
+    height: Math.min(208, RING_SIZES[2] - 16),
+    borderRadius: Math.min(104, (RING_SIZES[2] - 16) / 2),
     backgroundColor: COLORS.accent,
     justifyContent: 'center',
     alignItems: 'center',
@@ -755,7 +866,7 @@ const styles = StyleSheet.create({
     width: 208,
     height: 208,
     borderRadius: 104,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -776,7 +887,7 @@ const styles = StyleSheet.create({
   },
   instructionsBox: {
     flexDirection: 'row',
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 16,
     paddingHorizontal: 16,
@@ -815,7 +926,7 @@ const styles = StyleSheet.create({
   },
   retakeBtn: {
     height: 48,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 16,
     justifyContent: 'center',

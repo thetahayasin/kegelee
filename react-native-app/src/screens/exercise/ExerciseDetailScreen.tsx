@@ -15,7 +15,8 @@ import {
   NavigationProp,
 } from '@react-navigation/native';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { COLORS, GLASS } from '../../theme/colors';
+import { Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
   EXERCISES,
   exerciseNameKey,
@@ -34,6 +35,8 @@ const LockIcon = ({ color, size = 20 }: { color: string; size?: number }) => (
 );
 
 export const ExerciseDetailScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, 'ExerciseDetail'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -49,7 +52,7 @@ export const ExerciseDetailScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
       <Watermark />
 
       <View style={styles.header}>
@@ -74,7 +77,7 @@ export const ExerciseDetailScreen = () => {
         <View style={styles.body}>
           {!unlocked && (
             <View style={styles.lockBanner}>
-              <LockIcon color={COLORS.accentSoft} />
+              <LockIcon color={COLORS.accentText} />
               <Text style={styles.lockBannerText}>
                 {t('exerciseDetail.completeMoreDaysToUnlock', { count: daysLeft })}
               </Text>
@@ -108,7 +111,7 @@ export const ExerciseDetailScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -139,20 +142,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     aspectRatio: 16 / 9,
     borderRadius: 24,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: COLORS.border,
   },
   heroGlow: {
     position: 'absolute',
     width: 170,
     height: 170,
     borderRadius: 85,
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: COLORS.whiteFaint,
   },
   body: {
     paddingHorizontal: 20,
@@ -162,7 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(193,255,114,0.10)',
+    backgroundColor: COLORS.accentWash,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -170,7 +173,7 @@ const styles = StyleSheet.create({
   },
   lockBannerText: {
     flex: 1,
-    color: COLORS.accentSoft,
+    color: COLORS.accentText,
     fontSize: 14,
   },
   description: {

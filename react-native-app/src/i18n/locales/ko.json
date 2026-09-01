@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
-    "baselineTitle": "이제 시작점을 측정해 봅시다",
     "buildingPlan": "플랜을 만드는 중입니다",
     "getStarted": "시작하기",
     "logIn": "로그인",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "5분 정도",
     "quizTimeQ": "매일 얼마나 훈련할 수 있나요?",
     "quizTimeShort": "2분 정도",
-    "resultBody": "여기서 시작해 강해질수록 조정합니다.",
-    "resultLevelLabel": "시작 레벨",
-    "resultTitle": "나의 시작점",
+    "resultTitle": "계획이 준비되었습니다",
     "slide1Body": "조절력도, 지구력도, 감각도 달라집니다. 골반저근은 근육이고, 근육처럼 단련됩니다.",
     "slide1Title": "잠자리에서 더 강하게",
     "slide2Body": "헬스장도, 기구도, 벗을 것도 없습니다. 소파에서, 책상에서, 버스에서. 아무도 눈치채지 못합니다.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "플랜 변경",
     "close": "닫기",
     "continueToApp": "앱으로 이동",
+    "currentPlan": "현재 플랜",
     "everyPlanStartsWithTrial_one": "모든 플랜은 {{count}}일 무료 체험으로 시작합니다",
     "everyPlanStartsWithTrial_other": "모든 플랜은 {{count}}일 무료 체험으로 시작합니다",
     "logOut": "로그아웃",
@@ -318,6 +316,8 @@
     "startYourJourney": "전체 프로그램 잠금 해제",
     "subscribe": "구독하기",
     "subscriptionActivated": "구독이 시작되었어요!",
+    "switchStartsLater": "현재 플랜이 끝나면 시작됩니다.",
+    "switchStartsNow": "바로 시작됩니다. 남은 기간은 차감해 드립니다.",
     "switchToPlan": "{{plan}}(으)로 변경",
     "terms": "이용약관",
     "trialThenPrice_one": "{{count}}일 무료, 이후 {{price}}. 체험 종료 전에 해지하지 않으면 자동 갱신됩니다.",
@@ -341,6 +341,12 @@
       "name": "1년",
       "period": "/년"
     }
+  },
+  "premium": {
+    "badge": "프리미엄",
+    "noticeProgress": "유지 시간을 측정하고 변화 추이를 확인하세요.",
+    "noticeSchedule": "훈련하는 요일과 시간에 맞춘 알림.",
+    "unlockMore": "프리미엄으로 더 열기"
   },
   "profile": {
     "currentDifficulty": "현재 난이도",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "이번 주 시간 설정하기"
   },
   "settings": {
+    "appearance": "화면 모드",
+    "appearanceDark": "다크",
+    "appearanceLight": "라이트",
+    "appearanceSystem": "시스템",
     "autoRenewalOff": "자동 갱신이 꺼져 있습니다. {{date}}에 이용이 종료됩니다.",
     "cancel": "취소",
     "cancelledUntilDate": "해지됨. {{date}}까지 계속 이용하실 수 있습니다.",
@@ -527,6 +537,30 @@
     "progress": "진행 상황",
     "schedule": "일정",
     "training": "훈련"
+  },
+  "tour": {
+    "homeRingBody": "두 세션을 모두 마치면 하루가 인정됩니다. 링은 진행에 따라 채워집니다.",
+    "homeRingTitle": "오늘의 목표",
+    "homeStartBody": "오늘의 세션이 이미 준비되어 있습니다. 시작만 누르세요.",
+    "homeStartTitle": "여기서 시작",
+    "homeUnlockBody": "계속 훈련하면 운동이 더 열립니다.",
+    "homeUnlockTitle": "더 준비되어 있어요",
+    "profileLevelBody": "한 세션의 길이를 정합니다. 언제든 바꿀 수 있어요.",
+    "profileLevelTitle": "난이도 변경",
+    "progressChartBody": "지금까지의 측정 기록이에요. 흐름을 볼 수 있습니다.",
+    "progressChartTitle": "나의 변화",
+    "progressMeasureBody": "가능한 한 오래 유지하세요. 1~2주마다 측정하면 변화가 보입니다.",
+    "progressMeasureTitle": "유지 시간 측정",
+    "scheduleMonthBody": "각 칸은 훈련한 하루입니다. 완료할 때마다 채워집니다.",
+    "scheduleMonthTitle": "이번 달",
+    "scheduleRemindersBody": "편한 요일과 시간을 고르세요. 알림이 도움이 됩니다.",
+    "scheduleRemindersTitle": "알림 설정하기",
+    "sessionListBody": "이번 세션의 모든 단계입니다. 가운데가 지금 진행 중입니다.",
+    "sessionListTitle": "다음 순서",
+    "sessionPauseBody": "멈춰도 잃는 것은 없습니다. 준비되면 다시 시작하세요.",
+    "sessionPauseTitle": "언제든 일시정지",
+    "sessionRingBody": "채워질 때 조이고 비워질 때 이완하세요. 운동은 이게 전부입니다.",
+    "sessionRingTitle": "원을 따라가세요"
   },
   "training": {
     "available": "사용 가능",

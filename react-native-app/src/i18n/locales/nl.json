@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Heb je al een account?",
-    "baselineTitle": "Laten we je startpunt meten",
     "buildingPlan": "Je plan wordt opgesteld",
     "getStarted": "Aan de slag",
     "logIn": "Inloggen",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Ongeveer vijf minuten",
     "quizTimeQ": "Hoelang kun je elke dag trainen?",
     "quizTimeShort": "Een paar minuten",
-    "resultBody": "We beginnen hier en passen aan naarmate je sterker wordt.",
-    "resultLevelLabel": "Startniveau",
-    "resultTitle": "Jouw startpunt",
+    "resultTitle": "Je plan is klaar",
     "slide1Body": "Meer controle, meer uithoudingsvermogen, een beter gevoel. Je bekkenbodem is een spier en traint als een spier.",
     "slide1Title": "Sterker in bed",
     "slide2Body": "Geen sportschool, geen apparaten, niets uittrekken. Op de bank, achter je bureau, in de bus. Niemand ziet het.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Abonnement wijzigen",
     "close": "Sluiten",
     "continueToApp": "Door naar de app",
+    "currentPlan": "Huidig abonnement",
     "everyPlanStartsWithTrial_one": "Elk abonnement begint met {{count}} dag gratis",
     "everyPlanStartsWithTrial_other": "Elk abonnement begint met {{count}} dagen gratis",
     "logOut": "Uitloggen",
@@ -318,6 +316,8 @@
     "startYourJourney": "Ontgrendel het hele programma",
     "subscribe": "Abonneren",
     "subscriptionActivated": "Abonnement geactiveerd!",
+    "switchStartsLater": "Begint wanneer je huidige abonnement afloopt.",
+    "switchStartsNow": "Begint nu. Je ongebruikte tijd wordt verrekend.",
     "switchToPlan": "Overstappen naar {{plan}}",
     "terms": "Voorwaarden",
     "trialThenPrice_one": "{{count}} dag gratis, daarna {{price}}. Wordt automatisch verlengd tenzij je voor het einde van de proefperiode opzegt.",
@@ -341,6 +341,12 @@
       "name": "1 jaar",
       "period": "/jaar"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Meet hoelang je vasthoudt en zie de lijn ontstaan.",
+    "noticeSchedule": "Herinneringen voor de dagen en tijden waarop je traint.",
+    "unlockMore": "Ontgrendel meer met Premium"
   },
   "profile": {
     "currentDifficulty": "Huidige moeilijkheidsgraad",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Stel je tijden voor de week in"
   },
   "settings": {
+    "appearance": "Weergave",
+    "appearanceDark": "Donker",
+    "appearanceLight": "Licht",
+    "appearanceSystem": "Systeem",
     "autoRenewalOff": "Automatische verlenging staat uit. De toegang eindigt op {{date}}.",
     "cancel": "Annuleren",
     "cancelledUntilDate": "Opgezegd. Je toegang blijft actief tot {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Voortgang",
     "schedule": "Schema",
     "training": "Training"
+  },
+  "tour": {
+    "homeRingBody": "Een dag telt als beide sessies klaar zijn. De ring vult zich onderweg.",
+    "homeRingTitle": "Jouw dag",
+    "homeStartBody": "Je sessie voor vandaag staat al klaar. Druk gewoon op start.",
+    "homeStartTitle": "Begin hier",
+    "homeUnlockBody": "Er komen meer oefeningen vrij naarmate je doortraint.",
+    "homeUnlockTitle": "Er komt meer",
+    "profileLevelBody": "Dit bepaalt hoelang een sessie duurt. Wijzig het wanneer je wilt.",
+    "profileLevelTitle": "Wijzig de moeilijkheid",
+    "progressChartBody": "Je metingen door de tijd, zodat je ziet hoe het gaat.",
+    "progressChartTitle": "Jouw voortgang",
+    "progressMeasureBody": "Houd zo lang mogelijk vast. Doe dit elke week of twee om de verandering te zien.",
+    "progressMeasureTitle": "Meet je vasthouden",
+    "scheduleMonthBody": "Elk vakje is een trainingsdag. Ze vullen zich als je ze afrondt.",
+    "scheduleMonthTitle": "Jouw maand",
+    "scheduleRemindersBody": "Kies de dagen en tijden die jou passen. Een seintje helpt.",
+    "scheduleRemindersTitle": "Stel je herinneringen in",
+    "sessionListBody": "Alle stappen van deze sessie, op volgorde. Die in het midden loopt nu.",
+    "sessionListTitle": "Wat er komt",
+    "sessionPauseBody": "Er gaat niets verloren als je stopt. Ga verder wanneer je wilt.",
+    "sessionPauseTitle": "Pauzeer wanneer je wilt",
+    "sessionRingBody": "Span aan terwijl hij vult en ontspan terwijl hij leegloopt. Dat is de hele oefening.",
+    "sessionRingTitle": "Volg de cirkel"
   },
   "training": {
     "available": "Beschikbaar",

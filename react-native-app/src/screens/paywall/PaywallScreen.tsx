@@ -12,7 +12,9 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
-import { COLORS, DISABLED_OPACITY, TYPE, SPACE, RADIUS } from '../../theme/colors';
+import { DISABLED_OPACITY, TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
+import { track } from '../../services/events';
 import { useAuth } from '../../context/AuthContext';
 import {
   getActiveSubscription,
@@ -44,7 +46,6 @@ import {
   DEFERRED,
 } from '../../services/billing';
 import { syncNow } from '../../services/sync';
-import { hasUsedFreeSession } from '../../services/freeSession';
 import { Watermark } from '../../components/Watermark';
 
 /**
@@ -70,6 +71,8 @@ const PREMIUM_BENEFIT_KEYS = [
 ] as const;
 
 export const PaywallScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, logout, markSubscribed, subscribed: gateOpen } = useAuth();
@@ -102,18 +105,6 @@ export const PaywallScreen = () => {
   // reads as "your money did not go through", which is how you get a second
   // charge attempt and a support ticket.
   const [messageTone, setMessageTone] = useState<'info' | 'error'>('error');
-  /**
-   * Whether the one free session is still this account's to spend.
-   *
-   * It decides where dismissing the paywall goes. Previously it always went to
-   * the basics list, which meant three lessons of reading stood between an
-   * account and the single strongest argument this app has for subscribing -
-   * a real session, finished. The whole free-session flow exists because
-   * asking for money before someone has used the product is the weakest
-   * moment to ask; gating the demo behind the longest stretch of text in the
-   * app was working against that.
-   */
-  const [freeSessionLeft, setFreeSessionLeft] = useState(false);
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -183,16 +174,71 @@ export const PaywallScreen = () => {
    * is. They are here to renew, and the screen should say so.
    */
   const renewingLapsedPlan = !!activeSub && !managingLivePlan;
-  // Whether this screen was pushed onto an existing stack (Settings -> Manage
-  // Plan), or IS the subscription gate's root.
+  // Whether this screen has somewhere to go back to.
   //
-  // Deliberately derived from real navigation history rather than from
-  // `subscribed`: the navigator mounts the gate using AuthContext's value,
-  // while this screen computes its own from the local subscriptions row. When
-  // those two disagree the header used to show a close button on the gate root,
-  // where goBack() silently does nothing - a dead X, and no Log out escape
-  // either, because the X replaced it.
+  // Since the app went freemium there is no subscription gate: this screen is
+  // always PUSHED - from Settings, from a locked tab, from a padlocked
+  // exercise - so in practice this is always true and the header always shows
+  // a close button. The Log out fallback below is kept for the case where
+  // this screen is ever made a stack root again, so that it can never become
+  // a room with no door.
+  //
+  // Still derived from real navigation history rather than from `subscribed`,
+  // which is a different question: that flag is about entitlement, this is
+  // about the stack.
   const canClose = navigation.canGoBack();
+
+  /**
+   * Whether moving to `next` from `from` is an upgrade.
+   *
+   * Longer billing period = upgrade. See the note in `subscribe`.
+   */
+  const isLongerPlan = (next: PlanDef, from: PlanDef) => {
+    // planMonths returns null for an interval it cannot express in months.
+    // Treating an unknown length as an upgrade is the safer default: starting
+    // the new plan immediately with the old time credited never loses anybody
+    // paid days, whereas deferring by mistake makes them wait for something
+    // they have already bought.
+    const a = planMonths(next);
+    const b = planMonths(from);
+    if (a === null || b === null) return true;
+    return a >= b;
+  };
+
+  /**
+   * What will happen if this plan is tapped, in one line, BEFORE it is tapped.
+   *
+   * An upgrade and a downgrade behave completely differently - one starts now
+   * with the unused time credited, the other waits for the current period to
+   * run out - and the app knew which and said nothing. The reader met the
+   * difference in Play's own confirmation sheet, phrased generically, after
+   * they had already decided. Saying it here is also the cheapest way to
+   * prevent the "I paid and nothing changed" message about a deferred
+   * downgrade working exactly as designed.
+   */
+  const switchTimingKey = (plan: PlanDef): string | null => {
+    const from = activeSub ? planBySlug(activeSub.plan_slug) : null;
+    if (!from || from.slug === plan.slug || !subscriptionIsRenewing(activeSub)) {
+      return null;
+    }
+    return isLongerPlan(plan, from)
+      ? 'paywall.switchStartsNow'
+      : 'paywall.switchStartsLater';
+  };
+
+  /**
+   * Recorded on MOUNT, not on the button that navigated here.
+   *
+   * Those are different numbers: a tap that starts a transition the reader
+   * backs out of is not a paywall view, and counting it as one would inflate
+   * exactly the metric this exists to measure.
+   */
+  useEffect(() => {
+    track(user?.id, 'paywall_viewed', renewingLapsedPlan ? 'renew' : 'new');
+    // Once per mount. Re-firing when the lapsed flag resolves would double
+    // count every visit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Open the gate only if the row we just wrote actually grants access.
@@ -236,16 +282,34 @@ export const PaywallScreen = () => {
         // then came back. Buying plainly is the resubscribe path.
         const switching =
           !!currentPlan && currentPlan.slug !== plan.slug && subscriptionIsRenewing(current);
-        // Rank the two plans by their REAL store prices where we have them.
-        // The catalogue price is only an offline fallback: it is USD-only and
-        // can drift from Play, which would otherwise pick the wrong
-        // replacement mode (charging immediately on what is really a
-        // downgrade, or deferring a genuine upgrade).
-        const priceOf = (p: PlanDef) => pricingRef.current[p.slug]?.price ?? p.price;
+        /**
+         * Rank by BILLING PERIOD, not by price.
+         *
+         * This compared prices, and for today's three plans that happens to
+         * give the right answer because monthly < quarterly < yearly in total
+         * cost as well as in length. It is still the wrong question, in two
+         * directions at once:
+         *
+         *  - Total price is not the ranking. A discounted yearly priced under
+         *    a quarterly - a sale, or a market where the SKUs are priced
+         *    independently - would defer a genuine upgrade.
+         *  - Price PER MONTH is not the ranking either, and is worse: the
+         *    yearly plan is the cheapest per month, so that rule would call
+         *    monthly -> yearly a downgrade and make the reader wait a month
+         *    for the plan they just paid a year for.
+         *
+         * What Play's replacement modes actually turn on is how much the
+         * reader has committed. A longer period is the upgrade: start it now
+         * and credit whatever is left of the old one. A shorter period is the
+         * downgrade: let the paid period run out first, so nobody loses time
+         * they have already paid for. Length is also the one input that cannot
+         * drift with a sale or a currency.
+         */
         const purchase = await requestPlanPurchase(user.id, plan, switching ? {
           oldProductId: currentPlan.store_product_id,
-          replacementMode:
-            priceOf(plan) >= priceOf(currentPlan) ? WITH_TIME_PRORATION : DEFERRED,
+          replacementMode: isLongerPlan(plan, currentPlan)
+            ? WITH_TIME_PRORATION
+            : DEFERRED,
         } : undefined);
 
         const result = await recordCompletedPurchase(user.id, purchase);
@@ -407,11 +471,6 @@ export const PaywallScreen = () => {
     (async () => {
       if (user) {
         loadPricing();
-        hasUsedFreeSession(user.id)
-          .then((used) => {
-            if (mounted) setFreeSessionLeft(!used);
-          })
-          .catch(() => {});
       }
       // A subscription can renew (or be bought on another device) while the
       // app is closed, leaving the local rows stale - and no other screen is
@@ -473,18 +532,18 @@ export const PaywallScreen = () => {
 
   const continueToApp = () => {
     setShowAutoRenewalNotice(false);
-    // Opens the subscription gate; when this screen is the gate's root the
-    // navigator swaps to the app (basics gate next) by itself. When it was
-    // pushed from Settings (a plan switch), return into the app like the
-    // web's redirect to home.
+    // Flips the entitlement in context, which is what unlocks the progress
+    // tab, the schedule, the level picker and the rest of the catalogue - and
+    // what lets the training day start counting again from where the free
+    // allowance stopped it. Then back into the app.
     markSubscribed();
     if (navigation.canGoBack()) {
       navigation.navigate('MainTabs');
     }
   };
 
-  // The paywall is the only page an unsubscribed user can reach, so it
-  // carries the sign-out escape hatch.
+  // The escape hatch for the case described at `canClose`: a paywall with no
+  // way back would otherwise trap the account with no way to sign out.
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
@@ -543,7 +602,7 @@ export const PaywallScreen = () => {
   // "Switch to X" only describes a real product change. After a cancellation
   // any purchase is a fresh one, so the CTA must not promise a switch that
   // Play will refuse to perform.
-  const isUpgrade =
+  const isPlanSwitch =
     !!activeSub
     && subscriptionIsRenewing(activeSub)
     && !!selectedPlan
@@ -577,7 +636,7 @@ export const PaywallScreen = () => {
     : '';
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
       <Watermark />
 
       {/* Header: three real columns.
@@ -661,14 +720,14 @@ export const PaywallScreen = () => {
             <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
               <Path
                 d="M12 6v6l4 2"
-                stroke={COLORS.accent}
+                stroke={COLORS.accentText}
                 strokeWidth={2.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <Path
                 d="M12 3a9 9 0 1 0 9 9"
-                stroke={COLORS.accent}
+                stroke={COLORS.accentText}
                 strokeWidth={2.5}
                 strokeLinecap="round"
               />
@@ -688,7 +747,7 @@ export const PaywallScreen = () => {
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                   <Path
                     d="M20 6L9 17l-5-5"
-                    stroke={COLORS.accent}
+                    stroke={COLORS.accentText}
                     strokeWidth={2.5}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -702,19 +761,21 @@ export const PaywallScreen = () => {
 
         {/* Plan cards */}
         <View style={styles.plansWrap}>
-          {(activeSub && subscriptionIsRenewing(activeSub)
-            // Managing a live plan: show only what they can move TO. Rendering
-            // the plan they already own as a purchasable card invites a tap
-            // that cannot succeed.
-            //
-            // Once cancelled, that reasoning inverts. Hiding their old plan
-            // left the one thing they came to do - take it back - with no
-            // button anywhere on the screen, and pushed them onto a different
-            // plan whose change flow Play then refused outright.
-            ? PLANS.filter((plan) => plan.slug !== activeSub.plan_slug)
-            : PLANS
-          ).map((plan) => {
-            const selected = selectedPlan === plan.slug;
+          {/* Every plan, always - including the one they are on.
+              It used to be filtered out of the list for a live subscriber, on
+              the reasoning that rendering an unbuyable card invites a tap that
+              cannot succeed. But the tap is not the only thing a card does: a
+              quarterly subscriber opening Manage plan saw monthly and yearly
+              and nothing telling them where they stood, no way to compare
+              against what they already pay, and a list whose length changed
+              depending on the answer. It is shown, badged, and not tappable -
+              which says what the filter was trying to say without removing the
+              information. */}
+          {PLANS.map((plan) => {
+            const isCurrent =
+              !!activeSub && activeSub.plan_slug === plan.slug && subscriptionIsRenewing(activeSub);
+            const selected = selectedPlan === plan.slug && !isCurrent;
+            const timingKey = switchTimingKey(plan);
             const months = planMonths(plan);
             const perMonth = perMonthLabel(pricing[plan.slug], months);
             const savings = savingsPercent(pricing, plan, months);
@@ -728,13 +789,23 @@ export const PaywallScreen = () => {
                 // which one was selected, on the screen where the selection
                 // decides what gets charged.
                 accessibilityRole="radio"
-                accessibilityState={{ selected }}
+                accessibilityState={{ selected, disabled: isCurrent }}
                 accessibilityLabel={`${t(planNameKey(plan.slug))}, ${
                   pricing[plan.slug]?.priceString ?? ''
-                }`}
-                style={[styles.planCard, selected && styles.planCardSelected]}
+                }${isCurrent ? `, ${t('paywall.currentPlan')}` : ''}`}
+                disabled={isCurrent}
+                style={[
+                  styles.planCard,
+                  selected && styles.planCardSelected,
+                  isCurrent && styles.planCardCurrent,
+                ]}
                 onPress={() => setSelectedPlan(plan.slug)}
               >
+                {isCurrent && (
+                  <View style={styles.currentBadge}>
+                    <Text style={styles.currentBadgeText}>{t('paywall.currentPlan')}</Text>
+                  </View>
+                )}
                 {plan.is_featured && (
                   <View style={styles.featuredBadge}>
                     <Text style={styles.featuredBadgeText}>{t('paywall.bestValue')}</Text>
@@ -776,6 +847,18 @@ export const PaywallScreen = () => {
                     ) : null}
                   </View>
                 </View>
+
+                {/* When the change would actually happen.
+                    Only on a card that represents a real switch, and only for
+                    a live subscription. An upgrade and a downgrade behave
+                    completely differently and the app knew which - it just
+                    never said, so the reader met the difference in Play's own
+                    sheet after deciding. */}
+                {timingKey ? (
+                  <Text style={styles.planTiming} numberOfLines={2}>
+                    {t(timingKey)}
+                  </Text>
+                ) : null}
               </TouchableOpacity>
             );
           })}
@@ -902,7 +985,7 @@ export const PaywallScreen = () => {
             <ActivityIndicator color={COLORS.onAccent} />
           ) : (
             <Text style={styles.continueBtnText}>
-              {isUpgrade
+              {isPlanSwitch
                 ? t('paywall.switchToPlan', {
                     plan: selectedPlanDef ? t(planNameKey(selectedPlanDef.slug)) : '',
                   })
@@ -936,26 +1019,10 @@ export const PaywallScreen = () => {
 
             Only on the gate root; opened from Settings as Manage Plan the
             header X already does this. */}
-        {!purchasing && !managingLivePlan && !canClose && (
-          <TouchableOpacity
-            style={styles.exploreBtn}
-            accessibilityRole="button"
-            // Straight to the session while there is still one to give. The
-            // offer screen's own decline drops into the basics with the
-            // paywall kept underneath, so nothing is lost by going here first
-            // - and the label stops being a bare refusal and starts naming
-            // what is actually on the other side of the tap.
-            onPress={() =>
-              navigation.navigate(
-                (freeSessionLeft ? 'FreeSessionOffer' : 'Knowledge') as never,
-              )
-            }
-          >
-            <Text style={styles.exploreBtnText}>
-              {freeSessionLeft ? t('workoutComplete.tryItNow') : t('workoutComplete.notNow')}
-            </Text>
-          </TouchableOpacity>
-        )}
+        {/* No dismiss-to-explore route any more. The paywall is never the
+            whole app now - it is always pushed on top of an app the person can
+            already use - so the way out is simply back, and the header's own
+            close button does it. */}
       </View>
 
       {/* Auto-renewal notice after purchase */}
@@ -972,7 +1039,7 @@ export const PaywallScreen = () => {
               <Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M5 13l4 4L19 7"
-                  stroke={COLORS.success}
+                  stroke={COLORS.accentText}
                   strokeWidth={2.5}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -990,7 +1057,7 @@ export const PaywallScreen = () => {
                 <Text
                   style={[
                     styles.noticeBoxValue,
-                    { color: autoRenewing ? COLORS.success : COLORS.accentSoft },
+                    { color: autoRenewing ? COLORS.success : COLORS.accentText },
                   ]}
                 >
                   {autoRenewing ? t('paywall.on') : t('paywall.off')}
@@ -1019,7 +1086,7 @@ export const PaywallScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -1090,7 +1157,7 @@ const styles = StyleSheet.create({
   trialBannerText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.accent,
+    color: COLORS.accentText,
   },
   benefits: {
     marginTop: 20,
@@ -1120,7 +1187,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     letterSpacing: 0.3,
-    color: COLORS.accent,
+    color: COLORS.accentText,
   },
   planPerMonth: {
     marginTop: 2,
@@ -1138,10 +1205,37 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md + 2,
     padding: SPACE.lg,
   },
+  /**
+   * The plan already owned. Present so the reader can see where they stand,
+   * visibly not a button so they do not try to buy it again.
+   */
+  planCardCurrent: { opacity: DISABLED_OPACITY },
+  planTiming: {
+    ...TYPE.caption,
+    color: COLORS.textMuted,
+    marginTop: SPACE.sm,
+    lineHeight: 16,
+  },
+  currentBadge: {
+    position: 'absolute',
+    top: -9,
+    alignSelf: 'center',
+    paddingHorizontal: SPACE.md,
+    paddingVertical: 2,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.surface3,
+    borderWidth: 1,
+    borderColor: COLORS.borderStrong,
+  },
+  currentBadgeText: {
+    ...TYPE.caption,
+    color: COLORS.textMuted,
+    fontWeight: '700',
+  },
   planCardSelected: {
     borderWidth: 2,
     borderColor: COLORS.accent,
-    backgroundColor: 'rgba(193,255,114,0.07)',
+    backgroundColor: COLORS.accentWash,
     // Compensate for the extra border pixel so the card does not shift when
     // selection moves between plans.
     padding: SPACE.lg - 1,
@@ -1203,7 +1297,7 @@ const styles = StyleSheet.create({
   // trial banners, savings pills, the buy button - so "Google Play declined
   // the payment" arrived looking like an offer.
   messageError: { color: COLORS.danger },
-  messageInfo: { color: COLORS.accentSoft },
+  messageInfo: { color: COLORS.accentText },
   retryWrap: {
     alignItems: 'center',
   },
@@ -1236,7 +1330,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-    backgroundColor: 'rgba(6,8,16,0.97)',
+    backgroundColor: COLORS.surfaceSolid,
     paddingHorizontal: 20,
     paddingTop: 16,
   },
@@ -1302,14 +1396,14 @@ const styles = StyleSheet.create({
   legalLink: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.accent,
+    color: COLORS.accentText,
     textDecorationLine: 'underline',
   },
 
   // Auto-renewal notice (bottom sheet)
   noticeOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'flex-end',
   },
   noticePanel: {
@@ -1325,7 +1419,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: COLORS.whiteFaint,
     marginBottom: 16,
   },
   noticeCheckCircle: {
@@ -1333,7 +1427,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'rgba(193,255,114,0.15)',
+    backgroundColor: COLORS.accentWash,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,

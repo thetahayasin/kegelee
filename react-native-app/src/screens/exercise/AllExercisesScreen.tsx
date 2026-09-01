@@ -12,10 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
+import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
-import { EXERCISES, exerciseNameKey } from '../../constants/catalogues';
+import { EXERCISES, exerciseNameKey, isFreeExercise } from '../../constants/catalogues';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { RootStackParamList } from '../../navigation/AppNavigator';
@@ -23,6 +24,8 @@ import { RootStackParamList } from '../../navigation/AppNavigator';
 type Row = {
   slug: string;
   unlocked: boolean;
+  /** Held by the subscription rather than by a day count. */
+  subLocked: boolean;
   daysLeft: number;
   completed: number;
   threshold: number;
@@ -32,10 +35,12 @@ type Row = {
 // Full catalogue with per-exercise unlock progress bars, mirroring the web
 // exercises/index page reached from the Training rail's "See All".
 export const AllExercisesScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const isFocused = useIsFocused();
-  const { user } = useAuth();
+  const { user, subscribed } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
@@ -69,7 +74,14 @@ export const AllExercisesScreen = () => {
           .map((ex) => {
             const threshold = ex.unlock_after_days;
             // Admins bypass the day-gating and get the full catalogue.
-            const unlocked = user.is_admin || completedDays >= threshold;
+            //
+            // Past the free three, a free account is held by the subscription,
+            // not by days. Its day count is frozen at FREE_DAY_CAP, so a
+            // progress bar here would sit at the same fraction for ever and a
+            // countdown would never reach zero. Those rows say what actually
+            // holds them.
+            const subLocked = !subscribed && !user.is_admin && !isFreeExercise(ex.slug);
+            const unlocked = user.is_admin || (!subLocked && completedDays >= threshold);
             const completed = Math.min(completedDays, threshold);
             const pct = unlocked
               ? 100
@@ -77,7 +89,8 @@ export const AllExercisesScreen = () => {
             return {
               slug: ex.slug,
               unlocked,
-              daysLeft: unlocked ? 0 : Math.max(0, threshold - completedDays),
+              subLocked,
+              daysLeft: unlocked || subLocked ? 0 : Math.max(0, threshold - completedDays),
               completed,
               threshold,
               pct,
@@ -102,7 +115,10 @@ export const AllExercisesScreen = () => {
     return () => {
       cancelled = true;
     };
-  }, [isFocused, user, reloadKey]);
+    // `subscribed` belongs here: the rows are computed from it, so without
+    // it the list would keep showing padlocks after a purchase until the
+    // screen happened to refocus.
+  }, [isFocused, user, reloadKey, subscribed]);
 
   if (loading) {
     return (
@@ -146,24 +162,49 @@ export const AllExercisesScreen = () => {
           <>
             <View style={styles.lockRow}>
               <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                <Rect x={4} y={10} width={16} height={11} rx={2.5} stroke={COLORS.textDim} strokeWidth={2.2} />
-                <Path d="M8 10V7a4 4 0 1 1 8 0v3" stroke={COLORS.textDim} strokeWidth={2.2} strokeLinecap="round" />
+                <Rect
+                  x={4}
+                  y={10}
+                  width={16}
+                  height={11}
+                  rx={2.5}
+                  stroke={row.subLocked ? COLORS.accent : COLORS.textDim}
+                  strokeWidth={2.2}
+                />
+                <Path
+                  d="M8 10V7a4 4 0 1 1 8 0v3"
+                  stroke={row.subLocked ? COLORS.accent : COLORS.textDim}
+                  strokeWidth={2.2}
+                  strokeLinecap="round"
+                />
               </Svg>
-              <Text style={styles.rowMuted}>
-                Complete {row.daysLeft} more training days
+              {/* This line used to be hardcoded English - the one string on
+                  the screen that never went through i18n. It now uses the same
+                  key the training grid does, so the two agree word for word.
+
+                  A locked row says "Premium" and nothing else. It said "Part
+                  of the subscription", which is a sentence about billing
+                  stapled to an exercise - the reader wants to know what the
+                  row is, not to be told the terms. */}
+              <Text style={[styles.rowMuted, row.subLocked && styles.rowSubLocked]}>
+                {row.subLocked
+                  ? t('premium.badge')
+                  : t('training.daysLeft', { count: row.daysLeft })}
               </Text>
             </View>
-            <View
-              style={styles.progressBarBg}
-              accessible
-              accessibilityRole="progressbar"
-              accessibilityLabel={t('allExercises.unlockProgressA11y', {
-                name: t(exerciseNameKey(row.slug)),
-              })}
-              accessibilityValue={{ min: 0, max: row.threshold, now: row.completed }}
-            >
-              <View style={[styles.progressBarFill, { width: `${row.pct}%` }]} />
-            </View>
+            {!row.subLocked && (
+              <View
+                style={styles.progressBarBg}
+                accessible
+                accessibilityRole="progressbar"
+                accessibilityLabel={t('allExercises.unlockProgressA11y', {
+                  name: t(exerciseNameKey(row.slug)),
+                })}
+                accessibilityValue={{ min: 0, max: row.threshold, now: row.completed }}
+              >
+                <View style={[styles.progressBarFill, { width: `${row.pct}%` }]} />
+              </View>
+            )}
           </>
         )}
       </View>
@@ -171,6 +212,10 @@ export const AllExercisesScreen = () => {
         <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
           <Path d="M9 6l6 6-6 6" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
+      ) : row.subLocked ? (
+        <Text style={styles.rowSubCta} numberOfLines={1}>
+          {t('premium.badge')}
+        </Text>
       ) : (
         <Text style={styles.rowRatio}>
           {row.completed}/{row.threshold}
@@ -180,7 +225,7 @@ export const AllExercisesScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
       <Watermark />
 
       <View style={styles.header}>
@@ -211,17 +256,20 @@ export const AllExercisesScreen = () => {
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {rows.map((row) =>
-          row.unlocked ? (
+          row.unlocked || row.subLocked ? (
             <TouchableOpacity
               key={row.slug}
               activeOpacity={0.85}
+              accessibilityRole="button"
               style={styles.row}
               onPress={() =>
-                navigation.navigate('ExerciseDetail', {
-                  slug: row.slug,
-                  unlocked: true,
-                  daysLeft: 0,
-                })
+                row.subLocked
+                  ? navigation.navigate('Paywall')
+                  : navigation.navigate('ExerciseDetail', {
+                      slug: row.slug,
+                      unlocked: true,
+                      daysLeft: 0,
+                    })
               }
             >
               {renderRow(row)}
@@ -237,7 +285,7 @@ export const AllExercisesScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
   loading: {
     flex: 1,
@@ -278,7 +326,7 @@ const styles = StyleSheet.create({
   headerTitle: { ...TYPE.title, flex: 1, textAlign: 'center', color: COLORS.white },
   scroll: { paddingHorizontal: SPACE.lg, paddingTop: SPACE.sm, paddingBottom: 40, gap: SPACE.md },
   row: {
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     paddingHorizontal: SPACE.lg,
@@ -287,6 +335,9 @@ const styles = StyleSheet.create({
   // The card keeps full opacity; only the artwork dims. A whole row at
   // opacity 0.5 reads as broken rather than as not yet earned.
   lockedArt: { opacity: 0.4 },
+  /* A subscription lock wears the accent: it is an offer, not a wait. */
+  rowSubLocked: { color: COLORS.accentText },
+  rowSubCta: { ...TYPE.caption, color: COLORS.accentText, fontWeight: '700' },
   rowInner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -295,20 +346,20 @@ const styles = StyleSheet.create({
   rowInfo: { flex: 1, minWidth: 0 },
   rowName: { fontSize: 18, fontWeight: '700', letterSpacing: -0.4, color: COLORS.white, lineHeight: 22 },
   rowNameLocked: { color: COLORS.textMuted },
-  rowAvailable: { ...TYPE.bodySm, color: COLORS.accent, fontWeight: '600', marginTop: 2 },
+  rowAvailable: { ...TYPE.bodySm, color: COLORS.accentText, fontWeight: '600', marginTop: 2 },
   lockRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
   rowMuted: { ...TYPE.bodySm, color: COLORS.textMuted },
   progressBarBg: {
     height: 6,
     width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.10)',
+    backgroundColor: COLORS.whiteFaint,
     borderRadius: 3,
     marginTop: SPACE.sm,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.accentText,
     borderRadius: 3,
   },
   rowRatio: {

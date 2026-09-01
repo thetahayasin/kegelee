@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Sudah punya akun?",
-    "baselineTitle": "Sekarang ukur titik awal Anda",
     "buildingPlan": "Menyusun rencana Anda",
     "getStarted": "Mulai",
     "logIn": "Masuk",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Sekitar lima menit",
     "quizTimeQ": "Berapa lama Anda bisa berlatih setiap hari?",
     "quizTimeShort": "Beberapa menit",
-    "resultBody": "Kita mulai dari sini dan menyesuaikan seiring Anda menguat.",
-    "resultLevelLabel": "Level awal",
-    "resultTitle": "Titik awal Anda",
+    "resultTitle": "Programmu sudah siap",
     "slide1Body": "Lebih banyak kontrol, lebih tahan lama, sensasi lebih baik. Dasar panggul adalah otot, dan dilatih seperti otot.",
     "slide1Title": "Lebih kuat di ranjang",
     "slide2Body": "Tanpa gym, tanpa alat, tanpa melepas apa pun. Di sofa, di meja kerja, di bus. Tak ada yang tahu.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Ubah paket",
     "close": "Tutup",
     "continueToApp": "Lanjut ke aplikasi",
+    "currentPlan": "Paket saat ini",
     "everyPlanStartsWithTrial_one": "Semua paket dimulai dengan uji coba gratis {{count}} hari",
     "everyPlanStartsWithTrial_other": "Semua paket dimulai dengan uji coba gratis {{count}} hari",
     "logOut": "Keluar",
@@ -318,6 +316,8 @@
     "startYourJourney": "Buka seluruh program",
     "subscribe": "Berlangganan",
     "subscriptionActivated": "Langganan aktif!",
+    "switchStartsLater": "Mulai saat paketmu yang sekarang berakhir.",
+    "switchStartsNow": "Mulai sekarang. Sisa waktumu dihitung sebagai kredit.",
     "switchToPlan": "Pindah ke {{plan}}",
     "terms": "Ketentuan",
     "trialThenPrice_one": "Gratis {{count}} hari, lalu {{price}}. Diperpanjang otomatis kecuali kamu batalkan sebelum masa coba berakhir.",
@@ -341,6 +341,12 @@
       "name": "1 tahun",
       "period": "/tahun"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Ukur lama tahananmu dan lihat perkembangannya.",
+    "noticeSchedule": "Pengingat untuk hari dan jam latihanmu.",
+    "unlockMore": "Buka lebih banyak dengan Premium"
   },
   "profile": {
     "currentDifficulty": "Tingkat kesulitan saat ini",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Atur waktumu untuk seminggu"
   },
   "settings": {
+    "appearance": "Tampilan",
+    "appearanceDark": "Gelap",
+    "appearanceLight": "Terang",
+    "appearanceSystem": "Sistem",
     "autoRenewalOff": "Perpanjangan otomatis nonaktif. Akses berakhir pada {{date}}.",
     "cancel": "Batal",
     "cancelledUntilDate": "Dibatalkan. Aksesmu tetap aktif sampai {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Kemajuan",
     "schedule": "Jadwal",
     "training": "Latihan"
+  },
+  "tour": {
+    "homeRingBody": "Satu hari dihitung saat kedua sesi selesai. Cincin terisi seiring jalan.",
+    "homeRingTitle": "Hari Anda",
+    "homeStartBody": "Sesi hari ini sudah disiapkan. Tinggal tekan mulai.",
+    "homeStartTitle": "Mulai di sini",
+    "homeUnlockBody": "Latihan lain terbuka seiring kamu terus berlatih.",
+    "homeUnlockTitle": "Masih ada lagi",
+    "profileLevelBody": "Ini menentukan lama satu sesi. Ubah kapan saja.",
+    "profileLevelTitle": "Ubah tingkat kesulitan",
+    "progressChartBody": "Hasil pengukuranmu dari waktu ke waktu, biar kelihatan perkembangannya.",
+    "progressChartTitle": "Kemajuan Anda",
+    "progressMeasureBody": "Tahan selama yang Anda bisa. Ulangi tiap satu-dua minggu untuk melihat perubahannya.",
+    "progressMeasureTitle": "Ukur tahanan Anda",
+    "scheduleMonthBody": "Tiap kotak adalah satu hari latihan. Kotak terisi saat Anda menyelesaikannya.",
+    "scheduleMonthTitle": "Bulan Anda",
+    "scheduleRemindersBody": "Pilih hari dan jam yang cocok buatmu. Pengingat membantu.",
+    "scheduleRemindersTitle": "Atur pengingat Anda",
+    "sessionListBody": "Semua langkah sesi ini, berurutan. Yang di tengah sedang berjalan.",
+    "sessionListTitle": "Yang berikutnya",
+    "sessionPauseBody": "Tidak ada yang hilang jika berhenti. Lanjutkan kapan pun siap.",
+    "sessionPauseTitle": "Jeda kapan saja",
+    "sessionRingBody": "Kencangkan saat terisi dan rileks saat mengosong. Itu saja latihannya.",
+    "sessionRingTitle": "Ikuti lingkaran"
   },
   "training": {
     "available": "Tersedia",

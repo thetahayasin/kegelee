@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
-    "baselineTitle": "Jetzt messen wir deinen Ausgangspunkt",
     "buildingPlan": "Wir erstellen deinen Plan",
     "getStarted": "Loslegen",
     "logIn": "Anmelden",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Etwa fünf Minuten",
     "quizTimeQ": "Wie lange kannst du täglich trainieren?",
     "quizTimeShort": "Ein paar Minuten",
-    "resultBody": "Wir starten hier und passen an, sobald du stärker wirst.",
-    "resultLevelLabel": "Startlevel",
-    "resultTitle": "Dein Ausgangspunkt",
+    "resultTitle": "Dein Plan ist fertig",
     "slide1Body": "Mehr Kontrolle, mehr Ausdauer, intensiveres Gefühl. Dein Beckenboden ist ein Muskel und lässt sich trainieren wie einer.",
     "slide1Title": "Stärker im Bett",
     "slide2Body": "Kein Fitnessstudio, keine Geräte, nichts ausziehen. Auf dem Sofa, am Schreibtisch, im Bus. Niemand merkt es.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Tarif wechseln",
     "close": "Schließen",
     "continueToApp": "Weiter zur App",
+    "currentPlan": "Aktueller Plan",
     "everyPlanStartsWithTrial_one": "Jeder Tarif startet mit {{count}} Tag gratis",
     "everyPlanStartsWithTrial_other": "Jeder Tarif startet mit {{count}} Tagen gratis",
     "logOut": "Abmelden",
@@ -318,6 +316,8 @@
     "startYourJourney": "Das ganze Programm freischalten",
     "subscribe": "Abonnieren",
     "subscriptionActivated": "Abo aktiviert!",
+    "switchStartsLater": "Beginnt, wenn dein aktueller Plan endet.",
+    "switchStartsNow": "Beginnt sofort. Deine ungenutzte Zeit wird angerechnet.",
     "switchToPlan": "Zu {{plan}} wechseln",
     "terms": "AGB",
     "trialThenPrice_one": "{{count}} Tag gratis, danach {{price}}. Verlängert sich automatisch, wenn du nicht vor Ende der Testphase kündigst.",
@@ -341,6 +341,12 @@
       "name": "1 Jahr",
       "period": "/Jahr"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Miss deine Haltedauer und sieh den Verlauf wachsen.",
+    "noticeSchedule": "Erinnerungen für deine Trainingstage und -zeiten.",
+    "unlockMore": "Mit Premium mehr freischalten"
   },
   "profile": {
     "currentDifficulty": "Aktueller Schwierigkeitsgrad",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Zeiten für deine Woche festlegen"
   },
   "settings": {
+    "appearance": "Erscheinungsbild",
+    "appearanceDark": "Dunkel",
+    "appearanceLight": "Hell",
+    "appearanceSystem": "System",
     "autoRenewalOff": "Die automatische Verlängerung ist aus. Der Zugang endet am {{date}}.",
     "cancel": "Abbrechen",
     "cancelledUntilDate": "Gekündigt. Dein Zugang bleibt bis zum {{date}} aktiv.",
@@ -527,6 +537,30 @@
     "progress": "Fortschritt",
     "schedule": "Plan",
     "training": "Training"
+  },
+  "tour": {
+    "homeRingBody": "Ein Tag zählt, wenn beide Einheiten fertig sind. Der Ring füllt sich dabei.",
+    "homeRingTitle": "Dein Tag",
+    "homeStartBody": "Deine Einheit für heute steht bereits. Einfach starten.",
+    "homeStartTitle": "Hier starten",
+    "homeUnlockBody": "Weitere Übungen kommen dazu, während du weitertrainierst.",
+    "homeUnlockTitle": "Es kommt noch mehr",
+    "profileLevelBody": "Das bestimmt, wie lang eine Einheit ist. Ändere es jederzeit.",
+    "profileLevelTitle": "Schwierigkeit ändern",
+    "progressChartBody": "Deine Messungen im Verlauf, damit du siehst, wie es läuft.",
+    "progressChartTitle": "Dein Fortschritt",
+    "progressMeasureBody": "Halte so lange du kannst. Wiederhole es alle ein bis zwei Wochen, um die Veränderung zu sehen.",
+    "progressMeasureTitle": "Miss deine Haltezeit",
+    "scheduleMonthBody": "Jedes Feld ist ein Trainingstag. Sie füllen sich, sobald du sie abschließt.",
+    "scheduleMonthTitle": "Dein Monat",
+    "scheduleRemindersBody": "Wähle die Tage und Zeiten, die dir passen. Ein Anstupser hilft.",
+    "scheduleRemindersTitle": "Erinnerungen einstellen",
+    "sessionListBody": "Alle Schritte dieser Einheit der Reihe nach. Der in der Mitte läuft gerade.",
+    "sessionListTitle": "Was kommt",
+    "sessionPauseBody": "Es geht nichts verloren, wenn du aufhörst. Mach weiter, wenn du bereit bist.",
+    "sessionPauseTitle": "Jederzeit pausieren",
+    "sessionRingBody": "Anspannen, während er sich füllt, entspannen, während er sich leert. Das ist die ganze Übung.",
+    "sessionRingTitle": "Folge dem Kreis"
   },
   "training": {
     "available": "Verfügbar",

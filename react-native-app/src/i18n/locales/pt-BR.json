@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Já tem uma conta?",
-    "baselineTitle": "Agora vamos medir seu ponto de partida",
     "buildingPlan": "Montando seu plano",
     "getStarted": "Começar",
     "logIn": "Entrar",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Cerca de cinco minutos",
     "quizTimeQ": "Quanto tempo você pode treinar por dia?",
     "quizTimeShort": "Alguns minutos",
-    "resultBody": "Começamos aqui e ajustamos conforme você fica mais forte.",
-    "resultLevelLabel": "Nível inicial",
-    "resultTitle": "Seu ponto de partida",
+    "resultTitle": "Seu plano está pronto",
     "slide1Body": "Mais controle, mais resistência, sensações melhores. O assoalho pélvico é um músculo e treina como um.",
     "slide1Title": "Mais forte na cama",
     "slide2Body": "Sem academia, sem equipamento, sem tirar nada. No sofá, na mesa de trabalho, no ônibus. Ninguém percebe.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Mudar de plano",
     "close": "Fechar",
     "continueToApp": "Continuar para o app",
+    "currentPlan": "Plano atual",
     "everyPlanStartsWithTrial_one": "Todo plano começa com {{count}} dia grátis",
     "everyPlanStartsWithTrial_other": "Todo plano começa com {{count}} dias grátis",
     "logOut": "Sair",
@@ -318,6 +316,8 @@
     "startYourJourney": "Desbloqueie o programa inteiro",
     "subscribe": "Assinar",
     "subscriptionActivated": "Assinatura ativada!",
+    "switchStartsLater": "Começa quando seu plano atual terminar.",
+    "switchStartsNow": "Começa agora. Seu tempo não usado vira crédito.",
     "switchToPlan": "Mudar para {{plan}}",
     "terms": "Termos",
     "trialThenPrice_one": "{{count}} dia grátis, depois {{price}}. Renova automaticamente, a menos que você cancele antes do fim do teste.",
@@ -341,6 +341,12 @@
       "name": "1 ano",
       "period": "/ano"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Meça quanto tempo você sustenta e veja a evolução.",
+    "noticeSchedule": "Lembretes para os dias e horários em que você treina.",
+    "unlockMore": "Desbloqueie mais com o Premium"
   },
   "profile": {
     "currentDifficulty": "Dificuldade atual",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Defina seus horários da semana"
   },
   "settings": {
+    "appearance": "Aparência",
+    "appearanceDark": "Escuro",
+    "appearanceLight": "Claro",
+    "appearanceSystem": "Sistema",
     "autoRenewalOff": "A renovação automática está desativada. O acesso termina em {{date}}.",
     "cancel": "Cancelar",
     "cancelledUntilDate": "Cancelada. Seu acesso continua ativo até {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Progresso",
     "schedule": "Agenda",
     "training": "Treino"
+  },
+  "tour": {
+    "homeRingBody": "Um dia conta quando as duas sessões terminam. O anel enche conforme você avança.",
+    "homeRingTitle": "Seu dia",
+    "homeStartBody": "Sua sessão de hoje já está pronta. É só apertar começar.",
+    "homeStartTitle": "Comece aqui",
+    "homeUnlockBody": "Mais exercícios abrem conforme você continua treinando.",
+    "homeUnlockTitle": "Tem mais por vir",
+    "profileLevelBody": "Define quanto dura uma sessão. Mude quando quiser.",
+    "profileLevelTitle": "Mude a dificuldade",
+    "progressChartBody": "Suas medições ao longo do tempo, para ver como está indo.",
+    "progressChartTitle": "Seu progresso",
+    "progressMeasureBody": "Segure o máximo que conseguir. Repita a cada uma ou duas semanas para ver a mudança.",
+    "progressMeasureTitle": "Meça sua retenção",
+    "scheduleMonthBody": "Cada quadrado é um dia de treino. Eles preenchem conforme você completa.",
+    "scheduleMonthTitle": "Seu mês",
+    "scheduleRemindersBody": "Escolha os dias e horários que combinam com você. Um lembrete ajuda.",
+    "scheduleRemindersTitle": "Configure seus lembretes",
+    "sessionListBody": "Todas as etapas desta sessão, em ordem. A do meio é a atual.",
+    "sessionListTitle": "O que vem",
+    "sessionPauseBody": "Nada se perde se você parar. Retome quando quiser.",
+    "sessionPauseTitle": "Pause quando quiser",
+    "sessionRingBody": "Contraia enquanto enche e relaxe enquanto esvazia. É todo o exercício.",
+    "sessionRingTitle": "Siga o círculo"
   },
   "training": {
     "available": "Disponível",

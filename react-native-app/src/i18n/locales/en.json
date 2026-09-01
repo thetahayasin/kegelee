@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Already have an account?",
-    "baselineTitle": "Now let's measure your starting point",
     "buildingPlan": "Building your plan",
     "getStarted": "Get Started",
     "logIn": "Log in",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "About five minutes",
     "quizTimeQ": "How long can you train each day?",
     "quizTimeShort": "A couple of minutes",
-    "resultBody": "We'll begin here and adjust as you get stronger.",
-    "resultLevelLabel": "Starting level",
-    "resultTitle": "Your starting point",
+    "resultTitle": "Your plan is ready",
     "slide1Body": "More control, more stamina, better sensation. Your pelvic floor is a muscle, and it trains like one.",
     "slide1Title": "Stronger in bed",
     "slide2Body": "No gym, no equipment, nothing to take off. On the sofa, at your desk, on the bus. Nobody can tell.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Change your plan",
     "close": "Close",
     "continueToApp": "Continue to App",
+    "currentPlan": "Current plan",
     "everyPlanStartsWithTrial_one": "Every plan starts with a {{count}}-day free trial",
     "everyPlanStartsWithTrial_other": "Every plan starts with a {{count}}-day free trial",
     "logOut": "Log out",
@@ -318,6 +316,8 @@
     "startYourJourney": "Unlock the whole program",
     "subscribe": "Subscribe",
     "subscriptionActivated": "Subscription activated!",
+    "switchStartsLater": "Starts when your current plan ends.",
+    "switchStartsNow": "Starts now. Your unused time is credited.",
     "switchToPlan": "Switch to {{plan}}",
     "terms": "Terms",
     "trialThenPrice_one": "{{count}}-day free trial, then {{price}}. Renews automatically unless you cancel before the trial ends.",
@@ -341,6 +341,12 @@
       "name": "1 Year",
       "period": "/year"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Measure your hold and watch the trend build.",
+    "noticeSchedule": "Reminders for the days and times you train.",
+    "unlockMore": "Unlock more with Premium"
   },
   "profile": {
     "currentDifficulty": "Current difficulty",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Set times for your week"
   },
   "settings": {
+    "appearance": "Appearance",
+    "appearanceDark": "Dark",
+    "appearanceLight": "Light",
+    "appearanceSystem": "System",
     "autoRenewalOff": "Auto-renewal is off. Access ends {{date}}.",
     "cancel": "Cancel",
     "cancelledUntilDate": "Cancelled. Your access remains active until {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Progress",
     "schedule": "Schedule",
     "training": "Training"
+  },
+  "tour": {
+    "homeRingBody": "A day counts when both sessions are done. The ring fills as you go.",
+    "homeRingTitle": "Your day",
+    "homeStartBody": "Your session is already built for today. Just press start.",
+    "homeStartTitle": "Start here",
+    "homeUnlockBody": "More exercises open up as you keep training.",
+    "homeUnlockTitle": "More to come",
+    "profileLevelBody": "This sets how long a session lasts. Change it whenever you like.",
+    "profileLevelTitle": "Change the difficulty",
+    "progressChartBody": "Your measurements over time, so you can see how things are going.",
+    "progressChartTitle": "Your progress",
+    "progressMeasureBody": "Hold for as long as you can. Do it every week or two to see the change.",
+    "progressMeasureTitle": "Measure your hold",
+    "scheduleMonthBody": "Each square is a training day. They fill in as you complete them.",
+    "scheduleMonthTitle": "Your month",
+    "scheduleRemindersBody": "Pick the days and times that suit you. A nudge helps.",
+    "scheduleRemindersTitle": "Set your reminders",
+    "sessionListBody": "Every step of this session, in order. The one in the middle is happening now.",
+    "sessionListTitle": "What's coming",
+    "sessionPauseBody": "Nothing is lost if you stop. Pick it up whenever you are ready.",
+    "sessionPauseTitle": "Pause any time",
+    "sessionRingBody": "Squeeze as it fills and relax as it empties. That is the whole exercise.",
+    "sessionRingTitle": "Follow the circle"
   },
   "training": {
     "available": "Available",

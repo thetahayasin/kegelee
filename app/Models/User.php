@@ -29,6 +29,9 @@ class User extends Authenticatable
             'onboarding_completed_at' => 'datetime',
             'onboarding_skipped' => 'boolean',
             'onboarding_baseline_seconds' => 'float',
+            // Deprecated: written only by the demo session, which no
+            // longer exists. Kept so the historic dates are not thrown away;
+            // nothing reads it, and 'trained' is derived from workoutSessions.
             'free_session_completed_at' => 'datetime',
         ];
     }
@@ -66,8 +69,8 @@ class User extends Authenticatable
         if ($this->subscriptions()->whereIn('status', ['active', 'trialing'])->exists()) {
             return 'subscribed';
         }
-        if ($this->free_session_completed_at) {
-            return 'demo done';
+        if ($this->workoutSessions()->exists()) {
+            return 'trained';
         }
         if ($this->completedLessons()->wherePivotNotNull('completed_at')->exists()) {
             return 'basics';

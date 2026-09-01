@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "لديك حساب بالفعل؟",
-    "baselineTitle": "الآن لنقِس نقطة البداية",
     "buildingPlan": "نُعِدّ خطتك",
     "getStarted": "لنبدأ",
     "logIn": "تسجيل الدخول",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "خمس دقائق تقريبًا",
     "quizTimeQ": "كم من الوقت يمكنك التدرب كل يوم؟",
     "quizTimeShort": "دقيقتان تقريبًا",
-    "resultBody": "سنبدأ من هنا ونعدّل مع تقدمك.",
-    "resultLevelLabel": "مستوى البداية",
-    "resultTitle": "نقطة البداية",
+    "resultTitle": "خطتك جاهزة",
     "slide1Body": "تحكّم أكبر، وقدرة أطول، وإحساس أوضح. قاع الحوض عضلة، ويُدرَّب كأي عضلة.",
     "slide1Title": "أقوى في العلاقة",
     "slide2Body": "لا نادي رياضي، ولا أجهزة، ولا شيء تخلعه. على الأريكة، أمام المكتب، في الحافلة. لن يلاحظ أحد.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "غيّر خطتك",
     "close": "إغلاق",
     "continueToApp": "المتابعة إلى التطبيق",
+    "currentPlan": "خطتك الحالية",
     "everyPlanStartsWithTrial_one": "كل خطة تبدأ بتجربة مجانية ليوم واحد",
     "everyPlanStartsWithTrial_other": "كل خطة تبدأ بتجربة مجانية لمدة {{count}} أيام",
     "logOut": "تسجيل الخروج",
@@ -318,6 +316,8 @@
     "startYourJourney": "افتح البرنامج بالكامل",
     "subscribe": "اشترك",
     "subscriptionActivated": "تم تفعيل الاشتراك!",
+    "switchStartsLater": "يبدأ عند انتهاء خطتك الحالية.",
+    "switchStartsNow": "يبدأ الآن، مع احتساب رصيد وقتك غير المستخدم.",
     "switchToPlan": "التبديل إلى {{plan}}",
     "terms": "الشروط",
     "trialThenPrice_one": "تجربة مجانية ليوم واحد، ثم {{price}}. يتجدد تلقائيًا ما لم تُلغِ قبل انتهاء التجربة.",
@@ -341,6 +341,12 @@
       "name": "سنة واحدة",
       "period": "/سنة"
     }
+  },
+  "premium": {
+    "badge": "بريميوم",
+    "noticeProgress": "قِس مدة ثباتك وتابع تطوّرك.",
+    "noticeSchedule": "تذكيرات لأيام وأوقات تدريبك.",
+    "unlockMore": "افتح المزيد مع بريميوم"
   },
   "profile": {
     "currentDifficulty": "مستوى الصعوبة الحالي",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "اضبط أوقات أسبوعك"
   },
   "settings": {
+    "appearance": "المظهر",
+    "appearanceDark": "داكن",
+    "appearanceLight": "فاتح",
+    "appearanceSystem": "النظام",
     "autoRenewalOff": "التجديد التلقائي متوقّف. ينتهي الوصول في {{date}}.",
     "cancel": "إلغاء",
     "cancelledUntilDate": "ملغى. يبقى وصولك فعّالًا حتى {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "التقدّم",
     "schedule": "الجدول",
     "training": "التدريب"
+  },
+  "tour": {
+    "homeRingBody": "يُحتسب اليوم عند إتمام الجلستين. تمتلئ الحلقة مع تقدمك.",
+    "homeRingTitle": "يومك",
+    "homeStartBody": "جلستك جاهزة لليوم. اضغط ابدأ فقط.",
+    "homeStartTitle": "ابدأ من هنا",
+    "homeUnlockBody": "تُفتح تمارين أخرى كلما واصلت التدريب.",
+    "homeUnlockTitle": "المزيد قادم",
+    "profileLevelBody": "هذا يحدد مدة الجلسة. غيّره متى شئت.",
+    "profileLevelTitle": "غيّر مستوى الصعوبة",
+    "progressChartBody": "قياساتك عبر الوقت، لترى كيف تسير الأمور.",
+    "progressChartTitle": "تقدمك",
+    "progressMeasureBody": "اثبت أطول مدة ممكنة. كرر ذلك كل أسبوع أو أسبوعين لترى التغيير.",
+    "progressMeasureTitle": "قِس مدة الثبات",
+    "scheduleMonthBody": "كل مربع يمثل يوم تدريب. تمتلئ المربعات كلما أكملت أيامك.",
+    "scheduleMonthTitle": "شهرك",
+    "scheduleRemindersBody": "اختر الأيام والأوقات التي تناسبك. التذكير يساعد.",
+    "scheduleRemindersTitle": "اضبط تذكيراتك",
+    "sessionListBody": "كل خطوة في هذه الجلسة بالترتيب. الخطوة في المنتصف تجري الآن.",
+    "sessionListTitle": "ما هو قادم",
+    "sessionPauseBody": "لا شيء يضيع إذا توقفت. تابع متى شئت.",
+    "sessionPauseTitle": "أوقف مؤقتًا في أي وقت",
+    "sessionRingBody": "اضغط بينما تمتلئ واسترخِ بينما تفرغ. هذا هو التمرين كله.",
+    "sessionRingTitle": "اتبع الدائرة"
   },
   "training": {
     "available": "متاح",

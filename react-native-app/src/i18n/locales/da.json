@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Har du allerede en konto?",
-    "baselineTitle": "Lad os måle dit udgangspunkt",
     "buildingPlan": "Vi bygger din plan",
     "getStarted": "Kom i gang",
     "logIn": "Log ind",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Cirka fem minutter",
     "quizTimeQ": "Hvor længe kan du træne hver dag?",
     "quizTimeShort": "Et par minutter",
-    "resultBody": "Vi starter her og justerer, efterhånden som du bliver stærkere.",
-    "resultLevelLabel": "Startniveau",
-    "resultTitle": "Dit udgangspunkt",
+    "resultTitle": "Din plan er klar",
     "slide1Body": "Mere kontrol, mere udholdenhed, bedre fornemmelse. Bækkenbunden er en muskel og trænes som en.",
     "slide1Title": "Stærkere i sengen",
     "slide2Body": "Intet fitnesscenter, intet udstyr, intet at tage af. I sofaen, ved skrivebordet, i bussen. Ingen opdager noget.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Skift abonnement",
     "close": "Luk",
     "continueToApp": "Videre til appen",
+    "currentPlan": "Nuværende plan",
     "everyPlanStartsWithTrial_one": "Alle abonnementer starter med {{count}} dags gratis prøve",
     "everyPlanStartsWithTrial_other": "Alle abonnementer starter med {{count}} dages gratis prøve",
     "logOut": "Log ud",
@@ -318,6 +316,8 @@
     "startYourJourney": "Lås hele programmet op",
     "subscribe": "Abonner",
     "subscriptionActivated": "Abonnementet er aktiveret!",
+    "switchStartsLater": "Starter, når din nuværende plan slutter.",
+    "switchStartsNow": "Starter nu. Din ubrugte tid bliver godskrevet.",
     "switchToPlan": "Skift til {{plan}}",
     "terms": "Vilkår",
     "trialThenPrice_one": "{{count}} dags gratis prøve, derefter {{price}}. Fornyes automatisk, medmindre du opsiger inden prøven slutter.",
@@ -341,6 +341,12 @@
       "name": "1 år",
       "period": "/år"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Mål dit hold, og se udviklingen tage form.",
+    "noticeSchedule": "Påmindelser til de dage og tidspunkter, du træner.",
+    "unlockMore": "Lås mere op med Premium"
   },
   "profile": {
     "currentDifficulty": "Nuværende sværhedsgrad",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Angiv tider for din uge"
   },
   "settings": {
+    "appearance": "Udseende",
+    "appearanceDark": "Mørk",
+    "appearanceLight": "Lys",
+    "appearanceSystem": "System",
     "autoRenewalOff": "Automatisk fornyelse er slået fra. Adgangen slutter {{date}}.",
     "cancel": "Annuller",
     "cancelledUntilDate": "Opsagt. Din adgang gælder til {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Fremskridt",
     "schedule": "Plan",
     "training": "Træning"
+  },
+  "tour": {
+    "homeRingBody": "En dag tæller, når begge sessioner er færdige. Ringen fyldes undervejs.",
+    "homeRingTitle": "Din dag",
+    "homeStartBody": "Dagens session er allerede klar. Tryk bare start.",
+    "homeStartTitle": "Start her",
+    "homeUnlockBody": "Flere øvelser åbner, efterhånden som du træner videre.",
+    "homeUnlockTitle": "Mere på vej",
+    "profileLevelBody": "Det bestemmer, hvor lang en session er. Skift det, når du vil.",
+    "profileLevelTitle": "Skift sværhedsgrad",
+    "progressChartBody": "Dine målinger over tid, så du kan se, hvordan det går.",
+    "progressChartTitle": "Din fremgang",
+    "progressMeasureBody": "Hold så længe du kan. Gør det hver uge eller to for at se forskellen.",
+    "progressMeasureTitle": "Mål dit hold",
+    "scheduleMonthBody": "Hvert felt er en træningsdag. De fyldes ud, efterhånden som du gennemfører dem.",
+    "scheduleMonthTitle": "Din måned",
+    "scheduleRemindersBody": "Vælg de dage og tidspunkter, der passer dig. Et lille skub hjælper.",
+    "scheduleRemindersTitle": "Indstil dine påmindelser",
+    "sessionListBody": "Alle trin i denne session i rækkefølge. Det i midten kører nu.",
+    "sessionListTitle": "Hvad der kommer",
+    "sessionPauseBody": "Intet går tabt, hvis du stopper. Fortsæt, når du er klar.",
+    "sessionPauseTitle": "Pause når som helst",
+    "sessionRingBody": "Spænd, mens den fyldes, og slap af, mens den tømmes. Det er hele øvelsen.",
+    "sessionRingTitle": "Følg cirklen"
   },
   "training": {
     "available": "Tilgængelig",

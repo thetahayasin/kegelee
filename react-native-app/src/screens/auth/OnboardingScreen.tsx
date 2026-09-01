@@ -14,12 +14,14 @@ import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity } from '../../components/Touchable';
+import { FadeIn } from '../../components/FadeIn';
 import type { AuthStackParamList } from '../../navigation/AppNavigator';
-import { COLORS, TYPE, SPACE, RADIUS } from '../../theme/colors';
-import { SubscribeSheet } from '../../components/SubscribeSheet';
+import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
+import { useTheme, useThemeMode, useThemedStyles } from '../../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ONBOARDING_QUIZ_KEY } from '../../context/AuthContext';
 import { OnboardingQuiz, QuizResult } from './OnboardingQuiz';
+import { track } from '../../services/events';
 
 /**
  * First run: three photographs, three lines, one button.
@@ -47,6 +49,16 @@ import { OnboardingQuiz, QuizResult } from './OnboardingQuiz';
 
 const { width, height } = Dimensions.get('window');
 const ART_H = Math.round(height * 0.52);
+
+/**
+ * Text drawn ON the photograph.
+ *
+ * Deliberately outside the palette. The artwork is the same dark image in both
+ * appearances, so anything sitting on top of it has to stay light whichever
+ * appearance the reader picked - a themed colour here inverts to black ink on
+ * a black photo.
+ */
+const ON_ART = '#f2f5ee';
 
 const SLIDES = [
   {
@@ -76,32 +88,68 @@ const SLIDES = [
  * app look assembled instead of designed. Drawn with react-native-svg because
  * no gradient package is installed, and adding a native dependency for one
  * rectangle is not worth the build risk.
+ *
+ * The gradient is now CLEAR for the top half and only closes over the bottom.
+ * It used to open at 0.5, thin to 0.3 at mid-height, and then climb - a veil
+ * across the whole image with a turning point in the middle of it. On the dark
+ * palette that passed as atmosphere. On the light one it is a white wash that
+ * lightens the top of the photograph, thins into a darker band across its
+ * middle, and lightens again: a hard horizontal line through the artwork that
+ * belongs to neither the photo nor the page. That band is the "border".
+ *
+ * The 0.5 at the top existed for one reason - to darken the corner enough for
+ * the Skip label to read against it - and Skip carries its own scrim pill now,
+ * so nothing needs it. The photograph shows as taken, and dissolves into the
+ * page only where it actually has to meet it.
  */
-const Scrim = () => (
-  <Svg width={width} height={ART_H} style={StyleSheet.absoluteFill} pointerEvents="none">
-    <Defs>
-      <LinearGradient id="obScrim" x1="0" y1="0" x2="0" y2="1">
-        <Stop offset="0" stopColor={COLORS.bg} stopOpacity="0.5" />
-        <Stop offset="0.45" stopColor={COLORS.bg} stopOpacity="0.3" />
-        <Stop offset="0.82" stopColor={COLORS.bg} stopOpacity="0.92" />
-        <Stop offset="1" stopColor={COLORS.bg} stopOpacity="1" />
-      </LinearGradient>
-    </Defs>
-    <Rect width={width} height={ART_H} fill="url(#obScrim)" />
-  </Svg>
-);
+const Scrim = () => {
+  const COLORS = useTheme();
+  const { scheme } = useThemeMode();
+
+  /**
+   * On a light page there is no dissolve, and there should not be one.
+   *
+   * The artwork is dark photography. Fading a dark photograph into a near
+   * white ground cannot be done cleanly - the gradient has to travel the whole
+   * tonal range, and every value in between reads as a grey haze with edges
+   * of its own. Three attempts at tuning the stops produced three different
+   * visible bands, because the problem is not the stops.
+   *
+   * So light mode does not try. The photograph ends where it ends, with a
+   * rounded lower edge, and sits ON the page as a hero card rather than
+   * pretending to melt into it. An edge that is obviously intended reads as
+   * design; an edge that is trying and failing to disappear reads as a bug -
+   * which is exactly how the fade was being read.
+   */
+  if (scheme === 'light') return null;
+
+  return (
+    <Svg width={width} height={ART_H} style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Defs>
+        <LinearGradient id="obScrim" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={COLORS.bg} stopOpacity="0" />
+          <Stop offset="0.5" stopColor={COLORS.bg} stopOpacity="0" />
+          <Stop offset="0.72" stopColor={COLORS.bg} stopOpacity="0.45" />
+          <Stop offset="0.88" stopColor={COLORS.bg} stopOpacity="0.9" />
+          <Stop offset="1" stopColor={COLORS.bg} stopOpacity="1" />
+        </LinearGradient>
+      </Defs>
+      <Rect width={width} height={ART_H} fill="url(#obScrim)" />
+    </Svg>
+  );
+};
 
 interface OnboardingScreenProps {
   onComplete: () => void;
 }
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
+  const styles = useThemedStyles(makeStyles);
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
   const listRef = useRef<FlatList>(null);
 
   const [index, setIndex] = useState(0);
-  const [sheetVisible, setSheetVisible] = useState(false);
   const isLast = index === SLIDES.length - 1;
   /**
    * The slides hand off to the quiz, and the quiz to the plans sheet.
@@ -118,13 +166,12 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     setIndex((cur) => (cur === next ? cur : next));
   }, []);
 
-  // Finishing the slides opens the quiz, not the plans.
+  // Finishing the slides opens the quiz.
   //
-  // The sheet used to open here, four slides in, which is the weakest moment
-  // there is to name a price: nothing has been established about the reader,
-  // so there is nothing for the number to attach to. It opens after the
-  // result instead, where the reader has just been shown two figures of their
-  // own - the seconds they held, and the level that produces.
+  // Nothing here names a price any more. Training is free inside the first
+  // three exercises, so a guest has nothing to buy yet - what they need is an
+  // account for the progress to live in, and the ask for that comes at the end
+  // of the basics rather than four slides into an app they have not used.
   const finish = () => {
     setQuizVisible(true);
   };
@@ -139,6 +186,32 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
    * every later 'you have improved' depends on having.
    */
   const finishQuiz = (result: QuizResult) => {
+    // Recorded here rather than in the quiz, because this is where the result
+    // is known - including whether it was answered or skipped, which is the
+    // only interesting thing about it.
+    //
+    // There is no account yet, so this is queued against the id the sync layer
+    // resolves once one exists; a guest quiz that never becomes an account is
+    // genuinely not attributable and is not counted.
+    track(
+      null,
+      result.skipped ? 'quiz_skipped' : 'quiz_completed',
+      null,
+      { level: result.level, experience: result.experience, dailyTime: result.dailyTime },
+    );
+    // Recorded here rather than in the quiz, because this is where the result
+    // is known - including whether it was answered or skipped, which is the
+    // only interesting thing about it.
+    //
+    // There is no account yet, so this is queued against the id the sync layer
+    // resolves once one exists; a guest quiz that never becomes an account is
+    // genuinely not attributable and is not counted.
+    track(
+      null,
+      result.skipped ? 'quiz_skipped' : 'quiz_completed',
+      null,
+      { level: result.level, experience: result.experience, dailyTime: result.dailyTime },
+    );
     AsyncStorage.setItem(
       ONBOARDING_QUIZ_KEY,
       JSON.stringify({
@@ -153,23 +226,14 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     });
     setQuizVisible(false);
     onComplete();
-    setSheetVisible(true);
-  };
-  const finishToBasics = () => {
-    setSheetVisible(false);
-    onComplete();
+    // Straight into the lessons. The result screen has just told them their
+    // level and their opening hold; a price on top of that would be asking
+    // for money from someone who still has not used the thing.
     navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] });
   };
   const goToLogin = () => {
     onComplete();
     navigation.reset({ index: 1, routes: [{ name: 'Knowledge' }, { name: 'Login' }] });
-  };
-  const goToVerify = (email: string) => {
-    onComplete();
-    navigation.reset({
-      index: 1,
-      routes: [{ name: 'Knowledge' }, { name: 'VerifyEmail', params: { email } }],
-    });
   };
 
   const advance = () => {
@@ -184,12 +248,6 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     return (
       <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
         <OnboardingQuiz onDone={finishQuiz} />
-        <SubscribeSheet
-          visible={sheetVisible}
-          showBar={false}
-          onClose={finishToBasics}
-          onNavigateToVerify={goToVerify}
-        />
       </SafeAreaView>
     );
   }
@@ -230,10 +288,14 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
               />
               <Scrim />
             </View>
-            <View style={styles.copy}>
+            {/* The photograph pages with the swipe; the words did not, so
+                they were simply present the moment the slide arrived. Rising
+                them a few points behind the image is what makes the slide feel
+                like it lands rather than like it cuts. */}
+            <FadeIn style={styles.copy} delay={90} resetKey={item.key}>
               <Text style={styles.title}>{t(item.titleKey)}</Text>
               <Text style={styles.body}>{t(item.bodyKey)}</Text>
-            </View>
+            </FadeIn>
           </View>
         )}
       />
@@ -263,21 +325,24 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         </TouchableOpacity>
       </View>
 
-      <SubscribeSheet
-        visible={sheetVisible}
-        showBar={false}
-        onClose={finishToBasics}
-        onNavigateToVerify={goToVerify}
-      />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
 
-  // Floats over the photograph, inside the top safe area. The scrim already
-  // darkens that corner, so the label reads without a chip behind it.
+  // Floats over the photograph, inside the top safe area.
+  //
+  // It used to be a bare label in COLORS.white and nothing else, on the
+  // reasoning that the scrim already darkens that corner. That held for
+  // exactly as long as there was one appearance: in the light palette
+  // COLORS.white resolves to near-black ink, which put dark text on a dark
+  // photograph and made Skip disappear.
+  //
+  // The label is now fixed light and sits on its own scrim pill, so it does
+  // not depend on the palette OR on how bright a particular photograph
+  // happens to be in its top-right corner.
   skipRow: {
     position: 'absolute',
     top: 0,
@@ -286,11 +351,39 @@ const styles = StyleSheet.create({
     paddingTop: SPACE.xxl,
     paddingRight: SPACE.lg,
   },
-  skipBtn: { paddingHorizontal: SPACE.md, paddingVertical: SPACE.sm },
-  skipText: { ...TYPE.bodySm, color: COLORS.white, fontWeight: '600' },
+  skipBtn: {
+    paddingHorizontal: SPACE.md,
+    paddingVertical: SPACE.sm,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.scrimSoft,
+  },
+  // ON_ART, not COLORS.white: this text is over a photograph, not over the
+  // page, so it takes its colour from what is behind it rather than from the
+  // appearance the reader chose.
+  skipText: { ...TYPE.bodySm, color: ON_ART, fontWeight: '600' },
 
   slide: { width, flex: 1 },
-  art: { height: ART_H, width, backgroundColor: COLORS.surface },
+  /**
+   * The photograph block.
+   *
+   * COLORS.bg behind it, matching what the dark scrim fades into, so the two
+   * cannot disagree the way `surface` did.
+   *
+   * The rounded lower corners are what light mode gets instead of a fade. The
+   * artwork runs full bleed to the top and both sides - it is the first thing
+   * on the screen and should be - and stops at the bottom with a deliberate
+   * radius, which reads as a hero card on the page. In dark mode the scrim
+   * covers the same corners before they can show, so the radius costs nothing
+   * there.
+   */
+  art: {
+    height: ART_H,
+    width,
+    backgroundColor: COLORS.bg,
+    borderBottomLeftRadius: RADIUS.xl,
+    borderBottomRightRadius: RADIUS.xl,
+    overflow: 'hidden',
+  },
   artImage: { height: ART_H, width },
 
   copy: {
@@ -311,9 +404,10 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: 'rgba(242, 245, 238, 0.18)',
+    backgroundColor: COLORS.borderStrong,
   },
-  dotOn: { backgroundColor: COLORS.accent, width: 22 },
+  // Sits below the photograph on the page ground, so it follows the palette.
+  dotOn: { backgroundColor: COLORS.accentText, width: 22 },
 
   cta: {
     height: 56,
@@ -325,5 +419,5 @@ const styles = StyleSheet.create({
   ctaText: { ...TYPE.section, color: COLORS.onAccent },
   loginLink: { alignItems: 'center' },
   loginLinkText: { ...TYPE.bodySm, color: COLORS.textMuted },
-  loginLinkStrong: { color: COLORS.accent, fontWeight: '700' },
+  loginLinkStrong: { color: COLORS.accentText, fontWeight: '700' },
 });

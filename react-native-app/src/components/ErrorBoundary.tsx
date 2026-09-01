@@ -11,7 +11,13 @@ import { TouchableOpacity } from './Touchable';
 // it should depend on as little React machinery as possible. i18next falls
 // back to English per key, so an i18n failure still yields readable text.
 import i18n from '../i18n';
-import { COLORS } from '../theme/colors';
+// The DARK palette by name, not the live one from useTheme(). This is a
+// class component, so it cannot read a hook - and it renders exactly when
+// something has already gone wrong, which is the worst moment to depend on a
+// context provider that may itself be part of the failure. A crash screen
+// that is always dark is a small inconsistency; a crash screen that crashes
+// is not.
+import { DARK as COLORS } from '../theme/colors';
 
 interface Props {
   children: React.ReactNode;

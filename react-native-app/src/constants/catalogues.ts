@@ -253,3 +253,58 @@ export const getSteps = (slug: string, duration: number): ExerciseSegment[] => {
   }
   return steps;
 };
+
+/* ---------------------------------------------------------------------------
+   Freemium
+
+   The app is free to train in, with a boundary rather than a wall: the first
+   three exercises, and progression that runs exactly far enough to unlock
+   them. Everything past that - the rest of the catalogue, day counting,
+   reminders, progress tracking and the level picker - is what a subscription
+   buys.
+
+   Both values are DERIVED from the catalogue above rather than typed out, so
+   adding an exercise or moving an unlock threshold cannot silently change what
+   is free without anyone noticing.
+--------------------------------------------------------------------------- */
+
+/** The three exercises a free account can train with, in catalogue order. */
+export const FREE_EXERCISE_SLUGS: string[] = Object.values(EXERCISES)
+  .slice()
+  .sort((a, b) => a.unlock_after_days - b.unlock_after_days || a.sort_order - b.sort_order)
+  .slice(0, 3)
+  .map((ex) => ex.slug);
+
+/**
+ * How many training days a free account can accumulate.
+ *
+ * Exactly enough to unlock the third free exercise and not one more. The
+ * fourth exercise sits at a higher threshold, so a free account can never
+ * reach it however long it trains - and a subscription picks the plan up from
+ * whatever day the account had actually reached, rather than resetting it.
+ */
+export const FREE_DAY_CAP: number = Math.max(
+  ...FREE_EXERCISE_SLUGS.map((slug) => EXERCISES[slug]?.unlock_after_days ?? 0),
+);
+
+/** Whether an exercise is available without a subscription. */
+export const isFreeExercise = (slug: string): boolean => FREE_EXERCISE_SLUGS.includes(slug);
+
+/**
+ * The exercises a session opens by taking the completed-day count to `completedDays`.
+ *
+ * The `> 0` is the whole point of this existing as a named function rather
+ * than as a filter written inline at the call site, which is where it lived
+ * and where it was wrong. Trembling and holding both gate on day 0, so a plain
+ * `unlock_after_days === completedDays` matches them the moment the count is
+ * still 0 - and the completion screen duly announced "Unlocked: Trembling,
+ * Holding" after the first session every account ever finishes, naming the two
+ * exercises the reader had been given at signup and had just trained with.
+ *
+ * Day-0 exercises are the starting set. Nothing unlocks them, so nothing
+ * should ever claim to have.
+ */
+export const unlockedAtDay = (completedDays: number): ExerciseDef[] =>
+  Object.values(EXERCISES).filter(
+    (ex) => ex.unlock_after_days > 0 && ex.unlock_after_days === completedDays,
+  );

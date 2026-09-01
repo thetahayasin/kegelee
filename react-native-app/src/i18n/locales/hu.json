@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Van már fiókod?",
-    "baselineTitle": "Most mérjük meg a kiindulópontod",
     "buildingPlan": "Összeállítjuk a terved",
     "getStarted": "Kezdjük",
     "logIn": "Bejelentkezés",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Nagyjából öt percet",
     "quizTimeQ": "Mennyi időt tudsz naponta edzésre szánni?",
     "quizTimeShort": "Pár percet",
-    "resultBody": "Innen indulunk, és igazítunk, ahogy erősödsz.",
-    "resultLevelLabel": "Kezdő szint",
-    "resultTitle": "A kiindulópontod",
+    "resultTitle": "A terved elkészült",
     "slide1Body": "Több kontroll, több állóképesség, jobb érzés. A medencefenék egy izom, és úgy is edzhető.",
     "slide1Title": "Erősebb az ágyban",
     "slide2Body": "Nincs edzőterem, nincs eszköz, nincs mit levenni. A kanapén, az íróasztalnál, a buszon. Senki nem veszi észre.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Csomag váltása",
     "close": "Bezárás",
     "continueToApp": "Tovább az alkalmazásba",
+    "currentPlan": "Jelenlegi csomag",
     "everyPlanStartsWithTrial_one": "Minden csomag {{count}} napos ingyenes próbával indul",
     "everyPlanStartsWithTrial_other": "Minden csomag {{count}} napos ingyenes próbával indul",
     "logOut": "Kijelentkezés",
@@ -318,6 +316,8 @@
     "startYourJourney": "Nyisd meg a teljes programot",
     "subscribe": "Előfizetés",
     "subscriptionActivated": "Az előfizetés aktiválva!",
+    "switchStartsLater": "Akkor indul, amikor a jelenlegi csomagod lejár.",
+    "switchStartsNow": "Most indul. A fel nem használt időt jóváírjuk.",
     "switchToPlan": "Váltás erre: {{plan}}",
     "terms": "Feltételek",
     "trialThenPrice_one": "{{count}} nap ingyen, utána {{price}}. Automatikusan megújul, ha a próba vége előtt nem mondod le.",
@@ -341,6 +341,12 @@
       "name": "1 év",
       "period": "/év"
     }
+  },
+  "premium": {
+    "badge": "Prémium",
+    "noticeProgress": "Mérd meg, meddig bírod, és nézd, ahogy alakul a görbe.",
+    "noticeSchedule": "Emlékeztetők az edzésnapjaidra és -időpontjaidra.",
+    "unlockMore": "Nyiss meg többet a Prémiummal"
   },
   "profile": {
     "currentDifficulty": "Jelenlegi nehézség",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Állítsd be a heti időpontjaidat"
   },
   "settings": {
+    "appearance": "Megjelenés",
+    "appearanceDark": "Sötét",
+    "appearanceLight": "Világos",
+    "appearanceSystem": "Rendszer",
     "autoRenewalOff": "Az automatikus megújítás ki van kapcsolva. A hozzáférés {{date}} ér véget.",
     "cancel": "Mégse",
     "cancelledUntilDate": "Lemondva. A hozzáférésed {{date}} marad aktív.",
@@ -527,6 +537,30 @@
     "progress": "Haladás",
     "schedule": "Ütemterv",
     "training": "Edzés"
+  },
+  "tour": {
+    "homeRingBody": "Egy nap akkor számít, ha mindkét edzés kész. A gyűrű közben telik meg.",
+    "homeRingTitle": "A napod",
+    "homeStartBody": "A mai edzésed már készen áll. Csak nyomd meg az indítást.",
+    "homeStartTitle": "Itt kezdd",
+    "homeUnlockBody": "Ahogy folytatod, újabb gyakorlatok nyílnak meg.",
+    "homeUnlockTitle": "Jön még több",
+    "profileLevelBody": "Ez adja meg, meddig tart egy edzés. Bármikor módosíthatod.",
+    "profileLevelTitle": "Változtass a nehézségen",
+    "progressChartBody": "A méréseid időben, hogy lásd, hogyan alakul.",
+    "progressChartTitle": "A fejlődésed",
+    "progressMeasureBody": "Tartsd, ameddig bírod. Ismételd egy-két hetente, hogy lásd a változást.",
+    "progressMeasureTitle": "Mérd meg a tartásod",
+    "scheduleMonthBody": "Minden négyzet egy edzésnap. Ahogy teljesíted őket, feltöltődnek.",
+    "scheduleMonthTitle": "A hónapod",
+    "scheduleRemindersBody": "Válaszd ki a neked megfelelő napokat és időpontokat. Egy emlékeztető sokat segít.",
+    "scheduleRemindersTitle": "Állítsd be az emlékeztetőket",
+    "sessionListBody": "Az edzés minden lépése sorban. A középső fut éppen.",
+    "sessionListTitle": "Mi következik",
+    "sessionPauseBody": "Semmi nem vész el, ha megállsz. Folytasd, amikor készen állsz.",
+    "sessionPauseTitle": "Bármikor szüneteltethető",
+    "sessionRingBody": "Húzd össze, amíg megtelik, és lazíts, amíg kiürül. Ennyi az egész gyakorlat.",
+    "sessionRingTitle": "Kövesd a kört"
   },
   "training": {
     "available": "Elérhető",

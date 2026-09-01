@@ -15,7 +15,8 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../theme/colors';
+import { Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition, getTodayProgress } from '../../services/progression';
 import {
@@ -23,6 +24,9 @@ import {
   ExerciseDef,
   exerciseNameKey,
   levelNameKey,
+  FREE_DAY_CAP,
+  unlockedAtDay,
+  isFreeExercise,
 } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import { getReminders, saveReminder } from '../../db/queries';
@@ -43,9 +47,11 @@ const COMPLETED_R = 98;
 const COMPLETED_CIRCUMFERENCE = 2 * Math.PI * COMPLETED_R;
 
 export const WorkoutCompleteScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user, updateUserFields } = useAuth();
+  const { user, updateUserFields, subscribed } = useAuth();
 
 
   const [loading, setLoading] = useState(true);
@@ -172,12 +178,9 @@ export const WorkoutCompleteScreen = () => {
       // Ask feedback if totalSessions is even, matching the Laravel rule
       setAskFeedback(totalSessions > 0 && totalSessions % 2 === 0);
 
-      // 3. Unlocks checks
-      // Newly unlocked at the current completed days count
-      const newlyUnlocked = Object.values(EXERCISES).filter(
-        (ex) => ex.unlock_after_days === pos.completed,
-      );
-      setUnlockedNow(newlyUnlocked);
+      // 3. Unlocks checks. See unlockedAtDay for why this is not a filter
+      // written out here - it was, and it announced the starting set.
+      setUnlockedNow(unlockedAtDay(pos.completed));
 
       // Next unlock candidate
       const nextLocked = Object.values(EXERCISES)
@@ -204,7 +207,11 @@ export const WorkoutCompleteScreen = () => {
           // false - so the two prompts can never share the screen - and from
           // the third session, by which point finishing one is something they
           // have chosen to do more than once.
-          setOfferReminders(!hasAny && totalSessions >= 3 && totalSessions % 2 === 1);
+          // Never offered to a free account: reminders are behind the
+          // subscription, so the offer would open a locked screen.
+          setOfferReminders(
+            subscribed && !hasAny && totalSessions >= 3 && totalSessions % 2 === 1,
+          );
         }
       } catch {
         // Never let the offer's own bookkeeping break the completion screen.
@@ -316,6 +323,44 @@ export const WorkoutCompleteScreen = () => {
     );
   }
 
+  /**
+   * What THIS session opened - not what happens to be open.
+   *
+   * The inline card used to render on `unlockedNow.length > 0` alone, with no
+   * check that the session had anything to do with it, so the announcement
+   * reappeared on every session taken at the same day count. The modal already
+   * had this guard; now both read the same value and cannot disagree.
+   *
+   * `done === required` rather than `>=`: an extra session past the day's
+   * requirement must not re-announce it.
+   */
+  const justUnlocked =
+    !user?.is_admin &&
+    progress.complete &&
+    progress.done === progress.required
+      ? unlockedNow
+      : [];
+
+  /**
+   * A free account whose plan has stopped moving.
+   *
+   * All three free exercises are open, the day count is frozen at
+   * FREE_DAY_CAP, and every further session now lands in exactly the same
+   * place. That is the moment the subscription is worth raising - on the way
+   * out, once the work is done, rather than as a panel sitting on the screen
+   * contradicting the words "Training Day Complete" while they read it.
+   */
+  const freeAllowanceSpent = !subscribed && position.completed >= FREE_DAY_CAP;
+
+  /**
+   * Whether the next exercise is held by the SUBSCRIPTION rather than by days.
+   *
+   * Admins excepted, and free exercises excepted: the third one still arrives
+   * on a day count a free account can actually reach.
+   */
+  const nextUnlockLocked =
+    !!nextUnlock && !subscribed && !user?.is_admin && !isFreeExercise(nextUnlock.slug);
+
   // Generate unlock percentage progress
   const unlockPct = nextUnlock
     ? Math.min(100, Math.round((position.completed / nextUnlock.unlock_after_days) * 100))
@@ -334,7 +379,7 @@ export const WorkoutCompleteScreen = () => {
                 cy={COMPLETED_CIRCLE_SIZE / 2}
                 r={COMPLETED_R}
                 fill="none"
-                stroke="rgba(255,255,255,0.08)"
+                stroke={COLORS.borderStrong}
                 strokeWidth={12}
               />
               <AnimatedCircle
@@ -342,7 +387,7 @@ export const WorkoutCompleteScreen = () => {
                 cy={COMPLETED_CIRCLE_SIZE / 2}
                 r={COMPLETED_R}
                 fill="none"
-                stroke={COLORS.accent}
+                stroke={COLORS.accentText}
                 strokeWidth={12}
                 strokeLinecap="round"
                 strokeDasharray={`${COMPLETED_CIRCUMFERENCE} ${COMPLETED_CIRCUMFERENCE}`}
@@ -379,7 +424,7 @@ export const WorkoutCompleteScreen = () => {
               <Svg width={72} height={72} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M5 13l4 4L19 7"
-                  stroke={COLORS.accent}
+                  stroke={COLORS.accentText}
                   strokeWidth={3}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -440,7 +485,7 @@ export const WorkoutCompleteScreen = () => {
                 <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                   <Path
                     d="M5 13l4 4L19 7"
-                    stroke={COLORS.accent}
+                    stroke={COLORS.accentText}
                     strokeWidth={2.5}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -525,31 +570,52 @@ export const WorkoutCompleteScreen = () => {
         </View>
 
         {/* New exercise unlocked indicator (admins have everything unlocked) */}
-        {!user?.is_admin && unlockedNow.length > 0 && (
+        {justUnlocked.length > 0 && (
           <View style={styles.unlockCard}>
             <Text style={styles.unlockText}>
               {t('workoutComplete.unlockedList', {
-                names: unlockedNow.map((ex) => t(exerciseNameKey(ex.slug))).join(', '),
+                names: justUnlocked.map((ex) => t(exerciseNameKey(ex.slug))).join(', '),
               })}
             </Text>
           </View>
         )}
 
-        {/* Next exercise to unlock: its real icon + progress toward the unlock */}
+        {/* What is coming next, and how it arrives.
+            For a subscriber that is a day count, and the bar fills as the days
+            add up. For a free account it is not: the day count is frozen at
+            FREE_DAY_CAP, so "1/3" was a progress bar that could never move and
+            a promise that could never be kept. Same card, honest content. */}
         {!user?.is_admin && nextUnlock && (
-          <View style={styles.nextUnlockCard}>
+          <TouchableOpacity
+            style={styles.nextUnlockCard}
+            activeOpacity={nextUnlockLocked ? 0.85 : 1}
+            disabled={!nextUnlockLocked}
+            accessibilityRole={nextUnlockLocked ? 'button' : undefined}
+            onPress={() => navigation.navigate('Paywall')}
+          >
             <EquipmentIcon slug={nextUnlock.slug} size={44} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.unlockNextLabel}>{t('workoutComplete.nextToUnlock')}</Text>
+              <Text style={styles.unlockNextLabel}>
+                {nextUnlockLocked
+                  ? t('premium.unlockMore')
+                  : t('workoutComplete.nextToUnlock')}
+              </Text>
               <Text style={styles.unlockNameText}>{t(exerciseNameKey(nextUnlock.slug))}</Text>
-              <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: `${unlockPct}%` }]} />
-              </View>
+              {!nextUnlockLocked && (
+                <View style={styles.progressBarBg}>
+                  <View style={[styles.progressBarFill, { width: `${unlockPct}%` }]} />
+                </View>
+              )}
             </View>
-            <Text style={styles.unlockRatioText}>
-              {position.completed}/{nextUnlock.unlock_after_days}
+            <Text
+              style={[styles.unlockRatioText, nextUnlockLocked && styles.unlockRatioCta]}
+              numberOfLines={1}
+            >
+              {nextUnlockLocked
+                ? t('premium.badge')
+                : `${position.completed}/${nextUnlock.unlock_after_days}`}
             </Text>
-          </View>
+          </TouchableOpacity>
         )}
       </ScrollView>
 
@@ -558,17 +624,27 @@ export const WorkoutCompleteScreen = () => {
         <TouchableOpacity
           style={styles.continueBtn}
           onPress={() => {
-            // If THIS session completed the day that unlocked a new exercise
-            // (day completes on exactly the required session - extra sessions
-            // and the next day's sessions don't re-trigger), offer to try it
-            // before heading back to the dashboard.
-            if (
-              !user?.is_admin &&
-              unlockedNow.length > 0 &&
-              progress.complete &&
-              progress.done === progress.required
-            ) {
+            // A new exercise wins: the reader has just earned something and
+            // the offer to try it is the better moment.
+            if (justUnlocked.length > 0) {
               setShowUnlockPrompt(true);
+            } else if (freeAllowanceSpent) {
+              // Nothing new opened and nothing more will until they pay. The
+              // ask happens here, on the way out, once the session is banked.
+              //
+              // RESET, not navigate. `navigate` left this screen on the stack
+              // underneath the paywall, so closing the paywall came straight
+              // back to it - and the only button on it opens the paywall
+              // again. Continue, close, Continue, close: a loop with no way
+              // out but the system back gesture, on the screen that is meant
+              // to be the reward for finishing a session.
+              //
+              // The completion screen is DONE once Continue is pressed. What
+              // should be behind the paywall is the app.
+              navigation.reset({
+                index: 1,
+                routes: [{ name: 'MainTabs' }, { name: 'Paywall' }],
+              });
             } else {
               navigation.navigate('MainTabs');
             }
@@ -629,7 +705,7 @@ export const WorkoutCompleteScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -716,7 +792,7 @@ const styles = StyleSheet.create({
   feedbackBanner: {
     marginHorizontal: 16,
     marginTop: 16,
-    backgroundColor: 'rgba(193, 255, 114, 0.1)',
+    backgroundColor: COLORS.accentWash,
     borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -781,7 +857,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   feedbackBannerText: {
-    color: COLORS.accentSoft,
+    color: COLORS.accentText,
     fontSize: 14,
     fontWeight: 'medium',
     textAlign: 'center',
@@ -840,7 +916,7 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     borderRadius: 10,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: COLORS.borderStrong,
     borderWidth: 1,
   },
   stripDayText: {
@@ -861,7 +937,7 @@ const styles = StyleSheet.create({
   unlockText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.accent,
+    color: COLORS.accentText,
   },
   nextUnlockCard: {
     marginHorizontal: 16,
@@ -873,6 +949,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  unlockRatioCta: { color: COLORS.accentText, fontWeight: '700' },
   unlockNextLabel: {
     fontSize: 11,
     fontWeight: 'bold',
@@ -888,14 +965,14 @@ const styles = StyleSheet.create({
   },
   progressBarBg: {
     height: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: COLORS.whiteFaint,
     borderRadius: 4,
     marginTop: 6,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.accentText,
     borderRadius: 4,
   },
   unlockRatioText: {
@@ -904,13 +981,13 @@ const styles = StyleSheet.create({
   },
   unlockOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   unlockModal: {
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 24,
     padding: 24,
@@ -920,7 +997,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 20,
-    backgroundColor: 'rgba(193,255,114,0.12)',
+    backgroundColor: COLORS.accentWash,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -935,7 +1012,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.accent,
+    color: COLORS.accentText,
     textAlign: 'center',
   },
   unlockModalButtons: {

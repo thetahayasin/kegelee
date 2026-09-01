@@ -4,12 +4,15 @@ import {
   View,
   Text,
   StyleSheet,
+  Dimensions,
   Animated,
   Easing,
   Pressable,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { COLORS, GLASS } from '../../../theme/colors';
+import { ContractGlow } from '../../../components/ContractGlow';
+import { Palette, SPACE } from '../../../theme/colors';
+import { useTheme, useThemedStyles } from '../../../theme/ThemeContext';
 import { LessonLine, LESSON_TEXT } from '../../../components/LessonLine';
 
 interface Props {
@@ -18,7 +21,26 @@ interface Props {
 }
 
 const GOAL = 3;
-const SIZE = 220;
+
+/**
+ * The circle, and the room the whole assembly needs.
+ *
+ * 220 was a fixed number that happened to fit the phone it was written on. It
+ * shares this screen with a sentence above it and a step row below, so on a
+ * narrow or short phone it pushed into both - and once the halo arrived it did
+ * so at 374pt wide regardless of what the layout had reserved.
+ *
+ * Sized from the window, and the FOOTPRINT below reserves the halo at its
+ * largest - GLOW x the press scale - so nothing it draws can ever land on the
+ * text. Capped as well as proportional: on a tablet a circle that keeps
+ * growing stops reading as something you press with one thumb.
+ */
+const { width: WIN_W, height: WIN_H } = Dimensions.get('window');
+const SIZE = Math.round(Math.min(196, WIN_W * 0.46, WIN_H * 0.26));
+/** Tighter than the session's 1.7 - see ContractGlow. */
+const GLOW = 1.35;
+/** The halo also scales to 1.15 while held; reserve for that too. */
+const FOOTPRINT = Math.round(SIZE * GLOW * 1.15);
 const R = (SIZE - 16) / 2;
 const CIRC = 2 * Math.PI * R;
 
@@ -27,6 +49,8 @@ const CIRC = 2 * Math.PI * R;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const [holding, setHolding] = useState(false);
   const [doneHold, setDoneHold] = useState(false);
@@ -119,18 +143,27 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
         onPressOut={stopHold}
         style={styles.holdArea}
       >
+        {/* The same halo the session draws, not a flat disc.
+            This was a solid circle of accent with a border radius, which has
+            a hard edge and reads as a coloured ring parked behind the button
+            rather than as light coming off it. The session has always used a
+            radial gradient; now they are the same component, so the lesson
+            that teaches the movement looks like the screen that runs it. */}
         <Animated.View
           style={[styles.holdGlow, { opacity: glow, transform: [{ scale: glowScale }] }]}
-        />
+          pointerEvents="none"
+        >
+          <ContractGlow size={SIZE} scale={GLOW} />
+        </Animated.View>
         <View style={[styles.holdCircle, holding && { transform: [{ scale: 0.95 }] }]}>
           <Svg width={SIZE} height={SIZE} style={styles.holdRing}>
-            <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={8} />
+            <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke={COLORS.borderStrong} strokeWidth={8} />
             <AnimatedCircle
               cx={SIZE / 2}
               cy={SIZE / 2}
               r={R}
               fill="none"
-              stroke={COLORS.accent}
+              stroke={COLORS.accentText}
               strokeWidth={8}
               strokeLinecap="round"
               strokeDasharray={CIRC}
@@ -143,7 +176,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
           </Svg>
           {doneHold ? (
             <Svg width={64} height={64} viewBox="0 0 24 24" fill="none">
-              <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M5 13l4 4L19 7" stroke={COLORS.accentText} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           ) : (
             <View style={{ alignItems: 'center' }}>
@@ -159,7 +192,7 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // The one text style on this screen, identical to the text-only slides.
   line: {
@@ -168,22 +201,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 360,
   },
-  holdArea: { marginTop: 30, width: 250, height: 250, alignItems: 'center', justifyContent: 'center' },
+  holdArea: {
+    marginTop: SPACE.lg,
+    width: FOOTPRINT,
+    height: FOOTPRINT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Just the positioner now - ContractGlow draws the halo itself, and
+    // sizes itself from the circle it sits behind.
   holdGlow: {
     position: 'absolute',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: 'rgba(193,255,114,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   holdCircle: {
     width: SIZE,
     height: SIZE,
     borderRadius: SIZE / 2,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: COLORS.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },

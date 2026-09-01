@@ -1,8 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from './api';
 import i18n from '../i18n';
+import { getUnsyncedEvents, markEventsSynced } from './events';
+
+/**
+ * Meta is stored as a JSON string and sent as an object. A row written by an
+ * older build, or one truncated by a crash mid-write, must not be able to
+ * throw here and take the whole sync down with it.
+ */
+const safeJson = (raw: string): Record<string, unknown> | null => {
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+};
 import { scheduleReminders } from './reminders';
-import { freeSessionCompleted } from './freeSession';
 import { ONBOARDING_PUSH_KEY } from '../context/AuthContext';
 import {
   getUnsyncedWorkoutSessions,
@@ -109,13 +123,16 @@ export const refreshContentForCurrentLocale = async (): Promise<void> => {
     const res = await api.pullContent(i18n.language);
     if (!res.ok || !res.data) return;
     for (const page of res.data.pages || []) {
-      await savePage({
-        slug: page.slug,
-        title: page.title,
-        content: page.content,
-        sort_order: page.sort_order,
-        is_published: 1,
-      });
+      await savePage(
+        {
+          slug: page.slug,
+          title: page.title,
+          content: page.content,
+          sort_order: page.sort_order,
+          is_published: 1,
+        },
+        i18n.language,
+      );
     }
   } catch {}
 };
@@ -155,14 +172,21 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     }
 
     // 1. Gather Unsynced Local Data - independent reads, run them in parallel.
-    const [unsyncedSessions, unsyncedMeasurements, unsyncedReminders, localSubs, basicsRaw] =
-      await Promise.all([
-        getUnsyncedWorkoutSessions(userId),
-        getUnsyncedMeasurements(userId),
-        getUnsyncedReminders(userId),
-        getSubscriptions(userId),
-        AsyncStorage.getItem(`@basics_done_${userId}`).catch(() => null),
-      ]);
+    const [
+      unsyncedSessions,
+      unsyncedMeasurements,
+      unsyncedReminders,
+      unsyncedEvents,
+      localSubs,
+      basicsRaw,
+    ] = await Promise.all([
+      getUnsyncedWorkoutSessions(userId),
+      getUnsyncedMeasurements(userId),
+      getUnsyncedReminders(userId),
+      getUnsyncedEvents(userId),
+      getSubscriptions(userId),
+      AsyncStorage.getItem(`@basics_done_${userId}`).catch(() => null),
+    ]);
 
     // Get system timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -183,18 +207,15 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       const rawOnboarding = await AsyncStorage.getItem(ONBOARDING_PUSH_KEY);
       pendingOnboarding = rawOnboarding ? JSON.parse(rawOnboarding) : null;
     } catch {}
-    const freeSessionDone = await freeSessionCompleted(userId).catch(() => false);
 
     const pushPayload = {
       timezone,
       level_id: user.level_id,
       level_started_days: user.level_started_days,
       completed_lessons: localBasicsDone,
-      // The first-run profile and the demo, both recorded write-once on the
-      // server. Re-sent until a pull confirms them, which is why both have to
-      // be safe to receive twice.
+      // The first-run profile, recorded write-once on the server and re-sent
+      // until a pull confirms it - so it has to be safe to receive twice.
       ...(pendingOnboarding ? { onboarding: pendingOnboarding } : {}),
-      free_session_completed: freeSessionDone,
       workout_sessions: unsyncedSessions.map((s) => ({
         exercise_slug: s.exercise_slug,
         duration_seconds: s.duration_seconds,
@@ -209,6 +230,16 @@ const runSync = async (userId: number): Promise<SyncResult> => {
         weekday: r.weekday,
         times: r.times,
         is_enabled: r.is_enabled === 1,
+      })),
+      // Behaviour. Sent with everything else rather than on its own schedule:
+      // one request, and instrumentation that can never be the reason a sync
+      // fails.
+      events: unsyncedEvents.map((e) => ({
+        client_id: e.client_id,
+        name: e.name,
+        subject: e.subject,
+        meta: e.meta ? safeJson(e.meta) : null,
+        occurred_at_iso: e.occurred_at,
       })),
       // In-app purchases (RevenueCat / store) complete on the DEVICE, so the backend
       // learns about them here. Every local purchase token is re-sent each sync
@@ -243,6 +274,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       markWorkoutSessionsSynced(
         unsyncedSessions.map((s) => s.id).filter((id): id is number => id !== undefined)
       ),
+      markEventsSynced(unsyncedEvents.map((e) => e.id)),
       markMeasurementsSynced(
         unsyncedMeasurements.map((m) => m.id).filter((id): id is number => id !== undefined)
       ),
@@ -388,13 +420,16 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       const content = contentRes.data;
       // Save static pages
       for (const page of content.pages || []) {
-        await savePage({
-          slug: page.slug,
-          title: page.title,
-          content: page.content,
-          sort_order: page.sort_order,
-          is_published: 1,
-        });
+        await savePage(
+          {
+            slug: page.slug,
+            title: page.title,
+            content: page.content,
+            sort_order: page.sort_order,
+            is_published: 1,
+          },
+          i18n.language,
+        );
       }
       // Save app settings. Booleans store as '1'/'0'; anything else (e.g. the
       // google_web_client_id string) is stored verbatim.

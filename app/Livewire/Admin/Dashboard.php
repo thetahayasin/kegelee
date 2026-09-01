@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Measurement;
 use App\Models\Page;
 use App\Models\Subscription;
 use App\Models\User;
@@ -31,21 +32,30 @@ class Dashboard extends Component
 
         // --- The free funnel, as counts ---
         //
-        // Signed up -> onboarded -> basics -> demo -> subscribed. Every step
-        // between the first and the last used to happen entirely on the
+        // Signed up -> onboarded -> basics -> trained -> subscribed. Every
+        // step between the first and the last used to happen entirely on the
         // device, so the only two numbers the backend could show were the two
         // ends, and nothing about where people actually stop.
+        //
+        // Two steps have been removed rather than repaired. The demo went with
+        // the demo session. "Measured" went with the press-and-hold that used
+        // to sit in onboarding: measuring now happens on the Progress tab,
+        // which is behind the subscription, so the count would have been a
+        // subset of "Subscribed" - which breaks the one property a funnel
+        // needs, that each step contains the next.
+        //
+        // What is left is read from rows the client already pushes, so there
+        // is no column here that can quietly stop being written.
         //
         // Cumulative, not exclusive: someone who subscribed also onboarded, and
         // a funnel that hid that would read as a collapse rather than a
         // progression.
         $funnelBase = User::where('is_admin', false);
         $onboarded = (clone $funnelBase)->whereNotNull('onboarding_completed_at')->count();
-        $measured = (clone $funnelBase)->whereNotNull('onboarding_baseline_seconds')->count();
         $reachedBasics = (clone $funnelBase)
             ->whereHas('completedLessons', fn ($q) => $q->whereNotNull('knowledge_lesson_user.completed_at'))
             ->count();
-        $demoDone = (clone $funnelBase)->whereNotNull('free_session_completed_at')->count();
+        $trained = (clone $funnelBase)->whereHas('workoutSessions')->count();
         $subscribed = (clone $funnelBase)
             ->whereHas('subscriptions', fn ($q) => $q->whereIn('status', ['active', 'trialing']))
             ->count();
@@ -53,16 +63,26 @@ class Dashboard extends Component
         $funnel = [
             ['label' => 'Signed up', 'value' => $totalUsers],
             ['label' => 'Onboarded', 'value' => $onboarded],
-            ['label' => 'Measured', 'value' => $measured],
             ['label' => 'Basics started', 'value' => $reachedBasics],
-            ['label' => 'Demo completed', 'value' => $demoDone],
+            ['label' => 'Trained', 'value' => $trained],
             ['label' => 'Subscribed', 'value' => $subscribed],
         ];
 
-        // The opening hold across everyone who took one - the number every
-        // "you have improved" claim is eventually measured against.
-        $avgBaseline = (clone $funnelBase)->whereNotNull('onboarding_baseline_seconds')
-            ->avg('onboarding_baseline_seconds');
+        // The first hold each account ever recorded, averaged.
+        //
+        // Read from the measurements themselves rather than from
+        // users.onboarding_baseline_seconds, which no longer gets written: the
+        // onboarding measurement was removed, on the grounds that asking
+        // somebody to perform a contraction correctly before they have read
+        // the lesson explaining what one is produces a guess with a decimal
+        // point on it. The Progress tab still measures, after the basics, and
+        // a first reading taken there is the more truthful version of the same
+        // number - so the card keeps its meaning and gains some accuracy.
+        $avgBaseline = Measurement::query()
+            ->whereIn('id', function ($q) {
+                $q->selectRaw('MIN(id)')->from('measurements')->groupBy('user_id');
+            })
+            ->avg('seconds');
 
         return view('livewire.admin.dashboard', [
             'funnel' => $funnel,

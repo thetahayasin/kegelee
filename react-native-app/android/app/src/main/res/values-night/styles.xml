@@ -1,0 +1,42 @@
+<resources>
+
+    <!--
+        Dark appearance.
+
+        This file exists only to answer one question the JavaScript side
+        cannot: which colour the SYSTEM navigation bar draws its gesture pill
+        and its back/home/recents glyphs in.
+
+        On targetSdk 35+ Android enforces edge-to-edge, which makes
+        `android:navigationBarColor` a no-op - the bar is transparent and the
+        app's own page shows through it. The glyphs then follow
+        windowLightNavigationBar, and if that is wrong they are drawn in the
+        page's own colour and become invisible: white glyphs on the light
+        palette's #f5f6f1 ground.
+
+        React Native's StatusBar component covers the status bar at runtime,
+        but there is no equivalent for the navigation bar without adding a
+        native module, so this is handled with a resource qualifier instead:
+        -night is the phone's dark setting, plain values/ is its light one.
+        That is exactly right for the default "System" appearance. An in-app
+        override that disagrees with the phone (Light chosen on a dark phone)
+        will still get the phone's glyph colour; fixing that case needs
+        react-native-edge-to-edge, which is a native dependency and a rebuild.
+    -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <item name="android:windowBackground">@color/splash_bg</item>
+        <item name="android:statusBarColor">@color/splash_bg</item>
+        <item name="android:navigationBarColor">@color/splash_bg</item>
+        <!-- Dark ground, so the glyphs stay light. -->
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <style name="SplashTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splashscreen</item>
+        <item name="android:statusBarColor">@color/splash_bg</item>
+        <item name="android:navigationBarColor">@color/splash_bg</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+</resources>

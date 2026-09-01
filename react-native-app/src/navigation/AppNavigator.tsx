@@ -24,8 +24,6 @@ import { WorkoutScreen } from '../screens/workout/WorkoutScreen';
 import { WorkoutCompleteScreen } from '../screens/workout/WorkoutCompleteScreen';
 import { PaywallScreen } from '../screens/paywall/PaywallScreen';
 import { LegalPageScreen } from '../screens/settings/LegalPageScreen';
-import { FreeSessionCompleteScreen } from '../screens/workout/FreeSessionCompleteScreen';
-import { FreeSessionOfferScreen } from '../screens/workout/FreeSessionOfferScreen';
 import { ExerciseDetailScreen } from '../screens/exercise/ExerciseDetailScreen';
 import { AllExercisesScreen } from '../screens/exercise/AllExercisesScreen';
 import { KnowledgeScreen } from '../screens/knowledge/KnowledgeScreen';
@@ -33,16 +31,14 @@ import { KnowledgeLessonScreen } from '../screens/knowledge/KnowledgeLessonScree
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PlatformPressable } from '@react-navigation/elements';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
-import { COLORS, RADIUS } from '../theme/colors';
+import { RADIUS, SPACE, TAB_BAR, Palette } from '../theme/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 export type RootStackParamList = {
   MainTabs: undefined;
-  // freeSession belongs here too: the subscription gate below mounts Workout
-  // and dispatches it with { freeSession: true }, so declaring it only on the
-  // guest stack made the gate's own free session an untyped route.
-  Workout: { trialSlug?: string; freeSession?: boolean };
+  Workout: { trialSlug?: string };
   WorkoutComplete: { duration: number; levelId: number };
   Paywall: undefined;
   LegalPage: { slug: string; title: string };
@@ -50,10 +46,6 @@ export type RootStackParamList = {
   AllExercises: undefined;
   Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
-  // Reachable for a signed-in account that has not subscribed yet: the paywall
-  // dismisses into the same funnel a guest gets.
-  FreeSessionOffer: undefined;
-  FreeSessionComplete: { duration: number };
 };
 
 export type AuthStackParamList = {
@@ -64,9 +56,6 @@ export type AuthStackParamList = {
   Knowledge: { subscribe?: boolean } | undefined;
   KnowledgeLesson: { slug: 'why' | 'find' | 'first'; index: number };
   LegalPage: { slug: string; title: string };
-  FreeSessionOffer: undefined;
-  Workout: { freeSession?: boolean };
-  FreeSessionComplete: { duration: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -136,7 +125,7 @@ const TabButton = ({ children, ...props }: BottomTabBarButtonProps) => (
   </PlatformPressable>
 );
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   // Capsule behind the active glyph. Adds shape as a second channel so the
   // active tab is not signalled by colour alone.
   tabIconWrap: {
@@ -149,6 +138,15 @@ const styles = StyleSheet.create({
   tabIconWrapActive: {
     backgroundColor: COLORS.accentWash,
   },
+  // Was tabBarLabelStyle; it moved here when the label became a rendered
+  // element so it could be told to fit the tab.
+  tabLabel: {
+    fontSize: 10.5,
+    fontWeight: '600',
+    letterSpacing: 0.1,
+    marginTop: 2,
+    textAlign: 'center',
+  },
 });
 
 const TAB_LABEL_KEYS: Record<string, string> = {
@@ -160,7 +158,17 @@ const TAB_LABEL_KEYS: Record<string, string> = {
 
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
+  const { width: winWidth } = useWindowDimensions();
   const { t } = useTranslation();
+  // Four tabs and the bar's own padding - and never wider than the window
+  // will allow with a gutter, which is what keeps it sane on a small phone.
+  const barWidth = Math.min(
+    TAB_BAR.itemWidth * 4 + SPACE.xs * 2,
+    winWidth - SPACE.xl * 2,
+  );
+  const barInset = Math.max(SPACE.md, Math.round((winWidth - barWidth) / 2));
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -169,7 +177,22 @@ const TabNavigator = () => {
         lazy: true,
         freezeOnBlur: true,
         // Without this the tab bar renders the route name verbatim.
-        tabBarLabel: t(TAB_LABEL_KEYS[route.name] ?? route.name),
+        //
+        // Rendered rather than passed as a string, because the tab is a fixed
+        // width now and the label has to be made to fit it. A plain string
+        // gets the library's own Text, which will happily lay a long
+        // translation out past the tab and into its neighbour.
+        tabBarLabel: ({ color }) => (
+          <Text
+            style={[styles.tabLabel, { color }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            maxFontSizeMultiplier={1.2}
+          >
+            {t(TAB_LABEL_KEYS[route.name] ?? route.name)}
+          </Text>
+        ),
         tabBarIcon: ({ color, focused }) => (
           <View style={[styles.tabIconWrap, focused && styles.tabIconWrapActive]}>
             <TabIcon name={route.name} color={color} focused={focused} />
@@ -179,24 +202,71 @@ const TabNavigator = () => {
         // radius 28 shrinks the flare, it does not remove it, and the flare is
         // what was reported. The capsule above already carries the state.
         tabBarButton: (props) => <TabButton {...props} />,
-        tabBarActiveTintColor: COLORS.accent,
+        tabBarActiveTintColor: COLORS.accentText,
         tabBarInactiveTintColor: COLORS.textDim,
-        tabBarLabelStyle: {
-          fontSize: 10.5,
-          fontWeight: '600',
-          letterSpacing: 0.1,
-          marginTop: 2,
-        },
+        // A floating bar rather than a docked one.
+        //
+        // Docked, it was a full-width slab welded to the bottom of every
+        // screen, and the only thing separating it from the content was a one
+        // pixel line. Lifted off all three edges it reads as a control that
+        // sits ON the app instead of a wall the app stops at, the content
+        // scrolls visibly past underneath it, and the rounded ends match the
+        // pills and cards used everywhere else in the app.
+        //
+        // Absolutely positioned, so it no longer takes part in the layout:
+        // screens run the full height of the window behind it and pad
+        // themselves by tabBarClearance() instead. Both sides read TAB_BAR.
         tabBarStyle: {
+          position: 'absolute',
+          /**
+           * START and END, not left/right, and not alignSelf.
+           *
+           * Four attempts failed here for one reason, and it is worth writing
+           * down: the library's own base style sets `start: 0, end: 0` - the
+           * LOGICAL direction properties. Overriding `left` and `right` never
+           * touched them, so the width stayed fully determined and the bar
+           * stretched no matter what number went in. `alignSelf` could not
+           * help either, because a box with both edges pinned has no freedom
+           * left to align.
+           *
+           * So the same two properties the library uses are set here, to the
+           * inset that centres a bar of exactly barWidth. Nothing is left to
+           * infer: the width is arithmetic.
+           */
+          start: barInset,
+          end: barInset,
+          // Above the Android nav bar / home indicator, never behind it, and
+          // never flush against the screen edge on a phone that has neither.
+          bottom: Math.max(insets.bottom, TAB_BAR.gap),
+          height: TAB_BAR.height,
+          paddingTop: 8,
+          paddingBottom: 8,
+          paddingHorizontal: SPACE.xs,
+          borderRadius: RADIUS.pill,
           backgroundColor: COLORS.navBar,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.border,
-          paddingTop: 6,
-          // Grow the bar by the bottom inset so it clears the Android nav bar
-          // instead of sitting underneath it (edge-to-edge on targetSdk 36).
-          height: 60 + insets.bottom,
-          paddingBottom: 8 + insets.bottom,
+          // The docked bar's hairline was the boundary between bar and
+          // content. A floating one is bounded on all four sides instead.
+          borderTopWidth: 0,
+          borderWidth: 1,
+          borderColor: COLORS.border,
+          // Lift. Without it the bar reads as a shape painted on the page
+          // rather than an object above it, and on a dark background the
+          // rounded ends alone are not enough to say which is on top.
+          elevation: 16,
+          shadowColor: '#000',
+          shadowOpacity: 0.4,
+          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 10 },
         },
+        // A fixed width per tab, so the bar hugs its content WITHOUT the four
+        // tabs coming out different sizes. Left to size themselves they would
+        // each be as wide as their own label, which differs per word and per
+        // language - "Profile" against "Fortschritt" - and an evenly spaced
+        // row is the one thing a tab bar has to be.
+        //
+        // Round the pressable to the bar, so a press near the ends cannot
+        // paint a square corner outside it.
+        tabBarItemStyle: { width: TAB_BAR.itemWidth, borderRadius: RADIUS.pill },
         headerShown: false,
       })}
     >
@@ -209,11 +279,11 @@ const TabNavigator = () => {
 };
 
 export const AppNavigator = () => {
-  const { isAuthenticated, onboarded, setOnboarded, basicsDone, subscribed } = useAuth();
+  const { isAuthenticated, onboarded, setOnboarded, basicsDone } = useAuth();
   // The SAME function App.tsx keys the NavigationContainer with. When these
   // two disagreed, a purchase swapped the stack while the container replayed
   // the Paywall route into it - see navigation/phase.
-  const phase = appPhase({ isAuthenticated, subscribed, basicsDone });
+  const phase = appPhase({ isAuthenticated, basicsDone });
 
   if (phase === 'guest') {
     // Guests share ONE stack. New guests start on the onboarding slides; once
@@ -233,57 +303,15 @@ export const AppNavigator = () => {
         <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
         <AuthStack.Screen name="Knowledge" component={KnowledgeScreen} />
         <AuthStack.Screen name="KnowledgeLesson" component={KnowledgeLessonScreen} />
-        {/* The guest subscribe sheet's legal footnote opens Terms and the
-            Privacy Policy. Without this screen here the sheet had nowhere in
-            the app to send a signed-out reader, so it handed them to the
-            system browser - the paywall shows the same pages in-app once you
-            are signed in. Reads from the synced `pages` table, so it needs no
-            session. */}
-        <AuthStack.Screen name="LegalPage" component={LegalPageScreen} />
-        {/* The one free session a guest gets, offered at the end of the basics.
-            The funnel previously went from the last lesson straight to the
-            plans sheet, asking for money from someone who had never used the
-            app - and leaving the first lesson's promise of "then you do your
-            first real exercise" unkept. Both screens are guest-safe: the
-            workout builds day one of level 1 without touching an account, and
-            the completion screen is its own rather than the account-keyed
-            one. */}
-        <AuthStack.Screen name="FreeSessionOffer" component={FreeSessionOfferScreen} />
-        <AuthStack.Screen name="Workout" component={WorkoutScreen} />
-        <AuthStack.Screen name="FreeSessionComplete" component={FreeSessionCompleteScreen} />
-      </AuthStack.Navigator>
-    );
-  }
+        {/* Terms and the Privacy Policy, reachable before there is a session.
+            Reads from the synced `pages` table, so it needs no account.
 
-  // Signed in without an active subscription: the paywall IS the app - the
-  // only screens reachable are the subscription plans (plus the Terms page its
-  // legal footnote links to), and the only ways out are purchasing a plan or
-  // the paywall's own Log out escape hatch. This mirrors the web, where the
-  // EnsureSubscribed middleware makes /upgrade the sole route for a signed-up,
-  // unsubscribed user - and it runs BEFORE the basics gate, matching the web
-  // route middleware order ['subscribed', 'basics']. Purchasing (or a sync
-  // revealing a subscription) flips `subscribed` in context, which swaps this
-  // navigator away live; admins bypass the gate inside the context compute.
-  if (phase === 'paywall') {
-    return (
-      <Stack.Navigator key="paywall-gate" screenOptions={{ headerShown: false }} initialRouteName="Paywall">
-        <Stack.Screen name="Paywall" component={PaywallScreen} />
-        <Stack.Screen name="LegalPage" component={LegalPageScreen} />
-        {/* The paywall opens the stack but is no longer the whole of it.
-            A new account used to land on a price with nothing behind it and no
-            way past - asked to pay for something they had not seen, which is
-            the weakest possible moment to ask and loses the ones who would
-            have converted after using it. Dismissing the paywall now drops
-            into the same funnel a guest gets: the basics, then the free
-            session, then the ask again on the back of having actually trained.
-            Nothing here is reachable without an account, and none of it needs
-            a subscription. */}
-        <Stack.Screen name="Knowledge" component={KnowledgeScreen} />
-        <Stack.Screen name="KnowledgeLesson" component={KnowledgeLessonScreen} />
-        <Stack.Screen name="FreeSessionOffer" component={FreeSessionOfferScreen} />
-        <Stack.Screen name="Workout" component={WorkoutScreen} />
-        <Stack.Screen name="FreeSessionComplete" component={FreeSessionCompleteScreen} />
-      </Stack.Navigator>
+            No Workout route here any more. A guest cannot train at all now:
+            the demo session is gone, and the free tier lives behind sign-in
+            rather than in front of it. The lessons are what a guest gets, and
+            the way on from them is to create an account. */}
+        <AuthStack.Screen name="LegalPage" component={LegalPageScreen} />
+      </AuthStack.Navigator>
     );
   }
 
@@ -318,8 +346,9 @@ export const AppNavigator = () => {
       <Stack.Screen name="MainTabs" component={TabNavigator} />
       <Stack.Screen name="Workout" component={WorkoutScreen} />
       <Stack.Screen name="WorkoutComplete" component={WorkoutCompleteScreen} />
-      {/* "Manage Plan": subscribed users (and gate-bypassing admins) reach the
-          paywall from Settings to switch plans with Play's native proration. */}
+      {/* "Manage Plan" from Settings, and the way in from every padlock: the
+          locked tabs, the level row, the exercises past the free three and the
+          notice after a free session all push this screen. */}
       <Stack.Screen name="Paywall" component={PaywallScreen} />
       <Stack.Screen name="LegalPage" component={LegalPageScreen} />
       <Stack.Screen name="ExerciseDetail" component={ExerciseDetailScreen} />

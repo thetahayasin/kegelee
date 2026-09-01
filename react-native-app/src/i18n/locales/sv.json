@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Har du redan ett konto?",
-    "baselineTitle": "Nu mäter vi din utgångspunkt",
     "buildingPlan": "Vi bygger din plan",
     "getStarted": "Kom igång",
     "logIn": "Logga in",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Ungefär fem minuter",
     "quizTimeQ": "Hur länge kan du träna varje dag?",
     "quizTimeShort": "Ett par minuter",
-    "resultBody": "Vi börjar här och justerar allteftersom du blir starkare.",
-    "resultLevelLabel": "Startnivå",
-    "resultTitle": "Din utgångspunkt",
+    "resultTitle": "Din plan är klar",
     "slide1Body": "Mer kontroll, mer uthållighet, bättre känsla. Bäckenbotten är en muskel och tränas som en.",
     "slide1Title": "Starkare i sängen",
     "slide2Body": "Inget gym, ingen utrustning, inget att ta av. I soffan, vid skrivbordet, på bussen. Ingen märker något.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Byt plan",
     "close": "Stäng",
     "continueToApp": "Vidare till appen",
+    "currentPlan": "Nuvarande plan",
     "everyPlanStartsWithTrial_one": "Alla planer börjar med {{count}} dag gratis",
     "everyPlanStartsWithTrial_other": "Alla planer börjar med {{count}} dagar gratis",
     "logOut": "Logga ut",
@@ -318,6 +316,8 @@
     "startYourJourney": "Lås upp hela programmet",
     "subscribe": "Prenumerera",
     "subscriptionActivated": "Prenumerationen är aktiverad!",
+    "switchStartsLater": "Börjar när din nuvarande plan tar slut.",
+    "switchStartsNow": "Börjar nu. Din oanvända tid tillgodoräknas.",
     "switchToPlan": "Byt till {{plan}}",
     "terms": "Villkor",
     "trialThenPrice_one": "{{count}} dag gratis, sedan {{price}}. Förnyas automatiskt om du inte säger upp innan provperioden tar slut.",
@@ -341,6 +341,12 @@
       "name": "1 år",
       "period": "/år"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Mät hur länge du håller och se utvecklingen.",
+    "noticeSchedule": "Påminnelser för de dagar och tider du tränar.",
+    "unlockMore": "Lås upp mer med Premium"
   },
   "profile": {
     "currentDifficulty": "Nuvarande svårighetsgrad",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Ställ in tider för din vecka"
   },
   "settings": {
+    "appearance": "Utseende",
+    "appearanceDark": "Mörkt",
+    "appearanceLight": "Ljust",
+    "appearanceSystem": "System",
     "autoRenewalOff": "Automatisk förnyelse är av. Åtkomsten slutar {{date}}.",
     "cancel": "Avbryt",
     "cancelledUntilDate": "Avslutad. Din åtkomst gäller till {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Framsteg",
     "schedule": "Schema",
     "training": "Träning"
+  },
+  "tour": {
+    "homeRingBody": "En dag räknas när båda passen är klara. Ringen fylls efter hand.",
+    "homeRingTitle": "Din dag",
+    "homeStartBody": "Dagens pass är redan klart. Tryck bara på start.",
+    "homeStartTitle": "Börja här",
+    "homeUnlockBody": "Fler övningar öppnas allt eftersom du tränar.",
+    "homeUnlockTitle": "Mer kommer",
+    "profileLevelBody": "Det avgör hur långt ett pass är. Ändra när du vill.",
+    "profileLevelTitle": "Ändra svårighetsgrad",
+    "progressChartBody": "Dina mätningar över tid, så du ser hur det går.",
+    "progressChartTitle": "Dina framsteg",
+    "progressMeasureBody": "Håll så länge du kan. Gör om det varje eller varannan vecka för att se skillnaden.",
+    "progressMeasureTitle": "Mät ditt håll",
+    "scheduleMonthBody": "Varje ruta är en träningsdag. De fylls i när du klarar dem.",
+    "scheduleMonthTitle": "Din månad",
+    "scheduleRemindersBody": "Välj de dagar och tider som passar dig. En påminnelse hjälper.",
+    "scheduleRemindersTitle": "Ställ in dina påminnelser",
+    "sessionListBody": "Alla steg i passet, i ordning. Det i mitten pågår nu.",
+    "sessionListTitle": "Vad som kommer",
+    "sessionPauseBody": "Inget går förlorat om du stannar. Fortsätt när du är redo.",
+    "sessionPauseTitle": "Pausa när som helst",
+    "sessionRingBody": "Spänn medan den fylls och slappna av medan den töms. Det är hela övningen.",
+    "sessionRingTitle": "Följ cirkeln"
   },
   "training": {
     "available": "Tillgänglig",

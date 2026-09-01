@@ -10,7 +10,8 @@ import {
 import { TouchableOpacity } from '../../../components/Touchable';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { exerciseNameKey } from '../../../constants/catalogues';
-import { COLORS } from '../../../theme/colors';
+import { Palette } from '../../../theme/colors';
+import { useTheme, useThemedStyles } from '../../../theme/ThemeContext';
 import { LessonLine, LESSON_TEXT } from '../../../components/LessonLine';
 import { getSteps } from '../../../constants/catalogues';
 
@@ -30,25 +31,32 @@ const TOTAL = TREMBLING.reduce((s, x) => s + x.seconds, 0);
 // Hoisted to module scope: defining this inside FirstLesson made React see a
 // new component type on every render and remount the whole SVG subtree.
 // It only reads module-level constants, so it lifts out cleanly.
-const Ring = ({ offset }: { offset: number }) => (
-  <Svg width={SIZE} height={SIZE} style={styles.ring} pointerEvents="none">
-    <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={TRACK} />
-    <Circle
-      cx={SIZE / 2}
-      cy={SIZE / 2}
-      r={R}
-      fill="none"
-      stroke={COLORS.white}
-      strokeWidth={TRACK}
-      strokeLinecap="round"
-      strokeDasharray={CIRC}
-      strokeDashoffset={offset}
-      transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
-    />
-  </Svg>
-);
+const Ring = ({ offset }: { offset: number }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
+  return (
+    <Svg width={SIZE} height={SIZE} style={styles.ring} pointerEvents="none">
+      <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke={COLORS.borderStrong} strokeWidth={TRACK} />
+      {/* The accent, matching the session's ring - see WorkoutScreen. */}
+      <Circle
+        cx={SIZE / 2}
+        cy={SIZE / 2}
+        r={R}
+        fill="none"
+        stroke={COLORS.accentText}
+        strokeWidth={TRACK}
+        strokeLinecap="round"
+        strokeDasharray={CIRC}
+        strokeDashoffset={offset}
+        transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+      />
+    </Svg>
+  );
+};
 
 export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const [i, setI] = useState(0);
   const [remaining, setRemaining] = useState(TREMBLING[0].seconds);
@@ -264,7 +272,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
             </TouchableOpacity>
           ) : tried ? (
             <Svg width={80} height={80} viewBox="0 0 24 24" fill="none">
-              <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M5 13l4 4L19 7" stroke={COLORS.accentText} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           ) : (
             <View style={styles.circleCenter}>
@@ -295,7 +303,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // The one text style on this screen, identical to the text-only slides.
   line: {
@@ -326,7 +334,7 @@ const styles = StyleSheet.create({
     borderRadius: SIZE / 2,
     backgroundColor: COLORS.surface,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
   },

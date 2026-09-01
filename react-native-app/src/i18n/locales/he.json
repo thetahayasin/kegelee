@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "כבר יש לך חשבון?",
-    "baselineTitle": "עכשיו נמדוד את נקודת הפתיחה",
     "buildingPlan": "בונים את התוכנית שלך",
     "getStarted": "מתחילים",
     "logIn": "התחבר",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "בערך חמש דקות",
     "quizTimeQ": "כמה זמן תוכל להתאמן בכל יום?",
     "quizTimeShort": "כמה דקות",
-    "resultBody": "נתחיל כאן ונתאים ככל שתתחזק.",
-    "resultLevelLabel": "רמת התחלה",
-    "resultTitle": "נקודת הפתיחה שלך",
+    "resultTitle": "התוכנית שלך מוכנה",
     "slide1Body": "יותר שליטה, יותר סיבולת, תחושה טובה יותר. רצפת האגן היא שריר, ומתאמנים עליה כמו על שריר.",
     "slide1Title": "חזקים יותר במיטה",
     "slide2Body": "בלי חדר כושר, בלי ציוד, בלי להוריד כלום. על הספה, ליד השולחן, באוטובוס. אף אחד לא שם לב.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "שינוי המסלול",
     "close": "סגור",
     "continueToApp": "המשך לאפליקציה",
+    "currentPlan": "התוכנית הנוכחית",
     "everyPlanStartsWithTrial_one": "כל מסלול מתחיל בתקופת ניסיון של יום אחד בחינם",
     "everyPlanStartsWithTrial_other": "כל מסלול מתחיל ב-{{count}} ימי ניסיון בחינם",
     "logOut": "התנתק",
@@ -318,6 +316,8 @@
     "startYourJourney": "פתחו את התוכנית כולה",
     "subscribe": "הרשמה למנוי",
     "subscriptionActivated": "המנוי הופעל!",
+    "switchStartsLater": "מתחיל כשהתוכנית הנוכחית שלכם מסתיימת.",
+    "switchStartsNow": "מתחיל עכשיו. הזמן שלא נוצל יזוכה לכם.",
     "switchToPlan": "מעבר ל{{plan}}",
     "terms": "תנאים",
     "trialThenPrice_one": "יום ניסיון חינם, ולאחר מכן {{price}}. מתחדש אוטומטית אלא אם תבטלו לפני סוף הניסיון.",
@@ -341,6 +341,12 @@
       "name": "שנה אחת",
       "period": "/שנה"
     }
+  },
+  "premium": {
+    "badge": "פרימיום",
+    "noticeProgress": "מדדו את משך ההחזקה וראו את המגמה מתפתחת.",
+    "noticeSchedule": "תזכורות לימים ולשעות שבהם אתם מתאמנים.",
+    "unlockMore": "פתחו עוד עם פרימיום"
   },
   "profile": {
     "currentDifficulty": "רמת הקושי הנוכחית",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "הגדירו את השעות לשבוע"
   },
   "settings": {
+    "appearance": "מראה",
+    "appearanceDark": "כהה",
+    "appearanceLight": "בהיר",
+    "appearanceSystem": "מערכת",
     "autoRenewalOff": "החידוש האוטומטי כבוי. הגישה מסתיימת ב-{{date}}.",
     "cancel": "ביטול",
     "cancelledUntilDate": "בוטל. הגישה שלכם נשארת פעילה עד {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "התקדמות",
     "schedule": "לוח זמנים",
     "training": "אימון"
+  },
+  "tour": {
+    "homeRingBody": "יום נחשב כששני האימונים הושלמו. הטבעת מתמלאת תוך כדי.",
+    "homeRingTitle": "היום שלך",
+    "homeStartBody": "האימון של היום כבר מוכן. פשוט לחץ התחל.",
+    "homeStartTitle": "התחל כאן",
+    "homeUnlockBody": "תרגילים נוספים נפתחים ככל שתמשיכו להתאמן.",
+    "homeUnlockTitle": "יש עוד בהמשך",
+    "profileLevelBody": "זה קובע כמה זמן נמשך אימון. אפשר לשנות מתי שתרצו.",
+    "profileLevelTitle": "שנה את רמת הקושי",
+    "progressChartBody": "המדידות שלכם לאורך זמן, כדי לראות איך זה מתקדם.",
+    "progressChartTitle": "ההתקדמות שלך",
+    "progressMeasureBody": "החזק כמה שאתה יכול. חזור על כך כל שבוע-שבועיים כדי לראות את השינוי.",
+    "progressMeasureTitle": "מדוד את זמן ההחזקה",
+    "scheduleMonthBody": "כל ריבוע הוא יום אימון. הם מתמלאים ככל שאתה משלים אותם.",
+    "scheduleMonthTitle": "החודש שלך",
+    "scheduleRemindersBody": "בחרו את הימים והשעות שמתאימים לכם. תזכורת עוזרת.",
+    "scheduleRemindersTitle": "הגדר תזכורות",
+    "sessionListBody": "כל שלבי האימון לפי הסדר. זה שבאמצע מתרחש עכשיו.",
+    "sessionListTitle": "מה הלאה",
+    "sessionPauseBody": "שום דבר לא הולך לאיבוד אם תעצור. חזור מתי שתרצה.",
+    "sessionPauseTitle": "אפשר להשהות בכל רגע",
+    "sessionRingBody": "כווץ כשהוא מתמלא והרפה כשהוא מתרוקן. זה כל התרגיל.",
+    "sessionRingTitle": "עקוב אחר המעגל"
   },
   "training": {
     "available": "זמין",

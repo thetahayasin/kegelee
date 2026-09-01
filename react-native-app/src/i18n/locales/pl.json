@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Masz już konto?",
-    "baselineTitle": "Zmierzmy teraz twój punkt wyjścia",
     "buildingPlan": "Tworzymy twój plan",
     "getStarted": "Zaczynamy",
     "logIn": "Zaloguj się",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Około pięciu minut",
     "quizTimeQ": "Ile czasu możesz ćwiczyć każdego dnia?",
     "quizTimeShort": "Kilka minut",
-    "resultBody": "Zaczynamy tutaj i dostosujemy plan, gdy zyskasz siłę.",
-    "resultLevelLabel": "Poziom startowy",
-    "resultTitle": "Twój punkt wyjścia",
+    "resultTitle": "Twój plan jest gotowy",
     "slide1Body": "Więcej kontroli, więcej wytrzymałości, lepsze odczucia. Dno miednicy to mięsień i trenuje się je jak mięsień.",
     "slide1Title": "Mocniej w łóżku",
     "slide2Body": "Bez siłowni, bez sprzętu, bez rozbierania się. Na kanapie, przy biurku, w autobusie. Nikt niczego nie zauważy.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Zmień plan",
     "close": "Zamknij",
     "continueToApp": "Przejdź do aplikacji",
+    "currentPlan": "Bieżący plan",
     "everyPlanStartsWithTrial_one": "Każdy plan zaczyna się od {{count}} dnia za darmo",
     "everyPlanStartsWithTrial_other": "Każdy plan zaczyna się od {{count}} dni za darmo",
     "logOut": "Wyloguj się",
@@ -318,6 +316,8 @@
     "startYourJourney": "Odblokuj cały program",
     "subscribe": "Subskrybuj",
     "subscriptionActivated": "Subskrypcja aktywowana!",
+    "switchStartsLater": "Zacznie się po zakończeniu bieżącego planu.",
+    "switchStartsNow": "Zaczyna się teraz. Niewykorzystany czas zostanie zaliczony.",
     "switchToPlan": "Przejdź na {{plan}}",
     "terms": "Regulamin",
     "trialThenPrice_one": "{{count}} dzień za darmo, potem {{price}}. Odnawia się automatycznie, jeśli nie anulujesz przed końcem okresu próbnego.",
@@ -341,6 +341,12 @@
       "name": "1 rok",
       "period": "/rok"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Zmierz czas napięcia i obserwuj, jak rośnie.",
+    "noticeSchedule": "Przypomnienia na dni i godziny treningów.",
+    "unlockMore": "Odblokuj więcej z Premium"
   },
   "profile": {
     "currentDifficulty": "Aktualny poziom trudności",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Ustaw pory na swój tydzień"
   },
   "settings": {
+    "appearance": "Wygląd",
+    "appearanceDark": "Ciemny",
+    "appearanceLight": "Jasny",
+    "appearanceSystem": "System",
     "autoRenewalOff": "Automatyczne odnawianie jest wyłączone. Dostęp kończy się {{date}}.",
     "cancel": "Anuluj",
     "cancelledUntilDate": "Anulowana. Dostęp pozostaje aktywny do {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Postępy",
     "schedule": "Harmonogram",
     "training": "Trening"
+  },
+  "tour": {
+    "homeRingBody": "Dzień liczy się po dwóch sesjach. Pierścień wypełnia się na bieżąco.",
+    "homeRingTitle": "Twój dzień",
+    "homeStartBody": "Dzisiejsza sesja jest już gotowa. Wystarczy nacisnąć start.",
+    "homeStartTitle": "Zacznij tutaj",
+    "homeUnlockBody": "Kolejne ćwiczenia otwierają się w miarę treningu.",
+    "homeUnlockTitle": "Będzie więcej",
+    "profileLevelBody": "Ustala, jak długa jest sesja. Zmień to, kiedy chcesz.",
+    "profileLevelTitle": "Zmień poziom trudności",
+    "progressChartBody": "Twoje pomiary w czasie, żebyś widział, jak idzie.",
+    "progressChartTitle": "Twoje postępy",
+    "progressMeasureBody": "Utrzymaj tak długo, jak dasz radę. Powtarzaj co tydzień lub dwa, by zobaczyć zmianę.",
+    "progressMeasureTitle": "Zmierz swoje napięcie",
+    "scheduleMonthBody": "Każdy kwadrat to dzień treningu. Wypełniają się, gdy je kończysz.",
+    "scheduleMonthTitle": "Twój miesiąc",
+    "scheduleRemindersBody": "Wybierz dni i godziny, które ci pasują. Przypomnienie pomaga.",
+    "scheduleRemindersTitle": "Ustaw przypomnienia",
+    "sessionListBody": "Wszystkie kroki tej sesji po kolei. Ten na środku trwa teraz.",
+    "sessionListTitle": "Co dalej",
+    "sessionPauseBody": "Nic nie przepada, jeśli przerwiesz. Wróć, kiedy będziesz gotowy.",
+    "sessionPauseTitle": "Wstrzymaj w każdej chwili",
+    "sessionRingBody": "Napnij, gdy się wypełnia, i rozluźnij, gdy się opróżnia. To całe ćwiczenie.",
+    "sessionRingTitle": "Podążaj za okręgiem"
   },
   "training": {
     "available": "Dostępne",

@@ -5,6 +5,7 @@ import {
   getCycleSeconds,
   getDurationBounds,
   getSteps,
+  isFreeExercise,
 } from '../constants/catalogues';
 
 export interface PlaylistStep {
@@ -57,14 +58,27 @@ export const getDurationForLevel = (slug: string, levelNumber: number): number =
 };
 
 // Generate daily workout session playlist
-export const buildDailySession = (completedDays: number, levelNumber: number): Playlist => {
+export const buildDailySession = (
+  completedDays: number,
+  levelNumber: number,
+  opts?: { freeOnly?: boolean },
+): Playlist => {
   const level = LEVELS[levelNumber] || LEVELS[1];
   const total = level.total_session_seconds;
   const rest = level.rest_seconds;
 
-  // Filter to only unlocked exercises
+  // Filter to only unlocked exercises.
+  //
+  // A free account is bounded twice over, and both bounds matter. Its day
+  // count stops at FREE_DAY_CAP so the day-based unlock can never reach the
+  // fourth exercise, and this filter is the belt to that braces: even if a
+  // day count arrived from somewhere else - a sync from an account that was
+  // subscribed yesterday, a clock change - the session still only ever
+  // contains what the tier actually includes.
   const unlocked = Object.values(EXERCISES).filter(
-    (ex) => completedDays >= ex.unlock_after_days
+    (ex) =>
+      completedDays >= ex.unlock_after_days
+      && (!opts?.freeOnly || isFreeExercise(ex.slug)),
   );
 
   if (unlocked.length === 0) {

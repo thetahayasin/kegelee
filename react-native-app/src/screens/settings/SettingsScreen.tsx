@@ -16,7 +16,13 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp, useIsFocused } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../theme/colors';
+import { Palette, TYPE, SPACE, RADIUS } from '../../theme/colors';
+import {
+  ThemeMode,
+  useTheme,
+  useThemeMode,
+  useThemedStyles,
+} from '../../theme/ThemeContext';
 import { LanguagePicker } from '../../components/LanguagePicker';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
@@ -27,8 +33,39 @@ import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
+import { track } from '../../services/events';
 
-export const SettingsSections = () => {
+/**
+ * Written out rather than built as `settings.appearance_${mode}`, so that a
+ * grep for a key finds it and the locale audit can see it is in use. An
+ * interpolated key is invisible to both.
+ */
+const APPEARANCE_KEYS: Record<ThemeMode, string> = {
+  system: 'settings.appearanceSystem',
+  light: 'settings.appearanceLight',
+  dark: 'settings.appearanceDark',
+};
+
+interface SettingsSectionsProps {
+  /**
+   * Rendered directly after the subscription section.
+   *
+   * The Profile tab has three rows of its own - difficulty, reminders,
+   * haptics - which used to sit ABOVE this whole component, putting the
+   * subscription row below them and below the fold. Moving the component up
+   * instead would have put Log out and Delete account above them, which is
+   * worse. Threading the rows through here puts the subscription first and
+   * leaves everything else in a sensible order, with one data load.
+   */
+  afterSubscription?: React.ReactNode;
+}
+
+export const SettingsSections: React.FC<SettingsSectionsProps> = ({
+  afterSubscription,
+}) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
+  const { mode: themeMode, setMode: setThemeMode } = useThemeMode();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
@@ -301,6 +338,53 @@ export const SettingsSections = () => {
           )}
         </View>
 
+        {/* The profile's own rows.
+            They carry their own top margin, but the subscription card above
+            has no bottom one - it relied on the next SECTION LABEL's
+            paddingTop, and these rows are not a section label. Without this
+            the two cards sat edge to edge with no seam at all. */}
+        <View style={styles.afterSubscriptionGap}>{afterSubscription}</View>
+
+        {/* Appearance.
+            A segmented control rather than a row that opens a picker: there
+            are exactly three choices, all of them one word, and the result is
+            visible the instant it is tapped - so making the reader open a
+            sheet to see three options and come back would be ceremony around
+            nothing. System is first because it is the default and the one
+            most people want. */}
+        <Text style={styles.sectionLabel}>{t('settings.appearance')}</Text>
+        <View style={styles.menuContainer}>
+          <View style={styles.segment}>
+            {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => {
+              const active = themeMode === m;
+              return (
+                <TouchableOpacity
+                  key={m}
+                  style={[styles.segmentBtn, active && styles.segmentBtnActive]}
+                  onPress={() => {
+                    setThemeMode(m);
+                    track(user?.id, 'appearance_changed', m);
+                  }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
+                >
+                  <Text
+                    style={[
+                      styles.segmentText,
+                      active && styles.segmentTextActive,
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.75}
+                  >
+                    {t(APPEARANCE_KEYS[m])}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Language */}
         <Text style={styles.sectionLabel}>{t('settings.language')}</Text>
         <View style={styles.menuContainer}>
@@ -569,19 +653,43 @@ export const SettingsSections = () => {
  * a stale deep link or a saved navigation state pointing at 'Settings' should
  * land somewhere sensible rather than crashing.
  */
-export const SettingsScreen = () => (
-  <SafeAreaView style={styles.container}>
-    <Watermark />
-    <ScrollView contentContainerStyle={styles.scrollContent}>
-      <SettingsSections />
-    </ScrollView>
-  </SafeAreaView>
-);
+export const SettingsScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <SafeAreaView style={styles.container}>
+      <Watermark />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <SettingsSections />
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   // Sections render inside Profile's ScrollView now, so they own padding but
   // never scrolling - nesting a second scroller would break momentum on both.
   sectionsWrap: { paddingHorizontal: 0 },
+  afterSubscriptionGap: { marginTop: SPACE.lg },
+  // Three equal thirds inside the same card the menu rows use, so the control
+  // reads as part of the list rather than as a widget dropped on top of it.
+  segment: {
+    flexDirection: 'row',
+    padding: SPACE.xs,
+    gap: SPACE.xs,
+  },
+  segmentBtn: {
+    flex: 1,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.sm,
+    borderRadius: RADIUS.md,
+  },
+  // The selected third carries the accent wash and the accent label: the same
+  // pairing the active tab uses, so the two mean the same thing.
+  segmentBtnActive: { backgroundColor: COLORS.accentWash },
+  segmentText: { ...TYPE.bodySm, color: COLORS.textMuted, fontWeight: '600' },
+  segmentTextActive: { color: COLORS.accentText, fontWeight: '700' },
   loadingInline: { paddingVertical: 48, alignItems: 'center' },
   container: {
     flex: 1,
@@ -658,7 +766,7 @@ const styles = StyleSheet.create({
   },
   borderTop: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.03)',
+    borderTopColor: COLORS.border,
   },
   menuText: {
     fontSize: 15,
@@ -676,14 +784,14 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   badgeActive: {
-    backgroundColor: 'rgba(193, 255, 114, 0.15)',
+    backgroundColor: COLORS.accentWash,
   },
   badgeText: {
     fontSize: 11,
     fontWeight: 'bold',
   },
   badgeTextActive: {
-    color: COLORS.accent,
+    color: COLORS.accentText,
   },
   subscribePill: {
     backgroundColor: COLORS.accent,
@@ -715,8 +823,14 @@ const styles = StyleSheet.create({
   },
   // Neutral, not the accent CTA: signing out is routine, not the thing the
   // page most wants you to do.
+  // Same treatment as Reset progress below it. Without the border it was a
+  // bare fill, which against surface2 on the light palette is barely a button
+  // at all - and it sits directly above two bordered buttons, so it read as
+  // the one unfinished control in the group.
   logoutBtn: {
     backgroundColor: COLORS.surface2,
+    borderColor: COLORS.borderStrong,
+    borderWidth: 1,
   },
   logoutBtnText: {
     fontSize: 15,
@@ -726,7 +840,7 @@ const styles = StyleSheet.create({
   // Cautionary, not destructive: progress can be rebuilt, an account cannot.
   resetBtn: {
     backgroundColor: COLORS.surface2,
-    borderColor: 'rgba(242, 245, 238, 0.22)',
+    borderColor: COLORS.borderStrong,
     borderWidth: 1,
   },
   resetBtnText: {
@@ -739,8 +853,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   deleteBtn: {
-    backgroundColor: 'rgba(255, 77, 77, 0.16)',
-    borderColor: 'rgba(255, 107, 107, 0.65)',
+    backgroundColor: COLORS.dangerWash,
+    borderColor: COLORS.dangerEdge,
     borderWidth: 1,
   },
   deleteBtnText: {
@@ -752,13 +866,13 @@ const styles = StyleSheet.create({
   // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   modalContent: {
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 24,
     padding: 24,
@@ -778,8 +892,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   warningBox: {
-    backgroundColor: 'rgba(255, 77, 77, 0.1)',
-    borderColor: 'rgba(255, 77, 77, 0.25)',
+    backgroundColor: COLORS.dangerWash,
+    borderColor: COLORS.dangerEdge,
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
@@ -824,14 +938,14 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   modalDeleteBtnText: {
-    color: '#ffffff',
+    color: COLORS.onDanger,
     fontWeight: 'bold',
   },
   deleteInput: {
     height: 52,
     backgroundColor: COLORS.bg,
     borderRadius: 12,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     color: COLORS.white,
     fontSize: 24,
@@ -849,14 +963,14 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   modalConfirmDeleteBtnText: {
-    color: '#ffffff',
+    color: COLORS.onDanger,
     fontWeight: 'bold',
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 77, 77, 0.1)',
-    borderColor: 'rgba(255, 77, 77, 0.25)',
+    backgroundColor: COLORS.dangerWash,
+    borderColor: COLORS.dangerEdge,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,

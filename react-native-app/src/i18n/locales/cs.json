@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Už máš účet?",
-    "baselineTitle": "Teď změříme tvůj výchozí bod",
     "buildingPlan": "Sestavujeme tvůj plán",
     "getStarted": "Začít",
     "logIn": "Přihlásit se",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Asi pět minut",
     "quizTimeQ": "Kolik času můžeš denně věnovat tréninku?",
     "quizTimeShort": "Pár minut",
-    "resultBody": "Začneme tady a budeme se přizpůsobovat, jak budeš silnější.",
-    "resultLevelLabel": "Počáteční úroveň",
-    "resultTitle": "Tvůj výchozí bod",
+    "resultTitle": "Váš plán je připraven",
     "slide1Body": "Víc kontroly, víc výdrže, lepší pocit. Pánevní dno je sval a trénuje se jako sval.",
     "slide1Title": "Silnější v posteli",
     "slide2Body": "Žádná posilovna, žádné pomůcky, nic se nesvléká. Na gauči, u stolu, v autobuse. Nikdo si ničeho nevšimne.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Změnit tarif",
     "close": "Zavřít",
     "continueToApp": "Pokračovat do aplikace",
+    "currentPlan": "Současný plán",
     "everyPlanStartsWithTrial_one": "Každý tarif začíná {{count}}denní zkouškou zdarma",
     "everyPlanStartsWithTrial_other": "Každý tarif začíná {{count}}denní zkouškou zdarma",
     "logOut": "Odhlásit se",
@@ -318,6 +316,8 @@
     "startYourJourney": "Odemkni celý program",
     "subscribe": "Předplatit",
     "subscriptionActivated": "Předplatné je aktivní!",
+    "switchStartsLater": "Začne po skončení současného plánu.",
+    "switchStartsNow": "Začne hned. Nevyužitý čas se vám započítá.",
     "switchToPlan": "Přejít na {{plan}}",
     "terms": "Podmínky",
     "trialThenPrice_one": "{{count}} den zdarma, poté {{price}}. Obnovuje se automaticky, pokud nezrušíte před koncem zkoušky.",
@@ -341,6 +341,12 @@
       "name": "1 rok",
       "period": "/rok"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Změřte si výdrž a sledujte, jak křivka roste.",
+    "noticeSchedule": "Připomínky na dny a časy, kdy trénujete.",
+    "unlockMore": "Odemkněte více s Premium"
   },
   "profile": {
     "currentDifficulty": "Aktuální obtížnost",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Nastav si časy na týden"
   },
   "settings": {
+    "appearance": "Vzhled",
+    "appearanceDark": "Tmavý",
+    "appearanceLight": "Světlý",
+    "appearanceSystem": "Systém",
     "autoRenewalOff": "Automatické obnovení je vypnuté. Přístup končí {{date}}.",
     "cancel": "Zrušit",
     "cancelledUntilDate": "Zrušeno. Přístup ti zůstává do {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Pokrok",
     "schedule": "Rozvrh",
     "training": "Trénink"
+  },
+  "tour": {
+    "homeRingBody": "Den se počítá, až dokončíš obě lekce. Kruh se plní průběžně.",
+    "homeRingTitle": "Tvůj den",
+    "homeStartBody": "Dnešní lekce je už připravená. Stačí stisknout start.",
+    "homeStartTitle": "Začni tady",
+    "homeUnlockBody": "Jak budete pokračovat, otevřou se další cviky.",
+    "homeUnlockTitle": "Bude toho víc",
+    "profileLevelBody": "Určuje, jak dlouhá je lekce. Můžete to kdykoli změnit.",
+    "profileLevelTitle": "Změň obtížnost",
+    "progressChartBody": "Vaše měření v čase, abyste viděli, jak to jde.",
+    "progressChartTitle": "Tvůj pokrok",
+    "progressMeasureBody": "Vydrž co nejdéle. Opakuj každý týden nebo dva a uvidíš změnu.",
+    "progressMeasureTitle": "Změř svou výdrž",
+    "scheduleMonthBody": "Každý čtverec je tréninkový den. Vyplňují se, jak je dokončuješ.",
+    "scheduleMonthTitle": "Tvůj měsíc",
+    "scheduleRemindersBody": "Vyberte si dny a časy, které vám vyhovují. Připomenutí pomáhá.",
+    "scheduleRemindersTitle": "Nastav si připomenutí",
+    "sessionListBody": "Všechny kroky této lekce v pořadí. Ten uprostřed právě probíhá.",
+    "sessionListTitle": "Co tě čeká",
+    "sessionPauseBody": "Nic se neztratí, když přestaneš. Vrať se, až budeš chtít.",
+    "sessionPauseTitle": "Kdykoli pozastav",
+    "sessionRingBody": "Stahuj, když se plní, a uvolni, když se vyprazdňuje. To je celé cvičení.",
+    "sessionRingTitle": "Sleduj kruh"
   },
   "training": {
     "available": "Dostupné",

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setApiToken } from '../services/api';
@@ -7,7 +7,6 @@ import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
 import { cancelAllReminders, cancelAllNudges, scheduleTrialEndingWarning } from '../services/reminders';
 import { googleNativeSignOut } from '../services/googleAuth';
 import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo, purchaseRecordedAt } from '../services/billing';
-import { migrateFreeSessionToAccount } from '../services/freeSession';
 import { BASICS_LESSONS } from '../constants/basics';
 import i18n from '../i18n';
 
@@ -16,9 +15,9 @@ const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
 /**
  * Where OnboardingScreen leaves the quiz result until there is an account.
  *
- * Declared here rather than in the screen because SubscribeSheet - which the
- * screen renders - imports this context, so importing the other way round
- * would close a cycle.
+ * Declared here rather than in the screen so that anything reading the
+ * pending quiz result - the screen, the sync layer - can import it from one
+ * place without importing the screen itself.
  */
 export const ONBOARDING_QUIZ_KEY = '@onboarding_quiz';
 
@@ -112,8 +111,13 @@ interface AuthContextType {
   // until they finish it, true = the main app is unlocked.
   basicsDone: boolean;
   markBasicsDone: () => void;
-  // Subscription gate, checked BEFORE the basics gate (web middleware order
-  // ['subscribed', 'basics']): false = the paywall is the whole app.
+  // Whether the account has a live subscription.
+  //
+  // No longer a gate on the app. It is a feature flag: the lessons, the
+  // training tab and the first three exercises are free, while progress
+  // tracking, the schedule and the level picker sit behind it - and a free
+  // account's training day stops advancing at FREE_DAY_CAP, so subscribing
+  // resumes the plan rather than restarting it.
   subscribed: boolean;
   markSubscribed: () => void;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -142,6 +146,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // purchase handler, and a fresh function every render would either
   // invalidate that memo or sit in the deps array as a lint error.
   const markSubscribed = useCallback(() => setSubscribed(true), []);
+
+  /**
+   * Reminders stop when the subscription does.
+   *
+   * cancelAllReminders() was called on login and on logout, and nowhere else -
+   * so an account that subscribed, set a week of reminders and then lapsed
+   * kept being notified indefinitely, by a feature it could no longer open,
+   * for a plan that was no longer moving. The notifications are scheduled with
+   * the OS, so nothing about them expires on its own; something has to go and
+   * cancel them.
+   *
+   * The rule is a STATE, not a transition: an account without a subscription
+   * should have no reminders scheduled, so whenever that is known to be the
+   * case, clear them.
+   *
+   * The first version only fired on a true -> false transition within a
+   * running session, and that missed the case that actually happens. Someone
+   * cancels, closes the app, and opens it days later: `subscribed` restores as
+   * false, there is no transition from anything, and nothing cancels - while
+   * the notifications, which were handed to the OS and outlive the process,
+   * carry on firing indefinitely for a feature the account can no longer open.
+   *
+   * Guarded two ways. `isLoading` keeps it from acting on the false that every
+   * cold start begins with, before the restore has decided; and the ref keeps
+   * it to once per state rather than once per render.
+   */
+  const remindersClearedFor = useRef<boolean | null>(null);
+  useEffect(() => {
+    // Wait for the restore to decide. `subscribed` is false while it runs, and
+    // acting on that would cancel a paying subscriber's reminders on every
+    // single app open.
+    if (isLoading) return;
+    // Already handled this state; nothing to do until it changes.
+    if (remindersClearedFor.current === subscribed) return;
+    remindersClearedFor.current = subscribed;
+
+    if (!subscribed) {
+      cancelAllReminders().catch(() => {});
+      cancelAllNudges().catch(() => {});
+    }
+  }, [isLoading, subscribed]);
 
   const markBasicsDone = () => {
     setBasicsDone(true);
@@ -293,7 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
 
     // The free session moves with the lessons, for the same reason.
-    await migrateFreeSessionToAccount(localUser.id);
+
 
     // Decide the basics gate BEFORE revealing the authenticated navigator. The
     // sign-in payload's basics_completed (admin / lessons done / training

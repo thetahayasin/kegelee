@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, AccessibilityInfo } from 'react-native';
-import { COLORS, TYPE, RADIUS, SPACE } from '../theme/colors';
+import { TYPE, RADIUS, SPACE, Palette } from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 /**
  * One line, one card.
@@ -34,6 +35,7 @@ export const LessonCards: React.FC<LessonCardsProps> = ({
   numbered = false,
   active = true,
 }) => {
+  const styles = useThemedStyles(makeStyles);
   // One value per card. Recreated when the number of lines changes so a step
   // with a different count never reuses the previous step's animations.
   const values = useRef<Animated.Value[]>([]);
@@ -106,7 +108,7 @@ export const LessonCards: React.FC<LessonCardsProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   stack: { gap: SPACE.md, width: '100%' },
   card: {
     flexDirection: 'row',
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.accentText,
     marginHorizontal: 9,
   },
   // Body weight, not muted: these lines ARE the lesson, so they must clear the

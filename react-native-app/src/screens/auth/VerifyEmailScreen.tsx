@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   StyleSheet,
+  ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -13,7 +14,8 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../theme/colors';
+import { Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { api } from '../../services/api';
 import { Watermark } from '../../components/Watermark';
 import Svg, { Path } from 'react-native-svg';
@@ -25,6 +27,8 @@ type RouteParams = {
 };
 
 export const VerifyEmailScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'VerifyEmail'>>();
   const navigation = useNavigation<NavigationProp<any>>();
@@ -101,7 +105,17 @@ export const VerifyEmailScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <View style={styles.inner}>
+        {/* Same shape as Log in and Sign up: centred while it fits, and
+            scrollable the moment the keyboard takes the bottom of the box.
+            This screen has a code field and a Verify button below it, so
+            without the scroll the button goes exactly where the keyboard is
+            the instant the reader taps to type the code. */}
+        <ScrollView
+          contentContainerStyle={styles.inner}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
           <Text style={styles.title}>{t('verifyEmail.verifyEmail')}</Text>
           {/* Was a bare English literal - the same defect as the paywall's
               "and the app store terms.", on a screen every single paying
@@ -130,7 +144,7 @@ export const VerifyEmailScreen = () => {
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"
-                  stroke={COLORS.accent}
+                  stroke={COLORS.accentText}
                   strokeWidth={2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -184,13 +198,13 @@ export const VerifyEmailScreen = () => {
           >
             <Text style={styles.backText}>{t('verifyEmail.backToLogIn')}</Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -199,9 +213,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inner: {
-    flex: 1,
+    // flexGrow, not flex - a scroll content container capped at the viewport
+    // cannot scroll.
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
+    paddingVertical: 24,
   },
   title: {
     fontSize: 28,
@@ -218,7 +235,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   emailHighlight: {
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontWeight: '600',
   },
   form: {
@@ -227,7 +244,7 @@ const styles = StyleSheet.create({
   codeInput: {
     height: 60,
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 12,
     color: COLORS.white,
@@ -254,7 +271,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -279,8 +296,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // Errors read as errors. This was the same lime wash as the success
     // container, so a failed attempt looked identical to a win.
-    backgroundColor: 'rgba(255, 107, 107, 0.10)',
-    borderColor: 'rgba(255, 107, 107, 0.28)',
+    backgroundColor: COLORS.dangerWash,
+    borderColor: COLORS.dangerEdge,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -297,8 +314,8 @@ const styles = StyleSheet.create({
   successContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(193, 255, 114, 0.1)',
-    borderColor: 'rgba(193, 255, 114, 0.25)',
+    backgroundColor: COLORS.accentWash,
+    borderColor: COLORS.accentEdge,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -308,7 +325,7 @@ const styles = StyleSheet.create({
   },
   successText: {
     flex: 1,
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontSize: 14,
     lineHeight: 18,
   },

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Linking } from 'react-native';
-import { COLORS } from '../theme/colors';
+import { Palette } from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 /**
  * Minimal HTML renderer for the wysiwyg legal / page content. Handles the tags
@@ -59,21 +60,25 @@ const parseInline = (html: string): Run[] => {
   return runs;
 };
 
-const InlineText = ({ runs, style }: { runs: Run[]; style?: any }) => (
-  <Text style={style}>
-    {runs.map((r, i) => (
-      <Text
-        key={i}
-        onPress={r.href ? () => Linking.openURL(r.href as string) : undefined}
-        style={[r.bold && styles.bold, r.italic && styles.italic, r.href && styles.link]}
-      >
-        {r.text}
-      </Text>
-    ))}
-  </Text>
-);
+const InlineText = ({ runs, style }: { runs: Run[]; style?: any }) => {
+  const styles = useThemedStyles(makeStyles);
+  return (
+    <Text style={style}>
+      {runs.map((r, i) => (
+        <Text
+          key={i}
+          onPress={r.href ? () => Linking.openURL(r.href as string) : undefined}
+          style={[r.bold && styles.bold, r.italic && styles.italic, r.href && styles.link]}
+        >
+          {r.text}
+        </Text>
+      ))}
+    </Text>
+  );
+};
 
 export const HtmlRenderer = ({ html }: { html: string }) => {
+  const styles = useThemedStyles(makeStyles);
   const src = html || '';
   const blocks: { type: string; content: string }[] = [];
   const blockRe = /<(h[1-6]|p|ul|ol|blockquote)([^>]*)>([\s\S]*?)<\/\1>/gi;
@@ -131,7 +136,7 @@ export const HtmlRenderer = ({ html }: { html: string }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   p: { fontSize: 15, color: COLORS.whiteMuted, lineHeight: 24, marginBottom: 14 },
   h1: { fontSize: 24, fontWeight: 'bold', color: COLORS.white, marginTop: 8, marginBottom: 12 },
   h2: { fontSize: 20, fontWeight: 'bold', color: COLORS.white, marginTop: 8, marginBottom: 10 },
@@ -149,9 +154,9 @@ const styles = StyleSheet.create({
   },
   list: { marginBottom: 14 },
   listItem: { flexDirection: 'row', marginBottom: 6 },
-  bullet: { color: COLORS.accent, marginEnd: 8, fontSize: 15, lineHeight: 24 },
+  bullet: { color: COLORS.accentText, marginEnd: 8, fontSize: 15, lineHeight: 24 },
   li: { flex: 1, fontSize: 15, color: COLORS.whiteMuted, lineHeight: 24 },
   bold: { fontWeight: 'bold', color: COLORS.white },
   italic: { fontStyle: 'italic' },
-  link: { color: COLORS.accent, textDecorationLine: 'underline' },
+  link: { color: COLORS.accentText, textDecorationLine: 'underline' },
 });

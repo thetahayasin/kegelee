@@ -35,6 +35,20 @@ class Users extends Component
 
     public ?string $statusMessage = null;
 
+    /**
+     * Whose timeline is open, if any.
+     *
+     * One at a time, and loaded only when opened. Every row carrying its own
+     * event history would be a query per user per render on a paginated list -
+     * and nobody reads twenty timelines at once.
+     */
+    public ?int $timelineUserId = null;
+
+    public function toggleTimeline(int $userId): void
+    {
+        $this->timelineUserId = $this->timelineUserId === $userId ? null : $userId;
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -162,6 +176,14 @@ class Users extends Component
         return view('livewire.admin.users', [
             'users' => $users,
             'levels' => Level::orderBy('number')->get(),
+            // Only for the one row that is open. Newest first, and capped -
+            // a timeline is for reading, and nobody reads the 200th entry.
+            'timeline' => $this->timelineUserId
+                ? \App\Models\UserEvent::where('user_id', $this->timelineUserId)
+                    ->orderByDesc('occurred_at')
+                    ->limit(60)
+                    ->get()
+                : collect(),
         ]);
     }
 }

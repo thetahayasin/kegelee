@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -11,13 +11,16 @@ import {
   Switch,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
 import { SettingsSections } from '../settings/SettingsScreen';
+import { TourOverlay } from '../../components/TourOverlay';
+import { PROFILE_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 import { getAppSetting, saveAppSetting } from '../../db/queries';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
+import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { LEVELS, levelNameKey } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import {
@@ -26,27 +29,61 @@ import {
   openSystemSoundSettings,
   SilencedReason,
 } from '../../services/vibration';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Rect } from 'react-native-svg';
+import { track } from '../../services/events';
 
 export const ProfileScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user, updateUserFields } = useAuth();
+  const { user, updateUserFields, subscribed } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const [levelModalVisible, setLevelModalVisible] = useState(false);
+
+  /**
+   * This tab's tour, first open only. Two cards: what the difficulty row
+   * actually changes, and that everything else lives below.
+   */
+  const [showTour, setShowTour] = useState(false);
+  const tourLevelRef = useRef<View>(null);
+  // Settings live well below the fold; see TrainingScreen for why this matters.
+  const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    hasSeenTour('profile', user.id)
+      .then((seen) => {
+        if (!cancelled && !seen) setShowTour(true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
   const [updatingLevel, setUpdatingLevel] = useState(false);
 
   // Vibration during a session. `haptics_enabled` already existed in the
   // schema defaults but nothing read or wrote it, so it was a setting in name
   // only - this is the control that makes it real.
-  const [hapticsEnabled, setHapticsEnabled] = useState(true);
+  const [hapticsEnabled, setHapticsEnabled] = useState(false);
   useEffect(() => {
-    getAppSetting('haptics_enabled', '1')
-      .then((v) => setHapticsEnabled(v !== '0'))
+    getAppSetting('haptics_enabled', '0')
+      .then((v) => setHapticsEnabled(v === '1'))
       .catch(() => {});
   }, []);
 
   const toggleHaptics = (next: boolean) => {
+    // Part of the subscription. Turning it ON is what needs paying for;
+    // turning it off is always allowed, so somebody who lapses is never stuck
+    // with a buzzing phone they cannot switch off.
+    if (next && !subscribed) {
+      navigation.navigate('Paywall');
+      return;
+    }
     // Optimistic: the switch must move under the finger, not after a DB write.
     setHapticsEnabled(next);
     saveAppSetting('haptics_enabled', next ? '1' : '0', 'bool').catch(() => {});
@@ -113,7 +150,14 @@ export const ProfileScreen = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        ref={scrollRef}
+        contentContainerStyle={[
+          styles.scroll,
+        // The tab bar floats above the content now, so nothing in the
+        // layout reserves room for it. Without this the last card ends
+        // up underneath it, unreachable at the bottom of the scroll.
+          { paddingBottom: tabBarClearance(insets.bottom) },
+        ]}
         showsVerticalScrollIndicator={false}
       >
       {/* Identity Profile Details */}
@@ -125,89 +169,119 @@ export const ProfileScreen = () => {
         <Text style={styles.email}>{user.email}</Text>
       </View>
 
-      {/* Menu Options List */}
-      <View style={styles.menuContainer}>
-        <TouchableOpacity
-          style={styles.menuRow}
-          accessibilityRole="button"
-          activeOpacity={0.85}
-          onPress={() => setLevelModalVisible(true)}
-        >
-          <Text style={styles.menuLabel}>{t('profile.difficulty')}</Text>
-          <View style={styles.menuRight}>
-            <Text style={styles.menuValue}>{t(levelNameKey(currentLevel.number))}</Text>
-            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-              <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+      {/* Subscription first, then these rows, then the rest of settings.
+          They used to sit above SettingsSections, which pushed the
+          subscription row below three rows and, on most phones, below the
+          fold - the one row in the app that should never need scrolling to. */}
+      <SettingsSections
+        afterSubscription={
+          <>
+          <View style={styles.menuContainer}>
+            {/* Wrapped: the shared Touchable does not forward refs. */}
+            <View ref={tourLevelRef} collapsable={false}>
+            {/* Choosing the difficulty is part of the subscription. The row
+                stays visible and still reads out the level the quiz set, because
+                hiding it would hide the fact that levels exist at all - a padlock
+                in place of the chevron says what is being withheld, and the tap
+                goes to the plans instead of the picker. */}
+            <TouchableOpacity
+              style={styles.menuRow}
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={() => {
+                if (subscribed) {
+                  setLevelModalVisible(true);
+                  return;
+                }
+                track(user?.id, 'lock_tapped', 'difficulty');
+                navigation.navigate('Paywall');
+              }}
+            >
+              <Text style={styles.menuLabel}>{t('profile.difficulty')}</Text>
+              <View style={styles.menuRight}>
+                <Text style={styles.menuValue}>{t(levelNameKey(currentLevel.number))}</Text>
+                {subscribed ? (
+                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                    <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
+                ) : (
+                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                    <Rect x={5} y={11} width={14} height={9} rx={2} stroke={COLORS.accentText} strokeWidth={1.8} />
+                    <Path d="M8 11V8a4 4 0 018 0v3" stroke={COLORS.accentText} strokeWidth={1.8} />
+                  </Svg>
+                )}
+              </View>
+            </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.menuRow}
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Schedule')}
+            >
+              <Text style={styles.menuLabel}>{t('profile.scheduleReminders')}</Text>
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </Svg>
+            </TouchableOpacity>
+
+            {/* A row, not a link: the whole point is that it is one tap. */}
+            <View style={styles.menuRow}>
+              {/* "Haptics", not "Vibration". The row toggles the app's own cue,
+                  while the phone has a system vibration switch of its own that can
+                  silence it - two things called the same thing, one of which the
+                  app cannot control. The hint now states the dependency up front
+                  rather than leaving it to the warning that only appears once the
+                  cue has already failed to be felt. */}
+              <View style={styles.vibrationLabel}>
+                <Text style={styles.menuLabel}>{t('profile.haptics')}</Text>
+                <Text style={styles.menuHint}>
+                  {subscribed ? t('profile.hapticsHint') : t('premium.badge')}
+                </Text>
+              </View>
+              <Switch
+                value={hapticsEnabled && subscribed}
+                onValueChange={toggleHaptics}
+                trackColor={{ false: COLORS.borderStrong, true: COLORS.accent }}
+                thumbColor={COLORS.white}
+                accessibilityLabel={t('profile.haptics')}
+              />
+            </View>
+
+            {/* Only when the switch is on: with it off, nothing is expected to
+                buzz and the phone's own setting is beside the point. */}
+            {hapticsEnabled && subscribed && silenced === 'systemOff' ? (
+              <TouchableOpacity
+                style={styles.vibrationNotice}
+                accessibilityRole="button"
+                activeOpacity={0.85}
+                onPress={() => {
+                  openSystemSoundSettings().catch(() => {});
+                }}
+              >
+                <Text style={styles.vibrationNoticeText}>
+                  {t('profile.vibrationSilencedBySystem')}
+                </Text>
+                <Text style={styles.vibrationNoticeLink}>
+                  {t('profile.openSystemSettings')}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+
+            {/* No vibrator at all: stating it is honest, but there is nothing to
+                tap through to, so this one is not a button. */}
+            {hapticsEnabled && subscribed && silenced === 'noHardware' ? (
+              <View style={styles.vibrationNotice}>
+                <Text style={styles.vibrationNoticeText}>
+                  {t('profile.vibrationNoHardware')}
+                </Text>
+              </View>
+            ) : null}
           </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.menuRow}
-          accessibilityRole="button"
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('Schedule')}
-        >
-          <Text style={styles.menuLabel}>{t('profile.scheduleReminders')}</Text>
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
-        </TouchableOpacity>
-
-        {/* A row, not a link: the whole point is that it is one tap. */}
-        <View style={styles.menuRow}>
-          {/* "Haptics", not "Vibration". The row toggles the app's own cue,
-              while the phone has a system vibration switch of its own that can
-              silence it - two things called the same thing, one of which the
-              app cannot control. The hint now states the dependency up front
-              rather than leaving it to the warning that only appears once the
-              cue has already failed to be felt. */}
-          <View style={styles.vibrationLabel}>
-            <Text style={styles.menuLabel}>{t('profile.haptics')}</Text>
-            <Text style={styles.menuHint}>{t('profile.hapticsHint')}</Text>
-          </View>
-          <Switch
-            value={hapticsEnabled}
-            onValueChange={toggleHaptics}
-            trackColor={{ false: 'rgba(242, 245, 238, 0.16)', true: COLORS.accent }}
-            thumbColor={COLORS.white}
-            accessibilityLabel={t('profile.haptics')}
-          />
-        </View>
-
-        {/* Only when the switch is on: with it off, nothing is expected to
-            buzz and the phone's own setting is beside the point. */}
-        {hapticsEnabled && silenced === 'systemOff' ? (
-          <TouchableOpacity
-            style={styles.vibrationNotice}
-            accessibilityRole="button"
-            activeOpacity={0.85}
-            onPress={() => {
-              openSystemSoundSettings().catch(() => {});
-            }}
-          >
-            <Text style={styles.vibrationNoticeText}>
-              {t('profile.vibrationSilencedBySystem')}
-            </Text>
-            <Text style={styles.vibrationNoticeLink}>
-              {t('profile.openSystemSettings')}
-            </Text>
-          </TouchableOpacity>
-        ) : null}
-
-        {/* No vibrator at all: stating it is honest, but there is nothing to
-            tap through to, so this one is not a button. */}
-        {hapticsEnabled && silenced === 'noHardware' ? (
-          <View style={styles.vibrationNotice}>
-            <Text style={styles.vibrationNoticeText}>
-              {t('profile.vibrationNoHardware')}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      {/* Everything the gear used to hide. */}
-      <SettingsSections />
+          </>
+        }
+      />
       </ScrollView>
 
       {/* Difficulty level selector - full page, matches the web /levels screen */}
@@ -248,8 +322,8 @@ export const ProfileScreen = () => {
                   >
                     <View style={styles.laurelBadge}>
                       <Svg width={40} height={40} viewBox="0 0 48 48" style={styles.laurelSvg}>
-                        <Path d="M14 12c-5 4-5 18 2 24" fill="none" stroke="#c2c7cf" strokeWidth={2} strokeLinecap="round" />
-                        <Path d="M34 12c5 4 5 18-2 24" fill="none" stroke="#c2c7cf" strokeWidth={2} strokeLinecap="round" />
+                        <Path d="M14 12c-5 4-5 18 2 24" fill="none" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" />
+                        <Path d="M34 12c5 4 5 18-2 24" fill="none" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" />
                       </Svg>
                       <Text style={styles.laurelNumber}>{lvl.number}</Text>
                     </View>
@@ -275,11 +349,24 @@ export const ProfileScreen = () => {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      <TourOverlay
+        visible={showTour}
+        steps={PROFILE_TOUR}
+        targets={{ level: tourLevelRef }}
+        onStep={(id) =>
+          scrollRef.current?.scrollTo({ y: id === 'settings' ? 9999 : 0, animated: true })
+        }
+        onDone={(completed) => {
+          setShowTour(false);
+          if (user) markTourSeen('profile', user.id, completed);
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   scroll: { paddingBottom: 32 },
   vibrationLabel: { flex: 1, paddingRight: 12 },
   vibrationNotice: {
@@ -291,7 +378,7 @@ const styles = StyleSheet.create({
     gap: SPACE.xs,
   },
   vibrationNoticeText: { ...TYPE.bodySm, color: COLORS.textMuted, lineHeight: 19 },
-  vibrationNoticeLink: { ...TYPE.bodySm, color: COLORS.accent, fontWeight: '700' },
+  vibrationNoticeLink: { ...TYPE.bodySm, color: COLORS.accentText, fontWeight: '700' },
   menuHint: { fontSize: 12.5, color: COLORS.textDim, marginTop: 2 },
   container: {
     flex: 1,
@@ -313,7 +400,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    ...GLASS,
+    ...COLORS.glass,
   },
   pageTitle: {
     ...TYPE.display,
@@ -332,7 +419,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     // The identity mark is the one place on this screen worth accenting.
-    borderColor: 'rgba(193, 255, 114, 0.25)',
+    borderColor: COLORS.accentEdge,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -340,7 +427,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: -0.5,
-    color: COLORS.accent,
+    color: COLORS.accentText,
   },
   name: {
     ...TYPE.heading,
@@ -354,7 +441,7 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     marginHorizontal: SPACE.lg,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     overflow: 'hidden',
@@ -435,7 +522,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   levelRowIdle: {
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
   },
   levelRowSelected: {
@@ -445,7 +532,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: COLORS.scrimSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -453,7 +540,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   laurelNumber: {
-    color: '#e9ebee',
+    color: COLORS.white,
     fontSize: 15,
     fontWeight: '700',
   },
@@ -483,7 +570,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   levelRadioIdle: {
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: COLORS.borderStrong,
   },
   levelRadioSelected: {
     borderColor: COLORS.onAccent,

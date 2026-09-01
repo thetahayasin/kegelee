@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -9,22 +9,16 @@ import {
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  useNavigation,
-  useFocusEffect,
-  useRoute,
-  NavigationProp,
-  RouteProp,
-} from '@react-navigation/native';
+import { useNavigation, useFocusEffect, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { COLORS, GLASS, DISABLED_OPACITY, SPACE } from '../../theme/colors';
+import { DISABLED_OPACITY, SPACE, TYPE, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { Watermark } from '../../components/Watermark';
-import { SubscribeSheet } from '../../components/SubscribeSheet';
+import { FadeIn } from '../../components/FadeIn';
 import { BASICS_LESSONS } from '../../constants/basics';
-import { hasUsedFreeSession } from '../../services/freeSession';
-import { RootStackParamList, AuthStackParamList } from '../../navigation/AppNavigator';
+import { RootStackParamList } from '../../navigation/AppNavigator';
 
 
 // Lesson glyphs (heart / drop / play), matching knowledge/index.blade.
@@ -36,12 +30,12 @@ const lessonIconPath = (i: number) =>
   ][i % 3];
 
 export const KnowledgeScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const route = useRoute<RouteProp<AuthStackParamList, 'Knowledge'>>();
-  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, subscribed, user, logout } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user, logout } = useAuth();
   const [done, setDone] = useState<string[]>([]);
-  const [sheetVisible, setSheetVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   // Same shape as the paywall's: the tap has a network round trip behind it,
@@ -54,71 +48,19 @@ export const KnowledgeScreen = () => {
       setLoggingOut(false);
     }
   };
-  // Whether the one free session is still available. Re-read on focus, not
-  // once on mount: this screen is what the guest returns to after declining
-  // the offer, after quitting the workout, and after finishing it, and only
-  // the last of those spends it.
-  //
-  // `null` until the read lands, and the distinction matters: the auto-opening
-  // plans sheet below now waits on this answer, and defaulting to "spent"
-  // while the read is in flight would fire the paywall at the very people who
-  // still have a free session waiting for them.
-  const [freeSessionLeft, setFreeSessionLeft] = useState<boolean | null>(null);
-
   useFocusEffect(
     useCallback(() => {
       const key = user ? `@basics_done_${user.id}` : '@basics_done_guest';
       AsyncStorage.getItem(key)
         .then(v => setDone(v ? JSON.parse(v) : []))
         .catch(() => {});
-      hasUsedFreeSession(user?.id)
-        .then(used => setFreeSessionLeft(!used))
-        .catch(() => setFreeSessionLeft(false));
     }, [user]),
   );
 
   const allCompleted = done.includes('why') && done.includes('find') && done.includes('first');
 
-  // Show the plans as soon as a guest has run out of free material.
-  //
-  // This used to fire only on { subscribe: true }, the param the last lesson
-  // passes on its way back here. That covered someone finishing in one sitting
-  // and nothing else: a guest who closed the app and reopened it landed on a
-  // fully ticked lesson list with no next step and no way to buy anything. The
-  // condition that actually matters is "finished everything free, still cannot
-  // train", so key on that instead of on how they arrived.
-  //
-  // Signed-in users never reach this branch - the navigator sends an
-  // unsubscribed account to the paywall stack, which has no Knowledge route -
-  // so `isAuthenticated` is the whole entitlement check here.
-  //
-  // The ref makes it once per mount: dismissing the sheet has to mean
-  // dismissed, or the screen becomes a trap. The 350ms lets the list settle
-  // first, matching the web funnel.
-  //
-  // "Run out of free material" now includes the free session. It did not, and
-  // that was the funnel asking for money over the top of a free session it was
-  // still holding: a guest who finished the lessons, declined the offer (or
-  // quit the workout, or simply closed the app and came back) landed here and
-  // got the plans sheet in the face, with the "Try it now" button rendered
-  // underneath the modal where they could not see it. The strongest moment to
-  // ask is straight after a completed session; the weakest is instead of one.
-  const promptedRef = useRef(false);
-  useEffect(() => {
-    if (isAuthenticated || !allCompleted || freeSessionLeft !== false || promptedRef.current) {
-      return;
-    }
-    promptedRef.current = true;
-    if (route.params?.subscribe) {
-      navigation.setParams({ subscribe: undefined } as any);
-    }
-    const timer = setTimeout(() => setSheetVisible(true), 350);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, allCompleted, freeSessionLeft]);
-
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
       <Watermark />
 
       {/* Three columns, not a centred title with buttons floating over it.
@@ -149,25 +91,23 @@ export const KnowledgeScreen = () => {
 
         <View style={[styles.headerSide, styles.headerSideEnd]}>
         {/* The corner opposite Back is the identity control: Log in for a
-            guest, Log out for an account that is still behind a gate.
+            guest, Log out for an account still held on the basics.
 
-            Log out was reachable from exactly two places, Settings and the
-            paywall header, and one whole navigator could reach neither. An
-            account that is subscribed but has not finished the basics is held
-            on a stack containing only Knowledge and KnowledgeLesson - no
-            Settings, no paywall - so there was no way to sign out at all, and
-            no way to hand the phone to a second account. On the subscription
-            gate it was merely awkward: the paywall has the control, but only
-            as the stack root, so getting to it from here meant going Back
-            first, or twice from a lesson.
+            An account that has not finished the basics is on a stack
+            containing only Knowledge and KnowledgeLesson - no Settings, no
+            Profile - so without this there is no way to sign out at all, and
+            no way to hand the phone to a second account.
 
-            Hidden once both gates are open, where Profile carries it and a
-            sign-out link on a review page would only be noise. */}
+            The test used to be `!subscribed || !basicsDone`, from when a
+            subscription gate sat in front of the basics one. There is no such
+            gate any more: a free account is inside the app with Profile one
+            tap away, so keeping the subscription half of that test would put a
+            second Log out on a page that is now ordinary reading. */}
         {!isAuthenticated ? (
           <TouchableOpacity style={styles.loginLink} onPress={() => (navigation as any).navigate('Login')}>
             <Text style={styles.loginLinkText}>{t('knowledge.logIn')}</Text>
           </TouchableOpacity>
-        ) : !subscribed || !basicsDone ? (
+        ) : !basicsDone ? (
           <TouchableOpacity
             style={styles.loginLink}
             onPress={handleLogout}
@@ -186,26 +126,58 @@ export const KnowledgeScreen = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={[
-          styles.scroll,
-          // Clear the sticky Subscribe bar on the guest funnel - and the free
-          // session button too when it is showing, or the last lesson card
-          // ends up underneath it.
-          // Clear the sticky Subscribe bar, which is absolutely positioned at
-          // bottom: 0 and runs about 130px tall once its safe-area padding is
-          // added. 120 left the last item tucked under its top edge.
-          !isAuthenticated && { paddingBottom: 150 },
-        ]}
+        contentContainerStyle={styles.scroll}
       >
         {BASICS_LESSONS.map((lesson, i) => {
           const isDone = done.includes(lesson.slug);
           const locked = i > 0 && !done.includes(BASICS_LESSONS[i - 1].slug);
+          const isLast = i === BASICS_LESSONS.length - 1;
           return (
+            // Staggered, 70ms apart. This is the first screen a new reader
+            // lands on and it used to be three cards simply present on the
+            // frame it mounted, which is the stiffest possible introduction to
+            // an app whose whole subject is taking things gently.
+            <FadeIn key={lesson.slug} delay={i * 70}>
+            <View style={styles.step}>
+              {/* The rail.
+                  A numbered node per lesson and a line joining them, so the
+                  sequence is visible before any of the cards are read. The
+                  segment below a FINISHED lesson is drawn in the accent - the
+                  path fills in behind you, which is the one thing that makes a
+                  progress rail worth having over three plain rows. */}
+              <View style={styles.rail}>
+                <View
+                  style={[
+                    styles.node,
+                    isDone && styles.nodeDone,
+                    !isDone && !locked && styles.nodeCurrent,
+                  ]}
+                >
+                  {isDone ? (
+                    <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                      <Path
+                        d="M5 13l4 4L19 7"
+                        stroke={COLORS.onAccent}
+                        strokeWidth={3.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </Svg>
+                  ) : (
+                    <Text style={[styles.nodeText, !locked && styles.nodeTextCurrent]}>
+                      {i + 1}
+                    </Text>
+                  )}
+                </View>
+                {!isLast && (
+                  <View style={[styles.railLine, isDone && styles.railLineDone]} />
+                )}
+              </View>
+
             <TouchableOpacity
-              key={lesson.slug}
               activeOpacity={0.85}
               disabled={locked}
-              style={[styles.card, isDone && styles.cardDone, locked && styles.cardLocked]}
+              style={[styles.card, styles.cardInStep, isDone && styles.cardDone, locked && styles.cardLocked]}
               onPress={() =>
                 navigation.navigate('KnowledgeLesson', { slug: lesson.slug, index: i })
               }
@@ -221,7 +193,7 @@ export const KnowledgeScreen = () => {
                     <Path d="M8 11V8a4 4 0 018 0v3" stroke={COLORS.textMuted} strokeWidth={1.8} />
                   </Svg>
                 ) : (
-                  <Svg width={30} height={30} viewBox="0 0 24 24" fill={COLORS.accent}>
+                  <Svg width={30} height={30} viewBox="0 0 24 24" fill={COLORS.accentText}>
                     <Path d={lessonIconPath(i)} />
                   </Svg>
                 )}
@@ -234,24 +206,20 @@ export const KnowledgeScreen = () => {
                 <Text style={styles.lessonTitle}>{t(lesson.titleKey)}</Text>
               </View>
             </TouchableOpacity>
+            </View>
+            </FadeIn>
           );
         })}
 
-        {/* The way back to the free session.
-            The offer appears once, at the end of the last lesson. Someone who
-            taps "Not now" there - or quits the workout partway, or closes the
-            app mid-lesson and comes back tomorrow - would otherwise never see
-            it again, having never actually used the product. Only FINISHING a
-            session spends it, so it keeps being offered here until then.
-
-            Inside the ScrollView, not pinned above the Subscribe bar. Pinned,
-            it sat inside the bar's own ~130px band and was drawn underneath
-            it: invisible, and on a screen that did not scroll far enough to
-            reveal it either. */}
-        {!subscribed && allCompleted && freeSessionLeft === true && (
+        {/* Guests: the way on is an account, not a price.
+            Training is free inside the first three exercises, so there is
+            nothing to sell to someone who has not signed up yet - they simply
+            need somewhere for the progress to live. */}
+        {!isAuthenticated && allCompleted && (
           <TouchableOpacity
             style={styles.tryBtn}
-            onPress={() => (navigation as any).navigate('FreeSessionOffer')}
+            accessibilityRole="button"
+            onPress={() => (navigation as any).navigate('Register')}
           >
             <Text
               style={styles.tryBtnText}
@@ -260,64 +228,14 @@ export const KnowledgeScreen = () => {
               minimumFontScale={0.8}
               maxFontSizeMultiplier={1.2}
             >
-              {t('workoutComplete.tryItNow')}
+              {t('progress.continue')}
             </Text>
           </TouchableOpacity>
         )}
 
-        {/* Only while still gated: once basics are done this screen is a review
-            page (opened from Training), where the button is noise. */}
-        {/* The ask, once they have finished the basics. A guest gets the plans
-            sheet (and the sticky bar) instead; this is the signed-in path,
-            where the paywall is a real screen rather than a sheet.
-
-            It used to require the free session to be SPENT, which meant the
-            only account that could see a buy button was one that had already
-            trained. Anyone who declined the offer had no Subscribe button, no
-            sticky bar, and - after the reset that brought them here threw the
-            paywall away - no Back either. There is never a good reason to hide
-            the way to pay from someone who is being asked to pay, so it is now
-            always present: primary once the session is spent, a quiet second
-            option while the free session is still the better next step. */}
-        {isAuthenticated && !subscribed && allCompleted && (
-          freeSessionLeft === false ? (
-            <TouchableOpacity
-              style={styles.tryBtn}
-              onPress={() => (navigation as any).navigate('Paywall')}
-            >
-              <Text
-                style={styles.tryBtnText}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-                maxFontSizeMultiplier={1.2}
-              >
-                {t('subscribeSheet.subscribe')}
-              </Text>
-            </TouchableOpacity>
-          ) : freeSessionLeft === true ? (
-            <TouchableOpacity
-              style={styles.secondaryBtn}
-              onPress={() => (navigation as any).navigate('Paywall')}
-            >
-              <Text
-                style={styles.secondaryBtnText}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-                maxFontSizeMultiplier={1.2}
-              >
-                {t('subscribeSheet.subscribe')}
-              </Text>
-            </TouchableOpacity>
-          ) : null
-        )}
-
-        {/* Only for an account that can actually train. An unsubscribed one
-            is held by the subscription gate, which sits BEFORE the basics gate
-            - so this button flipped a gate that was not the one stopping them
-            and appeared to do nothing at all. */}
-        {isAuthenticated && subscribed && allCompleted && !basicsDone && (
+        {/* A signed-in account that has finished the basics but not yet had
+            the gate flipped. Nothing to do with subscriptions any more. */}
+        {isAuthenticated && allCompleted && !basicsDone && (
           <TouchableOpacity
             style={styles.continueBtn}
             onPress={() => {
@@ -334,23 +252,11 @@ export const KnowledgeScreen = () => {
         )}
       </ScrollView>
 
-      {/* Guest sales funnel: sticky Subscribe bar + plans/auth bottom sheet
-          (web: @livewire('app.subscribe-sheet') on knowledge.index). */}
-      {!isAuthenticated && (
-        <SubscribeSheet
-          visible={sheetVisible}
-          onOpen={() => setSheetVisible(true)}
-          onClose={() => setSheetVisible(false)}
-          onNavigateToVerify={(email) =>
-            (navigation as any).navigate('VerifyEmail', { email })
-          }
-        />
-      )}
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
   header: {
     flexDirection: 'row',
@@ -374,7 +280,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingStart: SPACE.xs,
   },
-  loginLinkText: { fontSize: 15, fontWeight: '600', color: COLORS.accent },
+  loginLinkText: { fontSize: 15, fontWeight: '600', color: COLORS.accentText },
   // Muted, not accent. Log in is an invitation and earns the lime; log out is
   // an escape hatch, and dressing it in the app's one "act here" colour would
   // make leaving the loudest thing in the header.
@@ -387,19 +293,43 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   scroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 40, gap: 16 },
+  /** One row of the path: the rail on the left, the lesson card on the right. */
+  step: { flexDirection: 'row', alignItems: 'stretch' },
+  rail: { width: 34, alignItems: 'center' },
+  node: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.surface2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  nodeCurrent: { borderColor: COLORS.accentText, backgroundColor: COLORS.accentWash },
+  nodeDone: { backgroundColor: COLORS.accentText, borderColor: COLORS.accentText },
+  nodeText: { ...TYPE.caption, fontWeight: '700', color: COLORS.textDim },
+  nodeTextCurrent: { color: COLORS.accentText },
+  // flex: 1 so the line always reaches the next node, whatever height the
+  // card beside it turns out to be.
+  railLine: { flex: 1, width: 2, marginTop: 4, backgroundColor: COLORS.border },
+  railLineDone: { backgroundColor: COLORS.accentText },
+  // The card no longer owns the full width; the rail takes its gutter.
+  cardInStep: { flex: 1 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
     borderRadius: 24,
-    ...GLASS,
+    ...COLORS.glass,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.10)',
+    borderColor: COLORS.border,
     backgroundColor: COLORS.surface,
     padding: 20,
   },
-  cardDone: { borderColor: 'rgba(193,255,114,0.35)' },
-  cardLocked: { opacity: DISABLED_OPACITY, borderColor: 'rgba(255,255,255,0.05)' },
+  cardDone: { borderColor: COLORS.accentEdge },
+  cardLocked: { opacity: DISABLED_OPACITY, borderColor: COLORS.whiteFaint },
   tile: {
     width: 64,
     height: 64,
@@ -407,7 +337,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tileIdle: { backgroundColor: 'rgba(193,255,114,0.12)' },
+  tileIdle: { backgroundColor: COLORS.accentWash },
   tileDone: { backgroundColor: COLORS.accent },
   cardInfo: { flex: 1 },
   lessonKicker: {
@@ -417,7 +347,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: COLORS.textMuted,
   },
-  lessonKickerDone: { color: COLORS.accent },
+  lessonKickerDone: { color: COLORS.accentText },
   lessonTitle: {
     marginTop: 4,
     fontSize: 18,

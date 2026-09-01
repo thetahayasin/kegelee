@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Ai deja un cont?",
-    "baselineTitle": "Acum să măsurăm punctul tău de plecare",
     "buildingPlan": "Îți construim planul",
     "getStarted": "Începe",
     "logIn": "Autentifică-te",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Cam cinci minute",
     "quizTimeQ": "Cât timp poți să te antrenezi zilnic?",
     "quizTimeShort": "Câteva minute",
-    "resultBody": "Începem de aici și ajustăm pe măsură ce devii mai puternic.",
-    "resultLevelLabel": "Nivel de început",
-    "resultTitle": "Punctul tău de plecare",
+    "resultTitle": "Planul tău este gata",
     "slide1Body": "Mai mult control, mai multă rezistență, senzații mai bune. Planșeul pelvin e un mușchi și se antrenează ca atare.",
     "slide1Title": "Mai puternic în pat",
     "slide2Body": "Fără sală, fără echipament, fără să dai ceva jos. Pe canapea, la birou, în autobuz. Nimeni nu observă.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Schimbă planul",
     "close": "Închide",
     "continueToApp": "Continuă în aplicație",
+    "currentPlan": "Planul actual",
     "everyPlanStartsWithTrial_one": "Fiecare plan începe cu {{count}} zi gratuită",
     "everyPlanStartsWithTrial_other": "Fiecare plan începe cu {{count}} zile gratuite",
     "logOut": "Deconectare",
@@ -318,6 +316,8 @@
     "startYourJourney": "Deblochează tot programul",
     "subscribe": "Abonează-te",
     "subscriptionActivated": "Abonament activat!",
+    "switchStartsLater": "Începe când se termină planul tău actual.",
+    "switchStartsNow": "Începe acum. Timpul nefolosit îți este creditat.",
     "switchToPlan": "Treci la {{plan}}",
     "terms": "Termeni",
     "trialThenPrice_one": "{{count}} zi gratuită, apoi {{price}}. Se reînnoiește automat dacă nu anulezi înainte de finalul perioadei de probă.",
@@ -341,6 +341,12 @@
       "name": "1 an",
       "period": "/an"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Măsoară cât reziști și vezi cum evoluează.",
+    "noticeSchedule": "Memento-uri pentru zilele și orele la care te antrenezi.",
+    "unlockMore": "Deblochează mai multe cu Premium"
   },
   "profile": {
     "currentDifficulty": "Dificultatea curentă",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Stabilește-ți orele pentru săptămână"
   },
   "settings": {
+    "appearance": "Aspect",
+    "appearanceDark": "Întunecat",
+    "appearanceLight": "Luminos",
+    "appearanceSystem": "Sistem",
     "autoRenewalOff": "Reînnoirea automată este dezactivată. Accesul se încheie pe {{date}}.",
     "cancel": "Anulează",
     "cancelledUntilDate": "Anulat. Accesul tău rămâne activ până pe {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Progres",
     "schedule": "Program",
     "training": "Antrenament"
+  },
+  "tour": {
+    "homeRingBody": "O zi contează când ambele sesiuni sunt gata. Inelul se umple pe parcurs.",
+    "homeRingTitle": "Ziua ta",
+    "homeStartBody": "Sesiunea de azi e deja pregătită. Apasă doar start.",
+    "homeStartTitle": "Începe aici",
+    "homeUnlockBody": "Se deschid mai multe exerciții pe măsură ce te antrenezi.",
+    "homeUnlockTitle": "Urmează mai multe",
+    "profileLevelBody": "Stabilește cât durează o sesiune. Schimbă oricând.",
+    "profileLevelTitle": "Schimbă dificultatea",
+    "progressChartBody": "Măsurătorile tale în timp, ca să vezi cum merge.",
+    "progressChartTitle": "Progresul tău",
+    "progressMeasureBody": "Menține cât poți de mult. Repetă la una-două săptămâni ca să vezi schimbarea.",
+    "progressMeasureTitle": "Măsoară-ți menținerea",
+    "scheduleMonthBody": "Fiecare pătrat e o zi de antrenament. Se completează pe măsură ce le termini.",
+    "scheduleMonthTitle": "Luna ta",
+    "scheduleRemindersBody": "Alege zilele și orele care ți se potrivesc. Un memento ajută.",
+    "scheduleRemindersTitle": "Setează-ți mementourile",
+    "sessionListBody": "Toți pașii sesiunii, în ordine. Cel din mijloc are loc acum.",
+    "sessionListTitle": "Ce urmează",
+    "sessionPauseBody": "Nu pierzi nimic dacă te oprești. Reia când ești gata.",
+    "sessionPauseTitle": "Poți face pauză oricând",
+    "sessionRingBody": "Contractă cât se umple și relaxează cât se golește. Ăsta e tot exercițiul.",
+    "sessionRingTitle": "Urmează cercul"
   },
   "training": {
     "available": "Disponibil",

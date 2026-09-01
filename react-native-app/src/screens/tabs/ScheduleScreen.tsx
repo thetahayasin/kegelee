@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import {
@@ -11,11 +11,15 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Watermark } from '../../components/Watermark';
-import { useIsFocused } from '@react-navigation/native';
+import { TourOverlay } from '../../components/TourOverlay';
+import { PremiumNotice } from '../../components/PremiumNotice';
+import { SCHEDULE_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
+import { useIsFocused, useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
+import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
   getReminders,
   saveReminder,
@@ -25,6 +29,7 @@ import { getPosition } from '../../services/progression';
 import { scheduleReminders, showTimePicker, isExactAlarmAllowed, openExactAlarmSettings, ReminderConfig } from '../../services/reminders';
 import { syncNow } from '../../services/sync';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
+import { track } from '../../services/events';
 
 // Last-resort labels only. The real ones come from Intl below, because
 // hardcoding seven English abbreviations left the repeat-on picker in
@@ -55,9 +60,13 @@ const weekdayLabels = (locale: string): string[] => {
 };
 
 export const ScheduleScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const isFocused = useIsFocused();
-  const { user } = useAuth();
+  const { user, subscribed } = useAuth();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState<any>({ month: 1, days_left: 30, completed: 0, plan_length: 30, day: 1 });
@@ -70,30 +79,34 @@ export const ScheduleScreen = () => {
   const [times, setTimes] = useState<string[]>(['08:00']);
   const [savingReminders, setSavingReminders] = useState(false);
   /**
+   * This tab's tour, shown the first time it is opened.
+   *
+   * Gated on the screen having finished loading: the tour measures real
+   * elements, and pointing at a spinner spotlights nothing.
+   */
+  const [showTour, setShowTour] = useState(false);
+  const tourRemindersRef = useRef<View>(null);
+  const tourCalendarRef = useRef<View>(null);
+  // The month grid can fall below the fold on shorter screens.
+  const scrollRef = useRef<ScrollView>(null);
+
+  /**
    * Confirmations and validation, said in the app rather than in a native
-   * dialog.
+   * dialog, and stored as WHICH notice rather than as the words.
    *
    * Every other surface that has something to tell you - the paywall, the
    * subscribe sheet, all the auth screens - says it inline. This tab alone
    * used Alert.alert, so the same class of information arrived in two
    * entirely different shapes depending on which screen you were on, and the
-   * more interruptive of the two was being spent on "saved".
+   * more interruptive of the two was being spent on "saved". The exact-alarm
+   * prompt comes through here too, with an action.
    *
-   * The exact-alarm prompt comes through here too, with an action. It was a
-   * native dialog on the argument that a real either/or leading to a system
-   * screen is what dialogs are for - which is true in the abstract and wrong
-   * here, because it made the one message in this flow that asks for something
-   * look like it came from a different app than the message right before it.
+   * It once held resolved strings - `text: t(...)` - which pins them to
+   * whatever language was active at the moment of the save. Change language in
+   * Settings afterwards and the card kept its old English body while the
+   * dismiss beside it, rendered live in JSX, switched to the new one. Half a
+   * card in each language. Keys go in state; t() belongs in render.
    */
-  //
-  // Stores WHICH notice, never the words.
-  //
-  // It held resolved strings - `text: t(...)` - which freezes whatever
-  // language was active at the moment of the save. Change language in
-  // Settings afterwards and the card kept its old English body and button
-  // while the dismiss beside them, rendered live in JSX, switched to the new
-  // one. Half a card in each language. Keys go in state; t() belongs in
-  // render, where it re-runs on languageChanged like everything else.
   const [notice, setNotice] = useState<
     'saved' | 'savedNeedsExact' | 'timeLimit' | 'saveFailed' | null
   >(null);
@@ -143,6 +156,11 @@ export const ScheduleScreen = () => {
         setTimes(localReminders[0].times);
       } else {
         setTimes(['08:00']);
+      }
+      // Runs for everybody now - see the note on the progress tab. The
+      // schedule is visible to a free account; only saving is not.
+      if (user && !(await hasSeenTour('schedule', user.id))) {
+        setShowTour(true);
       }
     } catch (e) {
       console.error(e);
@@ -214,6 +232,14 @@ export const ScheduleScreen = () => {
       // Schedule alarms using Notifee helper (exact when permitted, else inexact).
       const exactOk = await isExactAlarmAllowed();
       await scheduleReminders(reminderConfigs, { requestPermission: true });
+      // How many days and times, not which - the shape of the commitment is
+      // what predicts whether someone keeps training; the specific hours are
+      // their business.
+      track(user?.id, 'reminders_set', null, {
+        days: selectedDays.length,
+        timesPerDay: times.length,
+        exactAlarms: exactOk,
+      });
 
       setRemindersModalVisible(false);
       await loadData();
@@ -250,20 +276,41 @@ export const ScheduleScreen = () => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <Watermark />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={[
+          styles.scrollContent,
+        // The tab bar floats above the content now, so nothing in the
+        // layout reserves room for it. Without this the last card ends
+        // up underneath it, unreachable at the bottom of the scroll.
+          { paddingBottom: tabBarClearance(insets.bottom) },
+        ]}
+      >
         {/* Title Row */}
         <View style={styles.titleRow}>
           <Text style={styles.pageTitle}>{t('schedule.schedule')}</Text>
         </View>
         {/* Reminders Card Link */}
+        {/* Wrapped: the shared Touchable does not forward refs, and the
+            tour only needs to measure the card's box. */}
+        {!subscribed && <PremiumNotice textKey="premium.noticeSchedule" />}
+
+        <View ref={tourRemindersRef} collapsable={false}>
         <TouchableOpacity
           style={styles.remindersCard}
-          onPress={() => setRemindersModalVisible(true)}
+          onPress={() => {
+            if (subscribed) {
+              setRemindersModalVisible(true);
+              return;
+            }
+            track(user?.id, 'lock_tapped', 'reminders');
+            navigation.navigate('Paywall');
+          }}
         >
           <View style={styles.bellIconContainer}>
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Rect x={3} y={5} width={18} height={16} rx={3} stroke={COLORS.accent} strokeWidth={1.7} />
-              <Path d="M3 9h18M8 3v4M16 3v4M12 13v3l2 1" stroke={COLORS.accent} strokeWidth={1.7} strokeLinecap="round" />
+              <Rect x={3} y={5} width={18} height={16} rx={3} stroke={COLORS.accentText} strokeWidth={1.7} />
+              <Path d="M3 9h18M8 3v4M16 3v4M12 13v3l2 1" stroke={COLORS.accentText} strokeWidth={1.7} strokeLinecap="round" />
             </Svg>
           </View>
           <View style={styles.remindersInfo}>
@@ -278,6 +325,7 @@ export const ScheduleScreen = () => {
             <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
           </Svg>
         </TouchableOpacity>
+        </View>
 
         {/* Confirmations, validation and the exact-alarm ask, in the page
             and built like every other card on it - same 16pt gutter, same
@@ -345,7 +393,7 @@ export const ScheduleScreen = () => {
           })()}
 
         {/* Month Progress grid */}
-        <View style={styles.calendarCard}>
+        <View ref={tourCalendarRef} collapsable={false} style={styles.calendarCard}>
           <View style={styles.calendarHeader}>
             <View>
               <Text style={styles.monthTitle}>{t('schedule.monthNumber', { number: position.month })}</Text>
@@ -457,10 +505,10 @@ export const ScheduleScreen = () => {
                             fill="none"
                             style={styles.timePrefixIcon}
                           >
-                            <Circle cx={12} cy={12} r={9} stroke={COLORS.accent} strokeWidth={1.7} />
+                            <Circle cx={12} cy={12} r={9} stroke={COLORS.accentText} strokeWidth={1.7} />
                             <Path
                               d="M12 7.5V12l3 1.8"
-                              stroke={COLORS.accent}
+                              stroke={COLORS.accentText}
                               strokeWidth={1.7}
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -505,11 +553,24 @@ export const ScheduleScreen = () => {
           </TouchableWithoutFeedback>
         </TouchableOpacity>
       </Modal>
+
+      <TourOverlay
+        visible={showTour}
+        steps={SCHEDULE_TOUR}
+        targets={{ reminders: tourRemindersRef, calendar: tourCalendarRef }}
+        onStep={(id) =>
+          scrollRef.current?.scrollTo({ y: id === 'calendar' ? 9999 : 0, animated: true })
+        }
+        onDone={(completed) => {
+          setShowTour(false);
+          if (user) markTourSeen('schedule', user.id, completed);
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -540,7 +601,7 @@ const styles = StyleSheet.create({
   remindersCard: {
     marginHorizontal: 16,
     marginTop: 20,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 20,
     paddingHorizontal: 20,
@@ -552,7 +613,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: 'rgba(193, 255, 114, 0.15)',
+    backgroundColor: COLORS.accentWash,
     justifyContent: 'center',
     alignItems: 'center',
     marginEnd: 16,
@@ -575,7 +636,7 @@ const styles = StyleSheet.create({
   notice: {
     marginHorizontal: 16,
     marginTop: 16,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 20,
     padding: 20,
@@ -615,7 +676,7 @@ const styles = StyleSheet.create({
   calendarCard: {
     marginHorizontal: 16,
     marginTop: 16,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 24,
     padding: 20,
@@ -688,13 +749,13 @@ const styles = StyleSheet.create({
     color: COLORS.onAccent,
   },
   dayTextToday: {
-    color: '#000000',
+    color: COLORS.onAccent,
   },
 
   // Modal styling
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.85)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -710,7 +771,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: COLORS.border,
   },
   modalCloseBtn: {
     width: 32,
@@ -728,7 +789,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   sectionCard: {
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: 20,
     padding: 16,
@@ -782,7 +843,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.bg,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -816,7 +877,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   addTimeText: {
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontSize: 13,
     fontWeight: 'bold',
   },

@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Už máš účet?",
-    "baselineTitle": "Teraz zmeriame tvoj východiskový bod",
     "buildingPlan": "Zostavujeme tvoj plán",
     "getStarted": "Začať",
     "logIn": "Prihlásiť sa",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Asi päť minút",
     "quizTimeQ": "Koľko času môžeš denne venovať tréningu?",
     "quizTimeShort": "Pár minút",
-    "resultBody": "Začneme tu a budeme prispôsobovať, ako budeš silnieť.",
-    "resultLevelLabel": "Začiatočná úroveň",
-    "resultTitle": "Tvoj východiskový bod",
+    "resultTitle": "Váš plán je pripravený",
     "slide1Body": "Viac kontroly, viac výdrže, lepší pocit. Panvové dno je sval a trénuje sa ako sval.",
     "slide1Title": "Silnejší v posteli",
     "slide2Body": "Žiadna posilňovňa, žiadne pomôcky, nič sa nevyzlieka. Na gauči, pri stole, v autobuse. Nikto si nič nevšimne.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Zmeniť plán",
     "close": "Zavrieť",
     "continueToApp": "Pokračovať do aplikácie",
+    "currentPlan": "Súčasný plán",
     "everyPlanStartsWithTrial_one": "Každý plán začína {{count}}-dňovou skúškou zdarma",
     "everyPlanStartsWithTrial_other": "Každý plán začína {{count}}-dňovou skúškou zdarma",
     "logOut": "Odhlásiť sa",
@@ -318,6 +316,8 @@
     "startYourJourney": "Odomkni celý program",
     "subscribe": "Predplatiť",
     "subscriptionActivated": "Predplatné je aktívne!",
+    "switchStartsLater": "Začne po skončení súčasného plánu.",
+    "switchStartsNow": "Začne hneď. Nevyužitý čas sa vám započíta.",
     "switchToPlan": "Prejsť na {{plan}}",
     "terms": "Podmienky",
     "trialThenPrice_one": "{{count}} deň zdarma, potom {{price}}. Obnovuje sa automaticky, ak nezrušíte pred koncom skúšky.",
@@ -341,6 +341,12 @@
       "name": "1 rok",
       "period": "/rok"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Zmerajte si výdrž a pozerajte, ako krivka rastie.",
+    "noticeSchedule": "Pripomienky na dni a časy, keď trénujete.",
+    "unlockMore": "Odomknite viac s Premium"
   },
   "profile": {
     "currentDifficulty": "Aktuálna náročnosť",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Nastav si časy na týždeň"
   },
   "settings": {
+    "appearance": "Vzhľad",
+    "appearanceDark": "Tmavý",
+    "appearanceLight": "Svetlý",
+    "appearanceSystem": "Systém",
     "autoRenewalOff": "Automatické obnovenie je vypnuté. Prístup končí {{date}}.",
     "cancel": "Zrušiť",
     "cancelledUntilDate": "Zrušené. Prístup ti zostáva do {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Pokrok",
     "schedule": "Rozvrh",
     "training": "Tréning"
+  },
+  "tour": {
+    "homeRingBody": "Deň sa počíta, keď dokončíš obe lekcie. Kruh sa priebežne plní.",
+    "homeRingTitle": "Tvoj deň",
+    "homeStartBody": "Dnešná lekcia je už pripravená. Stačí stlačiť štart.",
+    "homeStartTitle": "Začni tu",
+    "homeUnlockBody": "Ako budete pokračovať, otvoria sa ďalšie cviky.",
+    "homeUnlockTitle": "Bude toho viac",
+    "profileLevelBody": "Určuje, aká dlhá je lekcia. Zmeňte to kedykoľvek.",
+    "profileLevelTitle": "Zmeň obtiažnosť",
+    "progressChartBody": "Vaše merania v čase, aby ste videli, ako to ide.",
+    "progressChartTitle": "Tvoj pokrok",
+    "progressMeasureBody": "Vydrž čo najdlhšie. Opakuj každý týždeň či dva a uvidíš zmenu.",
+    "progressMeasureTitle": "Zmeraj svoju výdrž",
+    "scheduleMonthBody": "Každý štvorec je tréningový deň. Vypĺňajú sa, ako ich dokončuješ.",
+    "scheduleMonthTitle": "Tvoj mesiac",
+    "scheduleRemindersBody": "Vyberte si dni a časy, ktoré vám vyhovujú. Pripomenutie pomáha.",
+    "scheduleRemindersTitle": "Nastav si pripomienky",
+    "sessionListBody": "Všetky kroky tejto lekcie v poradí. Ten v strede prebieha teraz.",
+    "sessionListTitle": "Čo ťa čaká",
+    "sessionPauseBody": "Nič sa nestratí, keď prestaneš. Pokračuj, keď budeš chcieť.",
+    "sessionPauseTitle": "Kedykoľvek pozastav",
+    "sessionRingBody": "Stiahni, keď sa plní, a uvoľni, keď sa vyprázdňuje. To je celé cvičenie.",
+    "sessionRingTitle": "Sleduj kruh"
   },
   "training": {
     "available": "Dostupné",

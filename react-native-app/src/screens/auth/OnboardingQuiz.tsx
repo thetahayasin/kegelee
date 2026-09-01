@@ -4,6 +4,7 @@ import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
   Animated,
   Easing,
   AccessibilityInfo,
@@ -11,36 +12,48 @@ import {
   I18nManager,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import Svg, { Circle, Path } from 'react-native-svg';
-import { COLORS, TYPE, SPACE, RADIUS, GLASS } from '../../theme/colors';
-import { LEVELS, levelNameKey, levelDescriptionKey } from '../../constants/catalogues';
+import Svg, { Path } from 'react-native-svg';
+import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
+import { LESSON_TEXT } from '../../components/LessonLine';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
+import { LEVELS } from '../../constants/catalogues';
 
 /**
- * Two questions and a measurement, ending on the reader's own numbers.
+ * Two questions, then the plan.
  *
- * A tap-through quiz was tried here before and removed, and the note left
- * behind says exactly why: it ended in a generated "plan" screen that read as
- * filler standing between the user and the product. That criticism was right,
- * and it is worth being precise about what is different now, because the shape
- * looks similar.
+ * It used to end on a press-and-hold measurement and a screen showing the
+ * level that produced. Both are gone, and for the same reason: this is the
+ * first ninety seconds of the app, and neither earned its place there.
  *
- * The old version's payoff was fabricated - a plan assembled out of the
- * answers, which is a thing the app made up and the reader could tell. This
- * one ends on a number measured from their own body, live, in the seconds
- * before they see it. It cannot read as filler because nothing here was
- * invented: the hold is theirs, and the level it produces is the session
- * length they are actually about to train at - including the free session,
- * which now runs at it too.
+ * The measurement asked someone who has not yet been told what a pelvic floor
+ * contraction is to perform one, correctly, against a stopwatch - before they
+ * have read the basics that explain it. A number gathered under those
+ * conditions is not a baseline, it is a guess with a decimal point on it, and
+ * every later "you have improved" was going to be measured against it. The
+ * Progress tab still measures, after the lessons, which is where it belongs.
  *
- * Everything here is optional. Skip lands on level 1 with no baseline, which
- * is exactly where every user landed before this screen existed, so refusing
- * to answer can never be worse than not being asked.
+ * The level display went with it. "Starting level 3" is the app's internal
+ * unit - it is a session length - and naming it to someone who has not
+ * trained yet is asking them to be pleased about a number they have no scale
+ * for. What they actually want to know is that something was made for them.
+ *
+ * So the answers still set the level, and the level still sets the session
+ * length. It just happens quietly now.
+ *
+ * Everything here is optional. Skip lands on level 1, which is exactly where
+ * every user landed before this screen existed, so refusing to answer can
+ * never be worse than not being asked.
  */
 
 export interface QuizResult {
   /** 1-5, matching LEVELS. Feeds level_id on the account. */
   level: number;
-  /** Seconds held, to a tenth. 0 when skipped - never recorded as a measurement. */
+  /**
+   * Seconds held at onboarding. Always 0 now - the measurement moved to the
+   * Progress tab, after the basics. Kept on the shape because the backend
+   * column and the sync payload still carry it, and 0 is already how both
+   * spell "never measured".
+   */
   baselineSeconds: number;
   /**
    * The raw answers, carried so the backend can hold the whole picture
@@ -58,33 +71,18 @@ interface Props {
   onDone: (result: QuizResult) => void;
 }
 
-type Phase = 'experience' | 'time' | 'measure' | 'building' | 'result';
+type Phase = 'experience' | 'time' | 'building' | 'result';
 
-const ORDER: Phase[] = ['experience', 'time', 'measure', 'building', 'result'];
+const ORDER: Phase[] = ['experience', 'time', 'building', 'result'];
 
 /**
  * How long the building step holds before the result.
  *
  * Short on purpose. A progress bar that crawls for eight seconds pretending to
- * do arithmetic is the exact filler this screen was deleted for once before,
- * and people can tell. Two seconds reads as the app taking a breath, and gives
- * the two figures underneath a moment to land rather than appearing the
- * instant a finger lifts.
+ * do arithmetic is filler, and people can tell. Two seconds reads as the app
+ * taking a breath.
  */
 const BUILD_MS = 2000;
-
-/**
- * A hold has to be long enough to be a contraction and short enough to be one
- * attempt.
- *
- * Neither bound is cosmetic. This number becomes the account's permanent
- * baseline, and every later "you have improved" is measured against it - so a
- * stray 0.1s tap would both cap the starting level at 2 and make the day-seven
- * comparison meaninglessly flattering forever. A finger left resting on the
- * button records minutes and does the opposite.
- */
-const MIN_HOLD_S = 1;
-const MAX_HOLD_S = 60;
 
 /** Points per answer. Both questions run 0..2, so the pair is 0..4. */
 const EXPERIENCE_OPTIONS = [
@@ -102,17 +100,18 @@ const TIME_OPTIONS = [
 const MAX_LEVEL = Object.keys(LEVELS).length;
 
 /**
- * Turn two answers and a hold into a starting level.
+ * Turn the answers, and optionally a hold, into a starting level.
  *
- * The answers set the ambition and the hold sets the ceiling, in that order.
- * A level here IS a session length - 1 through 5 run 60s to 300s - so putting
- * someone who cannot hold a contraction for three seconds onto five-minute
- * sessions would not be encouraging, it would be a plan they fail on day one.
- * The measurement is the only honest input of the three, so it gets the final
- * say downwards, and only a modest one upwards.
+ * A level here IS a session length - 1 through 5 run 60s to 300s - so the two
+ * answers set the ambition and a measurement, when there is one, sets the
+ * ceiling: putting someone who cannot hold a contraction for three seconds
+ * onto five-minute sessions is not encouraging, it is a plan they fail on day
+ * one.
  *
- * A hold of 0 means "not measured" (skipped), and applies no ceiling at all -
- * a missing measurement must not read as a failed one.
+ * Onboarding no longer measures, so it always passes 0, and 0 means "not
+ * measured" and applies no ceiling at all - a missing measurement must never
+ * read as a failed one. The parameter stays because the app still measures on
+ * the Progress tab and this is the function that knows what a hold is worth.
  */
 export const levelFromQuiz = (points: number, holdSeconds: number): number => {
   let level = Math.min(MAX_LEVEL, Math.max(1, 1 + points));
@@ -126,7 +125,47 @@ export const levelFromQuiz = (points: number, holdSeconds: number): number => {
   return Math.min(MAX_LEVEL, Math.max(1, level));
 };
 
+/**
+ * One segment of the progress bar at the top.
+ *
+ * Eases into the accent instead of switching to it. Three segments changing
+ * colour on the same frame the question changes is a lot of instantaneous
+ * change at once; letting the bar catch up a beat later is what makes the
+ * whole screen feel like it moved rather than redrew.
+ */
+const QuizStep: React.FC<{ on: boolean }> = ({ on }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
+  const t = useRef(new Animated.Value(on ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(t, {
+      toValue: on ? 1 : 0,
+      duration: 280,
+      delay: on ? 80 : 0,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [on, t]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.step,
+        {
+          backgroundColor: t.interpolate({
+            inputRange: [0, 1],
+            outputRange: [COLORS.border, COLORS.accent],
+          }),
+        },
+      ]}
+    />
+  );
+};
+
 export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
 
   const [phase, setPhase] = useState<Phase>('experience');
@@ -142,20 +181,17 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
   const [experience, setExperience] = useState<number | null>(null);
   const [time, setTime] = useState<number | null>(null);
 
-  // Hold measurement, same interaction as the Progress tab's.
-  const [holding, setHolding] = useState(false);
-  const [heldDone, setHeldDone] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
-  const [result, setResult] = useState(0);
-  // Set when a hold was too short to count, so the instruction can say so
-  // rather than the screen silently ignoring the attempt.
-  const [holdTooShort, setHoldTooShort] = useState(false);
-
-  const startRef = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
   const buildProgress = useRef(new Animated.Value(0)).current;
   const fade = useRef(new Animated.Value(1)).current;
+  /**
+   * Horizontal travel, paired with the fade.
+   *
+   * -1 is "off to the left", +1 is "off to the right", 0 is home. Going
+   * forward, the outgoing question leaves left and the incoming one enters
+   * from the right; going back, the reverse. Fading alone gave no direction at
+   * all, so answering a question and correcting one looked identical.
+   */
+  const slide = useRef(new Animated.Value(0)).current;
 
   // One mounted flag for every async hand-off on this screen. Both the phase
   // transition and the building timer resolve after an await, and a screen the
@@ -165,55 +201,77 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
 
   const goTo = useCallback(
-    (next: Phase) => {
+    (next: Phase, back = false) => {
       AccessibilityInfo.isReduceMotionEnabled()
         .catch(() => false)
         .then((reduced) => {
           if (!mountedRef.current) return;
           if (reduced) {
+            // Reduce motion means no travel and no fade - just the next
+            // question, immediately.
+            slide.setValue(0);
+            fade.setValue(1);
             setPhase(next);
             return;
           }
-          Animated.timing(fade, {
-            toValue: 0,
-            duration: 120,
-            easing: Easing.out(Easing.quad),
-            useNativeDriver: true,
-          }).start(() => {
-            if (!mountedRef.current) return;
-            setPhase(next);
+          const away = back ? 1 : -1;
+          Animated.parallel([
             Animated.timing(fade, {
-              toValue: 1,
-              duration: 180,
-              easing: Easing.out(Easing.quad),
+              toValue: 0,
+              duration: 160,
+              easing: Easing.in(Easing.quad),
               useNativeDriver: true,
-            }).start();
+            }),
+            Animated.timing(slide, {
+              toValue: away,
+              duration: 160,
+              easing: Easing.in(Easing.quad),
+              useNativeDriver: true,
+            }),
+          ]).start(({ finished }) => {
+            if (!mountedRef.current || !finished) return;
+            setPhase(next);
+            // Jump to the far side without animating, then ease home.
+            slide.setValue(-away);
+            Animated.parallel([
+              Animated.timing(fade, {
+                toValue: 1,
+                duration: 260,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+              }),
+              Animated.timing(slide, {
+                toValue: 0,
+                duration: 300,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+              }),
+            ]).start();
           });
         });
     },
-    [fade],
+    [fade, slide],
   );
 
   /**
    * Step back one question.
    *
-   * Building and result both return to the measurement, because that is the
-   * only step on either of them worth redoing - and returning INTO a two
-   * second timer would just bounce the reader forward again.
+   * Building and result both return to the LAST QUESTION rather than to each
+   * other: returning into a two second timer would just bounce the reader
+   * forward again, and the only thing on either screen worth changing is the
+   * answer that produced it.
    */
   const goBack = useCallback((): boolean => {
     if (phase === 'experience') return false;
     if (phase === 'building' || phase === 'result') {
-      setHeldDone(true);
-      goTo('measure');
+      goTo('time', true);
       return true;
     }
-    goTo(ORDER[Math.max(0, ORDER.indexOf(phase) - 1)]);
+    goTo(ORDER[Math.max(0, ORDER.indexOf(phase) - 1)], true);
     return true;
   }, [phase, goTo]);
 
@@ -241,56 +299,6 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
     return () => clearTimeout(timer);
   }, [phase, buildProgress, goTo]);
 
-  const beginHold = () => {
-    if (holding || heldDone) return;
-    setHolding(true);
-    setHoldTooShort(false);
-    setElapsed(0);
-    startRef.current = Date.now();
-    Animated.timing(scaleAnim, {
-      toValue: 1.08,
-      duration: 150,
-      useNativeDriver: true,
-    }).start();
-    timerRef.current = setInterval(() => {
-      const secs = (Date.now() - startRef.current) / 1000;
-      // Stop the clock at the cap rather than counting into the minutes; the
-      // release below clamps to the same number.
-      setElapsed(Math.min(secs, MAX_HOLD_S));
-    }, 80);
-  };
-
-  const endHold = () => {
-    if (!holding) return;
-    setHolding(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-    Animated.timing(scaleAnim, {
-      toValue: 1,
-      duration: 150,
-      useNativeDriver: true,
-    }).start();
-
-    const held = Math.min((Date.now() - startRef.current) / 1000, MAX_HOLD_S);
-    if (held < MIN_HOLD_S) {
-      // Too short to be a contraction. Say so and let them go again rather
-      // than writing a stray tap into their record for good.
-      setHoldTooShort(true);
-      setElapsed(0);
-      return;
-    }
-    // Stored to a tenth, and the result screen shows exactly this number - the
-    // figure they are shown and the figure that is kept must be the same one.
-    setResult(Math.round(held * 10) / 10);
-    setHeldDone(true);
-  };
-
-  const retake = () => {
-    setHeldDone(false);
-    setHoldTooShort(false);
-    setElapsed(0);
-    setResult(0);
-  };
-
   const answer = (which: 'experience' | 'time', points: number, next: Phase) => {
     if (which === 'experience') setExperience(points);
     else setTime(points);
@@ -298,17 +306,18 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
   };
 
   const points = (experience ?? 0) + (time ?? 0);
-  const level = levelFromQuiz(points, result);
-  const shownSeconds = heldDone ? result : Math.round(elapsed * 10) / 10;
-  const stepIndex = phase === 'experience' ? 0 : phase === 'time' ? 1 : phase === 'result' ? 3 : 2;
+  const level = levelFromQuiz(points, 0);
+  // Three dots, not four: building is a two second breath on the way to the
+  // result, not a step the reader is asked to do anything on.
+  const stepIndex = phase === 'experience' ? 0 : phase === 'time' ? 1 : 2;
 
-  const skip = () =>
+  const finish = (skipped: boolean) =>
     onDone({
-      level: levelFromQuiz(points, 0),
+      level,
       baselineSeconds: 0,
       experience,
       dailyTime: time,
-      skipped: true,
+      skipped,
     });
 
   const renderOptions = (
@@ -318,8 +327,13 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
     chosen: number | null,
     next: Phase,
   ) => (
-    <View style={styles.body}>
-      <Text style={styles.prompt}>{t(promptKey)}</Text>
+    <ScrollView
+      style={styles.bodyScroll}
+      contentContainerStyle={styles.body}
+      showsVerticalScrollIndicator={false}
+      bounces={false}
+    >
+      <Text style={styles.statement}>{t(promptKey)}</Text>
       <View style={styles.options}>
         {options.map((o) => {
           const selected = chosen === o.points;
@@ -355,7 +369,7 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
           );
         })}
       </View>
-    </View>
+    </ScrollView>
   );
 
   return (
@@ -367,11 +381,11 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
               style={styles.iconBtn}
               onPress={goBack}
               accessibilityRole="button"
-              accessibilityLabel={t('subscribeSheet.back')}
+              accessibilityLabel={t('allExercises.backA11y')}
             >
               <Svg
-                width={24}
-                height={24}
+                width={22}
+                height={22}
                 viewBox="0 0 24 24"
                 fill="none"
                 style={I18nManager.isRTL ? styles.flip : undefined}
@@ -388,28 +402,47 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
           )}
         </View>
 
-        {/* Where they are, without a percentage nobody asked for. */}
         <View
           style={styles.steps}
-          accessible
           accessibilityRole="progressbar"
-          accessibilityValue={{ min: 1, max: 4, now: stepIndex + 1 }}
+          accessibilityValue={{ min: 1, max: 3, now: stepIndex + 1 }}
         >
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={[styles.step, i <= stepIndex && styles.stepOn]} />
+          {[0, 1, 2].map((i) => (
+            <QuizStep key={i} on={i <= stepIndex} />
           ))}
         </View>
 
         <View style={[styles.topSide, styles.topSideEnd]}>
           {phase !== 'result' && (
-            <TouchableOpacity style={styles.skipBtn} onPress={skip} accessibilityRole="button">
+            <TouchableOpacity
+              style={styles.skipBtn}
+              onPress={() => finish(true)}
+              accessibilityRole="button"
+            >
               <Text style={styles.skipText}>{t('quiz.skip')}</Text>
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      <Animated.View style={[styles.phase, { opacity: fade }]}>
+      <Animated.View
+        style={[
+          styles.phase,
+          {
+            opacity: fade,
+            transform: [
+              {
+                // A short travel, not a full screen width. The question is
+                // moving aside, not being swiped away.
+                translateX: slide.interpolate({
+                  inputRange: [-1, 0, 1],
+                  outputRange: [-40, 0, 40],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
         {phase === 'experience' &&
           renderOptions(
             'onboarding.quizExperienceQ',
@@ -420,65 +453,16 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
           )}
 
         {phase === 'time' &&
-          renderOptions('onboarding.quizTimeQ', TIME_OPTIONS, 'time', time, 'measure')}
-
-        {phase === 'measure' && (
-          <View style={styles.body}>
-            <Text style={styles.prompt}>{t('onboarding.baselineTitle')}</Text>
-            <Text style={[styles.hint, holdTooShort && styles.hintAlert]}>
-              {t('progress.holdTheButtonAndContract')}
-            </Text>
-
-            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-              <TouchableOpacity
-                activeOpacity={0.9}
-                style={[styles.holdBtn, holding && styles.holdBtnActive]}
-                onPressIn={beginHold}
-                onPressOut={endHold}
-                disabled={heldDone}
-                accessibilityRole="button"
-                accessibilityLabel={t('progress.pressAndHold')}
-              >
-                <Svg width={200} height={200} style={StyleSheet.absoluteFill}>
-                  <Circle
-                    cx={100}
-                    cy={100}
-                    r={94}
-                    fill="none"
-                    stroke={holding ? COLORS.accent : COLORS.borderStrong}
-                    strokeWidth={3}
-                  />
-                </Svg>
-                {holding || heldDone ? (
-                  <Text style={styles.holdSeconds}>
-                    {t('progress.seconds', { count: shownSeconds })}
-                  </Text>
-                ) : (
-                  <Text style={styles.holdLabel}>{t('progress.pressAndHold')}</Text>
-                )}
-              </TouchableOpacity>
-            </Animated.View>
-
-            {heldDone && (
-              <View style={styles.measureActions}>
-                <TouchableOpacity style={styles.secondaryBtn} onPress={retake}>
-                  <Text style={styles.secondaryText}>{t('progress.tryAgain')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.primaryBtn}
-                  onPress={() => goTo('building')}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.primaryText}>{t('progress.continue')}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        )}
+          renderOptions('onboarding.quizTimeQ', TIME_OPTIONS, 'time', time, 'building')}
 
         {phase === 'building' && (
-          <View style={styles.body}>
-            <Text style={styles.prompt} accessibilityLiveRegion="polite">
+          <ScrollView
+            style={styles.bodyScroll}
+            contentContainerStyle={styles.body}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+          >
+            <Text style={styles.statement} accessibilityLiveRegion="polite">
               {t('onboarding.buildingPlan')}
             </Text>
             <View style={styles.buildTrack}>
@@ -494,39 +478,27 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
                 ]}
               />
             </View>
-            {/* The thing it is actually working from, stated plainly. Naming a
-                real input is what keeps this from being a spinner with a
-                sentence over it. */}
-            <Text style={styles.hint}>
-              {t('progress.yourHold')} · {t('progress.seconds', { count: result })}
-            </Text>
-          </View>
+          </ScrollView>
         )}
 
+        {/* The payoff, in one line.
+            No level, no numbers, no second paragraph underneath in a smaller
+            grey. The lessons in the knowledge base are built this way - one
+            statement per screen, at a size that says it is the thing you are
+            here to read - and they are the most readable screens in the app.
+            This borrows their type outright rather than inventing a heading
+            and a caption to sit under it. */}
         {phase === 'result' && (
-          <View style={styles.body}>
-            <Text style={styles.prompt}>{t('onboarding.resultTitle')}</Text>
-
-            {/* Their numbers, neither of them invented. */}
-            <View style={styles.resultCard}>
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>{t('progress.yourHold')}</Text>
-                <Text style={styles.resultValue}>
-                  {t('progress.seconds', { count: result })}
-                </Text>
-              </View>
-              <View style={styles.resultDivider} />
-              <View style={styles.resultRow}>
-                <Text style={styles.resultLabel}>{t('onboarding.resultLevelLabel')}</Text>
-                <Text style={[styles.resultValue, styles.resultValueAccent]}>
-                  {t(levelNameKey(level))}
-                </Text>
-              </View>
-              <Text style={styles.resultDescription}>{t(levelDescriptionKey(level))}</Text>
-            </View>
-
-            <Text style={styles.hint}>{t('onboarding.resultBody')}</Text>
-          </View>
+          <ScrollView
+            style={styles.bodyScroll}
+            contentContainerStyle={styles.body}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+          >
+            <Text style={styles.statement} accessibilityLiveRegion="polite">
+              {t('onboarding.resultTitle')}
+            </Text>
+          </ScrollView>
         )}
       </Animated.View>
 
@@ -535,17 +507,16 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
           <TouchableOpacity
             style={styles.primaryBtn}
             accessibilityRole="button"
-            onPress={() =>
-              onDone({
-                level,
-                baselineSeconds: result,
-                experience,
-                dailyTime: time,
-                skipped: false,
-              })
-            }
+            onPress={() => finish(false)}
           >
-            <Text style={styles.primaryText}>{t('onboarding.getStarted')}</Text>
+            <Text
+              style={styles.primaryText}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+            >
+              {t('onboarding.getStarted')}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -553,7 +524,7 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
   flip: { transform: [{ scaleX: -1 }] },
 
@@ -572,13 +543,32 @@ const styles = StyleSheet.create({
 
   steps: { flex: 1, flexDirection: 'row', gap: SPACE.xs, justifyContent: 'center' },
   step: { flex: 1, height: 3, borderRadius: 2, backgroundColor: COLORS.border, maxWidth: 56 },
-  stepOn: { backgroundColor: COLORS.accent },
+  stepOn: { backgroundColor: COLORS.accentText },
 
   phase: { flex: 1 },
-  body: { flex: 1, justifyContent: 'center', paddingHorizontal: SPACE.xl, gap: SPACE.lg },
-  prompt: { ...TYPE.title, color: COLORS.white, textAlign: 'center' },
-  hint: { ...TYPE.bodySm, color: COLORS.textMuted, textAlign: 'center', lineHeight: 20 },
-  hintAlert: { color: COLORS.accent },
+  // Scrolls only when it has to. `flex: 1` with `justifyContent: center` and
+  // no scroll is a layout that silently eats its own content: once the
+  // children are taller than the box, centring pushes the overflow off BOTH
+  // ends and there is no way to reach it.
+  bodyScroll: { flex: 1 },
+  body: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    paddingVertical: SPACE.lg,
+    gap: SPACE.xl,
+  },
+
+  /**
+   * The one piece of text on the screen.
+   *
+   * LESSON_TEXT, the same 28/38 the knowledge base uses. This screen used to
+   * pair TYPE.title with a TYPE.bodySm line underneath it in muted grey, on
+   * every step - a heading and a caption where there was only ever one thing
+   * to say. Two sizes and two colours to deliver one sentence reads as an
+   * unfinished form; one line at reading size reads as someone talking to you.
+   */
+  statement: { ...LESSON_TEXT, color: COLORS.white, textAlign: 'center' },
 
   options: { gap: SPACE.md },
   option: {
@@ -586,55 +576,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: SPACE.md,
-    minHeight: 60,
+    minHeight: 62,
     paddingHorizontal: SPACE.lg,
+    paddingVertical: SPACE.md,
     borderRadius: RADIUS.lg,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
   },
   optionSelected: { borderColor: COLORS.accent, backgroundColor: COLORS.accentWash },
-  optionText: { ...TYPE.body, flexShrink: 1, color: COLORS.white },
-  optionTextSelected: { color: COLORS.accent },
+  // Reading size, not label size. These are the answers to the question above
+  // and they are the only thing on the screen to act on.
+  optionText: { ...TYPE.body, fontSize: 16, flexShrink: 1, color: COLORS.white },
+  optionTextSelected: { color: COLORS.accentText },
 
-  holdBtn: {
-    alignSelf: 'center',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.surface,
+  buildTrack: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.border,
+    overflow: 'hidden',
   },
-  holdBtnActive: { backgroundColor: COLORS.accentWash },
-  holdLabel: { ...TYPE.section, color: COLORS.textMuted, textAlign: 'center' },
-  holdSeconds: { ...TYPE.display, color: COLORS.accent, fontVariant: ['tabular-nums'] },
-  measureActions: { flexDirection: 'row', alignItems: 'center', gap: SPACE.md },
-
-  buildTrack: { height: 4, borderRadius: 2, backgroundColor: COLORS.border, overflow: 'hidden' },
-  buildFill: { height: 4, borderRadius: 2, backgroundColor: COLORS.accent },
-
-  resultCard: {
-    ...GLASS,
-    backgroundColor: COLORS.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACE.xl,
-    gap: SPACE.md,
-  },
-  resultRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: SPACE.md,
-  },
-  resultLabel: { ...TYPE.bodySm, color: COLORS.textMuted, flexShrink: 1 },
-  resultValue: { ...TYPE.section, color: COLORS.white, fontVariant: ['tabular-nums'] },
-  resultValueAccent: { color: COLORS.accent },
-  resultDivider: { height: 1, backgroundColor: COLORS.border },
-  resultDescription: { ...TYPE.bodySm, color: COLORS.textMuted, lineHeight: 19 },
+  buildFill: { height: 4, borderRadius: 2, backgroundColor: COLORS.accentText },
 
   footer: { paddingHorizontal: SPACE.xl, paddingBottom: SPACE.xl },
   primaryBtn: {
-    flex: 1,
     height: 56,
     borderRadius: RADIUS.xl,
     backgroundColor: COLORS.accent,
@@ -642,14 +606,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryText: { ...TYPE.section, color: COLORS.onAccent },
-  secondaryBtn: {
-    flex: 1,
-    height: 56,
-    borderRadius: RADIUS.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...GLASS,
-    backgroundColor: COLORS.surface,
-  },
-  secondaryText: { ...TYPE.section, color: COLORS.textMuted },
 });

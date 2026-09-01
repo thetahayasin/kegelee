@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "已有账号？",
-    "baselineTitle": "现在来测一下你的起点",
     "buildingPlan": "正在生成你的计划",
     "getStarted": "开始",
     "logIn": "登录",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "大约五分钟",
     "quizTimeQ": "你每天能训练多久？",
     "quizTimeShort": "几分钟",
-    "resultBody": "我们从这里开始，随着你变强再做调整。",
-    "resultLevelLabel": "起始等级",
-    "resultTitle": "你的起点",
+    "resultTitle": "你的计划已经准备好了",
     "slide1Body": "更强的控制力、更好的耐力、更清晰的感受。盆底肌是肌肉，就该像肌肉一样练。",
     "slide1Title": "床上更有底气",
     "slide2Body": "不用健身房，不用器械，不用脱掉什么。在沙发上、办公桌前、公交车上。没人看得出来。",
@@ -293,6 +290,7 @@
     "changeYourPlan": "更换套餐",
     "close": "关闭",
     "continueToApp": "进入应用",
+    "currentPlan": "当前方案",
     "everyPlanStartsWithTrial_one": "所有套餐均含 {{count}} 天免费试用",
     "everyPlanStartsWithTrial_other": "所有套餐均含 {{count}} 天免费试用",
     "logOut": "退出登录",
@@ -318,6 +316,8 @@
     "startYourJourney": "解锁完整课程",
     "subscribe": "订阅",
     "subscriptionActivated": "订阅已开通！",
+    "switchStartsLater": "在你当前方案结束后开始。",
+    "switchStartsNow": "立即生效，未使用的时间会折算给你。",
     "switchToPlan": "切换到{{plan}}",
     "terms": "条款",
     "trialThenPrice_one": "免费 {{count}} 天，之后 {{price}}。若未在试用结束前取消，将自动续订。",
@@ -341,6 +341,12 @@
       "name": "1 年",
       "period": "/年"
     }
+  },
+  "premium": {
+    "badge": "高级版",
+    "noticeProgress": "测量你的坚持时长，看着曲线一点点长起来。",
+    "noticeSchedule": "为训练的日子和时间设置提醒。",
+    "unlockMore": "用高级版解锁更多"
   },
   "profile": {
     "currentDifficulty": "当前难度",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "设置本周的时间"
   },
   "settings": {
+    "appearance": "外观",
+    "appearanceDark": "深色",
+    "appearanceLight": "浅色",
+    "appearanceSystem": "跟随系统",
     "autoRenewalOff": "自动续期已关闭。权限将于 {{date}} 结束。",
     "cancel": "取消",
     "cancelledUntilDate": "已取消。你的权限保留至 {{date}}。",
@@ -527,6 +537,30 @@
     "progress": "进度",
     "schedule": "日程",
     "training": "训练"
+  },
+  "tour": {
+    "homeRingBody": "完成两次练习才算一天。圆环会随进度填满。",
+    "homeRingTitle": "你的一天",
+    "homeStartBody": "今天的练习已经安排好了，按开始即可。",
+    "homeStartTitle": "从这里开始",
+    "homeUnlockBody": "继续练下去，会有更多动作打开。",
+    "homeUnlockTitle": "后面还有",
+    "profileLevelBody": "决定一次练习有多长。随时可以改。",
+    "profileLevelTitle": "调整难度",
+    "progressChartBody": "你的历次测量，可以看出变化。",
+    "progressChartTitle": "你的进步",
+    "progressMeasureBody": "尽可能长时间保持。每一两周做一次就能看到变化。",
+    "progressMeasureTitle": "测量你的保持时间",
+    "scheduleMonthBody": "每个方块代表一天训练。完成后就会填上。",
+    "scheduleMonthTitle": "你的这个月",
+    "scheduleRemindersBody": "选你方便的日子和时间。有个提醒会容易些。",
+    "scheduleRemindersTitle": "设置你的提醒",
+    "sessionListBody": "本次练习的全部步骤，按顺序排列。中间的正在进行。",
+    "sessionListTitle": "接下来是什么",
+    "sessionPauseBody": "中途停止不会丢失进度。准备好再继续。",
+    "sessionPauseTitle": "随时暂停",
+    "sessionRingBody": "圆圈填满时收紧，变空时放松。整个练习就是这样。",
+    "sessionRingTitle": "跟随圆圈"
   },
   "training": {
     "available": "可用",

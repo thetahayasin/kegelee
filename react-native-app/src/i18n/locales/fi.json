@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
-    "baselineTitle": "Mitataan lähtötasosi",
     "buildingPlan": "Rakennamme suunnitelmaasi",
     "getStarted": "Aloita",
     "logIn": "Kirjaudu sisään",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Noin viisi minuuttia",
     "quizTimeQ": "Kuinka kauan voit harjoitella päivittäin?",
     "quizTimeShort": "Pari minuuttia",
-    "resultBody": "Aloitamme tästä ja säädämme, kun vahvistut.",
-    "resultLevelLabel": "Aloitustaso",
-    "resultTitle": "Lähtötasosi",
+    "resultTitle": "Ohjelmasi on valmis",
     "slide1Body": "Enemmän hallintaa, enemmän kestävyyttä, parempi tuntemus. Lantionpohja on lihas ja sitä treenataan kuin lihasta.",
     "slide1Title": "Vahvempi sängyssä",
     "slide2Body": "Ei salia, ei välineitä, ei mitään riisuttavaa. Sohvalla, työpöydän ääressä, bussissa. Kukaan ei huomaa.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Vaihda tilausta",
     "close": "Sulje",
     "continueToApp": "Jatka sovellukseen",
+    "currentPlan": "Nykyinen tilaus",
     "everyPlanStartsWithTrial_one": "Jokainen tilaus alkaa {{count}} päivän ilmaisjaksolla",
     "everyPlanStartsWithTrial_other": "Jokainen tilaus alkaa {{count}} päivän ilmaisjaksolla",
     "logOut": "Kirjaudu ulos",
@@ -318,6 +316,8 @@
     "startYourJourney": "Avaa koko ohjelma",
     "subscribe": "Tilaa",
     "subscriptionActivated": "Tilaus aktivoitu!",
+    "switchStartsLater": "Alkaa, kun nykyinen tilauksesi päättyy.",
+    "switchStartsNow": "Alkaa heti. Käyttämätön aika hyvitetään.",
     "switchToPlan": "Vaihda tilaukseen {{plan}}",
     "terms": "Ehdot",
     "trialThenPrice_one": "{{count}} päivä ilmaiseksi, sitten {{price}}. Uusiutuu automaattisesti, ellet peruuta ennen jakson loppua.",
@@ -341,6 +341,12 @@
       "name": "1 vuosi",
       "period": "/vuosi"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Mittaa pitosi ja katso, miten käyrä kehittyy.",
+    "noticeSchedule": "Muistutukset harjoituspäiville ja -ajoille.",
+    "unlockMore": "Avaa lisää Premiumilla"
   },
   "profile": {
     "currentDifficulty": "Nykyinen vaikeustaso",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Aseta viikkosi ajat"
   },
   "settings": {
+    "appearance": "Ulkoasu",
+    "appearanceDark": "Tumma",
+    "appearanceLight": "Vaalea",
+    "appearanceSystem": "Järjestelmä",
     "autoRenewalOff": "Automaattinen uusiminen on pois päältä. Käyttöoikeus päättyy {{date}}.",
     "cancel": "Peruuta",
     "cancelledUntilDate": "Peruttu. Käyttöoikeutesi jatkuu {{date}} asti.",
@@ -527,6 +537,30 @@
     "progress": "Edistyminen",
     "schedule": "Aikataulu",
     "training": "Harjoittelu"
+  },
+  "tour": {
+    "homeRingBody": "Päivä lasketaan, kun molemmat harjoitukset on tehty. Rengas täyttyy matkan varrella.",
+    "homeRingTitle": "Päiväsi",
+    "homeStartBody": "Päivän harjoitus on jo valmiina. Paina vain aloita.",
+    "homeStartTitle": "Aloita tästä",
+    "homeUnlockBody": "Lisää harjoituksia avautuu, kun jatkat.",
+    "homeUnlockTitle": "Lisää tulossa",
+    "profileLevelBody": "Tämä määrää harjoituksen keston. Voit vaihtaa milloin vain.",
+    "profileLevelTitle": "Vaihda vaikeustasoa",
+    "progressChartBody": "Mittauksesi ajan myötä, jotta näet miten menee.",
+    "progressChartTitle": "Edistymisesi",
+    "progressMeasureBody": "Pidä niin kauan kuin jaksat. Toista viikon tai kahden välein nähdäksesi muutoksen.",
+    "progressMeasureTitle": "Mittaa pitosi",
+    "scheduleMonthBody": "Jokainen ruutu on harjoituspäivä. Ne täyttyvät, kun suoritat ne.",
+    "scheduleMonthTitle": "Kuukautesi",
+    "scheduleRemindersBody": "Valitse sinulle sopivat päivät ja ajat. Muistutus auttaa.",
+    "scheduleRemindersTitle": "Aseta muistutuksesi",
+    "sessionListBody": "Tämän harjoituksen kaikki vaiheet järjestyksessä. Keskimmäinen on käynnissä.",
+    "sessionListTitle": "Mitä on tulossa",
+    "sessionPauseBody": "Mitään ei mene hukkaan, jos lopetat. Jatka kun olet valmis.",
+    "sessionPauseTitle": "Keskeytä milloin vain",
+    "sessionRingBody": "Jännitä kun se täyttyy ja rentoudu kun se tyhjenee. Siinä koko harjoitus.",
+    "sessionRingTitle": "Seuraa ympyrää"
   },
   "training": {
     "available": "Käytettävissä",

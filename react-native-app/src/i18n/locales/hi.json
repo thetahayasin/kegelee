@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "पहले से खाता है?",
-    "baselineTitle": "अब आपकी शुरुआत मापते हैं",
     "buildingPlan": "आपकी योजना बन रही है",
     "getStarted": "शुरू करें",
     "logIn": "लॉग इन करें",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "लगभग पाँच मिनट",
     "quizTimeQ": "आप हर दिन कितनी देर अभ्यास कर सकते हैं?",
     "quizTimeShort": "कुछ मिनट",
-    "resultBody": "हम यहाँ से शुरू करेंगे और मजबूती बढ़ने पर बदलाव करेंगे।",
-    "resultLevelLabel": "शुरुआती स्तर",
-    "resultTitle": "आपकी शुरुआत",
+    "resultTitle": "आपकी योजना तैयार है",
     "slide1Body": "बेहतर नियंत्रण, ज़्यादा सहनशक्ति, बेहतर अनुभूति। पेल्विक फ्लोर एक मांसपेशी है, और इसे मांसपेशी की तरह ही मज़बूत किया जाता है।",
     "slide1Title": "बिस्तर पर बेहतर",
     "slide2Body": "न जिम, न उपकरण, न कुछ उतारना। सोफ़े पर, डेस्क पर, बस में। किसी को पता नहीं चलेगा।",
@@ -293,6 +290,7 @@
     "changeYourPlan": "अपना प्लान बदलें",
     "close": "बंद करें",
     "continueToApp": "ऐप पर जाएँ",
+    "currentPlan": "मौजूदा योजना",
     "everyPlanStartsWithTrial_one": "हर प्लान {{count}} दिन के मुफ्त ट्रायल से शुरू होता है",
     "everyPlanStartsWithTrial_other": "हर प्लान {{count}} दिन के मुफ्त ट्रायल से शुरू होता है",
     "logOut": "लॉग आउट करें",
@@ -318,6 +316,8 @@
     "startYourJourney": "पूरा प्रोग्राम अनलॉक करें",
     "subscribe": "सदस्यता लें",
     "subscriptionActivated": "सदस्यता सक्रिय हो गई!",
+    "switchStartsLater": "आपकी मौजूदा योजना खत्म होने पर शुरू होगा.",
+    "switchStartsNow": "अभी शुरू होता है. आपका बिना इस्तेमाल किया समय जोड़ दिया जाता है.",
     "switchToPlan": "{{plan}} पर जाएँ",
     "terms": "नियम",
     "trialThenPrice_one": "{{count}} दिन मुफ्त, फिर {{price}}। ट्रायल खत्म होने से पहले रद्द न करने पर अपने आप रिन्यू होगा।",
@@ -341,6 +341,12 @@
       "name": "1 साल",
       "period": "/वर्ष"
     }
+  },
+  "premium": {
+    "badge": "प्रीमियम",
+    "noticeProgress": "अपनी पकड़ मापें और अपनी प्रगति देखें.",
+    "noticeSchedule": "जिन दिनों और समय पर आप अभ्यास करते हैं, उनके लिए रिमाइंडर.",
+    "unlockMore": "प्रीमियम के साथ और खोलें"
   },
   "profile": {
     "currentDifficulty": "वर्तमान कठिनाई",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "अपने सप्ताह का समय तय करें"
   },
   "settings": {
+    "appearance": "दिखावट",
+    "appearanceDark": "गहरा",
+    "appearanceLight": "हल्का",
+    "appearanceSystem": "सिस्टम",
     "autoRenewalOff": "स्वतः नवीनीकरण बंद है। पहुँच {{date}} को समाप्त होगी।",
     "cancel": "रद्द करें",
     "cancelledUntilDate": "रद्द। आपकी पहुँच {{date}} तक बनी रहेगी।",
@@ -527,6 +537,30 @@
     "progress": "प्रगति",
     "schedule": "समय-सारणी",
     "training": "अभ्यास"
+  },
+  "tour": {
+    "homeRingBody": "दिन तभी गिना जाता है जब दोनों सत्र पूरे हों। घेरा साथ-साथ भरता है।",
+    "homeRingTitle": "आपका दिन",
+    "homeStartBody": "आज का सत्र पहले से तैयार है। बस शुरू दबाएँ।",
+    "homeStartTitle": "यहाँ से शुरू करें",
+    "homeUnlockBody": "अभ्यास जारी रखने पर और व्यायाम खुलते जाते हैं.",
+    "homeUnlockTitle": "आगे और भी है",
+    "profileLevelBody": "इससे तय होता है कि सत्र कितना लंबा है. जब चाहें बदल लें.",
+    "profileLevelTitle": "कठिनाई बदलें",
+    "progressChartBody": "समय के साथ आपकी माप, ताकि आप देख सकें कि कैसा चल रहा है.",
+    "progressChartTitle": "आपकी प्रगति",
+    "progressMeasureBody": "जितना हो सके पकड़े रहें। बदलाव देखने के लिए हर एक-दो हफ्ते में दोहराएँ।",
+    "progressMeasureTitle": "अपनी पकड़ मापें",
+    "scheduleMonthBody": "हर वर्ग एक अभ्यास दिवस है। जैसे-जैसे आप पूरा करते हैं, वे भरते जाते हैं।",
+    "scheduleMonthTitle": "आपका महीना",
+    "scheduleRemindersBody": "अपने हिसाब से दिन और समय चुनें. एक याद दिलाना मदद करता है.",
+    "scheduleRemindersTitle": "अपने रिमाइंडर सेट करें",
+    "sessionListBody": "इस सत्र के सभी चरण क्रम में। बीच वाला अभी चल रहा है।",
+    "sessionListTitle": "आगे क्या है",
+    "sessionPauseBody": "रुकने पर कुछ नहीं खोता। जब तैयार हों, फिर शुरू करें।",
+    "sessionPauseTitle": "कभी भी रोकें",
+    "sessionRingBody": "जब यह भरे तो सिकोड़ें और जब खाली हो तो ढीला छोड़ें। बस यही पूरा अभ्यास है।",
+    "sessionRingTitle": "घेरे का अनुसरण करें"
   },
   "training": {
     "available": "उपलब्ध",

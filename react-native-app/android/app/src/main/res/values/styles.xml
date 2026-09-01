@@ -7,6 +7,11 @@
         <item name="android:windowBackground">@color/splash_bg</item>
         <item name="android:statusBarColor">@color/splash_bg</item>
         <item name="android:navigationBarColor">@color/splash_bg</item>
+        <!-- Light appearance. On targetSdk 35+ the navigation bar is
+             transparent and the page shows through it, so the system
+             glyphs have to be dark or they vanish into the light
+             palette's ground. See values-night/styles.xml. -->
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <!-- Launch theme: KE logo on #060810. Swapped to AppTheme in
@@ -15,6 +20,8 @@
         <item name="android:windowBackground">@drawable/splashscreen</item>
         <item name="android:statusBarColor">@color/splash_bg</item>
         <item name="android:navigationBarColor">@color/splash_bg</item>
+        <!-- The splash drawable is dark in both appearances. -->
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
 </resources>

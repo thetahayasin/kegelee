@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Hai già un account?",
-    "baselineTitle": "Ora misuriamo il tuo punto di partenza",
     "buildingPlan": "Stiamo creando il tuo piano",
     "getStarted": "Inizia",
     "logIn": "Accedi",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Circa cinque minuti",
     "quizTimeQ": "Quanto tempo puoi allenarti ogni giorno?",
     "quizTimeShort": "Un paio di minuti",
-    "resultBody": "Partiamo da qui e ci adattiamo man mano che migliori.",
-    "resultLevelLabel": "Livello iniziale",
-    "resultTitle": "Il tuo punto di partenza",
+    "resultTitle": "Il tuo piano è pronto",
     "slide1Body": "Più controllo, più resistenza, sensazioni migliori. Il pavimento pelvico è un muscolo e si allena come tale.",
     "slide1Title": "Più forte a letto",
     "slide2Body": "Niente palestra, niente attrezzi, niente da togliere. Sul divano, alla scrivania, in autobus. Nessuno se ne accorge.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Cambia piano",
     "close": "Chiudi",
     "continueToApp": "Continua nell'app",
+    "currentPlan": "Piano attuale",
     "everyPlanStartsWithTrial_one": "Ogni piano inizia con {{count}} giorno di prova gratuita",
     "everyPlanStartsWithTrial_other": "Ogni piano inizia con {{count}} giorni di prova gratuita",
     "logOut": "Esci",
@@ -318,6 +316,8 @@
     "startYourJourney": "Sblocca tutto il programma",
     "subscribe": "Abbonati",
     "subscriptionActivated": "Abbonamento attivato!",
+    "switchStartsLater": "Parte alla fine del tuo piano attuale.",
+    "switchStartsNow": "Parte subito. Il tempo non usato ti viene accreditato.",
     "switchToPlan": "Passa a {{plan}}",
     "terms": "Termini",
     "trialThenPrice_one": "{{count}} giorno gratis, poi {{price}}. Si rinnova automaticamente se non disdici prima della fine della prova.",
@@ -341,6 +341,12 @@
       "name": "1 anno",
       "period": "/anno"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Misura la tua tenuta e osserva l'andamento.",
+    "noticeSchedule": "Promemoria per i giorni e gli orari in cui ti alleni.",
+    "unlockMore": "Sblocca altro con Premium"
   },
   "profile": {
     "currentDifficulty": "Difficoltà attuale",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Imposta gli orari della settimana"
   },
   "settings": {
+    "appearance": "Aspetto",
+    "appearanceDark": "Scuro",
+    "appearanceLight": "Chiaro",
+    "appearanceSystem": "Sistema",
     "autoRenewalOff": "Il rinnovo automatico è disattivato. L’accesso termina il {{date}}.",
     "cancel": "Annulla",
     "cancelledUntilDate": "Annullato. Il tuo accesso resta attivo fino al {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Progressi",
     "schedule": "Programma",
     "training": "Allenamento"
+  },
+  "tour": {
+    "homeRingBody": "Un giorno conta quando entrambe le sessioni sono fatte. L’anello si riempie via via.",
+    "homeRingTitle": "La tua giornata",
+    "homeStartBody": "La sessione di oggi è già pronta. Premi solo avvia.",
+    "homeStartTitle": "Inizia da qui",
+    "homeUnlockBody": "Altri esercizi si aprono man mano che ti alleni.",
+    "homeUnlockTitle": "Ce n’è dell’altro",
+    "profileLevelBody": "Stabilisce quanto dura una sessione. Cambialo quando vuoi.",
+    "profileLevelTitle": "Cambia la difficoltà",
+    "progressChartBody": "Le tue misurazioni nel tempo, per vedere come sta andando.",
+    "progressChartTitle": "I tuoi progressi",
+    "progressMeasureBody": "Tieni il più a lungo possibile. Ripeti ogni una o due settimane per vedere il cambiamento.",
+    "progressMeasureTitle": "Misura la tua tenuta",
+    "scheduleMonthBody": "Ogni quadrato è un giorno di allenamento. Si riempiono man mano che li completi.",
+    "scheduleMonthTitle": "Il tuo mese",
+    "scheduleRemindersBody": "Scegli i giorni e gli orari che ti vanno bene. Un promemoria aiuta.",
+    "scheduleRemindersTitle": "Imposta i promemoria",
+    "sessionListBody": "Tutti i passaggi della sessione, in ordine. Quello centrale è in corso.",
+    "sessionListTitle": "Cosa arriva",
+    "sessionPauseBody": "Non perdi nulla se ti fermi. Riprendi quando vuoi.",
+    "sessionPauseTitle": "Metti in pausa quando vuoi",
+    "sessionRingBody": "Contrai mentre si riempie e rilassa mentre si svuota. È tutto qui.",
+    "sessionRingTitle": "Segui il cerchio"
   },
   "training": {
     "available": "Disponibile",

@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
-    "baselineTitle": "今の状態を測ってみましょう",
     "buildingPlan": "プランを作成しています",
     "getStarted": "はじめる",
     "logIn": "ログイン",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "5分ほど",
     "quizTimeQ": "毎日どのくらい時間を取れますか？",
     "quizTimeShort": "数分",
-    "resultBody": "ここから始めて、強くなるにつれて調整します。",
-    "resultLevelLabel": "開始レベル",
-    "resultTitle": "あなたの出発点",
+    "resultTitle": "あなたのプランができました",
     "slide1Body": "コントロールも、持続力も、感覚も変わります。骨盤底筋は筋肉です。だから鍛えられます。",
     "slide1Title": "夜の自信に",
     "slide2Body": "ジムも器具もいりません。脱ぐものもありません。ソファでも、デスクでも、バスの中でも。誰にも気づかれません。",
@@ -293,6 +290,7 @@
     "changeYourPlan": "プランを変更",
     "close": "閉じる",
     "continueToApp": "アプリへ進む",
+    "currentPlan": "現在のプラン",
     "everyPlanStartsWithTrial_one": "どのプランも{{count}}日間の無料トライアルから",
     "everyPlanStartsWithTrial_other": "どのプランも{{count}}日間の無料トライアルから",
     "logOut": "ログアウト",
@@ -318,6 +316,8 @@
     "startYourJourney": "プログラムをすべて解放",
     "subscribe": "登録する",
     "subscriptionActivated": "サブスクリプションが有効になりました",
+    "switchStartsLater": "現在のプランが終了してから開始します。",
+    "switchStartsNow": "すぐに開始します。未使用分は差し引かれます。",
     "switchToPlan": "{{plan}}に変更",
     "terms": "利用規約",
     "trialThenPrice_one": "{{count}}日間無料、その後 {{price}}。トライアル終了前に解約しない限り自動更新されます。",
@@ -341,6 +341,12 @@
       "name": "1年",
       "period": "/年"
     }
+  },
+  "premium": {
+    "badge": "プレミアム",
+    "noticeProgress": "保持時間を測定し、変化の推移を確認できます。",
+    "noticeSchedule": "トレーニングする曜日と時間のリマインダー。",
+    "unlockMore": "プレミアムでもっと解放"
   },
   "profile": {
     "currentDifficulty": "現在の難易度",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "今週の時間を設定"
   },
   "settings": {
+    "appearance": "外観",
+    "appearanceDark": "ダーク",
+    "appearanceLight": "ライト",
+    "appearanceSystem": "システム",
     "autoRenewalOff": "自動更新はオフです。{{date}} にご利用が終了します。",
     "cancel": "キャンセル",
     "cancelledUntilDate": "解約済みです。{{date}} まではご利用いただけます。",
@@ -527,6 +537,30 @@
     "progress": "進捗",
     "schedule": "スケジュール",
     "training": "トレーニング"
+  },
+  "tour": {
+    "homeRingBody": "2回のセッションを終えると1日達成です。リングはその都度埋まります。",
+    "homeRingTitle": "今日の進み",
+    "homeStartBody": "今日のセッションは準備済みです。開始を押すだけ。",
+    "homeStartTitle": "ここから開始",
+    "homeUnlockBody": "続けるほど、新しいエクササイズが増えます。",
+    "homeUnlockTitle": "この先もあります",
+    "profileLevelBody": "1回の長さが決まります。いつでも変えられます。",
+    "profileLevelTitle": "難易度を変える",
+    "progressChartBody": "これまでの測定の推移です。様子がわかります。",
+    "progressChartTitle": "あなたの推移",
+    "progressMeasureBody": "できるだけ長く保ちましょう。1〜2週ごとに測ると変化がわかります。",
+    "progressMeasureTitle": "保持時間を測る",
+    "scheduleMonthBody": "各マスが1日のトレーニングです。達成するたびに埋まります。",
+    "scheduleMonthTitle": "今月の記録",
+    "scheduleRemindersBody": "都合のいい曜日と時間を選んでください。ひと声あると続きます。",
+    "scheduleRemindersTitle": "リマインダーを設定",
+    "sessionListBody": "このセッションの全ステップです。中央が今の動作です。",
+    "sessionListTitle": "この先の流れ",
+    "sessionPauseBody": "止めても記録は消えません。準備ができたら再開してください。",
+    "sessionPauseTitle": "いつでも一時停止",
+    "sessionRingBody": "満ちる間は締め、空になる間はゆるめます。運動はこれだけです。",
+    "sessionRingTitle": "円に合わせて"
   },
   "training": {
     "available": "利用可能",

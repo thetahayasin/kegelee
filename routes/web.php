@@ -168,6 +168,7 @@ Route::prefix('mystic')->name('admin.')->group(function () {
         // progress, knowledge videos, legal pages and subscriptions.
         Route::get('/', Admin\Dashboard::class)->name('dashboard');
         Route::get('users', Admin\Users::class)->name('users');
+        Route::get('insights', Admin\Insights::class)->name('insights');
         Route::get('subscriptions', Admin\Subscriptions::class)->name('subscriptions');
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');

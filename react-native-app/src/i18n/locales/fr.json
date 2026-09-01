@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Tu as déjà un compte ?",
-    "baselineTitle": "Mesurons votre point de départ",
     "buildingPlan": "Création de votre programme",
     "getStarted": "Commencer",
     "logIn": "Se connecter",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Environ cinq minutes",
     "quizTimeQ": "Combien de temps pouvez-vous vous entraîner chaque jour ?",
     "quizTimeShort": "Quelques minutes",
-    "resultBody": "Nous commençons ici et ajustons à mesure que vous progressez.",
-    "resultLevelLabel": "Niveau de départ",
-    "resultTitle": "Votre point de départ",
+    "resultTitle": "Votre programme est prêt",
     "slide1Body": "Plus de contrôle, plus d'endurance, de meilleures sensations. Le périnée est un muscle, et il s'entraîne comme tel.",
     "slide1Title": "Plus fort au lit",
     "slide2Body": "Pas de salle de sport, pas de matériel, rien à enlever. Sur le canapé, au bureau, dans le bus. Personne ne s'en rend compte.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Changer de formule",
     "close": "Fermer",
     "continueToApp": "Continuer vers l'application",
+    "currentPlan": "Formule actuelle",
     "everyPlanStartsWithTrial_one": "Chaque formule commence par {{count}} jour d'essai gratuit",
     "everyPlanStartsWithTrial_other": "Chaque formule commence par {{count}} jours d'essai gratuit",
     "logOut": "Se déconnecter",
@@ -318,6 +316,8 @@
     "startYourJourney": "Débloquez tout le programme",
     "subscribe": "S'abonner",
     "subscriptionActivated": "Abonnement activé !",
+    "switchStartsLater": "Commence à la fin de votre formule actuelle.",
+    "switchStartsNow": "Commence maintenant. Votre temps restant est crédité.",
     "switchToPlan": "Passer à {{plan}}",
     "terms": "Conditions",
     "trialThenPrice_one": "{{count}} jour gratuit, puis {{price}}. Renouvelé automatiquement sauf résiliation avant la fin de l'essai.",
@@ -341,6 +341,12 @@
       "name": "1 an",
       "period": "/an"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Mesurez votre maintien et voyez la courbe se dessiner.",
+    "noticeSchedule": "Des rappels pour vos jours et horaires d'entraînement.",
+    "unlockMore": "Débloquez plus avec Premium"
   },
   "profile": {
     "currentDifficulty": "Difficulté actuelle",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Définissez vos horaires de la semaine"
   },
   "settings": {
+    "appearance": "Apparence",
+    "appearanceDark": "Sombre",
+    "appearanceLight": "Clair",
+    "appearanceSystem": "Système",
     "autoRenewalOff": "Le renouvellement automatique est désactivé. L’accès prend fin le {{date}}.",
     "cancel": "Annuler",
     "cancelledUntilDate": "Annulé. Votre accès reste actif jusqu’au {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Progrès",
     "schedule": "Planning",
     "training": "Entraînement"
+  },
+  "tour": {
+    "homeRingBody": "Une journée compte quand les deux séances sont faites. L’anneau se remplit au fur et à mesure.",
+    "homeRingTitle": "Votre journée",
+    "homeStartBody": "Votre séance du jour est déjà prête. Appuyez sur démarrer.",
+    "homeStartTitle": "Commencez ici",
+    "homeUnlockBody": "D’autres exercices s’ouvrent au fil de votre entraînement.",
+    "homeUnlockTitle": "Il y en aura plus",
+    "profileLevelBody": "Cela règle la durée d’une séance. Changez quand vous voulez.",
+    "profileLevelTitle": "Changez la difficulté",
+    "progressChartBody": "Vos mesures au fil du temps, pour voir où vous en êtes.",
+    "progressChartTitle": "Votre progression",
+    "progressMeasureBody": "Tenez aussi longtemps que possible. Refaites-le toutes les une à deux semaines pour voir l’évolution.",
+    "progressMeasureTitle": "Mesurez votre maintien",
+    "scheduleMonthBody": "Chaque case est un jour d’entraînement. Elles se remplissent à mesure que vous les terminez.",
+    "scheduleMonthTitle": "Votre mois",
+    "scheduleRemindersBody": "Choisissez les jours et les heures qui vous conviennent. Un rappel aide.",
+    "scheduleRemindersTitle": "Réglez vos rappels",
+    "sessionListBody": "Toutes les étapes de la séance, dans l’ordre. Celle du milieu est en cours.",
+    "sessionListTitle": "La suite",
+    "sessionPauseBody": "Rien n’est perdu si vous arrêtez. Reprenez quand vous voulez.",
+    "sessionPauseTitle": "Mettez en pause quand vous voulez",
+    "sessionRingBody": "Contractez pendant qu’il se remplit, relâchez pendant qu’il se vide. C’est tout l’exercice.",
+    "sessionRingTitle": "Suivez le cercle"
   },
   "training": {
     "available": "Disponible",

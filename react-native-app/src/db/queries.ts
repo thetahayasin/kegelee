@@ -556,13 +556,42 @@ export const getPage = async (slug: string): Promise<DBPage | null> => {
   return pages.length > 0 ? pages[0] : null;
 };
 
-export const savePage = async (page: DBPage): Promise<void> => {
+/**
+ * `locale` is not optional in practice, only in the type.
+ *
+ * The table holds ONE row per slug - slug is UNIQUE - so a page cached in
+ * English is the same row as the same page in German. Without recording which
+ * language the row is in, a reader who switched language got the old text back
+ * out of the cache and no way to tell it was stale. Writing it here is what
+ * lets getPageInLocale treat a mismatch as a miss.
+ */
+export const savePage = async (page: DBPage, locale?: string): Promise<void> => {
   const db = await getDBConnection();
   await db.executeSql(
-    `INSERT OR REPLACE INTO pages (slug, title, content, sort_order, is_published)
-     VALUES (?, ?, ?, ?, ?)`,
-    [page.slug, page.title, page.content, page.sort_order, page.is_published]
+    `INSERT OR REPLACE INTO pages (slug, title, content, sort_order, is_published, locale)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [page.slug, page.title, page.content, page.sort_order, page.is_published, locale ?? null]
   );
+};
+
+/**
+ * A cached page, but only if it is in the language being asked for.
+ *
+ * A plain `WHERE slug = ?` is what made the legal pages ignore a language
+ * change: the screen re-read on every change, found the row it had cached in
+ * the previous language, and showed it. It appeared to fix itself if you left
+ * the screen and came back, because by then a background content sync had
+ * overwritten the row - which is a race, not a fix.
+ */
+export const getPageInLocale = async (
+  slug: string,
+  locale: string,
+): Promise<string | null> => {
+  const rows = await query(
+    'SELECT content FROM pages WHERE slug = ? AND locale = ? LIMIT 1',
+    [slug, locale],
+  );
+  return rows.length > 0 && rows[0].content ? rows[0].content : null;
 };
 
 export const getAppSetting = async (key: string, defaultValue = ''): Promise<string> => {
@@ -582,7 +611,18 @@ export const recordCompletedSession = async (
   userId: number,
   exerciseSlug: string | null,
   durationSeconds: number,
-  levelId: number
+  levelId: number,
+  /**
+   * The highest number of COMPLETED days this account may accumulate.
+   *
+   * Passed for a free account and left undefined for a subscriber. The
+   * workout itself is always recorded - a session someone did is a fact, and
+   * they should see it - but once the cap is reached the DAY stops being
+   * completed, which is what freezes plan position, exercise unlocks and the
+   * streak. Subscribing simply stops passing this, and the plan carries on
+   * from the day they had actually reached rather than restarting.
+   */
+  opts?: { maxCompletedDays?: number },
 ): Promise<void> => {
   const db = await getDBConnection();
   
@@ -631,10 +671,27 @@ export const recordCompletedSession = async (
     ]
   );
 
+  // Days already completed BEFORE today. Today is excluded on purpose: a day
+  // that is mid-way through must be allowed to finish, or a free account
+  // would be cut off partway through the very day that takes it to the cap.
+  const cap = opts?.maxCompletedDays;
+  let dayCapReached = false;
+  if (cap !== undefined) {
+    const doneRows = await query(
+      'SELECT COUNT(*) as c FROM training_days WHERE user_id = ? AND completed_at IS NOT NULL AND date <> ?',
+      [userId, dateStr],
+    );
+    dayCapReached = (doneRows[0]?.c ?? 0) >= cap;
+  }
+
   const newCount = sessionsCount + 1;
-  const completedAt = wasComplete || newCount >= required
-    ? (tdRows.length > 0 ? tdRows[0].completed_at || new Date().toISOString() : new Date().toISOString())
-    : null;
+  const completedAt = dayCapReached
+    // At the cap the workout is still recorded above; the day just never
+    // closes, so nothing downstream advances.
+    ? (tdRows.length > 0 ? tdRows[0].completed_at : null)
+    : wasComplete || newCount >= required
+      ? (tdRows.length > 0 ? tdRows[0].completed_at || new Date().toISOString() : new Date().toISOString())
+      : null;
 
   // required_sessions is written too, healing any row created while the old
   // level-based requirement map was in effect (it stored 3-6 and made

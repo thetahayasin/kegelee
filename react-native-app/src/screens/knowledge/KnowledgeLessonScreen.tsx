@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
   StyleSheet,
+  Animated,
+  Easing,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +19,8 @@ import {
 } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path } from 'react-native-svg';
-import { COLORS, GLASS } from '../../theme/colors';
+import { Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { BASICS_LESSONS } from '../../constants/basics';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
@@ -28,15 +31,55 @@ import { Watermark } from '../../components/Watermark';
 import { SwipeSteps } from '../../components/SwipeSteps';
 
 import { useAuth } from '../../context/AuthContext';
-import { hasUsedFreeSession } from '../../services/freeSession';
+import { track } from '../../services/events';
 
 const LAST = 2;
 
+/**
+ * One progress dot.
+ *
+ * Width is not animatable on the native driver, but this is a 6pt view and
+ * there are at most five of them, so the JS-driven interpolation is cheaper
+ * than the alternative of faking it with a scale transform that would also
+ * squash the rounded ends.
+ */
+const StepDot: React.FC<{ active: boolean }> = ({ active }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
+  const t = useRef(new Animated.Value(active ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(t, {
+      toValue: active ? 1 : 0,
+      duration: 260,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [active, t]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        {
+          width: t.interpolate({ inputRange: [0, 1], outputRange: [6, 24] }),
+          backgroundColor: t.interpolate({
+            inputRange: [0, 1],
+            outputRange: [COLORS.borderStrong, COLORS.accent],
+          }),
+        },
+      ]}
+    />
+  );
+};
+
 export const KnowledgeLessonScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, 'KnowledgeLesson'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, subscribed, user } = useAuth();
+  const { isAuthenticated, updateUserFields, markBasicsDone, basicsDone, user } = useAuth();
   const { slug, index } = route.params;
 
   const [step, setStep] = useState(0);
@@ -55,26 +98,18 @@ export const KnowledgeLessonScreen = () => {
         await AsyncStorage.setItem(key, JSON.stringify(done));
       }
     } catch {}
-    if (isLastLesson) {
-      if (isAuthenticated && !subscribed) {
-        // Signed in, still behind the subscription gate. Record the basics -
-        // they did finish them, and it should not be lost once they pay - but
-        // the gate holding them is the subscription one, so flipping the
-        // basics gate alone would look like the Done button doing nothing.
-        // Continue the funnel instead: the free session if it is still theirs,
-        // otherwise the ask, now that there is something behind it.
-        markBasicsDone();
-        updateUserFields({ onboarded: true }).catch(() => {});
-        const unused = await hasUsedFreeSession(user?.id);
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: unused ? 'FreeSessionOffer' : 'Paywall' }],
-          }),
-        );
-        return;
-      }
+    track(user?.id, 'lesson_completed', slug);
 
+    track(user?.id, 'lesson_completed', slug);
+
+    if (isLastLesson) {
+      // There is no subscription gate in front of the basics any more, so
+      // there is no separate unsubscribed path here: training is free inside
+      // the first three exercises and the ask arrives after a session rather
+      // than before one. The branch that used to sit here returned early and
+      // skipped the `basicsDone` test below, which meant a free account
+      // re-reading a lesson from the Training tab flipped a gate that was
+      // already open and never went back - a Done button that did nothing.
       if (isAuthenticated) {
         if (basicsDone) {
           // Reviewing after onboarding (opened from Training): the gate is
@@ -92,37 +127,20 @@ export const KnowledgeLessonScreen = () => {
           updateUserFields({ onboarded: true }).catch(() => {});
         }
       } else {
-        // Guest finished the free lessons. Before the plans sheet, give them
-        // the session the first lesson promised them ("then you do your first
-        // real exercise, guided by the circle") - once. Asking for money from
-        // someone who has never used the app is the weakest possible moment to
-        // ask; asking straight after they have finished a real session is the
-        // strongest. Falls through to the old behaviour once it is spent.
-        if (!(await hasUsedFreeSession(user?.id))) {
-          // The OFFER, not the session. Dropping someone straight into a live
-          // timer they never agreed to start gives them no moment to see what
-          // is happening or decide to do it.
-          navigation.dispatch(
-            CommonActions.reset({ index: 0, routes: [{ name: 'FreeSessionOffer' }] }),
-          );
-          return;
-        }
-
-        // Back to the list with the plans sheet open - the web's
-        // knowledge.index?subscribe=1 funnel.
+        // Guest finished the free lessons.
         //
-        // RESET rather than navigate. navigate() only pops when Knowledge is
-        // already below this screen, which depends on how the guest arrived:
-        // straight from onboarding it is the root, but reaching it from Login
-        // leaves that screen underneath. Either way a back button survived on a
-        // screen that is the end of the funnel, and pressing it walked back
-        // into a lesson they had just finished. Resetting makes Knowledge the
-        // only route, so there is nothing to go back to.
+        // The way on is an account, not a price. Training is free inside the
+        // first three exercises, so there is nothing to sell yet - the guest
+        // just cannot train without somewhere to keep the progress. Back to
+        // the list, where the button now reads Continue and leads to sign-up.
+        //
+        // RESET rather than navigate: navigate() only pops when Knowledge is
+        // already below this screen, which depends on how the guest arrived.
+        // Straight from onboarding it is the root; reaching it from Login
+        // leaves that screen underneath. Either way a back button survived on
+        // the end of the funnel and walked back into a finished lesson.
         navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'Knowledge', params: { subscribe: true } }],
-          }),
+          CommonActions.reset({ index: 0, routes: [{ name: 'Knowledge' }] }),
         );
       }
     } else {
@@ -142,7 +160,7 @@ export const KnowledgeLessonScreen = () => {
   const lessonProps = { step, onFinished };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
       <Watermark />
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -156,10 +174,14 @@ export const KnowledgeLessonScreen = () => {
         <View style={{ width: 36 }} />
       </View>
 
-      {/* Step dots */}
+      {/* Step dots.
+          Each one grows into its active width rather than switching to it.
+          They are the only thing on the screen that reports progress, and a
+          hard cut between 6pt and 24pt reads as a redraw rather than as
+          movement through the lesson. */}
       <View style={styles.dots}>
         {Array.from({ length: LAST + 1 }).map((_, i) => (
-          <View key={i} style={[styles.dot, i <= step ? styles.dotActive : styles.dotIdle]} />
+          <StepDot key={i} active={i <= step} />
         ))}
       </View>
 
@@ -208,7 +230,7 @@ export const KnowledgeLessonScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg, paddingHorizontal: 20 },
   header: {
     flexDirection: 'row',
@@ -226,8 +248,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   dot: { height: 6, borderRadius: 3 },
-  dotActive: { width: 24, backgroundColor: COLORS.accent },
-  dotIdle: { width: 6, backgroundColor: 'rgba(255,255,255,0.15)' },
+  dotActive: { width: 24, backgroundColor: COLORS.accentText },
+  dotIdle: { width: 6, backgroundColor: COLORS.borderStrong },
   body: { flex: 1 },
   nav: {
     flexDirection: 'row',
@@ -241,7 +263,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',

@@ -8,7 +8,8 @@ import Svg, {
   LinearGradient,
   Stop,
 } from 'react-native-svg';
-import { COLORS } from '../theme/colors';
+import { Palette } from '../theme/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 /**
  * Per-exercise equipment glyph, ported 1:1 from equipment-icon.blade.php.
@@ -212,6 +213,8 @@ export const EquipmentIcon = React.memo(({
   size?: number;
   bare?: boolean;
 }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   // Unique gradient id per instance so multiple icons don't share/collide defs.
   const [gradId] = useState(() => `eqGrad${++_uid}`);
   const mapped = SLUG_TO_GLYPH[slug] || 'dumbbell';
@@ -240,9 +243,18 @@ export const EquipmentIcon = React.memo(({
         style={flip ? styles.flip : undefined}
       >
         <Defs>
+          {/* accent -> accentText, so the equipment is the same lime family
+              whichever appearance is live and legible on either ground.
+
+              It ran accentSoft -> accent. In the dark palette that is a pale
+              lime falling to a bright one, which is what it was drawn for. In
+              the light palette accentSoft is an INK value, so the same
+              gradient ran from a deep olive to a bright lime - a full tonal
+              sweep that made the equipment look like a different set of
+              objects depending on the setting. */}
           <LinearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={COLORS.accentSoft} />
-            <Stop offset="1" stopColor={COLORS.accent} />
+            <Stop offset="0" stopColor={COLORS.accent} />
+            <Stop offset="1" stopColor={COLORS.accentText} />
           </LinearGradient>
         </Defs>
         <Glyph glyph={glyph} g={`url(#${gradId})`} />
@@ -251,13 +263,13 @@ export const EquipmentIcon = React.memo(({
   );
 });
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   tile: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: COLORS.whiteFaint,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: COLORS.border,
     overflow: 'hidden',
   },
   tileBare: {

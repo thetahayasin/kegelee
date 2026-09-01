@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Zaten hesabın var mı?",
-    "baselineTitle": "Şimdi başlangıç noktanı ölçelim",
     "buildingPlan": "Planın hazırlanıyor",
     "getStarted": "Başla",
     "logIn": "Giriş yap",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Yaklaşık beş dakika",
     "quizTimeQ": "Her gün ne kadar süre çalışabilirsin?",
     "quizTimeShort": "Birkaç dakika",
-    "resultBody": "Buradan başlıyoruz ve güçlendikçe ayarlıyoruz.",
-    "resultLevelLabel": "Başlangıç seviyesi",
-    "resultTitle": "Başlangıç noktan",
+    "resultTitle": "Planın hazır",
     "slide1Body": "Daha fazla kontrol, daha fazla dayanıklılık, daha iyi hisler. Pelvik taban bir kastır ve kas gibi çalışır.",
     "slide1Title": "Yatakta daha güçlü",
     "slide2Body": "Spor salonu yok, ekipman yok, çıkaracak bir şey yok. Koltukta, masa başında, otobüste. Kimse fark etmez.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Planını değiştir",
     "close": "Kapat",
     "continueToApp": "Uygulamaya devam et",
+    "currentPlan": "Mevcut plan",
     "everyPlanStartsWithTrial_one": "Her plan {{count}} günlük ücretsiz denemeyle başlar",
     "everyPlanStartsWithTrial_other": "Her plan {{count}} günlük ücretsiz denemeyle başlar",
     "logOut": "Çıkış yap",
@@ -318,6 +316,8 @@
     "startYourJourney": "Programın tamamını aç",
     "subscribe": "Abone ol",
     "subscriptionActivated": "Abonelik etkinleştirildi!",
+    "switchStartsLater": "Mevcut planın bittiğinde başlar.",
+    "switchStartsNow": "Hemen başlar. Kullanmadığın süre mahsup edilir.",
     "switchToPlan": "{{plan}} planına geç",
     "terms": "Koşullar",
     "trialThenPrice_one": "{{count}} gün ücretsiz, sonra {{price}}. Deneme bitmeden iptal etmezsen otomatik yenilenir.",
@@ -341,6 +341,12 @@
       "name": "1 yıl",
       "period": "/yıl"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Ne kadar tuttuğunu ölç ve gelişimi izle.",
+    "noticeSchedule": "Antrenman yaptığın gün ve saatler için hatırlatıcılar.",
+    "unlockMore": "Premium'la daha fazlasını aç"
   },
   "profile": {
     "currentDifficulty": "Mevcut zorluk",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Haftanın saatlerini belirle"
   },
   "settings": {
+    "appearance": "Görünüm",
+    "appearanceDark": "Koyu",
+    "appearanceLight": "Açık",
+    "appearanceSystem": "Sistem",
     "autoRenewalOff": "Otomatik yenileme kapalı. Erişim {{date}} tarihinde sona eriyor.",
     "cancel": "İptal",
     "cancelledUntilDate": "İptal edildi. Erişimin {{date}} tarihine kadar devam ediyor.",
@@ -527,6 +537,30 @@
     "progress": "İlerleme",
     "schedule": "Program",
     "training": "Antrenman"
+  },
+  "tour": {
+    "homeRingBody": "Bir gün, iki seans da bitince sayılır. Halka ilerledikçe dolar.",
+    "homeRingTitle": "Günün",
+    "homeStartBody": "Bugünkü seansın hazır. Sadece başlata bas.",
+    "homeStartTitle": "Buradan başla",
+    "homeUnlockBody": "Antrenmana devam ettikçe yeni egzersizler açılır.",
+    "homeUnlockTitle": "Dahası var",
+    "profileLevelBody": "Bir seansın ne kadar süreceğini belirler. İstediğin zaman değiştir.",
+    "profileLevelTitle": "Zorluğu değiştir",
+    "progressChartBody": "Zaman içindeki ölçümlerin, nasıl gittiğini görebilirsin.",
+    "progressChartTitle": "İlerlemen",
+    "progressMeasureBody": "Yapabildiğin kadar uzun tut. Değişimi görmek için bir iki haftada bir tekrarla.",
+    "progressMeasureTitle": "Tutma süreni ölç",
+    "scheduleMonthBody": "Her kare bir antrenman günü. Tamamladıkça dolarlar.",
+    "scheduleMonthTitle": "Ayın",
+    "scheduleRemindersBody": "Sana uyan gün ve saatleri seç. Küçük bir hatırlatma işe yarar.",
+    "scheduleRemindersTitle": "Hatırlatmalarını ayarla",
+    "sessionListBody": "Bu seansın tüm adımları sırayla. Ortadaki şu an yapılıyor.",
+    "sessionListTitle": "Sırada ne var",
+    "sessionPauseBody": "Durursan hiçbir şey kaybolmaz. Hazır olduğunda devam et.",
+    "sessionPauseTitle": "İstediğin an duraklat",
+    "sessionRingBody": "Dolarken kas, boşalırken gevşe. Egzersizin tamamı bu.",
+    "sessionRingTitle": "Çemberi takip et"
   },
   "training": {
     "available": "Kullanılabilir",

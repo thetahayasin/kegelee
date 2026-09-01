@@ -257,7 +257,6 @@
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Đã có tài khoản?",
-    "baselineTitle": "Giờ hãy đo điểm xuất phát của bạn",
     "buildingPlan": "Đang tạo kế hoạch của bạn",
     "getStarted": "Bắt đầu",
     "logIn": "Đăng nhập",
@@ -269,9 +268,7 @@
     "quizTimeMedium": "Khoảng năm phút",
     "quizTimeQ": "Mỗi ngày bạn có thể tập bao lâu?",
     "quizTimeShort": "Vài phút",
-    "resultBody": "Chúng ta bắt đầu từ đây và điều chỉnh khi bạn khỏe hơn.",
-    "resultLevelLabel": "Cấp độ khởi đầu",
-    "resultTitle": "Điểm xuất phát của bạn",
+    "resultTitle": "Lộ trình của bạn đã sẵn sàng",
     "slide1Body": "Kiểm soát tốt hơn, bền hơn, cảm giác rõ hơn. Sàn chậu là một cơ, và nó tập được như mọi cơ khác.",
     "slide1Title": "Mạnh mẽ hơn trên giường",
     "slide2Body": "Không phòng gym, không dụng cụ, không phải cởi gì cả. Trên ghế sofa, ở bàn làm việc, trên xe buýt. Không ai nhận ra.",
@@ -293,6 +290,7 @@
     "changeYourPlan": "Đổi gói",
     "close": "Đóng",
     "continueToApp": "Vào ứng dụng",
+    "currentPlan": "Gói hiện tại",
     "everyPlanStartsWithTrial_one": "Mọi gói đều bắt đầu với {{count}} ngày dùng thử miễn phí",
     "everyPlanStartsWithTrial_other": "Mọi gói đều bắt đầu với {{count}} ngày dùng thử miễn phí",
     "logOut": "Đăng xuất",
@@ -318,6 +316,8 @@
     "startYourJourney": "Mở khóa toàn bộ chương trình",
     "subscribe": "Đăng ký",
     "subscriptionActivated": "Đã kích hoạt gói đăng ký!",
+    "switchStartsLater": "Bắt đầu khi gói hiện tại của bạn kết thúc.",
+    "switchStartsNow": "Bắt đầu ngay. Thời gian chưa dùng sẽ được cấn trừ.",
     "switchToPlan": "Chuyển sang {{plan}}",
     "terms": "Điều khoản",
     "trialThenPrice_one": "Miễn phí {{count}} ngày, sau đó {{price}}. Tự động gia hạn trừ khi bạn hủy trước khi hết dùng thử.",
@@ -341,6 +341,12 @@
       "name": "1 năm",
       "period": "/năm"
     }
+  },
+  "premium": {
+    "badge": "Premium",
+    "noticeProgress": "Đo thời gian giữ và xem tiến triển của bạn.",
+    "noticeSchedule": "Nhắc nhở cho những ngày và giờ bạn tập.",
+    "unlockMore": "Mở khóa thêm với Premium"
   },
   "profile": {
     "currentDifficulty": "Độ khó hiện tại",
@@ -438,6 +444,10 @@
     "setTimesForYourWeek": "Đặt giờ cho tuần của bạn"
   },
   "settings": {
+    "appearance": "Giao diện",
+    "appearanceDark": "Tối",
+    "appearanceLight": "Sáng",
+    "appearanceSystem": "Hệ thống",
     "autoRenewalOff": "Tự động gia hạn đang tắt. Quyền truy cập kết thúc vào {{date}}.",
     "cancel": "Hủy",
     "cancelledUntilDate": "Đã hủy. Quyền truy cập của bạn còn hiệu lực đến {{date}}.",
@@ -527,6 +537,30 @@
     "progress": "Tiến độ",
     "schedule": "Lịch",
     "training": "Tập luyện"
+  },
+  "tour": {
+    "homeRingBody": "Một ngày được tính khi hoàn thành cả hai buổi. Vòng tròn đầy dần theo tiến độ.",
+    "homeRingTitle": "Ngày của bạn",
+    "homeStartBody": "Buổi tập hôm nay đã sẵn sàng. Chỉ cần nhấn bắt đầu.",
+    "homeStartTitle": "Bắt đầu tại đây",
+    "homeUnlockBody": "Càng tập, càng có thêm bài mở ra.",
+    "homeUnlockTitle": "Còn nữa",
+    "profileLevelBody": "Quyết định một buổi tập dài bao lâu. Đổi lúc nào cũng được.",
+    "profileLevelTitle": "Thay đổi độ khó",
+    "progressChartBody": "Các lần đo của bạn theo thời gian, để thấy mọi thứ đang thế nào.",
+    "progressChartTitle": "Tiến bộ của bạn",
+    "progressMeasureBody": "Giữ càng lâu càng tốt. Lặp lại mỗi một đến hai tuần để thấy sự thay đổi.",
+    "progressMeasureTitle": "Đo thời gian giữ",
+    "scheduleMonthBody": "Mỗi ô là một ngày tập. Ô sẽ được tô khi bạn hoàn thành.",
+    "scheduleMonthTitle": "Tháng của bạn",
+    "scheduleRemindersBody": "Chọn ngày và giờ hợp với bạn. Một lời nhắc sẽ giúp ích.",
+    "scheduleRemindersTitle": "Đặt lời nhắc của bạn",
+    "sessionListBody": "Tất cả các bước của buổi tập, theo thứ tự. Bước ở giữa đang diễn ra.",
+    "sessionListTitle": "Tiếp theo là gì",
+    "sessionPauseBody": "Dừng lại cũng không mất gì. Tiếp tục khi bạn sẵn sàng.",
+    "sessionPauseTitle": "Tạm dừng bất cứ lúc nào",
+    "sessionRingBody": "Siết khi vòng đầy và thả lỏng khi vòng vơi. Bài tập chỉ có vậy.",
+    "sessionRingTitle": "Làm theo vòng tròn"
   },
   "training": {
     "available": "Có sẵn",

@@ -8,6 +8,7 @@ use App\Models\Measurement;
 use App\Models\Page;
 use App\Models\Reminder;
 use App\Models\TrainingDay;
+use App\Models\UserEvent;
 use App\Models\WorkoutSession;
 use App\Services\ProgressionService;
 use Illuminate\Http\JsonResponse;
@@ -112,8 +113,10 @@ class SyncController extends Controller
      * - workout_sessions: [{exercise_slug, duration_seconds, completed_at_iso, is_extra}]
      * - measurements: [{seconds, measured_at_iso}]
      * - reminders: [{weekday, times[], is_enabled}]
+     * - events: [{client_id, name, subject?, meta?, occurred_at_iso}]
      *
-     * De-duplicates sessions and measurements by timestamp (±5 seconds window).
+     * De-duplicates sessions and measurements by timestamp (±5 seconds window),
+     * and events by the client's own id.
      */
     public function push(Request $request, ProgressionService $progression): JsonResponse
     {
@@ -266,15 +269,10 @@ class SyncController extends Controller
             ]);
         }
 
-        // --- Free demo session (write-once) ---
-        //
-        // The strongest predictor in this funnel of whether someone
-        // subscribes, and it lived in device storage that never left the
-        // phone. Stamped the first time a device reports it and left alone
-        // afterwards, so the date means "when they first finished one".
-        if ($request->boolean('free_session_completed') && ! $user->free_session_completed_at) {
-            $user->update(['free_session_completed_at' => now()]);
-        }
+        // The demo session used to be stamped here. It no longer exists:
+        // under freemium the first three exercises are the free tier, so
+        // "has trained" is simply whether any workout_sessions row arrived,
+        // which this same push already writes above.
 
         // --- Completed Basics Lessons ---
         $completedSlugs = $request->input('completed_lessons', []);
@@ -292,6 +290,51 @@ class SyncController extends Controller
                 $syncData[$lesson->id] = ['completed_at' => now()];
             }
             $user->completedLessons()->syncWithoutDetaching($syncData);
+        }
+
+        /**
+         * --- Behaviour events ---
+         *
+         * Append-only, and idempotent on (user_id, client_id) so a retried
+         * push cannot turn one quiz completion into five. The client keeps its
+         * outbox until we acknowledge, which means duplicates are the NORMAL
+         * case here rather than an error case.
+         *
+         * Unknown names are dropped rather than stored. An event log is only
+         * worth having if its vocabulary is closed - once `tour_done` and
+         * `tourComplete` both exist, no report can count either.
+         */
+        $synced['events'] = 0;
+        foreach ($request->input('events', []) as $e) {
+            $name = (string) ($e['name'] ?? '');
+            $clientId = (string) ($e['client_id'] ?? '');
+
+            if ($clientId === '' || ! in_array($name, UserEvent::NAMES, true)) {
+                continue;
+            }
+
+            $occurredAt = isset($e['occurred_at_iso'])
+                ? \Carbon\Carbon::parse($e['occurred_at_iso'])
+                : now();
+            // A device clock running fast would otherwise file events in the
+            // future and sit permanently at the top of every timeline.
+            if ($occurredAt->isAfter(now()->addMinutes(5))) {
+                $occurredAt = now();
+            }
+
+            $subject = $e['subject'] ?? null;
+            $meta = $e['meta'] ?? null;
+
+            UserEvent::firstOrCreate(
+                ['user_id' => $user->id, 'client_id' => $clientId],
+                [
+                    'name' => $name,
+                    'subject' => is_scalar($subject) ? mb_substr((string) $subject, 0, 48) : null,
+                    'meta' => is_array($meta) ? $meta : null,
+                    'occurred_at' => $occurredAt,
+                ],
+            );
+            $synced['events']++;
         }
 
         // --- Subscriptions (RevenueCat / Store purchases complete on the device) ---
@@ -557,7 +600,6 @@ class SyncController extends Controller
                 'skipped'          => (bool) $user->onboarding_skipped,
                 'completed_at'     => $user->onboarding_completed_at->toIso8601String(),
             ] : null,
-            'free_session_completed_at' => $user->free_session_completed_at?->toIso8601String(),
             'completed_lessons' => $user->completedLessons()
                 ->wherePivotNotNull('completed_at')
                 ->get()

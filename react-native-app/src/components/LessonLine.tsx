@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Text, StyleSheet, Animated, Easing, ScrollView } from 'react-native';
-import { COLORS } from '../theme/colors';
+import { Palette } from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 /**
  * One line, one slide.
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export const LessonLine: React.FC<Props> = ({ text, step }) => {
+  const styles = useThemedStyles(makeStyles);
   const fade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export const LESSON_TEXT = {
   letterSpacing: -0.5,
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   // Centred in whatever height the step is given, so a short line and a longer
   // one sit in the same place instead of the text jumping between steps.
   wrap: { flex: 1 },

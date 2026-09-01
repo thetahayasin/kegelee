@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, Platform } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Rect, Text } from 'react-native-svg';
-import { COLORS } from '../theme/colors';
+import { Palette } from '../theme/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 /**
  * Giant faint vertical "KEGELEE" behind the content, hugging the left edge -
@@ -17,68 +18,72 @@ const systemFont = Platform.OS === 'android' ? 'sans-serif-black' : 'System';
 
 // Memoized: it takes no props and is rendered on every screen, so parent
 // re-renders should never re-reconcile this full-screen SVG.
-export const Watermark = React.memo(() => (
-  <View style={styles.wrap} pointerEvents="none">
-    <Svg style={StyleSheet.absoluteFill} width={width} height={height}>
-      <Defs>
-        {/* Top Glow: radial-gradient flare using the lime accent */}
-        <RadialGradient
-          id="topGlow"
-          cx={width * 0.5}
-          cy={-height * 0.05}
-          r={width * 1.1}
-          fx={width * 0.5}
-          fy={-height * 0.05}
-          gradientUnits="userSpaceOnUse"
+export const Watermark = React.memo(() => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
+  return (
+    <View style={styles.wrap} pointerEvents="none">
+      <Svg style={StyleSheet.absoluteFill} width={width} height={height}>
+        <Defs>
+          {/* Top Glow: radial-gradient flare using the lime accent */}
+          <RadialGradient
+            id="topGlow"
+            cx={width * 0.5}
+            cy={-height * 0.05}
+            r={width * 1.1}
+            fx={width * 0.5}
+            fy={-height * 0.05}
+            gradientUnits="userSpaceOnUse"
+          >
+            <Stop offset="0%" stopColor={COLORS.accent} stopOpacity={0.16} />
+            <Stop offset="50%" stopColor={COLORS.accent} stopOpacity={0.06} />
+            <Stop offset="100%" stopColor={COLORS.accent} stopOpacity={0} />
+          </RadialGradient>
+
+          {/* Bottom Glow: radial-gradient flare using the lime accent */}
+          <RadialGradient
+            id="bottomGlow"
+            cx={width * 0.5}
+            cy={height * 1.05}
+            r={width * 0.9}
+            fx={width * 0.5}
+            fy={height * 1.05}
+            gradientUnits="userSpaceOnUse"
+          >
+            <Stop offset="0%" stopColor={COLORS.accent} stopOpacity={0.10} />
+            <Stop offset="50%" stopColor={COLORS.accent} stopOpacity={0.04} />
+            <Stop offset="100%" stopColor={COLORS.accent} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+
+        {/* Solid base background */}
+        <Rect width={width} height={height} fill={COLORS.bg} />
+
+        {/* Glow layers - disabled to improve rendering performance and keep background solid */}
+        {/* <Rect width={width} height={height} fill="url(#topGlow)" /> */}
+        {/* <Rect width={width} height={height} fill="url(#bottomGlow)" /> */}
+
+        {/* Giant vertical watermark text */}
+        <Text
+          fill={COLORS.accentText}
+          opacity={0.06}
+          fontWeight="900"
+          fontFamily={systemFont}
+          fontSize={FONT}
+          letterSpacing={-FONT * 0.06}
+          x={FONT * 0.12}
+          y={height * 0.5}
+          textAnchor="middle"
+          transform={`rotate(90, ${FONT * 0.12}, ${height * 0.5})`}
         >
-          <Stop offset="0%" stopColor={COLORS.accent} stopOpacity={0.16} />
-          <Stop offset="50%" stopColor={COLORS.accent} stopOpacity={0.06} />
-          <Stop offset="100%" stopColor={COLORS.accent} stopOpacity={0} />
-        </RadialGradient>
+          KEGELEE
+        </Text>
+      </Svg>
+    </View>
+  );
+});
 
-        {/* Bottom Glow: radial-gradient flare using the lime accent */}
-        <RadialGradient
-          id="bottomGlow"
-          cx={width * 0.5}
-          cy={height * 1.05}
-          r={width * 0.9}
-          fx={width * 0.5}
-          fy={height * 1.05}
-          gradientUnits="userSpaceOnUse"
-        >
-          <Stop offset="0%" stopColor={COLORS.accent} stopOpacity={0.10} />
-          <Stop offset="50%" stopColor={COLORS.accent} stopOpacity={0.04} />
-          <Stop offset="100%" stopColor={COLORS.accent} stopOpacity={0} />
-        </RadialGradient>
-      </Defs>
-
-      {/* Solid base background */}
-      <Rect width={width} height={height} fill={COLORS.bg} />
-
-      {/* Glow layers - disabled to improve rendering performance and keep background solid */}
-      {/* <Rect width={width} height={height} fill="url(#topGlow)" /> */}
-      {/* <Rect width={width} height={height} fill="url(#bottomGlow)" /> */}
-
-      {/* Giant vertical watermark text */}
-      <Text
-        fill={COLORS.accent}
-        opacity={0.06}
-        fontWeight="900"
-        fontFamily={systemFont}
-        fontSize={FONT}
-        letterSpacing={-FONT * 0.06}
-        x={FONT * 0.12}
-        y={height * 0.5}
-        textAnchor="middle"
-        transform={`rotate(90, ${FONT * 0.12}, ${height * 0.5})`}
-      >
-        KEGELEE
-      </Text>
-    </Svg>
-  </View>
-));
-
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   wrap: {
     position: 'absolute',
     top: 0,

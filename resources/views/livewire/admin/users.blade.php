@@ -71,7 +71,7 @@
                             // Read from columns and eager counts only - no
                             // query runs inside the loop.
                             $stage = $user->active_subs_count > 0 ? 'Subscribed'
-                                : ($user->free_session_completed_at ? 'Demo done'
+                                : ($user->sessions_count > 0 ? 'Trained'
                                 : ($user->lessons_done_count > 0 ? 'Basics'
                                 : ($user->onboarding_completed_at ? 'Onboarded' : 'Signed up')));
                             // Design tokens only - no raw palette colours.
@@ -83,7 +83,7 @@
                             // job: the goal state.
                             $stageClass = [
                                 'Subscribed' => 'bg-accent/20 text-accent-soft',
-                                'Demo done'  => 'bg-white/10 text-content',
+                                'Trained'    => 'bg-white/10 text-content',
                                 'Basics'     => 'bg-white/10 text-muted',
                                 'Onboarded'  => 'bg-white/5 text-muted',
                                 'Signed up'  => 'bg-white/5 text-dim',
@@ -160,9 +160,58 @@
                                         <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                                     </button>
                                 @endif
+                                {{-- The timeline toggle.
+                                     Last, because it is the only control here
+                                     that reads rather than changes anything. --}}
+                                <button wire:click="toggleTimeline({{ $user->id }})"
+                                        title="Activity"
+                                        class="rounded-lg p-1.5 text-muted transition-colors hover:bg-white/10 hover:text-content
+                                               {{ $timelineUserId === $user->id ? 'bg-white/10 text-content' : '' }}">
+                                    <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </button>
                             </div>
                         </td>
                     </tr>
+
+                    @if ($timelineUserId === $user->id)
+                        <tr>
+                            <td colspan="99" class="bg-white/[0.03] p-0">
+                                <div class="px-4 py-4">
+                                    <p class="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted">
+                                        Activity - most recent first
+                                    </p>
+
+                                    @forelse ($timeline as $ev)
+                                        <div class="flex items-baseline gap-3 border-l border-white/10 py-1.5 pl-3">
+                                            <span class="w-32 shrink-0 text-[11px] tabular-nums text-dim">
+                                                {{ $ev->occurred_at->format('j M, H:i') }}
+                                            </span>
+                                            <span class="text-xs font-semibold">{{ $ev->label }}</span>
+                                            @if ($ev->subject)
+                                                <span class="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-muted">
+                                                    {{ $ev->subject }}
+                                                </span>
+                                            @endif
+                                            @if ($ev->meta)
+                                                <span class="text-[10px] text-dim">
+                                                    {{ collect($ev->meta)->map(fn ($v, $k) => "$k: $v")->implode(', ') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        {{-- Absence of events is not absence of the
+                                             user: builds before this shipped sent
+                                             nothing, and that is worth saying rather
+                                             than showing an empty box. --}}
+                                        <p class="text-xs text-muted">
+                                            Nothing recorded yet. Behaviour arrives with the next sync
+                                            from a build that includes it.
+                                        </p>
+                                    @endforelse
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 @endforeach
             </tbody>
         </table>

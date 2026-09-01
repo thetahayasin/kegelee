@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   StyleSheet,
+  ScrollView,
   ActivityIndicator,
   Modal,
   KeyboardAvoidingView,
@@ -17,8 +18,13 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { AuthField } from '../../components/AuthField';
-import { COLORS, TYPE, SPACE, RADIUS, DISABLED_OPACITY } from '../../theme/colors';
+import {
+  AuthField,
+  useAuthFit,
+  AUTH_ROOMY_MIN,
+} from '../../components/AuthField';
+import { TYPE, SPACE, RADIUS, DISABLED_OPACITY, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import Svg, { Path } from 'react-native-svg';
 import { api, getWebBaseUrl } from '../../services/api';
 import { nativeGoogleSignIn } from '../../services/googleAuth';
@@ -27,6 +33,8 @@ import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
 
 export const LoginScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const { login, googleNativeLogin } = useAuth();
@@ -40,6 +48,7 @@ export const LoginScreen = () => {
 
   // Forgot password modal state
   const [resetModalVisible, setResetModalVisible] = useState(false);
+  const { compact, onLayout } = useAuthFit(AUTH_ROOMY_MIN.login);
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState('');
@@ -179,10 +188,34 @@ export const LoginScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <View style={styles.inner}>
-          <View style={styles.head}>
-            <Text style={styles.title}>{t('login.logIn')}</Text>
-            <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
+        {/* Centred when it fits, scrollable when it cannot.
+            `flexGrow: 1` with `justifyContent: center` means the content sits
+            in the middle of the box and the scroll view has nothing to scroll
+            - it looks and behaves exactly like the plain View it replaced.
+            The difference only shows when the box shrinks: keyboard up, a
+            small phone, large system text. Then it scrolls instead of putting
+            the submit button somewhere the reader cannot reach. */}
+        <ScrollView
+          onLayout={onLayout}
+          contentContainerStyle={[styles.inner, compact && styles.innerCompact]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <View style={[styles.head, compact && styles.headCompact]}>
+            <Text
+              style={compact ? styles.titleCompact : styles.title}
+              maxFontSizeMultiplier={1.3}
+            >
+              {t('login.logIn')}
+            </Text>
+            <Text
+              style={compact ? styles.subtitleCompact : styles.subtitle}
+              numberOfLines={2}
+              maxFontSizeMultiplier={1.3}
+            >
+              {t('login.subtitle')}
+            </Text>
           </View>
 
           {error ? (
@@ -200,8 +233,9 @@ export const LoginScreen = () => {
             </View>
           ) : null}
 
-          <View style={styles.form}>
+          <View style={[styles.form, compact && styles.formCompact]}>
             <AuthField
+              compact={compact}
               label={t('login.email')}
               placeholder="you@example.com"
               value={email}
@@ -214,6 +248,7 @@ export const LoginScreen = () => {
             />
 
             <AuthField
+              compact={compact}
               label={t('login.password')}
               placeholder="••••••••"
               value={password}
@@ -253,7 +288,7 @@ export const LoginScreen = () => {
 
           {googleEnabled && (
             <>
-              <View style={styles.dividerContainer}>
+              <View style={[styles.dividerContainer, compact && styles.dividerCompact]}>
                 <View style={styles.divider} />
                 <Text style={styles.dividerText}>{t('common.or')}</Text>
                 <View style={styles.divider} />
@@ -277,14 +312,14 @@ export const LoginScreen = () => {
           )}
 
           <TouchableOpacity
-            style={styles.switchContainer}
+            style={[styles.switchContainer, compact && styles.switchCompact]}
             onPress={() => navigation.navigate('Register')}
           >
             <Text style={styles.switchLabel}>
               {t('login.newHere')} <Text style={styles.switchLink}>{t('login.createAccount')}</Text>
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Forgot Password Reset Modal */}
@@ -321,7 +356,7 @@ export const LoginScreen = () => {
                   <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                     <Path
                       d="M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"
-                      stroke={COLORS.accent}
+                      stroke={COLORS.accentText}
                       strokeWidth={2}
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -394,7 +429,7 @@ export const LoginScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -414,7 +449,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inner: {
-    flex: 1,
+    // See RegisterScreen: flexGrow, because this is a scroll content
+    // container and `flex` would cap it at the viewport.
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
@@ -436,8 +473,20 @@ const styles = StyleSheet.create({
   title: { ...TYPE.display, color: COLORS.white },
   subtitle: { ...TYPE.body, color: COLORS.textMuted, lineHeight: 22 },
   form: { gap: SPACE.lg, marginBottom: SPACE.lg },
+  innerCompact: { paddingBottom: SPACE.md },
+  headCompact: { gap: SPACE.xs, marginBottom: SPACE.lg },
+  titleCompact: { ...TYPE.heading, color: COLORS.white },
+  subtitleCompact: { ...TYPE.bodySm, color: COLORS.textMuted, lineHeight: 18 },
+  formCompact: { gap: SPACE.md, marginBottom: SPACE.md },
+  // Below the form is where a short window runs out of room first: the
+  // divider, the Google button and the footer link are three separate
+  // vertical gaps stacked one after another, and none of them carries any
+  // information. They close up before anything the reader has to read does.
+  dividerCompact: { marginVertical: SPACE.md },
+  switchCompact: { marginTop: SPACE.lg },
+
   forgotBtn: { alignSelf: 'flex-end', paddingVertical: SPACE.xs },
-  forgotText: { ...TYPE.bodySm, color: COLORS.accent, fontWeight: '600' },
+  forgotText: { ...TYPE.bodySm, color: COLORS.accentText, fontWeight: '600' },
   btn: {
     backgroundColor: COLORS.accent,
     height: 56,
@@ -458,7 +507,7 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: COLORS.whiteFaint,
   },
   dividerText: {
     color: COLORS.textMuted,
@@ -471,7 +520,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: COLORS.borderStrong,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -491,7 +540,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   switchLink: {
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontWeight: 'bold',
   },
   errorContainer: {
@@ -499,8 +548,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // Errors read as errors. This was the same lime wash as the success
     // container, so a failed attempt looked identical to a win.
-    backgroundColor: 'rgba(255, 107, 107, 0.10)',
-    borderColor: 'rgba(255, 107, 107, 0.28)',
+    backgroundColor: COLORS.dangerWash,
+    borderColor: COLORS.dangerEdge,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -517,8 +566,8 @@ const styles = StyleSheet.create({
   successContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(193, 255, 114, 0.1)',
-    borderColor: 'rgba(193, 255, 114, 0.25)',
+    backgroundColor: COLORS.accentWash,
+    borderColor: COLORS.accentEdge,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
@@ -528,19 +577,19 @@ const styles = StyleSheet.create({
   },
   successText: {
     flex: 1,
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontSize: 14,
     lineHeight: 18,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   modalContent: {
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: COLORS.border,
     borderWidth: 1,
     borderRadius: 24,
     padding: 24,

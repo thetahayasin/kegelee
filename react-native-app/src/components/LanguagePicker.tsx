@@ -5,7 +5,8 @@ import RNRestart from 'react-native-restart';
 import Svg, { Path } from 'react-native-svg';
 
 import { TouchableOpacity } from './Touchable';
-import { COLORS } from '../theme/colors';
+import { Palette } from '../theme/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES, setLanguage } from '../i18n';
 import { refreshContentForCurrentLocale } from '../services/sync';
 
@@ -26,6 +27,8 @@ interface Props {
  * the declaration order in SUPPORTED_LANGUAGES.
  */
 export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const [restartNeeded, setRestartNeeded] = useState(false);
 
@@ -101,7 +104,7 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
                     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                       <Path
                         d="M20 6L9 17l-5-5"
-                        stroke={COLORS.accent}
+                        stroke={COLORS.accentText}
                         strokeWidth={2.5}
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -124,10 +127,10 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'flex-end',
   },
   sheet: {
@@ -167,7 +170,7 @@ const styles = StyleSheet.create({
   },
   rowBorder: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.04)',
+    borderTopColor: COLORS.border,
   },
   rowText: {
     flex: 1,

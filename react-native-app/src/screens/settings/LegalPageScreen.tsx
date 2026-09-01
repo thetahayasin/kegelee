@@ -10,12 +10,12 @@ import {
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
-import { COLORS } from '../../theme/colors';
-import { getDBConnection } from '../../db/sqlite';
+import { Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import Svg, { Path } from 'react-native-svg';
 import { HtmlRenderer } from '../../components/HtmlRenderer';
 import { api } from '../../services/api';
-import { savePage } from '../../db/queries';
+import { savePage, getPageInLocale } from '../../db/queries';
 import { Watermark } from '../../components/Watermark';
 
 type RouteParams = {
@@ -26,6 +26,8 @@ type RouteParams = {
 };
 
 export const LegalPageScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t, i18n } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'LegalPage'>>();
   const navigation = useNavigation<NavigationProp<any>>();
@@ -37,13 +39,14 @@ export const LegalPageScreen = () => {
   useEffect(() => {
     const fetchPageContent = async () => {
       try {
-        const db = await getDBConnection();
-        const res = await db.executeSql(
-          'SELECT content FROM pages WHERE slug = ? LIMIT 1',
-          [slug]
-        );
-        if (res[0].rows.length > 0 && res[0].rows.item(0).content) {
-          setContent(res[0].rows.item(0).content);
+        // Only a copy cached in the language being READ. The old query
+        // matched on slug alone, so after a language change this found the
+        // previous language's text and returned it - and the screen appeared
+        // to correct itself only if you left and came back, by which time a
+        // background content sync had overwritten the row underneath it.
+        const cached = await getPageInLocale(slug, i18n.language);
+        if (cached) {
+          setContent(cached);
         } else {
           // If not found in SQLite (e.g. offline before first sync), show fallback
           if (slug === 'about-basics') {
@@ -68,13 +71,16 @@ Consistency is key: Train daily for the best results.`
             const remote = await api.pullPage(slug, i18n.language);
             if (remote.ok && remote.data?.content) {
               setContent(remote.data.content);
-              await savePage({
-                slug,
-                title: remote.data.title || title,
-                content: remote.data.content,
-                sort_order: 0,
-                is_published: 1,
-              });
+              await savePage(
+                {
+                  slug,
+                  title: remote.data.title || title,
+                  content: remote.data.content,
+                  sort_order: 0,
+                  is_published: 1,
+                },
+                i18n.language,
+              );
             } else {
               setContent(t('legalPage.offlineNotice'));
             }
@@ -120,7 +126,7 @@ Consistency is key: Train daily for the best results.`
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,

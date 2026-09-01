@@ -3,39 +3,32 @@
  *
  * Two places need this answer and they MUST agree: AppNavigator picks which
  * stack to mount, and App.tsx keys the NavigationContainer so each phase
- * starts from a clean navigation tree at its own initialRouteName.
+ * starts from a clean navigation tree at its own initialRouteName. Navigation
+ * STATE lives in the container, so a stack swap without a key change hands the
+ * old routes to the new navigator - which is how finishing the basics once
+ * re-showed the finished lesson.
  *
- * They did not agree, and it cost real money. AppNavigator gated on the
- * subscription; the container key did not mention it. So a completed purchase
- * swapped `paywall-gate` for `main-app` while the container held onto its
- * state - `{ routes: [{ name: 'Paywall' }] }` - and handed it straight back to
- * the incoming navigator. `Paywall` exists in the main stack too, because
- * subscribers reach it from Settings as "Manage Plan", so the route resolved
- * perfectly and the customer sat looking at the paywall they had just paid
- * from. The gate itself was fine the whole time. Only force-quitting cleared
- * it, because only that rebuilt the container from nothing.
+ * `subscribed` is deliberately NOT a phase any more.
  *
- * One function, imported by both, so the orderings cannot drift apart again.
- * Adding a gate means adding a phase here and a branch there, and the compiler
- * will not let the second one be forgotten.
+ * It used to be, because the paywall was a gate: an unsubscribed account got a
+ * navigator containing nothing but the paywall, so subscribing swapped the
+ * whole stack and the container had to be rebuilt with it. The app is freemium
+ * now - everyone who is signed in lands in the same app, and a subscription
+ * unlocks features inside it rather than opening a door to a different one.
+ * Nothing about the navigator changes when someone subscribes, so nothing
+ * should be remounted when they do. Keying on it would throw away the
+ * navigation state of a person who just paid, mid-flow, for no reason.
  */
-export type AppPhase = 'guest' | 'paywall' | 'gate' | 'app';
+export type AppPhase = 'guest' | 'gate' | 'app';
 
 export interface PhaseInput {
   isAuthenticated: boolean;
-  /** Subscription gate. Checked BEFORE basics, matching the web middleware. */
-  subscribed: boolean;
-  /** "Learn the basics" gate. */
+  /** "Learn the basics" gate - the only gate left. */
   basicsDone: boolean;
 }
 
-export const appPhase = ({
-  isAuthenticated,
-  subscribed,
-  basicsDone,
-}: PhaseInput): AppPhase => {
+export const appPhase = ({ isAuthenticated, basicsDone }: PhaseInput): AppPhase => {
   if (!isAuthenticated) return 'guest';
-  if (!subscribed) return 'paywall';
   if (!basicsDone) return 'gate';
   return 'app';
 };

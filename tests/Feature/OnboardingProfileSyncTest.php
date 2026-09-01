@@ -120,23 +120,28 @@ class OnboardingProfileSyncTest extends TestCase
         $this->assertNull($this->user->onboarding_level);
     }
 
-    public function test_it_stamps_the_free_session_once(): void
+    public function test_the_funnel_stage_reads_trained_from_pushed_sessions(): void
     {
-        $this->push(['free_session_completed' => true])->assertOk();
-        $first = $this->user->refresh()->free_session_completed_at;
-        $this->assertNotNull($first);
+        // The demo session is gone, and with it the column that recorded it.
+        // 'Trained' is now derived from the workout_sessions the client
+        // already pushes, so the funnel needs no field of its own to keep
+        // true - this pins that derivation.
+        $this->assertSame('signed up', $this->user->refresh()->funnel_stage);
 
-        $this->travel(2)->days();
-        $this->push(['free_session_completed' => true])->assertOk();
+        $this->push(['workout_sessions' => [[
+            'exercise_slug' => 'trembling',
+            'duration_seconds' => 90,
+            'completed_at_iso' => now()->toIso8601String(),
+            'is_extra' => false,
+        ]]])->assertOk();
 
-        // The date means "when they first finished one", so a later push must
-        // leave it where it is.
-        $this->assertEquals($first, $this->user->refresh()->free_session_completed_at);
+        $this->assertSame('trained', $this->user->refresh()->funnel_stage);
     }
 
-    public function test_it_does_not_stamp_the_free_session_when_not_reported(): void
+    public function test_the_push_ignores_a_reported_free_session(): void
     {
-        $this->push(['free_session_completed' => false])->assertOk();
+        // Old clients may still send it. It must be inert, not an error.
+        $this->push(['free_session_completed' => true])->assertOk();
         $this->assertNull($this->user->refresh()->free_session_completed_at);
     }
 
@@ -147,8 +152,6 @@ class OnboardingProfileSyncTest extends TestCase
         $this->push(['onboarding' => [
             'experience' => 2, 'daily_time' => 1, 'baseline_seconds' => 12.5, 'level' => 4, 'skipped' => false,
         ]])->assertOk();
-        $this->push(['free_session_completed' => true])->assertOk();
-
         $res = $this->withHeaders(['X-User-Token' => $this->user->apiToken()])
             ->getJson('/api/v1/user/pull');
 
@@ -157,8 +160,6 @@ class OnboardingProfileSyncTest extends TestCase
             ->assertJsonPath('onboarding.daily_time', 1)
             ->assertJsonPath('onboarding.level', 4)
             ->assertJsonPath('onboarding.skipped', false);
-
-        $this->assertNotNull($res->json('free_session_completed_at'));
     }
 
     public function test_the_pull_reports_no_profile_for_an_account_that_has_none(): void
@@ -167,6 +168,5 @@ class OnboardingProfileSyncTest extends TestCase
             ->getJson('/api/v1/user/pull');
 
         $res->assertOk()->assertJsonPath('onboarding', null);
-        $this->assertNull($res->json('free_session_completed_at'));
     }
 }

@@ -15,20 +15,23 @@ import {
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect, CommonActions } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import KeepAwake from 'react-native-keep-awake';
 import { useAuth } from '../../context/AuthContext';
-import { exerciseNameKey, REST_LABEL_KEY } from '../../constants/catalogues';
-import { COLORS } from '../../theme/colors';
+import { exerciseNameKey, REST_LABEL_KEY, FREE_DAY_CAP } from '../../constants/catalogues';
+import { Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
-import { freeSessionLevel, freeSessionExitReset } from '../../services/freeSession';
 import { scheduleLapseNudge } from '../../services/reminders';
 import { getDBConnection } from '../../db/sqlite';
 import { recordCompletedSession } from '../../db/queries';
 import { syncNow } from '../../services/sync';
 import { getAppSetting } from '../../db/queries';
-import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
+import { ContractGlow } from '../../components/ContractGlow';
 import { Watermark } from '../../components/Watermark';
+import { TourOverlay } from '../../components/TourOverlay';
+import { SESSION_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 
 const { width } = Dimensions.get('window');
 // The contract glow halo extends to 1.7x this, so keep 1.7*CIRCLE_SIZE within
@@ -44,7 +47,6 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 type RouteParams = {
   Workout: {
     trialSlug?: string;
-    freeSession?: boolean;
   };
 };
 
@@ -64,6 +66,8 @@ const LiveProgressRing = React.memo(
     label: string;
     register: (fn: (d: RingDisplay) => void) => () => void;
   }) => {
+    const styles = useThemedStyles(makeStyles);
+    const COLORS = useTheme();
     // Only the counter needs React state; it changes about once a second.
     const [count, setCount] = useState(0);
     // The sweep does NOT. The timer pushes a new pct at most 20x a second, so
@@ -106,15 +110,24 @@ const LiveProgressRing = React.memo(
             cy={CIRCLE_SIZE / 2}
             r={R}
             fill="none"
-            stroke="rgba(255,255,255,0.12)"
+            stroke={COLORS.borderStrong}
             strokeWidth={TRACK_WIDTH}
           />
+            {/* COLORS.accent, not COLORS.white.
+                `white` is the PRIMARY TEXT token - it only happens to be a
+                near-white in the dark palette, and in the light one it
+                resolves to near-black ink. So the arc came out dark on a
+                light page while the track behind it stayed pale: the two
+                swapped over, which is the inversion. The accent is what this
+                should always have been - the palette gives it exactly one
+                meaning, "act here / in progress / done", and a filling
+                progress arc is all three. */}
           <AnimatedCircle
             cx={CIRCLE_SIZE / 2}
             cy={CIRCLE_SIZE / 2}
             r={R}
             fill="none"
-            stroke={COLORS.white}
+            stroke={COLORS.accentText}
             strokeWidth={TRACK_WIDTH}
             strokeLinecap="round"
             strokeDasharray={`${CIRCUMFERENCE} ${CIRCUMFERENCE}`}
@@ -136,6 +149,7 @@ const LiveProgressRing = React.memo(
 /** Header "Xm left" label - subscribes to the timer, updates at most 1x/sec. */
 const LiveTimeLabel = React.memo(
   ({ register }: { register: (fn: (s: string) => void) => () => void }) => {
+    const styles = useThemedStyles(makeStyles);
     const [label, setLabel] = useState('');
     useEffect(() => register(setLabel), [register]);
     return <Text style={styles.timeText}>{label}</Text>;
@@ -143,16 +157,15 @@ const LiveTimeLabel = React.memo(
 );
 
 export const WorkoutScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RouteParams, 'Workout'>>();
   const navigation = useNavigation<NavigationProp<any>>();
-  const { user, isAuthenticated } = useAuth();
+  const { user, subscribed } = useAuth();
 
   const trialSlug = route.params?.trialSlug || null;
   const isTrial = !!trialSlug;
-  // The guest's one free session: a real day-one workout with no account
-  // behind it. Everything user-keyed below is skipped rather than faked.
-  const freeSession = route.params?.freeSession === true;
 
   const [playlist, setPlaylist] = useState<PlaylistStep[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,6 +180,23 @@ export const WorkoutScreen = () => {
   // Trial/tutorial finished: show a simple "Great job! / Try again" instead of
   // the day-complete session screen.
   const [trialDone, setTrialDone] = useState(false);
+
+  /**
+   * The session tour, shown on the free demo only.
+   *
+   * This is the first time most people have seen a guided pelvic floor
+   * exercise, and the circle - which is the entire product - explains
+   * nothing on its own. A ring that fills and empties means squeeze and
+   * relax only once somebody says so.
+   *
+   * Not shown on a real session: by then they have done this, and
+   * interrupting a workout someone is paying for to explain it is worse than
+   * saying nothing.
+   */
+  const [showTour, setShowTour] = useState(false);
+  const tourRingRef = useRef<View>(null);
+  const tourListRef = useRef<View>(null);
+  const tourPauseRef = useRef<View>(null);
 
   // Animated values for smooth glow/pulsing contraction indicator
   const glowScale = useRef(new Animated.Value(0.58)).current;
@@ -232,7 +262,10 @@ export const WorkoutScreen = () => {
    * Profile switch read into hapticsOn is the consent for it.
    */
   const cueStep = (step: { phase: string } | undefined) => {
-    if (!step || !hapticsOn.current || step.phase !== 'contract') return;
+    // `subscribed` as well as the switch: the cue is part of the
+    // subscription, and a lapsed account must stop being buzzed even though
+    // its stored preference still says yes.
+    if (!step || !hapticsOn.current || !subscribed || step.phase !== 'contract') return;
     try {
       Vibration.vibrate(CUE_MS);
     } catch {}
@@ -242,11 +275,16 @@ export const WorkoutScreen = () => {
   // so the toggle did nothing and every user got buzzed whether they wanted it
   // or not. Loaded once into a ref because the step-transition path this feeds
   // runs inside the timer loop, where a DB read per tick would be absurd.
-  const hapticsOn = useRef(true);
+  //
+  // Starts FALSE. The read below is async, so a `true` here meant the first
+  // contraction of every session buzzed before the stored preference had even
+  // been looked at - which is the one buzz somebody who turned it off would
+  // most notice.
+  const hapticsOn = useRef(false);
   useEffect(() => {
-    getAppSetting('haptics_enabled', '1')
+    getAppSetting('haptics_enabled', '0')
       .then((v) => {
-        hapticsOn.current = v !== '0';
+        hapticsOn.current = v === '1';
       })
       .catch(() => {});
   }, []);
@@ -256,25 +294,6 @@ export const WorkoutScreen = () => {
     KeepAwake.activate();
 
     const initWorkout = async () => {
-      // Free session runs with no account, so it is built before the user
-      // guard below and touches neither training_days nor the level.
-      if (freeSession) {
-        // The level the onboarding result promised them, not a fixed 1.
-        const session = buildDailySession(0, await freeSessionLevel());
-        if (session.steps.length === 0) {
-          // Should not happen - two exercises unlock at day 0 - but goBack is
-          // inert on the reset stack this screen is the root of, so failing
-          // that way would hang on the loading state forever.
-          navigation.dispatch(CommonActions.reset(freeSessionExitReset(isAuthenticated)));
-          return;
-        }
-        remainingRef.current = session.steps[0].seconds;
-        elapsedRef.current = 0;
-        setPlaylist(session.steps);
-        setLoading(false);
-        cueStep(session.steps[0]);
-        return;
-      }
       if (!user) return;
       try {
         const db = await getDBConnection();
@@ -289,7 +308,13 @@ export const WorkoutScreen = () => {
         if (trialSlug) {
           session = buildSingleSession(trialSlug, user.level_id);
         } else {
-          session = buildDailySession(completedDays, user.level_id);
+          // A free account trains with the first three exercises only. The
+          // day cap below already stops its day count short of the fourth
+          // unlock, so this is belt to that braces - a day count arriving
+          // from anywhere else still cannot widen the session.
+          session = buildDailySession(completedDays, user.level_id, {
+            freeOnly: !subscribed,
+          });
         }
 
         if (session.steps.length === 0) {
@@ -306,6 +331,20 @@ export const WorkoutScreen = () => {
         // transition, so without this the very first cue - the one the user is
         // actually waiting for - never fired. Trials already had it.
         cueStep(session.steps[0]);
+
+        // The session tour, once per account, on whichever session comes
+        // first. It used to run on the demo; the demo is gone, so this IS the
+        // first time most people see the circle - and the circle explains
+        // nothing on its own.
+        //
+        // Held paused while the cards are up: three explanations of a ring
+        // are worthless if the ring is running behind them, and the reader
+        // would finish the tour having missed the exercise it described.
+        if (!isTrial && !(await hasSeenTour('session', user.id))) {
+          pausedRef.current = true;
+          setPaused(true);
+          setShowTour(true);
+        }
       } catch (e) {
         console.error(e);
         setLoading(false);
@@ -514,17 +553,21 @@ export const WorkoutScreen = () => {
 
     const secs = Math.max(0, Math.round(elapsedRef.current));
 
-    // Nothing to record for a guest, and the real completion screen reads a
-    // user's training days, position and unlocks - none of which exist here.
-    if (freeSession) {
-      (navigation as any).replace('FreeSessionComplete', { duration: secs });
-      return;
-    }
-
     if (user) {
       try {
         // Save session locally to SQLite
-        await recordCompletedSession(user.id, currentStep?.slug || null, secs, user.level_id);
+        // The workout is always recorded. The DAY only closes while the
+        // account is still inside the free allowance, which is what freezes
+        // plan position, unlocks and the streak for a free tier - and what
+        // lets a subscription pick the plan up exactly where it stopped
+        // rather than restarting it.
+        await recordCompletedSession(
+          user.id,
+          currentStep?.slug || null,
+          secs,
+          user.level_id,
+          subscribed ? undefined : { maxCompletedDays: FREE_DAY_CAP },
+        );
         // Push the lapse check-in back another 72 hours. Doing this on every
         // completed session means an active user perpetually postpones it and
         // never sees it - it only ever arrives for someone who has actually
@@ -567,17 +610,6 @@ export const WorkoutScreen = () => {
   const handleQuit = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     KeepAwake.deactivate();
-    // The free session is reached by RESETTING the stack (so Back cannot walk
-    // into the lesson they just finished), which leaves nothing beneath it for
-    // goBack to pop - quitting would strand them mid-workout with no exit.
-    // Send them to the basics list instead, keeping the paywall underneath for
-    // an account so quitting does not also cost them the way to subscribe. The
-    // session is not marked used until it completes, so quitting costs them
-    // nothing either way.
-    if (freeSession) {
-      navigation.dispatch(CommonActions.reset(freeSessionExitReset(isAuthenticated)));
-      return;
-    }
     navigation.goBack();
   };
   handleQuitRef.current = handleQuit;
@@ -775,8 +807,8 @@ export const WorkoutScreen = () => {
         <View style={styles.trialDoneContainer}>
           <View style={styles.trialDoneIcon}>
             <Svg width={52} height={52} viewBox="0 0 24 24" fill="none">
-              <Path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              <Path d="M22 4L12 14.01l-3-3" stroke={COLORS.accent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke={COLORS.accentText} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M22 4L12 14.01l-3-3" stroke={COLORS.accentText} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
           </View>
           <Text style={styles.trialDoneTitle}>{t('workout.greatJob')}</Text>
@@ -814,7 +846,7 @@ export const WorkoutScreen = () => {
 
       {/* Main Circular Player View */}
       <View style={styles.playerContainer}>
-        <View style={styles.circleContainer}>
+        <View ref={tourRingRef} collapsable={false} style={styles.circleContainer}>
           {/* Animated contract glow: a soft accent radial-gradient halo behind
               the circle (matches the web .contract-glow), scaling out and
               brightening with squeeze intensity. */}
@@ -827,22 +859,7 @@ export const WorkoutScreen = () => {
               },
             ]}
           >
-            <Svg width={CIRCLE_SIZE * 1.7} height={CIRCLE_SIZE * 1.7}>
-              <Defs>
-                <RadialGradient id="contractGlow" cx="50%" cy="50%" r="50%">
-                  <Stop offset="56%" stopColor={COLORS.accent} stopOpacity="0" />
-                  <Stop offset="66%" stopColor={COLORS.accent} stopOpacity="0.08" />
-                  <Stop offset="90%" stopColor={COLORS.accent} stopOpacity="0.42" />
-                  <Stop offset="100%" stopColor={COLORS.accent} stopOpacity="0.24" />
-                </RadialGradient>
-              </Defs>
-              <Circle
-                cx={(CIRCLE_SIZE * 1.7) / 2}
-                cy={(CIRCLE_SIZE * 1.7) / 2}
-                r={(CIRCLE_SIZE * 1.7) / 2}
-                fill="url(#contractGlow)"
-              />
-            </Svg>
+            <ContractGlow size={CIRCLE_SIZE} />
           </Animated.View>
 
           {/* Central progress ring: tick-subscribed so only it repaints */}
@@ -860,7 +877,7 @@ export const WorkoutScreen = () => {
             and hangs on the loading state. A guest tapping help would have hit
             a dead control in the middle of the one session meant to sell them
             the app. */}
-        {!isTrial && !freeSession && currentStep.slug !== 'rest' ? (
+        {!isTrial && currentStep.slug !== 'rest' ? (
           <TouchableOpacity
             style={styles.helpBtn}
             onPress={() => {
@@ -885,6 +902,8 @@ export const WorkoutScreen = () => {
       {/* Exercise carousel - all blocks in a row, smoothly auto-centering on the
           active item (matches the web workout carousel). */}
       <View
+        ref={tourListRef}
+        collapsable={false}
         style={styles.carouselContainer}
         onLayout={e => {
           carouselWidthRef.current = e.nativeEvent.layout.width;
@@ -921,7 +940,7 @@ export const WorkoutScreen = () => {
       </View>
 
       {/* Footer controls */}
-      <View style={styles.footer}>
+      <View ref={tourPauseRef} collapsable={false} style={styles.footer}>
         <TouchableOpacity
           style={styles.pauseBtn}
           onPress={() => {
@@ -931,10 +950,10 @@ export const WorkoutScreen = () => {
         >
           {paused ? (
             <View style={styles.playTextContainer}>
-              <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accent}>
+              <Svg width={20} height={20} viewBox="0 0 24 24" fill={COLORS.accentText}>
                 <Path d="M8 5v14l11-7z" />
               </Svg>
-              <Text style={[styles.pauseBtnText, { color: COLORS.accent }]}>{t('workout.resume')}</Text>
+              <Text style={[styles.pauseBtnText, { color: COLORS.accentText }]}>{t('workout.resume')}</Text>
             </View>
           ) : (
             <View style={styles.playTextContainer}>
@@ -1030,11 +1049,28 @@ export const WorkoutScreen = () => {
           </TouchableWithoutFeedback>
         </TouchableOpacity>
       )}
+
+      <TourOverlay
+        visible={showTour}
+        steps={SESSION_TOUR}
+        targets={{
+          ring: tourRingRef,
+          list: tourListRef,
+          pause: tourPauseRef,
+        }}
+        onDone={(completed) => {
+          setShowTour(false);
+          // Straight back into the session they came for.
+          pausedRef.current = false;
+          setPaused(false);
+          markTourSeen('session', user?.id, completed);
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -1088,7 +1124,7 @@ const styles = StyleSheet.create({
     height: CIRCLE_SIZE,
     borderRadius: CIRCLE_SIZE / 2,
     backgroundColor: COLORS.surface,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: COLORS.border,
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
@@ -1142,7 +1178,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   carouselItemInactive: {
-    color: 'rgba(255,255,255,0.35)',
+    color: COLORS.textDim,
   },
   footer: {
     paddingHorizontal: 20,
@@ -1185,7 +1221,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
+    borderColor: COLORS.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1205,7 +1241,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: 'rgba(193,255,114,0.10)',
+    backgroundColor: COLORS.accentWash,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -1252,7 +1288,7 @@ const styles = StyleSheet.create({
     start: 0,
     end: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.85)',
+    backgroundColor: COLORS.scrim,
     justifyContent: 'flex-end',
     zIndex: 9999,
   },
@@ -1268,7 +1304,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: COLORS.borderStrong,
     alignSelf: 'center',
     marginBottom: 20,
   },

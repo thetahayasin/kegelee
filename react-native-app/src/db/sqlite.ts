@@ -115,9 +115,36 @@ export const initDB = async () => {
         title TEXT,
         content TEXT,
         sort_order INTEGER DEFAULT 0,
-        is_published INTEGER DEFAULT 1
+        is_published INTEGER DEFAULT 1,
+        -- Which language the cached copy is in. slug is UNIQUE, so there is
+        -- only ever one row per page and it has to say what it holds.
+        locale TEXT
       );
     `);
+
+    /**
+     * Behaviour events, queued for the next sync.
+     *
+     * An outbox like the others: written locally the moment something happens,
+     * drained when there is a connection. `client_id` is what makes a retried
+     * push idempotent on the server, so it is generated here and never
+     * regenerated.
+     */
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS user_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        client_id TEXT UNIQUE,
+        user_id INTEGER,
+        name TEXT,
+        subject TEXT,
+        meta TEXT,
+        occurred_at TEXT,
+        synced INTEGER DEFAULT 0
+      );
+    `);
+    tx.executeSql(
+      'CREATE INDEX IF NOT EXISTS idx_events_pending ON user_events (user_id, synced);'
+    );
 
     // 8. Settings table (device specific app configuration)
     tx.executeSql(`
@@ -144,11 +171,38 @@ export const initDB = async () => {
       ('circle_glow_enabled', '1', 'bool'),
       ('circle_size', '300', 'int'),
       ('circle_track_width', '16', 'int'),
-      ('haptics_enabled', '1', 'bool'),
+      -- Off. A phone that starts buzzing during a session nobody asked
+      -- it to buzz in is a thing people turn off by uninstalling, and
+      -- the cue is only useful once you already know what it means.
+      ('haptics_enabled', '0', 'bool'),
       ('circle_animation_speed', '0.12', 'float'),
       ('circle_glow_speed', '0.45', 'float'),
       ('circle_time_scale', '0.7', 'float'),
       ('onboarding_enabled', '1', 'bool');
+    `);
+
+    /**
+     * One-time correction for installs that predate the default flip.
+     *
+     * INSERT OR IGNORE above only seeds a key that is missing, so every device
+     * that already had `haptics_enabled` kept the old '1'. Those users never
+     * chose it - it was the default, and for most of the app's life nothing
+     * even read it - so leaving it on would mean "off by default" was true
+     * only for people installing fresh.
+     *
+     * Guarded by its own key so it runs exactly once: anybody who turns
+     * haptics back on afterwards keeps it on through every later launch.
+     */
+    tx.executeSql(`
+      UPDATE app_settings SET value = '0'
+      WHERE key = 'haptics_enabled'
+        AND NOT EXISTS (
+          SELECT 1 FROM app_settings WHERE key = 'haptics_default_off_applied'
+        );
+    `);
+    tx.executeSql(`
+      INSERT OR IGNORE INTO app_settings (key, value, type)
+      VALUES ('haptics_default_off_applied', '1', 'bool');
     `);
   });
 };

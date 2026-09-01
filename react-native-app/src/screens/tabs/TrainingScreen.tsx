@@ -12,10 +12,11 @@ import {
   View,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS, GLASS, TYPE, SPACE, RADIUS } from '../../theme/colors';
+import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/colors';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
   getMaxMeasurement,
   getActiveSubscription,
@@ -23,7 +24,13 @@ import {
 import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
 import { getPosition, getTodayProgress, getStreak } from '../../services/progression';
-import { EXERCISES, LEVELS, exerciseNameKey, levelNameKey } from '../../constants/catalogues';
+import {
+  EXERCISES,
+  LEVELS,
+  exerciseNameKey,
+  levelNameKey,
+  isFreeExercise,
+} from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
@@ -36,12 +43,17 @@ const GRID_GUTTER = 6;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
+import { TourOverlay } from '../../components/TourOverlay';
+import { HOME_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 
 export const TrainingScreen = () => {
+  const styles = useThemedStyles(makeStyles);
+  const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
-  const { user } = useAuth();
+  const { user, subscribed } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -65,6 +77,23 @@ export const TrainingScreen = () => {
   // Whether a load has ever succeeded, so a failed background refresh can be
   // told apart from a cold screen with nothing on it.
   const hasDataRef = useRef(false);
+
+  /**
+   * The first-entry tour, shown once after the subscription gate opens.
+   *
+   * Gated on having data rather than on mount: the tour points at three real
+   * elements, and measuring them while the screen is still a spinner puts the
+   * spotlight on empty space.
+   */
+  const [showTour, setShowTour] = useState(false);
+  const tourRingRef = useRef<View>(null);
+  const tourStartRef = useRef<View>(null);
+  const tourUnlocksRef = useRef<View>(null);
+  const tourNextUnlockRef = useRef<View>(null);
+  // The exercise grid sits below the fold on most phones, and a spotlight is
+  // measured in window coordinates - so the grid has to be brought on screen
+  // before it can be pointed at.
+  const scrollRef = useRef<ScrollView>(null);
 
   /**
    * The two subscription states that need saying out loud, on the screen the
@@ -123,12 +152,23 @@ export const TrainingScreen = () => {
       setBestMeasurement(best > 0 ? best : null);
 
       // Map exercises. Admins bypass the day-gating and get the full catalogue.
+      //
+      // Two different locks, and they must not be confused. A day lock is a
+      // countdown that ends by itself. A subscription lock never does: a free
+      // account's day count stops at FREE_DAY_CAP, so telling it "2 days left"
+      // on the fourth exercise would be a countdown to a date that never
+      // arrives. Anything past the free three is marked as held by the
+      // subscription and says so.
       const exList = Object.values(EXERCISES).map((ex) => {
-        const unlocked = user.is_admin || pos.completed >= ex.unlock_after_days;
-        const daysLeft = unlocked ? 0 : Math.max(0, ex.unlock_after_days - pos.completed);
+        const subLocked = !subscribed && !user.is_admin && !isFreeExercise(ex.slug);
+        const unlocked =
+          user.is_admin || (!subLocked && pos.completed >= ex.unlock_after_days);
+        const daysLeft =
+          unlocked || subLocked ? 0 : Math.max(0, ex.unlock_after_days - pos.completed);
         return {
           ...ex,
           unlocked,
+          subLocked,
           daysLeft,
         };
       });
@@ -163,6 +203,10 @@ export const TrainingScreen = () => {
 
       hasDataRef.current = true;
       setLoadFailed(false);
+
+      if (!(await hasSeenTour('home', user.id))) {
+        setShowTour(true);
+      }
     } catch (e) {
       console.error('Failed to load training screen data', e);
       // Only raise the error card when there is nothing on screen to keep. A
@@ -223,9 +267,13 @@ export const TrainingScreen = () => {
     .filter((ex) => !ex.unlocked)
     .sort((a, b) => a.unlock_after_days - b.unlock_after_days)[0];
 
-  const unlockPct = nextUnlock?.unlock_after_days
-    ? Math.min(100, Math.round((completedDays / nextUnlock.unlock_after_days) * 100))
-    : 0;
+  // A subscription lock has no distance to show, so the bar would read 0%
+  // forever. The card keeps its place and names the reward; only the measure
+  // of progress and the countdown are replaced by the way to get it.
+  const unlockPct =
+    nextUnlock && !nextUnlock.subLocked && nextUnlock.unlock_after_days
+      ? Math.min(100, Math.round((completedDays / nextUnlock.unlock_after_days) * 100))
+      : 0;
   const sessionLength = t('training.minutes', {
     count: levelDef ? Math.floor(levelDef.total_session_seconds / 60) : 1,
   });
@@ -306,7 +354,14 @@ export const TrainingScreen = () => {
       <Watermark />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        ref={scrollRef}
+        contentContainerStyle={[
+          styles.scrollContent,
+        // The tab bar floats above the content now, so nothing in the
+        // layout reserves room for it. Without this the last card ends
+        // up underneath it, unreachable at the bottom of the scroll.
+          { paddingBottom: tabBarClearance(insets.bottom) },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={COLORS.accent} />
@@ -371,6 +426,8 @@ export const TrainingScreen = () => {
         <View style={styles.heroCard}>
           <View style={styles.heroBody}>
             <View
+              ref={tourRingRef}
+              collapsable={false}
               style={styles.ringWrap}
               accessible
               accessibilityRole="image"
@@ -387,7 +444,7 @@ export const TrainingScreen = () => {
                     cy={66}
                     r={R}
                     fill="none"
-                    stroke="rgba(255,255,255,0.07)"
+                    stroke={COLORS.borderStrong}
                     strokeWidth={9}
                     strokeDasharray={`${arcLength} 999`}
                     strokeLinecap="round"
@@ -397,7 +454,7 @@ export const TrainingScreen = () => {
                     cy={66}
                     r={R}
                     fill="none"
-                    stroke={COLORS.accent}
+                    stroke={COLORS.accentText}
                     strokeWidth={9}
                     strokeDasharray={`${arcLength} 999`}
                     strokeDashoffset={dayArc.interpolate({
@@ -437,7 +494,7 @@ export const TrainingScreen = () => {
                 <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
                   <Path
                     d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.6.7-3.1 1.5-4.3"
-                    stroke={COLORS.accent}
+                    stroke={COLORS.accentText}
                     strokeWidth={2}
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -492,7 +549,7 @@ export const TrainingScreen = () => {
                 {complete ? (
                   <>
                     <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13l4 4L19 7" stroke={COLORS.accent} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
+                      <Path d="M5 13l4 4L19 7" stroke={COLORS.accentText} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
                     </Svg>
                     <Text style={[styles.metaValue, styles.metaValueAccent]} numberOfLines={1}>
                       {t('training.complete')}
@@ -506,16 +563,22 @@ export const TrainingScreen = () => {
               </View>
             </View>
 
-            <TouchableOpacity
-              style={styles.startBtn}
-              accessibilityRole="button"
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('Workout')}
-            >
-              <Text style={styles.startBtnText}>
-                {complete ? t('training.trainAgain') : t('training.startWorkout')}
-              </Text>
-            </TouchableOpacity>
+            {/* Wrapped rather than ref'd directly: the shared Touchable
+                does not forward refs, and teaching it to would change a
+                component every screen in the app depends on for the sake of
+                one measurement. */}
+            <View ref={tourStartRef} collapsable={false}>
+              <TouchableOpacity
+                style={styles.startBtn}
+                accessibilityRole="button"
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('Workout')}
+              >
+                <Text style={styles.startBtnText}>
+                  {complete ? t('training.trainAgain') : t('training.startWorkout')}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
             <Text style={styles.helperText}>
               {complete
@@ -531,22 +594,48 @@ export const TrainingScreen = () => {
             7 and out of 30 read identically. This is the one exercise coming
             next, with the distance actually travelled. */}
         {nextUnlock && (
-          <View style={styles.unlockCard}>
+          // Wrapped: the shared Touchable does not forward refs, and the tour
+          // only needs to measure the card's box.
+          <View ref={tourNextUnlockRef} collapsable={false}>
+          <TouchableOpacity
+            style={styles.unlockCard}
+            activeOpacity={nextUnlock.subLocked ? 0.85 : 1}
+            disabled={!nextUnlock.subLocked}
+            accessibilityRole={nextUnlock.subLocked ? 'button' : undefined}
+            onPress={() => navigation.navigate('Paywall')}
+          >
             <View style={styles.unlockArt}>
               <EquipmentIcon slug={nextUnlock.slug} size={44} />
             </View>
             <View style={styles.unlockBody}>
-              <Text style={styles.unlockOverline}>{t('workoutComplete.nextToUnlock')}</Text>
+              {/* "Next to unlock" is a promise about time passing. It is
+                  only true when time is what stands in the way; for an
+                  exercise held by the subscription it is not, so the card says
+                  what actually opens it. */}
+              <Text style={styles.unlockOverline}>
+                {nextUnlock.subLocked
+                  ? t('premium.unlockMore')
+                  : t('workoutComplete.nextToUnlock')}
+              </Text>
               <Text style={styles.unlockName} numberOfLines={1}>
                 {t(exerciseNameKey(nextUnlock.slug))}
               </Text>
-              <View style={styles.unlockBarBg}>
-                <View style={[styles.unlockBarFill, { width: `${unlockPct}%` }]} />
-              </View>
+              {nextUnlock.subLocked ? (
+                <Text style={styles.unlockSubNote} numberOfLines={2}>
+                  {t('premium.unlockMore')}
+                </Text>
+              ) : (
+                <View style={styles.unlockBarBg}>
+                  <View style={[styles.unlockBarFill, { width: `${unlockPct}%` }]} />
+                </View>
+              )}
             </View>
-            <Text style={styles.unlockDays}>
-              {t('training.daysLeft', { count: nextUnlock.daysLeft })}
+            <Text style={[styles.unlockDays, nextUnlock.subLocked && styles.unlockDaysCta]}>
+              {nextUnlock.subLocked
+                ? t('premium.badge')
+                : t('training.daysLeft', { count: nextUnlock.daysLeft })}
             </Text>
+          </TouchableOpacity>
           </View>
         )}
 
@@ -567,16 +656,18 @@ export const TrainingScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.exerciseGrid}>
+        <View ref={tourUnlocksRef} collapsable={false} style={styles.exerciseGrid}>
           {exerciseItems.slice(0, 9).map((ex) => (
             <TouchableOpacity
               key={ex.slug}
-              disabled={!ex.unlocked}
+              disabled={!ex.unlocked && !ex.subLocked}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityLabel={
                 ex.unlocked
                   ? t(exerciseNameKey(ex.slug))
+                  : ex.subLocked
+                  ? `${t(exerciseNameKey(ex.slug))}, ${t('premium.badge')}`
                   : t('training.unlocksInA11y', {
                       name: t(exerciseNameKey(ex.slug)),
                       count: ex.daysLeft,
@@ -584,11 +675,13 @@ export const TrainingScreen = () => {
               }
               style={styles.exerciseCell}
               onPress={() =>
-                navigation.navigate('ExerciseDetail', {
-                  slug: ex.slug,
-                  unlocked: ex.unlocked,
-                  daysLeft: ex.daysLeft,
-                })
+                ex.subLocked
+                  ? navigation.navigate('Paywall')
+                  : navigation.navigate('ExerciseDetail', {
+                      slug: ex.slug,
+                      unlocked: ex.unlocked,
+                      daysLeft: ex.daysLeft,
+                    })
               }
             >
               <View style={styles.exerciseCard}>
@@ -610,10 +703,33 @@ export const TrainingScreen = () => {
                 ) : (
                   <View style={styles.lockRow}>
                     <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
-                      <Rect x={4} y={10} width={16} height={11} rx={2.5} stroke={COLORS.textDim} strokeWidth={2.4} />
-                      <Path d="M8 10V7a4 4 0 1 1 8 0v3" stroke={COLORS.textDim} strokeWidth={2.4} strokeLinecap="round" />
+                      <Rect
+                        x={4}
+                        y={10}
+                        width={16}
+                        height={11}
+                        rx={2.5}
+                        stroke={ex.subLocked ? COLORS.accent : COLORS.textDim}
+                        strokeWidth={2.4}
+                      />
+                      <Path
+                        d="M8 10V7a4 4 0 1 1 8 0v3"
+                        stroke={ex.subLocked ? COLORS.accent : COLORS.textDim}
+                        strokeWidth={2.4}
+                        strokeLinecap="round"
+                      />
                     </Svg>
-                    <Text style={styles.exerciseStatusLocked}>{t('training.daysLeft', { count: ex.daysLeft })}</Text>
+                    <Text
+                      style={[
+                        styles.exerciseStatusLocked,
+                        ex.subLocked && styles.exerciseStatusSub,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {ex.subLocked
+                        ? t('premium.badge')
+                        : t('training.daysLeft', { count: ex.daysLeft })}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -632,7 +748,7 @@ export const TrainingScreen = () => {
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Path
                 d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-7"
-                stroke={COLORS.accent}
+                stroke={COLORS.accentText}
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -652,11 +768,33 @@ export const TrainingScreen = () => {
           </Svg>
         </TouchableOpacity>
       </ScrollView>
+
+      <TourOverlay
+        visible={showTour}
+        steps={HOME_TOUR}
+        targets={{
+          ring: tourRingRef,
+          start: tourStartRef,
+          // The next-unlock CARD when there is one, and only the grid as a
+          // fallback. The step says "more exercises open up as you keep
+          // training", and that card is literally the next one - a far better
+          // thing to point at than nine tiles, and small enough that the
+          // overlay has somewhere to put its own copy.
+          unlocks: nextUnlock ? tourNextUnlockRef : tourUnlocksRef,
+        }}
+        onStep={(id) =>
+          scrollRef.current?.scrollTo({ y: id === 'unlocks' ? 9999 : 0, animated: true })
+        }
+        onDone={(completed) => {
+          setShowTour(false);
+          if (user) markTourSeen('home', user.id, completed);
+        }}
+      />
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (COLORS: Palette) => StyleSheet.create({
   unlockCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -685,10 +823,10 @@ const styles = StyleSheet.create({
   unlockBarBg: {
     height: 5,
     borderRadius: 999,
-    backgroundColor: 'rgba(242, 245, 238, 0.10)',
+    backgroundColor: COLORS.borderStrong,
     overflow: 'hidden',
   },
-  unlockBarFill: { height: 5, borderRadius: 999, backgroundColor: COLORS.accent },
+  unlockBarFill: { height: 5, borderRadius: 999, backgroundColor: COLORS.accentText },
   unlockDays: {
     fontSize: 12.5,
     fontWeight: '600',
@@ -720,7 +858,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: RADIUS.pill,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -729,7 +867,7 @@ const styles = StyleSheet.create({
   /* Hero --------------------------------------------------------------- */
   heroCard: {
     marginHorizontal: SPACE.lg,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
@@ -767,7 +905,7 @@ const styles = StyleSheet.create({
   streakText: {
     ...TYPE.caption,
     fontWeight: '700',
-    color: COLORS.accent,
+    color: COLORS.accentText,
     fontVariant: ['tabular-nums'],
   },
 
@@ -843,7 +981,7 @@ const styles = StyleSheet.create({
   },
   metaDivider: { width: 1, height: 18, backgroundColor: COLORS.border },
   metaValue: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.textMuted },
-  metaValueAccent: { color: COLORS.accent },
+  metaValueAccent: { color: COLORS.accentText },
   startBtn: {
     backgroundColor: COLORS.accent,
     borderRadius: RADIUS.md,
@@ -894,7 +1032,7 @@ const styles = StyleSheet.create({
     // 104pt tile made each card nearly half the screen, so four exercises
     // filled a phone and the rest of the set was a scroll away - the grid
     // existed precisely to show how much there is to unlock.
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     paddingHorizontal: 8,
@@ -904,6 +1042,10 @@ const styles = StyleSheet.create({
   // Locked art is dimmed but the card itself stays at full opacity, so a
   // locked row reads as "not yet earned" rather than as a broken card.
   lockedArt: { opacity: 0.4 },
+  /* A subscription lock wears the accent: it is an offer, not a wait. */
+  exerciseStatusSub: { color: COLORS.accentText },
+  unlockSubNote: { ...TYPE.caption, color: COLORS.textMuted, marginTop: 3 },
+  unlockDaysCta: { color: COLORS.accentText },
   exerciseName: {
     color: COLORS.white,
     fontSize: 12.5,
@@ -914,7 +1056,7 @@ const styles = StyleSheet.create({
     marginTop: SPACE.sm,
   },
   exerciseNameLocked: { color: COLORS.textMuted },
-  exerciseStatus: { ...TYPE.caption, color: COLORS.accent, fontWeight: '600', marginTop: 2 },
+  exerciseStatus: { ...TYPE.caption, color: COLORS.accentText, fontWeight: '600', marginTop: 2 },
   lockRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   exerciseStatusLocked: { ...TYPE.caption, color: COLORS.textDim, fontWeight: '600' },
 
@@ -922,7 +1064,7 @@ const styles = StyleSheet.create({
   progressRowLink: {
     marginHorizontal: SPACE.lg,
     marginTop: SPACE.md,
-    ...GLASS,
+    ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     paddingHorizontal: SPACE.lg,
