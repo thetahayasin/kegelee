@@ -68,7 +68,7 @@
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">{{ $sub->plan?->name ?? '—' }}</td>
                         <td class="px-4 py-3 whitespace-nowrap">
-                            @php($statusColor = match($sub->status) {
+                            @php($statusColor = match($sub->effective_status) {
                                 'active' => 'bg-success/15 text-success',
                                 'trialing' => 'bg-accent/15 text-accent',
                                 'past_due' => 'bg-yellow-500/15 text-yellow-400',
@@ -78,7 +78,7 @@
                             })
                             <div class="flex flex-col gap-1">
                                 <span class="w-fit rounded-full px-2.5 py-1 text-xs font-semibold {{ $statusColor }}">
-                                    {{ ucfirst(str_replace('_', ' ', $sub->status)) }}
+                                    {{ ucfirst(str_replace('_', ' ', $sub->effective_status)) }}
                                 </span>
                                 {{-- Whether they can actually train right now. A
                                      canceled or past-due row still can. --}}

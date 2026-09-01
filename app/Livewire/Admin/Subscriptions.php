@@ -227,8 +227,16 @@ class Subscriptions extends Component
             ->latest();
 
         $summary = [
-            'active' => Subscription::where('status', 'active')->count(),
-            'trialing' => Subscription::where('status', 'trialing')->count(),
+            // Bounded by the expiry as well as the status, so a missed
+            // EXPIRATION event cannot inflate the figure this page exists to
+            // report. Without this, every lapsed row still counted as a
+            // paying customer.
+            'active' => Subscription::where('status', 'active')
+                ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+                ->count(),
+            'trialing' => Subscription::where('status', 'trialing')
+                ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+                ->count(),
             'canceled' => Subscription::where('status', 'canceled')->count(),
             'past_due' => Subscription::where('status', 'past_due')->count(),
         ];

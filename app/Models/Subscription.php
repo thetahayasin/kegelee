@@ -37,6 +37,28 @@ class Subscription extends Model
      * keep serving - so an admin reading only the status pill will draw the
      * wrong conclusion about half the table.
      */
+    /**
+     * The status as it actually stands, not as it was last written.
+     *
+     * `status` only changes when a webhook says so. `ends_at` is a fact
+     * recorded at purchase. A subscription that ran out without its
+     * EXPIRATION event arriving keeps saying 'active' forever, which is how
+     * the admin came to show "Active" and "No access" on the same row and to
+     * count lapsed subscribers as live ones.
+     *
+     * 'canceled' and 'past_due' are left alone: both mean the customer is
+     * still inside a period they paid for, and both already read as finished
+     * once that period ends.
+     */
+    public function getEffectiveStatusAttribute(): string
+    {
+        $lapsed = $this->ends_at !== null && $this->ends_at->isPast();
+
+        return $lapsed && in_array($this->status, ['active', 'trialing'], true)
+            ? 'expired'
+            : $this->status;
+    }
+
     public function isEntitled(): bool
     {
         $future = $this->ends_at === null || $this->ends_at->isFuture();
