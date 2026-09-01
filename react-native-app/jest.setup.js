@@ -56,7 +56,15 @@ jest.mock('react-native-purchases', () => ({
     purchasePackage: jest.fn(),
     restorePurchases: jest.fn(() => Promise.resolve({ entitlements: { active: {} } })),
     LOG_LEVEL: { WARN: 'WARN' },
-    STORE_REPLACEMENT_MODE: { WITH_TIME_PRORATION: 1, DEFERRED: 6 },
+    // Strings, as the real SDK exposes them. The numeric 1/6 that used to sit
+    // here are the DEPRECATED PRORATION_MODE values - the exact shape
+    // billing.ts was fixed to stop sending, because Play rejects a number
+    // where it expects a mode name. A mock reproducing the bug would let the
+    // regression back in while the suite stayed green.
+    STORE_REPLACEMENT_MODE: {
+      WITH_TIME_PRORATION: 'WITH_TIME_PRORATION',
+      DEFERRED: 'DEFERRED',
+    },
   },
 }));
 

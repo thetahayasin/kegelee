@@ -317,6 +317,8 @@
     "subscribe": "Abonneren",
     "subscriptionActivated": "Abonnement geactiveerd!",
     "switchStartsLater": "Begint wanneer je huidige abonnement afloopt.",
+    "switchQueuedOn": "Je abonnement wordt op {{date}} gewijzigd in {{plan}}. Vandaag wordt er niets in rekening gebracht.",
+    "switchQueued": "Je abonnement wordt gewijzigd in {{plan}} wanneer je huidige abonnement afloopt. Vandaag wordt er niets in rekening gebracht.",
     "switchStartsNow": "Begint nu. Je ongebruikte tijd wordt verrekend.",
     "switchToPlan": "Overstappen naar {{plan}}",
     "terms": "Voorwaarden",

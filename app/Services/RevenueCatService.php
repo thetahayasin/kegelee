@@ -87,17 +87,23 @@ class RevenueCatService
     /**
      * Resolve an internal Plan model from a RevenueCat product identifier.
      */
+    /**
+     * Resolve a store product id to a plan.
+     *
+     * Exact match, because the id IS the identifier. All three plans are base
+     * plans of the single `premium_monthly` subscription, so the parent id on
+     * its own names no plan: stripping the suffix would answer "1 Month" for a
+     * yearly purchase and record a customer who paid $59.99 on the $5.99 plan.
+     */
     public function resolvePlan(string $productId): ?Plan
     {
-        // Strip store-specific suffixes if present (e.g. premium_monthly:base_plan)
-        $cleanId = explode(':', $productId)[0];
-
-        $plan = Plan::where('store_product_id', $cleanId)->where('is_active', true)->first();
-        if ($plan) {
-            return $plan;
+        $raw = trim($productId);
+        if ($raw === '') {
+            return null;
         }
 
-        // Check fallback by slug
-        return Plan::where('slug', $cleanId)->first();
+        return Plan::where('store_product_id', $raw)
+            ->where('is_active', true)
+            ->first();
     }
 }

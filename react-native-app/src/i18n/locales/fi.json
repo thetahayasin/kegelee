@@ -317,6 +317,8 @@
     "subscribe": "Tilaa",
     "subscriptionActivated": "Tilaus aktivoitu!",
     "switchStartsLater": "Alkaa, kun nykyinen tilauksesi päättyy.",
+    "switchQueuedOn": "Tilauksesi vaihtuu tilaukseen {{plan}} {{date}}. Sinulta ei veloiteta tänään mitään.",
+    "switchQueued": "Tilauksesi vaihtuu tilaukseen {{plan}}, kun nykyinen tilauksesi päättyy. Sinulta ei veloiteta tänään mitään.",
     "switchStartsNow": "Alkaa heti. Käyttämätön aika hyvitetään.",
     "switchToPlan": "Vaihda tilaukseen {{plan}}",
     "terms": "Ehdot",

@@ -317,6 +317,8 @@
     "subscribe": "Abone ol",
     "subscriptionActivated": "Abonelik etkinleştirildi!",
     "switchStartsLater": "Mevcut planın bittiğinde başlar.",
+    "switchQueuedOn": "Planın {{date}} tarihinde {{plan}} olarak değişecek. Bugün ücret alınmaz.",
+    "switchQueued": "Planın, mevcut planın bittiğinde {{plan}} olarak değişecek. Bugün ücret alınmaz.",
     "switchStartsNow": "Hemen başlar. Kullanmadığın süre mahsup edilir.",
     "switchToPlan": "{{plan}} planına geç",
     "terms": "Koşullar",

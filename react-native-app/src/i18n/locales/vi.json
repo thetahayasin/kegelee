@@ -317,6 +317,8 @@
     "subscribe": "Đăng ký",
     "subscriptionActivated": "Đã kích hoạt gói đăng ký!",
     "switchStartsLater": "Bắt đầu khi gói hiện tại của bạn kết thúc.",
+    "switchQueuedOn": "Gói của bạn sẽ đổi sang {{plan}} vào {{date}}. Hôm nay bạn không bị tính phí.",
+    "switchQueued": "Gói của bạn sẽ đổi sang {{plan}} khi gói hiện tại của bạn kết thúc. Hôm nay bạn không bị tính phí.",
     "switchStartsNow": "Bắt đầu ngay. Thời gian chưa dùng sẽ được cấn trừ.",
     "switchToPlan": "Chuyển sang {{plan}}",
     "terms": "Điều khoản",

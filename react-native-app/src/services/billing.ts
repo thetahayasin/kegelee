@@ -13,7 +13,6 @@ import {
   PLANS,
   PlanDef,
   planByProductId,
-  normalizeStoreProductId,
 } from '../constants/plans';
 
 /**
@@ -235,6 +234,19 @@ export interface CompletedPurchase {
   endsAt: string | null;
   autoRenewing: boolean;
   periodType: string | null;
+  /**
+   * Play accepted a plan change that has NOT started yet.
+   *
+   * Set only by requestPlanPurchase, and only for a DEFERRED replacement -
+   * the downgrade path, where the paid period is allowed to run out before
+   * the cheaper plan begins. Everything else on this object then describes
+   * the plan still running, because that is what is genuinely active; the
+   * plan that was just bought starts at the next renewal.
+   *
+   * Callers MUST NOT write this to the subscriptions table as a new active
+   * row. Nothing about the local subscription changes today.
+   */
+  deferred?: boolean;
 }
 
 const activeEntitlement = (customerInfo: CustomerInfo, productId?: string) => {
@@ -249,8 +261,14 @@ const activeEntitlement = (customerInfo: CustomerInfo, productId?: string) => {
   ) as any;
 };
 
+/**
+ * Exact comparison. The store product id is the identifier, so there is
+ * nothing to normalize - and stripping the base plan suffix would make all
+ * three plans compare equal, which is how a monthly-to-yearly upgrade gets
+ * mistaken for "already on this plan".
+ */
 const sameProduct = (left?: string | null, right?: string | null): boolean =>
-  normalizeStoreProductId(left) === normalizeStoreProductId(right);
+  (left || '').trim() === (right || '').trim() && !!(left || '').trim();
 
 const subscriptionInfoFor = (
   customerInfo: CustomerInfo,
@@ -258,7 +276,6 @@ const subscriptionInfoFor = (
 ): PurchasesSubscriptionInfo | null => {
   const subscriptions = customerInfo?.subscriptionsByProductIdentifier || {};
   return subscriptions[productId]
-    || subscriptions[normalizeStoreProductId(productId)]
     || Object.values(subscriptions).find((sub) =>
         sameProduct(sub?.productIdentifier, productId))
     || null;
@@ -453,7 +470,7 @@ const completedFromCustomerInfo = (
 
   const subInfo = subscriptionInfoFor(customerInfo, productId);
   const transactionId = subInfo?.storeTransactionId
-    || `${customerInfo?.originalAppUserId || configuredAppUserId || 'unknown'}:${normalizeStoreProductId(productId)}`;
+    || `${customerInfo?.originalAppUserId || configuredAppUserId || 'unknown'}:${productId}`;
 
   return {
     revenuecatAppUserId: String(customerInfo?.originalAppUserId || configuredAppUserId || ''),
@@ -660,6 +677,32 @@ export const requestPlanPurchase = async (
   }
 
   const rcPackage = await packageForPlan(plan);
+
+  /**
+   * Ask the STORE what they own, rather than trusting our catalogue.
+   *
+   * The caller passes the old product id from the plan catalogue, which is the
+   * legacy `premium_quarterly`. Under the shared-subscription catalogue that
+   * same customer actually holds `premium_monthly:p3m`, and naming a product
+   * they do not own is rejected by Play with "we were unable to change your
+   * plan" - so every switch would fail for anyone who bought through the new
+   * catalogue, which after the cutover is everyone.
+   *
+   * The live entitlement is the only thing that knows which of the two a given
+   * customer is on: the local subscription row records a plan slug and no
+   * product id at all. Falls back to what the caller passed if the SDK cannot
+   * answer, which is no worse than not asking.
+   */
+  let oldProductId = opts?.oldProductId;
+  if (oldProductId) {
+    try {
+      const currentInfo = await Purchases.getCustomerInfo();
+      const owned = activeEntitlement(currentInfo)?.productIdentifier;
+      if (owned) oldProductId = owned;
+    } catch {
+      // Keep the caller's value; a failed lookup must not block the purchase.
+    }
+  }
   // Never ask Play to replace a product with itself. Play rejects that outright
   // ("we were unable to change your plan") rather than treating it as a
   // resubscribe, and the caller cannot always tell: plan slugs and store
@@ -668,12 +711,12 @@ export const requestPlanPurchase = async (
   // on the normalized id because Play reports the purchased product as
   // `productId:basePlanId` while the catalogue stores the bare id.
   const sameAsCurrent =
-    !!opts?.oldProductId
-    && sameProduct(opts.oldProductId, packageProductId(rcPackage) || plan.store_product_id);
-  const productChangeInfo = opts?.oldProductId && !sameAsCurrent
+    !!oldProductId
+    && sameProduct(oldProductId, packageProductId(rcPackage) || plan.store_product_id);
+  const productChangeInfo = oldProductId && !sameAsCurrent
     ? {
-        oldProductIdentifier: opts.oldProductId,
-        replacementMode: opts.replacementMode ?? WITH_TIME_PRORATION,
+        oldProductIdentifier: oldProductId,
+        replacementMode: opts?.replacementMode ?? WITH_TIME_PRORATION,
       }
     : null;
 
@@ -683,12 +726,37 @@ export const requestPlanPurchase = async (
     productChangeInfo,
   );
 
-  const completed = completedFromCustomerInfo(customerInfo, productIdentifier || packageProductId(rcPackage));
-  if (!completed || !activeEntitlement(customerInfo, completed.productId)) {
+  /**
+   * A DEFERRED change is a success that looks like a failure.
+   *
+   * Play does not start a deferred replacement now - that is the whole point
+   * of the mode. The old product keeps running to the end of the period the
+   * customer already paid for, and the new one begins after it. So what comes
+   * back names the OLD product, correctly, and asking whether the NEW product
+   * is entitled finds nothing.
+   *
+   * This used to be checked against the new product either way, so every
+   * downgrade - yearly to quarterly, quarterly to monthly, yearly to monthly -
+   * threw on a change Play had just accepted. The customer saw an error, and
+   * anyone who then tried again got Play's own refusal, because the change was
+   * already queued.
+   *
+   * For a deferred change the honest question is only "are they still
+   * entitled", and the answer describes the plan they are still on.
+   */
+  const deferred = productChangeInfo?.replacementMode === DEFERRED;
+
+  const completed = deferred
+    ? completedFromCustomerInfo(customerInfo)
+    : completedFromCustomerInfo(customerInfo, productIdentifier || packageProductId(rcPackage));
+  const entitled = deferred
+    ? activeEntitlement(customerInfo)
+    : completed && activeEntitlement(customerInfo, completed.productId);
+  if (!completed || !entitled) {
     throw new Error('RevenueCat did not return an active entitlement for this purchase.');
   }
 
-  return completed;
+  return deferred ? { ...completed, deferred: true } : completed;
 };
 
 export const restoreRevenueCatPurchases = async (userId: number): Promise<CompletedPurchase | null> => {
@@ -720,7 +788,7 @@ export const getRevenueCatManagementUrl = async (userId: number): Promise<string
   }
 };
 
-export type RecordResult = 'recorded' | 'duplicate' | 'unmatched' | 'expired';
+export type RecordResult = 'recorded' | 'duplicate' | 'unmatched' | 'expired' | 'deferred';
 
 /**
  * Store a completed RevenueCat purchase locally for instant access, then push
@@ -769,11 +837,26 @@ export const recordCompletedPurchase = async (
   userId: number,
   purchase: CompletedPurchase,
 ): Promise<RecordResult> => {
+  // A deferred change has not happened yet, so there is nothing to write.
+  //
+  // Writing it anyway is actively destructive, and in two ways at once. The
+  // block below cancels the current row whenever the plan slug differs - but
+  // on a deferred change that row is the subscription still running, the one
+  // the customer is still paying for and still entitled to. And the new row
+  // it writes would carry the OLD expiry, so the cheaper plan the customer
+  // does not have yet would look active until a date that belongs to the plan
+  // they do. The gate, the paywall and every renewal check read those rows.
+  //
+  // The correct local state for a deferred change is the state already on
+  // disk. The switch is recorded when it actually takes effect, by the
+  // PRODUCT_CHANGE webhook and the sync that follows it.
+  if (purchase.deferred) return 'deferred';
+
   const plan = planByProductId(purchase.productId);
   if (!plan) return 'unmatched';
 
   const token = purchase.storeTransactionId
-    || `revenuecat:${purchase.revenuecatAppUserId}:${normalizeStoreProductId(purchase.productId)}`;
+    || `revenuecat:${purchase.revenuecatAppUserId}:${purchase.productId}`;
 
   // The same token coming back is NOT automatically the same event.
   // Resubscribing to a cancelled-but-still-running subscription restores the

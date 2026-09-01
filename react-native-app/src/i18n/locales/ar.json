@@ -317,6 +317,8 @@
     "subscribe": "اشترك",
     "subscriptionActivated": "تم تفعيل الاشتراك!",
     "switchStartsLater": "يبدأ عند انتهاء خطتك الحالية.",
+    "switchQueuedOn": "ستتغير خطتك إلى {{plan}} في {{date}}. لن يتم خصم أي مبلغ اليوم.",
+    "switchQueued": "ستتغير خطتك إلى {{plan}} عند انتهاء خطتك الحالية. لن يتم خصم أي مبلغ اليوم.",
     "switchStartsNow": "يبدأ الآن، مع احتساب رصيد وقتك غير المستخدم.",
     "switchToPlan": "التبديل إلى {{plan}}",
     "terms": "الشروط",

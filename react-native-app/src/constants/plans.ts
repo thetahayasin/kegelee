@@ -10,6 +10,13 @@ export interface PlanDef {
   currency: 'USD';
   interval: 'day' | 'week' | 'month' | 'year' | 'lifetime';
   interval_count: number;
+  /**
+   * The Play product id, exactly as the store reports it.
+   *
+   * All three plans are base plans of the single `premium_monthly`
+   * subscription, which is what makes the free trial once-per-account rather
+   * than once per plan: Play scopes trial eligibility to the subscription.
+   */
   store_product_id: string;
   revenuecat_package_id: string;
   is_featured: boolean;
@@ -31,7 +38,7 @@ export const PLANS: PlanDef[] = [
     currency: 'USD',
     interval: 'month',
     interval_count: 1,
-    store_product_id: 'premium_monthly',
+    store_product_id: 'premium_monthly:monthly',
     revenuecat_package_id: '$rc_monthly',
     is_featured: false,
     sort_order: 1,
@@ -44,7 +51,7 @@ export const PLANS: PlanDef[] = [
     interval_count: 3,
     // No hardcoded savings percentage: Play prices are localized per market,
     // so a fixed "Save 11%" can be plainly untrue outside the USD catalogue.
-    store_product_id: 'premium_quarterly',
+    store_product_id: 'premium_monthly:p3m',
     revenuecat_package_id: '$rc_three_month',
     is_featured: true,
     sort_order: 2,
@@ -55,7 +62,7 @@ export const PLANS: PlanDef[] = [
     currency: 'USD',
     interval: 'year',
     interval_count: 1,
-    store_product_id: 'premium_yearly',
+    store_product_id: 'premium_monthly:p1y',
     revenuecat_package_id: '$rc_annual',
     is_featured: false,
     sort_order: 3,
@@ -68,12 +75,29 @@ export const featuredPlan = (): PlanDef =>
 export const planBySlug = (slug: string | null | undefined): PlanDef | null =>
   PLANS.find((p) => p.slug === slug) ?? null;
 
-export const normalizeStoreProductId = (productId: string | null | undefined): string =>
-  (productId || '').split(':')[0];
+/**
+ * Resolve a store product id to a plan.
+ *
+ * Exact match, because the id IS the identifier. All three plans are base
+ * plans of one subscription, so the parent on its own (`premium_monthly`)
+ * names no plan and must not resolve to one - answering "monthly" for a
+ * yearly purchase would record a customer on a tenth of what they paid.
+ */
+/**
+ * The parent Play SUBSCRIPTION id, without the base plan.
+ *
+ * Only for Play's manage-subscription deep link, which addresses the
+ * subscription rather than the base plan and silently fails to resolve if
+ * given the full product id. It is not an identifier for a plan: all three
+ * plans share this value, which is the entire point of the catalogue.
+ */
+export const playSubscriptionId = (plan: PlanDef): string =>
+  plan.store_product_id.split(':')[0];
 
 export const planByProductId = (productId: string | null | undefined): PlanDef | null => {
-  const normalized = normalizeStoreProductId(productId);
-  return PLANS.find((p) => p.store_product_id === normalized) ?? null;
+  const raw = (productId || '').trim();
+  if (!raw) return null;
+  return PLANS.find((p) => p.store_product_id === raw) ?? null;
 };
 
 /**

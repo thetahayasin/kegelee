@@ -46,6 +46,7 @@ import {
   DEFERRED,
 } from '../../services/billing';
 import { syncNow } from '../../services/sync';
+import { formatSubscriptionDate } from '../../utils/localDate';
 import { Watermark } from '../../components/Watermark';
 
 /**
@@ -313,6 +314,26 @@ export const PaywallScreen = () => {
         } : undefined);
 
         const result = await recordCompletedPurchase(user.id, purchase);
+        // A deferred switch is done - it just has not started.
+        //
+        // Everything below this point is the "you now have access" path:
+        // opening the gate, and the auto-renewal notice for a plan that begins
+        // today. None of it applies. They already had access, they keep it on
+        // the plan they are already on, and they are charged nothing until
+        // that plan runs out. Saying exactly that IS the confirmation, so the
+        // handler ends here.
+        if (result === 'deferred') {
+          const endsOn = formatSubscriptionDate(current?.ends_at);
+          // 'info', the same tone as the other outcomes-that-are-not-errors.
+          setMessageTone('info');
+          setMessage(
+            t(endsOn ? 'paywall.switchQueuedOn' : 'paywall.switchQueued', {
+              plan: t(planNameKey(plan.slug)),
+              date: endsOn,
+            }),
+          );
+          return;
+        }
         if (result === 'unmatched') {
           setMessageTone('error');
           setMessage(t('paywall.purchaseReceivedButPlanCould'));

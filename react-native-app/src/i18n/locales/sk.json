@@ -317,6 +317,8 @@
     "subscribe": "Predplatiť",
     "subscriptionActivated": "Predplatné je aktívne!",
     "switchStartsLater": "Začne po skončení súčasného plánu.",
+    "switchQueuedOn": "Tvoj plán sa {{date}} zmení na {{plan}}. Dnes ti nič neúčtujeme.",
+    "switchQueued": "Tvoj plán sa zmení na {{plan}} po skončení súčasného plánu. Dnes ti nič neúčtujeme.",
     "switchStartsNow": "Začne hneď. Nevyužitý čas sa vám započíta.",
     "switchToPlan": "Prejsť na {{plan}}",
     "terms": "Podmienky",

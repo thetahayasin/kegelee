@@ -317,6 +317,8 @@
     "subscribe": "Abonează-te",
     "subscriptionActivated": "Abonament activat!",
     "switchStartsLater": "Începe când se termină planul tău actual.",
+    "switchQueuedOn": "Planul tău se schimbă în {{plan}} pe {{date}}. Azi nu ți se percepe nimic.",
+    "switchQueued": "Planul tău se schimbă în {{plan}} când se termină planul tău actual. Azi nu ți se percepe nimic.",
     "switchStartsNow": "Începe acum. Timpul nefolosit îți este creditat.",
     "switchToPlan": "Treci la {{plan}}",
     "terms": "Termeni",

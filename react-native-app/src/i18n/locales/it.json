@@ -317,6 +317,8 @@
     "subscribe": "Abbonati",
     "subscriptionActivated": "Abbonamento attivato!",
     "switchStartsLater": "Parte alla fine del tuo piano attuale.",
+    "switchQueuedOn": "Il tuo piano passa a {{plan}} il {{date}}. Oggi non ti viene addebitato nulla.",
+    "switchQueued": "Il tuo piano passa a {{plan}} alla fine del tuo piano attuale. Oggi non ti viene addebitato nulla.",
     "switchStartsNow": "Parte subito. Il tempo non usato ti viene accreditato.",
     "switchToPlan": "Passa a {{plan}}",
     "terms": "Termini",

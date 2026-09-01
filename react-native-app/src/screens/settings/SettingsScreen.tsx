@@ -27,7 +27,7 @@ import { LanguagePicker } from '../../components/LanguagePicker';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
 import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/queries';
-import { planBySlug } from '../../constants/plans';
+import { planBySlug, playSubscriptionId } from '../../constants/plans';
 import { getRevenueCatManagementUrl } from '../../services/billing';
 import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
@@ -139,7 +139,10 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
           // the deep link locally, so build it whenever we can and keep the
           // list as the last resort.
           const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
-          const sku = planBySlug(sub.plan_slug)?.store_product_id;
+          // The SUBSCRIPTION id, not the base plan: Play cannot resolve
+          // `premium_monthly:p3m` here and drops the user on the full list.
+          const plan = planBySlug(sub.plan_slug);
+          const sku = plan ? playSubscriptionId(plan) : undefined;
           setManageUrl(
             'https://play.google.com/store/account/subscriptions' +
               (sku && packageName ? `?sku=${sku}&package=${packageName}` : ''),

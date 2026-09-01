@@ -317,6 +317,8 @@
     "subscribe": "Subscribe",
     "subscriptionActivated": "Subscription activated!",
     "switchStartsLater": "Starts when your current plan ends.",
+    "switchQueuedOn": "Your plan changes to {{plan}} on {{date}}. Nothing is charged today.",
+    "switchQueued": "Your plan changes to {{plan}} when your current plan ends. Nothing is charged today.",
     "switchStartsNow": "Starts now. Your unused time is credited.",
     "switchToPlan": "Switch to {{plan}}",
     "terms": "Terms",

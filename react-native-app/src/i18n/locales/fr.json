@@ -317,6 +317,8 @@
     "subscribe": "S'abonner",
     "subscriptionActivated": "Abonnement activé !",
     "switchStartsLater": "Commence à la fin de votre formule actuelle.",
+    "switchQueuedOn": "Votre formule passe à {{plan}} le {{date}}. Rien ne vous est facturé aujourd’hui.",
+    "switchQueued": "Votre formule passe à {{plan}} à la fin de votre formule actuelle. Rien ne vous est facturé aujourd’hui.",
     "switchStartsNow": "Commence maintenant. Votre temps restant est crédité.",
     "switchToPlan": "Passer à {{plan}}",
     "terms": "Conditions",

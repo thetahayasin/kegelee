@@ -317,6 +317,8 @@
     "subscribe": "הרשמה למנוי",
     "subscriptionActivated": "המנוי הופעל!",
     "switchStartsLater": "מתחיל כשהתוכנית הנוכחית שלכם מסתיימת.",
+    "switchQueuedOn": "התוכנית שלכם תשתנה ל-{{plan}} בתאריך {{date}}. לא תחויבו היום.",
+    "switchQueued": "התוכנית שלכם תשתנה ל-{{plan}} כשהתוכנית הנוכחית שלכם תסתיים. לא תחויבו היום.",
     "switchStartsNow": "מתחיל עכשיו. הזמן שלא נוצל יזוכה לכם.",
     "switchToPlan": "מעבר ל{{plan}}",
     "terms": "תנאים",

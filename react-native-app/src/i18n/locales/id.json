@@ -317,6 +317,8 @@
     "subscribe": "Berlangganan",
     "subscriptionActivated": "Langganan aktif!",
     "switchStartsLater": "Mulai saat paketmu yang sekarang berakhir.",
+    "switchQueuedOn": "Paketmu berubah ke {{plan}} pada {{date}}. Kamu tidak ditagih hari ini.",
+    "switchQueued": "Paketmu berubah ke {{plan}} saat paketmu yang sekarang berakhir. Kamu tidak ditagih hari ini.",
     "switchStartsNow": "Mulai sekarang. Sisa waktumu dihitung sebagai kredit.",
     "switchToPlan": "Pindah ke {{plan}}",
     "terms": "Ketentuan",

@@ -317,6 +317,8 @@
     "subscribe": "Assinar",
     "subscriptionActivated": "Assinatura ativada!",
     "switchStartsLater": "Começa quando seu plano atual terminar.",
+    "switchQueuedOn": "Seu plano muda para {{plan}} em {{date}}. Nada é cobrado hoje.",
+    "switchQueued": "Seu plano muda para {{plan}} quando seu plano atual terminar. Nada é cobrado hoje.",
     "switchStartsNow": "Começa agora. Seu tempo não usado vira crédito.",
     "switchToPlan": "Mudar para {{plan}}",
     "terms": "Termos",

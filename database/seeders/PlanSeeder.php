@@ -23,7 +23,11 @@ class PlanSeeder extends Seeder
                 'interval' => 'month',
                 'interval_count' => 1,
                 'description' => 'Full access, billed monthly.',
-                'store_product_id' => 'premium_monthly',
+                // Verified against Play: the premium_monthly subscription
+                // carries base plans monthly (P1M), p3m (P3M) and p1y (P1Y),
+                // each with the same freetrial3d offer. One subscription is
+                // what gives an account ONE free trial, not one per plan.
+                'store_product_id' => 'premium_monthly:monthly',
                 'is_featured' => false,
                 'sort_order' => 1,
             ],
@@ -34,7 +38,7 @@ class PlanSeeder extends Seeder
                 'interval' => 'month',
                 'interval_count' => 3,
                 'description' => 'Save 11%, billed every 3 months.',
-                'store_product_id' => 'premium_quarterly',
+                'store_product_id' => 'premium_monthly:p3m',
                 'is_featured' => true,
                 'sort_order' => 2,
             ],
@@ -45,7 +49,7 @@ class PlanSeeder extends Seeder
                 'interval' => 'year',
                 'interval_count' => 1,
                 'description' => 'One payment for the whole year.',
-                'store_product_id' => 'premium_yearly',
+                'store_product_id' => 'premium_monthly:p1y',
                 'is_featured' => false,
                 'sort_order' => 3,
             ],

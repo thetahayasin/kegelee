@@ -317,6 +317,8 @@
     "subscribe": "Subskrybuj",
     "subscriptionActivated": "Subskrypcja aktywowana!",
     "switchStartsLater": "Zacznie się po zakończeniu bieżącego planu.",
+    "switchQueuedOn": "Twój plan zmieni się na {{plan}} {{date}}. Dziś nic nie pobieramy.",
+    "switchQueued": "Twój plan zmieni się na {{plan}} po zakończeniu bieżącego planu. Dziś nic nie pobieramy.",
     "switchStartsNow": "Zaczyna się teraz. Niewykorzystany czas zostanie zaliczony.",
     "switchToPlan": "Przejdź na {{plan}}",
     "terms": "Regulamin",

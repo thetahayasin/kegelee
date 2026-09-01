@@ -317,6 +317,8 @@
     "subscribe": "Abonner",
     "subscriptionActivated": "Abonnementet er aktivert!",
     "switchStartsLater": "Starter når den nåværende planen din utløper.",
+    "switchQueuedOn": "Planen din endres til {{plan}} den {{date}}. Du belastes ikke i dag.",
+    "switchQueued": "Planen din endres til {{plan}} når den nåværende planen din utløper. Du belastes ikke i dag.",
     "switchStartsNow": "Starter nå. Ubrukt tid blir godskrevet.",
     "switchToPlan": "Bytt til {{plan}}",
     "terms": "Vilkår",
