@@ -706,7 +706,10 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.white,
+    // Not COLORS.white. That token is primary TEXT - near-white in dark, near
+    // black in light - so filling a shape with it produced a black dot on the
+    // light theme. A status light should read as status in both.
+    backgroundColor: COLORS.success,
   },
   statusText: {
     fontSize: 14,
@@ -736,7 +739,13 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     backgroundColor: COLORS.accent,
   },
   dayToday: {
-    backgroundColor: COLORS.white,
+    // A ring, not a fill. Filled with COLORS.white this was a near-black
+    // bubble on the light theme carrying near-black type, so today's date was
+    // unreadable. A ring also keeps today distinct from a completed day, which
+    // is the solid accent fill above.
+    backgroundColor: COLORS.accentWash,
+    borderWidth: 2,
+    borderColor: COLORS.accent,
   },
   dayLabelText: {
     fontSize: 13,
@@ -749,7 +758,10 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     color: COLORS.onAccent,
   },
   dayTextToday: {
-    color: COLORS.onAccent,
+    // accentText, not onAccent: onAccent is for type sitting ON a solid accent
+    // fill. This bubble is a wash, so the label needs the readable-on-surface
+    // accent instead.
+    color: COLORS.accentText,
   },
 
   // Modal styling
