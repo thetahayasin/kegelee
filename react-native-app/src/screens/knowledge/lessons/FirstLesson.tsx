@@ -80,6 +80,16 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     setPlaying(false);
   };
 
+  // Leaving the lesson while the demo is playing has to stop it. stop() only
+  // runs on the pause control and at the end of a loop, so without this the
+  // interval outlives the screen.
+  useEffect(() => () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
   const play = (loop: boolean) => {
     stop();
     loopRef.current = loop;

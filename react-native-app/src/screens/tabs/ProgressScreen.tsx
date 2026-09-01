@@ -283,6 +283,16 @@ export const ProgressScreen = () => {
     }, 80);
   };
 
+  // The measure timer only stopped when the hold ENDED. Navigating away
+  // mid-hold - which the back button invites - left an 80ms interval running
+  // against an unmounted screen, setting state forever.
+  useEffect(() => () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
   const endMeasure = () => {
     if (!holding) return;
     setHolding(false);
