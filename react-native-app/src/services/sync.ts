@@ -217,12 +217,16 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       // until a pull confirms it - so it has to be safe to receive twice.
       ...(pendingOnboarding ? { onboarding: pendingOnboarding } : {}),
       workout_sessions: unsyncedSessions.map((s) => ({
+        // Fixed when the row was written, so a retried push is recognised as
+        // the same session rather than deduplicated by a timestamp guess.
+        client_id: s.client_id,
         exercise_slug: s.exercise_slug,
         duration_seconds: s.duration_seconds,
         completed_at_iso: s.completed_at,
         is_extra: s.is_extra === 1,
       })),
       measurements: unsyncedMeasurements.map((m) => ({
+        client_id: m.client_id,
         seconds: m.seconds,
         measured_at_iso: m.measured_at,
       })),

@@ -129,6 +129,7 @@ class OnboardingProfileSyncTest extends TestCase
         $this->assertSame('signed up', $this->user->refresh()->funnel_stage);
 
         $this->push(['workout_sessions' => [[
+            'client_id' => 'onboarding-session-1',
             'exercise_slug' => 'trembling',
             'duration_seconds' => 90,
             'completed_at_iso' => now()->toIso8601String(),

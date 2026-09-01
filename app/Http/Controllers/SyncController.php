@@ -154,10 +154,24 @@ class SyncController extends Controller
                 continue;
             }
 
-            // De-duplicate: skip if a session exists within ±5 seconds
+            // Identity, not a guess. The device stamps client_id when it
+            // WRITES the session, so a push that succeeded server-side and
+            // lost its reply arrives again carrying the same one.
+            //
+            // This replaces a +/-5 second window on completed_at, which was
+            // right in practice only because sessions are minutes apart: it
+            // could miss a real duplicate pushed slightly later, and could
+            // discard a genuine second session inside the window.
+            //
+            // A row with no key is dropped rather than guessed at. Clients
+            // that do not send one are not supported.
+            $clientId = trim((string) ($s['client_id'] ?? ''));
+            if ($clientId === '') {
+                continue;
+            }
+
             $exists = WorkoutSession::where('user_id', $user->id)
-                ->where('completed_at', '>=', $completedAt->copy()->subSeconds(5))
-                ->where('completed_at', '<=', $completedAt->copy()->addSeconds(5))
+                ->where('client_id', $clientId)
                 ->exists();
 
             if (! $exists) {
@@ -165,13 +179,14 @@ class SyncController extends Controller
                     ? Exercise::where('slug', $s['exercise_slug'])->first()
                     : null;
 
-                // Use the original client timestamp so subsequent pushes of the
-                // same session are correctly deduplicated by the ±5s window.
+                // The client's own timestamp, so the session lands on the
+                // day it was actually done rather than the day it synced.
                 $record = $progression->todayRecord($user, $completedAt);
                 $wasComplete = $record->completed_at !== null;
 
                 WorkoutSession::create([
                     'user_id'          => $user->id,
+                    'client_id'        => $clientId,
                     'exercise_id'      => $exercise?->id,
                     'level_id'         => $user->level_id,
                     'started_at'       => $completedAt->copy()->subSeconds($durationSeconds),
@@ -200,15 +215,21 @@ class SyncController extends Controller
                 continue;
             }
 
-            // De-duplicate
+            // Keyed on the client id the device stamped at write time, not
+            // on a timestamp window. See the sessions block above.
+            $clientId = trim((string) ($m['client_id'] ?? ''));
+            if ($clientId === '') {
+                continue;
+            }
+
             $exists = Measurement::where('user_id', $user->id)
-                ->where('measured_at', '>=', $measuredAt->copy()->subSeconds(5))
-                ->where('measured_at', '<=', $measuredAt->copy()->addSeconds(5))
+                ->where('client_id', $clientId)
                 ->exists();
 
             if (! $exists) {
                 Measurement::create([
                     'user_id'     => $user->id,
+                    'client_id'   => $clientId,
                     'seconds'     => $seconds,
                     'measured_at' => $measuredAt,
                 ]);

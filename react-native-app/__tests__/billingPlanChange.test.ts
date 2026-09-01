@@ -44,6 +44,7 @@ import {
   DEFERRED,
   WITH_TIME_PRORATION,
   WITHOUT_PRORATION,
+  CHARGE_PRORATED_PRICE,
   replacementModeFor,
   PURCHASE_NOT_ENTITLED,
   requestPlanPurchase,
@@ -159,13 +160,31 @@ describe('replacementModeFor', () => {
    * three are documented as valid, so these tests pin observed behaviour over
    * documented behaviour on purpose.
    */
-  it('uses the one mode Play accepts, in both directions', () => {
-    // Upgrades.
-    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITHOUT_PRORATION);
-    // Downgrades.
+  it('charges only the difference on an upgrade', () => {
+    // Longer period. The customer pays the difference for the time left and
+    // their renewal date does not move.
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(CHARGE_PRORATED_PRICE);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(CHARGE_PRORATED_PRICE);
+    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(CHARGE_PRORATED_PRICE);
+  });
+
+  it('keeps the paid period on a downgrade', () => {
+    // Shorter period. Nothing charged today; the cheaper price is taken when
+    // the old period would have renewed.
     expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
+  });
+
+  it('treats the same length as no change worth prorating', () => {
+    expect(replacementModeFor(3, 3)).toBe(WITHOUT_PRORATION);
+  });
+
+  it('falls back to the accepted mode when a period is unmeasurable', () => {
+    // Guessing toward the untested mode on incomplete information is the
+    // wrong way round.
+    expect(replacementModeFor(null, 3)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(3, null)).toBe(WITHOUT_PRORATION);
   });
 
   it('never sends a mode that was declined on a device', () => {
@@ -173,6 +192,8 @@ describe('replacementModeFor', () => {
       [1, 12], [12, 1], [3, 3], [null, 3], [3, null], [null, null],
     ];
 
+    // Both of these were declined by Play on this catalogue and reached the
+    // customer as their payment method being refused.
     for (const [next, current] of pairs) {
       const mode = replacementModeFor(next, current);
       expect(mode).not.toBe(DEFERRED);

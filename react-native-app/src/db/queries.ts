@@ -1,4 +1,5 @@
 import { getDBConnection } from './sqlite';
+import { newClientId } from '../utils/clientId';
 import { getLocalDateString } from '../utils/localDate';
 
 export interface DBUser {
@@ -16,6 +17,12 @@ export interface DBUser {
 
 export interface DBWorkoutSession {
   id?: number;
+  /**
+   * Stamped when the row is written, so a retried push is recognised as the
+   * same row rather than matched by a timestamp guess. Absent on rows that
+   * arrived from a pull: those are already on the server.
+   */
+  client_id?: string | null;
   user_id: number;
   exercise_id: number | null;
   exercise_slug: string | null;
@@ -29,6 +36,7 @@ export interface DBWorkoutSession {
 
 export interface DBMeasurement {
   id?: number;
+  client_id?: string | null;
   user_id: number;
   seconds: number;
   measured_at: string;
@@ -138,9 +146,10 @@ export const getWorkoutSessions = async (userId: number, limit = 200): Promise<D
 export const insertWorkoutSession = async (session: DBWorkoutSession): Promise<void> => {
   const db = await getDBConnection();
   await db.executeSql(
-    `INSERT INTO workout_sessions (user_id, exercise_id, exercise_slug, level_id, duration_seconds, is_extra, started_at, completed_at, synced)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO workout_sessions (client_id, user_id, exercise_id, exercise_slug, level_id, duration_seconds, is_extra, started_at, completed_at, synced)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
+      newClientId(),
       session.user_id,
       session.exercise_id,
       session.exercise_slug,
@@ -262,8 +271,8 @@ export const getMaxMeasurement = async (userId: number): Promise<number> => {
 export const insertMeasurement = async (userId: number, seconds: number, synced = 0): Promise<void> => {
   const db = await getDBConnection();
   await db.executeSql(
-    'INSERT INTO measurements (user_id, seconds, measured_at, synced) VALUES (?, ?, ?, ?)',
-    [userId, seconds, new Date().toISOString(), synced]
+    'INSERT INTO measurements (client_id, user_id, seconds, measured_at, synced) VALUES (?, ?, ?, ?, ?)',
+    [newClientId(), userId, seconds, new Date().toISOString(), synced]
   );
 };
 
@@ -657,9 +666,10 @@ export const recordCompletedSession = async (
   }
 
   await db.executeSql(
-    `INSERT INTO workout_sessions (user_id, exercise_id, exercise_slug, level_id, duration_seconds, is_extra, started_at, completed_at, synced)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+    `INSERT INTO workout_sessions (client_id, user_id, exercise_id, exercise_slug, level_id, duration_seconds, is_extra, started_at, completed_at, synced)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
     [
+      newClientId(),
       userId,
       null,
       exerciseSlug,

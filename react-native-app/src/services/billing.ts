@@ -50,6 +50,8 @@ export const DEFERRED =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.DEFERRED ?? 'DEFERRED';
 export const WITHOUT_PRORATION =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITHOUT_PRORATION ?? 'WITHOUT_PRORATION';
+export const CHARGE_PRORATED_PRICE =
+  (Purchases as any)?.STORE_REPLACEMENT_MODE?.CHARGE_PRORATED_PRICE ?? 'CHARGE_PRORATED_PRICE';
 
 // Real SDK types rather than `any`: this file decides who is entitled and what
 // gets charged, so it is the last place that should opt out of type checking.
@@ -773,28 +775,41 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
 /**
  * Which replacement mode Play should apply when moving between two plans.
  *
- * The same one, both directions, because it is the only one that works.
+ * Ranked by BILLING PERIOD, never by price. The yearly plan is the dearest in
+ * total and the cheapest per month, so both price rankings get the same pair
+ * wrong.
  *
- * Three were tried against a real device on this catalogue. DEFERRED was
- * declined. WITH_TIME_PRORATION was declined. WITHOUT_PRORATION succeeded.
- * Every one of them is documented as valid for a subscription replacement, so
- * this is not what the docs say - but the store is the authority on what the
- * store accepts, and a declined change reaches the customer as their payment
- * method being refused, which is both alarming and untrue.
+ * UPGRADE, to a longer period: CHARGE_PRORATED_PRICE. The customer pays only
+ * the difference for the time remaining and their renewal date does not move,
+ * which is what Google recommends for an upgrade and what an upgrade should
+ * feel like.
  *
- * The behaviour is also the kinder one. The new plan starts immediately,
- * nothing is charged today, and the new price is taken on the date the old
- * period would have renewed. In both directions nobody pays twice for the same
- * days and nobody waits for something they have already bought.
+ * DOWNGRADE, to a shorter period: WITHOUT_PRORATION. The plan moves now,
+ * nothing is charged today, and the cheaper price is taken on the date the old
+ * period would have renewed. No paid time is lost.
  *
- * Kept as a function, and still taking both periods, because the moment Play
- * accepts more than one mode this is the single place that decides. The
- * arguments are deliberately unused rather than removed.
+ * DEFERRED is the documented recommendation for a downgrade and is not used,
+ * because Play declined every one of them on this catalogue. WITH_TIME_PRORATION
+ * was declined too. Both reached the customer as their payment method being
+ * refused, which is alarming and untrue. Documentation describes what the modes
+ * mean; only the store decides which it will accept, and on three base plans of
+ * one subscription with three different billing periods it has accepted
+ * exactly one so far.
+ *
+ * CHARGE_PRORATED_PRICE is therefore the untested half of this. If Play
+ * declines it too, this function is the single line that needs changing.
  */
 export const replacementModeFor = (
-  _nextMonths: number | null,
-  _currentMonths: number | null,
-): string => WITHOUT_PRORATION;
+  nextMonths: number | null,
+  currentMonths: number | null,
+): string => {
+  // An unmeasurable period is treated as a downgrade here, because
+  // WITHOUT_PRORATION is the mode known to be accepted. Guessing toward the
+  // untested one on incomplete information is the wrong way round.
+  if (nextMonths === null || currentMonths === null) return WITHOUT_PRORATION;
+
+  return nextMonths > currentMonths ? CHARGE_PRORATED_PRICE : WITHOUT_PRORATION;
+};
 
 /**
  * Launch RevenueCat's purchase flow for a plan. For a plan switch, pass the

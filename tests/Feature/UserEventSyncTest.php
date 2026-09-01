@@ -123,6 +123,7 @@ class UserEventSyncTest extends TestCase
         $res = $this->push([
             'events' => [$this->event(['name' => 'nonsense'])],
             'workout_sessions' => [[
+                'client_id' => 'events-session-1',
                 'exercise_slug' => 'trembling',
                 'duration_seconds' => 90,
                 'completed_at_iso' => now()->toIso8601String(),

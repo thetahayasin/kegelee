@@ -9,6 +9,37 @@ export const getDBConnection = async () => {
   });
 };
 
+/**
+ * Add a column to a table that already exists, once.
+ *
+ * This app had no local migration path at all: initDB only ran CREATE TABLE IF
+ * NOT EXISTS, so a table already on disk was left exactly as it was and any
+ * new column silently never appeared. A schema change would work on a fresh
+ * install and quietly not on a real phone, which is the worst shape a bug can
+ * take - it passes every test you would think to write.
+ *
+ * PRAGMA table_info is the check because SQLite has no ADD COLUMN IF NOT
+ * EXISTS. Best effort throughout: failing to add a column must never stop the
+ * database opening, and a row without the key still syncs, it just falls back
+ * to the server's older matching.
+ */
+const ensureColumn = async (
+  db: any,
+  table: string,
+  column: string,
+  definition: string,
+): Promise<void> => {
+  try {
+    const [res] = await db.executeSql(`PRAGMA table_info(${table})`);
+    for (let i = 0; i < res.rows.length; i++) {
+      if (res.rows.item(i).name === column) return;
+    }
+    await db.executeSql(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  } catch {
+    // See above.
+  }
+};
+
 export const initDB = async () => {
   const db = await getDBConnection();
 
@@ -41,6 +72,7 @@ export const initDB = async () => {
       CREATE TABLE IF NOT EXISTS workout_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
+        client_id TEXT,
         exercise_id INTEGER,
         exercise_slug TEXT,
         level_id INTEGER,
@@ -69,6 +101,7 @@ export const initDB = async () => {
       CREATE TABLE IF NOT EXISTS measurements (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
+        client_id TEXT,
         seconds REAL,
         measured_at TEXT,
         synced INTEGER DEFAULT 0
@@ -205,4 +238,10 @@ export const initDB = async () => {
       VALUES ('haptics_default_off_applied', '1', 'bool');
     `);
   });
+
+  // Columns added after a table first shipped. CREATE TABLE IF NOT EXISTS
+  // above does nothing for an install that already has the table, so these are
+  // the only way an existing phone ever sees them.
+  await ensureColumn(db, 'workout_sessions', 'client_id', 'TEXT');
+  await ensureColumn(db, 'measurements', 'client_id', 'TEXT');
 };
