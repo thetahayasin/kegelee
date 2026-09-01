@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Zaten en kolay seviyedesin.",
     "alreadyHighestLevel": "Zaten en yüksek seviyedesin.",
+    "subscribeToChangeLevel": "Seviye yükseltmek veya düşürmek aboneliğin bir parçası. Planları görmek için dokun.",
     "continue": "Devam et",
     "extraSessionDone": "Ekstra seans tamamlandı!",
     "howWasThat": "Nasıldı?",

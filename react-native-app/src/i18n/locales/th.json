@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "คุณอยู่ที่ระดับง่ายที่สุดแล้ว",
     "alreadyHighestLevel": "คุณอยู่ที่ระดับสูงสุดแล้ว",
+    "subscribeToChangeLevel": "การเลื่อนระดับขึ้นหรือลงเป็นส่วนหนึ่งของการสมัครสมาชิก แตะเพื่อดูแผน",
     "continue": "ต่อไป",
     "extraSessionDone": "ทำเซสชันเพิ่มเสร็จแล้ว!",
     "howWasThat": "เป็นอย่างไรบ้าง?",

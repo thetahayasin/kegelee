@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "आप पहले से ही सबसे आसान स्तर पर हैं।",
     "alreadyHighestLevel": "आप पहले से ही सबसे ऊँचे स्तर पर हैं।",
+    "subscribeToChangeLevel": "लेवल ऊपर या नीचे करना सदस्यता का हिस्सा है. योजनाएं देखने के लिए टैप करें.",
     "continue": "जारी रखें",
     "extraSessionDone": "अतिरिक्त सत्र पूरा!",
     "howWasThat": "कैसा रहा?",

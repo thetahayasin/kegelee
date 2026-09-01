@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Kamu sudah berada di level termudah.",
     "alreadyHighestLevel": "Kamu sudah berada di level tertinggi.",
+    "subscribeToChangeLevel": "Naik atau turun level termasuk dalam langganan. Ketuk untuk melihat paket.",
     "continue": "Lanjut",
     "extraSessionDone": "Sesi tambahan selesai!",
     "howWasThat": "Bagaimana rasanya?",

@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Du bist bereits auf der leichtesten Stufe.",
     "alreadyHighestLevel": "Du bist bereits auf der höchsten Stufe.",
+    "subscribeToChangeLevel": "Eine Stufe hoch oder runter zu wechseln gehört zum Abo. Tippe, um die Pläne zu sehen.",
     "continue": "Weiter",
     "extraSessionDone": "Extra-Einheit geschafft!",
     "howWasThat": "Wie war das?",

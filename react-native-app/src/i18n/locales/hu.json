@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Már a legkönnyebb szinten vagy.",
     "alreadyHighestLevel": "Már a legmagasabb szinten vagy.",
+    "subscribeToChangeLevel": "A szintlépés fel vagy le az előfizetés része. Koppints a csomagokért.",
     "continue": "Tovább",
     "extraSessionDone": "Extra alkalom kész!",
     "howWasThat": "Milyen volt?",

@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "你已经在最简单的等级了。",
     "alreadyHighestLevel": "你已经在最高等级了。",
+    "subscribeToChangeLevel": "升级或降级难度属于订阅功能。点按查看方案。",
     "continue": "继续",
     "extraSessionDone": "额外训练完成！",
     "howWasThat": "感觉怎么样？",

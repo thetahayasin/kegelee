@@ -15,6 +15,7 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { track } from '../../services/events';
 import { Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { getDBConnection } from '../../db/sqlite';
@@ -67,6 +68,9 @@ export const WorkoutCompleteScreen = () => {
   const [calendarDays, setCalendarDays] = useState<any[]>([]);
   const [askFeedback, setAskFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  // Whether that message is the paywall one, which makes it a route rather
+  // than a note.
+  const [feedbackLocked, setFeedbackLocked] = useState(false);
 
   // Unlocks
   const [unlockedNow, setUnlockedNow] = useState<ExerciseDef[]>([]);
@@ -233,6 +237,27 @@ export const WorkoutCompleteScreen = () => {
 
   const handleFeedback = async (feedback: 'easy' | 'fine' | 'hard') => {
     if (!user) return;
+
+    /**
+     * Moving a level is part of the subscription.
+     *
+     * Profile's difficulty row is padlocked and routes to the plans, and this
+     * screen asked the same question every other session and just did it - so
+     * the paid control had a free door beside it, and a lapsed subscriber
+     * could still steer their difficulty from here.
+     *
+     * "Just right" stays open to everybody: it changes nothing, and taking the
+     * question away entirely would hide that levels exist at all.
+     */
+    if (!subscribed && feedback !== 'fine') {
+      track(user.id, 'lock_tapped', 'difficulty');
+      setFeedbackLocked(true);
+      setFeedbackMessage(t('workoutComplete.subscribeToChangeLevel'));
+      setAskFeedback(false);
+      return;
+    }
+
+    setFeedbackLocked(false);
     try {
       let nextLvl = user.level_id;
       let msg = '';
@@ -471,9 +496,20 @@ export const WorkoutCompleteScreen = () => {
 
         {/* Feedback Response Message */}
         {feedbackMessage && (
-          <View style={styles.feedbackBanner}>
-            <Text style={styles.feedbackBannerText}>{feedbackMessage}</Text>
-          </View>
+          feedbackLocked ? (
+            <TouchableOpacity
+              style={styles.feedbackBanner}
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Paywall')}
+            >
+              <Text style={styles.feedbackBannerText}>{feedbackMessage}</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.feedbackBanner}>
+              <Text style={styles.feedbackBannerText}>{feedbackMessage}</Text>
+            </View>
+          )
         )}
 
         {/* The reminder offer. One tap sets every day at the plan's own two

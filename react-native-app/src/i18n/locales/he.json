@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "אתה כבר ברמה הקלה ביותר.",
     "alreadyHighestLevel": "אתה כבר ברמה הגבוהה ביותר.",
+    "subscribeToChangeLevel": "מעבר רמה למעלה או למטה הוא חלק מהמנוי. הקישו כדי לראות את התוכניות.",
     "continue": "המשך",
     "extraSessionDone": "אימון נוסף הושלם!",
     "howWasThat": "איך היה?",

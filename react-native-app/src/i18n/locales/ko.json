@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "이미 가장 쉬운 레벨입니다.",
     "alreadyHighestLevel": "이미 가장 높은 레벨입니다.",
+    "subscribeToChangeLevel": "레벨을 올리거나 내리는 것은 구독 기능입니다. 탭해서 플랜을 확인하세요.",
     "continue": "계속",
     "extraSessionDone": "추가 세션 완료!",
     "howWasThat": "어떠셨나요?",

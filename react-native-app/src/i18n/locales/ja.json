@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "すでにいちばんやさしいレベルです。",
     "alreadyHighestLevel": "すでに最高レベルです。",
+    "subscribeToChangeLevel": "レベルの上げ下げはサブスクリプションの機能です。タップしてプランをご覧ください。",
     "continue": "続ける",
     "extraSessionDone": "追加セッション完了！",
     "howWasThat": "いかがでしたか？",

@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Už jsi na nejlehčí úrovni.",
     "alreadyHighestLevel": "Už jsi na nejvyšší úrovni.",
+    "subscribeToChangeLevel": "Posun o úroveň nahoru nebo dolů je součástí předplatného. Klepnutím zobrazíš plány.",
     "continue": "Pokračovat",
     "extraSessionDone": "Cvičení navíc hotovo!",
     "howWasThat": "Jaké to bylo?",

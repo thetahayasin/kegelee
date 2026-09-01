@@ -290,6 +290,44 @@ class RevenueCatWebhookController extends Controller
             'status'        => 'expired',
             'auto_renewing' => false,
         ]);
+
+        $this->resetLevelToOnboarding($sub);
+    }
+
+    /**
+     * Put a lapsed subscriber back on the level their quiz chose.
+     *
+     * Choosing a difficulty is part of the subscription, so someone who lapses
+     * keeps the level they picked while paying and has no way to leave it. That
+     * strands them on a level they may not want, with paying again as the only
+     * exit. The quiz level is where the app put them on its own judgement, and
+     * is where a free user would be, so it is the honest place to land.
+     *
+     * Only when the account has no other live subscription: a plan change can
+     * expire the old row while the new one is running, and dropping a paying
+     * customer's difficulty in the middle of that would be its own bug.
+     */
+    private function resetLevelToOnboarding(Subscription $sub): void
+    {
+        $user = $sub->user;
+        if (! $user || ! $user->onboarding_level) {
+            return;
+        }
+
+        if ($user->activeSubscription()) {
+            return;
+        }
+
+        if ((int) $user->level_id === (int) $user->onboarding_level) {
+            return;
+        }
+
+        $user->update(['level_id' => (int) $user->onboarding_level]);
+
+        Log::info('Level reset to the onboarding level after lapse', [
+            'user_id' => $user->id,
+            'level_id' => (int) $user->onboarding_level,
+        ]);
     }
 
     private function handleBillingIssue(array $event, ?Subscription $sub): void
@@ -446,6 +484,10 @@ class RevenueCatWebhookController extends Controller
             'ends_at'       => now(),
             'auto_renewing' => false,
         ]);
+
+        // Access is gone this instant, not at a period end, so the difficulty
+        // goes back with it.
+        $this->resetLevelToOnboarding($sub);
 
         try {
             Mail::to($sub->user)->send(new SubscriptionCanceledMail($sub->fresh()));

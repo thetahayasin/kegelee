@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Olet jo helpoimmalla tasolla.",
     "alreadyHighestLevel": "Olet jo korkeimmalla tasolla.",
+    "subscribeToChangeLevel": "Tason vaihtaminen ylös tai alas kuuluu tilaukseen. Katso tilaukset napauttamalla.",
     "continue": "Jatka",
     "extraSessionDone": "Ylimääräinen sessio suoritettu!",
     "howWasThat": "Miltä tuntui?",

@@ -638,6 +638,7 @@
   "workoutComplete": {
     "alreadyEasiestLevel": "Du är redan på den enklaste nivån.",
     "alreadyHighestLevel": "Du är redan på den högsta nivån.",
+    "subscribeToChangeLevel": "Att gå upp eller ner en nivå ingår i prenumerationen. Tryck för att se planerna.",
     "continue": "Fortsätt",
     "extraSessionDone": "Extrapass klart!",
     "howWasThat": "Hur kändes det?",
