@@ -150,39 +150,41 @@ describe('replacement modes', () => {
 describe('replacementModeFor', () => {
   const M = (p: typeof monthly) => planMonths(p);
 
-  it('credits unused time when moving to a longer plan', () => {
-    // Upgrade: start now, credit what is left, so nobody pays twice for the
-    // same days.
-    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITH_TIME_PRORATION);
-    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(WITH_TIME_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITH_TIME_PRORATION);
-  });
-
-  it('keeps the paid period when moving to a shorter plan', () => {
-    // Downgrade. NOT deferred: Play declined every one of those, which reached
-    // the customer as their payment method being refused. WITHOUT_PRORATION is
-    // Play's documented default and reaches the same outcome.
+  /**
+   * One mode, both directions, because it is the only one Play accepts here.
+   *
+   * DEFERRED and WITH_TIME_PRORATION were each tried against a real device on
+   * this catalogue and each was declined, which reaches the customer as their
+   * payment method being refused. Only WITHOUT_PRORATION went through. All
+   * three are documented as valid, so these tests pin observed behaviour over
+   * documented behaviour on purpose.
+   */
+  it('uses the one mode Play accepts, in both directions', () => {
+    // Upgrades.
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITHOUT_PRORATION);
+    // Downgrades.
     expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
   });
 
-  it('ranks by billing period, never by price', () => {
-    // The yearly is the cheapest per month and the dearest in total, so both
-    // price rankings give a wrong answer here. Twelve months beats one.
-    expect(yearly.price).toBeGreaterThan(monthly.price);
-    expect(replacementModeFor(12, 1)).toBe(WITH_TIME_PRORATION);
+  it('never sends a mode that was declined on a device', () => {
+    const pairs: Array<[number | null, number | null]> = [
+      [1, 12], [12, 1], [3, 3], [null, 3], [3, null], [null, null],
+    ];
+
+    for (const [next, current] of pairs) {
+      const mode = replacementModeFor(next, current);
+      expect(mode).not.toBe(DEFERRED);
+      expect(mode).not.toBe(WITH_TIME_PRORATION);
+    }
   });
 
-  it('treats the same length as no downgrade', () => {
-    expect(replacementModeFor(3, 3)).toBe(WITH_TIME_PRORATION);
-  });
-
-  it('treats an unmeasurable period as an upgrade', () => {
-    // Starting now with the old time credited never costs anybody days they
-    // paid for; deferring by mistake makes them wait for what they bought.
-    expect(replacementModeFor(null, 3)).toBe(WITH_TIME_PRORATION);
-    expect(replacementModeFor(3, null)).toBe(WITH_TIME_PRORATION);
+  it('is still a real mode name, not a deprecated numeric code', () => {
+    // Play rejects the number outright, and the rejection surfaces as a
+    // generic failure with nothing pointing back here.
+    expect(typeof WITHOUT_PRORATION).toBe('string');
+    expect(WITHOUT_PRORATION).toBe('WITHOUT_PRORATION');
   });
 });
 

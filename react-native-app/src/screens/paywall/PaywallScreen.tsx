@@ -221,9 +221,10 @@ export const PaywallScreen = () => {
     if (!from || from.slug === plan.slug || !subscriptionIsRenewing(activeSub)) {
       return null;
     }
-    return isLongerPlan(plan, from)
-      ? 'paywall.switchStartsNow'
-      : 'paywall.switchStartsLater';
+    // Both directions behave identically now: the plan moves immediately and
+    // the new price is taken when the old period would have renewed. One line
+    // describes both, and it is the reassuring half - no paid time is lost.
+    return 'paywall.switchStartsLater';
   };
 
   /**

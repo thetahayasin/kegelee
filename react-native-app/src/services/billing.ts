@@ -773,29 +773,28 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
 /**
  * Which replacement mode Play should apply when moving between two plans.
  *
- * Ranked by BILLING PERIOD, never by price. Price is not the ranking: a
- * discounted yearly sold below a quarterly would read as a downgrade, and
- * price-per-month is worse still, since the yearly is the cheapest per month
- * and would make every upgrade look like a downgrade.
+ * The same one, both directions, because it is the only one that works.
  *
- * A longer period is the upgrade: start it now and credit the unused time, so
- * nobody pays twice for the same days. A shorter period is the downgrade: keep
- * the period already paid for and charge the cheaper price at the next
- * renewal.
+ * Three were tried against a real device on this catalogue. DEFERRED was
+ * declined. WITH_TIME_PRORATION was declined. WITHOUT_PRORATION succeeded.
+ * Every one of them is documented as valid for a subscription replacement, so
+ * this is not what the docs say - but the store is the authority on what the
+ * store accepts, and a declined change reaches the customer as their payment
+ * method being refused, which is both alarming and untrue.
  *
- * The downgrade used to send DEFERRED, which is the same outcome on paper.
- * Play declined every one of them, which reached the customer as their payment
- * method being refused. WITHOUT_PRORATION is documented as Play's default
- * replacement behaviour and carries none of DEFERRED's restrictions.
+ * The behaviour is also the kinder one. The new plan starts immediately,
+ * nothing is charged today, and the new price is taken on the date the old
+ * period would have renewed. In both directions nobody pays twice for the same
+ * days and nobody waits for something they have already bought.
  *
- * An unknown period counts as an upgrade: starting immediately with the old
- * time credited never costs anybody days they paid for, whereas deferring by
- * mistake makes them wait for something they have already bought.
+ * Kept as a function, and still taking both periods, because the moment Play
+ * accepts more than one mode this is the single place that decides. The
+ * arguments are deliberately unused rather than removed.
  */
-export const replacementModeFor = (nextMonths: number | null, currentMonths: number | null): string => {
-  if (nextMonths === null || currentMonths === null) return WITH_TIME_PRORATION;
-  return nextMonths >= currentMonths ? WITH_TIME_PRORATION : WITHOUT_PRORATION;
-};
+export const replacementModeFor = (
+  _nextMonths: number | null,
+  _currentMonths: number | null,
+): string => WITHOUT_PRORATION;
 
 /**
  * Launch RevenueCat's purchase flow for a plan. For a plan switch, pass the
