@@ -492,20 +492,55 @@ export const getPlanPricing = async (
   return out;
 };
 
+/**
+ * Which plan this CustomerInfo actually describes.
+ *
+ * Asked in one place because getting it wrong is how a paying customer ends up
+ * recorded on the wrong plan, or on none. Android gives two partial answers and
+ * neither is reliable alone: the entitlement splits the product across
+ * `productIdentifier` and `productPlanIdentifier`, and the subscription map is
+ * keyed by the bare subscription with the base plan on the value. Either can
+ * arrive without its base plan half, and the bare parent names all three plans
+ * so it identifies none of them.
+ *
+ * Returns '' when nothing resolves, leaving the caller to fall back to the plan
+ * it asked to buy - which restore, by its nature, does not have.
+ */
+const ownedProductId = (customerInfo: CustomerInfo, entitlement: any): string => {
+  const fromEntitlement = entitlementProductId(entitlement);
+  if (planByProductId(fromEntitlement)) return fromEntitlement;
+
+  // Second source of truth. Prefer a live subscription; a lapsed one still
+  // present in the map must not decide the plan.
+  const subscriptions: Record<string, any> = customerInfo?.subscriptionsByProductIdentifier || {};
+  const entries = Object.entries(subscriptions);
+
+  for (const [key, sub] of entries) {
+    if (sub?.isActive === false) continue;
+    const joined = joinProductId(key, sub?.productPlanIdentifier);
+    if (planByProductId(joined)) return joined;
+  }
+
+  return fromEntitlement;
+};
+
 const completedFromCustomerInfo = (
   customerInfo: CustomerInfo,
   fallbackProductId?: string,
 ): CompletedPurchase | null => {
-  const entitlement = activeEntitlement(customerInfo, fallbackProductId);
+  // Match on the product when we can, but never let a failed match throw the
+  // entitlement away: the expiry, the renewal flag and the store transaction
+  // id all hang off it. Right after a purchase there is exactly one active
+  // premium entitlement, so falling back to it loses nothing.
+  const entitlement = activeEntitlement(customerInfo, fallbackProductId)
+    || activeEntitlement(customerInfo);
 
-  // Prefer whichever id actually names a plan. The entitlement is the more
-  // authoritative source, but if its base plan is missing it degrades to the
-  // bare parent, and the StoreProduct id from the purchase itself is then the
-  // better answer rather than recording nothing.
-  const fromEntitlement = entitlementProductId(entitlement);
-  const productId = (planByProductId(fromEntitlement) ? fromEntitlement : '')
+  // Prefer whichever id actually names a plan; only then the caller's
+  // fallback, which is the plan it asked to buy.
+  const owned = ownedProductId(customerInfo, entitlement);
+  const productId = (planByProductId(owned) ? owned : '')
     || fallbackProductId
-    || fromEntitlement;
+    || owned;
   if (!productId) return null;
 
   const subInfo = subscriptionInfoFor(customerInfo, productId);
@@ -834,9 +869,28 @@ export const requestPlanPurchase = async (
    */
   const deferred = productChangeInfo?.replacementMode === DEFERRED;
 
+  /**
+   * For an immediate purchase the fallback is the plan we were ASKED to buy.
+   *
+   * Not what the store reports. Android hands back the bare `premium_monthly`
+   * from both purchasePackage and the entitlement, and that names all three
+   * plans, so every id the store offers here resolves to nothing and the
+   * purchase lands as "plan could not be matched" despite having succeeded.
+   *
+   * The customer tapped a specific plan and we still hold it, so there is no
+   * need to ask. `productIdentifier` stays ahead of the package id only for
+   * the case where the store genuinely returns a fully qualified product.
+   *
+   * A deferred change passes no fallback at all: the entitlement legitimately
+   * describes the OLD plan there, which is the one still running.
+   */
+  const requestedProductId = planByProductId(productIdentifier)
+    ? productIdentifier
+    : plan.store_product_id;
+
   const completed = deferred
     ? completedFromCustomerInfo(customerInfo)
-    : completedFromCustomerInfo(customerInfo, productIdentifier || packageProductId(rcPackage));
+    : completedFromCustomerInfo(customerInfo, requestedProductId);
 
   /**
    * Success is "does this person hold premium now".

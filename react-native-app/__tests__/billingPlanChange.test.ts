@@ -46,6 +46,7 @@ import {
   PURCHASE_NOT_ENTITLED,
   requestPlanPurchase,
   recordCompletedPurchase,
+  restoreRevenueCatPurchases,
   describePurchaseFailure,
 } from '../src/services/billing';
 import { PLANS } from '../src/constants/plans';
@@ -149,7 +150,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     // is what is live, and stays live until it expires.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly:monthly',
+      productIdentifier: 'premium_monthly',
     });
 
     const purchase = await requestPlanPurchase(42, monthly, {
@@ -166,7 +167,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
   it('passes the change through to Play as a deferred replacement', async () => {
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly:monthly',
+      productIdentifier: 'premium_monthly',
     });
 
     await requestPlanPurchase(42, monthly, {
@@ -195,7 +196,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     // After an immediate proration upgrade the entitlement has moved to p1y.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly:p1y',
+      productIdentifier: 'premium_monthly',
     });
 
     await requestPlanPurchase(42, yearly, {
@@ -215,7 +216,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     (Purchases.getCustomerInfo as jest.Mock).mockRejectedValue(new Error('offline'));
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly:p1y',
+      productIdentifier: 'premium_monthly',
     });
 
     await requestPlanPurchase(42, yearly, {
@@ -238,7 +239,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     // question.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly:monthly',
+      productIdentifier: 'premium_monthly',
     });
 
     await expect(requestPlanPurchase(42, monthly)).resolves.toBeTruthy();
@@ -250,12 +251,146 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     // it must not invite a second payment.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: { originalAppUserId: '42', entitlements: { active: {}, all: {} } },
-      productIdentifier: 'premium_monthly:monthly',
+      productIdentifier: 'premium_monthly',
     });
 
     await expect(requestPlanPurchase(42, monthly)).rejects.toMatchObject({
       code: PURCHASE_NOT_ENTITLED,
     });
+  });
+});
+
+describe('the id Android actually returns', () => {
+  it('resolves the plan even though every id the store gives back is bare', async () => {
+    // Reproduces "purchase received but plan could not be matched" exactly.
+    //
+    // On Android BOTH purchasePackage and the entitlement report the bare
+    // `premium_monthly`. That names all three plans, so every id available
+    // from the store resolves to none of them. The plan the customer tapped
+    // is the authoritative answer, and we already hold it.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: {
+        originalAppUserId: '42',
+        entitlements: {
+          active: {
+            premium: {
+              // Bare, with no base plan field at all - the degraded shape.
+              productIdentifier: 'premium_monthly',
+              productPlanIdentifier: null,
+              expirationDate: '2027-01-01T00:00:00Z',
+              willRenew: true,
+              periodType: 'NORMAL',
+            },
+          },
+          all: {},
+        },
+        subscriptionsByProductIdentifier: {},
+      },
+      productIdentifier: 'premium_monthly',
+    });
+
+    const purchase = await requestPlanPurchase(42, quarterly);
+
+    expect(purchase.productId).toBe('premium_monthly:p3m');
+
+    const result = await recordCompletedPurchase(42, purchase);
+    expect(result).not.toBe('unmatched');
+  });
+
+  it('keeps the entitlement even when it does not match what was asked for', async () => {
+    // Looking the entitlement up by a non-matching product used to discard it
+    // entirely, taking the expiry and store transaction id with it.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:p1y'),
+      productIdentifier: 'premium_monthly',
+    });
+
+    const purchase = await requestPlanPurchase(42, monthly);
+
+    expect(purchase.endsAt).toBe('2027-01-01T00:00:00Z');
+    expect(purchase.storeTransactionId).toBe('GPA.TOKEN-1');
+  });
+});
+
+describe('restore', () => {
+  it('finds the plan from the subscription map when the entitlement omits it', async () => {
+    // Restore exists to discover what somebody owns, so unlike a purchase it
+    // has no plan to fall back on. When the entitlement arrives without its
+    // base plan half, the subscription map still carries it - and without
+    // reading that, restore fails with "plan could not be matched" for a
+    // customer who is genuinely subscribed.
+    (Purchases.restorePurchases as jest.Mock).mockResolvedValue({
+      originalAppUserId: '42',
+      entitlements: {
+        active: {
+          premium: {
+            productIdentifier: 'premium_monthly',
+            productPlanIdentifier: null,
+            expirationDate: '2027-01-01T00:00:00Z',
+            willRenew: true,
+            periodType: 'NORMAL',
+          },
+        },
+        all: {},
+      },
+      subscriptionsByProductIdentifier: {
+        premium_monthly: {
+          productPlanIdentifier: 'p1y',
+          isActive: true,
+          storeTransactionId: 'GPA.RESTORED',
+          expiresDate: '2027-01-01T00:00:00Z',
+          willRenew: true,
+          periodType: 'NORMAL',
+        },
+      },
+    });
+
+    const purchase = await restoreRevenueCatPurchases(42);
+
+    expect(purchase).not.toBeNull();
+    expect(purchase!.productId).toBe('premium_monthly:p1y');
+    expect(await recordCompletedPurchase(42, purchase!)).not.toBe('unmatched');
+  });
+
+  it('ignores a lapsed subscription when deciding the plan', async () => {
+    // A finished subscription still sits in the map. Letting it name the plan
+    // would record somebody on a plan they no longer hold.
+    (Purchases.restorePurchases as jest.Mock).mockResolvedValue({
+      originalAppUserId: '42',
+      entitlements: {
+        active: {
+          premium: {
+            productIdentifier: 'premium_monthly',
+            productPlanIdentifier: null,
+            expirationDate: '2027-01-01T00:00:00Z',
+            willRenew: true,
+            periodType: 'NORMAL',
+          },
+        },
+        all: {},
+      },
+      subscriptionsByProductIdentifier: {
+        premium_monthly: {
+          productPlanIdentifier: 'p1y',
+          isActive: true,
+          expiresDate: '2027-01-01T00:00:00Z',
+          willRenew: true,
+        },
+      },
+    });
+
+    const purchase = await restoreRevenueCatPurchases(42);
+    expect(purchase!.productId).toBe('premium_monthly:p1y');
+  });
+
+  it('returns null rather than a stale row when nothing is entitled', async () => {
+    (Purchases.restorePurchases as jest.Mock).mockResolvedValue({
+      originalAppUserId: '42',
+      entitlements: { active: {}, all: {} },
+      subscriptionsByProductIdentifier: {},
+    });
+
+    expect(await restoreRevenueCatPurchases(42)).toBeNull();
   });
 });
 
@@ -292,7 +427,7 @@ describe('the Android split product id', () => {
     // subscription names all three plans and so resolves to none.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly:p1y',
+      productIdentifier: 'premium_monthly',
     });
 
     const purchase = await requestPlanPurchase(42, yearly);
@@ -309,7 +444,7 @@ describe('the Android split product id', () => {
     // direct lookup on the joined id misses and the entry has to be rebuilt.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p3m'),
-      productIdentifier: 'premium_monthly:p3m',
+      productIdentifier: 'premium_monthly',
     });
 
     const purchase = await requestPlanPurchase(42, quarterly);
