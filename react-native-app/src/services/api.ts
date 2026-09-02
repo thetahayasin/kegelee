@@ -46,6 +46,21 @@ const request = async (endpoint: string, method: 'GET' | 'POST', body?: any) => 
     'Content-Type': 'application/json',
   };
 
+  // The language the UI is actually in, on every call.
+  //
+  // The backend sends three emails - password reset, email verification,
+  // account deletion - and had no way to know what language to write them in,
+  // so all three went out in English. A reset email is read by somebody who is
+  // already locked out; English on top of that is the wrong time to lose them.
+  //
+  // Sent as a header rather than in the reset body because it is true of every
+  // request, and because the reset endpoint takes an email address and nothing
+  // else - there is no signed-in user to have a stored language.
+  const language = i18n.resolvedLanguage || i18n.language;
+  if (language) {
+    headers['Accept-Language'] = language;
+  }
+
   if (activeToken) {
     headers['X-User-Token'] = activeToken;
   }

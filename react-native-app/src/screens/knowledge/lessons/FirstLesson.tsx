@@ -27,18 +27,31 @@ const CIRC = 2 * Math.PI * R;
 const GLOW = Math.round(SIZE * 1.7);
 const TREMBLING = getSteps('trembling', 10);
 const TOTAL = TREMBLING.reduce((s, x) => s + x.seconds, 0);
+/**
+ * Seconds elapsed at the END of each segment.
+ *
+ * The ring is aimed at one of these per segment rather than recomputed from
+ * whatever is left, so a slow frame cannot leave it short: every segment ends
+ * on an exact fraction of the whole.
+ */
+const CUM = TREMBLING.reduce<number[]>((acc, x) => {
+  acc.push((acc.length ? acc[acc.length - 1] : 0) + x.seconds);
+  return acc;
+}, []);
 
 // Hoisted to module scope: defining this inside FirstLesson made React see a
 // new component type on every render and remount the whole SVG subtree.
 // It only reads module-level constants, so it lifts out cleanly.
-const Ring = ({ offset }: { offset: number }) => {
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+const Ring = ({ offset }: { offset: Animated.AnimatedInterpolation<number> }) => {
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
   return (
     <Svg width={SIZE} height={SIZE} style={styles.ring} pointerEvents="none">
       <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke={COLORS.borderStrong} strokeWidth={TRACK} />
       {/* The accent, matching the session's ring - see WorkoutScreen. */}
-      <Circle
+      <AnimatedCircle
         cx={SIZE / 2}
         cy={SIZE / 2}
         r={R}
@@ -59,7 +72,9 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   const COLORS = useTheme();
   const { t } = useTranslation();
   const [i, setI] = useState(0);
-  const [remaining, setRemaining] = useState(TREMBLING[0].seconds);
+  // Whole seconds only. This is what the middle of the circle prints, and it
+  // is the only reason the timer needs to touch React at all now.
+  const [count, setCount] = useState(Math.ceil(TOTAL));
   const [playing, setPlaying] = useState(false);
   const [tried, setTried] = useState(false);
 
@@ -68,15 +83,58 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   const loopRef = useRef(false);
   const timerRef = useRef<any>(null);
   const lastTickAtRef = useRef(0);
+  const countRef = useRef(Math.ceil(TOTAL));
 
-  const glowScale = useRef(new Animated.Value(0.58)).current;
-  const glowOpacity = useRef(new Animated.Value(0.08)).current;
+  /** 0..1 across the whole demo. Drives the ring. */
+  const progress = useRef(new Animated.Value(0)).current;
+  /** 0..1 within the current segment: 1 fully contracted. Drives the glow. */
+  const intensity = useRef(new Animated.Value(0)).current;
+  /** Fades the whole glow out when the demo is not running. */
+  const active = useRef(new Animated.Value(0)).current;
+
+  /**
+   * Point the ring and the glow at where this segment ENDS, over exactly how
+   * long the segment lasts.
+   *
+   * Called once per segment from the timer, so the two can never disagree
+   * about which phase is showing, and nothing is recomputed per frame in JS -
+   * Animated interpolates both.
+   */
+  const aimAtSegment = (k: number) => {
+    const seg = TREMBLING[k];
+    if (!seg) return;
+
+    Animated.timing(progress, {
+      toValue: TOTAL > 0 ? CUM[k] / TOTAL : 0,
+      duration: seg.seconds * 1000,
+      easing: Easing.linear,
+      // strokeDashoffset is an SVG attribute; the native driver cannot carry
+      // it. Animated still writes it every frame, which is the part that was
+      // missing.
+      useNativeDriver: false,
+    }).start();
+
+    Animated.timing(intensity, {
+      toValue: seg.phase === 'contract' ? 1 : 0,
+      duration: seg.seconds * 1000,
+      // Smoothstep, the same shape the old per-tick `ease` applied, but now
+      // spread across the segment instead of restarted twenty times inside it.
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  };
 
   const stop = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    progress.stopAnimation();
+    intensity.stopAnimation();
+    Animated.parallel([
+      Animated.timing(intensity, { toValue: 0, duration: 150, useNativeDriver: true }),
+      Animated.timing(active, { toValue: 0, duration: 150, useNativeDriver: true }),
+    ]).start();
     setPlaying(false);
   };
 
@@ -88,16 +146,26 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, []);
+    progress.stopAnimation();
+    intensity.stopAnimation();
+    active.stopAnimation();
+  }, [progress, intensity, active]);
 
   const play = (loop: boolean) => {
     stop();
     loopRef.current = loop;
     iRef.current = 0;
     remRef.current = TREMBLING[0].seconds;
+    countRef.current = Math.ceil(TOTAL);
     setI(0);
-    setRemaining(TREMBLING[0].seconds);
+    setCount(Math.ceil(TOTAL));
     setPlaying(true);
+
+    progress.setValue(0);
+    intensity.setValue(0);
+    Animated.timing(active, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    aimAtSegment(0);
+
     lastTickAtRef.current = Date.now();
     timerRef.current = setInterval(() => {
       // Wall-clock step, matching the real session's timer.
@@ -119,7 +187,12 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           if (loopRef.current) {
             iRef.current = 0;
             remRef.current = TREMBLING[0].seconds;
+            progress.setValue(0);
           } else {
+            // Land the ring exactly full before stopping. stop() freezes the
+            // animation wherever the last frame left it, which is a hair short
+            // of the end and shows as a ring that never quite closes.
+            progress.setValue(1);
             stop();
             setTried(true);
             onFinished();
@@ -130,8 +203,20 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
           remRef.current = TREMBLING[iRef.current].seconds;
         }
         setI(iRef.current);
+        aimAtSegment(iRef.current);
       }
-      setRemaining(Math.max(0, remRef.current));
+
+      // The ring and the glow are already moving on their own. All that is
+      // left for React is the number in the middle, and only when it changes.
+      let rawRem = Math.max(0, remRef.current);
+      for (let k = iRef.current + 1; k < TREMBLING.length; k++) {
+        rawRem += TREMBLING[k].seconds;
+      }
+      const next = Math.max(0, Math.ceil(rawRem));
+      if (next !== countRef.current) {
+        countRef.current = next;
+        setCount(next);
+      }
     }, 50);
   };
 
@@ -155,43 +240,19 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     to: 0,
   };
 
-  const ease = (t: number) => {
-    const c = Math.max(0, Math.min(1, t));
-    return c * c * (3 - 2 * c);
-  };
+  // Same numbers the per-tick pursuit aimed at, read straight off `intensity`
+  // instead of recomputed in JS: 0.58..1 of scale, 0.08..1 of opacity, times
+  // `active` so a stopped demo fades the halo out completely.
+  const glowScale = intensity.interpolate({ inputRange: [0, 1], outputRange: [0.58, 1] });
+  const glowOpacity = Animated.multiply(
+    intensity.interpolate({ inputRange: [0, 1], outputRange: [0.08, 1] }),
+    active,
+  );
 
-  useEffect(() => {
-    if (!playing) {
-      Animated.parallel([
-        Animated.timing(glowScale, { toValue: 0.58, duration: 150, useNativeDriver: true }),
-        Animated.timing(glowOpacity, { toValue: 0, duration: 150, useNativeDriver: true }),
-      ]).start();
-      return;
-    }
-
-    const curStep = TREMBLING[i];
-    if (!curStep) return;
-
-    const total = curStep.seconds;
-    const progress = Math.max(0, Math.min(1, (total - remaining) / Math.max(0.001, total)));
-
-    let intensity = 0;
-    if (curStep.phase === 'contract') {
-      intensity = ease(progress);
-    } else {
-      intensity = 1 - ease(progress);
-    }
-
-    const targetScale = 0.58 + intensity * 0.42;
-    const targetOpacity = 0.08 + intensity * 0.92;
-
-    // 240ms eased pursuit (restarted every tick) so instant relax steps ease out
-    // instead of snapping - same low-pass treatment as the workout screen glow.
-    Animated.parallel([
-      Animated.timing(glowScale, { toValue: targetScale, duration: 240, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.timing(glowOpacity, { toValue: targetOpacity, duration: 240, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-    ]).start();
-  }, [remaining, playing, i, glowScale, glowOpacity]);
+  const ringOffset = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [CIRC, 0],
+  });
 
   const glowNode = (
     <Animated.View
@@ -223,12 +284,6 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     </Animated.View>
   );
 
-  let rawRem = remaining;
-  for (let k = i + 1; k < TREMBLING.length; k++) {
-    rawRem += TREMBLING[k].seconds;
-  }
-  const count = Math.max(0, Math.ceil(rawRem));
-  const pct = TOTAL > 0 ? Math.min(1, Math.max(0, (TOTAL - rawRem) / TOTAL)) : 0;
 
 
   // Step 0: static explainer circle
@@ -248,7 +303,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
         <View style={styles.circleWrapTop}>
           {glowNode}
           <View style={styles.circle}>
-            <Ring offset={CIRC * (1 - pct)} />
+            <Ring offset={ringOffset} />
             <View style={styles.circleCenter}>
               <Text style={styles.count}>{count}</Text>
               <Text style={styles.label}>{t(cur.labelKey)}</Text>
@@ -275,7 +330,7 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
       <View style={styles.circleWrapTop}>
         {glowNode}
         <View style={styles.circle}>
-          <Ring offset={CIRC * (1 - pct)} />
+          <Ring offset={ringOffset} />
           {!playing && !tried ? (
             <TouchableOpacity style={styles.startBtn} onPress={() => play(false)}>
               <Text style={styles.startBtnText}>{t('first.start')}</Text>
