@@ -160,16 +160,14 @@ describe('replacementModeFor', () => {
    * three are documented as valid, so these tests pin observed behaviour over
    * documented behaviour on purpose.
    */
-  it('prorates an upgrade and leaves a downgrade alone', () => {
-    // Upgrade: WITH_TIME_PRORATION, Google's recommendation, paired this time
-    // with the JOINED old product id - the one combination never tried on a
-    // device. Downgrade: WITHOUT_PRORATION, which is proven.
-    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITH_TIME_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITH_TIME_PRORATION);
-    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(WITH_TIME_PRORATION);
-
+  it('uses the one accepted mode in both directions', () => {
+    // Five combinations tried on a real device; exactly one is accepted.
+    // Google recommends two of the declined ones for precisely the
+    // transitions they were declined on, so this pins what the store does
+    // over what the docs say.
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
   });
 
@@ -190,6 +188,7 @@ describe('replacementModeFor', () => {
       const mode = replacementModeFor(next, current);
       expect(mode).not.toBe(DEFERRED);
       expect(mode).not.toBe(CHARGE_PRORATED_PRICE);
+      expect(mode).not.toBe(WITH_TIME_PRORATION);
     }
   });
 
@@ -481,12 +480,6 @@ describe('describePurchaseFailure', () => {
 });
 
 describe('the old product id sent to the store', () => {
-  it('sends the joined id when prorating', () => {
-    // RevenueCat's catalogue is keyed by the joined form, so a prorated change
-    // names the exact base plan being replaced.
-    expect(replacementModeFor(12, 1)).toBe(WITH_TIME_PRORATION);
-  });
-
   it('sends the bare subscription for the proven mode', async () => {
     (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
       infoEntitledTo('premium_monthly:p1y'),

@@ -775,50 +775,40 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
 /**
  * Which replacement mode Play should apply when moving between two plans.
  *
- * Ranked by BILLING PERIOD, never by price. The yearly plan is the dearest in
- * total and the cheapest per month, so both price rankings get the same pair
- * wrong.
+ * WITHOUT_PRORATION, both directions. FIVE combinations have now been tried
+ * against a real device on this catalogue and exactly one is accepted:
  *
- * WITHOUT_PRORATION, both directions, because it is the only mode Play accepts
- * on this catalogue. Four have now been tried against a real device:
+ *   joined old id + DEFERRED                declined
+ *   bare   old id + WITH_TIME_PRORATION     declined
+ *   bare   old id + CHARGE_PRORATED_PRICE   declined
+ *   joined old id + WITH_TIME_PRORATION     declined
+ *   bare   old id + WITHOUT_PRORATION       ACCEPTED
  *
- *   DEFERRED               declined
- *   WITH_TIME_PRORATION    declined
- *   CHARGE_PRORATED_PRICE  declined
- *   WITHOUT_PRORATION      accepted
+ * Google documents all four modes as valid and recommends two of the declined
+ * three for exactly the transitions they were declined on, so this pins
+ * observed behaviour over documented behaviour deliberately. A declined change
+ * reaches the customer as their payment method being refused, which is both
+ * alarming and untrue.
  *
- * Every one of those is documented as valid for a subscription replacement,
- * and Google recommends two of the declined three for exactly the transitions
- * they were declined on. So this pins observed behaviour over documented
- * behaviour deliberately: a declined change reaches the customer as their
- * payment method being refused, which is alarming and untrue.
+ * The one that works is also the only one that asks Play to compute nothing:
+ * no money moves today and the renewal date does not shift. Every declined
+ * mode needs either a prorated amount or a new date. That points at the test
+ * environment rather than the catalogue - licence-tester subscriptions renew
+ * every ten minutes, and prorating a period compressed to minutes may simply
+ * not be supported. If so these modes would work in production, and the only
+ * way to find out is a purchase from an account that is not a licence tester.
  *
- * The one that works is also the only one that neither takes money today nor
- * moves the renewal date. That is the likely reason, though not a proven one:
- * these are three base plans of ONE subscription with three different billing
- * periods, and switching base plans is more constrained than switching between
- * separate subscriptions. It is equally possible that proration simply does
- * not work against test purchases, whose billing periods are compressed to
- * minutes - which would make this a sandbox artifact rather than a real limit.
- * Distinguishing the two needs a purchase from an account that is not a
- * licence tester.
- *
- * The behaviour is defensible regardless. The plan changes immediately,
- * nothing is charged today, and the new price is taken on the date the old
- * period would have renewed. Nobody pays twice for the same days in either
- * direction, and nobody waits for what they have already bought.
+ * Not a bad outcome either way: the plan changes immediately, nothing is
+ * charged today, and the new price is taken when the old period would have
+ * renewed. Nobody pays twice for the same days in either direction.
  *
  * Both periods are still taken so this stays the single place that decides.
  */
 export const replacementModeFor = (
-  nextMonths: number | null,
-  currentMonths: number | null,
+  _nextMonths: number | null,
+  _currentMonths: number | null,
 ): string => {
-  // An unmeasurable period takes the proven mode. Guessing toward the one
-  // still under test, on incomplete information, is the wrong way round.
-  if (nextMonths === null || currentMonths === null) return WITHOUT_PRORATION;
-
-  return nextMonths > currentMonths ? WITH_TIME_PRORATION : WITHOUT_PRORATION;
+  return WITHOUT_PRORATION;
 };
 
 /**
