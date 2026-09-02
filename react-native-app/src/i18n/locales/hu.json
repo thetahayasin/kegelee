@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} nap van hátra",
     "daysSet_one": "{{count}} nap beállítva",
     "daysSet_other": "{{count}} nap beállítva",
+    "exactAlarmOffBody": "Emlékeztetők mentve. Az Android néhány perc késéssel kézbesítheti őket, amíg nem engedélyezed az ébresztőket és emlékeztetőket.",
     "failedToSaveReminders": "Nem sikerült menteni az emlékeztetőket.",
     "limitReachedBody": "Naponta legfeljebb 5 emlékeztetőt állíthatsz be.",
     "monthNumber": "{{number}}. hónap",

@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}}일 남음",
     "daysSet_one": "{{count}}일 설정됨",
     "daysSet_other": "{{count}}일 설정됨",
+    "exactAlarmOffBody": "알림을 저장했습니다. 알람 및 리마인더를 허용하기 전까지 Android가 몇 분 늦게 전달할 수 있습니다.",
     "failedToSaveReminders": "알림을 저장하지 못했습니다.",
     "limitReachedBody": "하루에 최대 5개의 알림을 설정할 수 있습니다.",
     "monthNumber": "{{number}}개월 차",

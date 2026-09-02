@@ -459,6 +459,7 @@
     "daysSet_one": "{{count}} jour défini",
     "daysSet_many": "{{count}} jours définis",
     "daysSet_other": "{{count}} jours définis",
+    "exactAlarmOffBody": "Rappels enregistrés. Android peut les envoyer avec quelques minutes de retard tant que vous n’autorisez pas les alarmes et rappels.",
     "failedToSaveReminders": "Impossible d’enregistrer les rappels.",
     "limitReachedBody": "Vous pouvez définir jusqu’à 5 rappels par jour.",
     "monthNumber": "Mois {{number}}",

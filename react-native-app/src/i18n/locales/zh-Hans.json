@@ -452,6 +452,7 @@
     "daysLeft_other": "还剩 {{count}} 天",
     "daysSet_one": "已设置 {{count}} 天",
     "daysSet_other": "已设置 {{count}} 天",
+    "exactAlarmOffBody": "提醒已保存。在你允许闹钟和提醒之前，Android 可能会延迟几分钟送达。",
     "failedToSaveReminders": "提醒保存失败。",
     "limitReachedBody": "每天最多可以设置 5 个提醒。",
     "monthNumber": "第 {{number}} 个月",

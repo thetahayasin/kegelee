@@ -466,6 +466,7 @@
     "daysSet_few": "Ustawiono {{count}} dni",
     "daysSet_many": "Ustawiono {{count}} dni",
     "daysSet_other": "Ustawiono {{count}} dni",
+    "exactAlarmOffBody": "Zapisano przypomnienia. Android może dostarczyć je kilka minut później, dopóki nie zezwolisz na alarmy i przypomnienia.",
     "failedToSaveReminders": "Nie udało się zapisać przypomnień.",
     "limitReachedBody": "Możesz ustawić do 5 przypomnień dziennie.",
     "monthNumber": "Miesiąc {{number}}",

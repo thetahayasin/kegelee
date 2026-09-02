@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} päivää jäljellä",
     "daysSet_one": "{{count}} päivä asetettu",
     "daysSet_other": "{{count}} päivää asetettu",
+    "exactAlarmOffBody": "Muistutukset tallennettu. Android voi toimittaa ne muutaman minuutin myöhässä, kunnes sallit herätykset ja muistutukset.",
     "failedToSaveReminders": "Muistutusten tallennus epäonnistui.",
     "limitReachedBody": "Voit asettaa enintään 5 muistutusta päivässä.",
     "monthNumber": "Kuukausi {{number}}",

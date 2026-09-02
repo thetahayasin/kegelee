@@ -459,6 +459,7 @@
     "daysSet_one": "{{count}} zi setată",
     "daysSet_few": "{{count}} zile setate",
     "daysSet_other": "{{count}} zile setate",
+    "exactAlarmOffBody": "Mementouri salvate. Android le poate livra cu câteva minute întârziere până când permiți alarmele și mementourile.",
     "failedToSaveReminders": "Nu am putut salva mementourile.",
     "limitReachedBody": "Poți seta până la 5 mementouri pe zi.",
     "monthNumber": "Luna {{number}}",

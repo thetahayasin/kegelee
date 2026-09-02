@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} gün kaldı",
     "daysSet_one": "{{count}} gün ayarlandı",
     "daysSet_other": "{{count}} gün ayarlandı",
+    "exactAlarmOffBody": "Hatırlatıcılar kaydedildi. Alarmlara ve hatırlatıcılara izin verene kadar Android bunları birkaç dakika geç iletebilir.",
     "failedToSaveReminders": "Hatırlatıcılar kaydedilemedi.",
     "limitReachedBody": "Günde en fazla 5 hatırlatıcı ayarlayabilirsin.",
     "monthNumber": "{{number}}. ay",

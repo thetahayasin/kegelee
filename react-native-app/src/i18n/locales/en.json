@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} days left",
     "daysSet_one": "{{count}} day set",
     "daysSet_other": "{{count}} days set",
+    "exactAlarmOffBody": "Reminders saved. Android may deliver them a few minutes late until you allow alarms and reminders.",
     "failedToSaveReminders": "Failed to save reminders.",
     "limitReachedBody": "You can set up to 5 reminder times per day.",
     "monthNumber": "Month {{number}}",

@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} दिन बाकी",
     "daysSet_one": "{{count}} दिन तय",
     "daysSet_other": "{{count}} दिन तय",
+    "exactAlarmOffBody": "रिमाइंडर सहेजे गए। जब तक आप अलार्म और रिमाइंडर की अनुमति नहीं देते, Android उन्हें कुछ मिनट देर से भेज सकता है।",
     "failedToSaveReminders": "रिमाइंडर सहेजे नहीं जा सके।",
     "limitReachedBody": "आप दिन में अधिकतम 5 रिमाइंडर सेट कर सकते हैं।",
     "monthNumber": "महीना {{number}}",

@@ -121,6 +121,26 @@ export const openNotificationSettings = async () => {
 };
 
 /**
+ * The "Alarms & reminders" special access screen, for this app.
+ *
+ * A different destination from openNotificationSettings above, and the two are
+ * not interchangeable: notifications control whether anything is delivered at
+ * all, this controls whether it is delivered ON TIME. An app can hold the
+ * first and still have its reminders shifted by minutes without the second.
+ *
+ * Only reachable because SCHEDULE_EXACT_ALARM is declared again. While it was
+ * stripped from the manifest this screen did not list the app at all, which is
+ * why the offer was removed from the Schedule tab.
+ */
+export const openExactAlarmSettings = async () => {
+  try {
+    await notifee.openAlarmPermissionSettings();
+  } catch (e) {
+    console.warn('Failed to open alarm permission settings', e);
+  }
+};
+
+/**
  * Schedules recurring weekly local notifications using Notifee for enabled reminders.
  *
  * Returns what actually happened rather than nothing. The whole body used to

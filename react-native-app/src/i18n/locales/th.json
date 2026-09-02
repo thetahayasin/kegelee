@@ -452,6 +452,7 @@
     "daysLeft_other": "เหลืออีก {{count}} วัน",
     "daysSet_one": "ตั้งไว้ {{count}} วัน",
     "daysSet_other": "ตั้งไว้ {{count}} วัน",
+    "exactAlarmOffBody": "บันทึกการแจ้งเตือนแล้ว Android อาจส่งช้าไปสองสามนาทีจนกว่าคุณจะอนุญาตการปลุกและการแจ้งเตือน",
     "failedToSaveReminders": "บันทึกการแจ้งเตือนไม่สำเร็จ",
     "limitReachedBody": "คุณตั้งการแจ้งเตือนได้สูงสุด 5 รายการต่อวัน",
     "monthNumber": "เดือนที่ {{number}}",

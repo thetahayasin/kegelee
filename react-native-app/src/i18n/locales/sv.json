@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} dagar kvar",
     "daysSet_one": "{{count}} dag inställd",
     "daysSet_other": "{{count}} dagar inställda",
+    "exactAlarmOffBody": "Påminnelser sparade. Android kan leverera dem några minuter för sent tills du tillåter alarm och påminnelser.",
     "failedToSaveReminders": "Kunde inte spara påminnelserna.",
     "limitReachedBody": "Du kan ställa in upp till 5 påminnelser per dag.",
     "monthNumber": "Månad {{number}}",

@@ -452,6 +452,7 @@
     "daysLeft_other": "noch {{count}} Tage",
     "daysSet_one": "{{count}} Tag festgelegt",
     "daysSet_other": "{{count}} Tage festgelegt",
+    "exactAlarmOffBody": "Erinnerungen gespeichert. Android kann sie einige Minuten später zustellen, bis du Wecker und Erinnerungen erlaubst.",
     "failedToSaveReminders": "Die Erinnerungen konnten nicht gespeichert werden.",
     "limitReachedBody": "Du kannst bis zu 5 Erinnerungszeiten pro Tag festlegen.",
     "monthNumber": "Monat {{number}}",

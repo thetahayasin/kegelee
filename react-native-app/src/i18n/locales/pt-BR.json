@@ -459,6 +459,7 @@
     "daysSet_one": "{{count}} dia definido",
     "daysSet_many": "{{count}} dias definidos",
     "daysSet_other": "{{count}} dias definidos",
+    "exactAlarmOffBody": "Lembretes salvos. O Android pode entregá-los alguns minutos atrasados até você permitir alarmes e lembretes.",
     "failedToSaveReminders": "Não foi possível salvar os lembretes.",
     "limitReachedBody": "Você pode definir até 5 lembretes por dia.",
     "monthNumber": "Mês {{number}}",

@@ -30,6 +30,8 @@ import {
   scheduleReminders,
   showTimePicker,
   openNotificationSettings,
+  openExactAlarmSettings,
+  isExactAlarmAllowed,
   dbWeekdayToJs,
   jsWeekdayToDb,
   ReminderConfig,
@@ -139,6 +141,7 @@ export const ScheduleScreen = () => {
     | 'saved'
     | 'remindersOff'
     | 'notificationsOff'
+    | 'exactAlarmOff'
     | 'timeLimit'
     | 'saveFailed'
     | null
@@ -303,18 +306,29 @@ export const ScheduleScreen = () => {
       // app cannot keep. Otherwise the only distinction left is whether any
       // day was actually picked.
       //
-      // There is no longer an exact-alarm branch. The app used to offer a
-      // route to the "Alarms & reminders" special access when it was not
-      // granted; that permission is gone from the manifest, so the offer would
-      // now send the reader to a setting this app does not appear in. The
-      // reminders arrive within a few minutes of the time either way, which
-      // for a twice-a-day habit prompt is not worth a screen of explanation.
+      // The exact-alarm branch is back, because SCHEDULE_EXACT_ALARM is
+      // declared again and this app now appears in "Alarms & reminders". It
+      // was removed while that permission was stripped, when the offer would
+      // have sent the reader to a screen they could not find us on.
+      //
+      // Ranked BELOW notifications and only shown when something was actually
+      // scheduled: without the permission the reminder still arrives, just
+      // minutes late, so this is a "could be better", not a failure. Nobody
+      // turning reminders off needs to hear about alarm precision.
+      const exactAlarmOff =
+        !turningOff &&
+        scheduleRes.permission !== 'denied' &&
+        reminderConfigs.length > 0 &&
+        !(await isExactAlarmAllowed().catch(() => true));
+
       setNotice(
         scheduleRes.permission === 'denied'
           ? 'notificationsOff'
           : turningOff
             ? 'remindersOff'
-            : 'saved',
+            : exactAlarmOff
+              ? 'exactAlarmOff'
+              : 'saved',
       );
     } catch (e) {
       console.error(e);
@@ -400,19 +414,24 @@ export const ScheduleScreen = () => {
               || notice === 'saveFailed'
               || notice === 'notificationsOff';
             const notificationsOff = notice === 'notificationsOff';
-            // The only notice that carries an action, so it is the only one
-            // not dismissed by a tap on the card itself.
-            const hasActions = notificationsOff;
+            // Not an error. The reminders were saved and will arrive; the
+            // permission only decides whether they arrive on the minute.
+            const exactAlarmOff = notice === 'exactAlarmOff';
+            // The two notices that carry an action, so the only two not
+            // dismissed by a tap on the card itself.
+            const hasActions = notificationsOff || exactAlarmOff;
             const text =
               notice === 'saved'
                 ? t('schedule.remindersSavedBody')
                 : notificationsOff
                   ? t('reminders.notificationsOffBody')
-                  : notice === 'remindersOff'
-                    ? t('schedule.remindersTurnedOffBody')
-                    : notice === 'timeLimit'
-                      ? t('schedule.limitReachedBody')
-                      : t('schedule.failedToSaveReminders');
+                  : exactAlarmOff
+                    ? t('schedule.exactAlarmOffBody')
+                    : notice === 'remindersOff'
+                      ? t('schedule.remindersTurnedOffBody')
+                      : notice === 'timeLimit'
+                        ? t('schedule.limitReachedBody')
+                        : t('schedule.failedToSaveReminders');
             return (
               <TouchableOpacity
                 style={styles.notice}
@@ -442,7 +461,12 @@ export const ScheduleScreen = () => {
                     <TouchableOpacity
                       style={styles.noticeActionBtn}
                       accessibilityRole="button"
-                      onPress={() => openNotificationSettings()}
+                      // Two different destinations. Sending someone chasing
+                      // late reminders to the notifications screen would show
+                      // them a permission they have already granted.
+                      onPress={() =>
+                        exactAlarmOff ? openExactAlarmSettings() : openNotificationSettings()
+                      }
                     >
                       <Text style={styles.noticeActionText}>
                         {t('schedule.openSettings')}

@@ -452,6 +452,7 @@
     "daysLeft_other": "còn {{count}} ngày",
     "daysSet_one": "Đã đặt {{count}} ngày",
     "daysSet_other": "Đã đặt {{count}} ngày",
+    "exactAlarmOffBody": "Đã lưu lời nhắc. Android có thể gửi trễ vài phút cho đến khi bạn cho phép báo thức và lời nhắc.",
     "failedToSaveReminders": "Không lưu được lời nhắc.",
     "limitReachedBody": "Bạn có thể đặt tối đa 5 lời nhắc mỗi ngày.",
     "monthNumber": "Tháng {{number}}",

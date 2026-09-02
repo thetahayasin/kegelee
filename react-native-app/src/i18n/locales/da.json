@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} dage tilbage",
     "daysSet_one": "{{count}} dag angivet",
     "daysSet_other": "{{count}} dage angivet",
+    "exactAlarmOffBody": "Påmindelser er gemt. Android kan levere dem et par minutter for sent, indtil du tillader alarmer og påmindelser.",
     "failedToSaveReminders": "Påmindelserne kunne ikke gemmes.",
     "limitReachedBody": "Du kan indstille op til 5 påmindelser om dagen.",
     "monthNumber": "Måned {{number}}",

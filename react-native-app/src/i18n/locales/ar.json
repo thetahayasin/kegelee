@@ -480,6 +480,7 @@
     "daysSet_few": "تم ضبط {{count}} أيام",
     "daysSet_many": "تم ضبط {{count}} يومًا",
     "daysSet_other": "تم ضبط {{count}} أيام",
+    "exactAlarmOffBody": "تم حفظ التذكيرات. قد يؤخّرها Android بضع دقائق إلى أن تسمح بالمنبهات والتذكيرات.",
     "failedToSaveReminders": "تعذّر حفظ التذكيرات.",
     "limitReachedBody": "يمكنك ضبط ما يصل إلى 5 تذكيرات يوميًا.",
     "monthNumber": "الشهر {{number}}",

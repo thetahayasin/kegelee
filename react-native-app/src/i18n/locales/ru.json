@@ -466,6 +466,7 @@
     "daysSet_few": "Задано {{count}} дня",
     "daysSet_many": "Задано {{count}} дней",
     "daysSet_other": "Задано {{count}} дней",
+    "exactAlarmOffBody": "Напоминания сохранены. Android может доставить их на несколько минут позже, пока вы не разрешите будильники и напоминания.",
     "failedToSaveReminders": "Не удалось сохранить напоминания.",
     "limitReachedBody": "Можно задать до 5 напоминаний в день.",
     "monthNumber": "Месяц {{number}}",

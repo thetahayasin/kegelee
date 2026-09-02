@@ -452,6 +452,7 @@
     "daysLeft_other": "tersisa {{count}} hari",
     "daysSet_one": "{{count}} hari diatur",
     "daysSet_other": "{{count}} hari diatur",
+    "exactAlarmOffBody": "Pengingat disimpan. Android mungkin mengirimkannya terlambat beberapa menit sampai kamu mengizinkan alarm dan pengingat.",
     "failedToSaveReminders": "Pengingat gagal disimpan.",
     "limitReachedBody": "Kamu bisa mengatur hingga 5 pengingat per hari.",
     "monthNumber": "Bulan {{number}}",

@@ -466,6 +466,7 @@
     "daysSet_few": "Nastavené {{count}} dni",
     "daysSet_many": "Nastavené {{count}} dňa",
     "daysSet_other": "Nastavených {{count}} dní",
+    "exactAlarmOffBody": "Pripomenutia sú uložené. Android ich môže doručiť o niekoľko minút neskôr, kým nepovolíte budíky a pripomenutia.",
     "failedToSaveReminders": "Pripomienky sa nepodarilo uložiť.",
     "limitReachedBody": "Môžeš nastaviť až 5 pripomienok denne.",
     "monthNumber": "Mesiac {{number}}",

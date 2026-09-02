@@ -452,6 +452,7 @@
     "daysLeft_other": "nog {{count}} dagen",
     "daysSet_one": "{{count}} dag ingesteld",
     "daysSet_other": "{{count}} dagen ingesteld",
+    "exactAlarmOffBody": "Herinneringen opgeslagen. Android kan ze een paar minuten later bezorgen totdat je wekkers en herinneringen toestaat.",
     "failedToSaveReminders": "Kon de herinneringen niet opslaan.",
     "limitReachedBody": "Je kunt maximaal 5 herinneringen per dag instellen.",
     "monthNumber": "Maand {{number}}",

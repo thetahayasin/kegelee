@@ -459,6 +459,7 @@
     "daysSet_one": "הוגדר {{count}} יום",
     "daysSet_two": "הוגדרו יומיים",
     "daysSet_other": "הוגדרו {{count}} ימים",
+    "exactAlarmOffBody": "התזכורות נשמרו. Android עשוי לשלוח אותן באיחור של כמה דקות עד שתאפשר התראות ותזכורות.",
     "failedToSaveReminders": "לא הצלחנו לשמור את התזכורות.",
     "limitReachedBody": "אפשר להגדיר עד 5 תזכורות ביום.",
     "monthNumber": "חודש {{number}}",

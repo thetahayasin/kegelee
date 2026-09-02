@@ -452,6 +452,7 @@
     "daysLeft_other": "{{count}} dager igjen",
     "daysSet_one": "{{count}} dag angitt",
     "daysSet_other": "{{count}} dager angitt",
+    "exactAlarmOffBody": "Påminnelser lagret. Android kan levere dem noen minutter for sent til du tillater alarmer og påminnelser.",
     "failedToSaveReminders": "Kunne ikke lagre påminnelsene.",
     "limitReachedBody": "Du kan sette opptil 5 påminnelser per dag.",
     "monthNumber": "Måned {{number}}",

@@ -459,6 +459,7 @@
     "daysSet_one": "{{count}} día configurado",
     "daysSet_many": "{{count}} días configurados",
     "daysSet_other": "{{count}} días configurados",
+    "exactAlarmOffBody": "Recordatorios guardados. Android puede entregarlos unos minutos tarde hasta que permitas alarmas y recordatorios.",
     "failedToSaveReminders": "No se pudieron guardar los recordatorios.",
     "limitReachedBody": "Puedes configurar hasta 5 recordatorios al día.",
     "monthNumber": "Mes {{number}}",

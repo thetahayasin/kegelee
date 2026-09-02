@@ -452,6 +452,7 @@
     "daysLeft_other": "残り {{count}} 日",
     "daysSet_one": "{{count}} 日設定済み",
     "daysSet_other": "{{count}} 日設定済み",
+    "exactAlarmOffBody": "リマインダーを保存しました。アラームとリマインダーを許可するまで、Android は数分遅れて通知することがあります。",
     "failedToSaveReminders": "リマインダーを保存できませんでした。",
     "limitReachedBody": "リマインダーは1日に5件まで設定できます。",
     "monthNumber": "{{number}}か月目",

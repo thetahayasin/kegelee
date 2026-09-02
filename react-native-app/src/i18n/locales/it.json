@@ -459,6 +459,7 @@
     "daysSet_one": "{{count}} giorno impostato",
     "daysSet_many": "{{count}} giorni impostati",
     "daysSet_other": "{{count}} giorni impostati",
+    "exactAlarmOffBody": "Promemoria salvati. Android potrebbe consegnarli con qualche minuto di ritardo finché non consenti sveglie e promemoria.",
     "failedToSaveReminders": "Impossibile salvare i promemoria.",
     "limitReachedBody": "Puoi impostare fino a 5 promemoria al giorno.",
     "monthNumber": "Mese {{number}}",

@@ -466,6 +466,7 @@
     "daysSet_few": "Задано {{count}} дні",
     "daysSet_many": "Задано {{count}} днів",
     "daysSet_other": "Задано {{count}} днів",
+    "exactAlarmOffBody": "Нагадування збережено. Android може доставити їх на кілька хвилин пізніше, доки ви не дозволите будильники та нагадування.",
     "failedToSaveReminders": "Не вдалося зберегти нагадування.",
     "limitReachedBody": "Можна задати до 5 нагадувань на день.",
     "monthNumber": "Місяць {{number}}",

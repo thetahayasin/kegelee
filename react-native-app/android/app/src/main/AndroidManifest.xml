@@ -17,13 +17,21 @@
       contributes on our behalf, and every one of them is a permission this app
       does not use and cannot justify to Play.
 
-      SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM: Play treats exact alarms as a
-      restricted capability - an app that declares either must be an alarm
-      clock or a calendar, submit a declaration form, and survive review. A
-      training reminder is neither, and it does not need to fire to the second:
-      Notifee falls back to an inexact alarm, which Android may shift by a few
-      minutes. That is a completely acceptable cost for a nudge to do a
-      two-minute exercise, and an unacceptable reason to risk the listing.
+      USE_EXACT_ALARM stays removed, and only that one. The two are not the
+      same permission and Play does not treat them alike:
+
+      USE_EXACT_ALARM is the restricted one. It grants itself with no user
+      involvement, and in exchange Play requires the app's core function to BE
+      an alarm clock or calendar, with a declaration form and review. A
+      training reminder is neither, so declaring it risks the listing.
+
+      SCHEDULE_EXACT_ALARM is declared below instead. It is user-grantable and
+      carries no declaration form: on Android 13+ it arrives denied and the
+      person turns it on themselves under "Alarms & reminders". That is the
+      honest trade - the reminder fires on the minute for anyone who asks for
+      it, and Play has nothing to review. isExactAlarmAllowed() already reads
+      the granted state and picks the alarm type from it, so a device where it
+      is off keeps the inexact behaviour rather than losing its reminders.
 
       FOREGROUND_SERVICE and the Notifee foreground service with it: nothing in
       this app runs work in the background. A declared foreground service that
@@ -34,7 +42,7 @@
       are not even grantable, and on older ones they show as "Photos and media"
       on the permission list, which is an alarming thing for this app to ask.
     -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
