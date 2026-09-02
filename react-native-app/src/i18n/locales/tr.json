@@ -320,7 +320,7 @@
     "switchStartsLater": "Ödediğin süre sende kalır. Yeni fiyat bir sonraki yenilemede başlar.",
     "switchQueuedOn": "Planın {{date}} tarihinde {{plan}} olarak değişecek. Bugün ücret alınmaz.",
     "switchQueued": "Planın, mevcut planın bittiğinde {{plan}} olarak değişecek. Bugün ücret alınmaz.",
-    "switchStartsNow": "Hemen başlar. Kullanmadığın süre mahsup edilir.",
+    "switchStartsNow": "Hemen başlar. Ücret bugün alınır ve kullanmadığın süre üstüne eklenir.",
     "switchToPlan": "{{plan}} planına geç",
     "terms": "Koşullar",
     "trialThenPrice_one": "{{count}} gün ücretsiz, sonra {{price}}. Deneme bitmeden iptal etmezsen otomatik yenilenir.",

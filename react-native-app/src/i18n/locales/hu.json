@@ -320,7 +320,7 @@
     "switchStartsLater": "A már kifizetett időszak megmarad. Az új ár a következő megújításkor lép életbe.",
     "switchQueuedOn": "A csomagod {{date}} napján {{plan}} csomagra vált. Ma nem számolunk fel semmit.",
     "switchQueued": "A csomagod {{plan}} csomagra vált, amikor a jelenlegi csomagod lejár. Ma nem számolunk fel semmit.",
-    "switchStartsNow": "Most indul. A fel nem használt időt jóváírjuk.",
+    "switchStartsNow": "Most indul. A díjat ma vonjuk le, a fel nem használt idő pedig hozzáadódik.",
     "switchToPlan": "Váltás erre: {{plan}}",
     "terms": "Feltételek",
     "trialThenPrice_one": "{{count}} nap ingyen, utána {{price}}. Automatikusan megújul, ha a próba vége előtt nem mondod le.",

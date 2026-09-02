@@ -320,7 +320,7 @@
     "switchStartsLater": "Păstrezi perioada deja plătită. Prețul nou se aplică de la următoarea reînnoire.",
     "switchQueuedOn": "Planul tău se schimbă în {{plan}} pe {{date}}. Azi nu ți se percepe nimic.",
     "switchQueued": "Planul tău se schimbă în {{plan}} când se termină planul tău actual. Azi nu ți se percepe nimic.",
-    "switchStartsNow": "Începe acum. Timpul nefolosit îți este creditat.",
+    "switchStartsNow": "Începe acum. Plata se face azi, iar timpul nefolosit se adaugă.",
     "switchToPlan": "Treci la {{plan}}",
     "terms": "Termeni",
     "trialThenPrice_one": "{{count}} zi gratuită, apoi {{price}}. Se reînnoiește automat dacă nu anulezi înainte de finalul perioadei de probă.",

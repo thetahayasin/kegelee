@@ -320,7 +320,7 @@
     "switchStartsLater": "이미 결제한 기간은 그대로 유지됩니다. 새 요금은 다음 갱신부터 적용됩니다.",
     "switchQueuedOn": "{{date}}에 플랜이 {{plan}}(으)로 변경됩니다. 오늘은 결제되지 않습니다.",
     "switchQueued": "현재 플랜이 끝나면 플랜이 {{plan}}(으)로 변경됩니다. 오늘은 결제되지 않습니다.",
-    "switchStartsNow": "바로 시작됩니다. 남은 기간은 차감해 드립니다.",
+    "switchStartsNow": "바로 시작됩니다. 오늘 결제되며, 남은 기간은 추가로 더해집니다.",
     "switchToPlan": "{{plan}}(으)로 변경",
     "terms": "이용약관",
     "trialThenPrice_one": "{{count}}일 무료, 이후 {{price}}. 체험 종료 전에 해지하지 않으면 자동 갱신됩니다.",

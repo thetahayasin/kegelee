@@ -320,7 +320,7 @@
     "switchStartsLater": "Você mantém o tempo que já pagou. O novo preço começa na próxima renovação.",
     "switchQueuedOn": "Seu plano muda para {{plan}} em {{date}}. Nada é cobrado hoje.",
     "switchQueued": "Seu plano muda para {{plan}} quando seu plano atual terminar. Nada é cobrado hoje.",
-    "switchStartsNow": "Começa agora. Seu tempo não usado vira crédito.",
+    "switchStartsNow": "Começa agora. A cobrança é hoje, e seu tempo não usado é somado.",
     "switchToPlan": "Mudar para {{plan}}",
     "terms": "Termos",
     "trialThenPrice_one": "{{count}} dia grátis, depois {{price}}. Renova automaticamente, a menos que você cancele antes do fim do teste.",

@@ -320,7 +320,7 @@
     "switchStartsLater": "Du beholder tiden du har betalt for. Den nye prisen gjelder fra neste fornyelse.",
     "switchQueuedOn": "Planen din endres til {{plan}} den {{date}}. Du belastes ikke i dag.",
     "switchQueued": "Planen din endres til {{plan}} når den nåværende planen din utløper. Du belastes ikke i dag.",
-    "switchStartsNow": "Starter nå. Ubrukt tid blir godskrevet.",
+    "switchStartsNow": "Starter nå. Du betaler i dag, og ubrukt tid legges til.",
     "switchToPlan": "Bytt til {{plan}}",
     "terms": "Vilkår",
     "trialThenPrice_one": "{{count}} dag gratis, deretter {{price}}. Fornyes automatisk med mindre du sier opp før prøveperioden er over.",

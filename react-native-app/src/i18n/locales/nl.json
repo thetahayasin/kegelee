@@ -320,7 +320,7 @@
     "switchStartsLater": "Je behoudt de tijd waarvoor je al betaald hebt. De nieuwe prijs geldt vanaf je volgende verlenging.",
     "switchQueuedOn": "Je abonnement wordt op {{date}} gewijzigd in {{plan}}. Vandaag wordt er niets in rekening gebracht.",
     "switchQueued": "Je abonnement wordt gewijzigd in {{plan}} wanneer je huidige abonnement afloopt. Vandaag wordt er niets in rekening gebracht.",
-    "switchStartsNow": "Begint nu. Je ongebruikte tijd wordt verrekend.",
+    "switchStartsNow": "Begint nu. Je betaalt vandaag en je ongebruikte tijd komt erbij.",
     "switchToPlan": "Overstappen naar {{plan}}",
     "terms": "Voorwaarden",
     "trialThenPrice_one": "{{count}} dag gratis, daarna {{price}}. Wordt automatisch verlengd tenzij je voor het einde van de proefperiode opzegt.",

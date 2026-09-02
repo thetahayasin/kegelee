@@ -793,22 +793,30 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
  * Google recommends for upgrades - both are wrong here, and a declined change
  * reaches the customer as their payment method being refused.
  *
- * WITHOUT_PRORATION in both directions is the deliberate choice between the
- * two legal ones. The plan changes immediately, nothing is charged that day,
- * and the new price is taken when the old period would have renewed - so
- * nobody pays twice for the same days going either way.
+ * UPGRADE: CHARGE_FULL_PRICE. Charged now for a full new cycle, with the
+ * unused time from the old plan credited on top, so nothing is lost. It also
+ * gives a real renewal date instead of inheriting the old plan's - which is
+ * what made a freshly bought 3-month plan display a renewal three minutes away.
  *
- * CHARGE_FULL_PRICE is the alternative for upgrades: charged on the spot for a
- * full new cycle, with the unused time from the old plan credited on top. It
- * bills sooner and is not worse for the customer, so it is a revenue decision
- * rather than a technical one. Change it here.
+ * UPGRADE WHILE ON A FREE TRIAL: WITHOUT_PRORATION. Charging today would end
+ * the trial early and take money from someone who was promised three free
+ * days. The plan changes immediately, the trial runs its course, and the new
+ * price applies when it would have renewed.
  *
- * Both periods are still taken so this stays the single place that decides.
+ * DOWNGRADE: WITHOUT_PRORATION. Charging full price to move to a cheaper plan
+ * would be indefensible.
  */
 export const replacementModeFor = (
   nextMonths: number | null,
   currentMonths: number | null,
+  isTrialing = false,
 ): string => {
+  // Never take money during a free trial, in either direction. Charging today
+  // would end the trial early and bill somebody who was promised three free
+  // days - so the plan moves now, the trial runs its course, and the new price
+  // applies when it would have renewed.
+  if (isTrialing) return WITHOUT_PRORATION;
+
   // An unknown length is not treated as an upgrade. Everywhere else in this
   // flow the safe default is to assume one, because the cost of guessing
   // wrong is making somebody wait. Here the cost is charging them a year on

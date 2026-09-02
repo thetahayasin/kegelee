@@ -320,7 +320,7 @@
     "switchStartsLater": "Opłacony okres zostaje. Nowa cena zacznie obowiązywać przy następnym odnowieniu.",
     "switchQueuedOn": "Twój plan zmieni się na {{plan}} {{date}}. Dziś nic nie pobieramy.",
     "switchQueued": "Twój plan zmieni się na {{plan}} po zakończeniu bieżącego planu. Dziś nic nie pobieramy.",
-    "switchStartsNow": "Zaczyna się teraz. Niewykorzystany czas zostanie zaliczony.",
+    "switchStartsNow": "Zaczyna się teraz. Płatność pobierzemy dziś, a niewykorzystany czas dodamy.",
     "switchToPlan": "Przejdź na {{plan}}",
     "terms": "Regulamin",
     "trialThenPrice_one": "{{count}} dzień za darmo, potem {{price}}. Odnawia się automatycznie, jeśli nie anulujesz przed końcem okresu próbnego.",

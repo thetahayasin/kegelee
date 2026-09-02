@@ -320,7 +320,7 @@
     "switchStartsLater": "Die bereits bezahlte Zeit bleibt dir. Der neue Preis gilt ab der nächsten Verlängerung.",
     "switchQueuedOn": "Dein Plan wechselt am {{date}} zu {{plan}}. Heute wird nichts berechnet.",
     "switchQueued": "Dein Plan wechselt zu {{plan}}, wenn dein aktueller Plan endet. Heute wird nichts berechnet.",
-    "switchStartsNow": "Beginnt sofort. Deine ungenutzte Zeit wird angerechnet.",
+    "switchStartsNow": "Beginnt sofort. Die Zahlung erfolgt heute, deine ungenutzte Zeit kommt obendrauf.",
     "switchToPlan": "Zu {{plan}} wechseln",
     "terms": "AGB",
     "trialThenPrice_one": "{{count}} Tag gratis, danach {{price}}. Verlängert sich automatisch, wenn du nicht vor Ende der Testphase kündigst.",

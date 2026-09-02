@@ -320,7 +320,7 @@
     "switchStartsLater": "支払い済みの期間はそのまま使えます。新しい料金は次回の更新から適用されます。",
     "switchQueuedOn": "{{date}}にプランが{{plan}}に変わります。本日の請求はありません。",
     "switchQueued": "現在のプランが終了すると、プランが{{plan}}に変わります。本日の請求はありません。",
-    "switchStartsNow": "すぐに開始します。未使用分は差し引かれます。",
+    "switchStartsNow": "すぐに開始します。本日お支払いいただき、未使用分は上乗せされます。",
     "switchToPlan": "{{plan}}に変更",
     "terms": "利用規約",
     "trialThenPrice_one": "{{count}}日間無料、その後 {{price}}。トライアル終了前に解約しない限り自動更新されます。",

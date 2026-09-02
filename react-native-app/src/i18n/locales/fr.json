@@ -320,7 +320,7 @@
     "switchStartsLater": "Vous gardez le temps déjà payé. Le nouveau tarif s'applique à votre prochain renouvellement.",
     "switchQueuedOn": "Votre formule passe à {{plan}} le {{date}}. Rien ne vous est facturé aujourd’hui.",
     "switchQueued": "Votre formule passe à {{plan}} à la fin de votre formule actuelle. Rien ne vous est facturé aujourd’hui.",
-    "switchStartsNow": "Commence maintenant. Votre temps restant est crédité.",
+    "switchStartsNow": "Commence maintenant. Le paiement a lieu aujourd'hui, et votre temps restant s'ajoute.",
     "switchToPlan": "Passer à {{plan}}",
     "terms": "Conditions",
     "trialThenPrice_one": "{{count}} jour gratuit, puis {{price}}. Renouvelé automatiquement sauf résiliation avant la fin de l'essai.",

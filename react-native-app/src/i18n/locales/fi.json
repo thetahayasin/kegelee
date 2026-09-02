@@ -320,7 +320,7 @@
     "switchStartsLater": "Maksamasi aika säilyy. Uusi hinta alkaa seuraavasta uusimisesta.",
     "switchQueuedOn": "Tilauksesi vaihtuu tilaukseen {{plan}} {{date}}. Sinulta ei veloiteta tänään mitään.",
     "switchQueued": "Tilauksesi vaihtuu tilaukseen {{plan}}, kun nykyinen tilauksesi päättyy. Sinulta ei veloiteta tänään mitään.",
-    "switchStartsNow": "Alkaa heti. Käyttämätön aika hyvitetään.",
+    "switchStartsNow": "Alkaa heti. Veloitus tapahtuu tänään, ja käyttämätön aika lisätään päälle.",
     "switchToPlan": "Vaihda tilaukseen {{plan}}",
     "terms": "Ehdot",
     "trialThenPrice_one": "{{count}} päivä ilmaiseksi, sitten {{price}}. Uusiutuu automaattisesti, ellet peruuta ennen jakson loppua.",

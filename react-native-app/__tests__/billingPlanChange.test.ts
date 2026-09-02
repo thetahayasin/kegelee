@@ -190,6 +190,23 @@ describe('replacementModeFor', () => {
     expect(replacementModeFor(null, null)).toBe(WITHOUT_PRORATION);
   });
 
+  it('takes nothing during a free trial, in either direction', () => {
+    // The trial is three free days that were promised. CHARGE_FULL_PRICE would
+    // bill on the spot and end the trial early - somebody moving up a plan on
+    // day one would pay for a year they thought they were still trying out.
+    expect(replacementModeFor(M(yearly), M(monthly), true)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(monthly), true)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(yearly), M(quarterly), true)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(monthly), M(yearly), true)).toBe(WITHOUT_PRORATION);
+  });
+
+  it('charges the upgrade once the trial is over', () => {
+    // Same pair, trial finished: the guard must not have quietly become the
+    // whole rule.
+    expect(replacementModeFor(M(yearly), M(monthly), false)).toBe(CHARGE_FULL_PRICE);
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(CHARGE_FULL_PRICE);
+  });
+
   it('never sends one of the three modes a device has already declined', () => {
     const pairs: Array<[number | null, number | null]> = [
       [1, 12], [12, 1], [3, 1], [1, 3], [12, 3], [3, 12],
@@ -197,10 +214,12 @@ describe('replacementModeFor', () => {
     ];
 
     for (const [next, current] of pairs) {
-      const mode = replacementModeFor(next, current);
-      expect(mode).not.toBe(DEFERRED);
-      expect(mode).not.toBe(CHARGE_PRORATED_PRICE);
-      expect(mode).not.toBe(WITH_TIME_PRORATION);
+      for (const trialing of [true, false]) {
+        const mode = replacementModeFor(next, current, trialing);
+        expect(mode).not.toBe(DEFERRED);
+        expect(mode).not.toBe(CHARGE_PRORATED_PRICE);
+        expect(mode).not.toBe(WITH_TIME_PRORATION);
+      }
     }
   });
 

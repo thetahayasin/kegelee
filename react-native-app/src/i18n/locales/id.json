@@ -320,7 +320,7 @@
     "switchStartsLater": "Waktu yang sudah kamu bayar tetap berlaku. Harga baru mulai pada perpanjangan berikutnya.",
     "switchQueuedOn": "Paketmu berubah ke {{plan}} pada {{date}}. Kamu tidak ditagih hari ini.",
     "switchQueued": "Paketmu berubah ke {{plan}} saat paketmu yang sekarang berakhir. Kamu tidak ditagih hari ini.",
-    "switchStartsNow": "Mulai sekarang. Sisa waktumu dihitung sebagai kredit.",
+    "switchStartsNow": "Mulai sekarang. Pembayaran ditagih hari ini, dan sisa waktumu ditambahkan.",
     "switchToPlan": "Pindah ke {{plan}}",
     "terms": "Ketentuan",
     "trialThenPrice_one": "Gratis {{count}} hari, lalu {{price}}. Diperpanjang otomatis kecuali kamu batalkan sebelum masa coba berakhir.",

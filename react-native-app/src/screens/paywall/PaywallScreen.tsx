@@ -71,6 +71,28 @@ const PREMIUM_BENEFIT_KEYS = [
   'paywall.benefitReminders',
 ] as const;
 
+/**
+ * Whether a subscription row is still inside its free trial.
+ *
+ * Two sources because either can be stale on its own. `status` is written from
+ * the store's periodType at purchase and only changes when something refreshes
+ * the row, so it can still read `trialing` after the trial converted - and it
+ * can read `active` on a row that arrived from the backend mid-trial.
+ * `trial_ends_at` is a date and settles the second case.
+ *
+ * Both errors point the same way on purpose: this decides whether a plan change
+ * is allowed to take money today, so an unsure answer is a yes, and the worst
+ * case is a charge that waits until the next renewal instead of one that
+ * surprises somebody.
+ */
+const stillOnTrial = (sub: DBSubscription | null): boolean => {
+  if (!sub) return false;
+  if (String(sub.status || '').toLowerCase() === 'trialing') return true;
+
+  const ends = sub.trial_ends_at ? Date.parse(sub.trial_ends_at) : NaN;
+  return Number.isFinite(ends) && ends > Date.now();
+};
+
 export const PaywallScreen = () => {
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
@@ -216,7 +238,11 @@ export const PaywallScreen = () => {
      * one line claiming both directions behaved identically. A notice that
      * contradicts what Play then does is worse than no notice at all.
      */
-    return replacementModeFor(planMonths(plan), planMonths(from)) === CHARGE_FULL_PRICE
+    return replacementModeFor(
+      planMonths(plan),
+      planMonths(from),
+      stillOnTrial(activeSub),
+    ) === CHARGE_FULL_PRICE
       ? 'paywall.switchStartsNow'
       : 'paywall.switchStartsLater';
   };
@@ -300,9 +326,14 @@ export const PaywallScreen = () => {
          * they have already paid for. Length is also the one input that cannot
          * drift with a sale or a currency.
          */
+        // Mid-trial switches must not be charged: see replacementModeFor.
         const purchase = await requestPlanPurchase(user.id, plan, switching ? {
           oldProductId: currentPlan.store_product_id,
-          replacementMode: replacementModeFor(planMonths(plan), planMonths(currentPlan)),
+          replacementMode: replacementModeFor(
+            planMonths(plan),
+            planMonths(currentPlan),
+            stillOnTrial(current),
+          ),
         } : undefined);
 
         const result = await recordCompletedPurchase(user.id, purchase);

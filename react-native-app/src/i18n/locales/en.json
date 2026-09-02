@@ -320,7 +320,7 @@
     "switchStartsLater": "You keep the time you have paid for. The new price starts at your next renewal.",
     "switchQueuedOn": "Your plan changes to {{plan}} on {{date}}. Nothing is charged today.",
     "switchQueued": "Your plan changes to {{plan}} when your current plan ends. Nothing is charged today.",
-    "switchStartsNow": "Starts now. Your unused time is credited.",
+    "switchStartsNow": "Starts now. You are charged today, and your unused time is added on top.",
     "switchToPlan": "Switch to {{plan}}",
     "terms": "Terms",
     "trialThenPrice_one": "{{count}}-day free trial, then {{price}}. Renews automatically unless you cancel before the trial ends.",
