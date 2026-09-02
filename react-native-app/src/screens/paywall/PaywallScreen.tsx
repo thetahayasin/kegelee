@@ -238,11 +238,12 @@ export const PaywallScreen = () => {
      * one line claiming both directions behaved identically. A notice that
      * contradicts what Play then does is worse than no notice at all.
      */
-    return replacementModeFor(
-      planMonths(plan),
-      planMonths(from),
-      stillOnTrial(activeSub),
-    ) === CHARGE_FULL_PRICE
+    // A trial switch behaves like the deferred case - nothing is taken today -
+    // but "you keep the time you have paid for" describes money a trial user
+    // never spent, on the one screen where every sentence is about money.
+    if (stillOnTrial(activeSub)) return 'paywall.switchDuringTrial';
+
+    return replacementModeFor(planMonths(plan), planMonths(from)) === CHARGE_FULL_PRICE
       ? 'paywall.switchStartsNow'
       : 'paywall.switchStartsLater';
   };
