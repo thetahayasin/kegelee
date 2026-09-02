@@ -54,6 +54,10 @@
                 @foreach (\App\Models\Page::where('is_published', true)->orderBy('sort_order')->get() as $p)
                     <a href="{{ route('page.show', $p) }}" class="hover:text-content transition-colors">{{ $p->title }}</a>
                 @endforeach
+                {{-- Not a Page row: Play requires account deletion to be
+                     reachable from the site, so it cannot be something an
+                     admin can unpublish by accident. --}}
+                <a href="{{ route('account.delete') }}" class="hover:text-content transition-colors">Delete account</a>
             </nav>
             <p class="text-xs text-muted/60">&copy; {{ date('Y') }} {{ $settings->get('app_name') }}. All rights reserved.</p>
         </div>

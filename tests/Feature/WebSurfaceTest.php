@@ -22,6 +22,7 @@ class WebSurfaceTest extends TestCase
     {
         $this->get('/')->assertOk();
         $this->get('/legal')->assertOk();
+        $this->get('/delete-account')->assertOk();
         $this->get('/up')->assertOk();
     }
 

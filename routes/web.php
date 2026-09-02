@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\AccountDeletionController;
+use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\AdminMaintenanceController;
 use App\Http\Controllers\AssetLinksController;
+use App\Http\Controllers\DeployController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GooglePlayWebhookController;
 use App\Http\Controllers\LandingController;
@@ -17,9 +20,10 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | The training app is the React Native client in react-native-app/. The web
-| serves four things and nothing else: the marketing homepage, the legal
-| pages Google Play links to, the admin panel at /mystic, and the API the
-| app talks to (routes/api.php).
+| serves five things and nothing else: the marketing homepage, the legal
+| pages Google Play links to, the account-deletion page Play requires to work
+| without the app, the admin panel at /mystic, and the API the app talks to
+| (routes/api.php).
 |
 */
 
@@ -57,7 +61,7 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 // prefetch, what proxies cache and what ends up in a link. The key travels in
 // the Authorization header rather than the query string, which is logged by
 // every web server on the way.
-Route::post('/deploy', \App\Http\Controllers\DeployController::class)
+Route::post('/deploy', DeployController::class)
     ->middleware('throttle:6,1')
     ->name('deploy');
 
@@ -78,6 +82,29 @@ Route::get('/', LandingController::class)->name('landing');
 // the Google Play listing links straight at these URLs.
 Route::view('/legal', 'legal.index')->name('legal.index');
 Route::get('/p/{page:slug}', PageShow::class)->name('page.show');
+
+/*
+|--------------------------------------------------------------------------
+| Public (no auth): account deletion
+|--------------------------------------------------------------------------
+|
+| The URL declared in the Play Console's Data safety section. It has to work
+| for somebody who has already uninstalled the app, so it cannot sit behind a
+| session or a device token - the in-app screen (POST /api/v1/user/delete)
+| covers people who still have the app, and this covers everybody else.
+|
+| Both POSTs share the 'delete-code' limiter, so mailing codes and guessing
+| them draw on one budget per address rather than one each.
+|
+*/
+Route::get('/delete-account', [AccountDeletionController::class, 'show'])->name('account.delete');
+Route::post('/delete-account/code', [AccountDeletionController::class, 'sendCode'])
+    ->middleware('throttle:delete-code')
+    ->name('account.delete.code');
+Route::post('/delete-account', [AccountDeletionController::class, 'destroy'])
+    ->middleware('throttle:delete-code')
+    ->name('account.delete.destroy');
+Route::view('/delete-account/done', 'account.deleted')->name('account.deleted');
 
 /*
 |--------------------------------------------------------------------------
@@ -150,7 +177,7 @@ Route::prefix('mystic')->name('admin.')->group(function () {
             Route::get('engagement', Admin\Reports\Engagement::class)->name('engagement');
 
             // The rows behind any of the above, as a spreadsheet.
-            Route::get('export/{report}', [\App\Http\Controllers\Admin\ReportExportController::class, 'download'])
+            Route::get('export/{report}', [ReportExportController::class, 'download'])
                 ->name('export');
         });
 
