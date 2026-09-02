@@ -14,8 +14,54 @@ class Subscription extends Model
         'started_at'    => 'datetime',
         'ends_at'       => 'datetime',
         'canceled_at'   => 'datetime',
+        'last_event_at' => 'datetime',
+        'grace_period_ends_at' => 'datetime',
         'auto_renewing' => 'boolean',
     ];
+
+    /**
+     * The account identifier we hand Google Play at purchase time.
+     *
+     * Play echoes it back on every purchase resource as
+     * obfuscatedExternalAccountId, which is the only way to attribute a
+     * purchase token this server has never seen to an account. It is an HMAC
+     * rather than the raw id so the value is useless to anyone who intercepts
+     * it, and stable so the same user always produces the same string.
+     */
+    public static function obfuscatedAccountIdFor(int $userId): string
+    {
+        return hash_hmac('sha256', (string) $userId, (string) config('app.key'));
+    }
+
+    /**
+     * Reverse an obfuscated account id back to a user.
+     *
+     * An HMAC cannot be inverted, so this compares against every account. That
+     * is only acceptable because it is reached solely for a purchase token we
+     * have no row for, which is rare by definition.
+     */
+    public static function userIdFromObfuscatedAccountId(string $obfuscated): ?int
+    {
+        if (trim($obfuscated) === '') {
+            return null;
+        }
+
+        $match = null;
+
+        User::query()->select('id')->orderBy('id')->chunk(500, function ($users) use ($obfuscated, &$match) {
+            foreach ($users as $user) {
+                if (hash_equals(self::obfuscatedAccountIdFor((int) $user->id), $obfuscated)) {
+                    $match = (int) $user->id;
+
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        return $match;
+    }
 
     public function user(): BelongsTo
     {
@@ -68,6 +114,10 @@ class Subscription extends Model
             // Auto-renew off, or a payment being retried: paid through the end
             // of the period either way.
             'canceled', 'past_due' => $this->ends_at !== null && $this->ends_at->isFuture(),
+            // Play has suspended billing in both of these. Spelled out rather
+            // than left to `default` so nobody reads the omission as an
+            // oversight and "fixes" it into an entitlement.
+            'paused', 'on_hold' => false,
             default => false,
         };
     }

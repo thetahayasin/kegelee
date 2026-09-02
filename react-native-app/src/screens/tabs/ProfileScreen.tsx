@@ -30,6 +30,7 @@ import {
   SilencedReason,
 } from '../../services/vibration';
 import Svg, { Path, Rect } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { track } from '../../services/events';
 
 export const ProfileScreen = () => {
@@ -81,7 +82,7 @@ export const ProfileScreen = () => {
     // turning it off is always allowed, so somebody who lapses is never stuck
     // with a buzzing phone they cannot switch off.
     if (next && !subscribed) {
-      navigation.navigate('Paywall');
+      navigation.navigate('Paywall', { source: 'settings' });
       return;
     }
     // Optimistic: the switch must move under the finger, not after a DB write.
@@ -123,20 +124,41 @@ export const ProfileScreen = () => {
 
   const handleSelectLevel = async (levelNumber: number) => {
     setUpdatingLevel(true);
+    // Only a real move. Re-picking the level you are already on is a closed
+    // modal, not a change, and counting it would put a flat line in the middle
+    // of the up/down split.
+    if (levelNumber !== user.level_id) {
+      // detail 'picker': the same event is written by the post-session
+      // feedback and by the server's lapse reset, and only the detail
+      // separates "they chose this" from "the app chose it for them".
+      track(user.id, 'level_changed', levelNumber > user.level_id ? 'up' : 'down', 'picker', {
+        from: user.level_id,
+        to: levelNumber,
+      });
+    }
     try {
-      // 1. Update auth context and SQLite locally
+      // The local write is the one that has to succeed. It updates the auth
+      // context and SQLite, and it is what the rest of the app reads.
       await updateUserFields({ level_id: levelNumber });
-
-      // 2. Trigger instant push sync to backend so server knows about the change immediately
-      await syncNow(user.id);
-
       setLevelModalVisible(false);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to change level', e);
       Alert.alert(t('profile.errorTitle'), t('profile.failedToUpdateLevel'));
-    } finally {
       setUpdatingLevel(false);
+      return;
     }
+    setUpdatingLevel(false);
+
+    // Outside the try, and not awaited for the purposes of the alert.
+    //
+    // The push was inside it, so a failed sync - which offline guarantees -
+    // raised "Failed to update level" over a change that had in fact been
+    // saved locally and would be pushed by the next sync anyway. The reader
+    // was told their choice had not taken when it had, and the modal stayed
+    // open on top of it.
+    syncNow(user.id).catch((e) => {
+      console.warn('Level change will be pushed on the next sync', e);
+    });
   };
 
   return (
@@ -194,16 +216,14 @@ export const ProfileScreen = () => {
                   return;
                 }
                 track(user?.id, 'lock_tapped', 'difficulty');
-                navigation.navigate('Paywall');
+                navigation.navigate('Paywall', { source: 'difficulty' });
               }}
             >
               <Text style={styles.menuLabel}>{t('profile.difficulty')}</Text>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>{t(levelNameKey(currentLevel.number))}</Text>
                 {subscribed ? (
-                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                    <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </Svg>
+                  <Chevron color={COLORS.textMuted} />
                 ) : (
                   <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                     <Rect x={5} y={11} width={14} height={9} rx={2} stroke={COLORS.accentText} strokeWidth={1.8} />
@@ -221,9 +241,7 @@ export const ProfileScreen = () => {
               onPress={() => navigation.navigate('Schedule')}
             >
               <Text style={styles.menuLabel}>{t('profile.scheduleReminders')}</Text>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
+              <Chevron color={COLORS.textMuted} />
             </TouchableOpacity>
 
             {/* A row, not a link: the whole point is that it is one tap. */}
@@ -295,11 +313,12 @@ export const ProfileScreen = () => {
           <View style={styles.levelHeader}>
             <TouchableOpacity
               style={styles.levelBackBtn}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.back')}
               onPress={() => setLevelModalVisible(false)}
             >
-              <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-                <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
+              <Chevron direction="back" size={24} color={COLORS.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -309,13 +328,25 @@ export const ProfileScreen = () => {
               <Text style={styles.levelPageSubtitle}>{t('profile.theHigherTheLevelThe')}</Text>
             </View>
 
-            <View style={styles.levelList}>
+            {/* One difficulty out of five, which is a radio group. The rows
+                drew a radio mark and announced nothing about it, so a screen
+                reader met five buttons with no indication that they were
+                alternatives or which one was in force. */}
+            <View style={styles.levelList} accessibilityRole="radiogroup">
               {Object.values(LEVELS).map((lvl) => {
                 const selected = lvl.number === user.level_id;
                 return (
                   <TouchableOpacity
                     key={lvl.number}
                     style={[styles.levelRow, selected ? styles.levelRowSelected : styles.levelRowIdle]}
+                    accessibilityRole="radio"
+                    accessibilityState={{
+                      selected,
+                      checked: selected,
+                      disabled: updatingLevel,
+                      busy: updatingLevel && selected,
+                    }}
+                    accessibilityLabel={t(levelNameKey(lvl.number))}
                     onPress={() => handleSelectLevel(lvl.number)}
                     disabled={updatingLevel}
                     activeOpacity={0.85}

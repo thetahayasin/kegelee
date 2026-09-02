@@ -1,10 +1,13 @@
+import { Linking } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   GoogleSignin,
   isErrorWithCode,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { api } from './api';
+import { api, getWebBaseUrl } from './api';
 import { getAppSetting, saveAppSetting } from '../db/queries';
+import { reportError } from './errors';
 
 /**
  * Fully native Google sign-in (the system account picker - no browser).
@@ -54,7 +57,23 @@ const resolveWebClientId = async (): Promise<string | null> => {
 export type NativeGoogleResult =
   | { status: 'success'; idToken: string }
   | { status: 'cancelled' }
-  | { status: 'unavailable'; reason: string };
+  | { status: 'unavailable'; reason: string }
+  /**
+   * The native picker cannot work in THIS build, and never will until someone
+   * fixes the Cloud console.
+   *
+   * Google's DEVELOPER_ERROR (code 10) means the Android OAuth client does not
+   * match the app that is asking: wrong SHA-1, wrong package name, or a client
+   * created in a different project than the web client whose id we send. It
+   * was being folded in with 'unavailable', which is the bucket for a device
+   * that legitimately cannot do native sign-in - so a release signed with the
+   * wrong key looked exactly like a phone without Play Services, and every
+   * user silently fell through to the browser instead of anyone finding out.
+   *
+   * Callers should treat it as 'unavailable' (fall back to the browser flow) -
+   * the difference is that this one is logged as an error, because it is one.
+   */
+  | { status: 'misconfigured'; reason: string };
 
 export const nativeGoogleSignIn = async (): Promise<NativeGoogleResult> => {
   const webClientId = await resolveWebClientId();
@@ -99,14 +118,87 @@ export const nativeGoogleSignIn = async (): Promise<NativeGoogleResult> => {
     if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
       return { status: 'cancelled' };
     }
-    // Surfaced in adb logcat / metro. Code 10 (DEVELOPER_ERROR) = the Android
-    // OAuth client doesn't match this build: wrong SHA-1, wrong package, or
-    // created in a different Cloud project than the web client.
+    const reason =
+      (isErrorWithCode(error) && String(error.code)) || error?.message || 'unknown';
+
+    // DEVELOPER_ERROR is reported as code 10 by the Android SDK. The constant
+    // is read through an index because it is Android-only and the library's
+    // cross-platform type does not declare it; the literal 10 is the fallback,
+    // and is the part Google's own documentation guarantees.
+    const developerErrorCode = (statusCodes as Record<string, unknown>).DEVELOPER_ERROR;
+    const developerError =
+      isErrorWithCode(error) &&
+      ((developerErrorCode !== undefined && error.code === developerErrorCode) ||
+        String(error.code) === '10');
+
+    if (developerError) {
+      reportError(
+        new Error(`Google native sign-in is misconfigured for this build (code ${reason})`),
+        'googleAuth:developer-error',
+      );
+      return { status: 'misconfigured', reason };
+    }
+
+    // Surfaced in adb logcat / metro.
     console.warn('[googleAuth] native sign-in failed', error?.code, error?.message);
-    return {
-      status: 'unavailable',
-      reason: (isErrorWithCode(error) && String(error.code)) || error?.message || 'unknown',
-    };
+    return { status: 'unavailable', reason };
+  }
+};
+
+/**
+ * Where the one-time value that ties a browser sign-in to THIS app lives.
+ *
+ * The Custom-Tab flow comes back through a deeplink carrying a token that
+ * establishes a session. Any app on the device can register the same
+ * `kegelee://` scheme and any web page can navigate to it, so on its own that
+ * deeplink is "here is a session, please sign in as it" from an unauthenticated
+ * source. Generating a value before opening the browser and requiring the
+ * callback to carry it back means the app only accepts a redirect that answers
+ * a sign-in IT started.
+ */
+const GOOGLE_STATE_KEY = '@google_oauth_state';
+
+/**
+ * Not a cryptographic nonce, and it does not need to be.
+ *
+ * There is no CSPRNG wired into this app. What this value has to do is be
+ * unguessable by a page that wants to hand us a session - and it is
+ * short-lived, single-use, and never leaves the device except in the URL the
+ * user's own browser was sent to.
+ */
+const newNonce = (): string =>
+  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}-${Math.random()
+    .toString(36)
+    .slice(2, 12)}`;
+
+/**
+ * Open the browser (Custom Tab) Google flow, remembering who asked.
+ *
+ * The nonce is written BEFORE the browser opens, because the callback can
+ * arrive before this promise's caller resumes - a redirect that lands with
+ * nothing stored would be rejected as unsolicited.
+ */
+export const openGoogleBrowserSignIn = async (): Promise<void> => {
+  const nonce = newNonce();
+  try {
+    await AsyncStorage.setItem(GOOGLE_STATE_KEY, nonce);
+  } catch {}
+  await Linking.openURL(
+    `${getWebBaseUrl()}/auth/google/native?state=${encodeURIComponent(nonce)}`,
+  );
+};
+
+/**
+ * Read and clear the pending nonce. Single use: a redirect replayed a second
+ * time finds nothing waiting and is refused.
+ */
+export const consumeGoogleNonce = async (): Promise<string | null> => {
+  try {
+    const stored = await AsyncStorage.getItem(GOOGLE_STATE_KEY);
+    await AsyncStorage.removeItem(GOOGLE_STATE_KEY).catch(() => {});
+    return stored;
+  } catch {
+    return null;
   }
 };
 

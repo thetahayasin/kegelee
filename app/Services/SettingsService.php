@@ -50,6 +50,16 @@ class SettingsService
             // Progression rules (sessions-per-day, plan length) and the offline
             // sync interval are baked into the app - see App\Support\AppConfig.
 
+            // How many training days a free account may complete.
+            //
+            // Mirrors FREE_DAY_CAP in the app (react-native-app/src/constants/
+            // catalogues.ts), which is "exactly enough to unlock the third free
+            // exercise and not one more". A setting rather than a constant so
+            // the free tier can be widened for a promotion without a release -
+            // but the app carries its own copy, so changing it here only takes
+            // effect on the backend until the app is rebuilt.
+            'free_day_cap' => 1,
+
             // App access
             'app_enabled' => true,
 
@@ -155,6 +165,33 @@ class SettingsService
             ['key' => $key],
             ['value' => $this->castIn($value, $type), 'type' => $type, 'group' => $group],
         );
+
+        $this->flush();
+    }
+
+    /**
+     * Write several settings, then flush once.
+     *
+     * The admin settings form saves twenty-odd keys in a loop, and set()
+     * flushes the cache on every one - so the next read rebuilt the whole
+     * table from scratch, twenty times, mid-save.
+     *
+     * @param  array<string, mixed|array{0: mixed, 1?: string, 2?: string}>  $values
+     */
+    public function setMany(array $values, string $group = 'general'): void
+    {
+        foreach ($values as $key => $value) {
+            // Either 'key' => $value, or 'key' => [$value, $type, $group] when
+            // the caller needs to say how it is stored.
+            [$raw, $type, $keyGroup] = is_array($value) && array_is_list($value)
+                ? [$value[0] ?? null, $value[1] ?? 'string', $value[2] ?? $group]
+                : [$value, 'string', $group];
+
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $this->castIn($raw, $type), 'type' => $type, 'group' => $keyGroup],
+            );
+        }
 
         $this->flush();
     }

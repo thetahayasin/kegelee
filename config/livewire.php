@@ -44,7 +44,10 @@ return [
     |
     */
 
-    'component_layout' => 'components.layouts.app',
+    // Every component here declares its own #[Layout]; this is the fallback if
+    // one ever forgets. 'components.layouts.app' went with the web app, so an
+    // unannotated component used to fail on a missing view.
+    'component_layout' => 'components.layouts.page',
 
     /*
     |---------------------------------------------------------------------------

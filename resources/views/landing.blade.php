@@ -11,7 +11,7 @@
     $features    = $s->get('home_features',      []);
     $steps       = $s->get('home_steps',         []);
     $footerTag   = $s->get('home_footer_tagline','');
-    $playUrl     = $s->get('play_store_url') ?: ('https://play.google.com/store/apps/details?id=' . $s->get('google_play_package_name', 'com.kegeltrainer.app'));
+    $playUrl     = $s->get('play_store_url') ?: ('https://play.google.com/store/apps/details?id=' . $s->get('google_play_package_name', 'com.kegelee.app'));
 
     $seoTitle    = $s->get('seo_title',          $appName.' - Pelvic Floor Training');
     $seoDesc     = $s->get('seo_description',    $sub);
@@ -153,12 +153,6 @@
 <body>
 
 {!! $s->get('inject_body_start') !!}
-
-@if (session('app_disabled'))
-<div class="w-full bg-accent/10 border-b border-accent/20 px-5 py-3 text-center text-sm font-medium text-accent-soft">
-    The web app is currently available on Android only. Download the app below to continue.
-</div>
-@endif
 
 {{-- ============================================================
      NAV

@@ -3,108 +3,48 @@
 namespace App\Livewire\App\Page;
 
 use App\Models\Page;
-use App\Services\Sync\BackendClient;
 use App\Support\Locales;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 /**
- * Legal / policy pages (privacy policy, terms, refund policy).
+ * Legal / policy pages (privacy policy, terms, refund policy) on the website.
  *
- * On the backend website the local database is the source and the public
- * page layout is used. Inside the native app the page renders in the app
- * layout and the content is fetched live from the backend on every open,
- * so users always read the current version. Offline shows a friendly
- * "no connection" state with a retry, never a stale copy.
+ * These URLs are what the Play listing points at, so they stay public and
+ * server-rendered. The mobile app reads the same pages through the API
+ * (GET /api/v1/pages/{slug}), which is why this no longer has a device branch.
  */
+#[Layout('components.layouts.page')]
 class Show extends Component
 {
     public Page $page;
-
-    public bool $isDevice = false;
-
-    public ?string $remoteContent = null;
-
-    public ?string $remoteUpdatedAt = null;
-
-    public bool $offline = false;
 
     /** Language actually being shown, which is English unless a translation exists. */
     public string $locale = Locales::BASE;
 
     public bool $isRtl = false;
 
-    /** What the URL asked for, passed through to the live backend fetch. */
-    public ?string $requestedLocale = null;
-
-    public function mount()
+    public function mount(): void
     {
         if (! $this->page->is_published && ! optional(auth()->user())->is_admin) {
             abort(404);
         }
 
-        $this->isDevice = BackendClient::isClient();
-
         // ?locale=de on the public URL. There is no language switcher on the
         // website yet, so this is here for deep links (and for the Play
         // listing's policy URL, which can point at a translated copy).
-        $requested = Locales::resolve(request()->query('locale'));
+        $localized = $this->page->localized(Locales::resolve(request()->query('locale')));
 
-        if (! $this->isDevice) {
-            $localized = $this->page->localized($requested);
-            $this->locale = $localized['locale'];
-            $this->isRtl = Locales::isRtl($this->locale);
-            // Render the translated copy rather than the base row.
-            $this->page->title = $localized['title'];
-            $this->page->content = $localized['content'];
+        $this->locale = $localized['locale'];
+        $this->isRtl = Locales::isRtl($this->locale);
 
-            return;
-        }
-
-        $this->requestedLocale = $requested;
-        $this->fetch();
-    }
-
-
-    /** Load the live page content from the backend. Also used by the Retry button. */
-    public function fetch(): void
-    {
-        $this->offline = false;
-        $this->remoteContent = null;
-
-        try {
-            $response = BackendClient::request()
-                ->get(BackendClient::base().'/v1/pages/'.$this->page->slug, array_filter([
-                    'locale' => $this->requestedLocale,
-                ]));
-
-            if ($response->successful()) {
-                $this->remoteContent = (string) $response->json('content');
-                $this->remoteUpdatedAt = $response->json('updated_at');
-                $this->locale = (string) ($response->json('locale') ?: Locales::BASE);
-                $this->isRtl = Locales::isRtl($this->locale);
-
-                return;
-            }
-        } catch (\Throwable $e) {
-            // Unreachable - fall through to the local copy below.
-        }
-
-        // Live fetch failed. Show the copy stored on the device (seeded at
-        // install) rather than wrongly claiming there is no internet; the
-        // offline state only appears when there is nothing to show at all.
-        if (! empty($this->page->content)) {
-            $this->remoteContent = (string) $this->page->content;
-            $this->remoteUpdatedAt = $this->page->updated_at?->toIso8601String();
-
-            return;
-        }
-
-        $this->offline = true;
+        // Render the translated copy rather than the base row.
+        $this->page->title = $localized['title'];
+        $this->page->content = $localized['content'];
     }
 
     public function render()
     {
-        return view('livewire.app.page.show', ['title' => $this->page->title])
-            ->layout($this->isDevice ? 'components.layouts.app' : 'components.layouts.page');
+        return view('livewire.app.page.show', ['title' => $this->page->title]);
     }
 }

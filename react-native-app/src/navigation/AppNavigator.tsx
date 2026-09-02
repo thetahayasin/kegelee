@@ -40,7 +40,32 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Workout: { trialSlug?: string };
   WorkoutComplete: { duration: number; levelId: number };
-  Paywall: undefined;
+  /**
+   * `source` records WHERE the subscribe ask was raised from.
+   *
+   * Every one of these is a different sentence put in front of a different
+   * person - a padlocked exercise, the difficulty picker, the reminders row,
+   * the measure card, the end of a session, the free day cap on the home
+   * screen, or a deliberate visit to Settings. Which of them actually sells is
+   * the most useful thing this screen can report, and without the param they
+   * all arrived as the same anonymous view.
+   *
+   * Still optional: the Paywall is also reachable from a deep link and from
+   * places with nothing to distinguish, and those are read as 'direct'.
+   */
+  Paywall:
+    | {
+        source?:
+          | 'difficulty'
+          | 'reminders'
+          | 'measure'
+          | 'exercise'
+          | 'settings'
+          | 'complete'
+          | 'training'
+          | 'renew';
+      }
+    | undefined;
   LegalPage: { slug: string; title: string };
   ExerciseDetail: { slug: string; unlocked: boolean; daysLeft: number };
   AllExercises: undefined;

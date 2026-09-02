@@ -40,6 +40,95 @@ const ensureColumn = async (
   }
 };
 
+/**
+ * Schema changes an install that already has the tables still needs.
+ *
+ * Ordered, append-only, and applied by index: `migrations[0]` takes the
+ * database from user_version 0 to 1, `migrations[1]` from 1 to 2, and so on.
+ * PRAGMA user_version is stored inside the database file itself, so it
+ * survives upgrades and tells us exactly which of these have already run.
+ *
+ * This list exists because the ad-hoc alternative failed in production. A
+ * `locale` column was added to the `pages` CREATE TABLE and nowhere else, so
+ * fresh installs had it and every upgraded phone did not - and the sync threw
+ * on the first page it tried to write, silently, forever. A forgotten column
+ * has to be a structural error (a migration that is not in the list) rather
+ * than a line somebody remembered to add.
+ *
+ * Every step must be idempotent and safe to re-run: a step that throws leaves
+ * user_version where it was, so the next launch tries it again.
+ */
+const migrations: Array<(db: any) => Promise<void>> = [
+  // 0 -> 1: the client ids that make a retried push idempotent.
+  async (db) => {
+    await ensureColumn(db, 'workout_sessions', 'client_id', 'TEXT');
+    await ensureColumn(db, 'measurements', 'client_id', 'TEXT');
+  },
+
+  // 1 -> 2: columns added to CREATE TABLE bodies after those tables shipped.
+  async (db) => {
+    // The one that broke sync on every upgraded install.
+    await ensureColumn(db, 'pages', 'locale', 'TEXT');
+    await ensureColumn(db, 'subscriptions', 'grace_period_ends_at', 'TEXT');
+    await ensureColumn(db, 'subscriptions', 'revenuecat_app_user_id', 'TEXT');
+    await ensureColumn(db, 'subscriptions', 'store_product_id', 'TEXT');
+    await ensureColumn(db, 'user_events', 'detail', 'TEXT');
+  },
+
+  // 2 -> 3: one subscription row per (user, purchase token).
+  //
+  // saveSubscription used to match on purchase_token alone and insert whenever
+  // the probe missed, so a token could end up on several rows - and
+  // getActiveSubscription would then read whichever the ordering happened to
+  // surface. The index makes that impossible, but only once the duplicates it
+  // would reject are gone: keep the HIGHEST id per pair, which is the most
+  // recently written state of that purchase.
+  async (db) => {
+    await db.executeSql(
+      `DELETE FROM subscriptions
+       WHERE purchase_token IS NOT NULL
+         AND id NOT IN (
+           SELECT MAX(id) FROM subscriptions
+           WHERE purchase_token IS NOT NULL
+           GROUP BY user_id, purchase_token
+         )`,
+    );
+    await db.executeSql(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_sub_user_token ON subscriptions (user_id, purchase_token);',
+    );
+  },
+];
+
+const readUserVersion = async (db: any): Promise<number> => {
+  try {
+    const [res] = await db.executeSql('PRAGMA user_version');
+    const row = res.rows.length > 0 ? res.rows.item(0) : null;
+    const v = Number(row?.user_version);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  } catch {
+    return 0;
+  }
+};
+
+/**
+ * Apply every migration above the version recorded in the file.
+ *
+ * Deliberately NOT best-effort as a whole: if a step throws, the version is
+ * not advanced and the loop stops, so the next launch retries from the same
+ * point instead of skipping past a change the rest of the app assumes landed.
+ * initDB's caller already catches, so a broken step degrades to "the app
+ * starts on the old schema" rather than "the app does not start".
+ */
+const runMigrations = async (db: any): Promise<void> => {
+  const current = await readUserVersion(db);
+  for (let v = current; v < migrations.length; v++) {
+    await migrations[v](db);
+    // Not a bindable parameter: SQLite does not accept one in a PRAGMA, and
+    // the value is a loop counter rather than anything user supplied.
+    await db.executeSql(`PRAGMA user_version = ${v + 1}`);
+  }
+};
+
 export const initDB = async () => {
   const db = await getDBConnection();
 
@@ -136,7 +225,15 @@ export const initDB = async () => {
         started_at TEXT,
         ends_at TEXT,
         canceled_at TEXT,
-        auto_renewing INTEGER DEFAULT 1
+        auto_renewing INTEGER DEFAULT 1,
+        -- Play is retrying a failed charge and the customer is still entitled
+        -- until this date, even though ends_at has already passed.
+        grace_period_ends_at TEXT,
+        -- Who the purchase belongs to at RevenueCat, and which store product
+        -- was actually bought. Both are pushed back to the backend so it can
+        -- verify the receipt against the right customer and SKU.
+        revenuecat_app_user_id TEXT,
+        store_product_id TEXT
       );
     `);
 
@@ -171,6 +268,9 @@ export const initDB = async () => {
         name TEXT,
         subject TEXT,
         meta TEXT,
+        -- One short free-text line about the event, kept out of the meta
+        -- blob so it can be read without parsing JSON.
+        detail TEXT,
         occurred_at TEXT,
         synced INTEGER DEFAULT 0
       );
@@ -239,9 +339,5 @@ export const initDB = async () => {
     `);
   });
 
-  // Columns added after a table first shipped. CREATE TABLE IF NOT EXISTS
-  // above does nothing for an install that already has the table, so these are
-  // the only way an existing phone ever sees them.
-  await ensureColumn(db, 'workout_sessions', 'client_id', 'TEXT');
-  await ensureColumn(db, 'measurements', 'client_id', 'TEXT');
+  await runMigrations(db);
 };

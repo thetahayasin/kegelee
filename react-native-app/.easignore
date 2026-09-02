@@ -37,6 +37,11 @@ web-build/
 *.aab
 *.hprof
 
+# The Google Play Developer API key. `eas submit` reads it from the LOCAL
+# machine, never from the build archive, so uploading it only widens where a
+# credential that can publish to the store has been.
+play-service-account.json
+
 # Local tooling noise
 coverage/
 *.log

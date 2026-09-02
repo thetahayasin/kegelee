@@ -83,22 +83,56 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     getTokens: jest.fn(() => Promise.resolve({})),
   },
   isErrorWithCode: () => false,
-  statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED' },
+  // DEVELOPER_ERROR is the Android-only code 10 that googleAuth now reports
+  // separately from a device that simply cannot do native sign-in.
+  statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED', DEVELOPER_ERROR: '10' },
 }));
 
+// Every notifee export reminders.ts actually touches. An absent method here is
+// not a helpful failure - it surfaces as "undefined is not a function" from
+// inside a catch block somewhere, which is the shape of error this mock exists
+// to prevent. RepeatFrequency.WEEKLY in particular was missing while the
+// scheduler used it, so every trigger in the tests was built with `undefined`
+// as its repeat and nothing noticed.
 jest.mock('@notifee/react-native', () => ({
   __esModule: true,
   default: {
     requestPermission: jest.fn(() => Promise.resolve({ authorizationStatus: 1 })),
+    getNotificationSettings: jest.fn(() =>
+      Promise.resolve({
+        authorizationStatus: 1,
+        android: { alarm: 1 },
+      }),
+    ),
     createChannel: jest.fn(() => Promise.resolve('channel')),
+    deleteChannel: jest.fn(() => Promise.resolve()),
     createTriggerNotification: jest.fn(() => Promise.resolve('id')),
     getTriggerNotifications: jest.fn(() => Promise.resolve([])),
+    getTriggerNotificationIds: jest.fn(() => Promise.resolve([])),
     cancelAllNotifications: jest.fn(() => Promise.resolve()),
+    cancelTriggerNotification: jest.fn(() => Promise.resolve()),
     cancelTriggerNotifications: jest.fn(() => Promise.resolve()),
+    openNotificationSettings: jest.fn(() => Promise.resolve()),
+    // App.tsx subscribes to this on mount to record reminder taps. It returns
+    // the UNSUBSCRIBE function, so a mock returning undefined breaks the
+    // effect's cleanup rather than the effect itself.
+    onForegroundEvent: jest.fn(() => jest.fn()),
+    onBackgroundEvent: jest.fn(() => jest.fn()),
+    // The notification (if any) that launched the app from cold.
+    getInitialNotification: jest.fn(() => Promise.resolve(null)),
   },
-  AndroidImportance: { HIGH: 4 },
-  TriggerType: { TIMESTAMP: 0 },
-  RepeatFrequency: { DAILY: 2 },
+  AndroidImportance: { HIGH: 4, DEFAULT: 3 },
+  TriggerType: { TIMESTAMP: 0, INTERVAL: 1 },
+  RepeatFrequency: { HOURLY: 0, DAILY: 1, WEEKLY: 2 },
+  AlarmType: {
+    SET_EXACT_AND_ALLOW_WHILE_IDLE: 'SET_EXACT_AND_ALLOW_WHILE_IDLE',
+    SET_AND_ALLOW_WHILE_IDLE: 'SET_AND_ALLOW_WHILE_IDLE',
+    SET: 'SET',
+    SET_EXACT: 'SET_EXACT',
+  },
+  AndroidNotificationSetting: { ENABLED: 1, DISABLED: 0, NOT_SUPPORTED: -1 },
+  AuthorizationStatus: { NOT_DETERMINED: -1, DENIED: 0, AUTHORIZED: 1, PROVISIONAL: 2 },
+  EventType: { DISMISSED: 0, PRESS: 1, ACTION_PRESS: 2, DELIVERED: 3, TRIGGER_NOTIFICATION_CREATED: 7 },
 }));
 
 jest.mock('react-native-keep-awake', () => ({
@@ -106,10 +140,17 @@ jest.mock('react-native-keep-awake', () => ({
   deactivate: jest.fn(),
 }));
 
-jest.mock('react-native-haptic-feedback', () => ({
+// react-native-haptic-feedback was removed from package.json - nothing imports
+// it (WorkoutScreen uses the plain Vibration API and says so in a comment), so
+// mocking a module that is no longer a dependency would fail the moment
+// node_modules is rebuilt.
+
+// RNRestart is native-only. App.tsx calls it when the first launch flips the
+// layout direction; under Jest that would reach a null native module.
+jest.mock('react-native-restart', () => ({
   __esModule: true,
-  default: { trigger: jest.fn() },
-  trigger: jest.fn(),
+  default: { restart: jest.fn() },
+  restart: jest.fn(),
 }));
 
 // expo-localization reaches into expo-modules-core for the native locale, which

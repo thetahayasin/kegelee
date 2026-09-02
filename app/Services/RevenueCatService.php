@@ -58,30 +58,95 @@ class RevenueCatService
         return $data['subscriber'] ?? [];
     }
 
+    /** The entitlement identifier this app grants access on. */
+    public function entitlementId(): string
+    {
+        return $this->entitlementId;
+    }
+
     /**
-     * Inspect whether a subscriber has an active entitlement for the app.
+     * The app's entitlement, if the subscriber currently holds it.
+     *
+     * Only the configured id counts. The old fallback returned "any active
+     * entitlement if named differently", which meant a promotional or
+     * test entitlement created in the RevenueCat dashboard - or one belonging
+     * to a different app on the same project - unlocked this app.
+     *
+     * A null expiry is not lifetime access here. Every plan in the catalogue is
+     * recurring, so RevenueCat always sends an expires_date; a missing one is a
+     * malformed payload, and treating it as "never expires" is how an account
+     * ends up entitled forever.
      */
     public function getActiveEntitlement(array $subscriber): ?array
     {
-        $entitlements = $subscriber['entitlements'] ?? [];
+        $entitlement = $subscriber['entitlements'][$this->entitlementId] ?? null;
 
-        if (isset($entitlements[$this->entitlementId])) {
-            $ent = $entitlements[$this->entitlementId];
-            $expiresDate = $ent['expires_date'] ?? null;
-            if ($expiresDate === null || strtotime($expiresDate) > time()) {
-                return $ent;
+        if (! is_array($entitlement)) {
+            return null;
+        }
+
+        $expiresDate = $entitlement['expires_date'] ?? null;
+        if (! is_string($expiresDate) || $expiresDate === '') {
+            return null;
+        }
+
+        $expiresAt = strtotime($expiresDate);
+
+        return ($expiresAt !== false && $expiresAt > time()) ? $entitlement : null;
+    }
+
+    /**
+     * The full base plan identifier an entitlement was granted by.
+     *
+     * Play splits a purchase across two fields: the subscription
+     * (`premium_monthly`) and the base plan (`p3m`). Only the two joined name a
+     * price, so anything that resolves a plan needs them back together. Ids
+     * that already carry the suffix are left alone.
+     */
+    public function entitlementProductId(array $entitlement): ?string
+    {
+        $product = trim((string) ($entitlement['product_identifier'] ?? ''));
+        if ($product === '') {
+            return null;
+        }
+
+        if (str_contains($product, ':')) {
+            return $product;
+        }
+
+        $basePlan = trim((string) ($entitlement['product_plan_identifier'] ?? ''));
+
+        return $basePlan === '' ? $product : "{$product}:{$basePlan}";
+    }
+
+    /**
+     * Does this subscriber actually belong to the given account?
+     *
+     * The app user id in a request body is a claim, not proof. RevenueCat's own
+     * record of who the subscriber is - the original id plus every alias it has
+     * been merged with - is, so anything that trusts a client-supplied id has
+     * to check it against this.
+     */
+    public function subscriberOwnsUser(array $subscriber, string $userId): bool
+    {
+        $userId = trim($userId);
+        if ($userId === '') {
+            return false;
+        }
+
+        $owners = array_merge(
+            [$subscriber['original_app_user_id'] ?? null],
+            array_keys((array) ($subscriber['aliases'] ?? [])),
+            array_values((array) ($subscriber['aliases'] ?? [])),
+        );
+
+        foreach ($owners as $owner) {
+            if (is_string($owner) && trim($owner) !== '' && trim($owner) === $userId) {
+                return true;
             }
         }
 
-        // Search any active entitlement if named differently
-        foreach ($entitlements as $ent) {
-            $expiresDate = $ent['expires_date'] ?? null;
-            if ($expiresDate === null || strtotime($expiresDate) > time()) {
-                return $ent;
-            }
-        }
-
-        return null;
+        return false;
     }
 
     /**

@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { DISABLED_OPACITY, SPACE, TYPE, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -72,10 +73,14 @@ export const KnowledgeScreen = () => {
       <View style={styles.header}>
         <View style={styles.headerSide}>
         {navigation.canGoBack() ? (
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+          <TouchableOpacity
+            style={styles.backBtn}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.back')}
+            onPress={() => navigation.goBack()}
+          >
+            <Chevron direction="back" size={24} color={COLORS.textMuted} />
           </TouchableOpacity>
         ) : null}
         </View>

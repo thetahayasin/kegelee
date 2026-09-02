@@ -24,7 +24,11 @@ class MailConfigurator
         ]);
 
         if (! $host) {
-            return; // keep the configured default mailer (log/smtp from .env)
+            // Keep the configured default mailer (log/smtp from .env), but
+            // still drop any mailer already built from the old From address.
+            self::forgetBuiltMailers();
+
+            return;
         }
 
         $encryption = $s->get('mail_encryption');
@@ -37,5 +41,20 @@ class MailConfigurator
             'mail.mailers.smtp.password' => $s->get('mail_password') ?: null,
             'mail.mailers.smtp.encryption' => $encryption === 'none' ? null : ($encryption ?: 'tls'),
         ]);
+
+        self::forgetBuiltMailers();
+    }
+
+    /**
+     * The mail manager caches a mailer per name the first time it is asked for
+     * one. Anything built before this ran still holds the OLD host, password
+     * and From address, so changing the settings in the admin panel changed
+     * nothing until the process restarted.
+     */
+    private static function forgetBuiltMailers(): void
+    {
+        if (app()->resolved('mail.manager')) {
+            app('mail.manager')->forgetMailers();
+        }
     }
 }

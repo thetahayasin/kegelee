@@ -1,20 +1,44 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.android.vending.BILLING" />
-    <!-- Native reminders: create real system Clock alarms via AlarmClock intents,
-         matching the original app (not notifications). -->
-    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Local training reminders are delivered by Notifee via AlarmManager.
-         SCHEDULE_EXACT_ALARM lets them fire at the exact time (the app requests the
-         "Alarms & reminders" special access at runtime on Android 12+); without it
-         Notifee falls back to an inexact alarm. RECEIVE_BOOT_COMPLETED re-arms them
-         after a reboot. -->
+         RECEIVE_BOOT_COMPLETED re-arms them after a reboot. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!--
+      Permissions merged in by libraries and deliberately stripped.
+
+      Every entry below is one Notifee (or an older transitive dependency)
+      contributes on our behalf, and every one of them is a permission this app
+      does not use and cannot justify to Play.
+
+      SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM: Play treats exact alarms as a
+      restricted capability - an app that declares either must be an alarm
+      clock or a calendar, submit a declaration form, and survive review. A
+      training reminder is neither, and it does not need to fire to the second:
+      Notifee falls back to an inexact alarm, which Android may shift by a few
+      minutes. That is a completely acceptable cost for a nudge to do a
+      two-minute exercise, and an unacceptable reason to risk the listing.
+
+      FOREGROUND_SERVICE and the Notifee foreground service with it: nothing in
+      this app runs work in the background. A declared foreground service that
+      is never started is a permission on the store listing bought for nothing.
+
+      READ/WRITE_EXTERNAL_STORAGE: the app writes one SQLite file in its own
+      private directory and reads no user media at all. On Android 13+ these
+      are not even grantable, and on older ones they show as "Photos and media"
+      on the permission list, which is an alarming thing for this app to ask.
+    -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" tools:node="remove" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
 
     <application
       android:name=".MainApplication"
@@ -22,14 +46,30 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
+      android:dataExtractionRules="@xml/data_extraction_rules"
+      android:fullBackupContent="@xml/backup_rules"
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="${usesCleartextTraffic}"
       android:supportsRtl="true">
+
+      <!-- See the permission block above: nothing here runs in the background,
+           so Notifee's foreground service is removed along with the permission
+           it needs. Leaving the service declared while stripping the
+           permission would be a manifest that cannot start its own component. -->
+      <service android:name="app.notifee.core.ForegroundService" tools:node="remove" />
+
+      <!-- android:screenOrientation="portrait": every screen is designed as a
+           single portrait column, and the workout timer in particular puts a
+           fixed-diameter circle in the middle of the viewport. In landscape
+           that circle is taller than the screen and the controls under it are
+           unreachable. Locking the orientation is honest about what the
+           layouts support. -->
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
         android:launchMode="singleTask"
+        android:screenOrientation="portrait"
         android:theme="@style/SplashTheme"
         android:windowSoftInputMode="adjustResize"
         android:exported="true">
@@ -38,12 +78,38 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         <!-- Google sign-in returns from the Custom Tab via this deeplink:
-             kegelee://auth/google/finish?token=... -->
+             kegelee://auth/google/finish?token=...
+
+             A custom scheme is claimed by whoever asks for it, so this filter
+             is kept only as the fallback for devices where App Links have not
+             verified. AuthContext requires the redirect to carry back the
+             one-time state value it generated, which is what makes an
+             unsolicited kegelee:// link useless to a caller. -->
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="kegelee" android:host="auth" />
+        </intent-filter>
+        <!-- The same callback as a verified App Link. Unlike the custom scheme
+             above, an https link with autoVerify can only be claimed by an app
+             the domain itself vouches for, so no other app on the device can
+             intercept the sign-in redirect.
+
+             REQUIRES the backend to serve
+             https://kegelee.com/.well-known/assetlinks.json naming this
+             package and its release signing certificate. Until it does,
+             verification fails and Android simply shows the usual app chooser,
+             which is the behaviour we have today - so shipping this filter
+             early is safe and the domain can catch up. -->
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data
+                android:scheme="https"
+                android:host="kegelee.com"
+                android:pathPrefix="/auth/google/finish" />
         </intent-filter>
       </activity>
     </application>

@@ -18,7 +18,7 @@ import {
   StackActions,
 } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Svg, { Path } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { BASICS_LESSONS } from '../../constants/basics';
@@ -86,6 +86,19 @@ export const KnowledgeLessonScreen = () => {
   const [finished, setFinished] = useState(false);
   const isLastLesson = index >= BASICS_LESSONS.length - 1;
 
+  /**
+   * Opened, as distinct from finished.
+   *
+   * lesson_completed alone cannot tell "nobody opens lesson three" apart from
+   * "everybody opens it and gives up halfway", and those want opposite fixes.
+   * Once per mount: the navigator REPLACES this screen for the next lesson, so
+   * every lesson is its own mount and there is no re-entry to double count.
+   */
+  useEffect(() => {
+    track(user?.id, 'lesson_started', slug);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const go = (n: number) => setStep(Math.max(0, Math.min(LAST, n)));
 
   const complete = async () => {
@@ -98,8 +111,6 @@ export const KnowledgeLessonScreen = () => {
         await AsyncStorage.setItem(key, JSON.stringify(done));
       }
     } catch {}
-    track(user?.id, 'lesson_completed', slug);
-
     track(user?.id, 'lesson_completed', slug);
 
     if (isLastLesson) {
@@ -163,10 +174,14 @@ export const KnowledgeLessonScreen = () => {
     <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
       <Watermark />
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+        <TouchableOpacity
+          style={styles.backBtn}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          onPress={() => navigation.goBack()}
+        >
+          <Chevron direction="back" size={24} color={COLORS.textMuted} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
           {t(BASICS_LESSONS[index].titleKey)}
@@ -203,27 +218,50 @@ export const KnowledgeLessonScreen = () => {
       {/* Navigation */}
       <View style={styles.nav}>
         {step > 0 ? (
-          <TouchableOpacity style={styles.navCircle} onPress={() => go(step - 1)}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Path d="M15 6l-6 6 6 6" stroke={COLORS.text} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+          <TouchableOpacity
+            style={styles.navCircle}
+            accessibilityRole="button"
+            accessibilityLabel={t('knowledge.previousStepA11y')}
+            onPress={() => go(step - 1)}
+          >
+            <Chevron direction="back" size={24} color={COLORS.text} strokeWidth={2.5} />
           </TouchableOpacity>
         ) : (
           <View style={styles.navSpacer} />
         )}
         <View style={{ flex: 1 }} />
         {step < LAST ? (
-          <TouchableOpacity style={[styles.navCircle, styles.navNext]} onPress={() => go(step + 1)}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Path d="M9 6l6 6-6 6" stroke={COLORS.onAccent} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-          </TouchableOpacity>
-        ) : finished ? (
-          <TouchableOpacity style={styles.completeBtn} onPress={complete}>
-            <Text style={styles.completeBtnText}>{isLastLesson ? t('knowledge.done') : t('knowledge.nextLesson')}</Text>
+          <TouchableOpacity
+            style={[styles.navCircle, styles.navNext]}
+            accessibilityRole="button"
+            accessibilityLabel={t('knowledge.nextStepA11y')}
+            onPress={() => go(step + 1)}
+          >
+            <Chevron size={24} color={COLORS.onAccent} strokeWidth={2.5} />
           </TouchableOpacity>
         ) : (
-          <View style={styles.navSpacer} />
+          // Always rendered on the last step, never withheld.
+          //
+          // It used to appear only once the interactive step reported itself
+          // finished, so a reader who could not complete the hold or sit
+          // through the demo reached the end of the lesson and found an empty
+          // gutter where the only way forward should be. The step itself now
+          // offers a skip, and this stays put either way: disabled until the
+          // step is done, which SAYS there is something still to do rather
+          // than hiding the fact that there is a button at all.
+          <TouchableOpacity
+            style={[styles.completeBtn, !finished && styles.completeBtnPending]}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !finished }}
+            disabled={!finished}
+            onPress={complete}
+          >
+            <Text
+              style={[styles.completeBtnText, !finished && styles.completeBtnTextPending]}
+            >
+              {isLastLesson ? t('knowledge.done') : t('knowledge.nextLesson')}
+            </Text>
+          </TouchableOpacity>
         )}
       </View>
     </SafeAreaView>
@@ -278,4 +316,7 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     justifyContent: 'center',
   },
   completeBtnText: { fontSize: 16, fontWeight: 'bold', color: COLORS.onAccent },
+  // Present but plainly not yet available, rather than absent.
+  completeBtnPending: { backgroundColor: COLORS.surface2 },
+  completeBtnTextPending: { color: COLORS.textMuted },
 });

@@ -11,15 +11,17 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import Svg, { Path, Rect } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { useAuth } from '../../context/AuthContext';
 import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
-import { EXERCISES, exerciseNameKey, isFreeExercise } from '../../constants/catalogues';
+import { EXERCISES, exerciseGateState, exerciseNameKey } from '../../constants/catalogues';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import { track } from '../../services/events';
 
 type Row = {
   slug: string;
@@ -72,28 +74,23 @@ export const AllExercisesScreen = () => {
           .slice()
           .sort((a, b) => a.sort_order - b.sort_order)
           .map((ex) => {
+            // The two locks, and why they are different, live in
+            // exerciseGateState - this was the third copy of the same
+            // decision, and the only one that guarded the day-0 divide by
+            // zero.
             const threshold = ex.unlock_after_days;
-            // Admins bypass the day-gating and get the full catalogue.
-            //
-            // Past the free three, a free account is held by the subscription,
-            // not by days. Its day count is frozen at FREE_DAY_CAP, so a
-            // progress bar here would sit at the same fraction for ever and a
-            // countdown would never reach zero. Those rows say what actually
-            // holds them.
-            const subLocked = !subscribed && !user.is_admin && !isFreeExercise(ex.slug);
-            const unlocked = user.is_admin || (!subLocked && completedDays >= threshold);
-            const completed = Math.min(completedDays, threshold);
-            const pct = unlocked
-              ? 100
-              : threshold > 0 ? Math.min(100, Math.round((completed / threshold) * 100)) : 100;
+            const gate = exerciseGateState(ex, completedDays, {
+              subscribed,
+              isAdmin: !!user.is_admin,
+            });
             return {
               slug: ex.slug,
-              unlocked,
-              subLocked,
-              daysLeft: unlocked || subLocked ? 0 : Math.max(0, threshold - completedDays),
-              completed,
+              unlocked: gate.unlocked,
+              subLocked: gate.subLocked,
+              daysLeft: gate.daysLeft,
+              completed: Math.min(completedDays, threshold),
               threshold,
-              pct,
+              pct: gate.progressPercent,
             };
           });
 
@@ -131,7 +128,10 @@ export const AllExercisesScreen = () => {
   if (loadFailed) {
     return (
       <SafeAreaView style={styles.loading}>
-        <Text style={styles.errorText}>{t('errorBoundary.theAppHitAnUnexpected')}</Text>
+        {/* Its own copy. A list that did not load is almost always a network
+            or database read that did not come back, not a crash, and the crash
+            handler's wording sent readers looking for a bug. */}
+        <Text style={styles.errorText}>{t('common.couldNotLoad')}</Text>
         <TouchableOpacity
           style={styles.errorRetryBtn}
           accessibilityRole="button"
@@ -209,9 +209,7 @@ export const AllExercisesScreen = () => {
         )}
       </View>
       {row.unlocked ? (
-        <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-          <Path d="M9 6l6 6-6 6" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-        </Svg>
+        <Chevron size={20} color={COLORS.textDim} />
       ) : row.subLocked ? (
         <Text style={styles.rowSubCta} numberOfLines={1}>
           {t('premium.badge')}
@@ -236,9 +234,7 @@ export const AllExercisesScreen = () => {
           hitSlop={8}
           onPress={() => navigation.goBack()}
         >
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+          <Chevron direction="back" size={24} color={COLORS.textMuted} />
         </TouchableOpacity>
         {/* Title flexes between the button and the trailing gutter rather
             than being centred underneath an absolutely positioned one. */}
@@ -262,15 +258,23 @@ export const AllExercisesScreen = () => {
               activeOpacity={0.85}
               accessibilityRole="button"
               style={styles.row}
-              onPress={() =>
-                row.subLocked
-                  ? navigation.navigate('Paywall')
-                  : navigation.navigate('ExerciseDetail', {
-                      slug: row.slug,
-                      unlocked: true,
-                      daysLeft: 0,
-                    })
-              }
+              onPress={() => {
+                if (row.subLocked) {
+                  // WHICH padlock was pressed, in the meta. The subject stays
+                  // 'exercise' so this row groups with the other four locks in
+                  // the app rather than splintering into one bucket per
+                  // exercise, and the slug is still there for the question
+                  // "which one is worth unlocking first".
+                  track(user?.id, 'lock_tapped', 'exercise', null, { slug: row.slug });
+                  navigation.navigate('Paywall', { source: 'exercise' });
+                  return;
+                }
+                navigation.navigate('ExerciseDetail', {
+                  slug: row.slug,
+                  unlocked: true,
+                  daysLeft: 0,
+                });
+              }}
             >
               {renderRow(row)}
             </TouchableOpacity>

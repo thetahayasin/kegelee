@@ -17,30 +17,50 @@ export const getPlanLength = (_user: User | null): number => {
 };
 
 
+/**
+ * The LIFETIME day number the reader is on, 1-based and deliberately unbounded.
+ *
+ * It used to be clamped to the plan length, which pinned anyone who finished a
+ * full month at "day 30" forever. The plan repeats rather than ending, so the
+ * clamp belongs at the point of display (`getPosition` takes this modulo the
+ * plan length) and not here, where it would destroy the information needed to
+ * work out which month they are in.
+ */
 export const currentDayNumber = (user: User | null, trainingDays: DBTrainingDay[]): number => {
   if (!user) return 1;
   const todayStr = getLocalDateString(user.timezone);
-  const planLen = getPlanLength(user);
 
   // Count training days completed strictly before today
   const completedBeforeToday = trainingDays.filter(
     (td) => td.completed_at !== null && td.date < todayStr
   ).length;
 
-  return Math.min(completedBeforeToday + 1, planLen);
+  return completedBeforeToday + 1;
 };
 
+/**
+ * Where the reader is in the plan, as a month and a day WITHIN that month.
+ *
+ * Two counts, deliberately, because they answer different questions and used
+ * to be the same number. `completed` is lifetime and only ever grows: it is
+ * what an unlock threshold compares against, so an exercise that opened on day
+ * 43 stays open forever. `completed_in_month` and `day` restart at each
+ * 30-day boundary, which is what the reader is shown - "Month 2, day 1" after
+ * a full first month, not "day 31 of 30" with -1 days left.
+ */
 export const getPosition = (user: User | null, trainingDays: DBTrainingDay[]) => {
   const planLen = getPlanLength(user);
   const completed = trainingDays.filter((td) => td.completed_at !== null).length;
   const current = currentDayNumber(user, trainingDays);
+  const completedInMonth = completed % planLen;
 
   return {
     month: Math.floor(completed / planLen) + 1,
-    day: current,
+    day: ((current - 1) % planLen) + 1,
     plan_length: planLen,
     completed,
-    days_left: Math.max(0, planLen - completed),
+    completed_in_month: completedInMonth,
+    days_left: Math.max(0, planLen - completedInMonth),
   };
 };
 

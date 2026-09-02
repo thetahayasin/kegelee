@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import { View, PanResponder, StyleSheet, Animated } from 'react-native';
+import { View, PanResponder, StyleSheet, Animated, I18nManager } from 'react-native';
 
 /**
  * Horizontal swipe between lesson steps.
@@ -48,7 +48,13 @@ export const SwipeSteps: React.FC<Props> = ({ step, count, onChange, children })
           const far = Math.abs(g.dx) > H_THRESHOLD;
           const fast = Math.abs(g.vx) > 0.35;
           if (far || fast) {
-            const dir = g.dx < 0 ? 1 : -1;
+            // A swipe means "next" in READING order, so it is a swipe left in
+            // English and a swipe right in Arabic and Hebrew. The gesture was
+            // hard-coded to the LTR direction, which made the lessons run
+            // backwards for exactly the readers whose layout is already
+            // mirrored around them.
+            const towardsNext = I18nManager.isRTL ? g.dx > 0 : g.dx < 0;
+            const dir = towardsNext ? 1 : -1;
             const next = step + dir;
             if (next >= 0 && next < count) onChange(next);
           }

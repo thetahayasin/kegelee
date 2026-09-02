@@ -29,12 +29,15 @@ class SubscriptionCanceledMail extends Mailable
         $appName  = $settings->get('app_name', 'Kegel Trainer');
         $accent   = $settings->get('color_accent', '#c1ff72');
         $endsAt   = $this->subscription->ends_at;
+        // Null-safe: an unrecognised product id leaves plan_id empty, and
+        // reading ->name off it threw from inside the webhook.
+        $planName = $this->subscription->plan?->name ?? 'Premium';
 
         return new Content(view: 'emails.subscription', with: [
             'appName'  => $appName,
             'accent'   => $accent,
             'headline' => 'Subscription cancelled',
-            'body'     => "Your {$this->subscription->plan->name} subscription has been cancelled. We're sorry to see you go.",
+            'body'     => "Your {$planName} subscription has been cancelled. We're sorry to see you go.",
             'detail'   => $endsAt && $endsAt->isFuture()
                 ? "You still have access until {$endsAt->format('F j, Y')}. After that, premium features will no longer be available."
                 : "Your premium access has ended. You can resubscribe at any time.",

@@ -1,17 +1,27 @@
 <?php
 
 use App\Http\Controllers\AdminMaintenanceController;
-use App\Http\Controllers\DeviceSyncController;
+use App\Http\Controllers\AssetLinksController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\GooglePlayWebhookController;
 use App\Http\Controllers\LandingController;
-use App\Http\Controllers\ReminderIcsController;
 use App\Http\Controllers\RevenueCatWebhookController;
-use App\Http\Controllers\TimezoneController;
 use App\Livewire\Admin;
-use App\Livewire\App;
+use App\Livewire\App\Page\Show as PageShow;
 use App\Livewire\Auth;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| What lives on the web
+|--------------------------------------------------------------------------
+|
+| The training app is the React Native client in react-native-app/. The web
+| serves four things and nothing else: the marketing homepage, the legal
+| pages Google Play links to, the admin panel at /mystic, and the API the
+| app talks to (routes/api.php).
+|
+*/
 
 /*
 |--------------------------------------------------------------------------
@@ -43,116 +53,62 @@ Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handl
 | production caches. Guarded by DEPLOY_KEY (server-only) + throttle.
 |--------------------------------------------------------------------------
 */
-Route::get('/deploy', \App\Http\Controllers\DeployController::class)
+// POST, not GET: a deploy CHANGES the server, and a GET is what browsers
+// prefetch, what proxies cache and what ends up in a link. The key travels in
+// the Authorization header rather than the query string, which is logged by
+// every web server on the way.
+Route::post('/deploy', \App\Http\Controllers\DeployController::class)
     ->middleware('throttle:6,1')
     ->name('deploy');
 
 /*
 |--------------------------------------------------------------------------
-| On-demand sync — the device app calls this when connectivity returns so
-| fresh backend content/progress lands immediately instead of waiting for
-| the next navigation. No-op on the backend (CONTENT_SYNC_URL empty).
-|--------------------------------------------------------------------------
-*/
-Route::post('/sync/run', [DeviceSyncController::class, 'run'])->name('sync.run');
-Route::get('/sync/status', [DeviceSyncController::class, 'status'])->name('sync.status');
-
-/*
-|--------------------------------------------------------------------------
-| Public marketing homepage — shown at / when homepage_enabled is true.
-| Authenticated users are bounced straight to the app.
+| Public marketing homepage — shown at / when homepage_enabled is true,
+| otherwise visitors are sent to the legal index.
 |--------------------------------------------------------------------------
 */
 Route::get('/', LandingController::class)->name('landing');
 
 /*
 |--------------------------------------------------------------------------
-| Public (no auth): onboarding intro + content pages
+| Public (no auth): legal / policy pages
 |--------------------------------------------------------------------------
 */
-// Legal / policy pages — always public so they work even when the web app is
-// closed (app_enabled=false) or the marketing homepage is disabled. Required
-// for the Google Play privacy-policy URL.
+// Always public, and reachable even with the marketing homepage disabled:
+// the Google Play listing links straight at these URLs.
 Route::view('/legal', 'legal.index')->name('legal.index');
-Route::get('/p/{page:slug}', App\Page\Show::class)->name('page.show');
-
-// Onboarding and the knowledge base are the app's own content, not marketing:
-// public so a signed-out visitor can read them, but closed along with the app.
-// Without 'app.enabled' the knowledge base stayed fully browsable after the
-// app had been switched off from the backend.
-Route::middleware('app.enabled')->group(function () {
-    Route::get('/welcome', App\Onboarding::class)->name('onboarding');
-    Route::get('/knowledge', App\Knowledge\Index::class)->name('knowledge.index');
-    Route::get('/knowledge/{lesson}', App\Knowledge\Show::class)->name('knowledge.show');
-});
+Route::get('/p/{page:slug}', PageShow::class)->name('page.show');
 
 /*
 |--------------------------------------------------------------------------
-| Guest auth
+| Google sign-in for the mobile app
 |--------------------------------------------------------------------------
+|
+| Google blocks OAuth inside embedded WebViews, so the app opens these in the
+| system browser. Nothing here signs anybody into a web session: the callback
+| mints a one-time token and hands it back to the app, which redeems it at
+| POST /api/v1/auth/google/redeem.
+|
 */
-Route::middleware('guest')->group(function () {
-    Route::get('/login', Auth\Login::class)->name('login');
-    Route::get('/register', Auth\Register::class)->name('register');
-    Route::get('/verify', Auth\Verify::class)->name('verify');
-    Route::get('/forgot-password', Auth\ForgotPassword::class)->name('password.forgot');
-    Route::get('/reset-password', Auth\ResetPassword::class)->name('password.reset');
+Route::get('/auth/google/native', [GoogleAuthController::class, 'nativeRedirect'])->name('auth.google.native');
+Route::get('/auth/google/native/callback', [GoogleAuthController::class, 'nativeCallback'])->name('auth.google.native.callback');
 
-    Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google');
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
-
-    // Native (device) Google flow: opened in a Custom Tab, returns via deeplink.
-    Route::get('/auth/google/native', [GoogleAuthController::class, 'nativeRedirect'])->name('auth.google.native');
-    Route::get('/auth/google/native/callback', [GoogleAuthController::class, 'nativeCallback'])->name('auth.google.native.callback');
-});
-
-// Native Google OAuth finish — OUTSIDE the guest group. The deeplink return can
-// arrive when the user has a stale session, and the guest middleware would
-// redirect to / (onboarding) before the token is redeemed. These routes handle
-// any auth state: already-authenticated users are logged out first.
+// The App Link target. Android hands this URL straight to the app once
+// assetlinks.json is verified; when it is not (or the app is not installed)
+// this page renders and bounces to the kegelee:// deeplink instead.
 Route::get('/auth/google/finish', [GoogleAuthController::class, 'finish'])->name('auth.google.finish');
-// GET (not POST): the device redeems by navigating to this URL from the loading
-// page. A GET needs no CSRF token and no WebView POST-body replay, so the token
-// can never be lost in transit the way a native form POST can.
-Route::get('/auth/google/finish/redeem', [GoogleAuthController::class, 'finishRedeem'])->name('auth.google.finish.redeem');
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated app
+| Android App Links verification
+|
+| Google fetches this file over HTTPS to confirm that this domain and the
+| app signing key belong together. Without it, links into the app open in a
+| browser instead - including the Google sign-in return.
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'app.enabled'])->group(function () {
-    // Stores the device timezone (captured client-side on first load) so day
-    // boundaries follow the user's local day.
-    Route::post('/timezone', TimezoneController::class)->name('timezone.set');
-
-    // The ONLY page reachable without an active subscription is the paywall:
-    // a signed-up user subscribes (or signs out) before touching anything else.
-    Route::get('/upgrade', App\Paywall::class)->name('paywall');
-
-    // 'basics' gates the training app behind the "Learn the basics" lessons.
-    // The knowledge routes are public (defined above), so a gated user is sent
-    // there to finish the basics without a redirect loop.
-    Route::middleware(['subscribed', 'basics'])->group(function () {
-        Route::get('/app', App\Home::class)->name('home');
-
-        Route::get('/profile', App\Profile::class)->name('profile');
-        Route::get('/settings', App\Settings::class)->name('app.settings');
-        Route::get('/change-password', App\ChangePassword::class)->name('app.change-password');
-
-        Route::get('/exercises', App\Exercises\Index::class)->name('exercises.index');
-        Route::get('/exercises/{exercise:slug}', App\Exercises\Show::class)->name('exercises.show');
-
-        Route::get('/session', App\Workout::class)->name('session');
-        Route::get('/workout/{exercise:slug}', App\Workout::class)->name('workout');
-
-        Route::get('/levels', App\Levels::class)->name('levels');
-        Route::get('/progress', App\ProgressTracker::class)->name('progress');
-        Route::get('/schedule', App\Schedule::class)->name('schedule');
-        Route::get('/reminders', App\Reminders::class)->name('reminders');
-        Route::get('/reminders/calendar.ics', [ReminderIcsController::class, 'download'])->name('reminders.ics');
-    });
-});
+Route::get('/.well-known/assetlinks.json', AssetLinksController::class)
+    ->name('assetlinks');
 
 /*
 |--------------------------------------------------------------------------
@@ -162,17 +118,55 @@ Route::middleware(['auth', 'app.enabled'])->group(function () {
 Route::prefix('mystic')->name('admin.')->group(function () {
     Route::get('login', Admin\Login::class)->name('login');
 
+    // Admin password recovery. These used to sit at /forgot-password and
+    // /reset-password as if they were app screens, but both refuse any
+    // account that is not an admin - members reset through the API. They live
+    // under the admin prefix now, and outside the 'admin' middleware because
+    // the person using them cannot sign in.
+    Route::get('forgot-password', Auth\ForgotPassword::class)->name('password.forgot');
+    Route::get('reset-password', Auth\ResetPassword::class)->name('password.reset');
+
     Route::middleware('admin')->group(function () {
         // Exercises, levels, onboarding and plans are hardcoded in the app
         // (App\Support catalogues) - the backend only manages accounts,
         // progress, knowledge videos, legal pages and subscriptions.
         Route::get('/', Admin\Dashboard::class)->name('dashboard');
         Route::get('users', Admin\Users::class)->name('users');
-        Route::get('insights', Admin\Insights::class)->name('insights');
+
+        /**
+         * Reports.
+         *
+         * Six pages rather than one, because they answer six different
+         * questions and a single page long enough to hold all of them is a
+         * page nobody scrolls to the bottom of. Each keeps its own window in
+         * the query string, so a view can be shared or bookmarked.
+         */
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', Admin\Reports\Overview::class)->name('overview');
+            Route::get('funnel', Admin\Reports\Funnel::class)->name('funnel');
+            Route::get('retention', Admin\Reports\Retention::class)->name('retention');
+            Route::get('training', Admin\Reports\Training::class)->name('training');
+            Route::get('money', Admin\Reports\Money::class)->name('money');
+            Route::get('engagement', Admin\Reports\Engagement::class)->name('engagement');
+
+            // The rows behind any of the above, as a spreadsheet.
+            Route::get('export/{report}', [\App\Http\Controllers\Admin\ReportExportController::class, 'download'])
+                ->name('export');
+        });
+
+        // Insights became the Engagement report. Kept as a redirect because
+        // the old address is in people's bookmarks and in this repository's
+        // history, and a 404 teaches nobody where it went.
+        // Route::redirect, not a closure: deploys run `route:cache`, and a
+        // closure route cannot be serialised - it would fail the whole cache
+        // build rather than this one line.
+        Route::redirect('insights', '/mystic/reports/engagement')->name('insights');
         Route::get('subscriptions', Admin\Subscriptions::class)->name('subscriptions');
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');
 
-        Route::get('logout', [AdminMaintenanceController::class, 'logout'])->name('logout');
+        // POST: signing an admin out is a state change, so it must not be
+        // reachable from an <img src> or a prefetched link.
+        Route::post('logout', [AdminMaintenanceController::class, 'logout'])->name('logout');
     });
 });

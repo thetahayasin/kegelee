@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -15,6 +15,7 @@ import {
   NavigationProp,
 } from '@react-navigation/native';
 import Svg, { Path, Rect } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
@@ -26,6 +27,8 @@ import {
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { RootStackParamList } from '../../navigation/AppNavigator';
+import { useAuth } from '../../context/AuthContext';
+import { track } from '../../services/events';
 
 const LockIcon = ({ color, size = 20 }: { color: string; size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -40,13 +43,62 @@ export const ExerciseDetailScreen = () => {
   const { t } = useTranslation();
   const route = useRoute<RouteProp<RootStackParamList, 'ExerciseDetail'>>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { user } = useAuth();
   const { slug, unlocked, daysLeft } = route.params;
   const ex = EXERCISES[slug];
 
+  /**
+   * Somebody looked at this exercise, and whether they could do it yet.
+   *
+   * The locked reads are the interesting half: an exercise people keep opening
+   * and cannot start is the strongest signal the app has about what is worth
+   * paying for, and the padlock alone could not say which one they came to
+   * see. days_left carries how far off the unlock was, so "two days away" and
+   * "thirty" are not the same number.
+   *
+   * Above the missing-exercise early return so the hook is unconditional, and
+   * once per mount - this screen is pushed fresh each time.
+   */
+  useEffect(() => {
+    track(user?.id, 'exercise_previewed', slug, unlocked ? 'unlocked' : 'locked', {
+      days_left: daysLeft,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (!ex) {
+    // A header and a way out, not a sentence floating at the top of a blank
+    // page. This state is reached from a stale deep link or a renamed slug,
+    // and the version without the back button was a dead end: no header, no
+    // control, nothing but the system gesture.
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.description}>{t('exerciseDetail.exerciseNotFound')}</Text>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
+        <Watermark />
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.back')}
+            onPress={() => navigation.goBack()}
+          >
+            <Chevron direction="back" size={24} color={COLORS.textMuted} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {t('allExercises.exercises')}
+          </Text>
+          <View style={styles.headerGutter} />
+        </View>
+        <View style={styles.notFound}>
+          <Text style={styles.description}>{t('exerciseDetail.exerciseNotFound')}</Text>
+          <TouchableOpacity
+            style={styles.notFoundBtn}
+            accessibilityRole="button"
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.notFoundBtnText}>{t('workout.back')}</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
@@ -56,15 +108,19 @@ export const ExerciseDetailScreen = () => {
       <Watermark />
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-            <Path d="M15 6l-6 6 6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+        <TouchableOpacity
+          style={styles.backBtn}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          onPress={() => navigation.goBack()}
+        >
+          <Chevron direction="back" size={24} color={COLORS.textMuted} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
           {t(exerciseNameKey(slug))}
         </Text>
-        <View style={{ width: 36 }} />
+        <View style={styles.headerGutter} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -123,10 +179,34 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     paddingVertical: 12,
   },
   backBtn: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  /** Balances the back button so the title stays optically centred. */
+  headerGutter: {
+    width: 44,
+  },
+  notFound: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  notFoundBtn: {
+    marginTop: 20,
+    minHeight: 48,
+    paddingHorizontal: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notFoundBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: COLORS.white,
   },
   headerTitle: {
     flex: 1,

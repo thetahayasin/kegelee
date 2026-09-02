@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Rect, Text } from 'react-native-svg';
 import { Palette } from '../theme/colors';
 import { useTheme, useThemedStyles } from '../theme/ThemeContext';
@@ -12,8 +12,6 @@ import { useTheme, useThemedStyles } from '../theme/ThemeContext';
  * Purely decorative and non-interactive; sits behind all cards.
  */
 
-const { width, height } = Dimensions.get('window');
-const FONT = Math.round(height * 0.215);
 const systemFont = Platform.OS === 'android' ? 'sans-serif-black' : 'System';
 
 // Memoized: it takes no props and is rendered on every screen, so parent
@@ -21,6 +19,11 @@ const systemFont = Platform.OS === 'android' ? 'sans-serif-black' : 'System';
 export const Watermark = React.memo(() => {
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
+  // The live window, not a module-load snapshot. This draws the page's own
+  // background, so a stale width left a strip of nothing down one side of
+  // every screen after a rotation, a fold, or entering split screen.
+  const { width, height } = useWindowDimensions();
+  const FONT = Math.round(height * 0.215);
   return (
     <View style={styles.wrap} pointerEvents="none">
       <Svg style={StyleSheet.absoluteFill} width={width} height={height}>

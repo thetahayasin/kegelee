@@ -195,9 +195,28 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Sign with the real kegelee release key when keystore.properties is
-            // present; otherwise fall back to debug signing so the build still runs.
-            signingConfig keystoreProperties['storeFile'] ? signingConfigs.release : signingConfigs.debug
+            /**
+             * No keystore, no release build.
+             *
+             * This used to fall back to signingConfigs.debug "so the build
+             * still runs", and that is exactly the wrong trade. A debug-signed
+             * release APK looks completely normal - it installs, it runs, it is
+             * named app-release.aab - and is rejected by Play with a signature
+             * error at upload time, or worse, distributed somewhere as a build
+             * signed with the publicly known Android debug key. The failure was
+             * silent at the only moment it could have been caught.
+             *
+             * Failing the build names the actual problem (keystore.properties
+             * is missing, which is expected on a fresh clone - it is
+             * gitignored) at the point where it can be fixed.
+             */
+            if (!keystoreProperties['storeFile']) {
+                throw new GradleException(
+                    "Cannot build a release: android/keystore.properties is missing or has no storeFile. " +
+                    "Copy the release keystore and its properties file into android/, or build a debug variant instead."
+                )
+            }
+            signingConfig signingConfigs.release
             // R8 full mode: shrink + obfuscate Java/Kotlin bytecode and strip unused
             // resources. Keep rules live in proguard-rules.pro.
             minifyEnabled enableProguardInReleaseBuilds

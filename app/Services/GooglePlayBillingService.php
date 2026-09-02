@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class GooglePlayBillingService
 {
@@ -23,8 +22,25 @@ class GooglePlayBillingService
     }
 
     /**
+     * Whether a Play API call can be attempted at all.
+     *
+     * Callers that report a store outcome to a human (the admin cancel button)
+     * must check this first, so "we never asked Google" is never presented as
+     * "Google agreed".
+     */
+    public function isConfigured(): bool
+    {
+        return $this->packageName !== ''
+            && ! empty($this->serviceAccount['client_email'])
+            && ! empty($this->serviceAccount['private_key']);
+    }
+
+    /**
      * Verify a subscription purchase with the Google Play Developer API.
      * Returns the raw purchase resource on success.
+     *
+     * Note that $productId here is the bare SUBSCRIPTION id
+     * (`premium_monthly`), not a base plan id - see Plan::storeSubscriptionId().
      *
      * @throws \RuntimeException
      */
@@ -44,31 +60,80 @@ class GooglePlayBillingService
 
     /**
      * Acknowledge a subscription so Google stops voiding it after 3 days.
+     *
+     * A failure here is not cosmetic: Google REFUNDS and revokes any purchase
+     * left unacknowledged for three days. The old code logged a warning and
+     * carried on, so the one signal that a customer was about to be refunded
+     * sat in a log nobody reads while the app went on serving them. Throwing
+     * puts it in front of the caller, which either retries (webhook) or logs it
+     * as an error (purchase flow).
+     *
+     * @throws \RuntimeException
      */
-    public function acknowledgeSubscription(string $productId, string $purchaseToken): void
+    public function acknowledgeSubscription(string $productId, string $purchaseToken): bool
     {
         $url = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications"
             . "/{$this->packageName}/purchases/subscriptions/{$productId}/tokens/{$purchaseToken}:acknowledge";
 
         $response = Http::withToken($this->accessToken())->post($url);
 
-        if ($response->failed()) {
-            Log::warning('Google Play acknowledge failed', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+        if ($response->successful()) {
+            return true;
         }
+
+        // Already acknowledged is the state we wanted, not an error. Google
+        // answers it with a 400 (occasionally 409) rather than a 200, and it
+        // happens routinely when the app and this server both acknowledge.
+        if ($this->isAlreadyDone($response->status(), (string) $response->body())) {
+            return true;
+        }
+
+        throw new \RuntimeException(
+            "Google Play acknowledge failed [{$response->status()}]: {$response->body()}"
+        );
     }
 
     /**
      * Cancel a subscription on Google Play (admin-initiated).
+     *
+     * The result was thrown away, so an admin pressing Cancel saw success
+     * whether or not Google had done anything - and the subscription billed
+     * again a month later.
+     *
+     * @throws \RuntimeException
      */
-    public function cancelSubscription(string $productId, string $purchaseToken): void
+    public function cancelSubscription(string $productId, string $purchaseToken): bool
     {
         $url = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications"
             . "/{$this->packageName}/purchases/subscriptions/{$productId}/tokens/{$purchaseToken}:cancel";
 
-        Http::withToken($this->accessToken())->post($url);
+        $response = Http::withToken($this->accessToken())->post($url);
+
+        if ($response->successful()) {
+            return true;
+        }
+
+        if ($this->isAlreadyDone($response->status(), (string) $response->body())) {
+            return true;
+        }
+
+        throw new \RuntimeException(
+            "Google Play cancel failed [{$response->status()}]: {$response->body()}"
+        );
+    }
+
+    /** Google's way of saying "this was already in the state you asked for". */
+    private function isAlreadyDone(int $status, string $body): bool
+    {
+        if (! in_array($status, [400, 409], true)) {
+            return false;
+        }
+
+        $body = strtolower($body);
+
+        return str_contains($body, 'already acknowledged')
+            || str_contains($body, 'already canceled')
+            || str_contains($body, 'already cancelled');
     }
 
     // -------------------------------------------------------------------------

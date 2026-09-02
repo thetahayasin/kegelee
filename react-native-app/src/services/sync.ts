@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { api } from './api';
 import i18n from '../i18n';
 import { getUnsyncedEvents, markEventsSynced } from './events';
+import { getInstallId } from '../utils/installId';
+import { APP_VERSION } from '../constants/version';
 
 /**
  * Meta is stored as a JSON string and sent as an object. A row written by an
@@ -17,6 +20,8 @@ const safeJson = (raw: string): Record<string, unknown> | null => {
   }
 };
 import { scheduleReminders } from './reminders';
+import { reportError } from './errors';
+import { purchaseRecordedAt } from './billing';
 import { ONBOARDING_PUSH_KEY } from '../context/AuthContext';
 import {
   getUnsyncedWorkoutSessions,
@@ -39,6 +44,7 @@ import {
   savePage,
   saveAppSetting,
 } from '../db/queries';
+import type { DBSubscription, DBWorkoutSession, DBMeasurement } from '../db/queries';
 
 type SyncResult = { success: boolean; error?: string; skipped?: boolean };
 
@@ -142,6 +148,152 @@ export const refreshContentForCurrentLocale = async (): Promise<void> => {
 // scanning the tables once per app launch is enough.
 let healedThisRun = false;
 
+/**
+ * Run one part of the pull, and let the rest of the sync survive it failing.
+ *
+ * The pull was a straight run of awaits, so the FIRST one to throw abandoned
+ * everything after it - and one of them did throw, on every upgraded install:
+ * `pages` had no `locale` column, savePage's INSERT failed, and the whole
+ * sync unwound into the outer catch. Subscriptions are applied after pages, so
+ * the visible symptom was not "legal pages are stale", it was people losing
+ * access to a subscription they were paying for.
+ *
+ * One section failing is now exactly that: one section. Nothing here can be
+ * the reason a different section did not run.
+ */
+const applySection = async (name: string, fn: () => Promise<void>): Promise<void> => {
+  try {
+    await fn();
+  } catch (e) {
+    reportError(e, `sync:${name}`);
+  }
+};
+
+// Row shapes the push endpoint expects. Extracted so the drain loop below
+// sends byte-identical payloads to the first push rather than a second,
+// slightly different mapping that has to be kept in step by hand.
+const sessionPayload = (s: DBWorkoutSession) => ({
+  // Fixed when the row was written, so a retried push is recognised as the
+  // same session rather than deduplicated by a timestamp guess.
+  client_id: s.client_id,
+  exercise_slug: s.exercise_slug,
+  duration_seconds: s.duration_seconds,
+  completed_at_iso: s.completed_at,
+  is_extra: s.is_extra === 1,
+});
+
+const measurementPayload = (m: DBMeasurement) => ({
+  client_id: m.client_id,
+  seconds: m.seconds,
+  measured_at_iso: m.measured_at,
+});
+
+const eventPayload = (e: {
+  client_id: string;
+  name: string;
+  subject: string | null;
+  detail: string | null;
+  meta: string | null;
+  occurred_at: string;
+}) => ({
+  client_id: e.client_id,
+  name: e.name,
+  subject: e.subject,
+  // The second grouping column. Sent beside subject rather than folded into
+  // meta so a report can group on it without parsing JSON per row.
+  detail: e.detail,
+  meta: e.meta ? safeJson(e.meta) : null,
+  occurred_at_iso: e.occurred_at,
+});
+
+/**
+ * What this install is, sent once per push.
+ *
+ * Facts about the DEVICE, not about any one event, so they ride on the
+ * envelope instead of being copied into the meta of every row - which is how
+ * "which app version is this crash from" ends up being a question you can only
+ * answer for the events you happened to think of at the time.
+ *
+ * The server keys these by (user, install_id) and updates a last-seen stamp,
+ * so a phone that is reinstalled counts as a new device and one that simply
+ * updates does not.
+ */
+const devicePayload = async () => ({
+  install_id: await getInstallId(),
+  platform: Platform.OS,
+  // A number on Android, a string on iOS. The column is text either way.
+  os_version: String(Platform.Version),
+  app_version: APP_VERSION,
+  locale: i18n.language,
+});
+
+const subscriptionPayload = (s: DBSubscription, userId: number) => ({
+  store: s.store || 'revenuecat',
+  // The id the purchase is actually filed under at RevenueCat. It is only the
+  // local user id for purchases this device made itself; a row restored from
+  // another install, or bought before an account merge, belongs to a different
+  // customer, and sending our own id made the backend verify the receipt
+  // against the wrong one.
+  revenuecat_app_user_id: s.revenuecat_app_user_id || String(userId),
+  // The SKU that was bought, which is how the backend resolves the plan when
+  // the slug it was sold under has since been renamed.
+  store_product_id: s.store_product_id || null,
+  purchase_token: s.purchase_token,
+  plan_slug: s.plan_slug,
+  google_order_id: s.google_order_id,
+  store_transaction_id: s.google_order_id,
+  status: s.status,
+  started_at: s.started_at,
+  ends_at: s.ends_at,
+  // Play is retrying the card and access continues until this date. Without
+  // it the backend sees only an expiry in the past and concludes the customer
+  // lapsed, which is the opposite of what a grace period means.
+  grace_period_ends_at: s.grace_period_ends_at || null,
+  auto_renewing: s.auto_renewing === 1,
+});
+
+/**
+ * Which of the rows we just sent the server is finished with.
+ *
+ * The push used to be all-or-nothing: a 200 marked every row in the request
+ * synced, so anything the server quietly dropped - an event past its date
+ * clamp, a row that failed its own validation - was recorded here as delivered
+ * and then deleted a week later, having never existed anywhere else. The
+ * response now names what it took, per collection, and only those are marked.
+ *
+ * A row the server leaves out stays queued and goes out again next time, which
+ * the client ids make harmless - and which is the point for the one case that
+ * is not permanent: an app that ships ahead of the backend writes events the
+ * backend does not recognise yet, and those keep until it does.
+ *
+ * A response with no `accepted` block at all, or one missing a collection, is
+ * an older backend rather than a rejection: mark everything, exactly as before.
+ */
+const acceptedFilter = <T>(
+  accepted: unknown,
+  key: (row: T) => string | number | null | undefined,
+): ((row: T) => boolean) => {
+  if (!Array.isArray(accepted)) return () => true;
+  // Compared as strings so a numeric id and its decimal spelling match.
+  const taken = new Set(accepted.map((v) => String(v)));
+  return (row) => taken.has(String(key(row)));
+};
+
+/** The `accepted` block of a push response, if the backend sends one. */
+const acceptedBlock = (res: { data?: any }): any =>
+  res?.data && typeof res.data === 'object' ? res.data.accepted : undefined;
+
+/**
+ * How many EXTRA push rounds a single sync will make.
+ *
+ * getUnsyncedWorkoutSessions and friends return at most one batch, so a device
+ * that trained offline for a month cannot clear its queue in one request. It
+ * drains here instead, bounded: five rounds is 2500 rows, far more than any
+ * real backlog, and the bound is what stops a server that accepts a push
+ * without marking anything synced from spinning this loop forever.
+ */
+const MAX_PUSH_ROUNDS = 5;
+
 export const syncNow = (userId: number): Promise<SyncResult> => {
   const existing = inFlight.get(userId);
   if (existing) return existing;
@@ -162,6 +314,163 @@ export const syncIfStale = (userId: number, maxAgeMs = 60_000): Promise<SyncResu
     return Promise.resolve({ success: true, skipped: true });
   }
   return syncNow(userId);
+};
+
+/**
+ * Send the queued events and nothing else.
+ *
+ * For logout, which is the one moment where the outbox is about to be deleted:
+ * clearUserData drops this account's rows, so anything still queued - the
+ * logged_out event itself included - is lost unless it goes now. A full
+ * syncNow cannot be used, because it pulls state back down and writes it to
+ * tables the caller is in the middle of tearing down.
+ *
+ * Needs nothing but the id: no user row is read, so it still works after the
+ * session has been half dismantled. Silent on every failure, like the rest of
+ * this instrumentation - a logout must never fail because a report did.
+ */
+export const flushEvents = async (userId: number): Promise<void> => {
+  if (!userId) return;
+  try {
+    const events = await getUnsyncedEvents(userId);
+    if (events.length === 0) return;
+    const res = await api.pushState({ events: events.map(eventPayload) });
+    if (!res.ok) return;
+    const took = acceptedFilter<{ client_id: string }>(
+      acceptedBlock(res)?.events,
+      (e) => e.client_id,
+    );
+    await markEventsSynced(events.filter(took).map((e) => e.id));
+  } catch {}
+};
+
+/**
+ * How long a locally recorded purchase is protected from the reconcile below.
+ *
+ * A purchase completes on the DEVICE and reaches our backend by two
+ * independent routes - this sync's push, and RevenueCat's webhook - neither of
+ * which is instant. So a token the pull does not mention is ambiguous for a
+ * while: it might be a subscription that ended somewhere else, or it might be
+ * the one the customer paid for ninety seconds ago that nothing server-side
+ * has processed yet. Expiring the second kind is taking away access somebody
+ * just bought, which is unrecoverable without support. A day of protection
+ * costs at most a day of access to a purchase the server never accepts.
+ */
+const PURCHASE_SETTLE_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Retire local subscription rows the server no longer knows about.
+ *
+ * The pull is authoritative and complete: it returns every subscription the
+ * account has. A local row whose token is absent from it is a row the backend
+ * has dropped, refunded, revoked or never accepted - and without this it sat
+ * in SQLite with its original future `ends_at` forever, quietly entitling
+ * somebody the server considers unsubscribed. Nothing else ever deleted it,
+ * because every other write path only ever adds or updates.
+ *
+ * Only runs when the payload actually CARRIES a subscriptions array. An older
+ * backend that omits the key entirely is silence, not "you have none", and
+ * treating it as the latter would clear every paying customer on this device.
+ */
+const reconcileLocalSubscriptions = async (
+  userId: number,
+  remote: unknown,
+): Promise<void> => {
+  if (!Array.isArray(remote)) return;
+
+  const serverTokens = new Set(
+    remote
+      .map((s: any) => s?.purchase_token)
+      .filter((t: unknown): t is string => typeof t === 'string' && t.length > 0),
+  );
+
+  const locals = await getSubscriptions(userId);
+  // When this device last recorded a purchase of its own. Preferred over the
+  // row's started_at, which carries the store's ORIGINAL purchase date and is
+  // months old for anyone restoring, resubscribing or switching plans.
+  const recordedAt = await purchaseRecordedAt(userId).catch(() => null);
+  const now = Date.now();
+
+  for (const row of locals) {
+    if (!row.purchase_token) continue;
+    if (serverTokens.has(row.purchase_token)) continue;
+    if (String(row.status || '').toLowerCase() === 'expired') continue;
+
+    const settledFrom = recordedAt ?? Date.parse(row.started_at || '');
+    if (Number.isFinite(settledFrom) && now - settledFrom < PURCHASE_SETTLE_MS) continue;
+
+    const endsAt = Date.parse(row.ends_at || '');
+    await saveSubscription(userId, {
+      purchase_token: row.purchase_token,
+      status: 'expired',
+      auto_renewing: 0,
+      // Pull a future expiry back to now, so nothing reading the date alone
+      // keeps handing out access the status no longer grants.
+      ends_at:
+        Number.isFinite(endsAt) && endsAt > now
+          ? new Date(now).toISOString()
+          : row.ends_at ?? new Date(now).toISOString(),
+    });
+  }
+};
+
+/**
+ * Send whatever the capped first push left behind.
+ *
+ * Each round pushes one batch and marks it, then looks again; it stops the
+ * moment a round finds nothing, the server rejects a push, or the round limit
+ * is reached. Reminders are not drained here - there are at most seven of
+ * them, so they can never overflow a batch.
+ */
+const drainPendingPushes = async (userId: number, timezone: string): Promise<void> => {
+  for (let round = 1; round < MAX_PUSH_ROUNDS; round++) {
+    const [sessions, measurements, events] = await Promise.all([
+      getUnsyncedWorkoutSessions(userId),
+      getUnsyncedMeasurements(userId),
+      getUnsyncedEvents(userId),
+    ]);
+    if (sessions.length === 0 && measurements.length === 0 && events.length === 0) return;
+
+    const res = await api.pushState({
+      timezone,
+      workout_sessions: sessions.map(sessionPayload),
+      measurements: measurements.map(measurementPayload),
+      events: events.map(eventPayload),
+    });
+    // A failure here is not a failed sync: the pull already landed and the
+    // rows stay queued for the next run.
+    if (!res.ok) return;
+
+    const accepted = acceptedBlock(res);
+    const tookSession = acceptedFilter<DBWorkoutSession>(
+      accepted?.workout_sessions,
+      (row) => row.client_id,
+    );
+    const tookMeasurement = acceptedFilter<DBMeasurement>(
+      accepted?.measurements,
+      (row) => row.client_id,
+    );
+    const tookEvent = acceptedFilter<{ client_id: string }>(
+      accepted?.events,
+      (row) => row.client_id,
+    );
+
+    await Promise.all([
+      markWorkoutSessionsSynced(
+        sessions
+          .filter(tookSession)
+          .map((s) => s.id)
+          .filter((id): id is number => id !== undefined)
+      ),
+      markMeasurementsSynced(
+        measurements
+          .filter(tookMeasurement)
+          .map((m) => m.id)
+          .filter((id): id is number => id !== undefined)
+      ),
+      markEventsSynced(events.filter(tookEvent).map((e) => e.id)),
+    ]);
+  }
 };
 
 const runSync = async (userId: number): Promise<SyncResult> => {
@@ -210,26 +519,18 @@ const runSync = async (userId: number): Promise<SyncResult> => {
 
     const pushPayload = {
       timezone,
+      // Read here rather than at module load: the install id is only minted on
+      // first use, and doing it inside the payload builder keeps the one
+      // storage read on the sync's own path instead of the app's startup.
+      device: await devicePayload(),
       level_id: user.level_id,
       level_started_days: user.level_started_days,
       completed_lessons: localBasicsDone,
       // The first-run profile, recorded write-once on the server and re-sent
       // until a pull confirms it - so it has to be safe to receive twice.
       ...(pendingOnboarding ? { onboarding: pendingOnboarding } : {}),
-      workout_sessions: unsyncedSessions.map((s) => ({
-        // Fixed when the row was written, so a retried push is recognised as
-        // the same session rather than deduplicated by a timestamp guess.
-        client_id: s.client_id,
-        exercise_slug: s.exercise_slug,
-        duration_seconds: s.duration_seconds,
-        completed_at_iso: s.completed_at,
-        is_extra: s.is_extra === 1,
-      })),
-      measurements: unsyncedMeasurements.map((m) => ({
-        client_id: m.client_id,
-        seconds: m.seconds,
-        measured_at_iso: m.measured_at,
-      })),
+      workout_sessions: unsyncedSessions.map(sessionPayload),
+      measurements: unsyncedMeasurements.map(measurementPayload),
       reminders: unsyncedReminders.map((r) => ({
         weekday: r.weekday,
         times: r.times,
@@ -238,31 +539,14 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       // Behaviour. Sent with everything else rather than on its own schedule:
       // one request, and instrumentation that can never be the reason a sync
       // fails.
-      events: unsyncedEvents.map((e) => ({
-        client_id: e.client_id,
-        name: e.name,
-        subject: e.subject,
-        meta: e.meta ? safeJson(e.meta) : null,
-        occurred_at_iso: e.occurred_at,
-      })),
+      events: unsyncedEvents.map(eventPayload),
       // In-app purchases (RevenueCat / store) complete on the DEVICE, so the backend
       // learns about them here. Every local purchase token is re-sent each sync
       // (the backend ignores tokens it already verified), which is what
       // delivers a purchase made offline - same as the web UserSyncService.
       subscriptions: localSubs
         .filter((s) => !!s.purchase_token)
-        .map((s) => ({
-          store: s.store || 'revenuecat',
-          revenuecat_app_user_id: String(userId),
-          purchase_token: s.purchase_token,
-          plan_slug: s.plan_slug,
-          google_order_id: s.google_order_id,
-          store_transaction_id: s.google_order_id,
-          status: s.status,
-          started_at: s.started_at,
-          ends_at: s.ends_at,
-          auto_renewing: s.auto_renewing === 1,
-        })),
+        .map((s) => subscriptionPayload(s, userId)),
     };
 
     // 2. Push to Laravel
@@ -273,16 +557,52 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     }
 
     // Mark pushed items as synced in local DB (independent tables - parallel),
-    // while the pull requests below are already on the wire.
+    // while the pull requests below are already on the wire. Only what the
+    // server says it is finished with - see acceptedFilter. Anything it did not
+    // acknowledge stays queued and goes out again on the next sync, which the
+    // client ids make harmless.
+    const accepted = acceptedBlock(pushRes);
+    const tookSession = acceptedFilter<DBWorkoutSession>(
+      accepted?.workout_sessions,
+      (row) => row.client_id,
+    );
+    const tookMeasurement = acceptedFilter<DBMeasurement>(
+      accepted?.measurements,
+      (row) => row.client_id,
+    );
+    const tookEvent = acceptedFilter<{ client_id: string }>(
+      accepted?.events,
+      (row) => row.client_id,
+    );
+    // Reminders are the one collection with no client id: they upsert on
+    // (user, weekday), so the weekday is the natural key and it is what the
+    // server names them back with. The local row id never leaves this device
+    // and could not be matched against anything the response carries.
+    const tookReminder = acceptedFilter<{ weekday: number }>(
+      accepted?.reminders,
+      (row) => row.weekday,
+    );
+
     const markSynced = Promise.all([
       markWorkoutSessionsSynced(
-        unsyncedSessions.map((s) => s.id).filter((id): id is number => id !== undefined)
+        unsyncedSessions
+          .filter(tookSession)
+          .map((s) => s.id)
+          .filter((id): id is number => id !== undefined)
       ),
-      markEventsSynced(unsyncedEvents.map((e) => e.id)),
+      markEventsSynced(unsyncedEvents.filter(tookEvent).map((e) => e.id)),
       markMeasurementsSynced(
-        unsyncedMeasurements.map((m) => m.id).filter((id): id is number => id !== undefined)
+        unsyncedMeasurements
+          .filter(tookMeasurement)
+          .map((m) => m.id)
+          .filter((id): id is number => id !== undefined)
       ),
-      markRemindersSynced(userId, unsyncedReminders.map((r) => r.weekday)),
+      markRemindersSynced(
+        unsyncedReminders
+          .filter(tookReminder)
+          .map((r) => r.id)
+          .filter((id): id is number => id !== undefined)
+      ),
     ]);
 
     // 3. Pull user state and public content in parallel - two independent GETs,
@@ -303,14 +623,30 @@ const runSync = async (userId: number): Promise<SyncResult> => {
 
     const data = pullRes.data;
 
-    // Update local user details in SQLite
+    // Update local user details in SQLite. This is the CORE state - the level,
+    // the plan position, the timezone every date in the app is computed in -
+    // and the one part of the pull whose failure means the sync did not
+    // happen. Everything after it is wrapped so that it cannot be.
     const remoteUser = data.user;
     await saveDBUser({
       name: remoteUser.name,
       email: remoteUser.email,
       level_id: remoteUser.level_id,
       level_started_days: remoteUser.level_started_days,
-      onboarded_at: remoteUser.onboarded ? new Date().toISOString() : null,
+      // The server's own timestamp, verbatim.
+      //
+      // This used to be `onboarded ? new Date().toISOString() : null`, which
+      // wrote "now" over the real date on EVERY sync - so the moment somebody
+      // finished onboarding was destroyed the first time they came online, and
+      // "member since" moved forward every day. The boolean is only a fallback
+      // for a backend that does not send the field yet; when it does, the date
+      // it sends is the answer.
+      onboarded_at:
+        typeof remoteUser.onboarded_at === 'string' && remoteUser.onboarded_at
+          ? remoteUser.onboarded_at
+          : remoteUser.onboarded
+            ? new Date().toISOString()
+            : null,
       timezone: remoteUser.timezone,
     });
 
@@ -319,108 +655,126 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     // create duplicates themselves).
     if (!healedThisRun) {
       healedThisRun = true;
-      await Promise.all([dedupeWorkoutSessions(), dedupeMeasurements()]);
+      await applySection('dedupe', async () => {
+        await Promise.all([dedupeWorkoutSessions(), dedupeMeasurements()]);
+      });
     }
 
     // Re-hydrate pulled state. Full-state pulls repeat every stored row each
     // sync, so these bulk-upsert by (user, time) - and each domain lands in a
     // single transaction instead of one bridge round-trip per row.
-    await bulkUpsertPulledWorkoutSessions(
-      userId,
-      (data.workout_sessions || [])
-        .filter((ws: any) => !!ws.completed_at)
-        .map((ws: any) => ({
-          user_id: userId,
-          exercise_id: ws.exercise_id,
-          exercise_slug: ws.exercise_slug || null,
-          level_id: ws.level_id,
-          duration_seconds: ws.duration_seconds,
-          is_extra: ws.is_extra ? 1 : 0,
-          started_at: new Date(new Date(ws.completed_at).getTime() - (ws.duration_seconds * 1000)).toISOString(),
-          completed_at: ws.completed_at,
-          synced: 1,
-        }))
+    await applySection('workout_sessions', () =>
+      bulkUpsertPulledWorkoutSessions(
+        userId,
+        (data.workout_sessions || [])
+          .filter((ws: any) => !!ws.completed_at)
+          .map((ws: any) => ({
+            user_id: userId,
+            client_id: ws.client_id || null,
+            exercise_id: ws.exercise_id,
+            exercise_slug: ws.exercise_slug || null,
+            level_id: ws.level_id,
+            duration_seconds: ws.duration_seconds,
+            is_extra: ws.is_extra ? 1 : 0,
+            started_at: new Date(new Date(ws.completed_at).getTime() - (ws.duration_seconds * 1000)).toISOString(),
+            completed_at: ws.completed_at,
+            synced: 1,
+          }))
+      )
     );
 
-    await bulkSaveTrainingDays(
-      (data.training_days || []).map((td: any) => ({
-        user_id: userId,
-        date: td.date,
-        sessions_count: td.sessions_count,
-        required_sessions: td.required_sessions,
-        completed_at: td.completed_at,
-      }))
+    await applySection('training_days', () =>
+      bulkSaveTrainingDays(
+        (data.training_days || []).map((td: any) => ({
+          user_id: userId,
+          date: td.date,
+          sessions_count: td.sessions_count,
+          required_sessions: td.required_sessions,
+          completed_at: td.completed_at,
+        }))
+      )
     );
 
     // Measurements keep the server's real measured_at (the old path stamped
     // every pulled row with now(), losing the true time and guaranteeing a new
     // duplicate on every sync).
-    await bulkUpsertPulledMeasurements(
-      userId,
-      (data.measurements || []).filter((m: any) => !!m.measured_at)
+    await applySection('measurements', () =>
+      bulkUpsertPulledMeasurements(
+        userId,
+        (data.measurements || []).filter((m: any) => !!m.measured_at)
+      )
     );
 
-    // Re-hydrate reminders
-    for (const r of data.reminders || []) {
-      await saveReminder(userId, r.weekday, r.times, r.is_enabled ? 1 : 0, 1);
-    }
+    await applySection('reminders', async () => {
+      // Re-hydrate reminders
+      for (const r of data.reminders || []) {
+        await saveReminder(userId, r.weekday, r.times, r.is_enabled ? 1 : 0, 1);
+      }
 
-    // Schedule reminders locally using Notifee - from the merged LOCAL DB state,
-    // not the raw pull payload. The login-time sync runs in the background; if
-    // the user saves reminders on the Schedule screen while a pull with no (or
-    // stale) server reminders is still in flight, scheduling from the payload
-    // would cancel and wipe what they just set. The local table already holds
-    // pulled + locally saved reminders at this point, so it is the truth.
-    const mergedReminders = await getReminders(userId);
-    await scheduleReminders(
-      mergedReminders.map((r) => ({
-        weekday: r.weekday,
-        times: r.times,
-        isEnabled: r.is_enabled === 1,
-      }))
-    );
+      // Schedule reminders locally using Notifee - from the merged LOCAL DB state,
+      // not the raw pull payload. The login-time sync runs in the background; if
+      // the user saves reminders on the Schedule screen while a pull with no (or
+      // stale) server reminders is still in flight, scheduling from the payload
+      // would cancel and wipe what they just set. The local table already holds
+      // pulled + locally saved reminders at this point, so it is the truth.
+      const mergedReminders = await getReminders(userId);
+      await scheduleReminders(
+        mergedReminders.map((r) => ({
+          weekday: r.weekday,
+          times: r.times,
+          isEnabled: r.is_enabled === 1,
+        }))
+      );
+    });
 
-    // Merge completed basics lessons from backend with the CURRENT local set,
-    // re-read at write time - NOT localBasicsDone from the start of this sync.
-    // The login-time sync runs while the user may be actively finishing lessons;
-    // merging the stale start-of-sync copy (empty for a new account) would
-    // overwrite - i.e. WIPE - lessons completed mid-sync, closing the basics
-    // gate right as the user finishes it.
-    // The server has the first-run profile now, so stop re-sending it. Keyed
-    // on the PULL rather than on the push succeeding: the pull is the only
-    // thing that proves it was stored rather than merely accepted.
-    if (data.onboarding) {
-      await AsyncStorage.removeItem(ONBOARDING_PUSH_KEY).catch(() => {});
-    }
+    await applySection('basics', async () => {
+      // Merge completed basics lessons from backend with the CURRENT local set,
+      // re-read at write time - NOT localBasicsDone from the start of this sync.
+      // The login-time sync runs while the user may be actively finishing lessons;
+      // merging the stale start-of-sync copy (empty for a new account) would
+      // overwrite - i.e. WIPE - lessons completed mid-sync, closing the basics
+      // gate right as the user finishes it.
+      // The server has the first-run profile now, so stop re-sending it. Keyed
+      // on the PULL rather than on the push succeeding: the pull is the only
+      // thing that proves it was stored rather than merely accepted.
+      if (data.onboarding) {
+        await AsyncStorage.removeItem(ONBOARDING_PUSH_KEY).catch(() => {});
+      }
 
-    const remoteBasicsDone = data.completed_lessons || [];
-    try {
+      const remoteBasicsDone = data.completed_lessons || [];
       const currentRaw = await AsyncStorage.getItem(`@basics_done_${userId}`);
       const currentLocal: string[] = currentRaw ? JSON.parse(currentRaw) : [];
       const mergedBasicsDone = Array.from(new Set([...currentLocal, ...remoteBasicsDone]));
       await AsyncStorage.setItem(`@basics_done_${userId}`, JSON.stringify(mergedBasicsDone));
-    } catch {}
+    });
 
-    // Re-hydrate subscriptions
-    for (const s of data.subscriptions || []) {
-      await saveSubscription(userId, {
-        plan_id: s.plan_id,
-        plan_slug: s.plan_slug,
-        status: s.status,
-        store: s.store,
-        purchase_token: s.purchase_token,
-        google_order_id: s.google_order_id,
-        trial_ends_at: s.trial_ends_at,
-        started_at: s.started_at,
-        ends_at: s.ends_at,
-        canceled_at: s.canceled_at,
-        auto_renewing: s.auto_renewing ? 1 : 0,
-      });
-    }
+    await applySection('subscriptions', async () => {
+      // Re-hydrate subscriptions
+      for (const sub of data.subscriptions || []) {
+        await saveSubscription(userId, {
+          plan_id: sub.plan_id,
+          plan_slug: sub.plan_slug,
+          status: sub.status,
+          store: sub.store,
+          purchase_token: sub.purchase_token,
+          google_order_id: sub.google_order_id,
+          revenuecat_app_user_id: sub.revenuecat_app_user_id,
+          store_product_id: sub.store_product_id,
+          trial_ends_at: sub.trial_ends_at,
+          started_at: sub.started_at,
+          ends_at: sub.ends_at,
+          grace_period_ends_at: sub.grace_period_ends_at,
+          canceled_at: sub.canceled_at,
+          auto_renewing: sub.auto_renewing ? 1 : 0,
+        });
+      }
+      await reconcileLocalSubscriptions(userId, data.subscriptions);
+    });
 
     // 4. Apply Content (pages and settings) - fetched in parallel with the
     // state pull above.
-    if (contentRes.ok && contentRes.data) {
+    await applySection('content', async () => {
+      if (!contentRes.ok || !contentRes.data) return;
       const content = contentRes.data;
       // Save static pages
       for (const page of content.pages || []) {
@@ -446,7 +800,11 @@ const runSync = async (userId: number): Promise<SyncResult> => {
           }
         }
       }
-    }
+    });
+
+    // Anything the first push could not fit. Runs last so a backlog never
+    // delays the pull that decides what the user sees.
+    await applySection('drain', () => drainPendingPushes(userId, timezone));
 
     lastSyncAt.set(userId, Date.now());
     syncCompleteListeners.forEach((cb) => {
@@ -456,6 +814,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     });
     return { success: true };
   } catch (e: any) {
+    reportError(e, 'sync:run');
     return { success: false, error: e.message || 'Sync failed' };
   }
 };

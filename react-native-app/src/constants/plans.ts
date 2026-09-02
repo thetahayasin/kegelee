@@ -120,6 +120,17 @@ export const planByProductId = (productId: string | null | undefined): PlanDef |
 export const planPeriodKey = (slug: string) => `plans.${slug}.period`;
 
 /**
+ * The same period as a NOUN, for sentences rather than for gluing onto a price.
+ *
+ * "/year" reads correctly after "$59.99" and nowhere else: the upgrade
+ * disclosure has to say "charged now for a full year", and concatenating the
+ * suffix form there produces "a full /year". Keyed per slug for the same
+ * reason as `period` - three fixed periods, no plural rules to get wrong in
+ * Russian, Polish or Arabic.
+ */
+export const planPeriodNounKey = (slug: string) => `plans.${slug}.periodNoun`;
+
+/**
  * Local expiry estimate for an instant-access record right after a purchase.
  * RevenueCat's verified webhook/API copy replaces it on the next pull.
  */

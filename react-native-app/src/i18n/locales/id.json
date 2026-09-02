@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "Temukan dasar panggulmu",
     "firstTitle": "Latihan pertamamu",
+    "skipStep": "Lewati langkah ini",
     "whyTitle": "Kenapa latihan Kegel berhasil"
   },
   "billing": {
-    "alreadyOwned": "Kamu sudah punya langganan aktif. Kami memulihkannya sekarang.",
-    "configuration": "Paket ini belum bisa dibeli saat ini. Ini masalah di pihak kami - coba lagi nanti atau hubungi dukungan.",
+    "alreadyOwned": "Akun Google-mu sudah punya langganan aktif untuk aplikasi ini.",
+    "configuration": "Paket ini belum bisa dibeli saat ini. Ini masalah di pihak kami, coba lagi nanti atau tulis ke kami lewat Pengaturan > Bantuan.",
     "declined": "Google Play menolak pembayaran. Periksa metode pembayaran di akun Google-mu, lalu coba lagi.",
     "ineligible": "Kamu tidak memenuhi syarat untuk penawaran ini. Pilih paket lain.",
     "network": "Kami tidak dapat menghubungi toko. Periksa koneksimu dan coba lagi. Jika kamu sudah ditagih, aksesmu akan muncul sendiri.",
     "noPermission": "Akun Google-mu tidak punya izin melakukan pembelian di perangkat ini.",
     "notAllowed": "Perangkat atau akun Google ini tidak diizinkan melakukan pembelian. Biasanya karena kontrol orang tua, atau tidak ada metode pembayaran di akun.",
     "operationInProgress": "Sudah ada pembelian yang sedang berjalan. Tunggu sebentar sebelum mencoba lagi.",
-    "otherAccount": "Langganan ini milik akun lain. Masuk dengan akun tersebut, atau hubungi dukungan dan kami akan memindahkannya.",
+    "otherAccount": "Langganan ini milik akun lain. Masuk dengan akun tersebut, atau tulis ke kami lewat Pengaturan > Bantuan dan kami akan memindahkannya.",
     "paymentPending": "Google Play sedang memproses pembayaranmu. Pembayaran tunai dan voucher bisa memakan waktu. Aksesmu terbuka otomatis begitu pembayaran selesai, jadi jangan membayar lagi.",
     "storeProblem": "Google Play sedang bermasalah saat ini. Coba lagi beberapa menit lagi.",
     "unknown": "Ada yang salah saat menyelesaikan pembelianmu. Coba lagi. Jika kamu sudah ditagih, aksesmu akan muncul sendiri. [{{code}}]",
-    "notEntitled": "Google Play menyelesaikan pembelian tetapi belum memberikan akses. Biasanya beres dalam satu menit. Jangan bayar lagi - kalau belum juga beres, hubungi dukungan dan kami bereskan."
+    "notEntitled": "Google Play menyelesaikan pembelian tetapi belum memberikan akses. Biasanya beres dalam satu menit. Jangan bayar lagi, dan kalau belum juga beres, tulis ke kami lewat Pengaturan > Bantuan."
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "Kembali",
+    "close": "Tutup",
+    "couldNotLoad": "Tidak bisa dimuat. Periksa koneksimu lalu coba lagi.",
+    "googleUnavailable": "Masuk dengan Google tidak tersedia di versi ini. Gunakan email dan kata sandimu.",
+    "hidePassword": "Sembunyikan kata sandi",
+    "offline": "Kamu sedang offline. Sebagian hal tidak akan dimuat sampai kamu terhubung lagi.",
     "or": "atau",
-    "perMonth": "{{price}}/bln"
+    "perMonth": "{{price}}/bln",
+    "showPassword": "Tampilkan kata sandi",
+    "tryAgain": "Coba lagi"
   },
   "errorBoundary": {
+    "goToStart": "Ke awal",
     "somethingWentWrong": "Terjadi kesalahan",
     "theAppHitAnUnexpected": "Aplikasi mengalami kesalahan tak terduga. Silakan coba lagi.",
     "tryAgain": "Coba lagi"
@@ -200,6 +210,7 @@
     "tryItNow": "Coba sekarang"
   },
   "find": {
+    "holdA11yHint": "Tekan dan tahan selama {{seconds}} detik sambil mengencangkan otot.",
     "keepGoing": "Terus begitu …",
     "onlyDoThePeeTestDesc": "Ini hanya cara menemukan ototnya, bukan latihan. Sering menahan aliran tidak baik untuk kandung kemih.",
     "pressAndHold": "Tekan dan tahan",
@@ -221,10 +232,12 @@
     "learnTheBasics": "Pelajari dasarnya",
     "lessonNumber": "Pelajaran {{number}}",
     "logIn": "Masuk",
-    "nextLesson": "Pelajaran berikutnya"
+    "nextLesson": "Pelajaran berikutnya",
+    "nextStepA11y": "Langkah berikutnya",
+    "previousStepA11y": "Langkah sebelumnya"
   },
-  "legalPage": {
-    "offlineNotice": "Tidak ada konten saat offline. Hubungkan ke internet untuk memuat halaman ini."
+  "legal": {
+    "aboutBasics": "Latihan dasar panggul, yang biasa disebut Kegel, menguatkan otot-otot yang menopang kandung kemih, usus, dan fungsi seksual.\n\nCara melakukannya:\n1. Temukan ototnya. Kencangkan otot yang kamu pakai untuk menghentikan aliran urine di tengah.\n2. Kencangkan hanya otot dasar panggul. Biarkan bokong, paha, dan perut tetap rileks.\n3. Terus bernapas seperti biasa sepanjang latihan.\n\nYang membuahkan hasil adalah konsistensi. Berlatihlah setiap hari untuk hasil terbaik."
   },
   "login": {
     "6DigitCode": "Kode 6 digit",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "Semua paket dimulai dengan uji coba gratis {{count}} hari",
     "everyPlanStartsWithTrial_other": "Semua paket dimulai dengan uji coba gratis {{count}} hari",
     "logOut": "Keluar",
+    "manageInGooglePlay": "Kelola langganan di Google Play",
     "manageOrCancelAnytime": "Kelola atau batalkan kapan saja di Google Play.",
     "managePlan": "Kelola Paket",
     "noActiveSubscriptionWasFound": "Tidak ada langganan aktif yang bisa dipulihkan.",
     "off": "Nonaktif",
     "offeringsUnavailable": "Langganan belum tersedia di perangkat ini saat ini. Coba lagi nanti atau pulihkan pembelian sebelumnya di bawah.",
     "on": "Aktif",
-    "paymentProcessedSecurely": "Pembayaran diproses dengan aman melalui RevenueCat dan app store saat konfirmasi.",
+    "paymentProcessedSecurely": "Pembayaran diproses dengan aman melalui Google Play saat konfirmasi.",
     "premium": "Premium",
     "priceRenewsAutomatically": "{{price}}, diperpanjang otomatis sampai dibatalkan.",
     "privacyPolicy": "Kebijakan Privasi",
+    "purchaseAlreadyEnded": "Google Play melaporkan bahwa langganan ini sudah berakhir, jadi tidak ada yang dibuka. Kalau kamu tetap ditagih, hubungi dukungan dan kami bereskan.",
     "purchaseReceivedButPlanCould": "Pembelian diterima, tetapi paket tidak dapat dikenali. Hubungi dukungan.",
     "renewPlan": "Perpanjang Paket",
     "renewYourPlan": "Perpanjang paket Anda",
     "restorePurchases": "Pulihkan pembelian",
+    "restoringPurchase": "Kami memulihkannya sekarang.",
     "restoredPurchaseCouldNotBe": "Pembelian yang dipulihkan tidak dapat dicocokkan dengan paket. Hubungi dukungan.",
     "savePercent": "HEMAT {{percent}}%",
     "signInFirst": "Masuk dulu sebelum berlangganan.",
@@ -321,6 +337,9 @@
     "switchQueued": "Paketmu berubah ke {{plan}} saat paketmu yang sekarang berakhir. Kamu tidak ditagih hari ini.",
     "switchQueuedOn": "Paketmu berubah ke {{plan}} pada {{date}}. Kamu tidak ditagih hari ini.",
     "switchStartsLater": "Waktu yang sudah kamu bayar tetap berlaku. Harga baru mulai pada perpanjangan berikutnya.",
+    "switchChargedNow": "Kamu ditagih {{price}} sekarang untuk {{period}} penuh; sisa waktu paketmu saat ini ditambahkan di atasnya.",
+    "switchNoChargeToday": "Tidak ada tagihan hari ini. Paketmu berubah ke {{plan}} pada perpanjangan berikutnya, {{date}}.",
+    "switchNoChargeTodayUndated": "Tidak ada tagihan hari ini. Paketmu berubah ke {{plan}} pada perpanjangan berikutnya.",
     "switchStartsNow": "Mulai sekarang. Pembayaran ditagih hari ini, dan sisa waktumu ditambahkan.",
     "switchToPlan": "Pindah ke {{plan}}",
     "terms": "Ketentuan",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "Akses penuh, ditagih setiap bulan.",
       "name": "1 bulan",
-      "period": "/bulan"
+      "period": "/bulan",
+      "periodNoun": "1 bulan"
     },
     "premium-quarterly": {
       "description": "Ditagih setiap 3 bulan.",
       "name": "3 bulan",
-      "period": "/3 bulan"
+      "period": "/3 bulan",
+      "periodNoun": "3 bulan"
     },
     "premium-yearly": {
       "description": "Satu kali bayar untuk setahun penuh.",
       "name": "1 tahun",
-      "period": "/tahun"
+      "period": "/tahun",
+      "periodNoun": "1 tahun"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "Lewati"
   },
   "register": {
+    "agreeIntro": "Dengan membuat akun, kamu menyetujui",
     "alreadyHaveAnAccount": "Sudah punya akun?",
     "confirmPassword": "Konfirmasi kata sandi",
     "continueWithGoogle": "Lanjutkan dengan Google",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "Kata sandi harus memuat setidaknya satu angka.",
     "passwordTooShort": "Kata sandi minimal 6 karakter.",
     "passwordsDoNotMatch": "Kata sandi tidak cocok.",
+    "privacyPolicy": "Kebijakan privasi",
     "registrationFailed": "Pendaftaran gagal.",
-    "subtitle": "Butuh semenit. Progresmu tersinkron di semua perangkat."
+    "subtitle": "Butuh semenit. Progresmu tersinkron di semua perangkat.",
+    "terms": "Ketentuan"
   },
   "reminders": {
-    "channelName": "Pengingat Latihan",
+    "channelName": "Pengingat latihan",
     "lapseBody": "Sudah beberapa hari. Satu sesi singkat cukup untuk kembali ke kebiasaan.",
     "lapseTitle": "Siap kapan pun kamu siap",
-    "notificationBody": "Saatnya sesi Kegel harianmu!",
+    "notificationBody": "Saatnya sesi Kegelmu.",
     "notificationTitle": "Latihan Kegel",
+    "notificationsOffBody": "Pengingatmu tersimpan, tetapi Kegelee tidak bisa mengirim notifikasi. Aktifkan notifikasi di pengaturan ponselmu agar mulai menerimanya.",
+    "notificationsOffTitle": "Notifikasi nonaktif",
     "nudgeChannelName": "Pengingat",
-    "trialEndingBody": "Langganan Anda akan dimulai kecuali Anda membatalkannya di Google Play.",
+    "trialEndingBody": "Uji coba gratis Anda berakhir besok. Agar tidak ditagih, batalkan di Google Play sebelum berakhir.",
     "trialEndingTitle": "Uji coba gratis Anda berakhir besok"
   },
   "schedule": {
     "active": "Aktif",
     "addTime": "Tambah waktu",
-    "allowExactBody": "Pengingatmu sudah diatur.\n\nAgar berbunyi tepat waktu, izinkan \"Alarm dan pengingat\" untuk Kegelee - kalau tidak, bisa terlambat beberapa menit.",
-    "allowExactTitle": "Izinkan pengingat tepat waktu",
     "daysLeft_one": "tersisa {{count}} hari",
     "daysLeft_other": "tersisa {{count}} hari",
     "daysSet_one": "{{count}} hari diatur",
     "daysSet_other": "{{count}} hari diatur",
-    "error": "Kesalahan",
-    "errorTitle": "Kesalahan",
     "failedToSaveReminders": "Pengingat gagal disimpan.",
-    "limitReached": "Batas tercapai",
     "limitReachedBody": "Kamu bisa mengatur hingga 5 pengingat per hari.",
-    "limitReachedTitle": "Batas tercapai",
     "monthNumber": "Bulan {{number}}",
     "notNow": "Nanti saja",
     "openSettings": "Buka pengaturan",
     "reminders": "Pengingat",
-    "remindersSaved": "Pengingat tersimpan",
     "remindersSavedBody": "Pengingat latihan mingguanmu sudah dijadwalkan.",
-    "remindersSavedTitle": "Pengingat disimpan",
+    "remindersTurnedOffBody": "Pengingat sedang nonaktif. Pilih setidaknya satu hari untuk diingatkan.",
+    "removeTimeA11y": "Hapus {{time}}",
     "repeatOn": "Ulangi pada",
     "saveAddReminders": "Simpan pengingat",
     "schedule": "Jadwal",
@@ -456,6 +477,7 @@
     "cancel": "Batal",
     "cancelledUntilDate": "Dibatalkan. Aksesmu tetap aktif sampai {{date}}.",
     "cancelledUntilPeriodEnd": "Dibatalkan. Aksesmu tetap aktif sampai akhir periode berbayar.",
+    "contactSupport": "Hubungi dukungan",
     "deleteAccount": "Hapus akun",
     "deleteAccount2": "Hapus akun?",
     "deleteCodeSent": "Kami mengirim kode 6 digit ke {{email}}. Masukkan kode itu untuk menghapus akunmu secara permanen.",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "Gagal menghapus kemajuan. Periksa koneksi internetmu.",
     "failedToSendDeleteCode": "Gagal mengirim kode penghapusan. Periksa koneksi internetmu.",
     "gotIt": "Mengerti",
+    "help": "Bantuan",
     "language": "Bahasa",
     "logOut": "Keluar",
+    "logOutConfirmBody": "Kamu perlu kata sandimu untuk masuk lagi, dan semua yang belum tersinkron akan hilang.",
+    "logOutConfirmTitle": "Keluar?",
     "manageSubscription": "Kelola langganan",
     "noActiveSubscription": "Tidak ada langganan aktif",
     "opensGooglePlay": "Membuka Google Play untuk mengganti paket, membatalkan, atau menonaktifkan perpanjangan otomatis.",
     "paymentIssueDetail": "Ada masalah dengan pembayaran langgananmu. Perbarui metode pembayaran di Google Play.",
     "renewsOn": "Diperpanjang pada {{date}}.",
     "reset": "Reset",
-    "resetConfirmBody": "Ini akan menghapus hari latihan, sesi, pengukuran, dan kemajuan pelajaranmu. Tindakan ini tidak bisa dibatalkan.",
+    "resetConfirmBody": "Ini akan menghapus hari latihan, sesi, dan pengukuranmu. Akun, langganan, dan pengingatmu tetap ada. Tindakan ini tidak bisa dibatalkan.",
     "resetProgress": "Reset kemajuan",
     "resetProgress2": "Reset kemajuan?",
-    "resetSuccessBody": "Kemajuan latihanmu telah dihapus.",
-    "resetSuccessTitle": "Direset",
+    "resetSuccessBody": "Hari latihan, sesi, dan pengukuranmu telah dihapus.",
+    "resetSuccessTitle": "Kemajuan direset",
     "restartBody": "Tutup dan buka kembali aplikasi untuk menyelesaikan perubahan arah tata letak.",
+    "restartNow": "Mulai ulang sekarang",
     "restartRequired": "Perlu dimulai ulang",
+    "rtlRestartConfirm": "{{language}} memakai tata letak dari kanan ke kiri. Aplikasi akan dimulai ulang.",
     "sendCode": "Kirim kode",
     "subActive": "Aktif",
     "subCancelled": "Dibatalkan",
@@ -497,44 +524,13 @@
     "subscribe": "Berlangganan",
     "subscribeToUnlockFullAccess": "Berlangganan untuk membuka akses penuh",
     "subscription": "Langganan",
+    "supportEmailBody": "Ceritakan apa yang terjadi, nanti kami periksa.\n\n---\nID akun: {{id}}",
+    "supportEmailSubject": "Dukungan Kegelee",
     "tapToChangePlan": "Ketuk untuk mengganti paket",
     "terms": "Ketentuan",
     "trialEndsNoRenew": "Uji coba gratis berakhir pada {{date}}. Tidak akan diperpanjang.",
     "trialEndsThenBilling": "Uji coba gratis berakhir pada {{date}}, setelah itu penagihan dimulai.",
     "updatePaymentMethod": "Perbarui metode pembayaran di Google Play."
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "Sudah punya akun? Masuk",
-    "back": "Kembali",
-    "bestValue": "PALING HEMAT",
-    "billingDisclosure": "Pembayaran diproses dengan aman melalui RevenueCat dan toko aplikasi saat konfirmasi. Langgananmu diperpanjang otomatis dengan harga yang ditampilkan sampai kamu membatalkannya di pengaturan langganan; menghapus aplikasi tidak membatalkan atau mengembalikan dana. Dengan melanjutkan, kamu menyetujui",
-    "close": "Tutup",
-    "confirmPassword": "Konfirmasi kata sandi",
-    "continue": "Lanjut",
-    "continueWithGoogle": "Lanjutkan dengan Google",
-    "couldNotOpenGoogle": "Tidak dapat membuka login Google. Coba lagi.",
-    "couldNotReachServer": "Tidak dapat menghubungi server. Periksa koneksimu dan coba lagi.",
-    "createAccount": "Buat akun",
-    "createAccountSubscribe": "Buat akun & berlangganan",
-    "creatingAccount": "Membuat akun …",
-    "emailAddress": "Alamat email",
-    "emailInvalid": "Masukkan alamat email yang valid.",
-    "emailOrPasswordIncorrect": "Email atau kata sandi salah.",
-    "emailRequired": "Email wajib diisi.",
-    "fullName": "Nama lengkap",
-    "googleSignInFailed": "Masuk dengan Google gagal. Coba lagi.",
-    "headline": "Pilih paket dan mulai berlatih",
-    "nameRequired": "Nama wajib diisi.",
-    "noAccountYetCreateOne": "Belum punya akun? Buat sekarang",
-    "password": "Kata sandi",
-    "passwordRequired": "Kata sandi wajib diisi.",
-    "passwordRules": "Kata sandi minimal 6 karakter dan harus memuat angka.",
-    "passwordsDoNotMatch": "Kata sandi tidak cocok.",
-    "signIn": "Masuk",
-    "signInSubscribe": "Masuk & berlangganan",
-    "signingIn": "Sedang masuk …",
-    "subscribe": "Berlangganan",
-    "terms": "Ketentuan"
   },
   "tabs": {
     "profile": "Profil",
@@ -570,15 +566,18 @@
     "available": "Tersedia",
     "bestHold": "Tahan terbaik {{seconds}} dtk",
     "complete": "SELESAI",
+    "dayLabel": "Hari {{day}}",
     "daysLeft_one": "{{count}} hari",
     "daysLeft_other": "{{count}} hari",
     "exercises": "Latihan",
     "extraSessionsOptional": "Sesi tambahan bersifat opsional",
+    "freeCapCta": "Berlangganan",
+    "freeCapReached": "Paket gratismu berhenti di hari {{day}}. Berlangganan untuk melanjutkan.",
     "knowledge": "Pengetahuan",
     "measureDaily": "Ukur setiap hari untuk melihat kemajuan",
     "minutes_one": "{{count}} mnt",
     "minutes_other": "{{count}} mnt",
-    "monthDay": "BULAN {{month}}   /   HARI {{day}}",
+    "monthLabel": "Bulan {{month}}",
     "progressTracker": "Pelacak kemajuan",
     "readyWhenYouAre": "Mulai kapan pun kamu siap",
     "ringA11y": "{{done}} dari {{required}} sesi selesai hari ini",
@@ -587,7 +586,7 @@
     "sessions": "SESI",
     "sessionsCompleteToday_one": "{{count}} sesi menuntaskan hari ini",
     "sessionsCompleteToday_other": "{{count}} sesi menuntaskan hari ini",
-    "startWorkout": "Mulai latihan",
+    "startWorkout": "Mulai sesi",
     "streakDays_one": "Rentetan {{count}} hari",
     "streakDays_other": "Rentetan {{count}} hari",
     "todayIsDone": "Hari ini sudah selesai",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "Kembali ke halaman masuk",
-    "codeResent": "Kode verifikasi dikirim ulang!",
+    "codeResent": "Kode verifikasi dikirim ulang.",
     "didnTReceiveTheCode": "Tidak menerima kode? Kirim ulang",
     "enterSixDigitCode": "Masukkan kode verifikasi 6 digit.",
     "failedToResendCode": "Kode gagal dikirim ulang.",
@@ -611,18 +610,18 @@
   "why": {
     "cardRealMuscle": "Otot sungguhan. Latih dan dia menguat.",
     "squeezeTheWrongMusclesAnd": "Kalau salah otot yang dikencangkan, hasilnya nihil.",
-    "theNextLessonShowsYou": "Pelajaran berikutnya menunjukkan letak persis otot-ototmu.",
-    "thenYouDoYourFirst": "Setelah itu kamu melakukan latihan pertamamu, dipandu oleh lingkaran."
+    "theNextLessonShowsYou": "Pelajaran berikutnya menunjukkan letak persis otot-ototmu."
   },
   "workout": {
     "back": "Kembali",
+    "couldNotStartBody": "Ada yang salah saat menyiapkan sesimu. Coba lagi, atau kembali dan mulai dari tab latihan.",
+    "couldNotStartTitle": "Sesi tidak bisa dimulai",
     "exerciseTutorial": "Panduan latihan",
     "greatJob": "Kerja bagus!",
     "ifYouLeaveThisSession": "Kalau keluar sekarang, sesi ini tidak dihitung dalam kemajuan harianmu.",
-    "leaveTraining": "Keluar dari latihan?",
+    "leaveTraining": "Keluar dari sesi ini?",
     "minutesLeft_one": "sisa {{count}} mnt",
     "minutesLeft_other": "sisa {{count}} mnt",
-    "noExercises": "Tidak ada latihan",
     "noExercisesBody": "Belum ada latihan yang terbuka untuk sesi ini.",
     "noExercisesTitle": "Tidak ada latihan",
     "noGoBack": "Tidak, kembali",
@@ -634,7 +633,7 @@
     "tryAgain": "Coba lagi",
     "watchTheQuickTutorialFor": "Tonton panduan singkat latihan ini, lalu kembali ke sesimu.",
     "watchTutorial": "Tonton panduan",
-    "yesQuitTraining": "Ya, keluar dari latihan"
+    "yesQuitTraining": "Ya, keluar dari sesi"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "Kamu sudah berada di level termudah.",

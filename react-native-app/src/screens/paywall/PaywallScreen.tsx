@@ -7,14 +7,24 @@ import {
   ScrollView,
   ActivityIndicator,
   Modal,
+  Linking,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import {
+  useNavigation,
+  useRoute,
+  NavigationProp,
+  RouteProp,
+} from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import { DISABLED_OPACITY, TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { track } from '../../services/events';
+import {
+  planSwitchDirection,
+  purchaseFailureDetail,
+} from '../../services/eventClassifiers';
 import { useAuth } from '../../context/AuthContext';
 import {
   getActiveSubscription,
@@ -30,21 +40,23 @@ import {
   planNameKey,
   planDescriptionKey,
   planPeriodKey,
+  planPeriodNounKey,
 } from '../../constants/plans';
 import {
   initBilling,
   requestPlanPurchase,
   restoreRevenueCatPurchases,
   recordCompletedPurchase,
-  peekPendingPlan,
-  clearPendingPlan,
   getPlanPricing,
   describePurchaseFailure,
   refreshCustomerInfo,
+  manageSubscriptionUrl,
   PlanPricing,
   replacementModeFor,
   CHARGE_FULL_PRICE,
 } from '../../services/billing';
+import { planSwitchFor } from '../../services/planSwitch';
+import type { RootStackParamList } from '../../navigation/AppNavigator';
 import { syncNow } from '../../services/sync';
 import { formatSubscriptionDate } from '../../utils/localDate';
 import { Watermark } from '../../components/Watermark';
@@ -98,14 +110,32 @@ export const PaywallScreen = () => {
   const COLORS = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Paywall'>>();
   const { user, logout, markSubscribed, subscribed: gateOpen } = useAuth();
+
+  /**
+   * Which door the reader came through.
+   *
+   * There are six ways onto this screen - a padlocked exercise, the difficulty
+   * picker, the reminders row, the measure card, Settings, the end of a
+   * session - and until now every one of them arrived as the same anonymous
+   * "someone saw the paywall". Which prompt actually sells is the single most
+   * useful thing this screen can report, and it costs one route param.
+   *
+   * 'direct' covers the routes with nothing to say: a deep link, or any push
+   * that did not name itself. The param is optional in RootStackParamList for
+   * exactly that reason, so this reads it through the navigator's own type
+   * rather than asserting a shape of its own.
+   */
+  const source = route.params?.source ?? 'direct';
 
   const [activeSub, setActiveSub] = useState<DBSubscription | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null); // plan slug
   // Localized store prices + real trial eligibility, keyed by plan slug.
   // Empty until RevenueCat offerings load (or when they can't - offline, store
-  // unavailable), in which case the catalogue USD price shows and no trial is
-  // ever advertised.
+  // unavailable), in which case the cards show a placeholder, the disclosure
+  // does not render at all, and no trial is ever advertised. The catalogue's
+  // USD figure is never put in front of a reader.
   const [pricing, setPricing] = useState<Record<string, PlanPricing>>({});
   const [purchasing, setPurchasing] = useState(false);
   const [billingReady, setBillingReady] = useState(true);
@@ -128,6 +158,12 @@ export const PaywallScreen = () => {
   // reads as "your money did not go through", which is how you get a second
   // charge attempt and a support ticket.
   const [messageTone, setMessageTone] = useState<'info' | 'error'>('error');
+  // Where to send someone to cancel, change payment method or resume, and
+  // whether to show that route to somebody who has no local subscription row.
+  // Play answering "you already own this" is proof of a subscription the app
+  // cannot see, and the only screen that can settle it is Play's.
+  const [manageUrl, setManageUrl] = useState<string | null>(null);
+  const [showManageLink, setShowManageLink] = useState(false);
   const [showAutoRenewalNotice, setShowAutoRenewalNotice] = useState(false);
   const [autoRenewing, setAutoRenewing] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -150,7 +186,27 @@ export const PaywallScreen = () => {
   // store reports the plan is already owned. Reaching it through a ref keeps
   // that call pointed at the current handler instead of the one captured when
   // the callback was created.
-  const handleRestoreRef = useRef<(() => Promise<void>) | null>(null);
+  const handleRestoreRef =
+    useRef<((opts?: { auto?: boolean }) => Promise<void>) | null>(null);
+  /**
+   * Synchronous re-entrancy guards for the two handlers that spend money.
+   *
+   * `purchasing` cannot do this job: it is state, so the button it disables
+   * only stops taking taps on the next render. A second tap in the same frame,
+   * a tap racing a resumed purchase, or Restore firing while a purchase is
+   * mid-flight all got through - and two overlapping Play sheets for the same
+   * product is the worst possible place for a race.
+   */
+  const subscribeInFlightRef = useRef(false);
+  const restoreInFlightRef = useRef(false);
+  // When this visit started, and what was selected when it ended. Both read
+  // from a listener registered once, so neither can be state.
+  const openedAtRef = useRef(Date.now());
+  const selectedPlanRef = useRef<string | null>(null);
+  // Whether this visit ended in a purchase. A reader who paid and then closed
+  // the screen did not dismiss the paywall, and counting them as a dismissal
+  // would make the number meaningless - every buyer closes it eventually.
+  const purchasedRef = useRef(false);
   // Same reason: the backoff poll is created once per [user, gateOpen] and has
   // to reach the CURRENT price loader and the CURRENT lookup state, or it
   // would either retry forever or never retry at all.
@@ -220,12 +276,16 @@ export const PaywallScreen = () => {
    * run out - and the app knew which and said nothing. The reader met the
    * difference in Play's own confirmation sheet, phrased generically, after
    * they had already decided. Saying it here is also the cheapest way to
-   * prevent the "I paid and nothing changed" message about a deferred
-   * downgrade working exactly as designed.
+   * prevent the "I paid and nothing changed" message about a downgrade
+   * working exactly as designed.
    */
   const switchTimingKey = (plan: PlanDef): string | null => {
+    // Keyed on planSwitchFor, the same function the CTA and the purchase call
+    // use. A cancelled-but-still-running subscription IS a switch, so it gets
+    // the notice too - it used to be the one case that silently didn't.
+    const { switching } = planSwitchFor(activeSub, plan.slug);
     const from = activeSub ? planBySlug(activeSub.plan_slug) : null;
-    if (!from || from.slug === plan.slug || !subscriptionIsRenewing(activeSub)) {
+    if (!from || !switching) {
       return null;
     }
     /**
@@ -234,13 +294,14 @@ export const PaywallScreen = () => {
      *
      * There used to be a second copy of that rule right here, and the two
      * drifted apart across several changes of mode - the screen promising
-     * credited time while the mode being sent deferred everything, and later
-     * one line claiming both directions behaved identically. A notice that
-     * contradicts what Play then does is worse than no notice at all.
+     * credited time while the mode being sent postponed everything to the next
+     * renewal, and later one line claiming both directions behaved
+     * identically. A notice that contradicts what Play then does is worse than
+     * no notice at all.
      */
-    // A trial switch behaves like the deferred case - nothing is taken today -
-    // but "you keep the time you have paid for" describes money a trial user
-    // never spent, on the one screen where every sentence is about money.
+    // A trial switch takes nothing today, like a downgrade, but "you keep the
+    // time you have paid for" describes money a trial user never spent, on the
+    // one screen where every sentence is about money.
     if (stillOnTrial(activeSub)) return 'paywall.switchDuringTrial';
 
     return replacementModeFor(planMonths(plan), planMonths(from)) === CHARGE_FULL_PRICE
@@ -256,11 +317,34 @@ export const PaywallScreen = () => {
    * exactly the metric this exists to measure.
    */
   useEffect(() => {
-    track(user?.id, 'paywall_viewed', renewingLapsedPlan ? 'renew' : 'new');
+    track(user?.id, 'paywall_viewed', source, renewingLapsedPlan ? 'renew' : 'new');
     // Once per mount. Re-firing when the lapsed flag resolves would double
     // count every visit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * Leaving without buying, and how long they stayed.
+   *
+   * On `beforeRemove` rather than on the close button, because the button is
+   * only one of the ways out: the hardware back key and the swipe-back gesture
+   * are the other two, and instrumenting the button alone would report every
+   * gesture-dismissal as a reader who is still on the screen. The listener
+   * fires for all three and for nothing else - a navigator swapped out from
+   * underneath this screen unmounts it without a removal, which is right,
+   * since that is not somebody walking away.
+   */
+  useEffect(
+    () =>
+      navigation.addListener('beforeRemove', () => {
+        if (purchasedRef.current) return;
+        track(user?.id, 'paywall_dismissed', source, null, {
+          seconds: Math.round((Date.now() - openedAtRef.current) / 1000),
+          plan_selected: selectedPlanRef.current,
+        });
+      }),
+    [navigation, user?.id, source],
+  );
 
   /**
    * Open the gate only if the row we just wrote actually grants access.
@@ -289,21 +373,52 @@ export const PaywallScreen = () => {
 
   const subscribe = useCallback(
     async (plan: PlanDef, current: DBSubscription | null) => {
+      // Synchronous, and a ref rather than the `purchasing` state.
+      //
+      // setPurchasing only disables the button on the NEXT render, so a double
+      // tap - or the CTA and a resumed purchase firing together - both got
+      // past it and opened two Play sheets for the same plan. A ref flips
+      // before this function yields, which is the only thing a second tap in
+      // the same frame can see.
+      if (subscribeInFlightRef.current) return;
+      subscribeInFlightRef.current = true;
       setMessage(null);
       setPurchasing(true);
+
+      // Switching from an existing RevenueCat subscription passes the old
+      // product id plus a replacement mode. Mode is chosen by billing period,
+      // so monthly->yearly is treated as an upgrade.
+      //
+      // Both are computed outside the try because the CATCH needs them: what
+      // to do about an "already purchased" rejection depends entirely on
+      // whether this was a switch.
+      const currentPlan = current ? planBySlug(current.plan_slug) : null;
+      // Any subscription the Google account still holds makes this a product
+      // CHANGE, cancelled-but-running included. See planSwitchFor: requiring a
+      // live renewal here is what sent a returning customer down the plain
+      // purchase path, where Play refuses to sell a subscription the account
+      // already owns.
+      const { switching } = planSwitchFor(current, plan.slug);
+
+      /**
+       * Up, down, or their first one - decided the same way the purchase
+       * itself is.
+       *
+       * Only counted as a switch when the caller is actually going to send a
+       * product change; a `current` row that planSwitchFor rejects means this
+       * is a plain purchase, and reporting it as an upgrade would put it in a
+       * bucket whose whole point is "money moved between plans today".
+       */
+      const direction = planSwitchDirection(
+        planMonths(plan),
+        switching && currentPlan ? planMonths(currentPlan) : null,
+      );
+
       try {
-        // Switching from an existing RevenueCat subscription passes the old
-        // product id plus a replacement mode. Mode is chosen by absolute
-        // price, so monthly->yearly is treated as an upgrade.
+        track(user?.id, 'purchase_started', plan.slug, direction, {
+          from_plan: currentPlan?.slug ?? null,
+        });
         if (!user) throw new Error(t('paywall.signInFirst'));
-        const currentPlan = current ? planBySlug(current.plan_slug) : null;
-        // A cancelled-but-unexpired subscription is still an entitlement, but
-        // it is NOT something Play will let us replace - there is no renewal
-        // left to swap. Sending the change flow anyway is what produced Play's
-        // "we were unable to change your plan" for anyone who cancelled and
-        // then came back. Buying plainly is the resubscribe path.
-        const switching =
-          !!currentPlan && currentPlan.slug !== plan.slug && subscriptionIsRenewing(current);
         /**
          * Rank by BILLING PERIOD, not by price.
          *
@@ -328,41 +443,63 @@ export const PaywallScreen = () => {
          * drift with a sale or a currency.
          */
         // Mid-trial switches must not be charged: see replacementModeFor.
-        const purchase = await requestPlanPurchase(user.id, plan, switching ? {
+        const mode = currentPlan
+          ? replacementModeFor(
+              planMonths(plan),
+              planMonths(currentPlan),
+              stillOnTrial(current),
+            )
+          : null;
+        const purchase = await requestPlanPurchase(user.id, plan, switching && currentPlan ? {
           oldProductId: currentPlan.store_product_id,
-          replacementMode: replacementModeFor(
-            planMonths(plan),
-            planMonths(currentPlan),
-            stillOnTrial(current),
-          ),
+          replacementMode: mode ?? undefined,
         } : undefined);
 
         const result = await recordCompletedPurchase(user.id, purchase);
-        // A deferred switch is done - it just has not started.
-        //
-        // Everything below this point is the "you now have access" path:
-        // opening the gate, and the auto-renewal notice for a plan that begins
-        // today. None of it applies. They already had access, they keep it on
-        // the plan they are already on, and they are charged nothing until
-        // that plan runs out. Saying exactly that IS the confirmation, so the
-        // handler ends here.
-        if (result === 'deferred') {
-          const endsOn = formatSubscriptionDate(current?.ends_at);
-          // 'info', the same tone as the other outcomes-that-are-not-errors.
-          setMessageTone('info');
-          setMessage(
-            t(endsOn ? 'paywall.switchQueuedOn' : 'paywall.switchQueued', {
-              plan: t(planNameKey(plan.slug)),
-              date: endsOn,
-            }),
-          );
-          return;
-        }
         if (result === 'unmatched') {
           setMessageTone('error');
           setMessage(t('paywall.purchaseReceivedButPlanCould'));
           return;
         }
+        // 'expired' is a different failure from 'unmatched' and was reported as
+        // one. The plan matched perfectly well; what came back has an expiry in
+        // the past, so there is nothing to unlock. Telling that customer their
+        // "plan could not be matched" sends them to support with the wrong
+        // problem, and sends support looking for a catalogue bug that is not
+        // there.
+        if (result === 'expired') {
+          setMessageTone('error');
+          setMessage(t('paywall.purchaseAlreadyEnded'));
+          return;
+        }
+
+        // Everything that is left is a real purchase: 'duplicate' means the row
+        // was already on disk (a resumed purchase, a second push of the same
+        // token), which is still money that changed hands.
+        purchasedRef.current = true;
+        track(
+          user.id,
+          'purchase_completed',
+          plan.slug,
+          // A switch is never a new trial, so its direction is the answer even
+          // when the store still reports the customer as trialing.
+          switching && currentPlan
+            ? direction
+            : purchase.periodType === 'TRIAL'
+              ? 'trial'
+              : 'new',
+          {
+            from_plan: currentPlan?.slug ?? null,
+            replacement_mode: mode,
+            result,
+          },
+        );
+        // A switch that takes no money today still ends here as a confirmation
+        // rather than as an activation: they already had access and keep it,
+        // on the plan they are already paying for, until it renews at the new
+        // price. The gate is opened below regardless, because the row on disk
+        // is what it reads.
+        const noChargeSwitch = switching && mode !== CHARGE_FULL_PRICE;
         // Open the gate the moment the purchase is on disk, NOT when the
         // auto-renewal notice is acknowledged.
         //
@@ -388,10 +525,30 @@ export const PaywallScreen = () => {
           setMessage(t('paywall.purchaseReceivedButPlanCould'));
           return;
         }
+        if (noChargeSwitch) {
+          const endsOn = formatSubscriptionDate(current?.ends_at);
+          // 'info', the same tone as the other outcomes-that-are-not-errors.
+          setMessageTone('info');
+          setMessage(
+            t(endsOn ? 'paywall.switchQueuedOn' : 'paywall.switchQueued', {
+              plan: t(planNameKey(plan.slug)),
+              date: endsOn,
+            }),
+          );
+          return;
+        }
         setAutoRenewing(purchase.autoRenewing);
         setShowAutoRenewalNotice(true);
       } catch (e: any) {
         const failure = describePurchaseFailure(e);
+        // Recorded BEFORE the cancelled branch returns. "Changed their mind" is
+        // the single most common outcome on this screen and the one it is worth
+        // knowing the size of; dropping it would leave the failure report
+        // showing only the rare, alarming codes and none of the ordinary ones.
+        track(user?.id, 'purchase_failed', plan.slug, purchaseFailureDetail(failure), {
+          code: failure.code,
+          detail: failure.detail,
+        });
         if (failure.cancelled) {
           // They backed out of the store sheet. Saying anything at all here
           // reads as an error they did not cause.
@@ -399,19 +556,37 @@ export const PaywallScreen = () => {
         }
         // The raw code and SDK string are for us, not for the customer.
         console.warn('[billing] purchase failed', failure.code, failure.detail);
-        // "Play is still processing your payment" and "you already own this,
-        // restoring it now" are outcomes, not errors. Both mean the money is
-        // fine and nothing needs doing again.
+        // "Play is still processing your payment" and "you already own this"
+        // are outcomes, not errors. Both mean the money is fine and nothing
+        // needs doing again.
         setMessageTone(failure.pending || failure.restorable ? 'info' : 'error');
         // The code rides along for the unclassified case, where it is the
         // only thing that makes a support screenshot actionable.
-        setMessage(t(failure.messageKey, { code: failure.code || 'none' }));
+        const base = t(failure.messageKey, { code: failure.code || 'none' });
+        if (failure.restorable && switching) {
+          /**
+           * They already own something - but NOT this plan, or we would not
+           * have been switching.
+           *
+           * Restore is the wrong answer here and was the one being given
+           * automatically. It re-reads the subscription they already have and
+           * writes it back down, so the screen refreshed, said nothing had
+           * changed, and left the person who just tried to change plans
+           * looking at the plan they were trying to leave. Play refused the
+           * CHANGE; the place that can settle it is Play.
+           */
+          setMessage(base);
+          setShowManageLink(true);
+          return;
+        }
+        setMessage(failure.restorable ? `${base} ${t('paywall.restoringPurchase')}` : base);
         if (failure.restorable) {
           // They already own it. Restoring is the fix; asking them to buy
           // again would take a second payment for the same thing.
-          await handleRestoreRef.current?.();
+          await handleRestoreRef.current?.({ auto: true });
         }
       } finally {
+        subscribeInFlightRef.current = false;
         setPurchasing(false);
       }
     },
@@ -547,35 +722,46 @@ export const PaywallScreen = () => {
             : current.plan_slug ?? featuredPlan().slug,
       );
 
-      // PEEK, then clear only once it has been acted on.
-      //
-      // Consuming on read threw the choice away whenever this screen was torn
-      // down mid-await, which is exactly what happens when the gate opens
-      // underneath it. Someone who picked a plan in the sheet, created an
-      // account and typed a verification code to buy THAT plan would come back
-      // to a paywall that had forgotten which one - and to a purchase flow
-      // that never resumed.
-      const pendingSlug = await peekPendingPlan();
-      if (!mounted) return;
-      const pending = planBySlug(pendingSlug);
-      if (!pending) {
-        return;
+      // The stashed-plan resume went with the guest subscribe sheet that used
+      // to set it. Nothing writes @pending_plan_slug any more, so reading it
+      // could only ever fire a purchase from a value left on disk by a build
+      // several versions old.
+
+      // A subscriber gets the route to Play. Fetched here rather than at press
+      // time so the link is ready when the button is, and because RevenueCat's
+      // managementURL needs a network round trip that must not sit between a
+      // tap and a screen.
+      if (user && current) {
+        const url = await manageSubscriptionUrl(user.id, current.plan_slug).catch(() => null);
+        if (mounted && url) setManageUrl(url);
       }
-      if (current) {
-        // Nothing left to resume - they already hold a subscription. Drop it
-        // so it cannot fire at some unrelated moment later.
-        clearPendingPlan();
-        return;
-      }
-      clearPendingPlan();
-      setSelectedPlan(pending.slug);
-      subscribe(pending, current);
     })();
     return () => {
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * Play has told us this Google account already owns a subscription that the
+   * app has no local row for, so the manage route has to exist without one.
+   *
+   * Fetched lazily rather than on mount because this is the rare path: almost
+   * nobody hits it, and it is not worth a network call on every paywall open
+   * for a link that will not be shown.
+   */
+  useEffect(() => {
+    if (!user || !showManageLink || manageUrl) return;
+    let alive = true;
+    manageSubscriptionUrl(user.id, activeSubRef.current?.plan_slug ?? null)
+      .then((url) => {
+        if (alive && url) setManageUrl(url);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [user, showManageLink, manageUrl]);
 
   const continueToApp = () => {
     setShowAutoRenewalNotice(false);
@@ -600,19 +786,41 @@ export const PaywallScreen = () => {
     }
   };
 
-  const handleRestore = async () => {
+  /**
+   * `auto` means the customer did not ask for this - a purchase came back
+   * "you already own it" and we are resolving it for them.
+   *
+   * It exists because clearing the message unconditionally erased the only
+   * explanation on screen. The sequence was: purchase fails with "you already
+   * have an active subscription, restoring it now", this handler immediately
+   * wipes that sentence, and the restore then either succeeds silently or ends
+   * with "no active subscription was found" - which flatly contradicts the
+   * message the customer just saw and no longer has. The manual Restore button
+   * still clears, because there the message would be stale output from a
+   * previous attempt.
+   */
+  const handleRestore = async (opts?: { auto?: boolean }) => {
     if (!user) return;
-    setMessage(null);
+    if (restoreInFlightRef.current) return;
+    restoreInFlightRef.current = true;
+    if (!opts?.auto) setMessage(null);
     setPurchasing(true);
+    // Which of the two restores this is. An automatic one follows a store
+    // rejection and says something about the purchase flow; a manual one is
+    // somebody who believes they already paid, and how often that ends in
+    // "nothing found" is a support-load number.
+    track(user.id, 'restore_attempted', opts?.auto ? 'auto' : 'manual');
     try {
       const purchase = await restoreRevenueCatPurchases(user.id);
       if (!purchase) {
+        track(user.id, 'restore_finished', 'nothing_found');
         setMessageTone('info');
         setMessage(t('paywall.noActiveSubscriptionWasFound'));
         return;
       }
       const result = await recordCompletedPurchase(user.id, purchase);
       if (result === 'unmatched') {
+        track(user.id, 'restore_finished', 'unmatched');
         setMessageTone('error');
         setMessage(t('paywall.restoredPurchaseCouldNotBe'));
         return;
@@ -621,14 +829,22 @@ export const PaywallScreen = () => {
       // finished. There is nothing to restore, and it is the same answer as
       // finding nothing at all.
       if (result === 'expired' || !(await openGateIfEntitled())) {
+        // Told apart from 'nothing_found' on purpose even though the customer
+        // sees the same sentence: this one means the store DID hand something
+        // back and it had already run out, which is a different conversation
+        // with support.
+        track(user.id, 'restore_finished', 'expired');
         setMessageTone('info');
         setMessage(t('paywall.noActiveSubscriptionWasFound'));
         return;
       }
+      purchasedRef.current = true;
+      track(user.id, 'restore_finished', 'succeeded');
       setAutoRenewing(purchase.autoRenewing);
       setShowAutoRenewalNotice(true);
     } catch (e: any) {
       const failure = describePurchaseFailure(e);
+      track(user.id, 'restore_finished', 'failed', purchaseFailureDetail(failure));
       if (!failure.cancelled) {
         console.warn('[billing] restore failed', failure.code, failure.detail);
         setMessageTone(failure.pending ? 'info' : 'error');
@@ -637,25 +853,24 @@ export const PaywallScreen = () => {
         setMessage(t(failure.messageKey, { code: failure.code || 'none' }));
       }
     } finally {
+      restoreInFlightRef.current = false;
       setPurchasing(false);
     }
   };
   handleRestoreRef.current = handleRestore;
   pricingStateRef.current = pricingState;
+  selectedPlanRef.current = selectedPlan;
   // Purchasing is impossible only when the store told us so. While the lookup
   // is still in flight the cards show a placeholder rather than a price we
   // would have to correct, and the CTA waits with them.
   const pricesPending = pricingState === 'loading';
   const offeringsUnavailable = pricingState === 'failed';
   const selectedPlanDef = planBySlug(selectedPlan);
-  // "Switch to X" only describes a real product change. After a cancellation
-  // any purchase is a fresh one, so the CTA must not promise a switch that
-  // Play will refuse to perform.
-  const isPlanSwitch =
-    !!activeSub
-    && subscriptionIsRenewing(activeSub)
-    && !!selectedPlan
-    && activeSub.plan_slug !== selectedPlan;
+  // One answer for the whole screen: the CTA label, the disclosure under it,
+  // and the purchase call all read the same function. Renewal is only ever
+  // consulted for wording.
+  const selectedSwitch = planSwitchFor(activeSub, selectedPlan);
+  const isPlanSwitch = selectedSwitch.switching;
   const selectedPricing = selectedPlanDef ? pricing[selectedPlanDef.slug] : undefined;
   // Advertise a trial only when the store actually serves one to THIS customer
   // (see getPlanPricing) and there is no current subscription - a plan switch
@@ -678,11 +893,54 @@ export const PaywallScreen = () => {
     && perPlanTrials.every((d) => d != null && d === perPlanTrials[0])
       ? perPlanTrials[0]
       : null;
-  // Feeds the renewal disclosure, so the period must be the reader's own, not
-  // an English suffix concatenated on.
-  const selectedPriceLabel = selectedPlanDef
-    ? `${selectedPricing?.priceString || `$${selectedPlanDef.price.toFixed(2)}`}${t(planPeriodKey(selectedPlanDef.slug))}`
+  /**
+   * The disclosure never quotes the catalogue.
+   *
+   * It used to fall back to `$5.99` when the store had not answered yet, which
+   * is the USD figure for one market printed under a button that is about to
+   * charge a reader in Warsaw or Delhi something else entirely - directly
+   * beneath the sentence promising it renews at that price. There is no honest
+   * placeholder for a price, so the whole disclosure waits for the store and
+   * the CTA waits with it (`pricesPending` already disables the button).
+   *
+   * The period suffix must be the reader's own too, not an English string
+   * concatenated on.
+   */
+  const storePriceKnown = !!selectedPricing?.priceString;
+  const selectedPriceLabel = selectedPlanDef && selectedPricing?.priceString
+    ? `${selectedPricing.priceString}${t(planPeriodKey(selectedPlanDef.slug))}`
     : '';
+
+  /**
+   * What the tap will cost, TODAY, for a plan change - which is the one thing
+   * the standard renewal disclosure gets wrong about a switch.
+   *
+   * "$59.99/year, renews automatically until cancelled" is true of the plan
+   * and false about the transaction: under WITHOUT_PRORATION nothing is
+   * charged today at all, and under CHARGE_FULL_PRICE the full amount is taken
+   * now rather than at the renewal date the reader is looking at. Both are the
+   * kind of surprise that arrives as a chargeback.
+   */
+  const currentPlanDef = planBySlug(selectedSwitch.fromSlug);
+  const switchMode = isPlanSwitch && selectedPlanDef && currentPlanDef
+    ? replacementModeFor(
+        planMonths(selectedPlanDef),
+        planMonths(currentPlanDef),
+        stillOnTrial(activeSub),
+      )
+    : null;
+  const switchDate = formatSubscriptionDate(selectedSwitch.endsAt);
+  const switchDisclosure = !selectedPlanDef || !switchMode
+    ? null
+    : switchMode === CHARGE_FULL_PRICE
+      ? t('paywall.switchChargedNow', {
+          price: selectedPricing?.priceString ?? '',
+          period: t(planPeriodNounKey(selectedPlanDef.slug)),
+        })
+      : t(switchDate ? 'paywall.switchNoChargeToday' : 'paywall.switchNoChargeTodayUndated', {
+          plan: t(planNameKey(selectedPlanDef.slug)),
+          date: switchDate,
+        });
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
@@ -928,16 +1186,12 @@ export const PaywallScreen = () => {
           </View>
         ) : null}
 
-        {message ? (
-          <Text
-            style={[
-              styles.message,
-              messageTone === 'error' ? styles.messageError : styles.messageInfo,
-            ]}
-          >
-            {message}
-          </Text>
-        ) : null}
+        {/* The purchase/restore message used to sit HERE, in the scroll body,
+            below three plan cards and a retry block. On the screen where a
+            failure has to be read it was routinely off the bottom of the
+            viewport - the customer tapped, the sheet closed, nothing visibly
+            happened, and they tapped again. It now renders on the fixed bar
+            directly above the CTA, where the button that produced it is. */}
 
         {/* The fine print and the recovery action, moved off the fixed bar.
             They were pinned to the bottom of the screen, where three
@@ -1006,7 +1260,7 @@ export const PaywallScreen = () => {
         {!activeSub && (
           <TouchableOpacity
             style={styles.restoreBtn}
-            onPress={handleRestore}
+            onPress={() => handleRestore()}
             disabled={purchasing}
           >
             <Text style={styles.restoreBtnText}>{t('paywall.restorePurchases')}</Text>
@@ -1019,6 +1273,20 @@ export const PaywallScreen = () => {
         style={[styles.bottomBar, { paddingBottom: 16 + insets.bottom }]}
         onLayout={(e) => setBottomBarHeight(e.nativeEvent.layout.height)}
       >
+        {/* Immediately above the button that caused it, and inside the bar so
+            it cannot scroll out of view. The bar measures its own height, so
+            adding a line here pushes the plan cards up rather than hiding
+            under them. */}
+        {message ? (
+          <Text
+            style={[
+              styles.barMessage,
+              messageTone === 'error' ? styles.messageError : styles.messageInfo,
+            ]}
+          >
+            {message}
+          </Text>
+        ) : null}
         <TouchableOpacity
           style={[
             styles.continueBtn,
@@ -1048,13 +1316,41 @@ export const PaywallScreen = () => {
             with nothing between them. Play requires the terms at the point of
             purchase, and a reader should not have to step over an alternative
             action to find out what the button charges them. */}
-        {!purchasing && selectedPlanDef && !offeringsUnavailable && !pricesPending ? (
+        {!purchasing && selectedPlanDef && !offeringsUnavailable && storePriceKnown ? (
           <Text style={styles.renewalText}>
-            {trialDays
-              ? t('paywall.trialThenPrice', { count: trialDays, price: selectedPriceLabel })
-              : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel })}{' '}
+            {/* A plan CHANGE gets the timing of the change, not the renewal
+                terms of the plan. The two say different things about what this
+                tap costs today, and the renewal sentence is the one that is
+                wrong: it names a price under a button that, on a downgrade or
+                a mid-trial switch, takes nothing at all. */}
+            {switchDisclosure
+              ?? (trialDays
+                ? t('paywall.trialThenPrice', { count: trialDays, price: selectedPriceLabel })
+                : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel }))}{' '}
             {t('paywall.manageOrCancelAnytime')}
           </Text>
+        ) : null}
+        {/* The route to cancel, change payment method, or resume - for anyone
+            who has a subscription to manage, and for anyone Play has told us
+            has one even though this device cannot see it. Play policy expects
+            a subscriber to be able to reach their subscription from the app,
+            and Settings is not reachable from here when this screen is the
+            root. */}
+        {manageUrl && (activeSub || showManageLink) ? (
+          <TouchableOpacity
+            style={styles.manageBtn}
+            accessibilityRole="link"
+            onPress={() => {
+              // The second door to Play's subscription page, beside the one in
+              // Settings. Both record the same event, so "people who went to
+              // manage their plan" is one number rather than two that have to
+              // be added up by whoever reads the report.
+              track(user?.id, 'subscription_managed', 'paywall');
+              Linking.openURL(manageUrl).catch(() => {});
+            }}
+          >
+            <Text style={styles.manageBtnText}>{t('paywall.manageInGooglePlay')}</Text>
+          </TouchableOpacity>
         ) : null}
         {/* Kept on the bar rather than buried under the fine print - a new
             account needs a visible way past the price, or the only exit it can
@@ -1347,6 +1643,27 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   // the payment" arrived looking like an offer.
   messageError: { color: COLORS.danger },
   messageInfo: { color: COLORS.accentText },
+  // Same words, on the bar rather than in the page: no side margins (the bar
+  // has its own padding) and tighter above the button it belongs to.
+  barMessage: {
+    marginBottom: SPACE.md,
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: 'center',
+  },
+  manageBtn: {
+    marginTop: SPACE.xs,
+    alignSelf: 'center',
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: SPACE.md,
+  },
+  manageBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.accentText,
+    textDecorationLine: 'underline',
+  },
   retryWrap: {
     alignItems: 'center',
   },

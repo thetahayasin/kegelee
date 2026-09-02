@@ -18,9 +18,24 @@ import i18n from '../i18n';
 // that is always dark is a small inconsistency; a crash screen that crashes
 // is not.
 import { DARK as COLORS } from '../theme/colors';
+import { reportError } from '../services/errors';
+import { trackCurrent } from '../services/events';
+import { getCurrentRouteName } from '../navigation/currentRoute';
 
 interface Props {
   children: React.ReactNode;
+  /**
+   * Throw the navigator away and build a new one.
+   *
+   * "Try again" only clears this component's error flag, so it re-renders the
+   * SAME subtree with the same props and the same navigation state - which,
+   * for the errors that actually reach here (a screen rendering a row that
+   * cannot be rendered), reliably throws again on the next frame and leaves
+   * the reader tapping a button that does nothing. The owner of the navigator
+   * passes this to bump its key instead, which discards the route that was on
+   * screen and starts from the first one.
+   */
+  onReset?: () => void;
 }
 
 interface State {
@@ -41,13 +56,35 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: unknown) {
-    if (__DEV__) {
-      console.error('Uncaught error in React tree', error);
-    }
-    // When a crash reporter (Sentry / Crashlytics) is added, report it here.
+    // The single hook a crash reporter gets wired into - see services/errors.
+    reportError(error, 'ErrorBoundary');
+
+    /**
+     * Also recorded as an event, because reportError only reaches a console.
+     *
+     * "The app crashes sometimes" is unactionable; "eleven crashes this week,
+     * all on ExerciseDetail" is a bug fixed in an afternoon. The route name is
+     * the whole point of recording it, and it comes from the module in
+     * navigation/currentRoute rather than from a hook - this is a class
+     * component, and it is running at the exact moment the tree it would have
+     * to read from is failing.
+     *
+     * The message is truncated hard. A stack trace is not wanted here (it goes
+     * to the crash reporter), the column is small, and a message is only ever
+     * read as a label to group by.
+     */
+    const message = error instanceof Error ? error.message : String(error);
+    trackCurrent('error_boundary_hit', getCurrentRouteName(), null, {
+      message: message.slice(0, 200),
+    });
   }
 
   private reset = () => this.setState({ hasError: false });
+
+  private resetToStart = () => {
+    this.setState({ hasError: false });
+    this.props.onReset?.();
+  };
 
   render() {
     if (!this.state.hasError) {
@@ -67,6 +104,23 @@ export class ErrorBoundary extends React.Component<Props, State> {
         <TouchableOpacity style={styles.btn} onPress={this.reset} activeOpacity={0.85}>
           <Text style={styles.btnText}>{i18n.t('errorBoundary.tryAgain')}</Text>
         </TouchableOpacity>
+        {/*
+          Only offered when somebody can actually act on it. A defaultValue is
+          given because this key is newer than the translation files: without
+          one a reader on a device with no translation would see the dotted key
+          path itself, which is worse than untranslated English.
+        */}
+        {this.props.onReset ? (
+          <TouchableOpacity
+            style={styles.secondaryBtn}
+            onPress={this.resetToStart}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.secondaryBtnText}>
+              {i18n.t('errorBoundary.goToStart', { defaultValue: 'Go to start' })}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
   }
@@ -111,5 +165,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.onAccent,
+  },
+  secondaryBtn: {
+    marginTop: 12,
+    height: 52,
+    paddingHorizontal: 40,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.whiteFaint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryBtnText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.white,
   },
 });

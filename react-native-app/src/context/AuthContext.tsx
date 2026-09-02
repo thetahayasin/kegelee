@@ -3,10 +3,26 @@ import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setApiToken } from '../services/api';
 import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions, getMeasurements, insertMeasurement } from '../db/queries';
-import { syncNow, onSyncComplete, onAuthFailure } from '../services/sync';
+import { syncNow, syncIfStale, onSyncComplete, onAuthFailure, flushEvents } from '../services/sync';
+import {
+  claimGuestEvents,
+  deleteGuestEvents,
+  setCurrentUserId,
+  track,
+  trackAppOpened,
+} from '../services/events';
 import { cancelAllReminders, cancelAllNudges, scheduleTrialEndingWarning } from '../services/reminders';
-import { googleNativeSignOut } from '../services/googleAuth';
-import { logoutBilling, onCustomerInfoChange, hasActiveEntitlement, refreshCustomerInfo, purchaseRecordedAt } from '../services/billing';
+import { googleNativeSignOut, consumeGoogleNonce } from '../services/googleAuth';
+import {
+  logoutBilling,
+  onCustomerInfoChange,
+  hasActiveEntitlement,
+  refreshCustomerInfo,
+  purchaseRecordedAt,
+  reconcileEntitlementOnLaunch,
+  recordCompletedPurchase,
+} from '../services/billing';
+import { reportError } from '../services/errors';
 import { BASICS_LESSONS } from '../constants/basics';
 import i18n from '../i18n';
 
@@ -148,6 +164,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const markSubscribed = useCallback(() => setSubscribed(true), []);
 
   /**
+   * Tell the events module who is signed in.
+   *
+   * Two callers cannot reach this context at all: the crash boundary, which
+   * sits above every provider, and the notification handler, which runs
+   * outside React entirely. Publishing the id here means they can attribute an
+   * event without a database read on a path that is already going wrong.
+   */
+  useEffect(() => {
+    setCurrentUserId(user?.id ?? null);
+  }, [user]);
+
+  /**
    * Reminders stop when the subscription does.
    *
    * cancelAllReminders() was called on login and on logout, and nowhere else -
@@ -240,10 +268,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             ]);
             setSubscribed(nextSubscribed);
             setBasicsDone(nextBasics);
+
+            /**
+             * Ask the store what this customer actually owns.
+             *
+             * A purchase can complete and the local row never be written: the
+             * app is killed between Play returning and recordCompletedPurchase
+             * finishing, or the purchase happened on another device, or the
+             * account was reinstalled. The subscription is real, RevenueCat
+             * knows about it, and this device's SQLite does not - so the person
+             * who paid opens the app to a paywall, and the only route back is
+             * a Restore button they have no reason to think they need.
+             *
+             * Deliberately NOT awaited. It is a network call to RevenueCat, and
+             * holding the splash on it would make every cold start as slow as
+             * the slowest billing round trip - for a case that is rare. The
+             * gate opens a moment later instead.
+             *
+             * RAISE-only, like every other gate listener here: an entitlement
+             * that is absent proves nothing (offline, a RevenueCat hiccup), and
+             * revocation stays with the backend-confirmed path in onSyncComplete.
+             */
+            const cachedId = cachedUser.id;
+            const cachedIsAdmin = cachedUser.is_admin === 1;
+            (async () => {
+              // Only when nothing local already covers it: re-recording a
+              // purchase that is already written would restate a row the sync
+              // has since corrected.
+              const active = await getActiveSubscription(cachedId).catch(() => null);
+              if (active) return;
+              const purchase = await reconcileEntitlementOnLaunch(cachedId);
+              if (!purchase) return;
+              const result = await recordCompletedPurchase(cachedId, purchase);
+              // 'duplicate' counts: it means a row saying exactly this already
+              // exists, which is itself proof of entitlement. 'unmatched' and
+              // 'expired' do not - the first is a product this build does not
+              // sell, the second an entitlement that has already run out.
+              if (result === 'recorded' || result === 'duplicate') {
+                setSubscribed(true);
+              } else if (await computeSubscribed(cachedId, cachedIsAdmin)) {
+                setSubscribed(true);
+              }
+            })().catch((e) => reportError(e, 'auth:reconcileEntitlement'));
           }
         }
       } catch (e) {
-        console.error('Failed to restore auth session', e);
+        reportError(e, 'auth:bootstrap');
       } finally {
         setIsLoading(false);
       }
@@ -336,6 +406,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // leaving it behind would hand it to whoever signs in next.
       await AsyncStorage.removeItem('@basics_done_guest');
     } catch {}
+
+    /**
+     * The same handover for the behaviour log.
+     *
+     * Everything a guest did - the quiz, the slides they swiped through, the
+     * lessons, the first look at the plans - is sitting in user_events under
+     * the guest id, invisible to every push because nothing ever asks for
+     * user 0. This is the moment those rows acquire an owner, and it has to
+     * happen BEFORE the sync below or the first push leaves them behind and
+     * the funnel loses its whole first half.
+     */
+    await claimGuestEvents(localUser.id);
 
     // The free session moves with the lessons, for the same reason.
 
@@ -570,41 +652,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     setIsLoading(true);
+    const userId = user?.id;
 
-    // Cancel this device's scheduled reminders so the next user who signs in
-    // does not inherit the previous account's notifications.
-    await cancelAllReminders();
-
-    // Drop the native Google session so the next sign-in shows the account
-    // picker instead of silently reusing this account.
-    await googleNativeSignOut();
-
-    // Drop the RevenueCat identity too, so the next account on this device is
-    // never read against the previous customer's cached entitlements.
-    await logoutBilling();
-
-    // Drop every cached "learn the basics" progress key (per-user and guest) so a
-    // different account signing in on this device always starts the basics fresh
-    // instead of showing another user's lessons as already completed.
-    try {
-      const keys = await AsyncStorage.getAllKeys();
-      const basicsKeys = keys.filter(k => k.startsWith('@basics_done_'));
-      if (basicsKeys.length > 0) {
-        await AsyncStorage.removeMany(basicsKeys);
+    /**
+     * Signing out must always finish, whatever fails on the way.
+     *
+     * isLoading is what Root renders the whole navigator behind, and every
+     * step here can reject: Notifee is missing, RevenueCat's logout is on a
+     * dead connection, SQLite errors on the final clear. Any one of those used
+     * to leave isLoading stuck at true with no code path back - a spinner that
+     * never resolves, escapable only by force-quitting the app - AND with the
+     * token still in place, so the "failed" logout had also not logged anybody
+     * out.
+     *
+     * So the external cleanups are each best-effort and reported, and the part
+     * that actually ends the session runs regardless of how they went.
+     */
+    const bestEffort = async (label: string, fn: () => Promise<unknown>) => {
+      try {
+        await fn();
+      } catch (e) {
+        reportError(e, `auth:logout:${label}`);
       }
-    } catch {}
+    };
 
-    // Clear storage keys
-    await AsyncStorage.removeItem('@api_token');
-    setToken(null);
-    setApiToken(null);
-    setUser(null);
-    setBasicsDone(false);
-    setSubscribed(false);
+    try {
+      /**
+       * Record the sign-out and get the outbox off the device, in that order,
+       * before anything is torn down.
+       *
+       * clearUserData below deletes this account's user_events along with
+       * everything else it owns, so whatever is still queued at that point is
+       * gone - including the logged_out event written a moment earlier. An
+       * events-only push is used rather than a full sync: a sync pulls state
+       * back down and writes it to the very tables being cleared.
+       *
+       * Both are best-effort and both are awaited. A person on a plane must
+       * still be able to sign out, so nothing here can fail the logout; but a
+       * push that is fired and forgotten would race the delete and usually
+       * lose.
+       */
+      if (userId) {
+        await bestEffort('trackLogout', () => track(userId, 'logged_out'));
+        await bestEffort('flushEvents', () => flushEvents(userId));
+      }
+      // Guest rows belong to nobody, so clearUserData - which is scoped to an
+      // account - cannot reach them. Left behind, the next person to sign in
+      // on this device would claim a stranger's onboarding as their own.
+      await bestEffort('guestEvents', deleteGuestEvents);
 
-    // Clear SQLite tables
-    await clearUserData();
-    setIsLoading(false);
+      // Cancel this device's scheduled reminders so the next user who signs in
+      // does not inherit the previous account's notifications.
+      await bestEffort('reminders', cancelAllReminders);
+
+      // Drop the native Google session so the next sign-in shows the account
+      // picker instead of silently reusing this account.
+      await bestEffort('google', googleNativeSignOut);
+
+      // Drop the RevenueCat identity too, so the next account on this device is
+      // never read against the previous customer's cached entitlements.
+      await bestEffort('billing', logoutBilling);
+
+      // Drop every cached "learn the basics" progress key (per-user and guest) so a
+      // different account signing in on this device always starts the basics fresh
+      // instead of showing another user's lessons as already completed.
+      await bestEffort('basicsKeys', async () => {
+        const keys = await AsyncStorage.getAllKeys();
+        const basicsKeys = keys.filter(k => k.startsWith('@basics_done_'));
+        if (basicsKeys.length > 0) {
+          await AsyncStorage.removeMany(basicsKeys);
+        }
+      });
+
+      // Clear storage keys
+      await bestEffort('token', () => AsyncStorage.removeItem('@api_token'));
+      setToken(null);
+      setApiToken(null);
+      setUser(null);
+      setBasicsDone(false);
+      setSubscribed(false);
+
+      // Clear SQLite tables. Scoped to this account - see clearUserData.
+      await bestEffort('sqlite', () => clearUserData(userId));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateUserFields = async (fields: Partial<User>) => {
@@ -612,12 +744,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updated = { ...user, ...fields };
     setUser(updated);
 
-    // Persist to local SQLite user cache
+    // Persist to local SQLite user cache.
+    //
+    // onboarded_at is deliberately NOT written here. This function is called
+    // for a level change or a timezone change, and it used to restamp
+    // onboarded_at with `now` every single time - so the date somebody
+    // actually finished onboarding was destroyed by the next unrelated edit,
+    // and the sync then pushed that fresh date to the server. The onboarding
+    // date has exactly one writer, the sign-in payload, and one corrector, the
+    // pull.
     await saveDBUser({
       level_id: updated.level_id,
       level_started_days: updated.level_started_days,
       timezone: updated.timezone,
-      onboarded_at: updated.onboarded ? new Date().toISOString() : null,
     });
   };
 
@@ -671,9 +810,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // recorded, which are old enough that the distinction is moot.
           const recordedAt = await purchaseRecordedAt(user.id).catch(() => null);
           const grantedAt = recordedAt ?? Date.parse(active.started_at || '');
+          /**
+           * An unreadable or absent grant date is NOT an open-ended grace.
+           *
+           * `!Number.isFinite(grantedAt) || ...` meant a row with no parseable
+           * started_at and no recorded stamp stayed in grace forever - the one
+           * shape of row that most needs checking, since it is what a corrupt
+           * or hand-written local grant looks like. And a clock set into the
+           * future made `Date.now() - grantedAt` negative, which is also
+           * "inside the window" no matter how old the grant is; clamping the
+           * grant to now caps that at the full window rather than eternity.
+           */
           const stillInGrace =
-            !Number.isFinite(grantedAt) ||
-            Date.now() - grantedAt < UNVERIFIED_GRACE_MS;
+            Number.isFinite(grantedAt) &&
+            Date.now() - Math.min(grantedAt, Date.now()) < UNVERIFIED_GRACE_MS;
 
           // Keep access while the backend agrees, and keep it while the
           // purchase has not yet had a fair chance to reach the backend.
@@ -766,7 +916,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     const sub = AppState.addEventListener('change', (state) => {
       if (state !== 'active') return;
-      syncNow(user.id).catch(() => {});
+      // syncIfStale, not syncNow. Android delivers 'active' for every
+      // transient interruption - a notification shade pull, a permission
+      // dialog, the recents switcher - so on a phone in normal use this fired
+      // a full push-and-pull every few seconds. The renewal case it exists for
+      // is not time-critical to the second, and refreshCustomerInfo below asks
+      // RevenueCat directly on every foreground regardless.
+      syncIfStale(user.id).catch(() => {});
+      // Throttled to one every 30 minutes inside events.ts, for the reason
+      // named in the comment above: Android calls a notification shade pull a
+      // foreground, and counting those would make "people who opened the app
+      // today" a measure of how often the phone was picked up.
+      trackAppOpened('foreground');
       refreshCustomerInfo(user.id)
         .then((active) => {
           if (active) setSubscribed(true);
@@ -776,23 +937,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => sub.remove();
   }, [user]);
 
-  // Google sign-in returns from the Custom Tab through the app deeplink
-  // (kegelee://auth/google/finish?token=..). Redeem the one-time token here so
-  // the session is established no matter which screen is on top.
+  /**
+   * Google sign-in returns from the Custom Tab through the app deeplink
+   * (kegelee://auth/google/finish?token=..). Redeem the one-time token here so
+   * the session is established no matter which screen is on top.
+   *
+   * The token is only accepted when the redirect carries back the `state`
+   * value this app generated before it opened the browser. A custom scheme is
+   * not owned by anybody: another installed app can register `kegelee://`, and
+   * any web page can navigate to it, so without the check this handler signed
+   * the user in as whatever account an arbitrary link named. Requiring the
+   * nonce means the app only ever completes a sign-in it started itself, and
+   * only once - consumeGoogleNonce clears it, so a replayed link finds nothing.
+   *
+   * STRICT now that the backend echoes `state` back on every redirect. It was
+   * deliberately tolerant while it did not: a link with no state at all was
+   * let through with a report, so the flow kept working during the rollout.
+   * That tolerance was also the hole - a forged link does not have to guess a
+   * nonce it can simply omit - and it closes the moment the parameter is
+   * guaranteed to be there. Missing and wrong are now the same answer: this is
+   * not a sign-in this app started, so nothing is redeemed.
+   */
   useEffect(() => {
-    const handleUrl = (url: string | null) => {
+    const handleUrl = async (url: string | null) => {
       if (!url || !url.includes('auth/google/finish')) {
         return;
       }
       const tokenMatch = url.match(/[?&]token=([^&#]+)/);
-      if (tokenMatch) {
-        redeemGoogleLogin(decodeURIComponent(tokenMatch[1]));
+      if (!tokenMatch) return;
+
+      const expected = await consumeGoogleNonce();
+      const stateMatch = url.match(/[?&]state=([^&#]+)/);
+      const received = stateMatch ? decodeURIComponent(stateMatch[1]) : null;
+
+      // Three refusals, one branch: no nonce was stored (nothing was started
+      // from this device), the link carried no state, or it carried the wrong
+      // one. Reported separately from each other only in the message, because
+      // the answer is identical and a caller cannot act on the difference.
+      if (!expected || !received || received !== expected) {
+        reportError(
+          new Error(
+            received
+              ? 'Google deeplink state did not match a sign-in this app started'
+              : 'Google deeplink arrived without a state parameter',
+          ),
+          'auth:google-deeplink-state',
+        );
+        return;
       }
+
+      await redeemGoogleLogin(decodeURIComponent(tokenMatch[1]));
     };
     Linking.getInitialURL()
       .then(handleUrl)
       .catch(() => {});
-    const sub = Linking.addEventListener('url', ({ url }) => handleUrl(url));
+    const sub = Linking.addEventListener('url', ({ url }) => {
+      handleUrl(url).catch(() => {});
+    });
     return () => sub.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

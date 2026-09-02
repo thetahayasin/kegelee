@@ -186,4 +186,22 @@ class AdminPageTranslationEditorTest extends TestCase
             ->call('switchLocale', 'klingon')
             ->assertSet('locale', 'en');
     }
+
+    /**
+     * A translation belongs to a page. Saving one on a language tab before the
+     * page itself existed wrote a row with no page_id, which then belonged to
+     * nothing and rendered nowhere.
+     */
+    public function test_a_translation_cannot_be_saved_before_the_page_exists(): void
+    {
+        Livewire::test(Pages::class)
+            ->call('newPage')
+            ->set('locale', 'de')
+            ->set('title', 'Datenschutz')
+            ->set('content', '<p>Deutscher Text.</p>')
+            ->call('save');
+
+        $this->assertSame(0, PageTranslation::whereNull('page_id')->count());
+        $this->assertSame(0, PageTranslation::where('locale', 'de')->count());
+    }
 }

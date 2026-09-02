@@ -7,19 +7,26 @@
 import 'react-native-gesture-handler';
 import { AppRegistry } from 'react-native';
 import { enableFreeze } from 'react-native-screens';
-import notifee from '@notifee/react-native';
+import notifee, { EventType } from '@notifee/react-native';
 import App from './App';
+import { trackReminderTapped } from './src/services/events';
 import { name as appName } from './app.json';
 
 // Suspend rendering of screens that are not visible (react-freeze). Paired with
 // freezeOnBlur on the tab navigator so background tabs stop re-rendering.
 enableFreeze(true);
 
-// Register the background event handler. Notifee requires one to be set; there's
-// nothing to do for a reminder tap here, so just log it in development.
-notifee.onBackgroundEvent(async ({ type }) => {
+// Register the background event handler. Notifee requires one to be set, and it
+// is the only place a reminder tapped while the app is in the background is
+// visible at all - the foreground handler in App.tsx never sees it, and this
+// runs outside React, so it cannot live there. The event is written straight to
+// SQLite and pushed by whichever sync runs next.
+notifee.onBackgroundEvent(async ({ type, detail }) => {
   if (__DEV__) {
     console.log('Notifee background event received', type);
+  }
+  if (type === EventType.PRESS) {
+    await trackReminderTapped(detail?.notification?.id);
   }
 });
 

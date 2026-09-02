@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31) backup and transfer rules.
+
+  Nothing this app stores locally should leave the device, and both halves are
+  excluded for the same reason: everything in here is either a live
+  authentication credential or a record of the user's own body.
+
+  cloud-backup  - Google Drive backup. The SQLite database holds the training
+                  history and measurements, sharedpref holds the API token and
+                  the RevenueCat identity. Restoring that onto a different
+                  device would hand a valid session to whoever restored it, and
+                  the server is the real home of the data anyway: signing in
+                  brings the history back through the normal sync.
+
+  device-transfer - the same content, moving directly to a new phone during
+                  setup. Same objection, plus a restored API token would race
+                  the old device for the same session.
+
+  The whole domain root is excluded rather than named files, so a future
+  feature that writes somewhere new is private by default instead of by
+  somebody remembering to add a line here.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+    </device-transfer>
+</data-extraction-rules>

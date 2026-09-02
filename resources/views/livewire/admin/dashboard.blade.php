@@ -57,7 +57,7 @@
             <a href="{{ route($secondaryLinks[$label]) }}"
                class="flex flex-col items-center justify-center gap-1 rounded-xl border border-white/5 bg-surface-2/60 py-4 text-center hover:border-accent/30 hover:bg-accent/5 transition-colors">
                 <span class="text-xl font-bold tabular-nums">{{ $value }}</span>
-                <span class="text-[11px] font-medium text-muted">{{ $label }}</span>
+                <span class="text-xs font-medium text-muted">{{ $label }}</span>
             </a>
         @endforeach
     </div>
@@ -70,6 +70,11 @@
             <div>
                 <p class="font-semibold">Free funnel</p>
                 <p class="text-xs text-muted">Where accounts stop, cumulative</p>
+                {{-- This card is every account ever. The report follows one
+                     group of joiners through the same steps, which is the
+                     version that can be compared with last month. --}}
+                <a href="{{ route('admin.reports.funnel') }}"
+                   class="text-xs font-medium text-accent hover:underline">See it by the week people joined →</a>
             </div>
             @if ($avgBaseline)
                 <span class="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
@@ -110,7 +115,7 @@
         <div class="mb-5 flex items-center justify-between">
             <div>
                 <p class="font-semibold">Workout sessions</p>
-                <p class="text-xs text-muted">Last 14 days</p>
+                <p class="text-xs text-muted">Last 14 days, on the day they were finished</p>
             </div>
             <span class="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
                 {{ number_format($chart->sum('value')) }} total
@@ -123,7 +128,7 @@
             <div class="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none" style="padding-bottom:1.75rem">
                 @foreach ([1, 0.66, 0.33, 0] as $frac)
                     <div class="flex items-center gap-2">
-                        <span class="w-6 shrink-0 text-right text-[9px] text-muted tabular-nums">
+                        <span class="w-7 shrink-0 text-right text-[11px] text-muted tabular-nums">
                             {{ $frac > 0 ? number_format(round($chartMax * $frac)) : '0' }}
                         </span>
                         <div class="flex-1 border-t border-white/5"></div>
@@ -140,7 +145,7 @@
                             {{-- Tooltip --}}
                             @if ($bar['value'])
                                 <div class="absolute -top-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                    <div class="rounded-md bg-surface-2 border border-white/10 px-1.5 py-0.5 text-[9px] font-semibold whitespace-nowrap">
+                                    <div class="rounded-md bg-surface-2 border border-white/10 px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap">
                                         {{ $bar['value'] }}
                                     </div>
                                 </div>
@@ -149,7 +154,7 @@
                                  style="height:{{ $pct }}%;background:linear-gradient(180deg,rgba(193,255,114,.9) 0%,rgba(193,255,114,.4) 100%)">
                             </div>
                         </div>
-                        <span class="text-[9px] text-muted tabular-nums">{{ $bar['label'] }}</span>
+                        <span class="text-[11px] text-muted tabular-nums">{{ $bar['label'] }}</span>
                     </div>
                 @endforeach
             </div>

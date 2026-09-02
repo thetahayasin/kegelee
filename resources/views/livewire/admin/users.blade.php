@@ -1,4 +1,4 @@
-<div x-data="{ showPwModal: false, showEditModal: false }">
+<div>
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
             <h1 class="text-2xl font-bold">Users</h1>
@@ -44,7 +44,10 @@
     @endif
 
     <div class="overflow-x-auto rounded-2xl border border-white/5 bg-surface">
-        <table class="admin-table w-full text-sm">
+        {{-- min-w so the columns keep their shape on a phone and the table
+             scrolls sideways, rather than squeezing "Signed up" into three
+             lines of one letter each. --}}
+        <table class="admin-table w-full min-w-[64rem] text-sm">
             <thead class="text-left text-muted"><tr class="border-b border-white/5">
                 <th class="p-4 font-medium">User</th>
                 <th class="p-4 font-medium">Funnel</th>
@@ -53,11 +56,12 @@
                 <th class="p-4 font-medium">Sessions</th>
                 <th class="p-4 font-medium">Level</th>
                 <th class="p-4 font-medium">Joined</th>
+                <th class="p-4 font-medium">Last seen</th>
                 <th class="p-4 font-medium">Role</th>
                 <th class="p-4 font-medium text-right">Actions</th>
             </tr></thead>
             <tbody>
-                @foreach ($users as $user)
+                @forelse ($users as $user)
                     <tr class="border-b border-white/5 last:border-0">
                         <td class="p-4">
                             <p class="font-medium">{{ $user->name }}</p>
@@ -128,8 +132,14 @@
                             </select>
                         </td>
                         <td class="p-4 text-xs text-muted">{{ $user->created_at->format('j M Y') }}</td>
+                        <td class="p-4 text-xs text-muted">
+                            {{-- Written on every sync, so it means "the app was
+                                 open", give or take a sync interval. --}}
+                            {{ $user->last_seen_at ? $user->last_seen_at->diffForHumans(short: true) : '--' }}
+                        </td>
                         <td class="p-4">
                             <button wire:click="toggleAdmin({{ $user->id }})"
+                                    wire:confirm="{{ $user->is_admin ? 'Take admin rights away from ' . $user->name . '?' : 'Give ' . $user->name . ' full access to this admin panel?' }}"
                                     @if($user->id === auth()->id()) disabled @endif
                                     class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $user->is_admin ? 'bg-accent/20 text-accent-soft' : 'bg-white/10 text-muted' }} {{ $user->id === auth()->id() ? 'opacity-50 cursor-not-allowed' : '' }}">
                                 {{ $user->is_admin ? 'Admin' : 'User' }}
@@ -137,12 +147,12 @@
                         </td>
                         <td class="p-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button wire:click="openEditProfile({{ $user->id }})" @click="showEditModal = true"
+                                <button wire:click="openEditProfile({{ $user->id }})"
                                         class="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[11px] font-medium text-muted hover:text-content transition-colors" title="Edit profile">
                                     <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     Edit
                                 </button>
-                                <button wire:click="openPasswordReset({{ $user->id }})" @click="showPwModal = true"
+                                <button wire:click="openPasswordReset({{ $user->id }})"
                                         class="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[11px] font-medium text-muted hover:text-content transition-colors" title="Reset password">
                                     <svg viewBox="0 0 24 24" class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                                     Password
@@ -177,12 +187,38 @@
                         <tr>
                             <td colspan="99" class="bg-white/[0.03] p-0">
                                 <div class="px-4 py-4">
-                                    <p class="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted">
-                                        Activity - most recent first
-                                    </p>
+                                    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-muted">
+                                            Activity - most recent first
+                                        </p>
+
+                                        {{-- Only the kinds this person actually
+                                             has, so the list never offers a
+                                             choice that shows nothing. --}}
+                                        <select wire:model.live="timelineFilter"
+                                                class="h-8 rounded-lg border border-white/10 bg-surface-2 px-2 text-xs focus:border-accent focus:outline-none">
+                                            <option value="">Everything</option>
+                                            @foreach ($timelineNames as $name)
+                                                <option value="{{ $name }}">{{ \App\Models\UserEvent::LABELS[$name] ?? $name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    @if ($timelineDevices->isNotEmpty())
+                                        <p class="mb-3 text-[11px] text-muted">
+                                            @foreach ($timelineDevices as $device)
+                                                <span class="mr-3">{{ $device->summary ?: 'unknown device' }}</span>
+                                            @endforeach
+                                        </p>
+                                    @endif
 
                                     @forelse ($timeline as $ev)
-                                        <div class="flex items-baseline gap-3 border-l border-white/10 py-1.5 pl-3">
+                                        {{-- The title is the one-sentence
+                                             description kept beside the event
+                                             constants, so hovering a row
+                                             always says what it means. --}}
+                                        <div class="flex flex-wrap items-baseline gap-3 border-l border-white/10 py-1.5 pl-3"
+                                             title="{{ $ev->description }}">
                                             <span class="w-32 shrink-0 text-[11px] tabular-nums text-dim">
                                                 {{ $ev->occurred_at->format('j M, H:i') }}
                                             </span>
@@ -190,6 +226,11 @@
                                             @if ($ev->subject)
                                                 <span class="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-muted">
                                                     {{ $ev->subject }}
+                                                </span>
+                                            @endif
+                                            @if ($ev->detail)
+                                                <span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-muted">
+                                                    {{ $ev->detail_label }}
                                                 </span>
                                             @endif
                                             @if ($ev->meta)
@@ -208,25 +249,46 @@
                                             from a build that includes it.
                                         </p>
                                     @endforelse
+
+                                    @if ($timelineTotal > $timeline->count())
+                                        <button wire:click="showWholeTimeline"
+                                                class="mt-3 rounded-lg bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-muted hover:text-content transition-colors">
+                                            Show all {{ number_format($timelineTotal) }}
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @endif
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="10" class="p-8 text-center">
+                            <p class="text-sm font-semibold">No accounts match</p>
+                            <p class="mt-1 text-sm text-muted">
+                                @if ($search !== '')
+                                    Nothing matches "{{ $search }}". Try part of an email address.
+                                @else
+                                    Nobody has signed up yet.
+                                @endif
+                            </p>
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
     <div class="mt-4">{{ $users->links() }}</div>
 
-    {{-- Edit profile modal --}}
+    {{-- Edit profile modal.
+         Shown and hidden by the SERVER, not by Alpine: a modal that closes on
+         click closes on a failed save too, taking the error message with it. --}}
     @if ($editingProfileId)
         <template x-teleport="body">
-            <div x-show="showEditModal" x-cloak
-                 class="fixed inset-0 z-50 flex items-center justify-center px-6"
-                 @keydown.escape.window="showEditModal = false">
-                <div x-show="showEditModal" x-transition.opacity @click="showEditModal = false" class="absolute inset-0 bg-black/70"></div>
-                <div x-show="showEditModal" x-transition class="relative w-full max-w-sm rounded-2xl border border-white/10 bg-surface p-6 shadow-2xl">
+            <div class="fixed inset-0 z-50 flex items-center justify-center px-6"
+                 x-data @keydown.escape.window="$wire.closeModals()">
+                <div wire:click="closeModals" class="absolute inset-0 bg-black/70"></div>
+                <div class="relative w-full max-w-sm rounded-2xl border border-white/10 bg-surface p-6 shadow-2xl">
                     <h2 class="text-lg font-bold">Edit user</h2>
                     <form wire:submit="updateProfile" class="mt-4 space-y-4">
                         <div>
@@ -242,8 +304,8 @@
                             @error('editEmail') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                         </div>
                         <div class="flex gap-3">
-                            <button type="button" @click="showEditModal = false" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>
-                            <button type="submit" @click="showEditModal = false" class="h-11 flex-1 rounded-xl bg-accent font-semibold tap">
+                            <button type="button" wire:click="closeModals" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>
+                            <button type="submit" class="h-11 flex-1 rounded-xl bg-accent font-semibold tap">
                                 <span wire:loading.remove wire:target="updateProfile">Save</span>
                                 <span wire:loading wire:target="updateProfile">Saving...</span>
                             </button>
@@ -257,13 +319,12 @@
     {{-- Password reset modal --}}
     @if ($editingUserId)
         <template x-teleport="body">
-            <div x-show="showPwModal" x-cloak
-                 class="fixed inset-0 z-50 flex items-center justify-center px-6"
-                 @keydown.escape.window="showPwModal = false">
-                <div x-show="showPwModal" x-transition.opacity @click="showPwModal = false" class="absolute inset-0 bg-black/70"></div>
-                <div x-show="showPwModal" x-transition class="relative w-full max-w-sm rounded-2xl border border-white/10 bg-surface p-6 shadow-2xl">
+            <div class="fixed inset-0 z-50 flex items-center justify-center px-6"
+                 x-data @keydown.escape.window="$wire.closeModals()">
+                <div wire:click="closeModals" class="absolute inset-0 bg-black/70"></div>
+                <div class="relative w-full max-w-sm rounded-2xl border border-white/10 bg-surface p-6 shadow-2xl">
                     <h2 class="text-lg font-bold">Reset password</h2>
-                    <p class="mt-1 text-sm text-muted">Set a new password for {{ \App\Models\User::find($editingUserId)?->name }}.</p>
+                    <p class="mt-1 text-sm text-muted">Set a new password for {{ $editingUserName }}.</p>
                     <form wire:submit="resetPassword" class="mt-4 space-y-4">
                         <div>
                             <label class="mb-1 block text-sm text-muted">New password</label>
@@ -272,8 +333,8 @@
                             @error('newPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                         </div>
                         <div class="flex gap-3">
-                            <button type="button" @click="showPwModal = false" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>
-                            <button type="submit" @click="showPwModal = false" class="h-11 flex-1 rounded-xl bg-accent font-semibold tap">
+                            <button type="button" wire:click="closeModals" class="h-11 flex-1 rounded-xl bg-white/5 font-semibold tap">Cancel</button>
+                            <button type="submit" class="h-11 flex-1 rounded-xl bg-accent font-semibold tap">
                                 <span wire:loading.remove wire:target="resetPassword">Update</span>
                                 <span wire:loading wire:target="resetPassword">Updating...</span>
                             </button>

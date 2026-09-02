@@ -308,3 +308,56 @@ export const unlockedAtDay = (completedDays: number): ExerciseDef[] =>
   Object.values(EXERCISES).filter(
     (ex) => ex.unlock_after_days > 0 && ex.unlock_after_days === completedDays,
   );
+
+export interface ExerciseGateState {
+  /** Trainable right now. */
+  unlocked: boolean;
+  /** Held by the subscription rather than by a day count, so no countdown applies. */
+  subLocked: boolean;
+  /** 0-100. 100 for anything unlocked, and for a day-0 exercise that nothing gates. */
+  progressPercent: number;
+  /** Training days still to complete. Always 0 when unlocked or subscription-locked. */
+  daysLeft: number;
+}
+
+/**
+ * The one answer to "can this exercise be trained, and if not, why not".
+ *
+ * This decision was written out three times - the home screen, the full
+ * catalogue and the completion screen - and the three copies had already
+ * drifted: only one of them guarded the divide-by-zero on a day-0 threshold,
+ * and only one clamped the day count before computing the fraction. A reader
+ * who saw the same exercise on two screens could be told two different things
+ * about it.
+ *
+ * Two locks, and keeping them apart is the point. A DAY lock is a countdown
+ * that ends by itself, so it gets a bar and a number of days. A SUBSCRIPTION
+ * lock never ends on its own: a free account's day count stops at
+ * FREE_DAY_CAP, so a countdown on the fourth exercise would tick towards a day
+ * that never arrives. Those rows report zero days left and let the caller say
+ * what actually holds them.
+ */
+export const exerciseGateState = (
+  ex: ExerciseDef,
+  completedDays: number,
+  opts: { subscribed: boolean; isAdmin?: boolean },
+): ExerciseGateState => {
+  const threshold = ex.unlock_after_days;
+  const isAdmin = !!opts.isAdmin;
+  const subLocked = !opts.subscribed && !isAdmin && !isFreeExercise(ex.slug);
+  const unlocked = isAdmin || (!subLocked && completedDays >= threshold);
+
+  // A threshold of 0 is the starting set: nothing gates it, so the bar is full
+  // rather than 0/0.
+  const progressPercent =
+    unlocked || threshold <= 0
+      ? 100
+      : Math.min(100, Math.max(0, Math.round((completedDays / threshold) * 100)));
+
+  return {
+    unlocked,
+    subLocked,
+    progressPercent,
+    daysLeft: unlocked || subLocked ? 0 : Math.max(0, threshold - completedDays),
+  };
+};

@@ -10,14 +10,17 @@ use Illuminate\Support\Facades\Mail;
 class CodeSender
 {
     /**
-     * Issue a fresh code and email it (best-effort). Returns the code row.
+     * Issue a fresh code and email it. Returns whether the mail actually went
+     * out, so a caller can say "we could not send it" instead of showing a
+     * code-entry field for a code that never left the building - the failure
+     * used to be swallowed here and every caller reported success.
      *
      * `$locale` is normally left null and taken from the request, because that
      * is the only thing we know about somebody asking for a password reset -
      * they are not signed in, there is no locale stored against the account,
      * and the request is coming from the device whose language they set.
      */
-    public static function send(string $email, string $purpose = 'verify', ?string $locale = null): EmailCode
+    public static function send(string $email, string $purpose = 'verify', ?string $locale = null): bool
     {
         $code = EmailCode::issue($email, $purpose);
 
@@ -37,9 +40,31 @@ class CodeSender
             ));
         } catch (\Throwable $e) {
             report($e);
+
+            return false;
         }
 
-        return $code;
+        /**
+         * Recorded only when the address belongs to an account.
+         *
+         * Codes go to addresses with no account too - "resend" and "forgot
+         * password" answer the same way whether or not the account exists, on
+         * purpose, so the endpoint cannot be used to ask whether an email is
+         * registered. There is nobody to file those against, and inventing a
+         * user for them would put that same answer in the database instead.
+         *
+         * Wrapped, like every server-side event: a report that cannot be
+         * written must never stop a verification email being reported as sent.
+         */
+        rescue(function () use ($email, $purpose) {
+            $userId = \App\Models\User::where('email', $email)->value('id');
+
+            if ($userId) {
+                \App\Models\UserEvent::record($userId, \App\Models\UserEvent::EMAIL_CODE_SENT, $purpose);
+            }
+        }, report: false);
+
+        return true;
     }
 
     /**

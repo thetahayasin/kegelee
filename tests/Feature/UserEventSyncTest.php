@@ -117,6 +117,88 @@ class UserEventSyncTest extends TestCase
         $this->assertTrue(UserEvent::sole()->occurred_at->isBefore(now()->addMinute()));
     }
 
+    public function test_it_stores_the_detail_beside_the_subject(): void
+    {
+        // subject is WHAT it was about, detail is WHICH KIND. A purchase that
+        // failed because somebody changed their mind and one that failed
+        // because the card was declined are the same subject and completely
+        // different news.
+        $this->push(['events' => [$this->event([
+            'name' => UserEvent::PURCHASE_FAILED,
+            'subject' => 'premium-monthly',
+            'detail' => 'cancelled',
+        ])]])->assertOk();
+
+        $row = UserEvent::sole();
+        $this->assertSame('premium-monthly', $row->subject);
+        $this->assertSame('cancelled', $row->detail);
+    }
+
+    public function test_it_cuts_a_long_subject_and_detail_to_fit(): void
+    {
+        $this->push(['events' => [$this->event([
+            'subject' => str_repeat('a', 200),
+            'detail' => str_repeat('b', 200),
+        ])]])->assertOk();
+
+        $row = UserEvent::sole();
+        $this->assertSame(48, mb_strlen($row->subject));
+        $this->assertSame(48, mb_strlen($row->detail));
+    }
+
+    public function test_it_drops_an_event_from_months_ago(): void
+    {
+        // The mirror of the future clamp. No report looks further back than 90
+        // days, so a date this old is a broken clock rather than old news.
+        $this->push(['events' => [
+            $this->event(['occurred_at_iso' => now()->subDays(200)->toIso8601String()]),
+        ]])->assertOk();
+
+        $this->assertSame(0, UserEvent::count());
+    }
+
+    public function test_it_keeps_an_event_but_drops_meta_that_is_far_too_large(): void
+    {
+        // A meta bag this size is a client bug. Losing the fact that the
+        // workout finished because its extras were oversized would be the
+        // wrong trade, so the event stays and only the bag goes.
+        $this->push(['events' => [$this->event([
+            'meta' => ['dump' => str_repeat('x', 3000)],
+        ])]])->assertOk();
+
+        $row = UserEvent::sole();
+        $this->assertSame(UserEvent::TOUR_COMPLETED, $row->name);
+        $this->assertNull($row->meta);
+    }
+
+    public function test_it_takes_a_full_batch_of_five_hundred(): void
+    {
+        $events = [];
+        for ($i = 0; $i < 500; $i++) {
+            $events[] = $this->event(['client_id' => 'batch-'.$i]);
+        }
+
+        $this->push(['events' => $events])->assertOk();
+
+        $this->assertSame(500, UserEvent::count());
+    }
+
+    public function test_it_refuses_a_batch_larger_than_five_hundred(): void
+    {
+        // Refused rather than trimmed. A push drains an outbox in chunks, and
+        // silently keeping the first 500 of 600 would have the device clear
+        // all 600 on the 200 it got back - the other hundred would be gone.
+        // The device is told to send a smaller batch instead.
+        $events = [];
+        for ($i = 0; $i < 501; $i++) {
+            $events[] = $this->event(['client_id' => 'batch-'.$i]);
+        }
+
+        $this->push(['events' => $events])->assertStatus(422);
+
+        $this->assertSame(0, UserEvent::count());
+    }
+
     public function test_events_do_not_disturb_the_rest_of_the_push(): void
     {
         // Instrumentation must never be able to break the sync it rides on.

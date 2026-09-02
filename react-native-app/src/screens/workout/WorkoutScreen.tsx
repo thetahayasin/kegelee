@@ -5,12 +5,13 @@ import {
   Text,
   StyleSheet,
   Animated,
-  Dimensions,
   Alert,
+  AppState,
   ActivityIndicator,
   BackHandler,
   Easing,
   TouchableWithoutFeedback,
+  useWindowDimensions,
   Vibration,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
@@ -24,7 +25,10 @@ import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { buildDailySession, buildSingleSession, PlaylistStep } from '../../services/sessionBuilder';
 import { scheduleLapseNudge } from '../../services/reminders';
 import { getDBConnection } from '../../db/sqlite';
-import { recordCompletedSession } from '../../db/queries';
+import { recordCompletedSession, getTrainingDay } from '../../db/queries';
+import { getLocalDateString } from '../../utils/localDate';
+import { track } from '../../services/events';
+import { abandonQuarter } from '../../services/eventClassifiers';
 import { syncNow } from '../../services/sync';
 import { getAppSetting } from '../../db/queries';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -33,13 +37,20 @@ import { Watermark } from '../../components/Watermark';
 import { TourOverlay } from '../../components/TourOverlay';
 import { SESSION_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 
-const { width } = Dimensions.get('window');
-// The contract glow halo extends to 1.7x this, so keep 1.7*CIRCLE_SIZE within
-// the screen width (with margin) - otherwise the glow overflows the screen.
-const CIRCLE_SIZE = Math.min(width * 0.52, 200);
+/**
+ * The ring is sized from the LIVE window, not from a module-load snapshot.
+ *
+ * `Dimensions.get('window')` is read once when the bundle is first required,
+ * so the circle was sized for whatever the window happened to be at launch and
+ * stayed there. On a foldable, in split screen, or after any configuration
+ * change, the ring and its glow kept the old geometry: on the narrow half of a
+ * fold the 1.7x halo overflowed the screen it was explicitly sized to fit.
+ *
+ * The contract glow halo extends to 1.7x this, so keep 1.7*size within the
+ * screen width (with margin).
+ */
+const circleSizeFor = (width: number) => Math.min(width * 0.52, 200);
 const TRACK_WIDTH = 12;
-const R = (CIRCLE_SIZE - TRACK_WIDTH) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * R;
 
 // The sweep is animated, not re-rendered, so it needs an animatable Circle.
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -62,10 +73,14 @@ const LiveProgressRing = React.memo(
   ({
     label,
     register,
+    size,
   }: {
     label: string;
     register: (fn: (d: RingDisplay) => void) => () => void;
+    size: number;
   }) => {
+    const radius = (size - TRACK_WIDTH) / 2;
+    const circumference = 2 * Math.PI * radius;
     const styles = useThemedStyles(makeStyles);
     const COLORS = useTheme();
     // Only the counter needs React state; it changes about once a second.
@@ -100,15 +115,15 @@ const LiveProgressRing = React.memo(
     );
     const dashoffset = pct.interpolate({
       inputRange: [0, 1],
-      outputRange: [CIRCUMFERENCE, 0],
+      outputRange: [circumference, 0],
     });
     return (
-      <View style={styles.progressRing}>
-        <Svg width={CIRCLE_SIZE} height={CIRCLE_SIZE} viewBox={`0 0 ${CIRCLE_SIZE} ${CIRCLE_SIZE}`}>
+      <View style={[styles.progressRing, { width: size, height: size, borderRadius: size / 2 }]}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           <Circle
-            cx={CIRCLE_SIZE / 2}
-            cy={CIRCLE_SIZE / 2}
-            r={R}
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
             fill="none"
             stroke={COLORS.borderStrong}
             strokeWidth={TRACK_WIDTH}
@@ -123,17 +138,17 @@ const LiveProgressRing = React.memo(
                 meaning, "act here / in progress / done", and a filling
                 progress arc is all three. */}
           <AnimatedCircle
-            cx={CIRCLE_SIZE / 2}
-            cy={CIRCLE_SIZE / 2}
-            r={R}
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
             fill="none"
             stroke={COLORS.accentText}
             strokeWidth={TRACK_WIDTH}
             strokeLinecap="round"
-            strokeDasharray={`${CIRCUMFERENCE} ${CIRCUMFERENCE}`}
+            strokeDasharray={`${circumference} ${circumference}`}
             strokeDashoffset={dashoffset}
             // transform to start draw from top (12 o'clock)
-            origin={`${CIRCLE_SIZE / 2}, ${CIRCLE_SIZE / 2}`}
+            origin={`${size / 2}, ${size / 2}`}
             rotation={-90}
           />
         </Svg>
@@ -156,6 +171,18 @@ const LiveTimeLabel = React.memo(
   },
 );
 
+/**
+ * How many EXERCISES a playlist holds, as a person would count them.
+ *
+ * Not the step count: one exercise is many contract/relax steps, and the rests
+ * between them are not exercises at all. The two numbers are reported
+ * separately (exercise_count here, total_steps on an abandon) because a
+ * session that was quit "three exercises in" and one quit "forty steps in"
+ * answer different questions.
+ */
+const countExercises = (steps: PlaylistStep[]): number =>
+  new Set(steps.filter((s) => s.slug !== 'rest').map((s) => s.slug)).size;
+
 export const WorkoutScreen = () => {
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
@@ -163,6 +190,9 @@ export const WorkoutScreen = () => {
   const route = useRoute<RouteProp<RouteParams, 'Workout'>>();
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, subscribed } = useAuth();
+  const { width } = useWindowDimensions();
+  const circleSize = circleSizeFor(width);
+  const haloSize = circleSize * 1.7;
 
   const trialSlug = route.params?.trialSlug || null;
   const isTrial = !!trialSlug;
@@ -175,6 +205,10 @@ export const WorkoutScreen = () => {
   // this (large) screen component.
   const [paused, setPaused] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
+  // The session could not be built. Distinct from `loading`: loading ends,
+  // this does not, and the screen used to sit on the spinner for ever with no
+  // way out but the hardware back button, which the back handler then swallowed.
+  const [initFailed, setInitFailed] = useState(false);
   // Help sheet (per-exercise tutorial) shown during a real session.
   const [showHelp, setShowHelp] = useState(false);
   // Trial/tutorial finished: show a simple "Great job! / Try again" instead of
@@ -209,6 +243,19 @@ export const WorkoutScreen = () => {
   showQuitModalRef.current = showQuitModal;
 
   const handleQuitRef = useRef<() => void>(() => {});
+  const loadingRef = useRef(true);
+  /**
+   * The session already reached its end.
+   *
+   * A finished PREVIEW stays on this screen showing "Great job!", and its
+   * close button and the hardware back key both route through handleQuit - so
+   * without this every completed preview was also recorded as abandoned, in
+   * the last quarter, by the reader tapping X on the congratulations. A real
+   * session cannot hit this (finishWorkout replaces the route), but it is set
+   * on both paths so the rule reads as "an ended session cannot be
+   * abandoned" rather than as a preview quirk.
+   */
+  const finishedRef = useRef(false);
 
   // Refs for tracking timer states
   const timerRef = useRef<any | null>(null);
@@ -222,6 +269,43 @@ export const WorkoutScreen = () => {
   playlistRef.current = playlist;
   indexRef.current = index;
   pausedRef.current = paused;
+  loadingRef.current = loading;
+
+  /**
+   * Close the help sheet AND resume.
+   *
+   * Opening it pauses the session, so every way out of it has to unpause. Only
+   * the Resume button did: dismissing by tapping the overlay or by hardware
+   * back left the workout paused behind a sheet that was no longer there, and
+   * the ring simply stopped with no indication why.
+   */
+  const closeHelp = () => {
+    setShowHelp(false);
+    pausedRef.current = false;
+    setPaused(false);
+  };
+  const closeHelpRef = useRef<() => void>(() => {});
+  closeHelpRef.current = closeHelp;
+
+  /**
+   * The three values finishWorkout reads, mirrored the same way.
+   *
+   * finishWorkout is reached from `advanceStep`, which is called by the 50ms
+   * interval. That interval closes over the render in which it was created and
+   * is only rebuilt when `loading` or `playlist` change, so by the last step of
+   * a session its `currentStep` was the FIRST step of the playlist. Every
+   * completed session was therefore recorded against the wrong exercise slug -
+   * always the one the session opened with. `subscribed` was stale in the same
+   * closure, so an account that subscribed from the paywall mid-session still
+   * had its day capped at the free limit until the next launch.
+   *
+   * Same mechanism as playlistRef/indexRef above, for the same reason.
+   */
+  const currentStepRef = useRef<PlaylistStep | undefined>(undefined);
+  const userRef = useRef(user);
+  const subscribedRef = useRef(subscribed);
+  userRef.current = user;
+  subscribedRef.current = subscribed;
 
   // Tick display subscribers (ring + header time label) and change-detection so
   // we only push when something visible actually changed.
@@ -289,78 +373,134 @@ export const WorkoutScreen = () => {
       .catch(() => {});
   }, []);
 
+  const initWorkout = useCallback(async () => {
+    try {
+      // Inside the try. A bare `return` here left `loading` true for ever, so
+      // a screen reached without a signed-in account sat on the spinner with
+      // the back handler swallowing every attempt to leave it.
+      if (!user) throw new Error('No signed-in user on the workout screen');
+      const db = await getDBConnection();
+      // Get completed days count
+      const daysRes = await db.executeSql(
+        'SELECT COUNT(*) as count FROM training_days WHERE user_id = ? AND completed_at IS NOT NULL',
+        [user.id]
+      );
+      const completedDays = daysRes[0].rows.item(0).count || 0;
+
+      let session;
+      if (trialSlug) {
+        session = buildSingleSession(trialSlug, user.level_id);
+      } else {
+        // A free account trains with the first three exercises only. The
+        // day cap below already stops its day count short of the fourth
+        // unlock, so this is belt to that braces - a day count arriving
+        // from anywhere else still cannot widen the session.
+        session = buildDailySession(completedDays, user.level_id, {
+          freeOnly: !subscribed,
+        });
+      }
+
+      if (session.steps.length === 0) {
+        Alert.alert(t('workout.noExercisesTitle'), t('workout.noExercisesBody'));
+        navigation.goBack();
+        return;
+      }
+
+      remainingRef.current = session.steps[0].seconds;
+      elapsedRef.current = 0;
+      setPlaylist(session.steps);
+      setLoading(false);
+      /**
+       * A session that was actually built and shown.
+       *
+       * After setPlaylist rather than at the top of this function, so the two
+       * ways it can end without a session - no steps to build, or a throw -
+       * are not counted as training that started. Paired with
+       * workout_completed and workout_abandoned, this is the denominator for
+       * "how many sessions get finished".
+       */
+      track(
+        user.id,
+        'workout_started',
+        trialSlug ? 'preview' : 'daily',
+        subscribed ? 'paid' : 'free',
+        {
+          level_id: user.level_id,
+          exercise_count: countExercises(session.steps),
+          trial_slug: trialSlug,
+        },
+      );
+      // The opening Contract of a full session. advanceStep only runs on a
+      // transition, so without this the very first cue - the one the user is
+      // actually waiting for - never fired. Trials already had it.
+      cueStep(session.steps[0]);
+
+      // The session tour, once per account, on whichever session comes
+      // first. It used to run on the demo; the demo is gone, so this IS the
+      // first time most people see the circle - and the circle explains
+      // nothing on its own.
+      //
+      // Held paused while the cards are up: three explanations of a ring
+      // are worthless if the ring is running behind them, and the reader
+      // would finish the tour having missed the exercise it described.
+      if (!isTrial && !(await hasSeenTour('session', user.id))) {
+        pausedRef.current = true;
+        setPaused(true);
+        setShowTour(true);
+      }
+    } catch (e) {
+      console.error('Failed to build the workout session', e);
+      // The screen has nothing to show and no way to recover on its own, so
+      // say so and offer the two things worth offering. Leaving `loading`
+      // true here left a spinner that never resolved.
+      setInitFailed(true);
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, subscribed, trialSlug, isTrial]);
+
   useEffect(() => {
     // Keep screen awake during active workout session
     KeepAwake.activate();
-
-    const initWorkout = async () => {
-      if (!user) return;
-      try {
-        const db = await getDBConnection();
-        // Get completed days count
-        const daysRes = await db.executeSql(
-          'SELECT COUNT(*) as count FROM training_days WHERE user_id = ? AND completed_at IS NOT NULL',
-          [user.id]
-        );
-        const completedDays = daysRes[0].rows.item(0).count || 0;
-
-        let session;
-        if (trialSlug) {
-          session = buildSingleSession(trialSlug, user.level_id);
-        } else {
-          // A free account trains with the first three exercises only. The
-          // day cap below already stops its day count short of the fourth
-          // unlock, so this is belt to that braces - a day count arriving
-          // from anywhere else still cannot widen the session.
-          session = buildDailySession(completedDays, user.level_id, {
-            freeOnly: !subscribed,
-          });
-        }
-
-        if (session.steps.length === 0) {
-          Alert.alert(t('workout.noExercisesTitle'), t('workout.noExercisesBody'));
-          navigation.goBack();
-          return;
-        }
-
-        remainingRef.current = session.steps[0].seconds;
-        elapsedRef.current = 0;
-        setPlaylist(session.steps);
-        setLoading(false);
-        // The opening Contract of a full session. advanceStep only runs on a
-        // transition, so without this the very first cue - the one the user is
-        // actually waiting for - never fired. Trials already had it.
-        cueStep(session.steps[0]);
-
-        // The session tour, once per account, on whichever session comes
-        // first. It used to run on the demo; the demo is gone, so this IS the
-        // first time most people see the circle - and the circle explains
-        // nothing on its own.
-        //
-        // Held paused while the cards are up: three explanations of a ring
-        // are worthless if the ring is running behind them, and the reader
-        // would finish the tour having missed the exercise it described.
-        if (!isTrial && !(await hasSeenTour('session', user.id))) {
-          pausedRef.current = true;
-          setPaused(true);
-          setShowTour(true);
-        }
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
-      }
-    };
-
     initWorkout();
 
     return () => {
       KeepAwake.deactivate();
       if (timerRef.current) clearInterval(timerRef.current);
     };
-    // Intentionally keyed to focus/mount only: loadData is recreated every
-    // render, so listing it here would refetch in a loop. Wrap it in
-    // useCallback before adding it to these deps.
+    // Intentionally keyed to mount only: re-running this would rebuild the
+    // playlist mid-session.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const retryInit = () => {
+    setInitFailed(false);
+    setLoading(true);
+    initWorkout();
+  };
+
+  /**
+   * Pause when the app leaves the foreground.
+   *
+   * The timer is a setInterval, and Android keeps JS timers running for a
+   * while after the app is backgrounded. So answering a call in the middle of
+   * a session came back to a ring that had counted down through several
+   * exercises without anyone doing them, and the tick's own 250ms stall clamp
+   * only softens that, it does not prevent it. A session you were not present
+   * for is not a session, so it waits.
+   *
+   * Only ever pauses. Resuming automatically would start the next contraction
+   * while the phone is still on its way back into the pocket; the Resume
+   * button is one tap and it is the reader's call.
+   */
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') {
+        pausedRef.current = true;
+        setPaused(true);
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   // Push the tick-driven display values to the ring / time-label subscribers.
@@ -542,18 +682,40 @@ export const WorkoutScreen = () => {
   const finishWorkout = async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     KeepAwake.deactivate();
+    finishedRef.current = true;
 
     // A tutorial / try-it-now preview is throwaway: it records nothing and ends
     // on a simple "Great job!" with a Try again, NOT the day-complete session
     // screen (which is only for real training sessions).
     if (isTrial) {
+      // Still a completion, and still counted - it is the one session a
+      // curious reader finishes before they have any training record at all,
+      // so leaving it out would make the preview look like something nobody
+      // ever gets to the end of. No day can close on it, hence the constant.
+      track(
+        userRef.current?.id,
+        'workout_completed',
+        'preview',
+        subscribedRef.current ? 'paid' : 'free',
+        {
+          level_id: userRef.current?.level_id ?? null,
+          seconds: Math.max(0, Math.round(elapsedRef.current)),
+          exercise_count: countExercises(playlistRef.current),
+          day_completed: false,
+        },
+      );
       setTrialDone(true);
       return;
     }
 
     const secs = Math.max(0, Math.round(elapsedRef.current));
 
-    if (user) {
+    // Live values, not the ones this closure captured - see currentStepRef.
+    const finishedUser = userRef.current;
+    const finishedStep = currentStepRef.current;
+    const finishedSubscribed = subscribedRef.current;
+
+    if (finishedUser) {
       try {
         // Save session locally to SQLite
         // The workout is always recorded. The DAY only closes while the
@@ -562,11 +724,11 @@ export const WorkoutScreen = () => {
         // lets a subscription pick the plan up exactly where it stopped
         // rather than restarting it.
         await recordCompletedSession(
-          user.id,
-          currentStep?.slug || null,
+          finishedUser.id,
+          finishedStep?.slug || null,
           secs,
-          user.level_id,
-          subscribed ? undefined : { maxCompletedDays: FREE_DAY_CAP },
+          finishedUser.level_id,
+          finishedSubscribed ? undefined : { maxCompletedDays: FREE_DAY_CAP },
         );
         // Push the lapse check-in back another 72 hours. Doing this on every
         // completed session means an active user perpetually postpones it and
@@ -574,15 +736,46 @@ export const WorkoutScreen = () => {
         // gone quiet, which until now was someone the app had no way of
         // contacting at all.
         scheduleLapseNudge().catch(() => {});
+
+        /**
+         * Whether this session was the one that CLOSED the day.
+         *
+         * Read back from the row recordCompletedSession just wrote rather than
+         * guessed from a session count, because the rule it applies is not
+         * simple: two sessions close a day, but a free account past the day
+         * cap records the session and deliberately leaves the day open. The
+         * row is the only thing that knows which happened, and "sessions done"
+         * against "days completed" is the pair the training report is built
+         * on. Its own try: a failed read must not cost the sync below.
+         */
+        let dayCompleted = false;
+        try {
+          const today = await getTrainingDay(
+            finishedUser.id,
+            getLocalDateString(finishedUser.timezone ?? null),
+          );
+          dayCompleted = !!today?.completed_at;
+        } catch {}
+
+        track(finishedUser.id, 'workout_completed', 'daily', finishedSubscribed ? 'paid' : 'free', {
+          level_id: finishedUser.level_id,
+          seconds: secs,
+          exercise_count: countExercises(playlistRef.current),
+          day_completed: dayCompleted,
+        });
+
         // Sync with Laravel server in background
-        syncNow(user.id).catch(() => {});
+        syncNow(finishedUser.id).catch(() => {});
       } catch (e) {
         console.error('Failed to save workout session results locally', e);
       }
     }
 
     // Go to workout complete celebration page
-    (navigation as any).replace('WorkoutComplete', { duration: secs, levelId: user?.level_id || 1 });
+    (navigation as any).replace('WorkoutComplete', {
+      duration: secs,
+      levelId: finishedUser?.level_id || 1,
+    });
   };
 
   // Replay the same single-exercise tutorial from the start (Try again).
@@ -600,6 +793,8 @@ export const WorkoutScreen = () => {
     setIndex(0);
     setPaused(false);
     setTrialDone(false);
+    // Running again from the top, so quitting it is a real abandon again.
+    finishedRef.current = false;
     // New array reference re-runs the timer effect and starts a fresh loop.
     setPlaylist([...session.steps]);
     pushTickDisplays(true);
@@ -607,7 +802,45 @@ export const WorkoutScreen = () => {
     KeepAwake.activate();
   };
 
+  /**
+   * The single non-finish exit.
+   *
+   * Every way out that is not the last step arrives here - the quit modal, the
+   * trial's Skip, and the hardware back button through handleQuitRef - so this
+   * is the one place that can say a session was abandoned, and the quarter it
+   * was abandoned in is the answer to "where do people give up".
+   *
+   * Live refs throughout, for the same reason finishWorkout uses them: this
+   * function is re-created every render but is also reached through a ref held
+   * by a listener registered once.
+   */
   const handleQuit = () => {
+    if (finishedRef.current) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      KeepAwake.deactivate();
+      navigation.goBack();
+      return;
+    }
+    const steps = playlistRef.current;
+    const stepIndex = indexRef.current;
+    const step = steps[stepIndex];
+    track(
+      userRef.current?.id,
+      'workout_abandoned',
+      isTrial ? 'preview' : 'daily',
+      abandonQuarter(stepIndex, steps.length),
+      {
+        level_id: userRef.current?.level_id ?? null,
+        seconds_elapsed: Math.max(0, Math.round(elapsedRef.current)),
+        step_index: stepIndex,
+        total_steps: steps.length,
+        // Which exercise was on screen when they stopped, and whether they
+        // were mid-squeeze or resting. A session quit during a contract and
+        // one quit during a rest are different complaints.
+        exercise_slug: step?.slug ?? null,
+        phase: step?.phase ?? null,
+      },
+    );
     if (timerRef.current) clearInterval(timerRef.current);
     KeepAwake.deactivate();
     navigation.goBack();
@@ -615,6 +848,7 @@ export const WorkoutScreen = () => {
   handleQuitRef.current = handleQuit;
 
   const currentStep = playlist[index];
+  currentStepRef.current = currentStep;
 
   // Exercise-block carousel (Past · Current · Next): collapse consecutive
   // same-exercise steps into one labelled block, matching the web carousel.
@@ -670,8 +904,16 @@ export const WorkoutScreen = () => {
   useFocusEffect(
     useCallback(() => {
       const onBack = () => {
+        // Nothing to quit yet. Swallowing back here trapped anyone whose
+        // session was still building or had failed to build: the screen showed
+        // a spinner, the quit sheet talks about losing progress that does not
+        // exist, and the only other control on screen was the X. Let the
+        // navigator take it.
+        if (loadingRef.current || !currentStepRef.current) {
+          return false;
+        }
         if (showHelpRef.current) {
-          setShowHelp(false);
+          closeHelpRef.current();
           return true;
         }
         // A trial/tutorial run isn't a real training session - just exit it.
@@ -791,6 +1033,32 @@ export const WorkoutScreen = () => {
     return t('workout.secondsLeft', { count: s });
   };
 
+  if (initFailed) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <Watermark />
+        <View style={styles.errorCard}>
+          <Text style={styles.errorTitle}>{t('workout.couldNotStartTitle')}</Text>
+          <Text style={styles.errorBody}>{t('workout.couldNotStartBody')}</Text>
+          <TouchableOpacity
+            style={styles.errorPrimaryBtn}
+            accessibilityRole="button"
+            onPress={retryInit}
+          >
+            <Text style={styles.errorPrimaryBtnText}>{t('common.tryAgain')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.errorSecondaryBtn}
+            accessibilityRole="button"
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.errorSecondaryBtnText}>{t('workout.back')}</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (loading || !currentStep) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -825,15 +1093,29 @@ export const WorkoutScreen = () => {
     );
   }
 
+  // Either sheet is a modal in intent, so everything under it must leave the
+  // accessibility tree. Without this a screen reader walks straight past the
+  // sheet into the ring, the carousel and the pause button behind it, which is
+  // the one part of the screen that is not currently operable.
+  const sheetOpen = showHelp || showQuitModal;
+
   return (
     <SafeAreaView style={styles.container}>
       <Watermark />
+      <View
+        style={styles.screenBody}
+        importantForAccessibility={sheetOpen ? 'no-hide-descendants' : 'auto'}
+        accessibilityElementsHidden={sheetOpen}
+      >
       {/* Top header. Real sessions: X opens the quit confirmation + live time
           label. Trials/tutorials: just the X, exiting immediately - a trial
           records nothing, so there is nothing to confirm. */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.closeBtn}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={isTrial ? t('workout.back') : t('workout.leaveTraining')}
           onPress={() => (isTrial ? handleQuit() : setShowQuitModal(true))}
         >
           <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -841,12 +1123,17 @@ export const WorkoutScreen = () => {
           </Svg>
         </TouchableOpacity>
         {!isTrial && <LiveTimeLabel register={registerTime} />}
-        <View style={{ width: 36 }} />
+        {/* Balances the close button so the time label stays centred. */}
+        <View style={styles.headerGutter} />
       </View>
 
       {/* Main Circular Player View */}
       <View style={styles.playerContainer}>
-        <View ref={tourRingRef} collapsable={false} style={styles.circleContainer}>
+        <View
+          ref={tourRingRef}
+          collapsable={false}
+          style={[styles.circleContainer, { width: haloSize, height: haloSize }]}
+        >
           {/* Animated contract glow: a soft accent radial-gradient halo behind
               the circle (matches the web .contract-glow), scaling out and
               brightening with squeeze intensity. */}
@@ -854,16 +1141,22 @@ export const WorkoutScreen = () => {
             style={[
               styles.contractGlow,
               {
+                width: haloSize,
+                height: haloSize,
                 opacity: glowOpacity,
                 transform: [{ scale: glowScale }],
               },
             ]}
           >
-            <ContractGlow size={CIRCLE_SIZE} />
+            <ContractGlow size={circleSize} />
           </Animated.View>
 
           {/* Central progress ring: tick-subscribed so only it repaints */}
-          <LiveProgressRing label={t(currentStep.labelKey)} register={registerRing} />
+          <LiveProgressRing
+            label={t(currentStep.labelKey)}
+            register={registerRing}
+            size={circleSize}
+          />
         </View>
       </View>
 
@@ -880,12 +1173,14 @@ export const WorkoutScreen = () => {
         {!isTrial && currentStep.slug !== 'rest' ? (
           <TouchableOpacity
             style={styles.helpBtn}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={t('workout.exerciseTutorial')}
             onPress={() => {
               pausedRef.current = true;
               setPaused(true);
               setShowHelp(true);
             }}
-            accessibilityLabel={t('workout.exerciseTutorial')}
           >
             <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
               <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={1.8} />
@@ -943,6 +1238,9 @@ export const WorkoutScreen = () => {
       <View ref={tourPauseRef} collapsable={false} style={styles.footer}>
         <TouchableOpacity
           style={styles.pauseBtn}
+          accessibilityRole="button"
+          accessibilityLabel={paused ? t('workout.resume') : t('workout.pause')}
+          accessibilityState={{ selected: paused }}
           onPress={() => {
             pausedRef.current = !paused;
             setPaused(!paused);
@@ -970,15 +1268,15 @@ export const WorkoutScreen = () => {
           </TouchableOpacity>
         )}
       </View>
+      </View>
 
       {/* Help / tutorial bottom sheet */}
       {showHelp && (
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => {
-            setShowHelp(false);
-          }}
+          accessibilityViewIsModal
+          onPress={closeHelp}
         >
           <TouchableWithoutFeedback>
             <SafeAreaView style={styles.modalContent}>
@@ -987,9 +1285,22 @@ export const WorkoutScreen = () => {
               <Text style={styles.modalBody}>
                 {t('workout.watchTheQuickTutorialFor')}
               </Text>
+              {/* Resume first and in the accent, because it is what almost
+                  everyone wants next: the sheet was opened mid-session to
+                  glance at a description, and leaving for the tutorial screen
+                  abandons the session. The leaving action stays available,
+                  just not dressed as the recommendation. */}
               <View style={styles.modalButtons}>
                 <TouchableOpacity
-                  style={[styles.modalBtn, styles.quitBtn]}
+                  style={[styles.modalBtn, styles.primarySheetBtn]}
+                  accessibilityRole="button"
+                  onPress={closeHelp}
+                >
+                  <Text style={styles.primarySheetBtnText}>{t('workout.resume')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.mutedSheetBtn]}
+                  accessibilityRole="button"
                   onPress={() => {
                     setShowHelp(false);
                     navigation.navigate('ExerciseDetail', {
@@ -999,17 +1310,7 @@ export const WorkoutScreen = () => {
                     });
                   }}
                 >
-                  <Text style={styles.quitBtnText}>{t('workout.watchTutorial')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalBtn, styles.backToTrainingBtn]}
-                  onPress={() => {
-                    setShowHelp(false);
-                    pausedRef.current = false;
-                    setPaused(false);
-                  }}
-                >
-                  <Text style={styles.backToTrainingBtnText}>{t('workout.resume')}</Text>
+                  <Text style={styles.mutedSheetBtnText}>{t('workout.watchTutorial')}</Text>
                 </TouchableOpacity>
               </View>
             </SafeAreaView>
@@ -1022,6 +1323,7 @@ export const WorkoutScreen = () => {
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
+          accessibilityViewIsModal
           onPress={() => setShowQuitModal(false)}
         >
           <TouchableWithoutFeedback>
@@ -1031,18 +1333,24 @@ export const WorkoutScreen = () => {
               <Text style={styles.modalBody}>
                 {t('workout.ifYouLeaveThisSession')}
               </Text>
+              {/* Staying is the accent button and comes first. This sheet is a
+                  confirmation, so the destructive answer must never be the one
+                  dressed as the recommendation - and losing the session is
+                  exactly what the body text has just warned about. */}
               <View style={styles.modalButtons}>
                 <TouchableOpacity
-                  style={[styles.modalBtn, styles.quitBtn]}
-                  onPress={handleQuit}
-                >
-                  <Text style={styles.quitBtnText}>{t('workout.yesQuitTraining')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.modalBtn, styles.backToTrainingBtn]}
+                  style={[styles.modalBtn, styles.primarySheetBtn]}
+                  accessibilityRole="button"
                   onPress={() => setShowQuitModal(false)}
                 >
-                  <Text style={styles.backToTrainingBtnText}>{t('workout.noGoBack')}</Text>
+                  <Text style={styles.primarySheetBtnText}>{t('workout.noGoBack')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalBtn, styles.mutedSheetBtn]}
+                  accessibilityRole="button"
+                  onPress={handleQuit}
+                >
+                  <Text style={styles.mutedSheetBtnText}>{t('workout.yesQuitTraining')}</Text>
                 </TouchableOpacity>
               </View>
             </SafeAreaView>
@@ -1075,6 +1383,11 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg,
   },
+  // One wrapper so the whole session can be hidden from assistive tech in a
+  // single place while a sheet is up.
+  screenBody: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -1089,15 +1402,18 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     paddingVertical: 16,
   },
   closeBtn: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  headerGutter: {
+    width: 44,
   },
   timeText: {
     fontSize: 14,
     color: COLORS.textMuted,
-    fontWeight: 'medium',
+    fontWeight: '500',
   },
   playerContainer: {
     flex: 1,
@@ -1105,24 +1421,20 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
   },
+  // Sized inline from the live window - see circleSizeFor. Only the parts that
+  // do not depend on it stay here, so the memoised stylesheet keeps its
+  // palette-only identity.
   circleContainer: {
-    width: CIRCLE_SIZE * 1.7,
-    height: CIRCLE_SIZE * 1.7,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   contractGlow: {
     position: 'absolute',
-    width: CIRCLE_SIZE * 1.7,
-    height: CIRCLE_SIZE * 1.7,
     alignItems: 'center',
     justifyContent: 'center',
   },
   progressRing: {
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
-    borderRadius: CIRCLE_SIZE / 2,
     backgroundColor: COLORS.surface,
     borderColor: COLORS.border,
     borderWidth: 2,
@@ -1144,7 +1456,7 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   phaseLabel: {
     fontSize: 15,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
     marginTop: 4,
     textAlign: 'center',
@@ -1217,17 +1529,17 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     paddingBottom: 4,
   },
   helpBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
   helpBtnPlaceholder: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
   },
 
   // Trial / tutorial completion
@@ -1331,20 +1643,73 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  quitBtn: {
+  // Named for their ROLE in the sheet rather than for one sheet's wording.
+  // They were `quitBtn` and `backToTrainingBtn`, which is how the accent came
+  // to be on "Yes, quit training" in one sheet and on the leaving action in
+  // the other: the names described where they were first used, not what they
+  // mean, so the recommended answer followed the position instead of the
+  // intent.
+  primarySheetBtn: {
     backgroundColor: COLORS.accent,
   },
-  quitBtnText: {
+  primarySheetBtnText: {
     color: COLORS.onAccent,
     fontWeight: 'bold',
     fontSize: 15,
   },
-  backToTrainingBtn: {
+  mutedSheetBtn: {
     backgroundColor: COLORS.surface2,
   },
-  backToTrainingBtnText: {
+  mutedSheetBtnText: {
     color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 15,
+  },
+  errorCard: {
+    marginHorizontal: 24,
+    padding: 24,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    textAlign: 'center',
+  },
+  errorBody: {
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 21,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  errorPrimaryBtn: {
+    marginTop: 20,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: COLORS.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorPrimaryBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: COLORS.onAccent,
+  },
+  errorSecondaryBtn: {
+    marginTop: 10,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: COLORS.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorSecondaryBtnText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: COLORS.white,
   },
 });

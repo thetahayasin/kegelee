@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Linking,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,11 +20,11 @@ import {
 } from '../../components/AuthField';
 import { TYPE, SPACE, RADIUS, DISABLED_OPACITY, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
-import { getWebBaseUrl } from '../../services/api';
-import { nativeGoogleSignIn } from '../../services/googleAuth';
+import { nativeGoogleSignIn, openGoogleBrowserSignIn } from '../../services/googleAuth';
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
+import { track } from '../../services/events';
 
 export const RegisterScreen = () => {
   const styles = useThemedStyles(makeStyles);
@@ -64,20 +63,42 @@ export const RegisterScreen = () => {
     }
 
     setLoading(true);
-    const res = await register(name.trim(), email.trim().toLowerCase(), password);
-    setLoading(false);
-
-    if (res.success) {
-      // Successfully registered. Now redirect to verification screen.
-      navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
-    } else {
-      setError(res.error || t('register.registrationFailed'));
+    /**
+     * Counted here, not on the button.
+     *
+     * Below the two local checks on purpose: a mistyped confirmation is not an
+     * attempt to sign up, it is a typo, and counting it would make the funnel's
+     * first step bigger than the number of people who ever reached the server.
+     * There is no account yet either, so this is a guest row - claimed the
+     * moment the registration succeeds.
+     */
+    track(null, 'signup_started', 'email');
+    // See the same guard in LoginScreen: `register` can throw, and an
+    // unguarded await left the button spinning with nothing said and no way to
+    // try again.
+    try {
+      const res = await register(name.trim(), email.trim().toLowerCase(), password);
+      if (res.success) {
+        // Successfully registered. Now redirect to verification screen.
+        navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
+      } else {
+        setError(res.error || t('register.registrationFailed'));
+      }
+    } catch (e) {
+      console.error('Registration failed', e);
+      setError(t('common.couldNotLoad'));
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignup = async () => {
     setError('');
     setGoogleLoading(true);
+    // Before the picker opens, so an account chooser that gets dismissed still
+    // counts as somebody who tried to sign up this way. Which of the two routes
+    // people take is the point of the subject.
+    track(null, 'signup_started', 'google');
     try {
       // Native first (system account picker); Google finds-or-creates the
       // user server-side, so sign-up and sign-in are the same call.
@@ -94,9 +115,23 @@ export const RegisterScreen = () => {
         return;
       }
 
+      // A build whose Google client id is wrong is not a device without Play
+      // Services, and it must not be presented as one: the browser fallback
+      // will fail the same way, so silently opening it sends the reader
+      // through a second failure with no explanation. Say what happened and
+      // leave the email form, which does work, in front of them.
+      if (native.status === 'misconfigured') {
+        setError(t('common.googleUnavailable'));
+        return;
+      }
+
       // Native unavailable (no Play Services, client id not configured, etc.):
-      // Fallback directly to the backend Custom-Tab flow (returns via deeplink).
-      await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
+      // fall back to the backend Custom-Tab flow, which returns via deeplink.
+      //
+      // openGoogleBrowserSignIn rather than opening the URL by hand: it stores
+      // the one-time nonce the deep link is checked against, and a redirect
+      // arriving without one cannot be told apart from a forged one.
+      await openGoogleBrowserSignIn();
     } catch {
       setError(t('register.couldNotOpenGoogle'));
     } finally {
@@ -110,6 +145,9 @@ export const RegisterScreen = () => {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.closeBtn}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('login.close')}
           onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] })}
         >
           <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
@@ -263,6 +301,44 @@ export const RegisterScreen = () => {
             )}
           </TouchableOpacity>
 
+          {/* The agreement, where the agreement is actually made.
+              Creating the account is the moment someone is bound by these,
+              and until now the only route to either document was the paywall
+              or Settings - so an account could be created without the terms
+              ever being nameable, let alone readable. Two real 44pt targets
+              rather than an inline tappable span: a span inside a sentence is
+              both hard to hit and invisible to a screen reader as a link. */}
+          <View style={styles.legalBlock}>
+            <Text style={styles.legalIntro}>{t('register.agreeIntro')}</Text>
+            <View style={styles.legalLinks}>
+              <TouchableOpacity
+                style={styles.legalLinkBtn}
+                accessibilityRole="link"
+                onPress={() =>
+                  navigation.navigate('LegalPage', {
+                    slug: 'terms',
+                    title: t('register.terms'),
+                  })
+                }
+              >
+                <Text style={styles.legalLinkText}>{t('register.terms')}</Text>
+              </TouchableOpacity>
+              <Text style={styles.legalSeparator}>·</Text>
+              <TouchableOpacity
+                style={styles.legalLinkBtn}
+                accessibilityRole="link"
+                onPress={() =>
+                  navigation.navigate('LegalPage', {
+                    slug: 'privacy-policy',
+                    title: t('register.privacyPolicy'),
+                  })
+                }
+              >
+                <Text style={styles.legalLinkText}>{t('register.privacyPolicy')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <TouchableOpacity
             style={[styles.switchContainer, compact && styles.switchCompact]}
             onPress={() => navigation.navigate('Login')}
@@ -287,9 +363,40 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     paddingTop: 8,
     alignItems: 'flex-end',
   },
+  legalBlock: {
+    marginTop: 18,
+    alignItems: 'center',
+  },
+  legalIntro: {
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
+    color: COLORS.textMuted,
+    paddingHorizontal: 24,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  legalLinkBtn: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  legalLinkText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.accentText,
+    textDecorationLine: 'underline',
+  },
+  legalSeparator: {
+    fontSize: 12,
+    color: COLORS.textDim,
+  },
   closeBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

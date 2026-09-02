@@ -17,17 +17,30 @@ class Dashboard extends Component
     public function render()
     {
         $totalUsers = User::where('is_admin', false)->count();
-        $todaySessions = WorkoutSession::whereDate('created_at', today())->count();
-        $weekSessions = WorkoutSession::where('created_at', '>=', now()->subDays(7))->count();
 
+        // Keyed on completed_at, not created_at.
+        //
+        // A workout row is created when the phone SYNCS it, and phones sync
+        // when they find signal - so a week spent offline landed a week of
+        // training on one bar and left six days looking empty. completed_at is
+        // when the person actually did it, which is the only thing this chart
+        // is meant to show.
+        $todaySessions = WorkoutSession::whereDate('completed_at', today())->count();
+        $weekSessions = WorkoutSession::where('completed_at', '>=', now()->subDays(7))->count();
+
+        // Counted in the database rather than hydrated into models: this used
+        // to pull every session of the last fortnight into memory to group
+        // them in PHP, so the dashboard got slower with every user.
+        // DATE(completed_at) is spelled the same in SQLite and MySQL.
         $sessionsByDay = WorkoutSession::query()
-            ->where('created_at', '>=', now()->subDays(13)->startOfDay())
-            ->get()
-            ->groupBy(fn ($s) => $s->created_at->toDateString());
+            ->where('completed_at', '>=', now()->subDays(13)->startOfDay())
+            ->selectRaw('DATE(completed_at) as day, COUNT(*) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
 
         $chart = collect(range(13, 0))->map(function ($i) use ($sessionsByDay) {
             $date = Carbon::today()->subDays($i);
-            return ['label' => $date->format('j'), 'value' => ($sessionsByDay[$date->toDateString()] ?? collect())->count()];
+            return ['label' => $date->format('j'), 'value' => (int) ($sessionsByDay[$date->toDateString()] ?? 0)];
         });
 
         // --- The free funnel, as counts ---

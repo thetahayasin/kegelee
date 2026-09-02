@@ -8,7 +8,13 @@ use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-#[Layout('components.layouts.app')]
+/**
+ * Admin password recovery, first step: email a 6-digit code.
+ *
+ * Members reset from the app through the API (POST /api/v1/auth/reset-code);
+ * this screen only ever sends to an admin account.
+ */
+#[Layout('components.layouts.plain')]
 class ForgotPassword extends Component
 {
     public string $email = '';
@@ -36,7 +42,7 @@ class ForgotPassword extends Component
 
         session(['reset_email' => $email]);
 
-        return $this->redirectRoute('password.reset', navigate: true);
+        return $this->redirectRoute('admin.password.reset', navigate: true);
     }
 
     public function render()
