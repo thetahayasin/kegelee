@@ -103,6 +103,13 @@ class Pages extends Component
             return;
         }
 
+        // A translation needs a page to hang off. Without this guard, saving
+        // on a language tab before the page existed wrote a PageTranslation
+        // with page_id = null.
+        if (! $this->editingId) {
+            return;
+        }
+
         $this->validate([
             'title' => 'required|string|max:160',
             'content' => 'nullable|string',
@@ -118,6 +125,8 @@ class Pages extends Component
         );
 
         $this->savedMessage = Locales::SUPPORTED[$this->locale].' saved.';
+        // Saving is not discarding: clears the editor's unsaved-changes guard.
+        $this->dispatch('page-saved');
     }
 
     private function saveBase(): void
@@ -142,6 +151,7 @@ class Pages extends Component
 
         $this->editingId = $page->id;
         $this->savedMessage = 'Page saved.';
+        $this->dispatch('page-saved');
     }
 
     /** Drop this language's translation; the page falls back to English again. */

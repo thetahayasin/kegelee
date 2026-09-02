@@ -41,6 +41,35 @@ class SubscriptionPushTest extends TestCase
         ]);
     }
 
+    /**
+     * A RevenueCat subscriber object shaped the way the real API sends one.
+     *
+     * original_app_user_id and the split product identifier are not decoration:
+     * the first is how the server checks the subscriber really is this account,
+     * and Play splits the product across product_identifier and
+     * product_plan_identifier, which only name a price when rejoined.
+     */
+    private function subscriber(\Carbon\Carbon $expiry, string $basePlan, bool $trial = false): array
+    {
+        return [
+            'original_app_user_id' => (string) $this->user->id,
+            'entitlements' => [
+                'premium' => [
+                    'expires_date' => $expiry->toIso8601String(),
+                    'period_type'  => $trial ? 'TRIAL' : 'NORMAL',
+                    'product_identifier' => 'premium_monthly',
+                    'product_plan_identifier' => $basePlan,
+                ],
+            ],
+            'subscriptions' => [
+                'premium_monthly:' . $basePlan => [
+                    'expires_date' => $expiry->toIso8601String(),
+                    'period_type' => $trial ? 'trial' : 'normal',
+                ],
+            ],
+        ];
+    }
+
     private function push(array $subscription)
     {
         return $this->withHeaders([
@@ -121,14 +150,7 @@ class SubscriptionPushTest extends TestCase
 
         Http::fake([
             'api.revenuecat.com/*' => Http::response([
-                'subscriber' => [
-                    'entitlements' => [
-                        'premium' => [
-                            'expires_date' => $expiry->toIso8601String(),
-                            'period_type'  => 'NORMAL',
-                        ],
-                    ],
-                ],
+                'subscriber' => $this->subscriber($expiry, 'monthly'),
             ], 200),
         ]);
 
@@ -163,14 +185,7 @@ class SubscriptionPushTest extends TestCase
 
         Http::fake([
             'api.revenuecat.com/*' => Http::response([
-                'subscriber' => [
-                    'entitlements' => [
-                        'premium' => [
-                            'expires_date' => $expiry->toIso8601String(),
-                            'period_type'  => 'TRIAL',
-                        ],
-                    ],
-                ],
+                'subscriber' => $this->subscriber($expiry, 'monthly', trial: true),
             ], 200),
         ]);
 

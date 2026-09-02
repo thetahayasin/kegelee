@@ -1,83 +1,172 @@
-# Kegel Trainer
+# Kegelee
 
-A pelvic-floor (Kegel) training app in the style of Dr. Kegel, built on **Laravel 13 + Livewire 4 + NativePHP Mobile v3**, with a fully backend-driven configuration: levels, exercise timings, unlocks, subscriptions, branding, the workout-circle UI, SEO and code injection are all editable from a custom admin panel - no code changes needed.
+A pelvic-floor (Kegel) training app. Two halves live in this repository:
+
+- **`react-native-app/`** - the product. A React Native app (Android first) that
+  runs the training, stores progress locally and syncs it to the backend.
+- **the Laravel app at the repository root** - the backend it talks to: a JSON
+  API, an admin panel, the public marketing homepage and the legal pages the
+  Google Play listing links to.
+
+There is no longer a web version of the training app. The Livewire screens that
+used to mirror it (and the NativePHP packaging that shipped them as an APK) are
+gone; anything the app needs, it asks the API for.
 
 ## Stack
 
-- **Laravel 13** (PHP 8.5)
-- **Livewire 4** for the entire UI (mobile screens + admin), no JS framework build step beyond Vite
-- **Tailwind CSS v4** with runtime CSS variables so the whole theme re-skins from admin settings
-- **NativePHP Mobile v3** for packaging to iOS / Android
-- **SQLite** by default (swap `DB_CONNECTION` for MySQL/Postgres in production)
+- **Laravel 13** (PHP 8.3+)
+- **Livewire 4** for the admin panel and the legal pages
+- **Tailwind CSS v4**, built with Vite
+- **SQLite** by default (set `DB_CONNECTION` for MySQL/Postgres in production)
+- **Socialite** for Google sign-in
+- **RevenueCat** (with a Google Play fallback) for subscriptions
 
 ## Quick start
 
 ```bash
 composer install
 npm install
+cp .env.example .env
 php artisan key:generate
-php artisan migrate:fresh --seed
+php artisan migrate --seed        # development data, see "Seeding" below
 php artisan storage:link
-npm run build                 # or: npm run dev
+npm run build                     # or: npm run dev
 php artisan serve
 ```
 
-Open `http://localhost:8000`.
+The mobile app lives in `react-native-app/` and has its own README and
+`package.json`.
 
-### Accounts (seeded)
+## What the web serves
 
-| Role  | Email             | Password   | Notes |
-|-------|-------------------|------------|-------|
-| User  | demo@kegel.test   | `password` | Pre-loaded with 18 completed training days at Level 5 |
-| Admin | admin@kegel.test  | `password` | Admin panel at `/admin` |
+| Route | What it is |
+|-------|------------|
+| `/` | Marketing homepage. Content is editable in the admin panel; switch it off there and visitors land on `/legal`. |
+| `/legal`, `/p/{slug}` | Legal and policy pages. Public, translated, and the URLs the Play listing points at - so they stay reachable no matter what else is disabled. |
+| `/mystic/*` | The admin panel (see below). |
+| `/api/v1/*` | The app's API (`routes/api.php`). |
+| `/auth/google/*` | Google sign-in for the app: the app opens these in the system browser, and the callback hands a one-time token back over a deeplink. |
+| `/.well-known/assetlinks.json` | Android App Links verification, built from `ANDROID_APP_LINK_SHA256`. |
+| `/webhooks/revenuecat`, `/webhooks/google-play` | Store events. |
+| `/deploy` | Migrations + cache warm for hosts with no shell. `POST` with `Authorization: Bearer $DEPLOY_KEY`. |
 
-The mobile screens run as a single device user (resolved by `ResolveAppUser` middleware, which auto-logs-in the device account) - the way a packaged NativePHP app behaves. Swap that middleware for a real auth flow for a multi-account web build.
+## Admin panel (`/mystic`)
 
-## App screens (`/`)
+Custom Livewire, no Filament. Sign in at `/mystic/login`; password recovery is
+at `/mystic/forgot-password` and only ever emails an admin account.
 
-- **Onboarding** - a story explaining the pelvic floor and how Kegels work (`/welcome`, backend-editable slides)
-- **Home / Kegel tab** - daily ring, "Month X Day Y", Start session, exercise rail, progress preview
-- **Workout player** (`/session`, `/workout/{exercise}`) - the countdown circle with the red "contract & hold" glow, relax phases, breadcrumb of exercises, pause/resume; records the session on finish
-- **Day complete** - night-sky celebration, month calendar strip, exercise-unlock progress
-- **Exercises** (`/exercises`) - available vs. locked with "complete N training days" progress bars; locked exercises can still be previewed ("Try it now")
-- **Levels** (`/levels`) - difficulty picker (Level 1-6)
-- **Progress Tracker** (`/progress`) - press-and-hold endurance measurement + days/weeks/months chart
-- **Schedule** (`/schedule`) - month calendar of completed days, reminders, difficulty
-- **Paywall** (`/upgrade`) - plans, discount codes, subscribe
+- **Dashboard** - users, sessions, active subscriptions, a 14-day chart and the
+  signup-to-subscribed funnel.
+- **Reports** (`/mystic/reports`) - overview, funnel, retention, training,
+  money and engagement, each with its own window and a spreadsheet export.
+- **Users** - search, inspect a member's progress, grant admin.
+- **Subscriptions** - who is subscribed, through which store, and grants.
+- **Pages** - the legal pages, with one tab per language and a
+  reviewed/draft/missing state per translation.
+- **Settings** - branding, SMTP (with a test send), Google sign-in, RevenueCat,
+  the homepage copy, SEO and code injection.
 
-## Admin panel (`/admin`)
+Two things about Settings are deliberate. Secrets (SMTP password, Google client
+secret, RevenueCat keys) render blank and are only written when something is
+typed - they are never sent to the browser. And the injected head/body/CSS
+settings are applied to the public pages only, never to the admin panel.
 
-Custom Livewire (no Filament). Everything below is editable here:
+Exercises, levels, onboarding and the basics lessons are **not** editable: they
+are hardcoded catalogues in `app/Support` and shipped inside the app.
 
-- **Dashboard** - users, exercises, active subscriptions, 14-day session chart
-- **Exercises** - CRUD, icon + training-video upload, unlock-after-days, premium flag, the exercise's **universal contract / relax seconds** (the rhythm the circle follows), and a **per-level duration table** (how long it runs each appearance at each difficulty) with live reps + fit validation.
-- **Levels** - number, name, days-per-plan, sessions-per-day override, and the difficulty knobs: **total session time** (seconds, shown in minutes) + **rest between exercises** (seconds), validated so every exercise's per-level duration fits the session
-- **Onboarding** - story slides (title, body, media, order)
-- **Plans / Discounts / Subscriptions** - billing catalogue, codes, member management
-- **Users** - search, set level, grant admin
-- **Settings** - branding (name, logo, favicon), theme colours, **workout-circle UI** (size, track width, glow colour/toggle, haptics, sound), progression rules (**sessions per day that count as a completed day**, plan length, allow extra optional sessions), SEO meta, and **raw code injection** (head / body-start / body-end / custom CSS)
+## The API
 
-### How the progression engine works
+`routes/api.php`, all under `/api/v1`. Authentication is a per-user token
+(`X-User-Token`) issued at sign-in and resolved by `ResolveApiUser` - there is
+no shared API key to leak, and the old `ResolveAppUser` device auto-login is
+gone.
 
-`App\Services\ProgressionService` owns the rules:
+- `POST /auth/login|register|verify|resend|reset-code|reset` - account flows.
+- `POST /auth/google/token` - fully native Google sign-in (ID token).
+- `POST /auth/google/redeem` - redeems the one-time token from the browser flow.
+- `GET /content`, `GET /pages/{slug}` - legal pages.
+- `POST /user/push`, `GET /user/pull` - progress sync. Every pushed session and
+  measurement carries a `client_id` the device stamps when it writes the row;
+  the server de-duplicates on it, so a retried push cannot double-count. Rows
+  without one are dropped, and arrays are capped at 500 per request.
+- `POST /auth/change-password` - authenticated (`X-User-Token`), returns a fresh
+  `api_token` because changing the password revokes the old one.
+- `POST /user/reset`, `POST /user/delete-code`, `POST /user/delete`.
 
-- A **completed day** is reached when the day's session count hits *sessions-per-day* (from the level, falling back to the global setting). Extra sessions beyond that are recorded as optional.
-- **Exercises unlock** when the user's total completed days reach the exercise's `unlock_after_days`.
-- Each **exercise** has a universal contract/relax beat; its **run duration is set per level** (pivot). Each **level** sets the **total session time** and the rest between exercises. `App\Services\TimingValidator` guarantees a cycle fits its per-level duration and every per-level duration fits the session.
+## Google sign-in
 
-`App\Services\SettingsService` is a cached key/value store powering all the admin-tunable values; `App\Services\SessionBuilder` builds each session by **packing the available (unlocked) exercises in a randomised, repeating rotation - each running its per-level duration with rest between - to fill the level's total session time** (so the player timer equals the level's session length). In the player the ring follows each contract/relax beat while the centre shows the current exercise's full duration counting down.
+The app opens `/auth/google/native?state=<nonce>` in the system browser (Google
+blocks OAuth in embedded WebViews). We keep that nonce against our own OAuth
+`state` for five minutes, and the callback echoes it back with a one-time token
+on the way to `/auth/google/finish`. The app refuses a redirect that does not
+carry its own nonce, which is what stops any web page from handing it a session.
 
-## Building the mobile app (NativePHP)
+`/auth/google/finish` is an https App Link: Android opens it in the app once
+`/.well-known/assetlinks.json` verifies, and the page itself is the fallback
+that bounces to `kegelee://` when it has not.
+
+Reaching an existing account by email additionally requires Google to report the
+address as verified.
+
+## Seeding
+
+- `DatabaseSeeder` - local development only. It mints accounts with known
+  passwords and overwrites content, so it refuses to run in production.
+- `ProductionSeeder` - content plus a single admin account, from `ADMIN_EMAIL` /
+  `ADMIN_PASSWORD` (a strong password is generated and printed once if that is
+  blank).
 
 ```bash
-# .env already sets NATIVEPHP_APP_ID=com.kegeltrainer.app
-php artisan native:install      # one-time; downloads native runtimes
-php artisan native:run          # build & boot on a connected device / simulator
+php artisan db:seed --class=ProductionSeeder --force
 ```
 
-Requirements: run on native Windows/macOS (not WSL); Android needs USB debugging, iOS needs an Apple developer team in `NATIVEPHP_DEVELOPMENT_TEAM`. See https://nativephp.com/docs/mobile/3.
+## Scheduled work
+
+`routes/console.php`, so the host needs `schedule:run` every minute:
+
+- `subscriptions:reconcile` daily at 04:00 - re-checks subscriptions against the
+  store, because a cancellation whose webhook never arrived otherwise keeps
+  granting access.
+- `queue:prune-failed` daily, and spent email codes pruned hourly.
+
+## Environment
+
+Beyond the usual Laravel keys (`.env.example` has the full set):
+
+| Key | What it does |
+|-----|--------------|
+| `DEPLOY_KEY` | Bearer secret for `POST /deploy`. Server-only. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Initial admin for `ProductionSeeder`. |
+| `APP_DEEPLINK_SCHEME` | The app's custom scheme (`kegelee`), used as the sign-in fallback. |
+| `ANDROID_APP_LINK_SHA256` | Signing certificate fingerprint(s) published in `assetlinks.json`. Usually two: the upload key and the key Play re-signs with. |
+| `GOOGLE_PLAY_PACKAGE_NAME`, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` | Play Developer API access, used to verify purchases. |
+| `GOOGLE_PLAY_RTDN_AUDIENCE`, `GOOGLE_PLAY_RTDN_SERVICE_ACCOUNT` | Pub/Sub push authentication for Real-Time Developer Notifications. Unset, the RTDN endpoint refuses everything rather than acting on an unauthenticated body. |
+| `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_SECRET` | Fallbacks for the values the admin panel stores. |
+
+## Deploying
+
+With shell access:
+
+```bash
+cd ~/kegelee && git pull && bash scripts/deploy-web.sh --seed
+```
+
+Without it, upload the files and hit the deploy endpoint once:
+
+```bash
+curl -X POST -H "Authorization: Bearer $DEPLOY_KEY" https://kegelee.com/deploy
+```
+
+Point the domain at `public/`. The public disk writes into `public/storage`, so
+no symlink is needed.
+
+## Tests
+
+```bash
+php artisan test
+```
 
 ## Conventions
 
-- Hyphens are used throughout copy and slugs (no em dashes).
-- Theme colours are emitted as CSS variables in the layout from settings, so admin colour changes re-skin the app instantly with no rebuild.
+- Hyphens throughout copy and slugs, no em dashes.
+- Comments say why, not what.

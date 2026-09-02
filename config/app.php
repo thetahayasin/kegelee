@@ -128,15 +128,25 @@ return [
     | Deploy Key
     |--------------------------------------------------------------------------
     |
-    | Server-only secret guarding the /deploy endpoint. It never ships in the
-    | app (stripped from bundled builds via nativephp.cleanup_env_keys). The
-    | sync API itself uses per-user tokens - no shared key.
+    | Server-only secret guarding the /deploy endpoint. It lives on the server
+    | and nowhere else. The sync API itself uses per-user tokens - no shared
+    | key.
     |
     */
 
     'deploy_key' => env('DEPLOY_KEY'),
 
-    'content_sync_url' => env('CONTENT_SYNC_URL'),
+    /*
+    |--------------------------------------------------------------------------
+    | Mobile deeplink scheme
+    |--------------------------------------------------------------------------
+    |
+    | The custom scheme the React Native app registers. Used as the fallback
+    | handoff when an https App Link has not been verified on the device.
+    |
+    */
+
+    'deeplink_scheme' => env('APP_DEEPLINK_SCHEME', 'kegelee'),
 
     /*
     |--------------------------------------------------------------------------

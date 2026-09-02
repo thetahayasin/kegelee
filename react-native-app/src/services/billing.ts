@@ -13,6 +13,8 @@ import {
   PLANS,
   PlanDef,
   planByProductId,
+  planBySlug,
+  playSubscriptionId,
 } from '../constants/plans';
 
 /**
@@ -39,11 +41,27 @@ const REVENUECAT_ENTITLEMENT_ID = 'premium';
 const REVENUECAT_ANDROID_PUBLIC_SDK_KEY = 'goog_mOSmpWsMRRLEZoLcWvRqOencyMq';
 const REVENUECAT_IOS_PUBLIC_SDK_KEY = '';
 
+/**
+ * The Play applicationId, from android/app/build.gradle.
+ *
+ * Only used to build the manage-subscription deep link, which needs the
+ * package name to open THIS app's subscription rather than the account-wide
+ * list. The synced `google_play_package_name` setting still wins where the
+ * device has one; this is the value that makes the link work on a first or
+ * offline launch.
+ */
+const PLAY_PACKAGE_NAME = 'com.kegelee.app';
+
 // STORE_REPLACEMENT_MODE members are STRINGS ("WITH_TIME_PRORATION", "DEFERRED").
 // These previously fell back to 1 and 6 - values from the long-deprecated
 // numeric PRORATION_MODE enum. Whenever the SDK static was not populated at
 // module-eval time, the app sent a number where Play expects a mode name and
 // the product change was rejected, which is what broke downgrades.
+//
+// Only two of the five are ever SENT (see replacementModeFor). The other
+// three are exported so the tests can assert they never are - a mode name is
+// a string either way, so nothing but a test can tell a forbidden one from an
+// allowed one before Play declines the payment.
 export const WITH_TIME_PRORATION =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITH_TIME_PRORATION ?? 'WITH_TIME_PRORATION';
 export const DEFERRED =
@@ -63,8 +81,31 @@ import type {
   PurchasesSubscriptionInfo,
 } from 'react-native-purchases';
 
+/**
+ * Two separate facts, deliberately not one flag.
+ *
+ * `sdkConfigured` is about the SDK PROCESS: Purchases.configure() is a
+ * once-per-process call. `configuredAppUserId` is about the identity that
+ * configured SDK currently holds, which moves with logIn/logOut.
+ *
+ * One variable answering both got logout wrong in the expensive direction:
+ * clearing it after logOut() said "the SDK is not configured", so the next
+ * sign-in went back into configure() on an already-configured SDK instead of
+ * logging the new person in. The SDK keeps the anonymous id it was left with,
+ * and a purchase made straight after would attach to that anonymous customer
+ * rather than to the account that paid for it.
+ */
+let sdkConfigured = false;
 let configuredAppUserId: string | null = null;
+/**
+ * The attempt currently in flight and the identity it is FOR.
+ *
+ * Both are needed: a second caller may join an in-flight attempt only when it
+ * wants the same identity, and a failed attempt may only clear the memo while
+ * it is still the memoized one (see initBilling).
+ */
 let configurePromise: Promise<boolean> | null = null;
+let configureForId: string | null = null;
 
 /** Rejects empty values and the unreplaced placeholder literals. */
 const isUsableKey = (key: string): boolean =>
@@ -105,48 +146,113 @@ const configuredApiKey = async (): Promise<string> => {
   return key;
 };
 
+/**
+ * Configure the SDK once, then move identity with logIn.
+ *
+ * Never called directly: initBilling serializes callers onto it so two
+ * concurrent configures - or a logIn overlapping a configure - cannot leave
+ * the SDK holding an identity nobody asked for.
+ */
+const runConfigure = async (appUserId: string | null): Promise<boolean> => {
+  try {
+    const apiKey = await configuredApiKey();
+
+    if (!sdkConfigured) {
+      try {
+        if ((Purchases as any)?.LOG_LEVEL?.WARN) {
+          Purchases.setLogLevel((Purchases as any).LOG_LEVEL.WARN);
+        }
+      } catch {}
+
+      // Belt and braces. Our own flag is the only thing that knows configure()
+      // has run, and that is a claim about the whole process which a module
+      // reload (Fast Refresh, a second copy of this module in the bundle)
+      // silently invalidates. Ask the SDK itself where it can answer.
+      let alreadyUp = false;
+      try {
+        alreadyUp = typeof (Purchases as any).isConfigured === 'function'
+          ? Boolean(await (Purchases as any).isConfigured())
+          : false;
+      } catch {
+        alreadyUp = false;
+      }
+
+      if (!alreadyUp) {
+        Purchases.configure({ apiKey, appUserID: appUserId || undefined });
+      }
+      sdkConfigured = true;
+
+      // configure() only applied our appUserID when WE were the ones calling
+      // it. If the SDK was already up it is holding whatever identity that
+      // earlier call left behind, so say who we are explicitly rather than
+      // assuming.
+      if (alreadyUp && appUserId) {
+        await Purchases.logIn(appUserId);
+      }
+      configuredAppUserId = appUserId;
+      return true;
+    }
+
+    if (appUserId && configuredAppUserId !== appUserId) {
+      // A failed identity switch must NOT be swallowed: purchasing while the
+      // SDK still holds the previous account's identity would attach the
+      // subscription to the wrong RevenueCat customer.
+      await Purchases.logIn(appUserId);
+      configuredAppUserId = appUserId;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const initBilling = async (userId?: number | string | null): Promise<boolean> => {
   const appUserId = userId ? String(userId) : null;
 
-  if (configurePromise && (!appUserId || configuredAppUserId === appUserId)) {
+  // Already where we need to be. An anonymous caller (`!appUserId`) only needs
+  // the SDK up and never forces an identity change - the paywall's price
+  // lookup must not log anybody out of anything.
+  if (sdkConfigured && (!appUserId || configuredAppUserId === appUserId)) return true;
+
+  // Join the attempt already running, but only when it is asking for the same
+  // identity. Keyed on the REQUESTED id rather than on the settled one: an
+  // attempt for user 7 answers nothing about a caller asking for user 9.
+  if (configurePromise && (!appUserId || configureForId === appUserId)) {
     return configurePromise;
   }
 
-  const attempt = (async () => {
-    try {
-      const apiKey = await configuredApiKey();
-      if (!configuredAppUserId) {
-        try {
-          if ((Purchases as any)?.LOG_LEVEL?.WARN) {
-            Purchases.setLogLevel((Purchases as any).LOG_LEVEL.WARN);
-          }
-        } catch {}
-        Purchases.configure({ apiKey, appUserID: appUserId || undefined });
-        configuredAppUserId = appUserId;
-      } else if (appUserId && configuredAppUserId !== appUserId) {
-        // A failed identity switch must NOT be swallowed: purchasing while the
-        // SDK still holds the previous account's identity would attach the
-        // subscription to the wrong RevenueCat customer.
-        await Purchases.logIn(appUserId);
-        configuredAppUserId = appUserId;
-      }
-      return true;
-    } catch {
-      // A FAILED attempt must not be remembered. The memo above returns the
-      // cached promise for any anonymous caller (`!appUserId`), so one
-      // configure that lost a race with the network - the very first thing the
-      // guest subscribe sheet does on open - used to answer `false` for the
-      // rest of the process. Every later getPlanPricing() short-circuited, the
-      // sheet showed the USD catalogue figure to every market on earth, and
-      // the paywall said billing was unavailable on a perfectly good phone,
-      // until the app was force-killed. Clearing it makes the next call retry.
-      configurePromise = null;
-      return false;
-    }
-  })();
+  // Otherwise queue behind whatever is in flight instead of racing it.
+  const previous = configurePromise;
+  const attempt = (previous ? previous.catch(() => false) : Promise.resolve(false))
+    .then(() => runConfigure(appUserId));
 
   configurePromise = attempt;
-  return attempt;
+  configureForId = appUserId;
+
+  const ok = await attempt;
+
+  /**
+   * A FAILED attempt must not be remembered - and must not erase a newer one.
+   *
+   * The memo answers any anonymous caller, so one configure that lost a race
+   * with the network - the very first thing the paywall does on open - used to
+   * answer `false` for the rest of the process. Every later getPlanPricing()
+   * short-circuited, prices stuck at the USD catalogue figure for every market
+   * on earth, and the paywall said billing was unavailable on a perfectly good
+   * phone until the app was force-killed. Clearing it makes the next call
+   * retry.
+   *
+   * The identity check is the other half. Clearing unconditionally meant a
+   * slow failing attempt could null out the memo belonging to a LATER attempt
+   * that had already succeeded, sending the next caller back through configure
+   * on an SDK that was already fine.
+   */
+  if (!ok && configurePromise === attempt) {
+    configurePromise = null;
+    configureForId = null;
+  }
+
+  return ok;
 };
 
 /**
@@ -158,14 +264,19 @@ export const initBilling = async (userId?: number | string | null): Promise<bool
  */
 export const logoutBilling = async (): Promise<void> => {
   try {
-    if (configuredAppUserId) {
+    if (sdkConfigured && configuredAppUserId) {
       await Purchases.logOut();
     }
   } catch {
     // Never block sign-out on the billing SDK.
   } finally {
+    // `sdkConfigured` deliberately survives. The SDK is anonymous now, not
+    // gone, and configure() is a once-per-process call - saying otherwise
+    // would send the next sign-in into configure() instead of logIn(), leaving
+    // the SDK on the anonymous id while the app believed it had switched.
     configuredAppUserId = null;
     configurePromise = null;
+    configureForId = null;
   }
 };
 
@@ -241,18 +352,21 @@ export interface CompletedPurchase {
   autoRenewing: boolean;
   periodType: string | null;
   /**
-   * Play accepted a plan change that has NOT started yet.
+   * Play is retrying a failed charge and access continues meanwhile.
    *
-   * Set only by requestPlanPurchase, and only for a DEFERRED replacement -
-   * the downgrade path, where the paid period is allowed to run out before
-   * the cheaper plan begins. Everything else on this object then describes
-   * the plan still running, because that is what is genuinely active; the
-   * plan that was just bought starts at the next renewal.
-   *
-   * Callers MUST NOT write this to the subscriptions table as a new active
-   * row. Nothing about the local subscription changes today.
+   * A grace period is the one state where `endsAt` is in the past (or about to
+   * be) and the customer is still entitled, so anything that reads the expiry
+   * alone concludes they have lapsed and shuts the gate on somebody Google is
+   * still trying to bill. Carried so the row can say "we know, it is being
+   * retried until this date" instead.
    */
-  deferred?: boolean;
+  gracePeriodEndsAt: string | null;
+  /**
+   * When RevenueCat first saw a billing problem on this subscription, or null
+   * once it clears. The reason to show "update your payment method" rather
+   * than to change what anybody is entitled to.
+   */
+  billingIssueAt: string | null;
 }
 
 /**
@@ -306,10 +420,11 @@ const subscriptionInfoFor = (
   const subscriptions = customerInfo?.subscriptionsByProductIdentifier || {};
 
   // Keyed by the product identifier, which on Android is the bare
-  // subscription; the base plan lives on the value. So the joined id has to be
-  // rebuilt per entry rather than looked up directly. PurchasesSubscriptionInfo
-  // has no productIdentifier field at all - scanning for one always found
-  // undefined and fell through to null.
+  // subscription; the base plan lives on the value as productPlanIdentifier.
+  // So the joined id has to be rebuilt per entry rather than looked up
+  // directly. PurchasesSubscriptionInfo does carry a productIdentifier of its
+  // own, but on Android it holds that same bare subscription id, so matching
+  // on it is no better than matching on the key.
   const direct = subscriptions[productId];
   if (direct) return direct;
 
@@ -369,20 +484,40 @@ const iso8601PeriodDays = (iso?: string | null): number | null => {
   return days > 0 ? days : null;
 };
 
-const freeTrialDaysFor = (pkg: PurchasesPackage): number | null => {
+/**
+ * How many free days this package's offer actually carries.
+ *
+ * The two shapes are NOT interchangeable, and treating them as one is how a
+ * returning subscriber got promised a trial Play had no intention of granting.
+ *
+ * `defaultOption.freePhase` is the Android answer and it is the trustworthy
+ * one: Play only returns offers the signed-in Google account is eligible for,
+ * so a free phase being present at all is the store having already decided.
+ *
+ * `introPrice` is the iOS/cross-platform shape and is a property of the
+ * PRODUCT, not of the customer - it is there whether or not this person has
+ * used their trial. It is therefore read only on iOS, and only once
+ * checkTrialOrIntroductoryPriceEligibility has said ELIGIBLE, which is a
+ * question StoreKit can genuinely answer.
+ */
+const freeTrialDaysFor = (
+  pkg: PurchasesPackage,
+  introStatus: number,
+): number | null => {
   // Android (Billing 5+ base plans/offers): the free pricing phase of the
   // option the purchase flow will use.
   const freePhase = pkg?.product?.defaultOption?.freePhase;
   const fromPhase = iso8601PeriodDays(freePhase?.billingPeriod?.iso8601);
   if (fromPhase) return fromPhase;
 
-  // Cross-platform introPrice shape (price 0 = free trial).
-  const intro = pkg?.product?.introPrice;
-  if (intro && Number(intro.price) === 0) {
-    const units = Number(intro.periodNumberOfUnits || 0) * Number(intro.cycles || 1);
-    const perUnit: Record<string, number> = { DAY: 1, WEEK: 7, MONTH: 30, YEAR: 365 };
-    const days = units * (perUnit[String(intro.periodUnit || '').toUpperCase()] || 0);
-    if (days > 0) return days;
+  if (Platform.OS === 'ios' && introStatus === INTRO_ELIGIBLE) {
+    const intro = pkg?.product?.introPrice;
+    if (intro && Number(intro.price) === 0) {
+      const units = Number(intro.periodNumberOfUnits || 0) * Number(intro.cycles || 1);
+      const perUnit: Record<string, number> = { DAY: 1, WEEK: 7, MONTH: 30, YEAR: 365 };
+      const days = units * (perUnit[String(intro.periodUnit || '').toUpperCase()] || 0);
+      if (days > 0) return days;
+    }
   }
 
   return null;
@@ -433,25 +568,32 @@ const hasEverPurchased = async (): Promise<boolean> => {
  */
 const introEligibility = async (
   productIds: string[],
-): Promise<Record<string, number>> => {
-  if (productIds.length === 0) return {};
+): Promise<Record<string, number> | null> => {
+  if (productIds.length === 0) return null;
   try {
     const res = await Purchases.checkTrialOrIntroductoryPriceEligibility(productIds);
+    const entries = Object.entries(res || {});
+    // `null`, not `{}`. An empty answer and a per-product UNKNOWN are
+    // different facts and the caller treats them differently: UNKNOWN means
+    // "ask the purchase history instead", nothing at all means the call did
+    // not happen and there is no ground to advertise a trial on.
+    if (entries.length === 0) return null;
     const out: Record<string, number> = {};
-    for (const [id, entry] of Object.entries(res || {})) {
+    for (const [id, entry] of entries) {
       out[id] = Number((entry as any)?.status ?? INTRO_UNKNOWN);
     }
     return out;
   } catch {
-    return {};
+    return null;
   }
 };
 
 /**
  * Localized store pricing (and real trial eligibility) for every plan the
- * paywall lists, keyed by plan slug. Missing entries mean the store/RevenueCat
- * doesn't serve that product right now - callers fall back to showing the
- * catalogue price and must NOT advertise a trial.
+ * paywall lists, keyed by plan slug. A missing entry means the store or
+ * RevenueCat does not serve that product right now: callers must show a
+ * placeholder rather than the catalogue price - that figure is USD-only and is
+ * the wrong number in every market but one - and must NOT advertise a trial.
  */
 export const getPlanPricing = async (
   userId?: number | string | null,
@@ -472,14 +614,25 @@ export const getPlanPricing = async (
   // One eligibility call and at most one customer-info read for the whole
   // paywall, not one per plan.
   const eligibility = await introEligibility(productIds);
-  const everPurchased = Object.values(eligibility).some((s) => s === INTRO_UNKNOWN)
-    ? await hasEverPurchased()
-    : false;
+  /**
+   * Fail CLOSED on the trial, in both of the ways this can go wrong.
+   *
+   * On Android checkTrialOrIntroductoryPriceEligibility answers UNKNOWN for
+   * everyone, always - Play does not expose per-customer trial eligibility to
+   * the SDK - so the real test there is two facts together: Play served an
+   * offer with a free phase (it only serves offers this Google account can
+   * take), and this RevenueCat customer has never bought anything.
+   *
+   * When the eligibility call throws, or comes back with nothing at all, we
+   * have not asked anybody anything. That is treated as "has purchased
+   * before", because promising three free days and then charging on the spot
+   * is a refund, a one-star review and a Play policy problem, while quietly
+   * not mentioning a trial somebody was entitled to costs a little conversion.
+   */
+  const everPurchased = eligibility === null ? true : await hasEverPurchased();
 
   for (const { plan, pkg } of matched) {
-    const status = eligibility[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN;
-    // UNKNOWN is the usual answer on Android, where Play gives RevenueCat
-    // little to go on - fall back to the customer's own purchase history.
+    const status = eligibility?.[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN;
     const trialAllowed =
       status === INTRO_ELIGIBLE
         ? true
@@ -491,7 +644,7 @@ export const getPlanPricing = async (
       priceString: pkg.product.priceString,
       price: typeof pkg.product?.price === 'number' ? pkg.product.price : null,
       currencyCode: pkg.product?.currencyCode || null,
-      freeTrialDays: trialAllowed ? freeTrialDaysFor(pkg) : null,
+      freeTrialDays: trialAllowed ? freeTrialDaysFor(pkg, status) : null,
     };
   }
 
@@ -533,6 +686,7 @@ const ownedProductId = (customerInfo: CustomerInfo, entitlement: any): string =>
 const completedFromCustomerInfo = (
   customerInfo: CustomerInfo,
   fallbackProductId?: string,
+  storeTransactionIdHint?: string | null,
 ): CompletedPurchase | null => {
   // Match on the product when we can, but never let a failed match throw the
   // entitlement away: the expiry, the renewal flag and the store transaction
@@ -550,7 +704,18 @@ const completedFromCustomerInfo = (
   if (!productId) return null;
 
   const subInfo = subscriptionInfoFor(customerInfo, productId);
+  /**
+   * The store's own id first, then the one the purchase call handed back, and
+   * only then something synthesized.
+   *
+   * The synthesized `<appUserId>:<productId>` is a LOCAL key, not a store
+   * identifier: it is stable per person-and-plan, so a resubscribe after a
+   * lapse collides with the row from the previous subscription and is written
+   * off as a duplicate. It exists only so a row always has a primary key, and
+   * anything real must come ahead of it.
+   */
   const transactionId = subInfo?.storeTransactionId
+    || storeTransactionIdHint
     || `${customerInfo?.originalAppUserId || configuredAppUserId || 'unknown'}:${productId}`;
 
   return {
@@ -565,7 +730,19 @@ const completedFromCustomerInfo = (
       || new Date().toISOString(),
     endsAt: entitlement?.expirationDate || subInfo?.expiresDate || customerInfo?.latestExpirationDate || null,
     autoRenewing: Boolean(entitlement?.willRenew ?? subInfo?.willRenew ?? true),
-    periodType: entitlement?.periodType || subInfo?.periodType || null,
+    /**
+     * The subscription's CURRENT period, ahead of the entitlement's.
+     *
+     * They disagree exactly when it matters. The entitlement reports the
+     * period type of the LAST transaction that granted access, so it still
+     * reads TRIAL for the first renewal after a trial converts - which is a
+     * paying customer written to disk as `trialing`, with trial_ends_at set to
+     * their real renewal date. PurchasesSubscriptionInfo.periodType describes
+     * the period running right now, which is the question being asked.
+     */
+    periodType: subInfo?.periodType || entitlement?.periodType || null,
+    gracePeriodEndsAt: subInfo?.gracePeriodExpiresDate || null,
+    billingIssueAt: subInfo?.billingIssuesDetectedAt || null,
   };
 };
 
@@ -786,11 +963,20 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
  *   CHARGE_PRORATED_PRICE NOT allowed for this transition
  *   DEFERRED              NOT allowed for this transition
  *
- * That rule was found after the fact, and it predicts every result we got on a
- * real device: the three disallowed modes were each declined, and the one
- * allowed mode we tried worked. Worth recording, because WITH_TIME_PRORATION
- * is Play's DEFAULT replacement behaviour and CHARGE_PRORATED_PRICE is what
- * Google recommends for upgrades - both are wrong here, and a declined change
+ * That is Google's own documented rule, not an inference from our failures.
+ * From developer.android.com/google/play/billing/subscriptions:
+ *
+ *   "When switching plans within the same subscription to an auto-renewing
+ *    plan from either a prepaid plan or an auto-renewing plan, valid proration
+ *    modes are CHARGE_FULL_PRICE and WITHOUT_PRORATION. If you specify any
+ *    other proration mode, the purchase fails and an error is shown to the
+ *    user."
+ *
+ * It also predicts every result we got on a real device: the three disallowed
+ * modes were each declined, and the one allowed mode we tried worked. Worth
+ * spelling out, because WITH_TIME_PRORATION is Play's DEFAULT replacement
+ * behaviour and CHARGE_PRORATED_PRICE is what Google recommends for upgrades
+ * between separate subscriptions - both are wrong here, and a declined change
  * reaches the customer as their payment method being refused.
  *
  * UPGRADE: CHARGE_FULL_PRICE. Charged now for a full new cycle, with the
@@ -843,29 +1029,30 @@ export const requestPlanPurchase = async (
   const rcPackage = await packageForPlan(plan);
 
   /**
-   * Ask the STORE what they own, rather than trusting our catalogue.
+   * Ask the STORE what they own, rather than trusting our catalogue - and ask
+   * it EVERY time, not only when the caller already had a guess.
    *
-   * The caller passes the old product id from the plan catalogue, which is the
-   * legacy `premium_quarterly`. Under the shared-subscription catalogue that
-   * same customer actually holds `premium_monthly:p3m`, and naming a product
-   * they do not own is rejected by Play with "we were unable to change your
-   * plan" - so every switch would fail for anyone who bought through the new
-   * catalogue, which after the cutover is everyone.
+   * The caller passes the old product id from the plan catalogue, which for a
+   * legacy row is `premium_quarterly`. Under the shared-subscription catalogue
+   * that same customer actually holds `premium_monthly:p3m`, and naming a
+   * product they do not own is rejected by Play with "we were unable to change
+   * your plan".
    *
-   * The live entitlement is the only thing that knows which of the two a given
-   * customer is on: the local subscription row records a plan slug and no
-   * product id at all. Falls back to what the caller passed if the SDK cannot
-   * answer, which is no worse than not asking.
+   * Gating the lookup on the caller having passed something is the same bug
+   * one level up: the paywall passes nothing whenever it decides this is not a
+   * switch, and it decides that from the LOCAL subscription row. A row that is
+   * missing, stale, or written off as cancelled therefore turned a plan change
+   * into a plain purchase of a subscription the Google account already owns,
+   * which Play declines. The store knows; ask it first and let the caller's
+   * value be the fallback for when it cannot answer.
    */
   let oldProductId = opts?.oldProductId;
-  if (oldProductId) {
-    try {
-      const currentInfo = await Purchases.getCustomerInfo();
-      const owned = entitlementProductId(activeEntitlement(currentInfo));
-      if (owned) oldProductId = owned;
-    } catch {
-      // Keep the caller's value; a failed lookup must not block the purchase.
-    }
+  try {
+    const currentInfo = await Purchases.getCustomerInfo();
+    const owned = entitlementProductId(activeEntitlement(currentInfo));
+    if (owned) oldProductId = owned;
+  } catch {
+    // Keep the caller's value; a failed lookup must not block the purchase.
   }
   // Never ask Play to replace a product with itself. Play rejects that outright
   // ("we were unable to change your plan") rather than treating it as a
@@ -915,34 +1102,14 @@ export const requestPlanPurchase = async (
       }
     : null;
 
-  const { customerInfo, productIdentifier } = await Purchases.purchasePackage(
+  const { customerInfo, productIdentifier, transaction } = await Purchases.purchasePackage(
     rcPackage,
     null,
     productChangeInfo,
   );
 
   /**
-   * A DEFERRED change is a success that looks like a failure.
-   *
-   * Play does not start a deferred replacement now - that is the whole point
-   * of the mode. The old product keeps running to the end of the period the
-   * customer already paid for, and the new one begins after it. So what comes
-   * back names the OLD product, correctly, and asking whether the NEW product
-   * is entitled finds nothing.
-   *
-   * This used to be checked against the new product either way, so every
-   * downgrade - yearly to quarterly, quarterly to monthly, yearly to monthly -
-   * threw on a change Play had just accepted. The customer saw an error, and
-   * anyone who then tried again got Play's own refusal, because the change was
-   * already queued.
-   *
-   * For a deferred change the honest question is only "are they still
-   * entitled", and the answer describes the plan they are still on.
-   */
-  const deferred = productChangeInfo?.replacementMode === DEFERRED;
-
-  /**
-   * For an immediate purchase the fallback is the plan we were ASKED to buy.
+   * The fallback is the plan we were ASKED to buy.
    *
    * Not what the store reports. Android hands back the bare `premium_monthly`
    * from both purchasePackage and the entitlement, and that names all three
@@ -952,41 +1119,53 @@ export const requestPlanPurchase = async (
    * The customer tapped a specific plan and we still hold it, so there is no
    * need to ask. `productIdentifier` stays ahead of the package id only for
    * the case where the store genuinely returns a fully qualified product.
-   *
-   * A deferred change passes no fallback at all: the entitlement legitimately
-   * describes the OLD plan there, which is the one still running.
    */
   const requestedProductId = planByProductId(productIdentifier)
     ? productIdentifier
     : plan.store_product_id;
 
-  const completed = deferred
-    ? completedFromCustomerInfo(customerInfo)
-    : completedFromCustomerInfo(customerInfo, requestedProductId);
+  /**
+   * The store transaction this very call produced.
+   *
+   * The CustomerInfo's subscription entry is still the first choice - it is
+   * the id RevenueCat's own webhooks quote, so it is what the backend row will
+   * be keyed on. But on a product change the CustomerInfo handed back can
+   * still describe the previous purchase, and then the only real identifier in
+   * the response is this one. Either beats the synthesized local key.
+   */
+  const storeTransactionId =
+    transaction?.purchaseToken ?? transaction?.transactionIdentifier ?? null;
+
+  const completed = completedFromCustomerInfo(
+    customerInfo,
+    requestedProductId,
+    storeTransactionId,
+  );
 
   /**
-   * Success is "does this person hold premium now".
+   * Success is "does this person hold PREMIUM now".
    *
-   * NOT "does the entitlement name the exact product we asked for". That
-   * question has produced a false failure twice: a deferred change
-   * legitimately names the old product, and Android splits the entitlement's
-   * product across two fields that do not reliably both arrive on the
-   * CustomerInfo handed back at purchase time. Each time, a purchase Play had
+   * Two halves, and both have been wrong before. It is not "does the
+   * entitlement name the exact product we asked for": Android splits the
+   * entitlement's product across two fields that do not reliably both arrive
+   * on the CustomerInfo handed back at purchase time, and a purchase Play had
    * accepted was reported to the customer as an error.
    *
-   * The entitlement is what access is actually derived from everywhere else in
-   * this app, so it is the honest thing to gate on. Which product it names is
-   * recorded, not required.
+   * Nor is it "is ANY entitlement active", which is what this used to ask.
+   * That makes the entitlement id decorative - the moment a second entitlement
+   * exists for anything else, holding it would report a premium purchase as
+   * successful and hand back a CompletedPurchase for a plan nobody bought.
+   * hasActiveEntitlement checks the named one, which is the same function the
+   * gate, restore and the launch reconcile all use.
    */
-  const entitled = activeEntitlement(customerInfo);
-  if (!completed || !entitled) {
+  if (!completed || !hasActiveEntitlement(customerInfo)) {
     throw new BillingError(
       PURCHASE_NOT_ENTITLED,
-      'Play completed the purchase but RevenueCat returned no active entitlement.',
+      'Play completed the purchase but RevenueCat returned no active premium entitlement.',
     );
   }
 
-  return deferred ? { ...completed, deferred: true } : completed;
+  return completed;
 };
 
 export const restoreRevenueCatPurchases = async (userId: number): Promise<CompletedPurchase | null> => {
@@ -1018,7 +1197,7 @@ export const getRevenueCatManagementUrl = async (userId: number): Promise<string
   }
 };
 
-export type RecordResult = 'recorded' | 'duplicate' | 'unmatched' | 'expired' | 'deferred';
+export type RecordResult = 'recorded' | 'duplicate' | 'unmatched' | 'expired';
 
 /**
  * Store a completed RevenueCat purchase locally for instant access, then push
@@ -1067,21 +1246,6 @@ export const recordCompletedPurchase = async (
   userId: number,
   purchase: CompletedPurchase,
 ): Promise<RecordResult> => {
-  // A deferred change has not happened yet, so there is nothing to write.
-  //
-  // Writing it anyway is actively destructive, and in two ways at once. The
-  // block below cancels the current row whenever the plan slug differs - but
-  // on a deferred change that row is the subscription still running, the one
-  // the customer is still paying for and still entitled to. And the new row
-  // it writes would carry the OLD expiry, so the cheaper plan the customer
-  // does not have yet would look active until a date that belongs to the plan
-  // they do. The gate, the paywall and every renewal check read those rows.
-  //
-  // The correct local state for a deferred change is the state already on
-  // disk. The switch is recorded when it actually takes effect, by the
-  // PRODUCT_CHANGE webhook and the sync that follows it.
-  if (purchase.deferred) return 'deferred';
-
   const plan = planByProductId(purchase.productId);
   if (!plan) return 'unmatched';
 
@@ -1098,7 +1262,7 @@ export const recordCompletedPurchase = async (
   // treating them as lapsed until a server webhook happened to correct it.
   //
   // So a duplicate is a row that already says exactly what this purchase says.
-  const existing = await getSubscriptionByToken(token);
+  const existing = await getSubscriptionByToken(token, userId);
   if (
     existing
     && existing.plan_slug === plan.slug
@@ -1110,7 +1274,13 @@ export const recordCompletedPurchase = async (
   }
 
   const current = await getActiveSubscription(userId).catch(() => null);
-  if (current && current.purchase_token && current.plan_slug !== plan.slug) {
+  /**
+   * A plan CHANGE, as opposed to a first purchase or a renewal of the same
+   * plan. Worth naming because the row that follows means something different
+   * in the two cases.
+   */
+  const planChanged = !!current && !!current.plan_slug && current.plan_slug !== plan.slug;
+  if (current && current.purchase_token && planChanged) {
     await saveSubscription(userId, {
       purchase_token: current.purchase_token,
       status: 'canceled',
@@ -1128,8 +1298,23 @@ export const recordCompletedPurchase = async (
     return 'expired';
   }
 
+  /**
+   * The new plan slug against the OLD expiry, and that is correct.
+   *
+   * Every plan change this app can make under WITHOUT_PRORATION - a downgrade,
+   * or any switch during a free trial - takes no money today and leaves the
+   * billing date exactly where it was. `purchase.endsAt` comes from the live
+   * entitlement, which is still reporting that same date, so the row that
+   * lands here says: you are on the new plan from now, and the next charge is
+   * when the old one would have renewed. That is the truth in both halves.
+   *
+   * It reads like a bug precisely because it is the one case where a fresh
+   * purchase does not push the expiry out, so it is written down rather than
+   * left to be "corrected" by somebody later. CHARGE_FULL_PRICE upgrades do
+   * push it out, and the entitlement reports the new date for those.
+   */
   const startedAt = purchase.startedAt || new Date().toISOString();
-  await saveSubscription(userId, {
+  const row = {
     plan_id: null,
     plan_slug: plan.slug,
     status: purchase.periodType === 'TRIAL' ? 'trialing' : 'active',
@@ -1141,7 +1326,32 @@ export const recordCompletedPurchase = async (
     ends_at: purchase.endsAt,
     canceled_at: null,
     auto_renewing: purchase.autoRenewing ? 1 : 0,
-  });
+  };
+
+  if (purchase.gracePeriodEndsAt) {
+    /**
+     * `grace_period_ends_at` is not on DBSubscription yet - a follow-up pass
+     * adds the column and the field. Two deliberate choices until it does:
+     *
+     * The key is only sent when there IS a grace period, so the ordinary
+     * purchase path is byte-for-byte what it was and cannot be broken by a
+     * column that has not shipped. And the write falls back to the row
+     * without it, because saveSubscription builds its SQL from the keys it is
+     * handed: on a device whose schema predates the migration the insert
+     * would fail on an unknown column, and losing the whole subscription row
+     * to save one nullable date would be a bad trade.
+     */
+    try {
+      await saveSubscription(userId, {
+        ...row,
+        grace_period_ends_at: purchase.gracePeriodEndsAt,
+      } as Parameters<typeof saveSubscription>[1]);
+    } catch {
+      await saveSubscription(userId, row);
+    }
+  } else {
+    await saveSubscription(userId, row);
+  }
 
   // Stamp the LOCAL grant, not the subscription's own start date.
   await markPurchaseRecorded(userId);
@@ -1160,6 +1370,22 @@ export const recordCompletedPurchase = async (
           started_at: startedAt,
           ends_at: purchase.endsAt,
           auto_renewing: purchase.autoRenewing,
+          // Play is retrying a charge; the backend needs this to tell a lapsed
+          // subscriber apart from one it should still be serving.
+          grace_period_ends_at: purchase.gracePeriodEndsAt,
+          billing_issue_at: purchase.billingIssueAt,
+          /**
+           * When the plan the customer just chose actually starts costing what
+           * it costs.
+           *
+           * Only meaningful on a switch, which under this catalogue is always
+           * WITHOUT_PRORATION when it is a downgrade or a mid-trial move: no
+           * money changes hands today and the new price applies at the date
+           * the old plan would have renewed. That date is `ends_at`. Sent so
+           * the backend can say it out loud instead of every surface having to
+           * infer it from a plan slug that changed and an expiry that did not.
+           */
+          plan_change_effective_at: planChanged ? purchase.endsAt : null,
         },
       ],
     });
@@ -1169,48 +1395,71 @@ export const recordCompletedPurchase = async (
 };
 
 /**
- * Plan chosen in the subscribe sheet before authentication interrupted the
- * purchase. The authenticated paywall takes it and starts the RevenueCat
- * purchase flow immediately after verification/sign-in.
+ * What the store says this person owns, asked once at launch.
+ *
+ * The local subscriptions table is a mirror, and mirrors go stale in the one
+ * direction that costs us: a renewal, a restore on another device, a plan
+ * change that took effect while the app was closed, or a reinstall that wiped
+ * SQLite while the Google account kept the subscription. In all of those the
+ * customer is entitled and the app has nothing on disk to prove it, so the
+ * paywall greets a paying subscriber.
+ *
+ * Deliberately dumb: it asks, it does not write. The caller decides whether to
+ * record it, because writing a row is the caller's business (and needs the
+ * local row to compare against). Invalidates the cache first for the same
+ * reason refreshCustomerInfo does - the SDK will happily serve a cached
+ * CustomerInfo from the previous session, which is precisely the copy that is
+ * out of date at launch.
+ *
+ * Never throws. This runs on the bootstrap path, where an exception would take
+ * the whole app down over a billing lookup.
  */
-const PENDING_PLAN_KEY = '@pending_plan_slug';
-
-export const setPendingPlan = async (slug: string): Promise<void> => {
+export const reconcileEntitlementOnLaunch = async (
+  userId: number,
+): Promise<CompletedPurchase | null> => {
   try {
-    await AsyncStorage.setItem(PENDING_PLAN_KEY, slug);
-  } catch {}
-};
-
-export const takePendingPlan = async (): Promise<string | null> => {
-  try {
-    const slug = await AsyncStorage.getItem(PENDING_PLAN_KEY);
-    if (slug) await AsyncStorage.removeItem(PENDING_PLAN_KEY);
-    return slug;
+    if (!(await initBilling(userId))) return null;
+    await Purchases.invalidateCustomerInfoCache().catch(() => {});
+    const customerInfo = await Purchases.getCustomerInfo();
+    // The NAMED entitlement, same as everywhere else. An expired subscription
+    // still sits in the CustomerInfo, and handing it back as a CompletedPurchase
+    // is how a lapsed customer gets an 'active' row with an expiry in the past.
+    if (!hasActiveEntitlement(customerInfo)) return null;
+    return completedFromCustomerInfo(customerInfo);
   } catch {
     return null;
   }
 };
 
 /**
- * Read the stashed plan WITHOUT spending it.
+ * Where to send someone who wants to cancel, change payment method, or resume.
  *
- * takePendingPlan() consumes on read, which threw the plan away on every path
- * that read it and then did not act: the paywall unmounting mid-await, or the
- * caller deciding there was nothing to resume. The person had picked a plan,
- * created an account and verified an email specifically to buy that plan, and
- * the funnel quietly forgot which one - dropping them on a paywall they had
- * already filled in once. Peek, act, then clear.
+ * RevenueCat's managementURL first, because it is the one that resolves to the
+ * right store for the purchase. The Play deep link is the fallback for when
+ * RevenueCat has no URL for us - offline, an API hiccup, a row it does not
+ * know about - and it names the SUBSCRIPTION rather than the base plan: Play
+ * cannot resolve `premium_monthly:p3m` here and silently drops the reader on
+ * the full list of every subscription they own.
+ *
+ * Never null: an unreachable RevenueCat must not leave the only cancel route
+ * in the app missing, which is both a support cost and a Play policy problem.
  */
-export const peekPendingPlan = async (): Promise<string | null> => {
+export const manageSubscriptionUrl = async (
+  userId: number,
+  planSlug?: string | null,
+): Promise<string> => {
   try {
-    return await AsyncStorage.getItem(PENDING_PLAN_KEY);
+    const rcUrl = await getRevenueCatManagementUrl(userId);
+    if (rcUrl) return rcUrl;
   } catch {
-    return null;
+    // Fall through to the deep link.
   }
-};
 
-export const clearPendingPlan = async (): Promise<void> => {
-  try {
-    await AsyncStorage.removeItem(PENDING_PLAN_KEY);
-  } catch {}
+  const packageName = await getAppSetting('google_play_package_name', PLAY_PACKAGE_NAME)
+    .catch(() => PLAY_PACKAGE_NAME);
+  const plan = planBySlug(planSlug);
+  const sku = plan ? playSubscriptionId(plan) : '';
+
+  return 'https://play.google.com/store/account/subscriptions'
+    + (sku && packageName ? `?sku=${sku}&package=${packageName}` : '');
 };

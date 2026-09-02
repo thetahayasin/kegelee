@@ -1,21 +1,21 @@
 /**
  * @format
  *
- * Plan changes, pinned - specifically the DEFERRED one.
+ * Plan changes, pinned.
  *
- * A deferred change is the downgrade path, and it is the case that reads as a
- * failure if you check it the obvious way. Play accepts the change but does
- * NOT start it: the plan the customer already paid for runs to the end of its
- * period, and the cheaper one begins after. So the entitlement that comes back
- * still names the OLD product, correctly.
+ * All three plans are base plans of ONE Play subscription, and Google's own
+ * documentation says what that allows:
  *
- * Code that asks "is the NEW product entitled now" gets `undefined` and
- * concludes the purchase failed. That shipped: every downgrade told the
- * customer it had failed on a change Play had just accepted, and a second
- * attempt then hit Play's own refusal because the change was already queued.
+ *   "When switching plans within the same subscription to an auto-renewing
+ *    plan from either a prepaid plan or an auto-renewing plan, valid proration
+ *    modes are CHARGE_FULL_PRICE and WITHOUT_PRORATION. If you specify any
+ *    other proration mode, the purchase fails and an error is shown to the
+ *    user."
  *
- * These tests fix both halves of the correct behaviour - do not throw, and do
- * not write the new plan to disk as if it had started.
+ * DEFERRED is one of the modes that fails, which is why it no longer has a
+ * code path - only a test that it is never sent. A rejected change reaches the
+ * customer as their payment method being refused, so the modes this file
+ * asserts are the difference between a working downgrade and a support ticket.
  *
  * Mocks are hoisted rather than set up per test with resetModules(), which
  * would hand billing.ts a FRESH react-native-purchases mock from the setup
@@ -233,50 +233,7 @@ describe('replacementModeFor', () => {
   });
 });
 
-describe('requestPlanPurchase on a deferred downgrade', () => {
-  it('treats the still-old entitlement as success, not failure', async () => {
-    // Downgrading yearly -> monthly. Play queues it; the yearly entitlement
-    // is what is live, and stays live until it expires.
-    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
-      customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly',
-    });
-
-    const purchase = await requestPlanPurchase(42, monthly, {
-      oldProductId: yearly.store_product_id,
-      replacementMode: DEFERRED,
-    });
-
-    expect(purchase.deferred).toBe(true);
-    // It describes the plan actually running, not the one that starts later.
-    expect(purchase.productId).toBe('premium_monthly:p1y');
-    expect(purchase.endsAt).toBe('2027-01-01T00:00:00Z');
-  });
-
-  it('passes the change through to Play as a deferred replacement', async () => {
-    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
-      customerInfo: infoEntitledTo('premium_monthly:p1y'),
-      productIdentifier: 'premium_monthly',
-    });
-
-    await requestPlanPurchase(42, monthly, {
-      oldProductId: yearly.store_product_id,
-      replacementMode: DEFERRED,
-    });
-
-    // The SUBSCRIPTION, not the base plan, and for every mode: Play identifies
-    // an existing purchase by subscription id and never reports which base
-    // plan runs, so naming p1y matches no active purchase and the change is
-    // declined. The joined id was sent here for a while on the theory that a
-    // prorating mode needed it to pin the change to one base plan; joined and
-    // bare were then declined identically on a device, which disproved it.
-    expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
-      expect.objectContaining({ identifier: '$rc_monthly' }),
-      null,
-      { oldProductIdentifier: 'premium_monthly', replacementMode: 'DEFERRED' },
-    );
-  });
-
+describe('requestPlanPurchase on a plan change', () => {
   it('names the product the store says they own, not the one we assumed', async () => {
     // The local subscription row records a plan slug and no product id, so the
     // caller can only pass what the catalogue maps that slug to. When the row
@@ -542,6 +499,55 @@ describe('describePurchaseFailure', () => {
 });
 
 describe('the old product id sent to the store', () => {
+  it('asks the store even when the caller passed no old product at all', async () => {
+    /**
+     * The regression this pins is one level up from a stale id: the paywall
+     * passes NOTHING when it decides the tap is not a switch, and it decided
+     * that from the local subscription row. A row that is missing (fresh
+     * install, restore not yet run), stale, or written off as cancelled
+     * therefore turned a plan change into a plain purchase of a subscription
+     * the Google account already owns - which Play declines.
+     *
+     * The store knows. The lookup used to be skipped entirely unless the
+     * caller had already guessed.
+     */
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
+      infoEntitledTo('premium_monthly:p3m'),
+    );
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:p1y'),
+      productIdentifier: 'premium_monthly',
+    });
+
+    await requestPlanPurchase(42, yearly);
+
+    expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
+      expect.anything(),
+      null,
+      expect.objectContaining({ oldProductIdentifier: 'premium_monthly' }),
+    );
+  });
+
+  it('still sends no change when the store says they own nothing', async () => {
+    // The other half: a first purchase must stay a plain purchase. Sending a
+    // product change with an empty old product is its own Play rejection.
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue({
+      entitlements: { active: {}, all: {} },
+    });
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:p1y'),
+      productIdentifier: 'premium_monthly',
+    });
+
+    await requestPlanPurchase(42, yearly);
+
+    expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
+      expect.anything(),
+      null,
+      null,
+    );
+  });
+
   it('sends the bare subscription for the proven mode', async () => {
     (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
       infoEntitledTo('premium_monthly:p1y'),
@@ -602,32 +608,193 @@ describe('the Android split product id', () => {
   });
 });
 
-describe('recordCompletedPurchase on a deferred change', () => {
-  it('writes nothing and reports deferred', async () => {
-    const result = await recordCompletedPurchase(42, {
-      revenuecatAppUserId: '42',
-      productId: 'premium_monthly:p1y',
-      storeTransactionId: 'GPA.TOKEN-1',
-      managementURL: null,
-      startedAt: '2026-01-01T00:00:00Z',
-      endsAt: '2027-01-01T00:00:00Z',
-      autoRenewing: true,
-      periodType: 'NORMAL',
-      deferred: true,
+describe('what counts as a successful purchase', () => {
+  it('requires the NAMED premium entitlement, not just any active one', async () => {
+    /**
+     * "Is anything at all active" makes the entitlement id decorative. The
+     * moment a second entitlement exists for anything else - a lifetime
+     * unlock, a promo, an entitlement added for a different feature - holding
+     * it would report a premium purchase as successful and hand back a
+     * CompletedPurchase for a plan nobody bought, which then gets written to
+     * the subscriptions table as an active row.
+     *
+     * `premium` is what the gate, restore and the launch reconcile all check.
+     */
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: {
+        originalAppUserId: '42',
+        entitlements: {
+          active: {
+            legacy_lifetime: {
+              productIdentifier: 'premium_monthly',
+              productPlanIdentifier: 'p1y',
+              expirationDate: '2027-01-01T00:00:00Z',
+              willRenew: true,
+              periodType: 'NORMAL',
+            },
+          },
+          all: {},
+        },
+        subscriptionsByProductIdentifier: {},
+      },
+      productIdentifier: 'premium_monthly',
     });
 
-    expect(result).toBe('deferred');
-    // The row on disk is the subscription still running. Touching it is how
-    // the customer's live plan gets marked cancelled for a change that has
-    // not happened, and how the new plan gets written with the old expiry.
-    expect(saveSubscription).not.toHaveBeenCalled();
-    expect(getActiveSubscription).not.toHaveBeenCalled();
-    expect(api.pushState).not.toHaveBeenCalled();
+    await expect(requestPlanPurchase(42, monthly)).rejects.toMatchObject({
+      code: PURCHASE_NOT_ENTITLED,
+    });
   });
 
-  it('does record an ordinary immediate purchase', async () => {
-    // The guard above is a narrow exemption, not a general off-switch: the
-    // normal path must still write the row and push it.
+  it('prefers the purchase token from this very transaction to a synthesized id', async () => {
+    /**
+     * The synthesized `<appUserId>:<productId>` is a LOCAL key, not a store
+     * identifier: it is identical for the same person and plan every time, so
+     * a resubscribe after a lapse collides with the row from the previous
+     * subscription and recordCompletedPurchase writes it off as a duplicate.
+     * The purchase call hands back a real token; use it.
+     */
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: {
+        originalAppUserId: '42',
+        entitlements: {
+          active: {
+            premium: {
+              productIdentifier: 'premium_monthly',
+              productPlanIdentifier: null,
+              expirationDate: '2027-01-01T00:00:00Z',
+              willRenew: true,
+              periodType: 'NORMAL',
+            },
+          },
+          all: {},
+        },
+        // Empty on purpose: no storeTransactionId to be found here, which is
+        // exactly when the transaction is the only real identifier available.
+        subscriptionsByProductIdentifier: {},
+      },
+      productIdentifier: 'premium_monthly',
+      transaction: {
+        transactionIdentifier: 'GPA.FALLBACK',
+        purchaseToken: 'play-token-xyz',
+      },
+    });
+
+    const purchase = await requestPlanPurchase(42, monthly);
+
+    expect(purchase.storeTransactionId).toBe('play-token-xyz');
+  });
+
+  it('falls back to the transaction identifier where there is no purchase token', async () => {
+    // purchaseToken is Android-only and null elsewhere.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: {
+        originalAppUserId: '42',
+        entitlements: {
+          active: {
+            premium: {
+              productIdentifier: 'premium_monthly',
+              productPlanIdentifier: null,
+              expirationDate: '2027-01-01T00:00:00Z',
+              willRenew: true,
+              periodType: 'NORMAL',
+            },
+          },
+          all: {},
+        },
+        subscriptionsByProductIdentifier: {},
+      },
+      productIdentifier: 'premium_monthly',
+      transaction: { transactionIdentifier: 'ios-txn-1', purchaseToken: null },
+    });
+
+    const purchase = await requestPlanPurchase(42, monthly);
+
+    expect(purchase.storeTransactionId).toBe('ios-txn-1');
+  });
+});
+
+describe('grace periods and billing problems', () => {
+  it('carries the grace period and billing issue dates off the subscription', async () => {
+    // A grace period is the one state where the expiry is in the past and the
+    // customer is still entitled, because Play is retrying the charge. Without
+    // these two dates every reader of the row concludes they have lapsed.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: {
+        originalAppUserId: '42',
+        entitlements: {
+          active: {
+            premium: {
+              productIdentifier: 'premium_monthly',
+              productPlanIdentifier: 'p1y',
+              expirationDate: '2027-01-01T00:00:00Z',
+              willRenew: true,
+              periodType: 'NORMAL',
+            },
+          },
+          all: {},
+        },
+        subscriptionsByProductIdentifier: {
+          premium_monthly: {
+            productPlanIdentifier: 'p1y',
+            storeTransactionId: 'GPA.GRACE',
+            expiresDate: '2027-01-01T00:00:00Z',
+            willRenew: true,
+            periodType: 'NORMAL',
+            gracePeriodExpiresDate: '2027-01-15T00:00:00Z',
+            billingIssuesDetectedAt: '2026-12-30T00:00:00Z',
+          },
+        },
+      },
+      productIdentifier: 'premium_monthly',
+    });
+
+    const purchase = await requestPlanPurchase(42, yearly);
+
+    expect(purchase.gracePeriodEndsAt).toBe('2027-01-15T00:00:00Z');
+    expect(purchase.billingIssueAt).toBe('2026-12-30T00:00:00Z');
+  });
+
+  it('reads the CURRENT period type from the subscription, not the last one', async () => {
+    // The entitlement reports the period type of the transaction that last
+    // granted access, so it still says TRIAL on the first renewal after a
+    // trial converts - a paying customer written to disk as `trialing`, with
+    // trial_ends_at set to their real renewal date.
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: {
+        originalAppUserId: '42',
+        entitlements: {
+          active: {
+            premium: {
+              productIdentifier: 'premium_monthly',
+              productPlanIdentifier: 'p1y',
+              expirationDate: '2027-01-01T00:00:00Z',
+              willRenew: true,
+              periodType: 'TRIAL',
+            },
+          },
+          all: {},
+        },
+        subscriptionsByProductIdentifier: {
+          premium_monthly: {
+            productPlanIdentifier: 'p1y',
+            storeTransactionId: 'GPA.CONVERTED',
+            expiresDate: '2027-01-01T00:00:00Z',
+            willRenew: true,
+            periodType: 'NORMAL',
+          },
+        },
+      },
+      productIdentifier: 'premium_monthly',
+    });
+
+    const purchase = await requestPlanPurchase(42, yearly);
+
+    expect(purchase.periodType).toBe('NORMAL');
+  });
+});
+
+describe('recordCompletedPurchase', () => {
+  it('records an ordinary immediate purchase', async () => {
     const result = await recordCompletedPurchase(42, {
       revenuecatAppUserId: '42',
       productId: 'premium_monthly:p1y',
@@ -637,6 +804,8 @@ describe('recordCompletedPurchase on a deferred change', () => {
       endsAt: '2027-01-01T00:00:00Z',
       autoRenewing: true,
       periodType: 'NORMAL',
+      gracePeriodEndsAt: null,
+      billingIssueAt: null,
     });
 
     expect(result).toBe('recorded');

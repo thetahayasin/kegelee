@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import i18n from '../i18n';
+import { track } from './events';
 import notifee, {
   TriggerType,
   RepeatFrequency,
@@ -7,20 +8,44 @@ import notifee, {
   AlarmType,
   AndroidImportance,
   AndroidNotificationSetting,
+  AuthorizationStatus,
 } from '@notifee/react-native';
 
 const { AlarmModule } = NativeModules;
 
 export interface ReminderConfig {
-  weekday: number; // 0 (Sun) .. 6 (Sat)
+  /** DB weekday index: 0 = Monday .. 6 = Sunday. NOT the JS `Date.getDay()` order. */
+  weekday: number;
   times: string[]; // ['08:00', '18:00']
   isEnabled: boolean;
 }
 
+/**
+ * The two weekday orders this app has to live with, and the conversion between.
+ *
+ * The backend and the `reminders` table store Monday-first (0 = Mon .. 6 = Sun)
+ * because that is how the schedule is written and read. `Date.getDay()` is
+ * Sunday-first (0 = Sun .. 6 = Sat) and is not negotiable.
+ *
+ * The conversion was written inline in two places (the Schedule tab and the
+ * scheduler below) and the doc comment above claimed the DB order was the JS
+ * one, which is how a "Monday" reminder could be scheduled for Tuesday.
+ * Exporting one pair of functions means the two ends cannot disagree.
+ */
+export const dbWeekdayToJs = (dbWeekday: number): number => (dbWeekday + 1) % 7;
 
+export const jsWeekdayToDb = (jsWeekday: number): number => (jsWeekday + 6) % 7;
+
+/** What `scheduleReminders` managed to do, so the caller can say so. */
+export interface ScheduleResult {
+  /** Whether the trigger notifications were actually created. */
+  scheduled: boolean;
+  permission: 'granted' | 'denied' | 'unknown';
+}
 
 /**
  * Calculates the next trigger date/time for a given weekday, hour, and minute.
+ * `weekday` here is the JS/Sunday-first index, matching `Date.getDay()`.
  */
 export const getNextTriggerDate = (weekday: number, hour: number, minute: number): Date => {
   const now = new Date();
@@ -58,10 +83,18 @@ export const cancelAllReminders = async () => {
 };
 
 /**
- * Whether the app may schedule *exact* alarms. On Android 12+ (API 31+) this is
- * the "Alarms & reminders" special access, off by default on Android 14+. Returns
- * true when it's granted, or on Android < 12 where exact alarms are always
- * allowed (NOT_SUPPORTED means the setting itself doesn't exist).
+ * Whether the app may schedule *exact* alarms.
+ *
+ * Kept, but no longer something the app asks for. SCHEDULE_EXACT_ALARM and
+ * USE_EXACT_ALARM were removed from the manifest because Play treats exact
+ * alarms as a restricted permission that this app cannot justify: a training
+ * reminder is not an alarm clock. So on Android 12+ this is always DISABLED
+ * and the inexact, Doze-friendly alarm is simply the path.
+ *
+ * It survives only to pick the AlarmManager type below, where "exact if the OS
+ * happens to allow it" is still the right question on the pre-12 devices where
+ * exact alarms need no permission at all. Nothing shows a prompt off the back
+ * of it any more.
  */
 export const isExactAlarmAllowed = async (): Promise<boolean> => {
   try {
@@ -72,45 +105,117 @@ export const isExactAlarmAllowed = async (): Promise<boolean> => {
   }
 };
 
-/** Open the system "Alarms & reminders" special-access screen for this app. */
-export const openExactAlarmSettings = async () => {
+/**
+ * Open this app's system notification settings.
+ *
+ * The only route back from a refused permission. Android will not show the
+ * runtime prompt a second time once it has been dismissed twice, so a screen
+ * that says "notifications are off" without this is a dead end.
+ */
+export const openNotificationSettings = async () => {
   try {
-    await notifee.openAlarmPermissionSettings();
+    await notifee.openNotificationSettings();
   } catch (e) {
-    console.warn('Failed to open alarm permission settings', e);
+    console.warn('Failed to open notification settings', e);
   }
 };
 
 /**
  * Schedules recurring weekly local notifications using Notifee for enabled reminders.
+ *
+ * Returns what actually happened rather than nothing. The whole body used to
+ * sit in one try/catch that logged and swallowed, so a refused notification
+ * permission was indistinguishable from success: the Schedule tab said
+ * "Reminders saved" and no reminder would ever arrive. The permission step is
+ * now checked on its own, and a denial short-circuits before anything is
+ * scheduled so the caller can explain it.
  */
 export const scheduleReminders = async (
   configs: ReminderConfig[],
-  opts?: { requestPermission?: boolean },
-) => {
+  /**
+   * `userId` is only needed when `requestPermission` is set: it attributes the
+   * answer to the person who was asked. Every other caller of this function is
+   * a background reschedule that asks nobody anything and records nothing.
+   */
+  opts?: { requestPermission?: boolean; userId?: number },
+): Promise<ScheduleResult> => {
+  // Cancelling is bookkeeping and its failure is not the caller's problem, so
+  // it keeps its own guard rather than aborting the schedule.
+  await cancelAllReminders();
+
+  // Ask for permission ONLY when a person is setting reminders.
+  //
+  // Requesting used to be unconditional, which quietly undid the whole point
+  // of taking the prompt out of sign-in: every sync reschedules this account's
+  // reminders from the backend, and the first sync runs at login, so any
+  // returning account with reminders got the system permission dialog thrown
+  // at it on sign-in exactly as before, just from one call deeper.
+  //
+  // Rescheduling is bookkeeping. It happens in the background, the person did
+  // not ask for it, and if they have already refused there is nothing to be
+  // gained by asking again on every launch. The two places that pass `true`
+  // are the two where someone has just tapped a button that plainly means
+  // "yes, remind me": saving on the Schedule tab, and accepting the offer on
+  // the completion screen. Everywhere else only READS the current answer,
+  // which is what lets a background reschedule still report a denial.
+  let permission: ScheduleResult['permission'] = 'unknown';
   try {
-    // 1. Cancel any previously scheduled reminder notifications
-    await cancelAllReminders();
+    /**
+     * What the system said BEFORE we asked.
+     *
+     * Only read on the ask path, and only to tell two different failures
+     * apart. A refusal at a dialog the reader just saw is a copy problem - the
+     * ask arrived at a bad moment, or the reason was not convincing. A system
+     * that was already refusing before we asked cannot be fixed by asking
+     * better; the only route back is the system settings screen, which is why
+     * this app has a button for it. They need opposite responses, and one
+     * "denied" bucket hides which one you are looking at.
+     */
+    const before = opts?.requestPermission
+      ? await notifee.getNotificationSettings().catch(() => null)
+      : null;
+    const wasRefused = before?.authorizationStatus === AuthorizationStatus.DENIED;
 
-    // 2. Ask for permission ONLY when a person is setting reminders.
-    //
-    // This used to be unconditional, which quietly undid the whole point of
-    // taking the prompt out of sign-in: every sync reschedules this account's
-    // reminders from the backend, and the first sync runs at login - so any
-    // returning account with reminders got the system permission dialog
-    // thrown at it on sign-in exactly as before, just from one call deeper.
-    //
-    // Rescheduling is bookkeeping. It happens in the background, the person
-    // did not ask for it, and if they have already refused there is nothing to
-    // be gained by asking again on every launch. The two places that pass
-    // `true` are the two where someone has just tapped a button that plainly
-    // means "yes, remind me": saving on the Schedule tab, and accepting the
-    // offer on the completion screen.
-    if (opts?.requestPermission) {
-      await notifee.requestPermission();
+    const settings = opts?.requestPermission
+      ? await notifee.requestPermission()
+      : await notifee.getNotificationSettings();
+    permission =
+      settings.authorizationStatus === AuthorizationStatus.DENIED
+        ? 'denied'
+        : settings.authorizationStatus === AuthorizationStatus.AUTHORIZED
+          || settings.authorizationStatus === AuthorizationStatus.PROVISIONAL
+          ? 'granted'
+          : 'unknown';
+
+    /**
+     * Recorded only where somebody was actually asked.
+     *
+     * scheduleReminders also runs on every sync to re-apply the account's
+     * schedule, and recording there would write a row per sync about a
+     * question nobody was posed. 'unknown' is skipped for the same reason: on
+     * Android below 13 there is no runtime permission to grant, so there is no
+     * answer to report.
+     */
+    if (opts?.requestPermission && permission !== 'unknown') {
+      track(
+        opts.userId,
+        'notification_permission',
+        permission === 'granted' ? 'granted' : wasRefused ? 'blocked' : 'denied',
+      );
     }
+  } catch (e) {
+    // A platform that will not answer is not a refusal. 'unknown' lets the
+    // scheduling go ahead, because on Android below 13 there is no runtime
+    // permission to grant and notifications simply work.
+    console.warn('Could not read notification permission', e);
+  }
 
-    // 3. Create/retrieve Android notification channel (ignored on iOS).
+  if (permission === 'denied') {
+    return { scheduled: false, permission };
+  }
+
+  try {
+    // Create/retrieve Android notification channel (ignored on iOS).
     // Channels are IMMUTABLE once created: the original 'reminders' channel
     // shipped without an explicit sound and stayed silent on devices that
     // already had it, so this is a new id with the default sound baked in.
@@ -147,9 +252,7 @@ export const scheduleReminders = async (
           continue;
         }
 
-        // Convert DB day index (0 = Monday ... 6 = Sunday) to JS/UI day index (0 = Sunday ... 6 = Saturday)
-        const jsWeekday = config.weekday === 6 ? 0 : config.weekday + 1;
-        const nextTrigger = getNextTriggerDate(jsWeekday, h, m);
+        const nextTrigger = getNextTriggerDate(dbWeekdayToJs(config.weekday), h, m);
         const notificationId = `reminder_${config.weekday}_${hStr}_${mStr}`;
 
         const trigger: TimestampTrigger = {
@@ -185,8 +288,10 @@ export const scheduleReminders = async (
         );
       }
     }
+    return { scheduled: true, permission };
   } catch (e) {
     console.error('Failed to schedule Notifee reminders', e);
+    return { scheduled: false, permission };
   }
 };
 

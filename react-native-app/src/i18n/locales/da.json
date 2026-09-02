@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "Find din bækkenbund",
     "firstTitle": "Din første øvelse",
+    "skipStep": "Spring dette trin over",
     "whyTitle": "Derfor virker knibeøvelser"
   },
   "billing": {
-    "alreadyOwned": "Du har allerede et aktivt abonnement. Vi gendanner det nu.",
-    "configuration": "Dette abonnement kan ikke købes lige nu. Det er vores fejl - prøv igen senere, eller kontakt supporten.",
+    "alreadyOwned": "Din Google-konto har allerede et aktivt abonnement på denne app.",
+    "configuration": "Dette abonnement kan ikke købes lige nu. Det er vores fejl, prøv igen senere, eller skriv til os via Indstillinger > Hjælp.",
     "declined": "Google Play afviste betalingen. Tjek betalingsmetoden på din Google-konto, og prøv igen.",
     "ineligible": "Du er ikke berettiget til dette tilbud. Vælg et andet abonnement.",
     "network": "Vi kunne ikke nå butikken. Tjek din forbindelse, og prøv igen. Hvis du er blevet trukket, dukker din adgang op af sig selv.",
     "noPermission": "Din Google-konto har ikke tilladelse til at foretage køb på denne enhed.",
     "notAllowed": "Denne enhed eller Google-konto må ikke foretage køb. Det skyldes som regel forældrekontrol eller manglende betalingsmetode på kontoen.",
     "operationInProgress": "Et køb er allerede i gang. Vent et øjeblik, før du prøver igen.",
-    "otherAccount": "Dette abonnement tilhører en anden konto. Log ind med den konto, eller kontakt supporten, så flytter vi det.",
+    "otherAccount": "Dette abonnement tilhører en anden konto. Log ind med den konto, eller skriv til os via Indstillinger > Hjælp, så flytter vi det.",
     "paymentPending": "Google Play behandler din betaling. Kontant- og voucherbetalinger kan tage et stykke tid. Din adgang låses op automatisk, når den går igennem, så betal ikke igen.",
     "storeProblem": "Google Play har problemer lige nu. Prøv igen om et par minutter.",
     "unknown": "Noget gik galt, da dit køb skulle gennemføres. Prøv igen. Hvis du er blevet trukket, dukker din adgang op af sig selv. [{{code}}]",
-    "notEntitled": "Google Play har gennemført købet, men har endnu ikke givet adgang. Det plejer at løse sig inden for et minut. Betal ikke igen - hvis det ikke løser sig, så kontakt supporten, og vi ordner det."
+    "notEntitled": "Google Play har gennemført købet, men har endnu ikke givet adgang. Det plejer at løse sig inden for et minut. Betal ikke igen, og hvis det ikke løser sig, så skriv til os via Indstillinger > Hjælp."
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "Tilbage",
+    "close": "Luk",
+    "couldNotLoad": "Kunne ikke indlæses. Tjek din forbindelse, og prøv igen.",
+    "googleUnavailable": "Google-login er ikke tilgængeligt i denne version. Brug din e-mail og adgangskode i stedet.",
+    "hidePassword": "Skjul adgangskode",
+    "offline": "Du er offline. Noget indlæses først, når du er på nettet igen.",
     "or": "eller",
-    "perMonth": "{{price}}/md."
+    "perMonth": "{{price}}/md.",
+    "showPassword": "Vis adgangskode",
+    "tryAgain": "Prøv igen"
   },
   "errorBoundary": {
+    "goToStart": "Gå til start",
     "somethingWentWrong": "Noget gik galt",
     "theAppHitAnUnexpected": "Appen stødte på en uventet fejl. Prøv igen.",
     "tryAgain": "Prøv igen"
@@ -200,6 +210,7 @@
     "tryItNow": "Prøv nu"
   },
   "find": {
+    "holdA11yHint": "Tryk og hold i {{seconds}} sekunder, mens du kniber.",
     "keepGoing": "Bliv ved …",
     "onlyDoThePeeTestDesc": "Det er kun en måde at finde musklerne på, ikke en øvelse. At stoppe strålen ofte er ikke godt for din blære.",
     "pressAndHold": "Tryk og hold",
@@ -221,10 +232,12 @@
     "learnTheBasics": "Lær det grundlæggende",
     "lessonNumber": "Lektion {{number}}",
     "logIn": "Log ind",
-    "nextLesson": "Næste lektion"
+    "nextLesson": "Næste lektion",
+    "nextStepA11y": "Næste trin",
+    "previousStepA11y": "Forrige trin"
   },
-  "legalPage": {
-    "offlineNotice": "Intet indhold tilgængeligt offline. Opret forbindelse til internettet for at indlæse siden."
+  "legal": {
+    "aboutBasics": "Bækkenbundsøvelser, ofte kaldet knibeøvelser, styrker de muskler, der støtter blæren, tarmen og den seksuelle funktion.\n\nSådan gør du:\n1. Find musklerne. Knib de muskler sammen, du ville bruge til at stoppe tissestrålen halvvejs.\n2. Knib kun bækkenbunden sammen. Hold balder, lår og mave afslappede.\n3. Bliv ved med at trække vejret helt normalt hele vejen igennem.\n\nDet er regelmæssigheden, der virker. Træn hver dag for de bedste resultater."
   },
   "login": {
     "6DigitCode": "6-cifret kode",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "Alle abonnementer starter med {{count}} dags gratis prøve",
     "everyPlanStartsWithTrial_other": "Alle abonnementer starter med {{count}} dages gratis prøve",
     "logOut": "Log ud",
+    "manageInGooglePlay": "Administrer abonnement i Google Play",
     "manageOrCancelAnytime": "Administrer eller opsig når som helst i Google Play.",
     "managePlan": "Administrer abonnement",
     "noActiveSubscriptionWasFound": "Der blev ikke fundet noget aktivt abonnement at gendanne.",
     "off": "Fra",
     "offeringsUnavailable": "Abonnementer er ikke tilgængelige på denne enhed lige nu. Prøv igen senere, eller gendan et tidligere køb nedenfor.",
     "on": "Til",
-    "paymentProcessedSecurely": "Betalingen behandles sikkert via RevenueCat og app-butikken ved bekræftelse.",
+    "paymentProcessedSecurely": "Betalingen behandles sikkert via Google Play ved bekræftelse.",
     "premium": "Premium",
     "priceRenewsAutomatically": "{{price}}, fornyes automatisk indtil du opsiger.",
     "privacyPolicy": "Privatlivspolitik",
+    "purchaseAlreadyEnded": "Google Play oplyser, at dette abonnement allerede er udløbet, så der blev ikke låst noget op. Hvis du er blevet opkrævet, så kontakt supporten, og vi ordner det.",
     "purchaseReceivedButPlanCould": "Købet blev modtaget, men abonnementet kunne ikke identificeres. Kontakt support.",
     "renewPlan": "Forny abonnement",
     "renewYourPlan": "Forny dit abonnement",
     "restorePurchases": "Gendan køb",
+    "restoringPurchase": "Vi gendanner det nu.",
     "restoredPurchaseCouldNotBe": "Det gendannede køb kunne ikke matches med et abonnement. Kontakt support.",
     "savePercent": "SPAR {{percent}} %",
     "signInFirst": "Log ind før du abonnerer.",
@@ -321,6 +337,9 @@
     "switchQueued": "Din plan skifter til {{plan}}, når din nuværende plan slutter. Du bliver ikke opkrævet i dag.",
     "switchQueuedOn": "Din plan skifter til {{plan}} den {{date}}. Du bliver ikke opkrævet i dag.",
     "switchStartsLater": "Du beholder den tid, du har betalt for. Den nye pris gælder fra din næste fornyelse.",
+    "switchChargedNow": "Du opkræves {{price}} nu for {{period}}; den resterende tid på dit nuværende abonnement lægges oveni.",
+    "switchNoChargeToday": "Ingen opkrævning i dag. Dit abonnement skifter til {{plan}} ved næste fornyelse den {{date}}.",
+    "switchNoChargeTodayUndated": "Ingen opkrævning i dag. Dit abonnement skifter til {{plan}} ved næste fornyelse.",
     "switchStartsNow": "Starter nu. Du betaler i dag, og din ubrugte tid lægges oveni.",
     "switchToPlan": "Skift til {{plan}}",
     "terms": "Vilkår",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "Fuld adgang, faktureres månedligt.",
       "name": "1 måned",
-      "period": "/md."
+      "period": "/md.",
+      "periodNoun": "en måned"
     },
     "premium-quarterly": {
       "description": "Faktureres hver 3. måned.",
       "name": "3 måneder",
-      "period": "/3 md."
+      "period": "/3 md.",
+      "periodNoun": "3 måneder"
     },
     "premium-yearly": {
       "description": "Én betaling for hele året.",
       "name": "1 år",
-      "period": "/år"
+      "period": "/år",
+      "periodNoun": "et år"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "Spring over"
   },
   "register": {
+    "agreeIntro": "Når du opretter en konto, accepterer du vores",
     "alreadyHaveAnAccount": "Har du allerede en konto?",
     "confirmPassword": "Bekræft adgangskode",
     "continueWithGoogle": "Fortsæt med Google",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "Adgangskoden skal indeholde mindst ét tal.",
     "passwordTooShort": "Adgangskoden skal være mindst 6 tegn.",
     "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
+    "privacyPolicy": "Privatlivspolitik",
     "registrationFailed": "Registreringen mislykkedes.",
-    "subtitle": "Tager et minut. Din fremgang synkroniseres mellem enheder."
+    "subtitle": "Tager et minut. Din fremgang synkroniseres mellem enheder.",
+    "terms": "Vilkår"
   },
   "reminders": {
     "channelName": "Træningspåmindelser",
     "lapseBody": "Der er gået et par dage. Én kort session er nok til at komme i gang igen.",
     "lapseTitle": "Klar, når du er",
-    "notificationBody": "Det er tid til din daglige knibesession!",
+    "notificationBody": "Det er tid til din knibesession.",
     "notificationTitle": "Knibetræning",
+    "notificationsOffBody": "Dine påmindelser er gemt, men Kegelee kan ikke sende notifikationer. Slå dem til i telefonens indstillinger for at begynde at modtage dem.",
+    "notificationsOffTitle": "Notifikationer er slået fra",
     "nudgeChannelName": "Check-ins",
-    "trialEndingBody": "Dit abonnement starter, medmindre du annullerer i Google Play.",
+    "trialEndingBody": "Din gratis prøveperiode slutter i morgen. Opsig i Google Play, før den slutter, så du undgår at blive opkrævet.",
     "trialEndingTitle": "Din gratis prøveperiode slutter i morgen"
   },
   "schedule": {
     "active": "Aktiv",
     "addTime": "Tilføj tidspunkt",
-    "allowExactBody": "Dine påmindelser er indstillet.\n\nFor at de udløses på det præcise tidspunkt, skal du tillade \"Alarmer og påmindelser\" for Kegelee - ellers kan de komme et par minutter for sent.",
-    "allowExactTitle": "Tillad præcise påmindelser",
     "daysLeft_one": "{{count}} dag tilbage",
     "daysLeft_other": "{{count}} dage tilbage",
     "daysSet_one": "{{count}} dag angivet",
     "daysSet_other": "{{count}} dage angivet",
-    "error": "Fejl",
-    "errorTitle": "Fejl",
     "failedToSaveReminders": "Påmindelserne kunne ikke gemmes.",
-    "limitReached": "Grænsen er nået",
     "limitReachedBody": "Du kan indstille op til 5 påmindelser om dagen.",
-    "limitReachedTitle": "Grænsen er nået",
     "monthNumber": "Måned {{number}}",
     "notNow": "Ikke nu",
     "openSettings": "Åbn indstillinger",
     "reminders": "Påmindelser",
-    "remindersSaved": "Påmindelser gemt",
     "remindersSavedBody": "Dine ugentlige træningspåmindelser er planlagt.",
-    "remindersSavedTitle": "Påmindelser gemt",
+    "remindersTurnedOffBody": "Påmindelser er slået fra. Vælg mindst én dag, du vil mindes om.",
+    "removeTimeA11y": "Fjern {{time}}",
     "repeatOn": "Gentag på",
     "saveAddReminders": "Gem påmindelser",
     "schedule": "Plan",
@@ -456,6 +477,7 @@
     "cancel": "Annuller",
     "cancelledUntilDate": "Opsagt. Din adgang gælder til {{date}}.",
     "cancelledUntilPeriodEnd": "Opsagt. Din adgang gælder til slutningen af den betalte periode.",
+    "contactSupport": "Kontakt support",
     "deleteAccount": "Slet konto",
     "deleteAccount2": "Slet kontoen?",
     "deleteCodeSent": "Vi har sendt en 6-cifret kode til {{email}}. Indtast den for at slette din konto permanent.",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "Kunne ikke rydde fremskridtene. Tjek din internetforbindelse.",
     "failedToSendDeleteCode": "Kunne ikke sende sletningskoden. Tjek din internetforbindelse.",
     "gotIt": "Forstået",
+    "help": "Hjælp",
     "language": "Sprog",
     "logOut": "Log ud",
+    "logOutConfirmBody": "Du skal bruge din adgangskode for at logge ind igen, og alt, der ikke er synkroniseret endnu, går tabt.",
+    "logOutConfirmTitle": "Log ud?",
     "manageSubscription": "Administrer abonnement",
     "noActiveSubscription": "Intet aktivt abonnement",
     "opensGooglePlay": "Åbner Google Play, så du kan skifte abonnement, opsige eller slå automatisk fornyelse fra.",
     "paymentIssueDetail": "Der er et problem med betalingen af dit abonnement. Opdater din betalingsmetode i Google Play.",
     "renewsOn": "Fornyes {{date}}.",
     "reset": "Nulstil",
-    "resetConfirmBody": "Dette rydder dine træningsdage, sessioner, målinger og lektionsfremskridt. Handlingen kan ikke fortrydes.",
+    "resetConfirmBody": "Dette rydder dine træningsdage, sessioner og målinger. Din konto, dit abonnement og dine påmindelser bevares. Handlingen kan ikke fortrydes.",
     "resetProgress": "Nulstil fremgang",
     "resetProgress2": "Nulstil fremgangen?",
-    "resetSuccessBody": "Dine træningsfremskridt er ryddet.",
-    "resetSuccessTitle": "Nulstillet",
+    "resetSuccessBody": "Dine træningsdage, sessioner og målinger er ryddet.",
+    "resetSuccessTitle": "Fremgang nulstillet",
     "restartBody": "Luk og åbn appen igen for at fuldføre skiftet af layoutretning.",
+    "restartNow": "Genstart nu",
     "restartRequired": "Genstart påkrævet",
+    "rtlRestartConfirm": "{{language}} bruger et layout fra højre mod venstre. Appen genstarter.",
     "sendCode": "Send kode",
     "subActive": "Aktiv",
     "subCancelled": "Opsagt",
@@ -497,44 +524,13 @@
     "subscribe": "Abonnér",
     "subscribeToUnlockFullAccess": "Abonnér for at få fuld adgang",
     "subscription": "Abonnement",
+    "supportEmailBody": "Beskriv, hvad der skete, så kigger vi på det.\n\n---\nKonto-id: {{id}}",
+    "supportEmailSubject": "Kegelee support",
     "tapToChangePlan": "Tryk for at skifte abonnement",
     "terms": "Vilkår",
     "trialEndsNoRenew": "Den gratis prøveperiode slutter {{date}}. Den fornyes ikke.",
     "trialEndsThenBilling": "Den gratis prøveperiode slutter {{date}}, derefter starter betalingen.",
     "updatePaymentMethod": "Opdater din betalingsmetode i Google Play."
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "Har du allerede en konto? Log ind",
-    "back": "Tilbage",
-    "bestValue": "BEDSTE VÆRDI",
-    "billingDisclosure": "Betalingen håndteres sikkert af RevenueCat og app-butikken ved bekræftelsen. Dit abonnement fornyes automatisk til den viste pris, indtil du opsiger det i dine abonnementsindstillinger; at afinstallere appen opsiger det ikke og refunderer ikke. Ved at fortsætte accepterer du vores",
-    "close": "Luk",
-    "confirmPassword": "Bekræft adgangskode",
-    "continue": "Fortsæt",
-    "continueWithGoogle": "Fortsæt med Google",
-    "couldNotOpenGoogle": "Kunne ikke åbne Google-login. Prøv igen.",
-    "couldNotReachServer": "Kunne ikke nå serveren. Tjek din internetforbindelse, og prøv igen.",
-    "createAccount": "Opret konto",
-    "createAccountSubscribe": "Opret konto og abonnér",
-    "creatingAccount": "Opretter konto …",
-    "emailAddress": "E-mailadresse",
-    "emailInvalid": "Indtast en gyldig e-mailadresse.",
-    "emailOrPasswordIncorrect": "Forkert e-mail eller adgangskode.",
-    "emailRequired": "E-mail er påkrævet.",
-    "fullName": "Fulde navn",
-    "googleSignInFailed": "Google-login mislykkedes. Prøv igen.",
-    "headline": "Vælg en plan, og kom i gang",
-    "nameRequired": "Navn er påkrævet.",
-    "noAccountYetCreateOne": "Har du ikke en konto endnu? Opret en",
-    "password": "Adgangskode",
-    "passwordRequired": "Adgangskode er påkrævet.",
-    "passwordRules": "Adgangskoden skal være mindst 6 tegn og indeholde et tal.",
-    "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
-    "signIn": "Log ind",
-    "signInSubscribe": "Log ind og abonnér",
-    "signingIn": "Logger ind …",
-    "subscribe": "Abonnér",
-    "terms": "Vilkår"
   },
   "tabs": {
     "profile": "Profil",
@@ -570,15 +566,18 @@
     "available": "Tilgængelig",
     "bestHold": "Bedste hold {{seconds}} s",
     "complete": "FULDFØRT",
+    "dayLabel": "Dag {{day}}",
     "daysLeft_one": "{{count}} dag",
     "daysLeft_other": "{{count}} dage",
     "exercises": "Øvelser",
     "extraSessionsOptional": "Ekstra sessioner er valgfrie",
+    "freeCapCta": "Abonnér",
+    "freeCapReached": "Din gratis plan stopper på dag {{day}}. Abonnér for at fortsætte.",
     "knowledge": "Viden",
     "measureDaily": "Mål dagligt for at følge din fremgang",
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
-    "monthDay": "MÅNED {{month}}   /   DAG {{day}}",
+    "monthLabel": "Måned {{month}}",
     "progressTracker": "Fremgang",
     "readyWhenYouAre": "Klar når du er",
     "ringA11y": "{{done}} af {{required}} sessioner klaret i dag",
@@ -587,7 +586,7 @@
     "sessions": "SESSIONER",
     "sessionsCompleteToday_one": "{{count}} session fuldfører i dag",
     "sessionsCompleteToday_other": "{{count}} sessioner fuldfører i dag",
-    "startWorkout": "Start træning",
+    "startWorkout": "Start session",
     "streakDays_one": "{{count}} dags stime",
     "streakDays_other": "{{count}} dages stime",
     "todayIsDone": "Dagen er klaret",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "Tilbage til login",
-    "codeResent": "Bekræftelseskoden er sendt igen!",
+    "codeResent": "Bekræftelseskoden er sendt igen.",
     "didnTReceiveTheCode": "Fik du ikke koden? Send igen",
     "enterSixDigitCode": "Indtast en 6-cifret bekræftelseskode.",
     "failedToResendCode": "Koden kunne ikke sendes igen.",
@@ -611,19 +610,19 @@
   "why": {
     "cardRealMuscle": "En rigtig muskel. Træn den, og den bliver stærkere.",
     "squeezeTheWrongMusclesAnd": "Spænder du de forkerte muskler, får du ikke noget ud af det.",
-    "theNextLessonShowsYou": "Næste lektion viser dig præcis, hvor dine muskler sidder.",
-    "thenYouDoYourFirst": "Derefter laver du din første rigtige øvelse, guidet af cirklen."
+    "theNextLessonShowsYou": "Næste lektion viser dig præcis, hvor dine muskler sidder."
   },
   "workout": {
     "back": "Tilbage",
+    "couldNotStartBody": "Noget gik galt, da din session skulle sættes sammen. Prøv igen, eller gå tilbage og start den fra træningsfanen.",
+    "couldNotStartTitle": "Sessionen kunne ikke startes",
     "exerciseTutorial": "Guide til øvelsen",
     "greatJob": "Flot arbejde!",
     "ifYouLeaveThisSession": "Hvis du går nu, tæller denne session ikke med i din daglige fremgang.",
-    "leaveTraining": "Forlad træningen?",
+    "leaveTraining": "Forlad denne session?",
     "minutesLeft_one": "{{count}} min tilbage",
     "minutesLeft_other": "{{count}} min tilbage",
-    "noExercises": "Ingen øvelser",
-    "noExercisesBody": "Ingen øvelser låst op til denne session.",
+    "noExercisesBody": "Der er endnu ikke låst nogen øvelser op til denne session.",
     "noExercisesTitle": "Ingen øvelser",
     "noGoBack": "Nej, tilbage",
     "pause": "Pause",
@@ -634,7 +633,7 @@
     "tryAgain": "Prøv igen",
     "watchTheQuickTutorialFor": "Se den korte guide til øvelsen, og vend så tilbage til din session.",
     "watchTutorial": "Se guide",
-    "yesQuitTraining": "Ja, afslut træningen"
+    "yesQuitTraining": "Ja, forlad sessionen"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "Du er allerede på det letteste niveau.",

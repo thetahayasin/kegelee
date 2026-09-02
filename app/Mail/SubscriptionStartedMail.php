@@ -28,7 +28,11 @@ class SubscriptionStartedMail extends Mailable
         $settings  = app(SettingsService::class);
         $appName   = $settings->get('app_name', 'Kegel Trainer');
         $accent    = $settings->get('color_accent', '#c1ff72');
-        $plan      = $this->subscription->plan;
+        // A row can legitimately have no plan: a product id the catalogue does
+        // not know resolves to null, and an admin grant may never set one.
+        // Reading ->name off that threw inside the mailable, which took the
+        // whole webhook down with it.
+        $planName  = $this->subscription->plan?->name ?? 'Premium';
         $endsAt    = $this->subscription->ends_at;
         $isTrial   = $this->subscription->status === 'trialing';
 
@@ -37,8 +41,8 @@ class SubscriptionStartedMail extends Mailable
             'accent'    => $accent,
             'headline'  => "You're now a Premium member!",
             'body'      => $isTrial
-                ? "Your {$plan->name} free trial is active. Full access is yours, enjoy every feature."
-                : "Your {$plan->name} subscription is active. Full access is yours, enjoy every feature.",
+                ? "Your {$planName} free trial is active. Full access is yours, enjoy every feature."
+                : "Your {$planName} subscription is active. Full access is yours, enjoy every feature.",
             'detail'    => $endsAt
                 ? ($isTrial
                     ? "Trial ends on {$endsAt->format('F j, Y')}. After that, your subscription renews automatically unless cancelled."

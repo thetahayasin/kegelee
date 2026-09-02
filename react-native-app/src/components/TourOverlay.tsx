@@ -460,6 +460,32 @@ export const TourOverlay: React.FC<Props> = ({ visible, steps, targets, onDone, 
                 edge across content that carries on past it.
                 The hole in the dim is the highlight. It is unambiguous, it fits
                 whatever is underneath it exactly, and it needs no decoration. */}
+
+            {/* The hole advances too.
+                Tapping the dim moved the tour on; tapping the one thing the
+                tour was pointing AT did nothing at all - which is the first
+                thing a reader tries, because the card has just spent a
+                sentence drawing their eye to it. The element underneath is
+                not reachable through the overlay anyway (the modal sits on
+                top of it), so this is not swallowing a real press; it is
+                giving the most obvious target the same behaviour as the rest
+                of the screen. Hidden from assistive tech for the same reason
+                the four dim panels are: the card below carries the controls. */}
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={next}
+              importantForAccessibility="no"
+              accessibilityElementsHidden
+              style={[
+                styles.spotlightTap,
+                {
+                  top: hole.y,
+                  left: hole.x,
+                  width: hole.width,
+                  height: hole.height,
+                },
+              ]}
+            />
           </>
         ) : (
           <TouchableOpacity
@@ -549,6 +575,8 @@ const DIM = 'rgba(3,5,10,0.86)';
 const makeStyles = (COLORS: Palette) => StyleSheet.create({
   root: { flex: 1 },
   dim: { position: 'absolute', backgroundColor: DIM },
+  /** The hole itself, made tappable. Its geometry is supplied inline. */
+  spotlightTap: { position: 'absolute' },
   dimFull: { flex: 1, backgroundColor: DIM },
   origin: { position: 'absolute', top: 0, left: 0, width: 0, height: 0 },
   card: {

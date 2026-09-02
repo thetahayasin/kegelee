@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "Vind je bekkenbodem",
     "firstTitle": "Je eerste oefening",
+    "skipStep": "Deze stap overslaan",
     "whyTitle": "Waarom kegeltraining werkt"
   },
   "billing": {
-    "alreadyOwned": "Je hebt al een actief abonnement. We herstellen het nu.",
-    "configuration": "Dit plan kan nu niet gekocht worden. Dat ligt aan ons - probeer het later opnieuw of neem contact op met support.",
+    "alreadyOwned": "Je Google-account heeft al een actief abonnement voor deze app.",
+    "configuration": "Dit plan kan nu niet gekocht worden. Dat ligt aan ons, probeer het later opnieuw of schrijf ons via Instellingen > Help.",
     "declined": "Google Play heeft de betaling geweigerd. Controleer de betaalmethode van je Google-account en probeer het opnieuw.",
     "ineligible": "Je komt niet in aanmerking voor deze aanbieding. Kies een ander plan.",
     "network": "We konden de store niet bereiken. Controleer je verbinding en probeer het opnieuw. Als er is afgeschreven, verschijnt je toegang vanzelf.",
     "noPermission": "Je Google-account heeft geen toestemming om aankopen te doen op dit apparaat.",
     "notAllowed": "Dit apparaat of Google-account mag geen aankopen doen. Meestal is dat ouderlijk toezicht, of geen betaalmethode op het account.",
     "operationInProgress": "Er loopt al een aankoop. Wacht even voordat je het opnieuw probeert.",
-    "otherAccount": "Dit abonnement hoort bij een ander account. Log in met dat account, of neem contact op met support en wij zetten het over.",
+    "otherAccount": "Dit abonnement hoort bij een ander account. Log in met dat account, of schrijf ons via Instellingen > Help, dan zetten wij het over.",
     "paymentPending": "Je betaling wordt verwerkt door Google Play. Contant- en voucherbetalingen kunnen even duren. Je toegang wordt automatisch vrijgegeven zodra het rond is, dus betaal alsjeblieft niet nog een keer.",
     "storeProblem": "Google Play heeft momenteel problemen. Probeer het over een paar minuten opnieuw.",
     "unknown": "Er ging iets mis bij het afronden van je aankoop. Probeer het opnieuw. Als er is afgeschreven, verschijnt je toegang vanzelf. [{{code}}]",
-    "notEntitled": "Google Play heeft de aankoop afgerond, maar nog geen toegang gegeven. Dit is meestal binnen een minuut opgelost. Betaal niet opnieuw - blijft het zo, neem dan contact op met support en wij lossen het op."
+    "notEntitled": "Google Play heeft de aankoop afgerond, maar nog geen toegang gegeven. Dit is meestal binnen een minuut opgelost. Betaal niet opnieuw, en blijft het zo, schrijf ons dan via Instellingen > Help."
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "Terug",
+    "close": "Sluiten",
+    "couldNotLoad": "Laden is mislukt. Controleer je verbinding en probeer het opnieuw.",
+    "googleUnavailable": "Inloggen met Google is niet beschikbaar in deze versie. Gebruik je e-mailadres en wachtwoord.",
+    "hidePassword": "Wachtwoord verbergen",
+    "offline": "Je bent offline. Sommige dingen laden pas als je weer verbinding hebt.",
     "or": "of",
-    "perMonth": "{{price}}/mnd"
+    "perMonth": "{{price}}/mnd",
+    "showPassword": "Wachtwoord tonen",
+    "tryAgain": "Opnieuw proberen"
   },
   "errorBoundary": {
+    "goToStart": "Naar het begin",
     "somethingWentWrong": "Er is iets misgegaan",
     "theAppHitAnUnexpected": "De app liep tegen een onverwachte fout aan. Probeer het opnieuw.",
     "tryAgain": "Opnieuw proberen"
@@ -200,6 +210,7 @@
     "tryItNow": "Nu uitproberen"
   },
   "find": {
+    "holdA11yHint": "Houd {{seconds}} seconden ingedrukt terwijl je knijpt.",
     "keepGoing": "Ga zo door …",
     "onlyDoThePeeTestDesc": "Het is alleen een manier om de spieren te vinden, geen oefening. Je plas vaak afbreken is niet goed voor je blaas.",
     "pressAndHold": "Ingedrukt houden",
@@ -221,10 +232,12 @@
     "learnTheBasics": "Leer de basis",
     "lessonNumber": "Les {{number}}",
     "logIn": "Inloggen",
-    "nextLesson": "Volgende les"
+    "nextLesson": "Volgende les",
+    "nextStepA11y": "Volgende stap",
+    "previousStepA11y": "Vorige stap"
   },
-  "legalPage": {
-    "offlineNotice": "Geen inhoud beschikbaar offline. Maak verbinding met internet om deze pagina te laden."
+  "legal": {
+    "aboutBasics": "Bekkenbodemoefeningen, meestal kegeloefeningen genoemd, versterken de spieren die je blaas, je darmen en de seksuele functie ondersteunen.\n\nZo doe je ze:\n1. Vind de spieren. Knijp de spieren aan die je zou gebruiken om je plas halverwege te stoppen.\n2. Span alleen je bekkenbodemspieren aan. Houd je billen, dijen en buik ontspannen.\n3. Blijf de hele tijd normaal doorademen.\n\nRegelmaat is wat werkt. Train elke dag voor het beste resultaat."
   },
   "login": {
     "6DigitCode": "6-cijferige code",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "Elk abonnement begint met {{count}} dag gratis",
     "everyPlanStartsWithTrial_other": "Elk abonnement begint met {{count}} dagen gratis",
     "logOut": "Uitloggen",
+    "manageInGooglePlay": "Abonnement beheren in Google Play",
     "manageOrCancelAnytime": "Beheer of zeg op wanneer je wilt in Google Play.",
     "managePlan": "Abonnement beheren",
     "noActiveSubscriptionWasFound": "Er is geen actief abonnement gevonden om te herstellen.",
     "off": "Uit",
     "offeringsUnavailable": "Abonnementen zijn op dit apparaat momenteel niet beschikbaar. Probeer het later opnieuw of herstel hieronder een eerdere aankoop.",
     "on": "Aan",
-    "paymentProcessedSecurely": "De betaling wordt bij bevestiging veilig verwerkt via RevenueCat en de app store.",
+    "paymentProcessedSecurely": "De betaling wordt bij bevestiging veilig verwerkt via Google Play.",
     "premium": "Premium",
     "priceRenewsAutomatically": "{{price}}, wordt automatisch verlengd tot je opzegt.",
     "privacyPolicy": "Privacybeleid",
+    "purchaseAlreadyEnded": "Google Play meldt dat dit abonnement al is afgelopen, dus er is niets ontgrendeld. Is er toch afgeschreven? Neem contact op met support, dan lossen we het op.",
     "purchaseReceivedButPlanCould": "Aankoop ontvangen, maar het abonnement kon niet worden herkend. Neem contact op met support.",
     "renewPlan": "Verlengen",
     "renewYourPlan": "Verleng je abonnement",
     "restorePurchases": "Aankopen herstellen",
+    "restoringPurchase": "We herstellen het nu.",
     "restoredPurchaseCouldNotBe": "De herstelde aankoop kon niet aan een abonnement worden gekoppeld. Neem contact op met support.",
     "savePercent": "BESPAAR {{percent}}%",
     "signInFirst": "Log in voordat je een abonnement neemt.",
@@ -321,6 +337,9 @@
     "switchQueued": "Je abonnement wordt gewijzigd in {{plan}} wanneer je huidige abonnement afloopt. Vandaag wordt er niets in rekening gebracht.",
     "switchQueuedOn": "Je abonnement wordt op {{date}} gewijzigd in {{plan}}. Vandaag wordt er niets in rekening gebracht.",
     "switchStartsLater": "Je behoudt de tijd waarvoor je al betaald hebt. De nieuwe prijs geldt vanaf je volgende verlenging.",
+    "switchChargedNow": "Je betaalt nu {{price}} voor {{period}}; de tijd die nog op je huidige abonnement staat, komt daar bovenop.",
+    "switchNoChargeToday": "Vandaag wordt er niets in rekening gebracht. Je abonnement wordt bij de volgende verlenging op {{date}} gewijzigd in {{plan}}.",
+    "switchNoChargeTodayUndated": "Vandaag wordt er niets in rekening gebracht. Je abonnement wordt bij je volgende verlenging gewijzigd in {{plan}}.",
     "switchStartsNow": "Begint nu. Je betaalt vandaag en je ongebruikte tijd komt erbij.",
     "switchToPlan": "Overstappen naar {{plan}}",
     "terms": "Voorwaarden",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "Volledige toegang, maandelijks gefactureerd.",
       "name": "1 maand",
-      "period": "/maand"
+      "period": "/maand",
+      "periodNoun": "een maand"
     },
     "premium-quarterly": {
       "description": "Elke 3 maanden gefactureerd.",
       "name": "3 maanden",
-      "period": "/3 maanden"
+      "period": "/3 maanden",
+      "periodNoun": "3 maanden"
     },
     "premium-yearly": {
       "description": "Eén betaling voor het hele jaar.",
       "name": "1 jaar",
-      "period": "/jaar"
+      "period": "/jaar",
+      "periodNoun": "een jaar"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "Overslaan"
   },
   "register": {
+    "agreeIntro": "Door een account aan te maken ga je akkoord met onze",
     "alreadyHaveAnAccount": "Heb je al een account?",
     "confirmPassword": "Bevestig wachtwoord",
     "continueWithGoogle": "Doorgaan met Google",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "Het wachtwoord moet minstens één cijfer bevatten.",
     "passwordTooShort": "Het wachtwoord moet minstens 6 tekens bevatten.",
     "passwordsDoNotMatch": "De wachtwoorden komen niet overeen.",
+    "privacyPolicy": "Privacybeleid",
     "registrationFailed": "Registreren is mislukt.",
-    "subtitle": "Kost een minuut. Je voortgang synchroniseert tussen apparaten."
+    "subtitle": "Kost een minuut. Je voortgang synchroniseert tussen apparaten.",
+    "terms": "Voorwaarden"
   },
   "reminders": {
     "channelName": "Trainingsherinneringen",
     "lapseBody": "Er zijn een paar dagen voorbij. Eén korte sessie is genoeg om de gewoonte weer op te pakken.",
     "lapseTitle": "Klaar wanneer jij het bent",
-    "notificationBody": "Tijd voor je dagelijkse kegelsessie!",
+    "notificationBody": "Tijd voor je kegelsessie.",
     "notificationTitle": "Kegeltraining",
+    "notificationsOffBody": "Je herinneringen zijn opgeslagen, maar Kegelee kan geen meldingen sturen. Zet ze aan in de instellingen van je telefoon om ze te ontvangen.",
+    "notificationsOffTitle": "Meldingen staan uit",
     "nudgeChannelName": "Check-ins",
-    "trialEndingBody": "Je abonnement start, tenzij je opzegt in Google Play.",
+    "trialEndingBody": "Je gratis proefperiode eindigt morgen. Zeg op in Google Play voordat die afloopt om kosten te voorkomen.",
     "trialEndingTitle": "Je gratis proefperiode eindigt morgen"
   },
   "schedule": {
     "active": "Actief",
     "addTime": "Tijd toevoegen",
-    "allowExactBody": "Je herinneringen staan ingesteld.\n\nOm ze op het exacte tijdstip af te laten gaan, geef Kegelee toestemming voor \"Wekkers en herinneringen\" - anders komen ze mogelijk een paar minuten later.",
-    "allowExactTitle": "Exacte herinneringen toestaan",
     "daysLeft_one": "nog {{count}} dag",
     "daysLeft_other": "nog {{count}} dagen",
     "daysSet_one": "{{count}} dag ingesteld",
     "daysSet_other": "{{count}} dagen ingesteld",
-    "error": "Fout",
-    "errorTitle": "Fout",
     "failedToSaveReminders": "Kon de herinneringen niet opslaan.",
-    "limitReached": "Limiet bereikt",
     "limitReachedBody": "Je kunt maximaal 5 herinneringen per dag instellen.",
-    "limitReachedTitle": "Limiet bereikt",
     "monthNumber": "Maand {{number}}",
     "notNow": "Niet nu",
     "openSettings": "Instellingen openen",
     "reminders": "Herinneringen",
-    "remindersSaved": "Herinneringen opgeslagen",
     "remindersSavedBody": "Je wekelijkse trainingsherinneringen staan ingepland.",
-    "remindersSavedTitle": "Herinneringen opgeslagen",
+    "remindersTurnedOffBody": "Herinneringen staan uit. Kies minstens één dag waarop je herinnerd wilt worden.",
+    "removeTimeA11y": "{{time}} verwijderen",
     "repeatOn": "Herhalen op",
     "saveAddReminders": "Herinneringen opslaan",
     "schedule": "Schema",
@@ -456,6 +477,7 @@
     "cancel": "Annuleren",
     "cancelledUntilDate": "Opgezegd. Je toegang blijft actief tot {{date}}.",
     "cancelledUntilPeriodEnd": "Opgezegd. Je toegang blijft actief tot het einde van de betaalde periode.",
+    "contactSupport": "Contact met support",
     "deleteAccount": "Account verwijderen",
     "deleteAccount2": "Account verwijderen?",
     "deleteCodeSent": "We hebben een 6-cijferige code naar {{email}} gestuurd. Voer die in om je account definitief te verwijderen.",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "Kon de voortgang niet wissen. Controleer je internetverbinding.",
     "failedToSendDeleteCode": "Kon de verwijdercode niet versturen. Controleer je internetverbinding.",
     "gotIt": "Begrepen",
+    "help": "Help",
     "language": "Taal",
     "logOut": "Uitloggen",
+    "logOutConfirmBody": "Je hebt je wachtwoord nodig om weer in te loggen, en alles wat nog niet gesynchroniseerd is gaat verloren.",
+    "logOutConfirmTitle": "Uitloggen?",
     "manageSubscription": "Abonnement beheren",
     "noActiveSubscription": "Geen actief abonnement",
     "opensGooglePlay": "Opent Google Play om je abonnement te wijzigen, op te zeggen of automatische verlenging uit te zetten.",
     "paymentIssueDetail": "Er is een probleem met de betaling van je abonnement. Werk je betaalmethode bij in Google Play.",
     "renewsOn": "Wordt verlengd op {{date}}.",
     "reset": "Resetten",
-    "resetConfirmBody": "Hiermee wis je je trainingsdagen, sessies, metingen en lesvoortgang. Dit kan niet ongedaan worden gemaakt.",
+    "resetConfirmBody": "Hiermee wis je je trainingsdagen, sessies en metingen. Je account, je abonnement en je herinneringen blijven behouden. Dit kan niet ongedaan worden gemaakt.",
     "resetProgress": "Voortgang resetten",
     "resetProgress2": "Voortgang resetten?",
-    "resetSuccessBody": "Je trainingsvoortgang is gewist.",
-    "resetSuccessTitle": "Gewist",
+    "resetSuccessBody": "Je trainingsdagen, sessies en metingen zijn gewist.",
+    "resetSuccessTitle": "Voortgang gereset",
     "restartBody": "Sluit de app en open hem opnieuw om de layoutrichting te wijzigen.",
+    "restartNow": "Nu herstarten",
     "restartRequired": "Herstart vereist",
+    "rtlRestartConfirm": "{{language}} gebruikt een layout van rechts naar links. De app wordt herstart.",
     "sendCode": "Code versturen",
     "subActive": "Actief",
     "subCancelled": "Opgezegd",
@@ -497,44 +524,13 @@
     "subscribe": "Abonneren",
     "subscribeToUnlockFullAccess": "Abonneer je voor volledige toegang",
     "subscription": "Abonnement",
+    "supportEmailBody": "Beschrijf wat er gebeurd is, dan zoeken we het uit.\n\n---\nAccount-id: {{id}}",
+    "supportEmailSubject": "Kegelee-support",
     "tapToChangePlan": "Tik om je abonnement te wijzigen",
     "terms": "Voorwaarden",
     "trialEndsNoRenew": "De gratis proefperiode eindigt op {{date}}. Hij wordt niet verlengd.",
     "trialEndsThenBilling": "De gratis proefperiode eindigt op {{date}}, daarna start de facturatie.",
     "updatePaymentMethod": "Werk je betaalmethode bij in Google Play."
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "Heb je al een account? Log in",
-    "back": "Terug",
-    "bestValue": "BESTE KEUZE",
-    "billingDisclosure": "De betaling wordt bij bevestiging veilig verwerkt via RevenueCat en de appstore. Je abonnement wordt automatisch verlengd tegen de getoonde prijs totdat je het opzegt in je abonnementsinstellingen; de app verwijderen zegt het niet op en geeft geen restitutie. Door verder te gaan ga je akkoord met onze",
-    "close": "Sluiten",
-    "confirmPassword": "Bevestig wachtwoord",
-    "continue": "Doorgaan",
-    "continueWithGoogle": "Doorgaan met Google",
-    "couldNotOpenGoogle": "Kon Google-inloggen niet openen. Probeer het opnieuw.",
-    "couldNotReachServer": "Kon de server niet bereiken. Controleer je internetverbinding en probeer het opnieuw.",
-    "createAccount": "Account aanmaken",
-    "createAccountSubscribe": "Account aanmaken en abonneren",
-    "creatingAccount": "Account aanmaken …",
-    "emailAddress": "E-mailadres",
-    "emailInvalid": "Voer een geldig e-mailadres in.",
-    "emailOrPasswordIncorrect": "E-mailadres of wachtwoord is onjuist.",
-    "emailRequired": "E-mail is verplicht.",
-    "fullName": "Volledige naam",
-    "googleSignInFailed": "Inloggen met Google is mislukt. Probeer het opnieuw.",
-    "headline": "Kies een abonnement en begin",
-    "nameRequired": "Naam is verplicht.",
-    "noAccountYetCreateOne": "Nog geen account? Maak er een aan",
-    "password": "Wachtwoord",
-    "passwordRequired": "Wachtwoord is verplicht.",
-    "passwordRules": "Het wachtwoord moet minstens 6 tekens bevatten en een cijfer.",
-    "passwordsDoNotMatch": "De wachtwoorden komen niet overeen.",
-    "signIn": "Inloggen",
-    "signInSubscribe": "Inloggen en abonneren",
-    "signingIn": "Inloggen …",
-    "subscribe": "Abonneren",
-    "terms": "Voorwaarden"
   },
   "tabs": {
     "profile": "Profiel",
@@ -570,15 +566,18 @@
     "available": "Beschikbaar",
     "bestHold": "Beste hold {{seconds}} s",
     "complete": "KLAAR",
+    "dayLabel": "Dag {{day}}",
     "daysLeft_one": "{{count}} dag",
     "daysLeft_other": "{{count}} dagen",
     "exercises": "Oefeningen",
     "extraSessionsOptional": "Extra sessies zijn optioneel",
+    "freeCapCta": "Abonneren",
+    "freeCapReached": "Je gratis abonnement stopt op dag {{day}}. Abonneer je om verder te gaan.",
     "knowledge": "Uitleg",
     "measureDaily": "Meet dagelijks om vooruitgang te volgen",
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
-    "monthDay": "MAAND {{month}}   /   DAG {{day}}",
+    "monthLabel": "Maand {{month}}",
     "progressTracker": "Voortgang",
     "readyWhenYouAre": "Wanneer jij er klaar voor bent",
     "ringA11y": "{{done}} van {{required}} sessies vandaag gedaan",
@@ -587,7 +586,7 @@
     "sessions": "SESSIES",
     "sessionsCompleteToday_one": "{{count}} sessie maakt vandaag af",
     "sessionsCompleteToday_other": "{{count}} sessies maken vandaag af",
-    "startWorkout": "Training starten",
+    "startWorkout": "Sessie starten",
     "streakDays_one": "{{count}} dag op rij",
     "streakDays_other": "{{count}} dagen op rij",
     "todayIsDone": "Vandaag zit erop",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "Terug naar inloggen",
-    "codeResent": "Verificatiecode opnieuw verstuurd!",
+    "codeResent": "Verificatiecode opnieuw verstuurd.",
     "didnTReceiveTheCode": "Geen code ontvangen? Opnieuw versturen",
     "enterSixDigitCode": "Voer een verificatiecode van 6 cijfers in.",
     "failedToResendCode": "Kon de code niet opnieuw versturen.",
@@ -611,19 +610,19 @@
   "why": {
     "cardRealMuscle": "Een echte spier. Train hem en hij wordt sterker.",
     "squeezeTheWrongMusclesAnd": "Span je de verkeerde spieren aan, dan levert het niets op.",
-    "theNextLessonShowsYou": "De volgende les laat je precies zien waar je spieren zitten.",
-    "thenYouDoYourFirst": "Daarna doe je je eerste echte oefening, geleid door de cirkel."
+    "theNextLessonShowsYou": "De volgende les laat je precies zien waar je spieren zitten."
   },
   "workout": {
     "back": "Terug",
+    "couldNotStartBody": "Er ging iets mis bij het samenstellen van je sessie. Probeer het opnieuw, of ga terug en start hem via het tabblad training.",
+    "couldNotStartTitle": "Kon de sessie niet starten",
     "exerciseTutorial": "Uitleg bij de oefening",
     "greatJob": "Goed gedaan!",
     "ifYouLeaveThisSession": "Als je stopt, telt deze sessie niet mee voor je dagelijkse voortgang.",
-    "leaveTraining": "Training verlaten?",
+    "leaveTraining": "Deze sessie verlaten?",
     "minutesLeft_one": "nog {{count}} min",
     "minutesLeft_other": "nog {{count}} min",
-    "noExercises": "Geen oefeningen",
-    "noExercisesBody": "Nog geen oefeningen vrijgespeeld voor deze sessie.",
+    "noExercisesBody": "Er zijn nog geen oefeningen vrijgespeeld voor deze sessie.",
     "noExercisesTitle": "Geen oefeningen",
     "noGoBack": "Nee, terug",
     "pause": "Pauze",
@@ -634,7 +633,7 @@
     "tryAgain": "Opnieuw proberen",
     "watchTheQuickTutorialFor": "Bekijk de korte uitleg bij deze oefening en ga daarna terug naar je sessie.",
     "watchTutorial": "Uitleg bekijken",
-    "yesQuitTraining": "Ja, training stoppen"
+    "yesQuitTraining": "Ja, sessie verlaten"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "Je zit al op het makkelijkste niveau.",

@@ -58,6 +58,10 @@ yarn-error.log
 
 # Bundle artifact
 *.jsbundle
+# The release JS bundle Gradle writes into the APK's assets. It was committed,
+# which meant every build produced a multi-megabyte diff of minified output and
+# a stale bundle could be packaged over a fresh one.
+android/app/src/main/assets/*.bundle
 
 # Ruby / CocoaPods
 **/Pods/

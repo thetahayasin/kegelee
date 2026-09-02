@@ -10,7 +10,6 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  Linking,
   Alert,
   TouchableWithoutFeedback,
 } from 'react-native';
@@ -26,8 +25,8 @@ import {
 import { TYPE, SPACE, RADIUS, DISABLED_OPACITY, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import Svg, { Path } from 'react-native-svg';
-import { api, getWebBaseUrl } from '../../services/api';
-import { nativeGoogleSignIn } from '../../services/googleAuth';
+import { api } from '../../services/api';
+import { nativeGoogleSignIn, openGoogleBrowserSignIn } from '../../services/googleAuth';
 import { getAppSetting } from '../../db/queries';
 import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
@@ -84,14 +83,24 @@ export const LoginScreen = () => {
       return;
     }
     setLoading(true);
-    const res = await login(email.trim().toLowerCase(), password);
-    setLoading(false);
-    if (!res.success) {
-      if (res.error === 'unverified') {
-        navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
-      } else {
-        setError(res.error || t('login.invalidCredentials'));
+    // try/finally, because `login` can THROW as well as resolve unsuccessfully
+    // - a rejected network promise, a JSON parse failure on a captive-portal
+    // response. The unguarded await meant the spinner stayed on the button for
+    // ever with no error shown, and the form could not be resubmitted.
+    try {
+      const res = await login(email.trim().toLowerCase(), password);
+      if (!res.success) {
+        if (res.error === 'unverified') {
+          navigation.navigate('VerifyEmail', { email: email.trim().toLowerCase() });
+        } else {
+          setError(res.error || t('login.invalidCredentials'));
+        }
       }
+    } catch (e) {
+      console.error('Login failed', e);
+      setError(t('common.couldNotLoad'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,9 +125,23 @@ export const LoginScreen = () => {
         return;
       }
 
+      // A build whose Google client id is wrong is not a device without Play
+      // Services, and it must not be presented as one: the browser fallback
+      // will fail the same way, so silently opening it sends the reader
+      // through a second failure with no explanation. Say what happened and
+      // leave the email form, which does work, in front of them.
+      if (native.status === 'misconfigured') {
+        setError(t('common.googleUnavailable'));
+        return;
+      }
+
       // Native unavailable (no Play Services, client id not configured, etc.):
-      // Fallback directly to the browser Custom-Tab flow.
-      await Linking.openURL(`${getWebBaseUrl()}/auth/google/native`);
+      // fall back to the backend Custom-Tab flow, which returns via deeplink.
+      //
+      // openGoogleBrowserSignIn rather than opening the URL by hand: it stores
+      // the one-time nonce the deep link is checked against, and a redirect
+      // arriving without one cannot be told apart from a forged one.
+      await openGoogleBrowserSignIn();
     } catch {
       setError(t('login.couldNotOpenGoogle'));
     } finally {
@@ -177,6 +200,9 @@ export const LoginScreen = () => {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.closeBtn}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t('login.close')}
           onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] })}
         >
           <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
@@ -329,12 +355,26 @@ export const LoginScreen = () => {
         transparent
         onRequestClose={closeResetModal}
       >
+        {/* Three text fields and two buttons inside a centred card. With the
+            keyboard up, the card did not move: the code and new-password
+            fields sat behind it and the Reset button was off the bottom of the
+            screen, so the reset flow could be started and not finished. */}
+        <KeyboardAvoidingView
+          style={styles.modalFill}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={closeResetModal}
         >
           <TouchableWithoutFeedback>
+            <ScrollView
+              contentContainerStyle={styles.modalScroll}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{t('login.resetPassword')}</Text>
               {resetError ? (
@@ -422,8 +462,10 @@ export const LoginScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
+            </ScrollView>
           </TouchableWithoutFeedback>
         </TouchableOpacity>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
@@ -440,8 +482,8 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     alignItems: 'flex-end',
   },
   closeBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -581,11 +623,19 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
   },
+  modalFill: {
+    flex: 1,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: COLORS.scrim,
     justifyContent: 'center',
     paddingHorizontal: 24,
+  },
+  // Centred while it fits, scrollable once the keyboard takes the room.
+  modalScroll: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   modalContent: {
     backgroundColor: COLORS.surface,

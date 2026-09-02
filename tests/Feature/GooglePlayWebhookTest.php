@@ -6,6 +6,7 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -23,6 +24,10 @@ use Tests\TestCase;
  * DEFERRED and PAUSED were not handled at all and fell through to `default =>
  * null`, so a deferred renewal kept its stale end date and a paused
  * subscription stayed active indefinitely.
+ *
+ * The endpoint itself was also unauthenticated: Pub/Sub signs every push with
+ * an OIDC token, and nothing checked it, so anyone who knew the URL could
+ * expire or extend a subscription by POSTing a purchase token.
  */
 class GooglePlayWebhookTest extends TestCase
 {
@@ -33,11 +38,52 @@ class GooglePlayWebhookTest extends TestCase
     private const PAUSED = 10;
     private const REVOKED = 12;
     private const EXPIRED = 13;
+    private const RENEWED = 2;
+
+    private string $audience = 'https://kegelee.test/webhooks/google-play';
+
+    private string $serviceAccount = 'rtdn-push@kegelee.iam.gserviceaccount.com';
+
+    private string $package = 'com.kegeltrainer.app';
+
+    /** What Google's tokeninfo endpoint answers with. Tests change it in place. */
+    private array $tokenClaims = [];
+
+    private int $tokenStatus = 200;
+
+    /** What the Play Developer API answers a purchase lookup with. */
+    private array $playPurchase = [];
 
     protected function setUp(): void
     {
         parent::setUp();
         Mail::fake();
+
+        config([
+            'services.google_play.package_name' => $this->package,
+            'services.google_play.rtdn_audience' => $this->audience,
+            'services.google_play.rtdn_service_account' => $this->serviceAccount,
+        ]);
+
+        // The claims a genuine Pub/Sub push carries.
+        $this->tokenClaims = [
+            'iss' => 'https://accounts.google.com',
+            'aud' => $this->audience,
+            'email' => $this->serviceAccount,
+            'email_verified' => 'true',
+        ];
+
+        // Registered once and resolved per request, so a test can change the
+        // answer by assigning to the property. Calling Http::fake() a second
+        // time only APPENDS a stub, and the first match wins - so re-faking in
+        // a test would silently keep answering with these.
+        Http::fake([
+            'oauth2.googleapis.com/tokeninfo*' => fn () => Http::response($this->tokenClaims, $this->tokenStatus),
+            'androidpublisher.googleapis.com/*' => fn () => Http::response($this->playPurchase, 200),
+        ]);
+
+        // Skips the JWT signing path; there is no real service account here.
+        \Illuminate\Support\Facades\Cache::put('google_play_access_token', 'fake-token', 3500);
     }
 
     private function subscription(array $attrs = []): Subscription
@@ -66,18 +112,121 @@ class GooglePlayWebhookTest extends TestCase
         ], $attrs));
     }
 
-    private function notify(int $type, Subscription $sub)
+    private function payload(int $type, string $purchaseToken, ?int $eventTimeMs = null): array
     {
-        $payload = base64_encode(json_encode([
+        return [
+            'version' => '1.0',
+            'packageName' => $this->package,
+            'eventTimeMillis' => (string) ($eventTimeMs ?? now()->getTimestampMs()),
             'subscriptionNotification' => [
+                'version' => '1.0',
                 'notificationType' => $type,
-                'purchaseToken' => $sub->purchase_token,
+                'purchaseToken' => $purchaseToken,
                 'subscriptionId' => 'premium_monthly',
             ],
-        ]));
-
-        return $this->postJson('/webhooks/google-play', ['message' => ['data' => $payload]]);
+        ];
     }
+
+    /**
+     * Post a notification. $messageId is the Pub/Sub message id, which is what
+     * makes a redelivery recognisable as one.
+     */
+    private function pushNotification(array $payload, ?string $messageId = null, ?string $bearer = 'valid-push-token')
+    {
+        $headers = $bearer === null ? [] : ['Authorization' => 'Bearer ' . $bearer];
+
+        return $this->withHeaders($headers)->postJson('/webhooks/google-play', [
+            'message' => [
+                'messageId' => $messageId ?? ('msg-' . uniqid()),
+                'data' => base64_encode(json_encode($payload)),
+            ],
+        ]);
+    }
+
+    private function notify(int $type, Subscription $sub, ?int $eventTimeMs = null, ?string $messageId = null)
+    {
+        return $this->pushNotification($this->payload($type, $sub->purchase_token, $eventTimeMs), $messageId);
+    }
+
+    // ------------------------------------------------------------ authorization
+
+    public function test_a_push_without_a_token_is_rejected(): void
+    {
+        $sub = $this->subscription();
+
+        $this->pushNotification($this->payload(self::EXPIRED, $sub->purchase_token), bearer: null)
+            ->assertStatus(401);
+
+        $this->assertSame('active', $sub->fresh()->status);
+    }
+
+    public function test_a_token_google_will_not_vouch_for_is_rejected(): void
+    {
+        $this->tokenStatus = 400;
+
+        $sub = $this->subscription();
+
+        $this->notify(self::EXPIRED, $sub)->assertStatus(401);
+
+        $this->assertSame('active', $sub->fresh()->status);
+    }
+
+    /**
+     * A valid Google token is not enough: it has to be OUR push subscription's
+     * token. Any Google account can obtain one for some other audience.
+     */
+    public function test_a_token_for_another_audience_is_rejected(): void
+    {
+        $this->tokenClaims['aud'] = 'https://somebody-elses-app.example';
+
+        $sub = $this->subscription();
+
+        $this->notify(self::EXPIRED, $sub)->assertStatus(401);
+        $this->assertSame('active', $sub->fresh()->status);
+    }
+
+    public function test_a_token_from_another_service_account_is_rejected(): void
+    {
+        $this->tokenClaims['email'] = 'someone-else@example.iam.gserviceaccount.com';
+
+        $sub = $this->subscription();
+
+        $this->notify(self::EXPIRED, $sub)->assertStatus(401);
+        $this->assertSame('active', $sub->fresh()->status);
+    }
+
+    /**
+     * Unconfigured is our fault, not the caller's, and a 503 makes Pub/Sub hold
+     * the notification instead of discarding it.
+     */
+    public function test_unconfigured_authentication_refuses_the_notification(): void
+    {
+        config([
+            'services.google_play.rtdn_audience' => '',
+            'services.google_play.rtdn_service_account' => '',
+        ]);
+
+        $sub = $this->subscription();
+
+        $this->notify(self::EXPIRED, $sub)->assertStatus(503);
+
+        $this->assertSame('active', $sub->fresh()->status);
+    }
+
+    /** A notification about someone else's app changes nothing here. */
+    public function test_a_notification_for_another_package_is_ignored(): void
+    {
+        $sub = $this->subscription();
+
+        $payload = $this->payload(self::EXPIRED, $sub->purchase_token);
+        $payload['packageName'] = 'com.someone.else';
+
+        $this->pushNotification($payload)->assertOk();
+
+        $this->assertSame('active', $sub->fresh()->status);
+    }
+
+    // ------------------------------------------------------------ notification types
 
     /** Grace period keeps the user training: Google is still trying to charge. */
     public function test_grace_period_keeps_access(): void
@@ -91,6 +240,7 @@ class GooglePlayWebhookTest extends TestCase
         $this->assertSame('past_due', $sub->status);
         $this->assertTrue($sub->ends_at->equalTo($endsAt), 'grace must not move ends_at');
         $this->assertTrue($sub->isEntitled(), 'a grace period must keep access');
+        $this->assertSame('in_grace', $sub->store_state);
     }
 
     /** Account hold is the opposite, and used to share a line with grace. */
@@ -107,6 +257,7 @@ class GooglePlayWebhookTest extends TestCase
         );
         // Recoverable rather than final - RECOVERED restores it from the API.
         $this->assertSame('past_due', $sub->status);
+        $this->assertSame('on_hold', $sub->store_state);
     }
 
     /** Paused: billing stops at the end of the paid period, like a cancel. */
@@ -121,6 +272,8 @@ class GooglePlayWebhookTest extends TestCase
         $this->assertFalse((bool) $sub->auto_renewing);
         // Still inside the paid period, so still entitled until it runs out.
         $this->assertTrue($sub->isEntitled());
+        // The status is coarse; this is where a pause stays tellable.
+        $this->assertSame('paused', $sub->store_state);
     }
 
     /** A refund pulls access immediately, unlike a cancellation. */
@@ -153,16 +306,21 @@ class GooglePlayWebhookTest extends TestCase
      */
     public function test_an_unknown_purchase_token_is_accepted_quietly(): void
     {
-        $payload = base64_encode(json_encode([
-            'subscriptionNotification' => [
-                'notificationType' => self::EXPIRED,
-                'purchaseToken' => 'token-that-does-not-exist',
-                'subscriptionId' => 'premium_monthly',
-            ],
-        ]));
+        $this->pushNotification($this->payload(self::EXPIRED, 'token-that-does-not-exist'))->assertOk();
+    }
 
-        $this->postJson('/webhooks/google-play', ['message' => ['data' => $payload]])
-            ->assertOk();
+    /**
+     * And it must not be applied to whatever subscription the account happens
+     * to have instead.
+     */
+    public function test_an_unknown_token_never_touches_a_live_subscription(): void
+    {
+        $sub = $this->subscription();
+
+        $this->pushNotification($this->payload(self::EXPIRED, 'some-other-token'))->assertOk();
+
+        $this->assertSame('active', $sub->fresh()->status);
+        $this->assertTrue($sub->fresh()->isEntitled());
     }
 
     /** Replays must be safe: Pub/Sub delivers at least once, not exactly once. */
@@ -177,5 +335,84 @@ class GooglePlayWebhookTest extends TestCase
 
         $this->assertSame($first, $sub->fresh()->status);
         $this->assertFalse($sub->fresh()->isEntitled());
+    }
+
+    /**
+     * The same Pub/Sub message id is the same message, and the second copy must
+     * not be processed at all.
+     */
+    public function test_a_redelivered_message_id_is_dropped(): void
+    {
+        $sub = $this->subscription();
+
+        $this->notify(self::EXPIRED, $sub, messageId: 'msg-fixed')->assertOk();
+        $sub->refresh()->update(['status' => 'active', 'ends_at' => now()->addWeek()]);
+
+        $this->notify(self::EXPIRED, $sub, messageId: 'msg-fixed')->assertOk();
+
+        // Untouched: the redelivery was recognised, not re-applied.
+        $this->assertSame('active', $sub->fresh()->status);
+        $this->assertDatabaseCount('billing_webhook_events', 1);
+    }
+
+    /**
+     * Notifications are not ordered. An EXPIRATION that arrives after the
+     * renewal which superseded it must not expire a subscription the customer
+     * has already paid to continue.
+     */
+    public function test_an_out_of_order_expiry_is_ignored(): void
+    {
+        $sub = $this->subscription([
+            'last_event_at' => now(),
+            'ends_at' => now()->addMonth(),
+        ]);
+
+        $this->notify(self::EXPIRED, $sub, eventTimeMs: now()->subHour()->getTimestampMs())->assertOk();
+
+        $sub->refresh();
+        $this->assertSame('active', $sub->status);
+        $this->assertTrue($sub->isEntitled());
+    }
+
+    /** The newer one still applies, so the guard is a guard and not a wall. */
+    public function test_a_newer_notification_is_applied(): void
+    {
+        $sub = $this->subscription(['last_event_at' => now()->subDay()]);
+
+        $this->notify(self::EXPIRED, $sub, eventTimeMs: now()->getTimestampMs())->assertOk();
+
+        $this->assertSame('expired', $sub->fresh()->status);
+    }
+
+    /**
+     * A renewal re-reads the purchase, and a deferred plan change is exactly
+     * where the base plan on the row stops matching what Play is billing.
+     */
+    public function test_a_renewal_takes_the_plan_from_the_verified_purchase(): void
+    {
+        $this->seed(\Database\Seeders\PlanSeeder::class);
+
+        $monthly = Plan::where('slug', 'premium-monthly')->first();
+        $yearly = Plan::where('slug', 'premium-yearly')->first();
+        $sub = $this->subscription(['plan_id' => $monthly->id]);
+
+        $expiry = now()->addYear();
+
+        $this->playPurchase = [
+            'expiryTimeMillis' => (string) $expiry->getTimestampMs(),
+            'autoRenewing' => true,
+            'orderId' => 'GPA.9999',
+            'lineItems' => [[
+                'productId' => 'premium_monthly',
+                'offerDetails' => ['basePlanId' => 'p1y'],
+            ]],
+        ];
+
+        $this->notify(self::RENEWED, $sub)->assertOk();
+
+        $sub->refresh();
+        $this->assertSame($yearly->id, $sub->plan_id, 'the verified base plan names the plan, not the old row');
+        $this->assertSame('active', $sub->status);
+        $this->assertEqualsWithDelta($expiry->timestamp, $sub->ends_at->timestamp, 2);
     }
 }

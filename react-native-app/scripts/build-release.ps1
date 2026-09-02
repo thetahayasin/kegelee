@@ -62,7 +62,7 @@ if (-not $env:JAVA_HOME -or -not (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.
 # --- Warn if release signing is not configured ------------------------------
 $keystoreProps = Join-Path $AndroidDir 'keystore.properties'
 if (-not (Test-Path $keystoreProps)) {
-    Write-Warning "android/keystore.properties not found - the release will fall back to DEBUG signing."
+    Write-Warning "android/keystore.properties not found - the release build will FAIL."
     Write-Warning "Create it with the kegelee-release.keystore credentials to produce an uploadable build."
 }
 
@@ -72,13 +72,14 @@ node (Join-Path $ScriptDir 'patch-jcenter.js')
 if ($LASTEXITCODE -ne 0) { throw "patch-jcenter.js failed" }
 
 
-# --- 2. Version bump (unless suppressed) ------------------------------------
-if (-not $NoBump) {
-    Write-Step "Bumping Android version"
-    node (Join-Path $ScriptDir 'bump-version.js')
-    if ($LASTEXITCODE -ne 0) { throw "bump-version.js failed" }
-} else {
-    Write-Host "Skipping version bump (-NoBump)." -ForegroundColor DarkGray
+# --- 2. Version code ---------------------------------------------------------
+# Nothing to do. eas.json sets appVersionSource=remote with autoIncrement on the
+# production profile, so EAS owns versionCode - and a local script editing
+# build.gradle alongside it produced two counters that drifted apart, which is
+# how a build ended up with a version code Play had already seen. Local Gradle
+# builds are for testing and do not need a unique code.
+if ($NoBump) {
+    Write-Host "-NoBump is accepted for compatibility and does nothing; EAS owns the version code." -ForegroundColor DarkGray
 }
 
 # --- 3. Assemble via Gradle -------------------------------------------------

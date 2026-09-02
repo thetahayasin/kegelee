@@ -26,9 +26,17 @@ import {
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
-import { scheduleReminders, showTimePicker, isExactAlarmAllowed, openExactAlarmSettings, ReminderConfig } from '../../services/reminders';
+import {
+  scheduleReminders,
+  showTimePicker,
+  openNotificationSettings,
+  dbWeekdayToJs,
+  jsWeekdayToDb,
+  ReminderConfig,
+} from '../../services/reminders';
 import { syncNow } from '../../services/sync';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { track } from '../../services/events';
 
 // Last-resort labels only. The real ones come from Intl below, because
@@ -51,6 +59,24 @@ const WEEKDAYS_FALLBACK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const weekdayLabels = (locale: string): string[] => {
   try {
     const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    return Array.from({ length: 7 }, (_, i) =>
+      fmt.format(new Date(Date.UTC(2024, 0, 7 + i))),
+    );
+  } catch {
+    return WEEKDAYS_FALLBACK;
+  }
+};
+
+/**
+ * The same seven days, spelled out, for the accessibility label.
+ *
+ * "Mon" read aloud is not a word. The visible chip has to stay three
+ * characters wide to fit seven across a phone, so the long name goes on the
+ * label instead of into the layout.
+ */
+const fullWeekdayLabels = (locale: string): string[] => {
+  try {
+    const fmt = new Intl.DateTimeFormat(locale, { weekday: 'long' });
     return Array.from({ length: 7 }, (_, i) =>
       fmt.format(new Date(Date.UTC(2024, 0, 7 + i))),
     );
@@ -85,6 +111,8 @@ export const ScheduleScreen = () => {
    * elements, and pointing at a spinner spotlights nothing.
    */
   const [showTour, setShowTour] = useState(false);
+  /** Whether this mount has already opened (or completed) the tour. */
+  const tourHandledRef = useRef(false);
   const tourRemindersRef = useRef<View>(null);
   const tourCalendarRef = useRef<View>(null);
   // The month grid can fall below the fold on shorter screens.
@@ -98,8 +126,8 @@ export const ScheduleScreen = () => {
    * subscribe sheet, all the auth screens - says it inline. This tab alone
    * used Alert.alert, so the same class of information arrived in two
    * entirely different shapes depending on which screen you were on, and the
-   * more interruptive of the two was being spent on "saved". The exact-alarm
-   * prompt comes through here too, with an action.
+   * more interruptive of the two was being spent on "saved". The
+   * notifications-are-off notice comes through here too, with an action.
    *
    * It once held resolved strings - `text: t(...)` - which pins them to
    * whatever language was active at the moment of the save. Change language in
@@ -108,7 +136,12 @@ export const ScheduleScreen = () => {
    * card in each language. Keys go in state; t() belongs in render.
    */
   const [notice, setNotice] = useState<
-    'saved' | 'savedNeedsExact' | 'timeLimit' | 'saveFailed' | null
+    | 'saved'
+    | 'remindersOff'
+    | 'notificationsOff'
+    | 'timeLimit'
+    | 'saveFailed'
+    | null
   >(null);
 
   const loadData = async () => {
@@ -129,12 +162,16 @@ export const ScheduleScreen = () => {
       const pos = getPosition(user, trainingDays);
       setPosition(pos);
 
-      // Build 30 calendar days
+      // Build the month's 30 cells.
+      //
+      // Month-RELATIVE. `pos.completed` is a lifetime count, so from the
+      // second month on it was >= 30 and every cell in the grid came up
+      // already ticked, including the ones still ahead of the reader.
       const days = [];
       for (let d = 1; d <= pos.plan_length; d++) {
         days.push({
           n: d,
-          done: d <= pos.completed,
+          done: d <= pos.completed_in_month,
           today: d === pos.day,
         });
       }
@@ -148,7 +185,7 @@ export const ScheduleScreen = () => {
       // Populate config state
       const activeDays = localReminders
         .filter((r) => r.is_enabled === 1)
-        .map((r) => (r.weekday === 6 ? 0 : r.weekday + 1));
+        .map((r) => dbWeekdayToJs(r.weekday));
       setSelectedDays(activeDays);
 
       // Find default times
@@ -159,7 +196,11 @@ export const ScheduleScreen = () => {
       }
       // Runs for everybody now - see the note on the progress tab. The
       // schedule is visible to a free account; only saving is not.
-      if (user && !(await hasSeenTour('schedule', user.id))) {
+      // Guarded on a ref as well as on the stored flag: loadData runs on
+      // every focus, and the flag is only written when the tour is DISMISSED,
+      // so leaving the tab mid-tour and returning restarted it from step one.
+      if (user && !tourHandledRef.current && !(await hasSeenTour('schedule', user.id))) {
+        tourHandledRef.current = true;
         setShowTour(true);
       }
     } catch (e) {
@@ -211,13 +252,17 @@ export const ScheduleScreen = () => {
     if (!user) return;
     setSavingReminders(true);
     try {
+      // No day selected is not a save, it is a switch-off. The rows are still
+      // written (all seven disabled) and still synced, but the confirmation
+      // has to say what actually happened: "Reminders saved" over an empty
+      // week promised a nudge that was never going to arrive.
+      const turningOff = selectedDays.length === 0;
       // Loop through all 7 days of the week
       const reminderConfigs: ReminderConfig[] = [];
       for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
         const isEnabled = selectedDays.includes(dayIndex);
 
-        // Convert JS/UI index (0 = Sunday) to DB index (0 = Monday)
-        const dbWeekday = dayIndex === 0 ? 6 : dayIndex - 1;
+        const dbWeekday = jsWeekdayToDb(dayIndex);
 
         // Save to SQLite
         await saveReminder(user.id, dbWeekday, times, isEnabled ? 1 : 0, 0); // synced = 0
@@ -229,16 +274,22 @@ export const ScheduleScreen = () => {
         });
       }
 
-      // Schedule alarms using Notifee helper (exact when permitted, else inexact).
-      const exactOk = await isExactAlarmAllowed();
-      await scheduleReminders(reminderConfigs, { requestPermission: true });
+      // Schedule via the Notifee helper. Always an inexact, Doze-friendly
+      // alarm on Android 12+ now: the exact-alarm permissions were taken out
+      // of the manifest because Play does not accept training reminders as a
+      // justification for them.
+      const scheduleRes = await scheduleReminders(reminderConfigs, {
+        requestPermission: true,
+        // Attributes the permission answer to the person being asked; the
+        // event itself is recorded inside scheduleReminders, at the dialog.
+        userId: user.id,
+      });
       // How many days and times, not which - the shape of the commitment is
       // what predicts whether someone keeps training; the specific hours are
       // their business.
-      track(user?.id, 'reminders_set', null, {
+      track(user?.id, 'reminders_set', null, null, {
         days: selectedDays.length,
         timesPerDay: times.length,
-        exactAlarms: exactOk,
       });
 
       setRemindersModalVisible(false);
@@ -247,15 +298,24 @@ export const ScheduleScreen = () => {
       // Trigger background sync to backup to Laravel backend
       syncNow(user.id).catch(() => {});
 
-      // Saved either way - the exact-alarm permission changes the punctuality
-      // of the reminders, not whether they exist. So the confirmation is the
-      // same sentence in both branches; only the follow-up differs.
+      // A refused notification permission outranks everything else: nothing
+      // will be delivered at all, so "Reminders saved" would be a promise the
+      // app cannot keep. Otherwise the only distinction left is whether any
+      // day was actually picked.
       //
-      // Android 12+ needs the "Alarms & reminders" special access for on-time
-      // delivery. Without it reminders still fire, just a few minutes late,
-      // which is why this offers a route to the setting rather than blocking
-      // on it.
-      setNotice(exactOk ? 'saved' : 'savedNeedsExact');
+      // There is no longer an exact-alarm branch. The app used to offer a
+      // route to the "Alarms & reminders" special access when it was not
+      // granted; that permission is gone from the manifest, so the offer would
+      // now send the reader to a setting this app does not appear in. The
+      // reminders arrive within a few minutes of the time either way, which
+      // for a twice-a-day habit prompt is not worth a screen of explanation.
+      setNotice(
+        scheduleRes.permission === 'denied'
+          ? 'notificationsOff'
+          : turningOff
+            ? 'remindersOff'
+            : 'saved',
+      );
     } catch (e) {
       console.error(e);
       setNotice('saveFailed');
@@ -304,7 +364,7 @@ export const ScheduleScreen = () => {
               return;
             }
             track(user?.id, 'lock_tapped', 'reminders');
-            navigation.navigate('Paywall');
+            navigation.navigate('Paywall', { source: 'reminders' });
           }}
         >
           <View style={styles.bellIconContainer}>
@@ -321,15 +381,12 @@ export const ScheduleScreen = () => {
                 : t('schedule.setTimesForYourWeek')}
             </Text>
           </View>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+          <Chevron size={18} color={COLORS.textMuted} />
         </TouchableOpacity>
         </View>
 
-        {/* Confirmations, validation and the exact-alarm ask, in the page
-            and built like every other card on it - same 16pt gutter, same
-            surface, same radius. The first version was full-bleed accent
+        {/* Confirmations and validation, in the page and built like every
+            other card on it - same 16pt gutter, same surface, same radius. The first version was full-bleed accent
             green, so the one new element on the screen was both wider than
             everything around it and the only thing wearing the accent as a
             background. Colour now carries meaning in one small mark and the
@@ -338,37 +395,42 @@ export const ScheduleScreen = () => {
           (() => {
             // Resolved HERE, every render, so a language change reaches the
             // whole card instead of only the parts drawn inline.
-            //
-            // savedNeedsExact uses allowExactBody alone: that string already
-            // opens with "Your reminders are set", so pairing it with
-            // remindersSavedBody said the same thing twice in a row.
-            const isError = notice === 'timeLimit' || notice === 'saveFailed';
-            const needsExact = notice === 'savedNeedsExact';
+            const isError =
+              notice === 'timeLimit'
+              || notice === 'saveFailed'
+              || notice === 'notificationsOff';
+            const notificationsOff = notice === 'notificationsOff';
+            // The only notice that carries an action, so it is the only one
+            // not dismissed by a tap on the card itself.
+            const hasActions = notificationsOff;
             const text =
               notice === 'saved'
                 ? t('schedule.remindersSavedBody')
-                : needsExact
-                  ? t('schedule.allowExactBody')
-                  : notice === 'timeLimit'
-                    ? t('schedule.limitReachedBody')
-                    : t('schedule.failedToSaveReminders');
+                : notificationsOff
+                  ? t('reminders.notificationsOffBody')
+                  : notice === 'remindersOff'
+                    ? t('schedule.remindersTurnedOffBody')
+                    : notice === 'timeLimit'
+                      ? t('schedule.limitReachedBody')
+                      : t('schedule.failedToSaveReminders');
             return (
               <TouchableOpacity
                 style={styles.notice}
-                activeOpacity={needsExact ? 1 : 0.85}
-                onPress={needsExact ? undefined : () => setNotice(null)}
-                accessibilityRole={needsExact ? 'text' : 'button'}
+                activeOpacity={hasActions ? 1 : 0.85}
+                onPress={hasActions ? undefined : () => setNotice(null)}
+                accessibilityRole={hasActions ? 'text' : 'button'}
                 accessibilityLabel={text}
               >
                 <View style={styles.noticeRow}>
                   <View style={[styles.noticeDot, isError && styles.noticeDotError]} />
                   <Text style={styles.noticeText}>{text}</Text>
                 </View>
-                {/* Buttons only when there is a real choice to make. "Not
-                    now" under "Reminders saved" would be answering a
-                    question nobody asked - a plain confirmation just needs a
-                    way to go away, and the card itself is that. */}
-                {needsExact && (
+                {/* Buttons only when there is somewhere to go. "Not now"
+                    under "Reminders saved" would be answering a question
+                    nobody asked - a plain confirmation just needs a way to go
+                    away, and the card itself is that. Turned-off
+                    notifications are the one case with a real destination. */}
+                {hasActions && (
                   <View style={styles.noticeActions}>
                     <TouchableOpacity
                       style={styles.noticeDismissBtn}
@@ -379,8 +441,8 @@ export const ScheduleScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.noticeActionBtn}
-                      onPress={() => openExactAlarmSettings()}
                       accessibilityRole="button"
+                      onPress={() => openNotificationSettings()}
                     >
                       <Text style={styles.noticeActionText}>
                         {t('schedule.openSettings')}
@@ -449,6 +511,9 @@ export const ScheduleScreen = () => {
               <View style={styles.modalHeader}>
                 <TouchableOpacity
                   style={styles.modalCloseBtn}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.close')}
                   onPress={() => setRemindersModalVisible(false)}
                 >
                   <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
@@ -456,7 +521,7 @@ export const ScheduleScreen = () => {
                   </Svg>
                 </TouchableOpacity>
                 <Text style={styles.modalTitle}>{t('schedule.reminders')}</Text>
-                <View style={{ width: 32 }} />
+                <View style={{ width: 44 }} />
               </View>
 
               <ScrollView contentContainerStyle={styles.modalScroll}>
@@ -470,6 +535,9 @@ export const ScheduleScreen = () => {
                         <TouchableOpacity
                           key={i}
                           style={[styles.weekdayBtn, active && styles.weekdayBtnActive]}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: active }}
+                          accessibilityLabel={fullWeekdayLabels(i18n.language)[i]}
                           onPress={() => toggleDay(i)}
                         >
                           <Text style={[styles.weekdayBtnText, active && styles.weekdayBtnTextActive]}>
@@ -520,6 +588,9 @@ export const ScheduleScreen = () => {
                         {times.length > 1 && (
                           <TouchableOpacity
                             style={styles.timeRemoveBtn}
+                            hitSlop={8}
+                            accessibilityRole="button"
+                            accessibilityLabel={t('schedule.removeTimeA11y', { time })}
                             onPress={() => removeTime(idx)}
                           >
                             <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -563,6 +634,7 @@ export const ScheduleScreen = () => {
         }
         onDone={(completed) => {
           setShowTour(false);
+          tourHandledRef.current = true;
           if (user) markTourSeen('schedule', user.id, completed);
         }}
       />
@@ -786,8 +858,10 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     borderBottomColor: COLORS.border,
   },
   modalCloseBtn: {
-    width: 32,
-    height: 32,
+    // 44 is the smallest target a finger reliably hits; hitSlop covers the
+    // rest where the visual mark has to stay small.
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -871,9 +945,9 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     fontWeight: '600',
   },
   timeRemoveBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: COLORS.surface2,
     justifyContent: 'center',
     alignItems: 'center',

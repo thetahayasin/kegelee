@@ -26,13 +26,15 @@ import { formatSubscriptionDate } from '../../utils/localDate';
 import { getPosition, getTodayProgress, getStreak } from '../../services/progression';
 import {
   EXERCISES,
+  exerciseGateState,
+  FREE_DAY_CAP,
   LEVELS,
   exerciseNameKey,
   levelNameKey,
-  isFreeExercise,
 } from '../../constants/catalogues';
 import { syncNow, syncIfStale } from '../../services/sync';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 
 // strokeDashoffset is an SVG attribute the native driver cannot carry, so
 // this arc is JS-driven - the same trade the workout ring makes.
@@ -77,6 +79,8 @@ export const TrainingScreen = () => {
   // Whether a load has ever succeeded, so a failed background refresh can be
   // told apart from a cold screen with nothing on it.
   const hasDataRef = useRef(false);
+  /** Whether this mount has already opened (or completed) the tour. */
+  const tourHandledRef = useRef(false);
 
   /**
    * The first-entry tour, shown once after the subscription gate opens.
@@ -151,27 +155,17 @@ export const TrainingScreen = () => {
 
       setBestMeasurement(best > 0 ? best : null);
 
-      // Map exercises. Admins bypass the day-gating and get the full catalogue.
-      //
-      // Two different locks, and they must not be confused. A day lock is a
-      // countdown that ends by itself. A subscription lock never does: a free
-      // account's day count stops at FREE_DAY_CAP, so telling it "2 days left"
-      // on the fourth exercise would be a countdown to a date that never
-      // arrives. Anything past the free three is marked as held by the
-      // subscription and says so.
-      const exList = Object.values(EXERCISES).map((ex) => {
-        const subLocked = !subscribed && !user.is_admin && !isFreeExercise(ex.slug);
-        const unlocked =
-          user.is_admin || (!subLocked && pos.completed >= ex.unlock_after_days);
-        const daysLeft =
-          unlocked || subLocked ? 0 : Math.max(0, ex.unlock_after_days - pos.completed);
-        return {
-          ...ex,
-          unlocked,
-          subLocked,
-          daysLeft,
-        };
-      });
+      // Map exercises. The two locks and the reasoning behind them live in
+      // exerciseGateState now - this screen, the full catalogue and the
+      // completion screen each had their own copy and they had already
+      // drifted.
+      const exList = Object.values(EXERCISES).map((ex) => ({
+        ...ex,
+        ...exerciseGateState(ex, pos.completed, {
+          subscribed,
+          isAdmin: !!user.is_admin,
+        }),
+      }));
       setExerciseItems(exList);
 
       // Subscription notice. Read here rather than in its own effect so it
@@ -204,7 +198,12 @@ export const TrainingScreen = () => {
       hasDataRef.current = true;
       setLoadFailed(false);
 
-      if (!(await hasSeenTour('home', user.id))) {
+      // Guarded on a ref, not only on the stored flag. loadData runs on every
+      // focus and after every pull-to-refresh, and the flag is only written
+      // when the tour is DISMISSED - so leaving the tab mid-tour and coming
+      // back re-opened it from step one, on top of the tour already running.
+      if (!tourHandledRef.current && !(await hasSeenTour('home', user.id))) {
+        tourHandledRef.current = true;
         setShowTour(true);
       }
     } catch (e) {
@@ -270,10 +269,10 @@ export const TrainingScreen = () => {
   // A subscription lock has no distance to show, so the bar would read 0%
   // forever. The card keeps its place and names the reward; only the measure
   // of progress and the countdown are replaced by the way to get it.
-  const unlockPct =
-    nextUnlock && !nextUnlock.subLocked && nextUnlock.unlock_after_days
-      ? Math.min(100, Math.round((completedDays / nextUnlock.unlock_after_days) * 100))
-      : 0;
+  const unlockPct = nextUnlock && !nextUnlock.subLocked ? nextUnlock.progressPercent : 0;
+
+  /** A free account whose plan has stopped moving - see the hero note below. */
+  const freeCapReached = !subscribed && !user?.is_admin && completedDays >= FREE_DAY_CAP;
   const sessionLength = t('training.minutes', {
     count: levelDef ? Math.floor(levelDef.total_session_seconds / 60) : 1,
   });
@@ -332,7 +331,11 @@ export const TrainingScreen = () => {
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <Watermark />
         <View style={styles.errorWrap}>
-          <Text style={styles.errorText}>{t('errorBoundary.theAppHitAnUnexpected')}</Text>
+          {/* Its own copy, not the crash handler's. This is a load that did
+              not come back, which is almost always the network - and telling
+              somebody the app hit an unexpected error, when the honest answer
+              is that their phone is offline, sends them looking for a bug. */}
+          <Text style={styles.errorText}>{t('common.couldNotLoad')}</Text>
           <TouchableOpacity
             style={styles.errorRetryBtn}
             accessibilityRole="button"
@@ -412,7 +415,7 @@ export const TrainingScreen = () => {
               <TouchableOpacity
                 style={styles.subNoticeBtn}
                 accessibilityRole="button"
-                onPress={() => navigation.navigate('Paywall')}
+                onPress={() => navigation.navigate('Paywall', { source: 'renew' })}
               >
                 <Text style={styles.subNoticeBtnText}>{t('settings.subscribe')}</Text>
               </TouchableOpacity>
@@ -475,9 +478,20 @@ export const TrainingScreen = () => {
               </View>
             </View>
 
-            <Text style={styles.heroOverline}>
-              {t('training.monthDay', { month, day })}
-            </Text>
+            {/* Two strings and a real separator View, not one string with
+                three hard spaces baked into it. The spacing was part of the
+                translation, so every locale had to reproduce it by hand, it
+                could not respond to the font scale, and a translator who used
+                a normal space got a visibly different layout. */}
+            <View style={styles.heroOverlineRow}>
+              <Text style={styles.heroOverline}>
+                {t('training.monthLabel', { month })}
+              </Text>
+              <Text style={styles.heroOverlineDivider}>/</Text>
+              <Text style={styles.heroOverline}>
+                {t('training.dayLabel', { day })}
+              </Text>
+            </View>
             <Text style={styles.heroHeadline}>
               {complete ? t('training.todayIsDone') : t('training.readyWhenYouAre')}
             </Text>
@@ -585,6 +599,27 @@ export const TrainingScreen = () => {
                 ? t('training.extraSessionsOptional')
                 : t('training.sessionsCompleteToday', { count: required })}
             </Text>
+
+            {/* A free account that has spent its allowance.
+                Every further session is recorded but the day count no longer
+                moves, so the ring, the plan position and the next unlock all
+                sit still and nothing on the screen said why. One line that
+                names the boundary, and the way past it. Never a wall: the
+                Start button above is untouched and training stays free. */}
+            {freeCapReached && (
+              <View style={styles.freeCapRow}>
+                <Text style={styles.freeCapText}>
+                  {t('training.freeCapReached', { day: FREE_DAY_CAP })}
+                </Text>
+                <TouchableOpacity
+                  style={styles.freeCapBtn}
+                  accessibilityRole="button"
+                  onPress={() => navigation.navigate('Paywall', { source: 'training' })}
+                >
+                  <Text style={styles.freeCapBtnText}>{t('training.freeCapCta')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
 
@@ -602,7 +637,7 @@ export const TrainingScreen = () => {
             activeOpacity={nextUnlock.subLocked ? 0.85 : 1}
             disabled={!nextUnlock.subLocked}
             accessibilityRole={nextUnlock.subLocked ? 'button' : undefined}
-            onPress={() => navigation.navigate('Paywall')}
+            onPress={() => navigation.navigate('Paywall', { source: 'exercise' })}
           >
             <View style={styles.unlockArt}>
               <EquipmentIcon slug={nextUnlock.slug} size={44} />
@@ -650,9 +685,7 @@ export const TrainingScreen = () => {
             onPress={() => navigation.navigate('AllExercises')}
           >
             <Text style={styles.seeAllText}>{t('training.seeAll')}</Text>
-            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-              <Path d="M9 6l6 6-6 6" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
+            <Chevron color={COLORS.textMuted} />
           </TouchableOpacity>
         </View>
 
@@ -676,7 +709,7 @@ export const TrainingScreen = () => {
               style={styles.exerciseCell}
               onPress={() =>
                 ex.subLocked
-                  ? navigation.navigate('Paywall')
+                  ? navigation.navigate('Paywall', { source: 'exercise' })
                   : navigation.navigate('ExerciseDetail', {
                       slug: ex.slug,
                       unlocked: ex.unlocked,
@@ -763,9 +796,7 @@ export const TrainingScreen = () => {
                 : t('training.measureDaily')}
             </Text>
           </View>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-            <Path d="M9 5l7 7-7 7" stroke={COLORS.textDim} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+          <Chevron size={18} color={COLORS.textDim} />
         </TouchableOpacity>
       </ScrollView>
 
@@ -787,6 +818,7 @@ export const TrainingScreen = () => {
         }
         onDone={(completed) => {
           setShowTour(false);
+          tourHandledRef.current = true;
           if (user) markTourSeen('home', user.id, completed);
         }}
       />
@@ -795,6 +827,41 @@ export const TrainingScreen = () => {
 };
 
 const makeStyles = (COLORS: Palette) => StyleSheet.create({
+  heroOverlineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: SPACE.xl,
+  },
+  heroOverlineDivider: {
+    ...TYPE.overline,
+    color: COLORS.textDim,
+  },
+  freeCapRow: {
+    marginTop: 14,
+    alignItems: 'center',
+    gap: 10,
+  },
+  freeCapText: {
+    fontSize: 13,
+    lineHeight: 19,
+    textAlign: 'center',
+    color: COLORS.textMuted,
+  },
+  freeCapBtn: {
+    minHeight: 44,
+    paddingHorizontal: 22,
+    borderRadius: 14,
+    backgroundColor: COLORS.surface2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  freeCapBtnText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.accentText,
+  },
   unlockCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -889,7 +956,7 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   ringSlash: { color: COLORS.textDim, fontWeight: '800' },
   ringTotal: { color: COLORS.textMuted, fontWeight: '800' },
   ringLabel: { ...TYPE.overline, fontSize: 10, color: COLORS.textDim, marginTop: 3 },
-  heroOverline: { ...TYPE.overline, color: COLORS.textDim, marginTop: SPACE.xl },
+  heroOverline: { ...TYPE.overline, color: COLORS.textDim },
   heroHeadline: { ...TYPE.heading, color: COLORS.white, marginTop: 6 },
   streakPill: {
     flexDirection: 'row',

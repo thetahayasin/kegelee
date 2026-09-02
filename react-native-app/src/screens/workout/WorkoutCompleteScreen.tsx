@@ -27,11 +27,11 @@ import {
   levelNameKey,
   FREE_DAY_CAP,
   unlockedAtDay,
-  isFreeExercise,
+  exerciseGateState,
 } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import { getReminders, saveReminder } from '../../db/queries';
-import { scheduleReminders } from '../../services/reminders';
+import { openNotificationSettings, scheduleReminders } from '../../services/reminders';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -42,6 +42,17 @@ import Svg, { Circle, Path } from 'react-native-svg';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 import { Watermark } from '../../components/Watermark';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
+
+/** Enough shape for the celebration to render when the figures cannot be read. */
+const FALLBACK_POSITION = {
+  month: 1,
+  day: 1,
+  plan_length: 30,
+  completed: 0,
+  completed_in_month: 0,
+  days_left: 30,
+};
+const FALLBACK_PROGRESS = { done: 1, required: 2, complete: false };
 
 const COMPLETED_CIRCLE_SIZE = 208;
 const COMPLETED_R = 98;
@@ -58,6 +69,10 @@ export const WorkoutCompleteScreen = () => {
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState<any>(null);
   const [progress, setProgress] = useState<any>(null);
+  // Figures could not be read. The session still happened, so this hides the
+  // panels that would otherwise state numbers nobody verified, rather than
+  // replacing the whole screen with an apology.
+  const [loadFailed, setLoadFailed] = useState(false);
 
   // Both animations are JS-driven. strokeDashoffset forces it for the ring,
   // and the tick follows suit rather than mixing drivers - separate nodes make
@@ -96,6 +111,7 @@ export const WorkoutCompleteScreen = () => {
   const [offerReminders, setOfferReminders] = useState(false);
   const [savingReminders, setSavingReminders] = useState(false);
   const [remindersSaved, setRemindersSaved] = useState(false);
+  const [remindersDenied, setRemindersDenied] = useState(false);
 
   // Asked at most once per account. A prompt that returns after every session
   // until it gets the answer it wants is nagging, not offering.
@@ -116,14 +132,22 @@ export const WorkoutCompleteScreen = () => {
       // Requests notification permission itself, which is the whole point of
       // asking here: the system dialog now follows a tap that plainly means
       // "yes, remind me" instead of arriving cold at sign-in.
-      await scheduleReminders(
+      const res = await scheduleReminders(
         Array.from({ length: 7 }, (_, weekday) => ({
           weekday,
           times: DEFAULT_REMINDER_TIMES,
           isEnabled: true,
         })),
-        { requestPermission: true },
+        // userId so the permission answer can be attributed: scheduleReminders
+        // records notification_permission itself, at the one moment the system
+        // dialog is actually shown.
+        { requestPermission: true, userId: user.id },
       );
+      // A refusal is not a save. The card used to say "Reminders set" either
+      // way, so someone who declined the system dialog was told the one
+      // mechanism that brings them back was on when it was not, and would only
+      // find out by never being reminded.
+      setRemindersDenied(res.permission === 'denied');
       setRemindersSaved(true);
       syncNow(user.id).catch(() => {});
     } catch (e) {
@@ -142,8 +166,12 @@ export const WorkoutCompleteScreen = () => {
   };
 
   const loadData = async () => {
-    if (!user) return;
     try {
+      // Inside the try, not before it. `if (!user) return` skipped the finally
+      // as well, so a screen reached without a user sat on the spinner for
+      // ever - with no header, no button and nothing but the system back
+      // gesture to leave with.
+      if (!user) throw new Error('No signed-in user on the completion screen');
       const db = await getDBConnection();
 
       // 1. Fetch training days to compute position and progress
@@ -161,13 +189,19 @@ export const WorkoutCompleteScreen = () => {
       setPosition(pos);
       setProgress(prog);
 
-      // Build 7 calendar days centered around today
+      // Build 7 calendar days centered around today.
+      //
+      // Month-RELATIVE throughout. `pos.day` restarts at each 30-day boundary
+      // but `pos.completed` is lifetime, so comparing the two marked every
+      // cell in month 2 as already done: the strip came up entirely ticked,
+      // including days in the future, from the first session of the second
+      // month onwards.
       const startDay = Math.max(1, pos.day - 4);
       const daysList = [];
       for (let d = startDay; d <= Math.min(pos.plan_length, startDay + 6); d++) {
         daysList.push({
           n: d,
-          done: d <= pos.completed,
+          done: d <= pos.completed_in_month,
           today: d === pos.day,
         });
       }
@@ -221,7 +255,16 @@ export const WorkoutCompleteScreen = () => {
         // Never let the offer's own bookkeeping break the completion screen.
       }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to load the completion screen', e);
+      // The session HAS been recorded by this point - that happens on the
+      // workout screen, before this one is even reached. So the celebration
+      // is true whether or not the figures behind it loaded, and a spinner
+      // that never resolves is both wrong and a trap. Show the work that was
+      // done, drop the panels that need data, and keep Continue working.
+      setLoadFailed(true);
+      setPosition((prev: any) => prev ?? FALLBACK_POSITION);
+      setProgress((prev: any) => prev ?? FALLBACK_PROGRESS);
+      setCalendarDays([]);
     } finally {
       setLoading(false);
     }
@@ -281,6 +324,15 @@ export const WorkoutCompleteScreen = () => {
       }
 
       if (nextLvl !== user.level_id) {
+        // Direction as the subject, and WHERE the change came from as the
+        // detail. The same event is written by the level picker in Profile and
+        // by the server when a lapsed account is reset, so without the detail
+        // "levels went down this week" could not be told apart from a support
+        // problem or from people choosing an easier plan themselves.
+        track(user.id, 'level_changed', nextLvl > user.level_id ? 'up' : 'down', 'feedback', {
+          from: user.level_id,
+          to: nextLvl,
+        });
         await updateUserFields({ level_id: nextLvl });
       }
 
@@ -340,13 +392,18 @@ export const WorkoutCompleteScreen = () => {
     };
   }, [progress, ringAnim, tickAnim]);
 
-  if (loading || !position || !progress) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.accent} />
       </SafeAreaView>
     );
   }
+
+  // Belt to the fallbacks the catch above installs: the screen renders with
+  // what is known rather than falling back to a spinner it can never leave.
+  const pos = position ?? FALLBACK_POSITION;
+  const prog = progress ?? FALLBACK_PROGRESS;
 
   /**
    * What THIS session opened - not what happens to be open.
@@ -361,8 +418,8 @@ export const WorkoutCompleteScreen = () => {
    */
   const justUnlocked =
     !user?.is_admin &&
-    progress.complete &&
-    progress.done === progress.required
+    prog.complete &&
+    prog.done === prog.required
       ? unlockedNow
       : [];
 
@@ -375,7 +432,7 @@ export const WorkoutCompleteScreen = () => {
    * out, once the work is done, rather than as a panel sitting on the screen
    * contradicting the words "Training Day Complete" while they read it.
    */
-  const freeAllowanceSpent = !subscribed && position.completed >= FREE_DAY_CAP;
+  const freeAllowanceSpent = !subscribed && pos.completed >= FREE_DAY_CAP;
 
   /**
    * Whether the next exercise is held by the SUBSCRIPTION rather than by days.
@@ -383,13 +440,14 @@ export const WorkoutCompleteScreen = () => {
    * Admins excepted, and free exercises excepted: the third one still arrives
    * on a day count a free account can actually reach.
    */
-  const nextUnlockLocked =
-    !!nextUnlock && !subscribed && !user?.is_admin && !isFreeExercise(nextUnlock.slug);
-
-  // Generate unlock percentage progress
-  const unlockPct = nextUnlock
-    ? Math.min(100, Math.round((position.completed / nextUnlock.unlock_after_days) * 100))
-    : 0;
+  const nextGate = nextUnlock
+    ? exerciseGateState(nextUnlock, pos.completed, {
+        subscribed,
+        isAdmin: !!user?.is_admin,
+      })
+    : null;
+  const nextUnlockLocked = !!nextGate?.subLocked;
+  const unlockPct = nextGate?.progressPercent ?? 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -459,8 +517,8 @@ export const WorkoutCompleteScreen = () => {
           </View>
           <Text style={styles.badgeCountText}>
             {t('workoutComplete.sessionsToday', {
-              done: progress.done,
-              required: progress.required,
+              done: prog.done,
+              required: prog.required,
             })}
           </Text>
         </View>
@@ -468,9 +526,9 @@ export const WorkoutCompleteScreen = () => {
         {/* Title */}
         <View style={styles.titleContainer}>
           <Text style={styles.completeTitle}>
-            {progress.complete
+            {prog.complete
               ? t('workoutComplete.trainingDayComplete')
-              : progress.done > progress.required
+              : prog.done > prog.required
               ? t('workoutComplete.extraSessionDone')
               : t('workoutComplete.sessionComplete')}
           </Text>
@@ -501,7 +559,7 @@ export const WorkoutCompleteScreen = () => {
               style={styles.feedbackBanner}
               accessibilityRole="button"
               activeOpacity={0.85}
-              onPress={() => navigation.navigate('Paywall')}
+              onPress={() => navigation.navigate('Paywall', { source: 'difficulty' })}
             >
               <Text style={styles.feedbackBannerText}>{feedbackMessage}</Text>
             </TouchableOpacity>
@@ -516,7 +574,25 @@ export const WorkoutCompleteScreen = () => {
             times; the Schedule tab remains the place to change any of it. */}
         {offerReminders && (
           <View style={styles.reminderCard}>
-            {remindersSaved ? (
+            {remindersSaved && remindersDenied ? (
+              <>
+                <Text style={styles.reminderTitle}>
+                  {t('reminders.notificationsOffTitle')}
+                </Text>
+                <Text style={styles.reminderBody}>
+                  {t('reminders.notificationsOffBody')}
+                </Text>
+                <TouchableOpacity
+                  style={styles.reminderAcceptBtn}
+                  accessibilityRole="button"
+                  onPress={openNotificationSettings}
+                >
+                  <Text style={styles.reminderAcceptText} numberOfLines={1}>
+                    {t('schedule.openSettings')}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : remindersSaved ? (
               <View style={styles.reminderSavedRow}>
                 <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
                   <Path
@@ -569,12 +645,15 @@ export const WorkoutCompleteScreen = () => {
           </View>
         )}
 
-        {/* Month Calendar strip */}
+        {/* Month Calendar strip. Dropped entirely when the figures could not
+            be read - an empty strip under a month heading states something
+            false about the plan. */}
+        {!loadFailed && (
         <View style={styles.calendarCard}>
           <View style={styles.calendarHeader}>
-            <Text style={styles.monthLabel}>{t('workoutComplete.monthNumber', { number: position.month })}</Text>
+            <Text style={styles.monthLabel}>{t('workoutComplete.monthNumber', { number: pos.month })}</Text>
             <Text style={styles.planProgressText}>
-              {position.completed}/{position.plan_length}
+              {pos.completed_in_month}/{pos.plan_length}
             </Text>
           </View>
           <View style={styles.calendarStrip}>
@@ -604,6 +683,7 @@ export const WorkoutCompleteScreen = () => {
             ))}
           </View>
         </View>
+        )}
 
         {/* New exercise unlocked indicator (admins have everything unlocked) */}
         {justUnlocked.length > 0 && (
@@ -621,13 +701,13 @@ export const WorkoutCompleteScreen = () => {
             add up. For a free account it is not: the day count is frozen at
             FREE_DAY_CAP, so "1/3" was a progress bar that could never move and
             a promise that could never be kept. Same card, honest content. */}
-        {!user?.is_admin && nextUnlock && (
+        {!loadFailed && !user?.is_admin && nextUnlock && (
           <TouchableOpacity
             style={styles.nextUnlockCard}
             activeOpacity={nextUnlockLocked ? 0.85 : 1}
             disabled={!nextUnlockLocked}
             accessibilityRole={nextUnlockLocked ? 'button' : undefined}
-            onPress={() => navigation.navigate('Paywall')}
+            onPress={() => navigation.navigate('Paywall', { source: 'exercise' })}
           >
             <EquipmentIcon slug={nextUnlock.slug} size={44} />
             <View style={{ flex: 1 }}>
@@ -649,7 +729,7 @@ export const WorkoutCompleteScreen = () => {
             >
               {nextUnlockLocked
                 ? t('premium.badge')
-                : `${position.completed}/${nextUnlock.unlock_after_days}`}
+                : `${pos.completed}/${nextUnlock.unlock_after_days}`}
             </Text>
           </TouchableOpacity>
         )}
@@ -679,7 +759,10 @@ export const WorkoutCompleteScreen = () => {
               // should be behind the paywall is the app.
               navigation.reset({
                 index: 1,
-                routes: [{ name: 'MainTabs' }, { name: 'Paywall' }],
+                routes: [
+                  { name: 'MainTabs' },
+                  { name: 'Paywall', params: { source: 'complete' } },
+                ],
               });
             } else {
               navigation.navigate('MainTabs');
@@ -817,7 +900,7 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   feedbackBtnText: {
     fontSize: 13,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
   },
   feedbackBtnTextActive: {
@@ -895,7 +978,7 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   feedbackBannerText: {
     color: COLORS.accentText,
     fontSize: 14,
-    fontWeight: 'medium',
+    fontWeight: '500',
     textAlign: 'center',
   },
   calendarCard: {

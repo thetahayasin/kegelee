@@ -4,12 +4,13 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   Animated,
   Easing,
   Pressable,
+  useWindowDimensions,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { TouchableOpacity } from '../../../components/Touchable';
 import { ContractGlow } from '../../../components/ContractGlow';
 import { Palette, SPACE } from '../../../theme/colors';
 import { useTheme, useThemedStyles } from '../../../theme/ThemeContext';
@@ -35,14 +36,11 @@ const GOAL = 3;
  * text. Capped as well as proportional: on a tablet a circle that keeps
  * growing stops reading as something you press with one thumb.
  */
-const { width: WIN_W, height: WIN_H } = Dimensions.get('window');
-const SIZE = Math.round(Math.min(196, WIN_W * 0.46, WIN_H * 0.26));
+const sizeFor = (w: number, h: number) => Math.round(Math.min(196, w * 0.46, h * 0.26));
 /** Tighter than the session's 1.7 - see ContractGlow. */
 const GLOW = 1.35;
 /** The halo also scales to 1.15 while held; reserve for that too. */
-const FOOTPRINT = Math.round(SIZE * GLOW * 1.15);
-const R = (SIZE - 16) / 2;
-const CIRC = 2 * Math.PI * R;
+const footprintFor = (size: number) => Math.round(size * GLOW * 1.15);
 
 // Animating strokeDashoffset directly on the SVG circle, rather than feeding it
 // from React state, is what makes the ring sweep smoothly.
@@ -52,8 +50,25 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
   const { t } = useTranslation();
+  const { width: winW, height: winH } = useWindowDimensions();
+  const SIZE = sizeFor(winW, winH);
+  const FOOTPRINT = footprintFor(SIZE);
+  const R = (SIZE - 16) / 2;
+  const CIRC = 2 * Math.PI * R;
   const [holding, setHolding] = useState(false);
   const [doneHold, setDoneHold] = useState(false);
+  /**
+   * The way past this step for anyone who cannot complete the hold.
+   *
+   * A three-second press was the ONLY exit: the lesson would not finish
+   * without it, and there is no keyboard, switch-control or voice equivalent
+   * of holding a finger down for three seconds. It also assumes the reader can
+   * do the thing the lesson is teaching them to do, which is the one
+   * assumption a lesson may not make. It appears after 8 seconds on the step,
+   * which is long enough that anyone who is simply about to press it is not
+   * offered a way out of their own success.
+   */
+  const [showSkip, setShowSkip] = useState(false);
   // Hold progress as 0..1. Previously this was React state ticked by a 100ms
   // setInterval, so the ring only moved 10 times a second - one visible jump
   // every 6 frames at 60Hz, which is the stepping this replaces. An
@@ -110,6 +125,21 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
   // Animated.Value keeps this effect stable across renders.
   useEffect(() => () => progress.stopAnimation(), [progress]);
 
+  useEffect(() => {
+    if (step !== 2 || doneHold) {
+      setShowSkip(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowSkip(true), 8000);
+    return () => clearTimeout(timer);
+  }, [step, doneHold]);
+
+  const skipHold = () => {
+    setShowSkip(false);
+    setDoneHold(true);
+    onFinished();
+  };
+
   // Where the muscles are, then the rule that keeps the pee test safe. Both
   // are statements, so both are just read - the doing happens on step 2, which
   // is the one thing in this lesson worth demonstrating.
@@ -141,7 +171,11 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
       <Pressable
         onPressIn={startHold}
         onPressOut={stopHold}
-        style={styles.holdArea}
+        accessibilityRole="button"
+        accessibilityLabel={t('find.pressAndHold')}
+        accessibilityHint={t('find.holdA11yHint', { seconds: GOAL })}
+        accessibilityState={{ selected: doneHold, busy: holding }}
+        style={[styles.holdArea, { width: FOOTPRINT, height: FOOTPRINT }]}
       >
         {/* The same halo the session draws, not a flat disc.
             This was a solid circle of accent with a border radius, which has
@@ -155,7 +189,13 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
         >
           <ContractGlow size={SIZE} scale={GLOW} />
         </Animated.View>
-        <View style={[styles.holdCircle, holding && { transform: [{ scale: 0.95 }] }]}>
+        <View
+          style={[
+            styles.holdCircle,
+            { width: SIZE, height: SIZE, borderRadius: SIZE / 2 },
+            holding && { transform: [{ scale: 0.95 }] },
+          ]}
+        >
           <Svg width={SIZE} height={SIZE} style={styles.holdRing}>
             <Circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke={COLORS.borderStrong} strokeWidth={8} />
             <AnimatedCircle
@@ -188,6 +228,16 @@ export const FindLesson: React.FC<Props> = ({ step, onFinished }) => {
           )}
         </View>
       </Pressable>
+
+      {showSkip ? (
+        <TouchableOpacity
+          style={styles.skipBtn}
+          accessibilityRole="button"
+          onPress={skipHold}
+        >
+          <Text style={styles.skipText}>{t('basics.skipStep')}</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
@@ -203,10 +253,21 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   holdArea: {
     marginTop: SPACE.lg,
-    width: FOOTPRINT,
-    height: FOOTPRINT,
+    // Width and height are applied inline from the live window.
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  skipBtn: {
+    marginTop: SPACE.sm,
+    minHeight: 44,
+    paddingHorizontal: SPACE.lg,
+    justifyContent: 'center',
+  },
+  skipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    textDecorationLine: 'underline',
   },
   // Just the positioner now - ContractGlow draws the halo itself, and
     // sizes itself from the circle it sits behind.
@@ -216,9 +277,6 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     justifyContent: 'center',
   },
   holdCircle: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: SIZE / 2,
     ...COLORS.glass,
     backgroundColor: COLORS.surface,
     borderWidth: 2,

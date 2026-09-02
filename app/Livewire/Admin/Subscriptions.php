@@ -5,6 +5,8 @@ namespace App\Livewire\Admin;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\GooglePlayBillingService;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -49,6 +51,16 @@ class Subscriptions extends Component
     public ?int $noteSubId = null;
     public string $noteText = '';
 
+    /**
+     * The outcome of the last action that involved the store.
+     *
+     * Cancelling here only ever wrote our own row. Google went on billing the
+     * customer, and the admin had no way to tell an actual cancellation from a
+     * local one, so this states which happened.
+     */
+    public ?string $storeMsg = null;
+    public bool $storeMsgOk = false;
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -68,12 +80,60 @@ class Subscriptions extends Component
     // Status actions
     // -------------------------------------------------------------------------
 
+    /**
+     * Can this row's cancellation actually reach the store?
+     *
+     * Used by the blade to label the button honestly, so an admin is never
+     * shown "Cancel" for an action that stops at our own database.
+     */
+    public function canContactStore(Subscription $sub): bool
+    {
+        return in_array($sub->store, ['google_play', 'revenuecat'], true)
+            && ! empty($sub->purchase_token)
+            && $sub->plan
+            && $sub->plan->storeSubscriptionId() !== ''
+            && app(GooglePlayBillingService::class)->isConfigured();
+    }
+
     public function cancel(int $id): void
     {
-        Subscription::where('id', $id)->update([
+        $sub = Subscription::with('plan')->findOrFail($id);
+
+        // Auto-renew off is the part that was missing: the row said 'canceled'
+        // while still claiming it would renew, so the admin list showed
+        // "Renews" against a cancelled subscription.
+        $sub->update([
             'status' => 'canceled',
             'canceled_at' => now(),
+            'auto_renewing' => false,
         ]);
+
+        if (! $this->canContactStore($sub)) {
+            $this->storeMsg = 'Marked cancelled here only - the store was not contacted, so it will bill again. Cancel it in Google Play Console (or RevenueCat) as well.';
+            $this->storeMsgOk = false;
+        } else {
+            try {
+                // The bare subscription id: the Play API keys purchases on the
+                // subscription, not the base plan.
+                app(GooglePlayBillingService::class)
+                    ->cancelSubscription($sub->plan->storeSubscriptionId(), $sub->purchase_token);
+
+                $this->storeMsg = 'Cancelled in Google Play. Access continues until '
+                    . ($sub->ends_at?->format('j M Y') ?? 'the end of the paid period') . '.';
+                $this->storeMsgOk = true;
+            } catch (\Throwable $e) {
+                Log::error('Admin cancel could not reach Google Play', [
+                    'subscription_id' => $sub->id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                $this->storeMsg = 'Marked cancelled here, but Google Play refused the cancellation ('
+                    . $e->getMessage() . '). Cancel it in the Play Console or it will bill again.';
+                $this->storeMsgOk = false;
+            }
+        }
+
+        $this->logAction('cancel', $sub);
     }
 
     public function reactivate(int $id): void
@@ -86,11 +146,42 @@ class Subscriptions extends Component
                 ? now()->addMonth()
                 : $sub->ends_at,
         ]);
+
+        // Reactivating changes nothing at the store, so a subscription Google
+        // has already ended is being re-granted on this server's word alone.
+        $this->storeMsg = 'Reactivated here only. The store was not contacted, so nothing will bill again on its own.';
+        $this->storeMsgOk = false;
+
+        $this->logAction('reactivate', $sub);
     }
 
     public function markExpired(int $id): void
     {
-        Subscription::where('id', $id)->update(['status' => 'expired']);
+        $sub = Subscription::findOrFail($id);
+        $sub->update(['status' => 'expired', 'auto_renewing' => false]);
+
+        $this->storeMsg = 'Marked expired here only. The store was not contacted.';
+        $this->storeMsgOk = false;
+
+        $this->logAction('mark_expired', $sub);
+    }
+
+    /**
+     * Every admin change to somebody's billing, in the log.
+     *
+     * These actions grant and remove paid access by hand, and none of them left
+     * any trace of who did it - so a subscription that appeared or vanished was
+     * unanswerable after the fact.
+     */
+    private function logAction(string $action, Subscription $sub, array $extra = []): void
+    {
+        Log::info('Admin subscription action', array_merge([
+            'action' => $action,
+            'admin_id' => auth()->id(),
+            'subscription_id' => $sub->id,
+            'target_user_id' => $sub->user_id,
+            'store' => $sub->store,
+        ], $extra));
     }
 
     // -------------------------------------------------------------------------
@@ -153,14 +244,18 @@ class Subscriptions extends Component
                 default => null,
             };
 
-        Subscription::create([
+        $sub = Subscription::create([
             'user_id' => $this->grantUserId,
             'plan_id' => $plan->id,
             'status' => 'active',
             'store' => $this->grantStore,
             'started_at' => \Carbon\Carbon::parse($this->grantStart),
             'ends_at' => $endsAt,
+            // Granted by hand, so nothing will ever renew it.
+            'auto_renewing' => false,
         ]);
+
+        $this->logAction('grant', $sub, ['plan_id' => $plan->id, 'ends_at' => (string) $endsAt]);
 
         $this->grantSuccess = true;
         $this->grantMsg = "Subscription granted to {$this->grantUserName}.";
@@ -183,11 +278,19 @@ class Subscriptions extends Component
     {
         $this->validate(['extendEnd' => 'required|date|after:today']);
 
-        Subscription::where('id', $this->extendId)->update([
+        $sub = Subscription::findOrFail($this->extendId);
+        $sub->update([
             'ends_at' => \Carbon\Carbon::parse($this->extendEnd)->endOfDay(),
             'status' => 'active',
             'canceled_at' => null,
         ]);
+
+        $this->logAction('extend', $sub, ['ends_at' => $this->extendEnd]);
+
+        // Extending here does not extend the store's own period, so the next
+        // renewal or expiry event will overwrite this date.
+        $this->storeMsg = 'Extended here only. The store keeps its own expiry, so its next event will overwrite this date.';
+        $this->storeMsgOk = false;
 
         $this->showExtend = false;
     }
@@ -208,10 +311,42 @@ class Subscriptions extends Component
     {
         $this->validate(['changePlanNewId' => 'required|exists:plans,id']);
 
-        Subscription::where('id', $this->changePlanSubId)
-            ->update(['plan_id' => $this->changePlanNewId]);
+        $sub = Subscription::findOrFail($this->changePlanSubId);
+        $sub->update(['plan_id' => $this->changePlanNewId]);
+
+        $this->logAction('change_plan', $sub, ['plan_id' => $this->changePlanNewId]);
+
+        $this->storeMsg = 'Plan changed on this record only. The store keeps billing the plan the customer actually bought.';
+        $this->storeMsgOk = false;
 
         $this->showChangePlan = false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Notes
+    // -------------------------------------------------------------------------
+
+    public function openNote(int $id): void
+    {
+        $sub = Subscription::findOrFail($id);
+        $this->noteSubId = $id;
+        $this->noteText = (string) ($sub->notes ?? '');
+        $this->showNote = true;
+    }
+
+    public function saveNote(): void
+    {
+        $this->validate(['noteText' => 'nullable|string|max:2000']);
+
+        $sub = Subscription::findOrFail($this->noteSubId);
+        $sub->update(['notes' => trim($this->noteText) ?: null]);
+
+        $this->logAction('note', $sub);
+
+        $this->storeMsg = 'Note saved.';
+        $this->storeMsgOk = true;
+
+        $this->showNote = false;
     }
 
     // -------------------------------------------------------------------------
@@ -226,19 +361,26 @@ class Subscriptions extends Component
             ->when($this->filterPlan, fn ($q) => $q->where('plan_id', $this->filterPlan))
             ->latest();
 
+        // Every card counts LIVE records only, bounded by ends_at, because a
+        // missed EXPIRATION leaves the status saying 'active' forever. Two of
+        // them were bounded and two were not, so the same lapsed subscriber
+        // could be absent from Active and still counted under Canceled - the
+        // four cards did not describe one population.
+        //
+        // 'canceled' and 'past_due' are entitled until their paid period runs
+        // out (auto-renew off, and a card being retried), which is exactly the
+        // definition Subscription::isEntitled() uses.
+        $live = fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now());
+
         $summary = [
-            // Bounded by the expiry as well as the status, so a missed
-            // EXPIRATION event cannot inflate the figure this page exists to
-            // report. Without this, every lapsed row still counted as a
-            // paying customer.
-            'active' => Subscription::where('status', 'active')
-                ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            'active' => Subscription::where('status', 'active')->where($live)->count(),
+            'trialing' => Subscription::where('status', 'trialing')->where($live)->count(),
+            'canceled' => Subscription::where('status', 'canceled')
+                ->where('ends_at', '>', now())
                 ->count(),
-            'trialing' => Subscription::where('status', 'trialing')
-                ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            'past_due' => Subscription::where('status', 'past_due')
+                ->where('ends_at', '>', now())
                 ->count(),
-            'canceled' => Subscription::where('status', 'canceled')->count(),
-            'past_due' => Subscription::where('status', 'past_due')->count(),
         ];
 
         return view('livewire.admin.subscriptions', [

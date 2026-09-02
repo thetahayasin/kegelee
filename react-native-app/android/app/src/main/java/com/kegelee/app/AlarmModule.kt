@@ -9,55 +9,23 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import com.facebook.react.bridge.ReadableArray
 
 /**
- * Creates real system Clock alarms via AlarmClock.ACTION_SET_ALARM - the same
- * "native reminders" behaviour as the original NativePHP app (not notifications).
- * EXTRA_SKIP_UI keeps it silent (no Clock app popping open); EXTRA_DAYS makes the
- * alarm repeat weekly on the given days.
+ * The two small pieces of system UI the reminder editor needs: the OS time
+ * picker, and a way into the Clock app.
+ *
+ * setAlarm() used to live here too, creating real system Clock alarms via
+ * AlarmClock.ACTION_SET_ALARM - the original NativePHP app's behaviour. It was
+ * removed along with the SET_ALARM permission, because reminders have been
+ * delivered by Notifee for some time now and nothing on the JS side had called
+ * it since. A permission on the store listing that no code path can reach is
+ * pure cost: it appears in the app's permission list, it needs justifying, and
+ * it grants a capability nobody is using.
  */
 class AlarmModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
     override fun getName(): String = "AlarmModule"
-
-    /**
-     * @param hour    0-23
-     * @param minutes 0-59
-     * @param message alarm label
-     * @param days    Calendar day constants (SUNDAY=1 .. SATURDAY=7); empty = one-shot
-     */
-    @ReactMethod
-    fun setAlarm(hour: Int, minutes: Int, message: String, days: ReadableArray, promise: Promise) {
-        try {
-            val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
-                putExtra(AlarmClock.EXTRA_HOUR, hour)
-                putExtra(AlarmClock.EXTRA_MINUTES, minutes)
-                putExtra(AlarmClock.EXTRA_MESSAGE, message)
-                putExtra(AlarmClock.EXTRA_SKIP_UI, true)
-                putExtra(AlarmClock.EXTRA_VIBRATE, true)
-                val dayList = ArrayList<Int>()
-                for (i in 0 until days.size()) {
-                    dayList.add(days.getInt(i))
-                }
-                if (dayList.isNotEmpty()) {
-                    putIntegerArrayListExtra(AlarmClock.EXTRA_DAYS, dayList)
-                }
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-
-            val activity = reactApplicationContext.currentActivity
-            if (activity != null) {
-                activity.startActivity(intent)
-            } else {
-                reactApplicationContext.startActivity(intent)
-            }
-            promise.resolve(true)
-        } catch (e: Exception) {
-            promise.reject("ALARM_ERROR", e.message, e)
-        }
-    }
 
     /**
      * Show the OS-native TimePickerDialog. Resolves { hour, minute } on OK, or
@@ -72,6 +40,10 @@ class AlarmModule(reactContext: ReactApplicationContext) :
             return
         }
         activity.runOnUiThread {
+            // A Promise may be settled exactly once; settling it twice crashes
+            // the bridge with "Illegal callback invocation from native module".
+            // Every path below goes through this guard rather than trusting
+            // that the listeners are mutually exclusive - they are not.
             var settled = false
             try {
                 val dialog = TimePickerDialog(
@@ -89,10 +61,28 @@ class AlarmModule(reactContext: ReactApplicationContext) :
                     minute,
                     DateFormat.is24HourFormat(activity),
                 )
-                dialog.setOnCancelListener {
+                /**
+                 * Dismiss, not cancel.
+                 *
+                 * setOnCancelListener only fires for an explicit cancel - the
+                 * back button or a tap outside. It does NOT fire when the
+                 * dialog goes away for any other reason: the activity being
+                 * recreated on a configuration change, the window being
+                 * dismissed programmatically, the process being backgrounded
+                 * and the activity destroyed. In all of those the promise was
+                 * simply never settled, so the JS `await` hung forever and the
+                 * reminder editor sat with a dead time field that could not be
+                 * opened again.
+                 *
+                 * onDismiss fires for every one of those AND after a cancel
+                 * AND after a successful pick, so it is the one hook that is
+                 * guaranteed to run. The guard above makes the success case a
+                 * no-op here.
+                 */
+                dialog.setOnDismissListener {
                     if (!settled) {
                         settled = true
-                        promise.resolve(null)
+                        promise.reject("PICKER_CANCELLED", "Time picker dismissed without a selection")
                     }
                 }
                 dialog.show()

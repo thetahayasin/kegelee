@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "Találd meg a medencefenekedet",
     "firstTitle": "Az első gyakorlatod",
+    "skipStep": "Lépés kihagyása",
     "whyTitle": "Miért működik a Kegel-edzés"
   },
   "billing": {
-    "alreadyOwned": "Már van aktív előfizetésed. Most visszaállítjuk.",
-    "configuration": "Ez a csomag most nem vásárolható meg. Ez a mi hibánk - próbáld később, vagy írj az ügyfélszolgálatnak.",
+    "alreadyOwned": "A Google-fiókodhoz már tartozik aktív előfizetés ehhez az alkalmazáshoz.",
+    "configuration": "Ez a csomag most nem vásárolható meg. Ez a mi hibánk, próbáld később, vagy írj nekünk a Beállítások > Súgó menüpontból.",
     "declined": "A Google Play elutasította a fizetést. Ellenőrizd a fizetési módot a Google-fiókodban, majd próbáld újra.",
     "ineligible": "Nem vagy jogosult erre az ajánlatra. Válassz másik csomagot.",
     "network": "Nem értük el a boltot. Ellenőrizd a kapcsolatot, és próbáld újra. Ha terhelés történt, a hozzáférés magától megjelenik.",
     "noPermission": "A Google-fiókodnak nincs jogosultsága vásárolni ezen a készüléken.",
     "notAllowed": "Ez a készülék vagy Google-fiók nem vásárolhat. Ez általában szülői felügyelet, vagy hiányzó fizetési mód a fiókon.",
     "operationInProgress": "Már folyamatban van egy vásárlás. Várj egy pillanatot, mielőtt újra próbálod.",
-    "otherAccount": "Ez az előfizetés egy másik fiókhoz tartozik. Jelentkezz be azzal a fiókkal, vagy írj az ügyfélszolgálatnak, és átvisszük.",
+    "otherAccount": "Ez az előfizetés egy másik fiókhoz tartozik. Jelentkezz be azzal a fiókkal, vagy írj nekünk a Beállítások > Súgó menüpontból, és átvisszük.",
     "paymentPending": "A Google Play feldolgozza a fizetésedet. A készpénzes és utalványos fizetés eltarthat egy ideig. A hozzáférés automatikusan megnyílik, amint átmegy, ezért kérjük, ne fizess újra.",
     "storeProblem": "A Google Play most akadozik. Próbáld újra néhány perc múlva.",
     "unknown": "Valami hiba történt a vásárlás befejezésekor. Próbáld újra. Ha terhelés történt, a hozzáférés magától megjelenik. [{{code}}]",
-    "notEntitled": "A Google Play befejezte a vásárlást, de a hozzáférést még nem adta meg. Ez általában egy percen belül rendeződik. Ne fizess újra - ha nem oldódik meg, írj a támogatásnak és megoldjuk."
+    "notEntitled": "A Google Play befejezte a vásárlást, de a hozzáférést még nem adta meg. Ez általában egy percen belül rendeződik. Ne fizess újra, és ha nem oldódik meg, írj nekünk a Beállítások > Súgó menüpontból."
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "Vissza",
+    "close": "Bezárás",
+    "couldNotLoad": "Nem sikerült betölteni. Ellenőrizd a kapcsolatot, és próbáld újra.",
+    "googleUnavailable": "A Google-bejelentkezés nem érhető el ebben a verzióban. Használd az e-mail-címedet és a jelszavadat.",
+    "hidePassword": "Jelszó elrejtése",
+    "offline": "Offline vagy. Néhány dolog csak akkor töltődik be, ha újra van kapcsolat.",
     "or": "vagy",
-    "perMonth": "{{price}}/hó"
+    "perMonth": "{{price}}/hó",
+    "showPassword": "Jelszó megjelenítése",
+    "tryAgain": "Újra"
   },
   "errorBoundary": {
+    "goToStart": "Ugrás az elejére",
     "somethingWentWrong": "Valami hiba történt",
     "theAppHitAnUnexpected": "Az alkalmazásban váratlan hiba lépett fel. Kérjük, próbáld újra.",
     "tryAgain": "Újra"
@@ -200,6 +210,7 @@
     "tryItNow": "Kipróbálom"
   },
   "find": {
+    "holdA11yHint": "Tartsd nyomva {{seconds}} másodpercig, közben szoríts.",
     "keepGoing": "Így tovább …",
     "onlyDoThePeeTestDesc": "Ez csak arra jó, hogy megtaláld az izmokat, nem gyakorlat. A sugár gyakori megállítása nem tesz jót a hólyagnak.",
     "pressAndHold": "Nyomd és tartsd",
@@ -221,10 +232,12 @@
     "learnTheBasics": "Tanuld meg az alapokat",
     "lessonNumber": "{{number}}. lecke",
     "logIn": "Bejelentkezés",
-    "nextLesson": "Következő lecke"
+    "nextLesson": "Következő lecke",
+    "nextStepA11y": "Következő lépés",
+    "previousStepA11y": "Előző lépés"
   },
-  "legalPage": {
-    "offlineNotice": "Offline nem érhető el tartalom. Csatlakozz az internethez az oldal betöltéséhez."
+  "legal": {
+    "aboutBasics": "A medencefenék-gyakorlatok, amelyeket általában Kegel-gyakorlatoknak hívnak, azokat az izmokat erősítik, amelyek a hólyagot, a beleket és a szexuális működést támasztják.\n\nÍgy csináld:\n1. Találd meg az izmokat. Szorítsd össze azokat, amelyekkel félúton megállítanád a vizeletsugarat.\n2. Csak a medencefenék izmait szorítsd. A fenék, a comb és a has maradjon laza.\n3. Végig lélegezz teljesen normálisan.\n\nA rendszeresség működik. Edz minden nap a legjobb eredményért."
   },
   "login": {
     "6DigitCode": "6 jegyű kód",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "Minden csomag {{count}} napos ingyenes próbával indul",
     "everyPlanStartsWithTrial_other": "Minden csomag {{count}} napos ingyenes próbával indul",
     "logOut": "Kijelentkezés",
+    "manageInGooglePlay": "Előfizetés kezelése a Google Play-ben",
     "manageOrCancelAnytime": "Bármikor kezelheted vagy lemondhatod a Google Play-ben.",
     "managePlan": "Csomag kezelése",
     "noActiveSubscriptionWasFound": "Nem található visszaállítható aktív előfizetés.",
     "off": "Ki",
     "offeringsUnavailable": "Az előfizetések most nem érhetők el ezen a készüléken. Próbáld később, vagy állíts vissza lent egy korábbi vásárlást.",
     "on": "Be",
-    "paymentProcessedSecurely": "A fizetés megerősítéskor biztonságosan, a RevenueCaten és az alkalmazásboltban keresztül történik.",
+    "paymentProcessedSecurely": "A fizetés megerősítéskor biztonságosan, a Google Playen keresztül történik.",
     "premium": "Prémium",
     "priceRenewsAutomatically": "{{price}}, lemondásig automatikusan megújul.",
     "privacyPolicy": "Adatvédelmi tájékoztató",
+    "purchaseAlreadyEnded": "A Google Play szerint ez az előfizetés már véget ért, így semmi nem nyílt meg. Ha mégis levonás történt, írj a támogatásnak és megoldjuk.",
     "purchaseReceivedButPlanCould": "A vásárlás megérkezett, de a csomagot nem sikerült azonosítani. Fordulj az ügyfélszolgálathoz.",
     "renewPlan": "Megújítás",
     "renewYourPlan": "Újítsd meg az előfizetésed",
     "restorePurchases": "Vásárlások visszaállítása",
+    "restoringPurchase": "Most visszaállítjuk.",
     "restoredPurchaseCouldNotBe": "A visszaállított vásárlást nem sikerült csomaghoz rendelni. Fordulj az ügyfélszolgálathoz.",
     "savePercent": "SPÓROLJ {{percent}} %-OT",
     "signInFirst": "Előfizetés előtt jelentkezz be.",
@@ -321,6 +337,9 @@
     "switchQueued": "A csomagod {{plan}} csomagra vált, amikor a jelenlegi csomagod lejár. Ma nem számolunk fel semmit.",
     "switchQueuedOn": "A csomagod {{date}} napján {{plan}} csomagra vált. Ma nem számolunk fel semmit.",
     "switchStartsLater": "A már kifizetett időszak megmarad. Az új ár a következő megújításkor lép életbe.",
+    "switchChargedNow": "Most {{price}} díjat számítunk fel a teljes időszakra ({{period}}); a jelenlegi csomagodból hátralévő idő pedig hozzáadódik.",
+    "switchNoChargeToday": "Ma nem számolunk fel semmit. A csomagod a következő megújításkor, {{date}} napján {{plan}} csomagra vált.",
+    "switchNoChargeTodayUndated": "Ma nem számolunk fel semmit. A csomagod a következő megújításkor {{plan}} csomagra vált.",
     "switchStartsNow": "Most indul. A díjat ma vonjuk le, a fel nem használt idő pedig hozzáadódik.",
     "switchToPlan": "Váltás erre: {{plan}}",
     "terms": "Feltételek",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "Teljes hozzáférés, havi díjazással.",
       "name": "1 hónap",
-      "period": "/hó"
+      "period": "/hó",
+      "periodNoun": "1 hónap"
     },
     "premium-quarterly": {
       "description": "3 havonta díjazva.",
       "name": "3 hónap",
-      "period": "/3 hónap"
+      "period": "/3 hónap",
+      "periodNoun": "3 hónap"
     },
     "premium-yearly": {
       "description": "Egyetlen fizetés az egész évre.",
       "name": "1 év",
-      "period": "/év"
+      "period": "/év",
+      "periodNoun": "1 év"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "Kihagyás"
   },
   "register": {
+    "agreeIntro": "A fiók létrehozásával elfogadod ezeket:",
     "alreadyHaveAnAccount": "Van már fiókod?",
     "confirmPassword": "Jelszó megerősítése",
     "continueWithGoogle": "Folytatás Google-fiókkal",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "A jelszónak tartalmaznia kell legalább egy számot.",
     "passwordTooShort": "A jelszónak legalább 6 karakteresnek kell lennie.",
     "passwordsDoNotMatch": "A jelszavak nem egyeznek.",
+    "privacyPolicy": "Adatvédelmi tájékoztató",
     "registrationFailed": "A regisztráció nem sikerült.",
-    "subtitle": "Egy perc az egész. A haladásod szinkronizálódik az eszközeid között."
+    "subtitle": "Egy perc az egész. A haladásod szinkronizálódik az eszközeid között.",
+    "terms": "Feltételek"
   },
   "reminders": {
     "channelName": "Edzésemlékeztetők",
     "lapseBody": "Eltelt néhány nap. Egy rövid gyakorlás elég, hogy visszatérj a szokáshoz.",
     "lapseTitle": "Várlak, amikor készen állsz",
-    "notificationBody": "Itt az ideje a napi Kegel-alkalmadnak!",
+    "notificationBody": "Itt az ideje a Kegel-edzésednek.",
     "notificationTitle": "Kegel-edzés",
+    "notificationsOffBody": "Az emlékeztetőid mentve vannak, de a Kegelee nem tud értesítéseket küldeni. Kapcsold be őket a telefon beállításaiban, hogy megkapd őket.",
+    "notificationsOffTitle": "Az értesítések ki vannak kapcsolva",
     "nudgeChannelName": "Emlékeztetők",
-    "trialEndingBody": "Az előfizetésed elindul, hacsak nem mondod le a Google Play áruházban.",
+    "trialEndingBody": "Az ingyenes próbaidőszakod holnap véget ér. Hogy ne terheljenek meg, mondd le a Google Play áruházban, mielőtt lejár.",
     "trialEndingTitle": "Az ingyenes próbaidőszakod holnap véget ér"
   },
   "schedule": {
     "active": "Aktív",
     "addTime": "Időpont hozzáadása",
-    "allowExactBody": "Az emlékeztetőid be vannak állítva.\n\nHogy pontosan időben szóljanak, engedélyezd a Kegelee-nek az \"Ébresztők és emlékeztetők\" jogot - különben pár perc késéssel érkezhetnek.",
-    "allowExactTitle": "Pontos emlékeztetők engedélyezése",
     "daysLeft_one": "{{count}} nap van hátra",
     "daysLeft_other": "{{count}} nap van hátra",
     "daysSet_one": "{{count}} nap beállítva",
     "daysSet_other": "{{count}} nap beállítva",
-    "error": "Hiba",
-    "errorTitle": "Hiba",
     "failedToSaveReminders": "Nem sikerült menteni az emlékeztetőket.",
-    "limitReached": "Elérted a korlátot",
     "limitReachedBody": "Naponta legfeljebb 5 emlékeztetőt állíthatsz be.",
-    "limitReachedTitle": "Elérted a korlátot",
     "monthNumber": "{{number}}. hónap",
     "notNow": "Most nem",
     "openSettings": "Beállítások megnyitása",
     "reminders": "Emlékeztetők",
-    "remindersSaved": "Emlékeztetők mentve",
     "remindersSavedBody": "A heti edzésemlékeztetőid be vannak ütemezve.",
-    "remindersSavedTitle": "Emlékeztetők mentve",
+    "remindersTurnedOffBody": "Az emlékeztetők ki vannak kapcsolva. Válassz legalább egy napot, amikor emlékeztessünk.",
+    "removeTimeA11y": "{{time}} eltávolítása",
     "repeatOn": "Ismétlés ezeken a napokon",
     "saveAddReminders": "Emlékeztetők mentése",
     "schedule": "Ütemezés",
@@ -456,6 +477,7 @@
     "cancel": "Mégse",
     "cancelledUntilDate": "Lemondva. A hozzáférésed {{date}} marad aktív.",
     "cancelledUntilPeriodEnd": "Lemondva. A hozzáférésed a kifizetett időszak végéig marad aktív.",
+    "contactSupport": "Kapcsolat az ügyfélszolgálattal",
     "deleteAccount": "Fiók törlése",
     "deleteAccount2": "Törlöd a fiókot?",
     "deleteCodeSent": "Küldtünk egy 6 jegyű kódot ide: {{email}}. Írd be a fiókod végleges törléséhez.",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "Nem sikerült törölni a haladást. Ellenőrizd az internetkapcsolatot.",
     "failedToSendDeleteCode": "Nem sikerült elküldeni a törlési kódot. Ellenőrizd az internetkapcsolatot.",
     "gotIt": "Értem",
+    "help": "Súgó",
     "language": "Nyelv",
     "logOut": "Kijelentkezés",
+    "logOutConfirmBody": "Az újbóli belépéshez szükséged lesz a jelszavadra, és minden elveszik, ami még nem szinkronizálódott.",
+    "logOutConfirmTitle": "Kijelentkezel?",
     "manageSubscription": "Előfizetés kezelése",
     "noActiveSubscription": "Nincs aktív előfizetés",
     "opensGooglePlay": "Megnyitja a Google Playt, ahol csomagot válthatsz, lemondhatsz vagy kikapcsolhatod az automatikus megújítást.",
     "paymentIssueDetail": "Probléma van az előfizetésed fizetésével. Frissítsd a fizetési módot a Google Playen.",
     "renewsOn": "Megújul: {{date}}.",
     "reset": "Visszaállítás",
-    "resetConfirmBody": "Ezzel törlöd az edzésnapjaidat, alkalmaidat, méréseidet és a leckékben elért haladásodat. A művelet nem vonható vissza.",
+    "resetConfirmBody": "Ezzel törlöd az edzésnapjaidat, edzéseidet és méréseidet. A fiókod, az előfizetésed és az emlékeztetőid megmaradnak. A művelet nem vonható vissza.",
     "resetProgress": "Haladás visszaállítása",
     "resetProgress2": "Visszaállítod a haladást?",
-    "resetSuccessBody": "Az edzési haladásod törölve lett.",
-    "resetSuccessTitle": "Visszaállítva",
+    "resetSuccessBody": "Az edzésnapjaid, edzéseid és méréseid törölve lettek.",
+    "resetSuccessTitle": "Haladás visszaállítva",
     "restartBody": "Zárd be és nyisd meg újra az alkalmazást az elrendezés irányának váltásához.",
+    "restartNow": "Újraindítás most",
     "restartRequired": "Újraindítás szükséges",
+    "rtlRestartConfirm": "A(z) {{language}} jobbról balra tartó elrendezést használ. Az alkalmazás újraindul.",
     "sendCode": "Kód küldése",
     "subActive": "Aktív",
     "subCancelled": "Lemondva",
@@ -497,44 +524,13 @@
     "subscribe": "Előfizetek",
     "subscribeToUnlockFullAccess": "Fizess elő a teljes hozzáférésért",
     "subscription": "Előfizetés",
+    "supportEmailBody": "Írd le, mi történt, és utánanézünk.\n\n---\nFiókazonosító: {{id}}",
+    "supportEmailSubject": "Kegelee ügyfélszolgálat",
     "tapToChangePlan": "Koppints a csomag módosításához",
     "terms": "Feltételek",
     "trialEndsNoRenew": "Az ingyenes próbaidőszak {{date}} véget ér. Nem újul meg.",
     "trialEndsThenBilling": "Az ingyenes próbaidőszak {{date}} véget ér, utána indul a számlázás.",
     "updatePaymentMethod": "Frissítsd a fizetési módot a Google Playen."
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "Van már fiókod? Jelentkezz be",
-    "back": "Vissza",
-    "bestValue": "LEGJOBB ÁR",
-    "billingDisclosure": "A fizetést megerősítéskor a RevenueCat és az alkalmazásbolt dolgozza fel biztonságosan. Az előfizetés a megjelenített áron automatikusan megújul, amíg le nem mondod az előfizetési beállításokban; az alkalmazás törlése nem mondja le és nem téríti vissza. A folytatással elfogadod a",
-    "close": "Bezárás",
-    "confirmPassword": "Jelszó megerősítése",
-    "continue": "Tovább",
-    "continueWithGoogle": "Folytatás Google-fiókkal",
-    "couldNotOpenGoogle": "Nem sikerült megnyitni a Google-bejelentkezést. Próbáld újra.",
-    "couldNotReachServer": "Nem sikerült elérni a szervert. Ellenőrizd a kapcsolatot, és próbáld újra.",
-    "createAccount": "Fiók létrehozása",
-    "createAccountSubscribe": "Fiók létrehozása és előfizetés",
-    "creatingAccount": "Fiók létrehozása …",
-    "emailAddress": "E-mail-cím",
-    "emailInvalid": "Adj meg egy érvényes e-mail-címet.",
-    "emailOrPasswordIncorrect": "Hibás e-mail-cím vagy jelszó.",
-    "emailRequired": "Az e-mail megadása kötelező.",
-    "fullName": "Teljes név",
-    "googleSignInFailed": "A Google-bejelentkezés nem sikerült. Próbáld újra.",
-    "headline": "Válassz csomagot, és kezdd el",
-    "nameRequired": "A név megadása kötelező.",
-    "noAccountYetCreateOne": "Még nincs fiókod? Hozz létre egyet",
-    "password": "Jelszó",
-    "passwordRequired": "A jelszó megadása kötelező.",
-    "passwordRules": "A jelszónak legalább 6 karakteresnek kell lennie, és tartalmaznia kell egy számot.",
-    "passwordsDoNotMatch": "A jelszavak nem egyeznek.",
-    "signIn": "Bejelentkezés",
-    "signInSubscribe": "Bejelentkezés és előfizetés",
-    "signingIn": "Bejelentkezés …",
-    "subscribe": "Előfizetek",
-    "terms": "Feltételek"
   },
   "tabs": {
     "profile": "Profil",
@@ -570,15 +566,18 @@
     "available": "Elérhető",
     "bestHold": "Legjobb tartás {{seconds}} mp",
     "complete": "KÉSZ",
+    "dayLabel": "{{day}}. nap",
     "daysLeft_one": "{{count}} nap",
     "daysLeft_other": "{{count}} nap",
     "exercises": "Gyakorlatok",
     "extraSessionsOptional": "A további körök nem kötelezők",
+    "freeCapCta": "Előfizetek",
+    "freeCapReached": "Az ingyenes csomag a(z) {{day}}. napnál véget ér. Fizess elő, hogy folytathasd.",
     "knowledge": "Tudnivalók",
     "measureDaily": "Mérj naponta, hogy lásd a fejlődést",
     "minutes_one": "{{count}} perc",
     "minutes_other": "{{count}} perc",
-    "monthDay": "{{month}}. HÓNAP   /   {{day}}. NAP",
+    "monthLabel": "{{month}}. hónap",
     "progressTracker": "Haladás",
     "readyWhenYouAre": "Kezdd, amikor készen állsz",
     "ringA11y": "Ma {{required}} körből {{done}} kész",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "Vissza a bejelentkezéshez",
-    "codeResent": "Megerősítő kód újraküldve!",
+    "codeResent": "Megerősítő kód újraküldve.",
     "didnTReceiveTheCode": "Nem kaptad meg a kódot? Küldés újra",
     "enterSixDigitCode": "Adj meg egy 6 jegyű megerősítő kódot.",
     "failedToResendCode": "Nem sikerült újraküldeni a kódot.",
@@ -611,19 +610,19 @@
   "why": {
     "cardRealMuscle": "Igazi izom. Edzd, és erősebb lesz.",
     "squeezeTheWrongMusclesAnd": "Ha rossz izmokat szorítasz össze, semmit nem nyersz vele.",
-    "theNextLessonShowsYou": "A következő lecke pontosan megmutatja, hol vannak ezek az izmok.",
-    "thenYouDoYourFirst": "Utána a kör vezetésével elvégzed az első igazi gyakorlatod."
+    "theNextLessonShowsYou": "A következő lecke pontosan megmutatja, hol vannak ezek az izmok."
   },
   "workout": {
     "back": "Vissza",
+    "couldNotStartBody": "Valami hiba történt az edzés összeállítása közben. Próbáld újra, vagy lépj vissza, és indítsd az edzés fülről.",
+    "couldNotStartTitle": "Nem sikerült elindítani az edzést",
     "exerciseTutorial": "Gyakorlat bemutatása",
     "greatJob": "Szép munka!",
     "ifYouLeaveThisSession": "Ha most kilépsz, ez az edzés nem számít bele a napi haladásodba.",
-    "leaveTraining": "Kilépsz az edzésből?",
+    "leaveTraining": "Kilépsz ebből az edzésből?",
     "minutesLeft_one": "{{count}} perc van hátra",
     "minutesLeft_other": "{{count}} perc van hátra",
-    "noExercises": "Nincs gyakorlat",
-    "noExercisesBody": "Ehhez az alkalomhoz még nincs feloldott gyakorlat.",
+    "noExercisesBody": "Ehhez az edzéshez még nincs feloldott gyakorlat.",
     "noExercisesTitle": "Nincs gyakorlat",
     "noGoBack": "Nem, vissza",
     "pause": "Szünet",
@@ -634,7 +633,7 @@
     "tryAgain": "Újra",
     "watchTheQuickTutorialFor": "Nézd meg a gyakorlat rövid bemutatóját, aztán térj vissza az edzéshez.",
     "watchTutorial": "Bemutató megtekintése",
-    "yesQuitTraining": "Igen, kilépek"
+    "yesQuitTraining": "Igen, kilépek az edzésből"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "Már a legkönnyebb szinten vagy.",

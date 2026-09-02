@@ -53,6 +53,18 @@ export const getDurationForLevel = (slug: string, levelNumber: number): number =
   while (cycles > 1 && cycles * cycle > max + 0.01) {
     cycles--;
   }
+  // ...and symmetrically, never fall short of the minimum.
+  //
+  // Only the maximum was guarded, so the duration range was enforced at one
+  // end and not the other. Rounding to a whole number of cycles can land under
+  // `min` whenever the cycle length does not divide it: front-clamp has a 3.3s
+  // cycle and a 20s floor, so level 1 rounded to 6 cycles - 19.8s, a set
+  // shorter than the catalogue says the exercise is. The extra cycle is only
+  // taken when it still fits under `max`, so this can never fight the loop
+  // above.
+  while (cycles * cycle < min - 0.01 && (cycles + 1) * cycle <= max + 0.01) {
+    cycles++;
+  }
 
   return Math.round(cycles * cycle * 10) / 10;
 };

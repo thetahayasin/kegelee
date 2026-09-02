@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The pre-Android-12 (API < 31) form of data_extraction_rules.xml.
+
+  android:allowBackup is already false, so on these versions nothing is backed
+  up regardless. This file exists so the two attributes cannot disagree if
+  allowBackup is ever turned on for a legitimate reason - the exclusions would
+  then already be in place rather than being remembered at that moment.
+-->
+<full-backup-content>
+    <exclude domain="root" path="." />
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="file" path="." />
+</full-backup-content>

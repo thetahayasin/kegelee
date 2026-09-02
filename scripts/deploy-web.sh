@@ -12,6 +12,16 @@
 #   ~/public_html -> <project>/public). The public disk writes into
 #   public/storage, so no storage symlink gymnastics are required.
 #
+# No shell on the host? Upload the files and POST to the /deploy endpoint
+# instead, which runs the migrate + cache-warm half of this script:
+#
+#   curl -X POST -H "Authorization: Bearer $DEPLOY_KEY" https://kegelee.com/deploy
+#
+#   The key goes in the header, never in the query string, and the endpoint
+#   answers 409 while another deploy holds the lock. It skips config:cache on
+#   purpose: caching config from inside a web request bakes that request's
+#   environment in for every request after it.
+#
 # Options:
 #   --fresh                 Rebuild the DB from scratch (migrate:fresh). DESTROYS
 #                           DATA. Needs --force (or a 'yes' prompt). Implies --seed.
@@ -20,7 +30,7 @@
 #   --admin-password <pw>   Initial admin password (else generated + printed once).
 #   --skip-composer         Reuse the existing vendor/ (no composer install).
 #   --skip-npm              Reuse the existing public/build (no asset rebuild).
-#   --url <base>            Health-check <base>/up and <base>/admin/login after.
+#   --url <base>            Health-check <base>/up and <base>/mystic/login after.
 #   --force, --yes, -y      Skip the destructive-action confirmation.
 #   -h, --help              Show this help.
 #
@@ -47,7 +57,7 @@ while [ $# -gt 0 ]; do
     --skip-npm)       SKIP_NPM=1 ;;
     --url)            URL="${2:-}"; shift ;;
     --force|--yes|-y) FORCE=1 ;;
-    -h|--help)        sed -n '2,40p' "$0" | sed 's/^#\{0,1\} \{0,1\}//'; exit 0 ;;
+    -h|--help)        sed -n '2,38p' "$0" | sed 's/^#\{0,1\} \{0,1\}//'; exit 0 ;;
     *)                echo "Unknown option: $1" >&2; exit 1 ;;
   esac
   shift
@@ -142,7 +152,7 @@ if [ -n "$URL" ]; then
   base="${URL%/}"
   step "Health check: $base"
   if command -v curl >/dev/null 2>&1; then
-    for path in /up /admin/login; do
+    for path in /up /mystic/login; do
       code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$base$path" || echo "000")
       printf "    %s -> HTTP %s\n" "$path" "$code"
     done

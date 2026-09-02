@@ -10,6 +10,8 @@ import {
   Modal,
   TextInput,
   Linking,
+  KeyboardAvoidingView,
+  Platform,
   TouchableWithoutFeedback,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
@@ -26,12 +28,14 @@ import {
 import { LanguagePicker } from '../../components/LanguagePicker';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
-import { getAppSetting, clearUserData, getActiveSubscription } from '../../db/queries';
+import { getAppSetting, clearProgressData, getActiveSubscription } from '../../db/queries';
 import { planBySlug, playSubscriptionId } from '../../constants/plans';
 import { getRevenueCatManagementUrl } from '../../services/billing';
+import { syncNow } from '../../services/sync';
 import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
 import Svg, { Path } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { Watermark } from '../../components/Watermark';
 import { track } from '../../services/events';
 
@@ -40,6 +44,28 @@ import { track } from '../../services/events';
  * grep for a key finds it and the locale audit can see it is in use. An
  * interpolated key is invisible to both.
  */
+/**
+ * Where "contact support" actually goes.
+ *
+ * Six strings across the app tell the reader to contact support and none of
+ * them said how. One address, in one place, so the row and any future link
+ * cannot disagree.
+ */
+const SUPPORT_EMAIL = 'support@kegelee.com';
+
+/**
+ * The legal pages the app links to by slug, for before the content sync has
+ * run. Same slugs the paywall and the sign-up screen use.
+ */
+const FALLBACK_LEGAL_PAGES = [
+  { slug: 'terms', title: '' },
+  { slug: 'privacy-policy', title: '' },
+];
+const FALLBACK_LEGAL_TITLE_KEYS: Record<string, string> = {
+  terms: 'register.terms',
+  'privacy-policy': 'register.privacyPolicy',
+};
+
 const APPEARANCE_KEYS: Record<ThemeMode, string> = {
   system: 'settings.appearanceSystem',
   light: 'settings.appearanceLight',
@@ -87,6 +113,22 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   const [deleteCode, setDeleteCode] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+
+  const openSupportEmail = () => {
+    const subject = encodeURIComponent(t('settings.supportEmailSubject'));
+    // The account id, because the first thing support has to do is find the
+    // account, and asking for it in the reply costs a round trip.
+    const body = encodeURIComponent(
+      t('settings.supportEmailBody', { id: user?.id ?? '-' }),
+    );
+    Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`).catch(
+      () => {
+        // No mail app configured. The address is on screen beside the row, so
+        // the reader still has what they need.
+        Alert.alert(t('settings.contactSupport'), SUPPORT_EMAIL);
+      },
+    );
+  };
 
   const closeResetModal = () => {
     setResetModalVisible(false);
@@ -169,20 +211,34 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   }, [isFocused]);
 
   const handleResetProgress = async () => {
+    if (!user) return;
     setResetError('');
     setResetLoading(true);
-    // Call server to reset first
-    const res = await api.resetProgress();
-    if (res.ok && res.data?.success) {
-      // Clear local database rows
-      await clearUserData();
+    try {
+      // Call server to reset first
+      const res = await api.resetProgress();
+      if (res.ok && res.data?.success) {
+        // clearProgressData, NOT clearUserData.
+        //
+        // clearUserData wipes the whole local database - the user row and the
+        // session token with it - so "Reset progress" quietly signed the
+        // account out and dropped it back at the login screen, having promised
+        // only to clear training days. The account stays; the progress goes.
+        await clearProgressData(user.id);
+        // Push the cleared state up so the next device to sync does not hand
+        // the deleted days straight back.
+        syncNow(user.id).catch(() => {});
+        setResetModalVisible(false);
+        Alert.alert(t('settings.resetSuccessTitle'), t('settings.resetSuccessBody'));
+        navigation.navigate('MainTabs');
+      } else {
+        setResetError(res.error || t('settings.failedToResetProgress'));
+      }
+    } catch (e) {
+      console.error('Failed to reset progress', e);
+      setResetError(t('settings.failedToResetProgress'));
+    } finally {
       setResetLoading(false);
-      setResetModalVisible(false);
-      Alert.alert(t('settings.resetSuccessTitle'), t('settings.resetSuccessBody'));
-      navigation.navigate('MainTabs');
-    } else {
-      setResetLoading(false);
-      setResetError(res.error || t('settings.failedToResetProgress'));
     }
   };
 
@@ -208,7 +264,8 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
     const res = await api.deleteAccount(deleteCode);
     setDeleteLoading(false);
     if (res.ok) {
-      await clearUserData();
+      // `logout` already calls clearUserData; doing it here too meant wiping
+      // the database, then signing out of the row that had just been deleted.
       await logout();
       setDeleteModalVisible(false);
       Alert.alert(t('settings.deletedTitle'), t('settings.deletedBody'));
@@ -275,7 +332,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
             // only way to change plan is leaving for Google Play.
             <TouchableOpacity
               style={styles.subRow}
-              onPress={() => navigation.navigate('Paywall')}
+              onPress={() => navigation.navigate('Paywall', { source: 'settings' })}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>{t('settings.subscription')}</Text>
@@ -290,20 +347,12 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
                   {subscriptionLabel}
                 </Text>
               </View>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M9 18l6-6-6-6"
-                  stroke={COLORS.textMuted}
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
+              <Chevron color={COLORS.textMuted} />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={styles.menuRow}
-              onPress={() => navigation.navigate('Paywall')}
+              onPress={() => navigation.navigate('Paywall', { source: 'settings' })}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>{t('settings.noActiveSubscription')}</Text>
@@ -318,7 +367,15 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
           {manageUrl && (
             <TouchableOpacity
               style={[styles.menuRow, styles.borderTop]}
-              onPress={() => Linking.openURL(manageUrl)}
+              onPress={() => {
+                // Leaving for Play's own subscription page. Worth counting
+                // because everything that happens after this tap - a
+                // cancellation, a payment method fixed - happens somewhere
+                // this app cannot see, and a rise here is the earliest warning
+                // the cancellations report gets.
+                track(user?.id, 'subscription_managed', subStatus || null);
+                Linking.openURL(manageUrl);
+              }}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>{t('settings.manageSubscription')}</Text>
@@ -357,7 +414,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
             most people want. */}
         <Text style={styles.sectionLabel}>{t('settings.appearance')}</Text>
         <View style={styles.menuContainer}>
-          <View style={styles.segment}>
+          <View style={styles.segment} accessibilityRole="radiogroup">
             {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => {
               const active = themeMode === m;
               return (
@@ -369,7 +426,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
                     track(user?.id, 'appearance_changed', m);
                   }}
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: active }}
+                  accessibilityState={{ selected: active, checked: active }}
                 >
                   <Text
                     style={[
@@ -393,6 +450,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
         <View style={styles.menuContainer}>
           <TouchableOpacity
             style={styles.menuRow}
+            accessibilityRole="button"
             onPress={() => setLanguagePickerVisible(true)}
           >
             <Text style={styles.menuText}>{t('settings.language')}</Text>
@@ -401,33 +459,58 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
               <Text style={styles.menuSubtext}>
                 {SUPPORTED_LANGUAGES[i18n.language as LanguageTag] ?? i18n.language}
               </Text>
-              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
+              <Chevron color={COLORS.textMuted} />
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* Legal Pages section */}
-        {pages.length > 0 && (
-          <>
-            <Text style={styles.sectionLabel}>{t('settings.terms')}</Text>
-            <View style={styles.menuContainer}>
-              {pages.map((p, idx) => (
-                <TouchableOpacity
-                  key={p.slug}
-                  style={[styles.menuRow, idx > 0 && styles.borderTop]}
-                  onPress={() => navigation.navigate('LegalPage', { slug: p.slug, title: p.title })}
-                >
-                  <Text style={styles.menuText}>{p.title}</Text>
-                  <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                    <Path d="M9 5l7 7-7 7" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </Svg>
-                </TouchableOpacity>
-              ))}
+        {/* Help.
+            "Contact support" is said in half a dozen error messages across the
+            app, and there was nowhere in the app to contact support FROM - the
+            instruction named an action the product did not offer. One row,
+            where a person looks for it. */}
+        <Text style={styles.sectionLabel}>{t('settings.help')}</Text>
+        <View style={styles.menuContainer}>
+          <TouchableOpacity
+            style={styles.menuRow}
+            accessibilityRole="button"
+            onPress={openSupportEmail}
+          >
+            <Text style={styles.menuText}>{t('settings.contactSupport')}</Text>
+            <View style={styles.supportRight}>
+              <Text style={styles.menuSubtext} numberOfLines={1}>
+                {SUPPORT_EMAIL}
+              </Text>
+              <Chevron color={COLORS.textMuted} />
             </View>
-          </>
-        )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Legal pages.
+            Rendered from the synced list when there is one, and from the two
+            slugs the app itself links to otherwise. `pages` is filled by the
+            authenticated content sync, so before the first successful sync -
+            a fresh install, or an install that has been offline - the whole
+            section was absent and Terms and Privacy were unreachable from
+            Settings. The screen behind them says so and offers a retry, which
+            is a far better answer than a heading that is not there. */}
+        <Text style={styles.sectionLabel}>{t('settings.terms')}</Text>
+        <View style={styles.menuContainer}>
+          {(pages.length > 0 ? pages : FALLBACK_LEGAL_PAGES).map((p, idx) => {
+            const title = p.title || t(FALLBACK_LEGAL_TITLE_KEYS[p.slug] ?? 'settings.terms');
+            return (
+              <TouchableOpacity
+                key={p.slug}
+                style={[styles.menuRow, idx > 0 && styles.borderTop]}
+                accessibilityRole="button"
+                onPress={() => navigation.navigate('LegalPage', { slug: p.slug, title })}
+              >
+                <Text style={styles.menuText}>{title}</Text>
+                <Chevron color={COLORS.textMuted} />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
         {/* Standalone actions, ordered by consequence: the routine one first,
             the irreversible one last and visually set apart. Previously Log out
@@ -435,9 +518,26 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
             CTA colour) sitting between two identical red buttons, so "clear my
             progress" and "destroy my account" read as the same weight. */}
         <View style={styles.actionsContainer}>
+          {/* Confirmed, because it is not undoable in one tap the way it
+              looks. Logging out clears the local database, so anything not yet
+              synced is gone and getting back in needs the password - and this
+              button sits directly above two destructive ones, which is exactly
+              where a mis-tap happens. */}
           <TouchableOpacity
             style={[styles.actionBtn, styles.logoutBtn]}
-            onPress={logout}
+            accessibilityRole="button"
+            onPress={() =>
+              Alert.alert(t('settings.logOutConfirmTitle'), t('settings.logOutConfirmBody'), [
+                { text: t('settings.cancel'), style: 'cancel' },
+                {
+                  text: t('settings.logOut'),
+                  style: 'destructive',
+                  onPress: () => {
+                    logout();
+                  },
+                },
+              ])
+            }
           >
             <Text style={styles.logoutBtnText}>{t('settings.logOut')}</Text>
           </TouchableOpacity>
@@ -537,12 +637,27 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
         transparent
         onRequestClose={closeDeleteModal}
       >
+        {/* The second step of this modal has a code field in it. Without the
+            keyboard avoidance the keyboard covered the field and the two
+            buttons under it, so the reader could type a code they could not
+            see and could not reach Delete - on the one flow in the app with no
+            other route to completion. */}
+        <KeyboardAvoidingView
+          style={styles.modalFill}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={closeDeleteModal}
         >
           <TouchableWithoutFeedback>
+            <ScrollView
+              contentContainerStyle={styles.modalScroll}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{t('settings.deleteAccount2')}</Text>
 
@@ -642,8 +757,10 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
                 </>
               )}
             </View>
+            </ScrollView>
           </TouchableWithoutFeedback>
         </TouchableOpacity>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );
@@ -773,13 +890,19 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   menuText: {
     fontSize: 15,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     color: COLORS.white,
   },
   menuSubtext: {
     fontSize: 12,
     color: COLORS.textMuted,
     marginTop: 4,
+  },
+  supportRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 1,
   },
   badge: {
     borderRadius: 12,
@@ -867,11 +990,20 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
 
   // Modal styles
+  modalFill: {
+    flex: 1,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: COLORS.scrim,
     justifyContent: 'center',
     paddingHorizontal: 24,
+  },
+  // flexGrow with centring: the card sits in the middle while it fits and
+  // scrolls only once the keyboard has taken the room it needed.
+  modalScroll: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   modalContent: {
     backgroundColor: COLORS.surface,
@@ -923,7 +1055,7 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   modalCancelBtnText: {
     color: COLORS.white,
-    fontWeight: 'semibold',
+    fontWeight: '600',
   },
   modalConfirmBtn: {
     backgroundColor: COLORS.accent,

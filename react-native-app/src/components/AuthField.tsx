@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -122,6 +123,7 @@ export const AuthField: React.FC<AuthFieldProps> = ({
 }) => {
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
+  const { t } = useTranslation();
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(true);
   const invalid = !!errorText;
@@ -164,12 +166,19 @@ export const AuthField: React.FC<AuthFieldProps> = ({
         />
 
         {secure ? (
+          // The label said the FIELD's name ("Password"), which is what the
+          // field beside it is already called - so a screen reader announced
+          // two controls named Password and neither of them said what this one
+          // does. It names the action it will perform, which is how a toggle
+          // has to be labelled.
           <Pressable
             onPress={() => setHidden((h) => !h)}
             hitSlop={12}
             style={styles.eye}
             accessibilityRole="button"
-            accessibilityLabel={label}
+            accessibilityLabel={
+              hidden ? t('common.showPassword') : t('common.hidePassword')
+            }
             accessibilityState={{ expanded: !hidden }}
           >
             <EyeIcon off={hidden} />

@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "Löydä lantionpohjasi",
     "firstTitle": "Ensimmäinen harjoituksesi",
+    "skipStep": "Ohita tämä vaihe",
     "whyTitle": "Miksi Kegel-harjoittelu toimii"
   },
   "billing": {
-    "alreadyOwned": "Sinulla on jo voimassa oleva tilaus. Palautamme sen nyt.",
-    "configuration": "Tätä tilausta ei voi juuri nyt ostaa. Vika on meissä - yritä myöhemmin uudelleen tai ota yhteyttä tukeen.",
+    "alreadyOwned": "Google-tililläsi on jo voimassa oleva tilaus tähän sovellukseen.",
+    "configuration": "Tätä tilausta ei voi juuri nyt ostaa. Vika on meissä, yritä myöhemmin uudelleen tai kirjoita meille kohdasta Asetukset > Ohje.",
     "declined": "Google Play hylkäsi maksun. Tarkista Google-tilisi maksutapa ja yritä uudelleen.",
     "ineligible": "Et ole oikeutettu tähän tarjoukseen. Valitse toinen tilaus.",
     "network": "Kauppaan ei saatu yhteyttä. Tarkista yhteytesi ja yritä uudelleen. Jos sinulta veloitettiin, käyttöoikeus ilmestyy itsestään.",
     "noPermission": "Google-tililläsi ei ole oikeutta tehdä ostoksia tällä laitteella.",
     "notAllowed": "Tällä laitteella tai Google-tilillä ei saa tehdä ostoksia. Yleensä syynä on lapsilukko tai tililtä puuttuva maksutapa.",
     "operationInProgress": "Ostos on jo käynnissä. Odota hetki ennen uutta yritystä.",
-    "otherAccount": "Tämä tilaus kuuluu toiselle tilille. Kirjaudu sisään sillä tilillä tai ota yhteyttä tukeen, niin siirrämme sen.",
+    "otherAccount": "Tämä tilaus kuuluu toiselle tilille. Kirjaudu sisään sillä tilillä tai kirjoita meille kohdasta Asetukset > Ohje, niin siirrämme sen.",
     "paymentPending": "Google Play käsittelee maksuasi. Käteis- ja lahjakorttimaksut voivat kestää hetken. Käyttöoikeus avautuu automaattisesti, kun maksu menee läpi, joten älä maksa uudelleen.",
     "storeProblem": "Google Playssä on juuri nyt ongelmia. Yritä uudelleen muutaman minuutin kuluttua.",
     "unknown": "Ostoksesi viimeistelyssä meni jotain pieleen. Yritä uudelleen. Jos sinulta veloitettiin, käyttöoikeus ilmestyy itsestään. [{{code}}]",
-    "notEntitled": "Google Play viimeisteli oston, mutta ei ole vielä myöntänyt käyttöoikeutta. Yleensä tämä selviää minuutissa. Älä maksa uudelleen - jos ongelma jää, ota yhteyttä tukeen, niin selvitämme sen."
+    "notEntitled": "Google Play viimeisteli oston, mutta ei ole vielä myöntänyt käyttöoikeutta. Yleensä tämä selviää minuutissa. Älä maksa uudelleen, ja jos ongelma jää, kirjoita meille kohdasta Asetukset > Ohje."
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "Takaisin",
+    "close": "Sulje",
+    "couldNotLoad": "Lataaminen ei onnistunut. Tarkista yhteytesi ja yritä uudelleen.",
+    "googleUnavailable": "Google-kirjautuminen ei ole käytettävissä tässä versiossa. Käytä sen sijaan sähköpostiasi ja salasanaasi.",
+    "hidePassword": "Piilota salasana",
+    "offline": "Olet offline-tilassa. Osa asioista latautuu vasta, kun yhteys palaa.",
     "or": "tai",
-    "perMonth": "{{price}}/kk"
+    "perMonth": "{{price}}/kk",
+    "showPassword": "Näytä salasana",
+    "tryAgain": "Yritä uudelleen"
   },
   "errorBoundary": {
+    "goToStart": "Siirry alkuun",
     "somethingWentWrong": "Jokin meni pieleen",
     "theAppHitAnUnexpected": "Sovelluksessa tapahtui odottamaton virhe. Yritä uudelleen.",
     "tryAgain": "Yritä uudelleen"
@@ -200,6 +210,7 @@
     "tryItNow": "Kokeile nyt"
   },
   "find": {
+    "holdA11yHint": "Paina ja pidä pohjassa {{seconds}} sekuntia samalla kun jännität.",
     "keepGoing": "Jatka samaan malliin …",
     "onlyDoThePeeTestDesc": "Tämä on vain tapa löytää lihakset, ei harjoitus. Suihkun toistuva pysäyttäminen ei ole hyväksi rakolle.",
     "pressAndHold": "Paina ja pidä",
@@ -221,10 +232,12 @@
     "learnTheBasics": "Opettele perusteet",
     "lessonNumber": "Oppitunti {{number}}",
     "logIn": "Kirjaudu sisään",
-    "nextLesson": "Seuraava oppitunti"
+    "nextLesson": "Seuraava oppitunti",
+    "nextStepA11y": "Seuraava vaihe",
+    "previousStepA11y": "Edellinen vaihe"
   },
-  "legalPage": {
-    "offlineNotice": "Sisältöä ei ole saatavilla offline-tilassa. Yhdistä internetiin ladataksesi tämän sivun."
+  "legal": {
+    "aboutBasics": "Lantionpohjan harjoitukset, joita kutsutaan yleisesti Kegel-harjoituksiksi, vahvistavat lihaksia, jotka tukevat virtsarakkoa, suolen toimintaa ja seksuaalitoimintoja.\n\nNäin teet ne:\n1. Löydä lihakset. Jännitä niitä lihaksia, joilla pysäyttäisit virtsasuihkun puolivälissä.\n2. Jännitä vain lantionpohjan lihaksia. Pidä pakarat, reidet ja vatsa rentoina.\n3. Hengitä koko ajan aivan normaalisti.\n\nSäännöllisyys on se, mikä toimii. Harjoittele joka päivä, niin saat parhaat tulokset."
   },
   "login": {
     "6DigitCode": "6-numeroinen koodi",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "Jokainen tilaus alkaa {{count}} päivän ilmaisjaksolla",
     "everyPlanStartsWithTrial_other": "Jokainen tilaus alkaa {{count}} päivän ilmaisjaksolla",
     "logOut": "Kirjaudu ulos",
+    "manageInGooglePlay": "Hallitse tilausta Google Playssa",
     "manageOrCancelAnytime": "Voit hallita tai peruuttaa milloin tahansa Google Playssa.",
     "managePlan": "Hallitse tilausta",
     "noActiveSubscriptionWasFound": "Palautettavaa aktiivista tilausta ei löytynyt.",
     "off": "Pois",
     "offeringsUnavailable": "Tilaukset eivät ole juuri nyt saatavilla tällä laitteella. Yritä myöhemmin uudelleen tai palauta aiempi ostos alta.",
     "on": "Päällä",
-    "paymentProcessedSecurely": "Maksu käsitellään turvallisesti RevenueCatin ja sovelluskaupan kautta vahvistettaessa.",
+    "paymentProcessedSecurely": "Maksu käsitellään turvallisesti Google Playn kautta vahvistettaessa.",
     "premium": "Premium",
     "priceRenewsAutomatically": "{{price}}, uusiutuu automaattisesti peruutukseen asti.",
     "privacyPolicy": "Tietosuojakäytäntö",
+    "purchaseAlreadyEnded": "Google Playn mukaan tämä tilaus on jo päättynyt, joten mitään ei avattu. Jos sinulta veloitettiin, ota yhteyttä tukeen, niin selvitämme asian.",
     "purchaseReceivedButPlanCould": "Osto vastaanotettiin, mutta tilausta ei tunnistettu. Ota yhteyttä tukeen.",
     "renewPlan": "Uusi tilaus",
     "renewYourPlan": "Uusi tilauksesi",
     "restorePurchases": "Palauta ostot",
+    "restoringPurchase": "Palautamme sen nyt.",
     "restoredPurchaseCouldNotBe": "Palautettua ostoa ei voitu yhdistää tilaukseen. Ota yhteyttä tukeen.",
     "savePercent": "SÄÄSTÄ {{percent}} %",
     "signInFirst": "Kirjaudu sisään ennen tilaamista.",
@@ -321,6 +337,9 @@
     "switchQueued": "Tilauksesi vaihtuu tilaukseen {{plan}}, kun nykyinen tilauksesi päättyy. Sinulta ei veloiteta tänään mitään.",
     "switchQueuedOn": "Tilauksesi vaihtuu tilaukseen {{plan}} {{date}}. Sinulta ei veloiteta tänään mitään.",
     "switchStartsLater": "Maksamasi aika säilyy. Uusi hinta alkaa seuraavasta uusimisesta.",
+    "switchChargedNow": "Sinulta veloitetaan nyt {{price}} koko jaksolta: {{period}}. Nykyisestä tilauksestasi jäljellä oleva aika lisätään päälle.",
+    "switchNoChargeToday": "Tänään ei veloiteta mitään. Tilauksesi vaihtuu tilaukseen {{plan}} seuraavassa uusimisessa {{date}}.",
+    "switchNoChargeTodayUndated": "Tänään ei veloiteta mitään. Tilauksesi vaihtuu tilaukseen {{plan}} seuraavan uusimisen yhteydessä.",
     "switchStartsNow": "Alkaa heti. Veloitus tapahtuu tänään, ja käyttämätön aika lisätään päälle.",
     "switchToPlan": "Vaihda tilaukseen {{plan}}",
     "terms": "Ehdot",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "Täysi käyttöoikeus, laskutus kuukausittain.",
       "name": "1 kuukausi",
-      "period": "/kk"
+      "period": "/kk",
+      "periodNoun": "1 kuukausi"
     },
     "premium-quarterly": {
       "description": "Laskutus 3 kuukauden välein.",
       "name": "3 kuukautta",
-      "period": "/3 kk"
+      "period": "/3 kk",
+      "periodNoun": "3 kuukautta"
     },
     "premium-yearly": {
       "description": "Yksi maksu koko vuodesta.",
       "name": "1 vuosi",
-      "period": "/vuosi"
+      "period": "/vuosi",
+      "periodNoun": "1 vuosi"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "Ohita"
   },
   "register": {
+    "agreeIntro": "Luomalla tilin hyväksyt seuraavat:",
     "alreadyHaveAnAccount": "Onko sinulla jo tili?",
     "confirmPassword": "Vahvista salasana",
     "continueWithGoogle": "Jatka Google-tilillä",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "Salasanassa on oltava vähintään yksi numero.",
     "passwordTooShort": "Salasanassa on oltava vähintään 6 merkkiä.",
     "passwordsDoNotMatch": "Salasanat eivät täsmää.",
+    "privacyPolicy": "Tietosuojakäytäntö",
     "registrationFailed": "Rekisteröinti epäonnistui.",
-    "subtitle": "Vie minuutin. Edistymisesi synkronoituu laitteiden välillä."
+    "subtitle": "Vie minuutin. Edistymisesi synkronoituu laitteiden välillä.",
+    "terms": "Käyttöehdot"
   },
   "reminders": {
     "channelName": "Harjoitusmuistutukset",
     "lapseBody": "Muutama päivä on kulunut. Yksi lyhyt harjoitus riittää palauttamaan rutiinin.",
     "lapseTitle": "Valmiina, kun sinäkin olet",
-    "notificationBody": "On aika tehdä päivittäinen Kegel-harjoitus!",
+    "notificationBody": "On aika tehdä Kegel-harjoitus.",
     "notificationTitle": "Kegel-harjoittelu",
+    "notificationsOffBody": "Muistutuksesi on tallennettu, mutta Kegelee ei voi lähettää ilmoituksia. Ota ne käyttöön puhelimesi asetuksista, niin alat saada niitä.",
+    "notificationsOffTitle": "Ilmoitukset ovat pois käytöstä",
     "nudgeChannelName": "Muistutukset",
-    "trialEndingBody": "Tilauksesi alkaa, ellet peruuta sitä Google Playssä.",
+    "trialEndingBody": "Ilmainen kokeilujaksosi päättyy huomenna. Vältä veloitus peruuttamalla Google Playssä ennen sen päättymistä.",
     "trialEndingTitle": "Ilmainen kokeilujaksosi päättyy huomenna"
   },
   "schedule": {
     "active": "Käytössä",
     "addTime": "Lisää aika",
-    "allowExactBody": "Muistutuksesi on asetettu.\n\nJotta ne laukeavat täsmälleen ajallaan, salli Kegeleelle \"Herätykset ja muistutukset\" - muuten ne voivat tulla muutaman minuutin myöhässä.",
-    "allowExactTitle": "Salli tarkat muistutukset",
     "daysLeft_one": "{{count}} päivä jäljellä",
     "daysLeft_other": "{{count}} päivää jäljellä",
     "daysSet_one": "{{count}} päivä asetettu",
     "daysSet_other": "{{count}} päivää asetettu",
-    "error": "Virhe",
-    "errorTitle": "Virhe",
     "failedToSaveReminders": "Muistutusten tallennus epäonnistui.",
-    "limitReached": "Raja saavutettu",
     "limitReachedBody": "Voit asettaa enintään 5 muistutusta päivässä.",
-    "limitReachedTitle": "Raja saavutettu",
     "monthNumber": "Kuukausi {{number}}",
     "notNow": "Ei nyt",
     "openSettings": "Avaa asetukset",
     "reminders": "Muistutukset",
-    "remindersSaved": "Muistutukset tallennettu",
     "remindersSavedBody": "Viikoittaiset harjoitusmuistutuksesi on ajastettu.",
-    "remindersSavedTitle": "Muistutukset tallennettu",
+    "remindersTurnedOffBody": "Muistutukset ovat pois käytöstä. Valitse vähintään yksi päivä, jona haluat muistutuksen.",
+    "removeTimeA11y": "Poista {{time}}",
     "repeatOn": "Toista päivinä",
     "saveAddReminders": "Tallenna muistutukset",
     "schedule": "Aikataulu",
@@ -456,6 +477,7 @@
     "cancel": "Peruuta",
     "cancelledUntilDate": "Peruttu. Käyttöoikeutesi jatkuu {{date}} asti.",
     "cancelledUntilPeriodEnd": "Peruttu. Käyttöoikeutesi jatkuu maksetun jakson loppuun asti.",
+    "contactSupport": "Ota yhteyttä tukeen",
     "deleteAccount": "Poista tili",
     "deleteAccount2": "Poistetaanko tili?",
     "deleteCodeSent": "Lähetimme 6-numeroisen koodin osoitteeseen {{email}}. Syötä se poistaaksesi tilisi pysyvästi.",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "Edistymisen tyhjentäminen epäonnistui. Tarkista internetyhteytesi.",
     "failedToSendDeleteCode": "Poistokoodin lähetys epäonnistui. Tarkista internetyhteytesi.",
     "gotIt": "Selvä",
+    "help": "Ohje",
     "language": "Kieli",
     "logOut": "Kirjaudu ulos",
+    "logOutConfirmBody": "Tarvitset salasanasi kirjautuaksesi takaisin, ja kaikki vielä synkronoimaton katoaa.",
+    "logOutConfirmTitle": "Kirjaudutaanko ulos?",
     "manageSubscription": "Hallitse tilausta",
     "noActiveSubscription": "Ei aktiivista tilausta",
     "opensGooglePlay": "Avaa Google Playn, jossa voit vaihtaa tilausta, peruuttaa sen tai poistaa automaattisen uusimisen käytöstä.",
     "paymentIssueDetail": "Tilauksesi maksussa on ongelma. Päivitä maksutapasi Google Playssä.",
     "renewsOn": "Uusiutuu {{date}}.",
     "reset": "Nollaa",
-    "resetConfirmBody": "Tämä tyhjentää harjoittelupäiväsi, sessiot, mittaukset ja oppituntiedistymisesi. Toimintoa ei voi perua.",
+    "resetConfirmBody": "Tämä tyhjentää harjoittelupäiväsi, harjoituksesi ja mittauksesi. Tilisi, tilauksesi ja muistutuksesi säilyvät. Toimintoa ei voi perua.",
     "resetProgress": "Nollaa edistyminen",
     "resetProgress2": "Nollataanko edistyminen?",
-    "resetSuccessBody": "Harjoitteluedistymisesi on tyhjennetty.",
-    "resetSuccessTitle": "Nollattu",
+    "resetSuccessBody": "Harjoittelupäiväsi, harjoituksesi ja mittauksesi on tyhjennetty.",
+    "resetSuccessTitle": "Edistyminen nollattu",
     "restartBody": "Sulje ja avaa sovellus uudelleen, jotta asettelun suunta vaihtuu.",
+    "restartNow": "Käynnistä uudelleen nyt",
     "restartRequired": "Uudelleenkäynnistys vaaditaan",
+    "rtlRestartConfirm": "{{language}} käyttää oikealta vasemmalle etenevää asettelua. Sovellus käynnistyy uudelleen.",
     "sendCode": "Lähetä koodi",
     "subActive": "Aktiivinen",
     "subCancelled": "Peruttu",
@@ -497,44 +524,13 @@
     "subscribe": "Tilaa",
     "subscribeToUnlockFullAccess": "Tilaa ja avaa koko sisältö",
     "subscription": "Tilaus",
+    "supportEmailBody": "Kerro, mitä tapahtui, niin selvitämme asian.\n\n---\nTilin tunnus: {{id}}",
+    "supportEmailSubject": "Kegelee-tuki",
     "tapToChangePlan": "Vaihda tilaus napauttamalla",
     "terms": "Ehdot",
     "trialEndsNoRenew": "Ilmainen kokeilu päättyy {{date}}. Se ei uusiudu.",
     "trialEndsThenBilling": "Ilmainen kokeilu päättyy {{date}}, minkä jälkeen laskutus alkaa.",
     "updatePaymentMethod": "Päivitä maksutapasi Google Playssä."
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "Onko sinulla jo tili? Kirjaudu sisään",
-    "back": "Takaisin",
-    "bestValue": "PARAS TARJOUS",
-    "billingDisclosure": "Maksu käsitellään turvallisesti RevenueCatin ja sovelluskaupan kautta vahvistuksen yhteydessä. Tilauksesi uusiutuu automaattisesti näytettyyn hintaan, kunnes peruutat sen tilausasetuksissasi; sovelluksen poistaminen ei peruuta tilausta eikä palauta rahoja. Jatkamalla hyväksyt",
-    "close": "Sulje",
-    "confirmPassword": "Vahvista salasana",
-    "continue": "Jatka",
-    "continueWithGoogle": "Jatka Google-tilillä",
-    "couldNotOpenGoogle": "Google-kirjautumista ei voitu avata. Yritä uudelleen.",
-    "couldNotReachServer": "Palvelimeen ei saatu yhteyttä. Tarkista verkkoyhteytesi ja yritä uudelleen.",
-    "createAccount": "Luo tili",
-    "createAccountSubscribe": "Luo tili ja tilaa",
-    "creatingAccount": "Luodaan tiliä …",
-    "emailAddress": "Sähköpostiosoite",
-    "emailInvalid": "Anna kelvollinen sähköpostiosoite.",
-    "emailOrPasswordIncorrect": "Sähköposti tai salasana on väärin.",
-    "emailRequired": "Sähköposti vaaditaan.",
-    "fullName": "Koko nimi",
-    "googleSignInFailed": "Google-kirjautuminen epäonnistui. Yritä uudelleen.",
-    "headline": "Valitse tilaus ja aloita harjoittelu",
-    "nameRequired": "Nimi vaaditaan.",
-    "noAccountYetCreateOne": "Eikö sinulla ole vielä tiliä? Luo se",
-    "password": "Salasana",
-    "passwordRequired": "Salasana vaaditaan.",
-    "passwordRules": "Salasanassa on oltava vähintään 6 merkkiä ja numero.",
-    "passwordsDoNotMatch": "Salasanat eivät täsmää.",
-    "signIn": "Kirjaudu sisään",
-    "signInSubscribe": "Kirjaudu sisään ja tilaa",
-    "signingIn": "Kirjaudutaan …",
-    "subscribe": "Tilaa",
-    "terms": "Ehdot"
   },
   "tabs": {
     "profile": "Profiili",
@@ -570,15 +566,18 @@
     "available": "Käytettävissä",
     "bestHold": "Paras pito {{seconds}} s",
     "complete": "VALMIS",
+    "dayLabel": "Päivä {{day}}",
     "daysLeft_one": "{{count}} päivä",
     "daysLeft_other": "{{count}} päivää",
     "exercises": "Harjoitukset",
     "extraSessionsOptional": "Lisäharjoitukset ovat vapaaehtoisia",
+    "freeCapCta": "Tilaa",
+    "freeCapReached": "Ilmainen käyttö päättyy päivään {{day}}. Tilaa, niin voit jatkaa.",
     "knowledge": "Tietoa",
     "measureDaily": "Mittaa päivittäin ja seuraa kehitystä",
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
-    "monthDay": "KUUKAUSI {{month}}   /   PÄIVÄ {{day}}",
+    "monthLabel": "Kuukausi {{month}}",
     "progressTracker": "Edistyminen",
     "readyWhenYouAre": "Aloita kun olet valmis",
     "ringA11y": "{{done}} / {{required}} harjoitusta tehty tänään",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "Takaisin kirjautumiseen",
-    "codeResent": "Vahvistuskoodi lähetetty uudelleen!",
+    "codeResent": "Vahvistuskoodi lähetetty uudelleen.",
     "didnTReceiveTheCode": "Etkö saanut koodia? Lähetä uudelleen",
     "enterSixDigitCode": "Anna 6-numeroinen vahvistuskoodi.",
     "failedToResendCode": "Koodin lähetys uudelleen epäonnistui.",
@@ -611,19 +610,19 @@
   "why": {
     "cardRealMuscle": "Oikea lihas. Treenaa sitä, niin se vahvistuu.",
     "squeezeTheWrongMusclesAnd": "Jos jännität vääriä lihaksia, siitä ei ole mitään hyötyä.",
-    "theNextLessonShowsYou": "Seuraava oppitunti näyttää tarkalleen, missä lihaksesi ovat.",
-    "thenYouDoYourFirst": "Sen jälkeen teet ensimmäisen oikean harjoituksesi ympyrän opastamana."
+    "theNextLessonShowsYou": "Seuraava oppitunti näyttää tarkalleen, missä lihaksesi ovat."
   },
   "workout": {
     "back": "Takaisin",
+    "couldNotStartBody": "Harjoituksen kokoamisessa meni jokin pieleen. Yritä uudelleen tai palaa takaisin ja aloita se harjoittelu-välilehdeltä.",
+    "couldNotStartTitle": "Harjoitusta ei voitu aloittaa",
     "exerciseTutorial": "Harjoituksen ohje",
     "greatJob": "Hienoa työtä!",
     "ifYouLeaveThisSession": "Jos poistut nyt, tämä harjoitus ei kirjaudu päivän edistymiseen.",
-    "leaveTraining": "Poistutaanko harjoituksesta?",
+    "leaveTraining": "Poistutaanko tästä harjoituksesta?",
     "minutesLeft_one": "{{count}} min jäljellä",
     "minutesLeft_other": "{{count}} min jäljellä",
-    "noExercises": "Ei harjoituksia",
-    "noExercisesBody": "Tähän sessioon ei ole avattu yhtään liikettä.",
+    "noExercisesBody": "Tähän harjoitukseen ei ole vielä avattu yhtään liikettä.",
     "noExercisesTitle": "Ei liikkeitä",
     "noGoBack": "Ei, takaisin",
     "pause": "Tauko",
@@ -634,7 +633,7 @@
     "tryAgain": "Yritä uudelleen",
     "watchTheQuickTutorialFor": "Katso tämän harjoituksen lyhyt ohje ja palaa sitten harjoitukseesi.",
     "watchTutorial": "Katso ohje",
-    "yesQuitTraining": "Kyllä, lopeta harjoitus"
+    "yesQuitTraining": "Kyllä, poistu harjoituksesta"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "Olet jo helpoimmalla tasolla.",

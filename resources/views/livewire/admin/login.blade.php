@@ -50,7 +50,7 @@
         </form>
 
         <p class="mt-4 text-center text-sm">
-            <a href="{{ route('password.forgot') }}" wire:navigate class="text-muted transition-colors hover:text-accent-soft">Forgot password?</a>
+            <a href="{{ route('admin.password.forgot') }}" wire:navigate class="text-muted transition-colors hover:text-accent-soft">Forgot password?</a>
         </p>
 
         <p class="mt-4 text-center text-xs text-muted">Authorised personnel only.</p>

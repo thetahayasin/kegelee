@@ -2,22 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\SubscriptionCanceledMail;
-use App\Mail\SubscriptionRenewedMail;
-use App\Mail\SubscriptionStartedMail;
+use App\Models\BillingWebhookEvent;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Models\UserEvent;
 use App\Services\RevenueCatService;
 use App\Services\SettingsService;
+use App\Services\SubscriptionMailer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class RevenueCatWebhookController extends Controller
 {
+    /**
+     * Events that can only ever take access away.
+     *
+     * These must never be matched to a subscription by guesswork. The old
+     * "fall back to the user's active subscription" rule meant an EXPIRATION
+     * for a transaction we have no row for cancelled whatever the account
+     * happened to be on - including a brand new subscription bought minutes
+     * earlier, since the expiring one is usually the one it replaced.
+     */
+    private const TERMINAL_EVENTS = ['EXPIRATION', 'CANCELLATION', 'REVOCATION', 'BILLING_ISSUE'];
+
+    /**
+     * When the store says this event happened.
+     *
+     * Held on the instance (one controller per request) so every handler can
+     * stamp the row it writes without threading the value through a dozen
+     * signatures.
+     */
+    private ?Carbon $eventAt = null;
+
     public function handle(Request $request, RevenueCatService $rcService, SettingsService $settings): Response
     {
         // 1. Authorization. This endpoint MINTS SUBSCRIPTIONS from its request
@@ -71,8 +91,43 @@ class RevenueCatWebhookController extends Controller
             'product_id'  => $productId,
         ]);
 
+        $this->eventAt = isset($event['event_timestamp_ms'])
+            ? Carbon::createFromTimestampMs((int) $event['event_timestamp_ms'])
+            : null;
+
+        // Idempotency. RevenueCat retries on any non-2xx and on a timeout it
+        // never saw the answer to, so the same event arrives more than once as
+        // a matter of course. Without this a redelivered RENEWAL re-sent the
+        // renewal email and a redelivered PRODUCT_CHANGE re-ran a plan switch.
+        $record = BillingWebhookEvent::firstOrCreate(
+            ['source' => 'revenuecat', 'event_id' => $this->eventId($event)],
+            [
+                'event_type' => $type,
+                'occurred_at' => $this->eventAt,
+                'payload' => $event,
+            ],
+        );
+
+        if (! $record->wasRecentlyCreated && $record->handled_at !== null) {
+            Log::info('RevenueCat webhook event already handled - dropping the redelivery', [
+                'event_id' => $record->event_id,
+                'type' => $type,
+            ]);
+
+            return response('ok');
+        }
+
+        // RevenueCat's dashboard "send test event" button. Answering it with a
+        // 200 is the entire contract; processing it is not.
+        if ($type === 'TEST') {
+            Log::info('RevenueCat test event received', ['app_user_id' => $appUserId]);
+            $record->markHandled('test');
+
+            return response('ok');
+        }
+
         try {
-            $this->processEvent($type, $event, $rcService);
+            $this->processEvent($type, $event, $rcService, $record);
         } catch (\Throwable $e) {
             Log::error('RevenueCat webhook processing failed', [
                 'type'        => $type,
@@ -88,7 +143,7 @@ class RevenueCatWebhookController extends Controller
         return response('ok');
     }
 
-    private function processEvent(string $type, array $event, RevenueCatService $rcService): void
+    private function processEvent(string $type, array $event, RevenueCatService $rcService, BillingWebhookEvent $record): void
     {
         $appUserId = (string) ($event['app_user_id'] ?? '');
         $productId = (string) ($event['product_id'] ?? '');
@@ -109,9 +164,54 @@ class RevenueCatWebhookController extends Controller
                 ->first();
         }
 
-        if (! $sub && $user) {
+        $isTerminal = in_array($type, self::TERMINAL_EVENTS, true);
+
+        // Taking access away is only ever done to the exact row the store named.
+        if (! $sub && $user && ! $isTerminal) {
             $sub = $user->activeSubscription() ?? $user->subscriptions()->latest('id')->first();
         }
+
+        if (! $user && ! $sub && $type !== 'TRANSFER') {
+            // Error, not silence: this is a paying customer whose purchase this
+            // server cannot attribute to an account, and the recorded event row
+            // is what makes it fixable afterwards.
+            Log::error('RevenueCat event for an app_user_id that matches no account', [
+                'app_user_id' => $appUserId,
+                'type' => $type,
+                'product_id' => $productId,
+            ]);
+            $record->markHandled('unknown_user');
+
+            return;
+        }
+
+        if ($isTerminal && ! $sub) {
+            Log::warning('RevenueCat terminal event names a transaction with no subscription row - ignoring', [
+                'type' => $type,
+                'transaction_id' => $transactionId,
+                'app_user_id' => $appUserId,
+            ]);
+            $record->markHandled('unknown_transaction', $user?->id);
+
+            return;
+        }
+
+        if ($sub && $this->isStale($sub)) {
+            Log::warning('RevenueCat event is older than the last one applied - ignoring', [
+                'type' => $type,
+                'subscription_id' => $sub->id,
+                'event_at' => $this->eventAt?->toIso8601String(),
+                'last_event_at' => $sub->last_event_at?->toIso8601String(),
+            ]);
+            $record->markHandled('stale', $user?->id, $sub->id);
+
+            return;
+        }
+
+        $record->forceFill([
+            'user_id' => $user?->id,
+            'subscription_id' => $sub?->id,
+        ])->save();
 
         match ($type) {
             'INITIAL_PURCHASE' => $this->handleInitialPurchase($event, $user, $plan, $sub),
@@ -129,6 +229,50 @@ class RevenueCatWebhookController extends Controller
             'TEMPORARY_ENTITLEMENT_GRANT' => $this->handleTemporaryGrant($event, $sub),
             default            => Log::info("RevenueCat webhook event ignored: {$type}"),
         };
+
+        $record->markHandled(null, $user?->id, $sub?->id);
+    }
+
+    /**
+     * The store's id for this event, or a fingerprint of it.
+     *
+     * RevenueCat always sends event.id; the hash is only there so a malformed
+     * payload still gets a stable key rather than dropping out of the dedupe.
+     */
+    private function eventId(array $event): string
+    {
+        $id = trim((string) ($event['id'] ?? ''));
+
+        return $id !== '' ? $id : 'sha256:' . hash('sha256', (string) json_encode($event));
+    }
+
+    /**
+     * Has a newer event already been applied to this row?
+     *
+     * Webhooks are not ordered. A slow EXPIRATION arriving behind the RENEWAL
+     * that superseded it would otherwise cancel a subscription the customer had
+     * already paid to continue.
+     */
+    private function isStale(Subscription $sub): bool
+    {
+        return $this->eventAt !== null
+            && $sub->last_event_at !== null
+            && $this->eventAt->lessThan($sub->last_event_at);
+    }
+
+    /**
+     * Write to a subscription, recording which event did it.
+     *
+     * Every mutation goes through here so last_event_at can never drift out of
+     * step with the data it is meant to guard.
+     */
+    private function apply(Subscription $sub, array $attributes): void
+    {
+        if ($this->eventAt !== null) {
+            $attributes['last_event_at'] = $this->eventAt;
+        }
+
+        $sub->update($attributes);
     }
 
     private function handleInitialPurchase(array $event, ?User $user, ?Plan $plan, ?Subscription $existingSub): void
@@ -145,10 +289,9 @@ class RevenueCatWebhookController extends Controller
             : now();
         $isTrial = ($event['period_type'] ?? '') === 'TRIAL';
         $transactionId = (string) ($event['transaction_id'] ?? ($event['original_transaction_id'] ?? ''));
-        $store = strtolower((string) ($event['store'] ?? 'revenuecat'));
 
-        if ($existingSub && $existingSub->store_transaction_id === $transactionId) {
-            $existingSub->update([
+        if ($existingSub && $transactionId !== '' && $existingSub->store_transaction_id === $transactionId) {
+            $this->apply($existingSub, [
                 'status'        => $isTrial ? 'trialing' : 'active',
                 'ends_at'       => $expiresAt,
                 'auto_renewing' => true,
@@ -162,8 +305,13 @@ class RevenueCatWebhookController extends Controller
         // without retiring left two 'active' rows on the account, which
         // double-counted in the admin list and kept isSubscribed() true off
         // the stale row after the real subscription was cancelled.
+        //
+        // The null branch matters: SQL's `!=` drops NULL rows, so an admin
+        // grant (no transaction id) used to survive the sweep and keep the
+        // account on two live subscriptions.
         Subscription::where('user_id', $user->id)
-            ->where('store_transaction_id', '!=', $transactionId)
+            ->where(fn ($q) => $q->whereNull('store_transaction_id')
+                ->orWhere('store_transaction_id', '!=', $transactionId))
             ->whereIn('status', ['active', 'trialing'])
             ->update([
                 'status'        => 'expired',
@@ -175,19 +323,24 @@ class RevenueCatWebhookController extends Controller
             'plan_id'              => $plan?->id,
             'status'               => $isTrial ? 'trialing' : 'active',
             'store'                => 'revenuecat',
-            'store_transaction_id' => $transactionId,
-            'purchase_token'       => $transactionId ?: ('rc:' . $user->id . ':' . ($plan?->slug ?? 'sub')),
+            // Null, never '': the column is unique now, and empty strings all
+            // collide with each other.
+            'store_transaction_id' => $transactionId ?: null,
+            // With no transaction id to key on, the token has to be unique by
+            // construction. The old value was derived from the user and plan
+            // alone, so a second purchase on the same plan collided with the
+            // first and, with the unique index, would now fail outright.
+            'purchase_token'       => $transactionId ?: ('rc:' . $user->id . ':' . ($plan?->slug ?? 'sub') . ':' . Str::uuid()),
             'trial_ends_at'        => $isTrial ? $expiresAt : null,
             'started_at'           => $startedAt,
             'ends_at'              => $expiresAt,
             'auto_renewing'        => true,
+            'last_event_at'        => $this->eventAt,
         ]);
 
-        try {
-            Mail::to($user)->send(new SubscriptionStartedMail($sub));
-        } catch (\Throwable $e) {
-            Log::warning('Failed to send subscription started email via RevenueCat webhook', ['error' => $e->getMessage()]);
-        }
+        SubscriptionMailer::started($sub);
+
+        $this->recordBillingEvent($event, $user->id, UserEvent::SUBSCRIPTION_STARTED, $plan?->slug, $isTrial ? 'trial' : 'paid', ['store' => 'revenuecat']);
     }
 
     private function handleRenewal(array $event, ?User $user, ?Plan $plan, ?Subscription $sub): void
@@ -205,19 +358,20 @@ class RevenueCatWebhookController extends Controller
             ? Carbon::createFromTimestampMs((int) $event['expiration_at_ms'])
             : $sub->ends_at;
 
-        $sub->update([
+        $this->apply($sub, [
             'status'        => 'active',
             'plan_id'       => $plan?->id ?? $sub->plan_id,
             'ends_at'       => $expiresAt,
             'canceled_at'   => null,
             'auto_renewing' => true,
+            // A renewal cleared the billing problem, if there was one.
+            'grace_period_ends_at' => null,
+            'store_state'   => null,
         ]);
 
-        try {
-            Mail::to($sub->user)->send(new SubscriptionRenewedMail($sub->fresh()));
-        } catch (\Throwable $e) {
-            Log::warning('Failed to send subscription renewed email via RevenueCat webhook', ['error' => $e->getMessage()]);
-        }
+        SubscriptionMailer::renewed($sub->fresh());
+
+        $this->recordBillingEvent($event, $sub->user_id, UserEvent::SUBSCRIPTION_RENEWED, $plan?->slug ?? $sub->plan?->slug);
     }
 
     private function handleCancellation(array $event, ?Subscription $sub): void
@@ -230,18 +384,17 @@ class RevenueCatWebhookController extends Controller
             ? Carbon::createFromTimestampMs((int) $event['expiration_at_ms'])
             : $sub->ends_at;
 
-        $sub->update([
+        $this->apply($sub, [
             'status'        => 'canceled',
             'canceled_at'   => now(),
             'ends_at'       => $expiresAt,
             'auto_renewing' => false,
+            'store_state'   => 'canceled',
         ]);
 
-        try {
-            Mail::to($sub->user)->send(new SubscriptionCanceledMail($sub->fresh()));
-        } catch (\Throwable $e) {
-            Log::warning('Failed to send subscription canceled email via RevenueCat webhook', ['error' => $e->getMessage()]);
-        }
+        SubscriptionMailer::canceled($sub->fresh());
+
+        $this->recordBillingEvent($event, $sub->user_id, UserEvent::SUBSCRIPTION_ENDED, $sub->plan?->slug, 'canceled');
     }
 
     private function handleUncancellation(array $event, ?Subscription $sub): void
@@ -254,11 +407,12 @@ class RevenueCatWebhookController extends Controller
             ? Carbon::createFromTimestampMs((int) $event['expiration_at_ms'])
             : $sub->ends_at;
 
-        $sub->update([
+        $this->apply($sub, [
             'status'        => 'active',
             'canceled_at'   => null,
             'ends_at'       => $expiresAt,
             'auto_renewing' => true,
+            'store_state'   => null,
         ]);
     }
 
@@ -269,7 +423,7 @@ class RevenueCatWebhookController extends Controller
             : null;
 
         if ($sub && $newPlan) {
-            $sub->update([
+            $this->apply($sub, [
                 'plan_id'       => $newPlan->id,
                 'status'        => 'active',
                 'ends_at'       => $expiresAt ?? $sub->ends_at,
@@ -286,12 +440,15 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
-        $sub->update([
+        $this->apply($sub, [
             'status'        => 'expired',
             'auto_renewing' => false,
+            'store_state'   => 'expired',
         ]);
 
-        $this->resetLevelToOnboarding($sub);
+        $this->recordBillingEvent($event, $sub->user_id, UserEvent::SUBSCRIPTION_ENDED, $sub->plan?->slug, 'expired');
+
+        $this->resetLevelToOnboarding($sub, $event);
     }
 
     /**
@@ -307,7 +464,7 @@ class RevenueCatWebhookController extends Controller
      * expire the old row while the new one is running, and dropping a paying
      * customer's difficulty in the middle of that would be its own bug.
      */
-    private function resetLevelToOnboarding(Subscription $sub): void
+    private function resetLevelToOnboarding(Subscription $sub, array $event = []): void
     {
         $user = $sub->user;
         if (! $user || ! $user->onboarding_level) {
@@ -322,7 +479,28 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
-        $user->update(['level_id' => (int) $user->onboarding_level]);
+        $from = (int) $user->level_id;
+        $to = (int) $user->onboarding_level;
+
+        // Up or down in DIFFICULTY, which is the level's number, not its row
+        // id. They usually run in step and are not the same thing.
+        $fromNumber = (int) ($user->level?->number ?? 0);
+        $toNumber = (int) (\App\Models\Level::whereKey($to)->value('number') ?? 0);
+
+        $user->update(['level_id' => $to]);
+
+        // Keyed apart from the subscription event this arrived with: both come
+        // from one webhook, and one key for two rows means the second is
+        // silently dropped by the idempotency check.
+        $this->recordBillingEvent(
+            $event,
+            $user->id,
+            UserEvent::LEVEL_CHANGED,
+            $toNumber > $fromNumber ? 'up' : 'down',
+            'lapse',
+            ['from' => $from, 'to' => $to],
+            'rc-lvl-',
+        );
 
         Log::info('Level reset to the onboarding level after lapse', [
             'user_id' => $user->id,
@@ -336,9 +514,18 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
-        $sub->update([
+        // Grace period: the card failed but the store is retrying and expects
+        // us to keep serving, so ends_at is deliberately untouched.
+        $this->apply($sub, [
             'status' => 'past_due',
+            'store_state' => 'in_grace',
+            'grace_period_ends_at' => $sub->ends_at,
         ]);
+
+        // Counted as an ending even though access continues through the grace
+        // period: from the reports' point of view this is money that stopped
+        // arriving, and the detail says it was the card rather than a decision.
+        $this->recordBillingEvent($event, $sub->user_id, UserEvent::SUBSCRIPTION_ENDED, $sub->plan?->slug, 'billing_issue');
     }
 
     /**
@@ -361,10 +548,14 @@ class RevenueCatWebhookController extends Controller
             ? Carbon::createFromTimestampMs((int) $event['expiration_at_ms'])
             : $sub->ends_at;
 
-        $sub->update([
+        $this->apply($sub, [
             'status'        => 'canceled',
             'ends_at'       => $expiresAt,
             'auto_renewing' => false,
+            // The status is coarse on purpose; this is where the store's own
+            // word for it survives, so a paused row is still tellable from a
+            // cancelled one.
+            'store_state'   => 'paused',
         ]);
     }
 
@@ -384,7 +575,7 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
-        $sub->update([
+        $this->apply($sub, [
             'status'  => in_array($sub->status, ['expired', 'past_due'], true) ? 'active' : $sub->status,
             'ends_at' => $expiresAt,
         ]);
@@ -471,6 +662,57 @@ class RevenueCatWebhookController extends Controller
             : User::where('email', strtolower($appUserId))->first();
     }
 
+    /**
+     * Record one thing the store told us, once.
+     *
+     * Keyed on RevenueCat's own event id, because webhooks are delivered AT
+     * LEAST once: the same RENEWAL arriving three times has to leave one row,
+     * or every money figure on the reports is inflated by the retry rate.
+     *
+     * $keyPrefix exists because one webhook can produce two events (an
+     * expiration also moves the difficulty back), and two rows keyed the same
+     * way are one row.
+     *
+     * Wrapped in rescue(): a webhook that has already changed a subscription
+     * must return 200, or the store will send it again. Failing to write a
+     * report row is not a reason to re-run a cancellation.
+     */
+    private function recordBillingEvent(
+        array $event,
+        ?int $userId,
+        string $name,
+        ?string $subject = null,
+        ?string $detail = null,
+        ?array $meta = null,
+        string $keyPrefix = 'rc-',
+    ): void {
+        if (! $userId) {
+            return;
+        }
+
+        rescue(function () use ($event, $userId, $name, $subject, $detail, $meta, $keyPrefix) {
+            /**
+             * The device's own purchase confirmation records the same sale
+             * from the other side (SyncController::recordRevenueCatPurchase),
+             * and the two have no id in common - one knows the store's
+             * purchase token, the other the store's event id. They land within
+             * minutes of each other, so a start already recorded today is the
+             * same start, not a second one. A renewal is a different event and
+             * is unaffected.
+             */
+            if ($name === UserEvent::SUBSCRIPTION_STARTED
+                && UserEvent::where('user_id', $userId)
+                    ->where('name', UserEvent::SUBSCRIPTION_STARTED)
+                    ->where('occurred_at', '>=', now()->subDay())
+                    ->exists()
+            ) {
+                return;
+            }
+
+            UserEvent::record($userId, $name, $subject, $detail, $meta, $keyPrefix.$this->eventId($event));
+        }, report: false);
+    }
+
     private function handleRevocation(array $event, ?Subscription $sub): void
     {
         if (! $sub) {
@@ -478,21 +720,20 @@ class RevenueCatWebhookController extends Controller
         }
 
         // Refund/Revocation removes access immediately
-        $sub->update([
+        $this->apply($sub, [
             'status'        => 'canceled',
             'canceled_at'   => now(),
             'ends_at'       => now(),
             'auto_renewing' => false,
+            'store_state'   => 'revoked',
         ]);
+
+        $this->recordBillingEvent($event, $sub->user_id, UserEvent::SUBSCRIPTION_ENDED, $sub->plan?->slug, 'revoked');
 
         // Access is gone this instant, not at a period end, so the difficulty
         // goes back with it.
-        $this->resetLevelToOnboarding($sub);
+        $this->resetLevelToOnboarding($sub, $event);
 
-        try {
-            Mail::to($sub->user)->send(new SubscriptionCanceledMail($sub->fresh()));
-        } catch (\Throwable $e) {
-            Log::warning('Failed to send revocation email via RevenueCat webhook', ['error' => $e->getMessage()]);
-        }
+        SubscriptionMailer::canceled($sub->fresh());
     }
 }

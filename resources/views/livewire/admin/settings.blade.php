@@ -58,11 +58,14 @@
             <div><label class="mb-1 block text-sm text-muted">SMTP host</label>
                 <input wire:model="values.mail_host" placeholder="smtp.example.com" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <div><label class="mb-1 block text-sm text-muted">Port</label>
-                <input type="number" wire:model="values.mail_port" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+                <input type="number" min="1" max="65535" wire:model="values.mail_port" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('values.mail_port')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror</div>
             <div><label class="mb-1 block text-sm text-muted">Username</label>
                 <input wire:model="values.mail_username" autocomplete="off" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <div><label class="mb-1 block text-sm text-muted">Password</label>
-                <input type="password" wire:model="values.mail_password" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+                <input type="password" wire:model="secrets.mail_password" autocomplete="new-password"
+                       placeholder="{{ $secretsSet['mail_password'] ? 'Leave blank to keep the saved password' : 'Not set' }}"
+                       class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <div><label class="mb-1 block text-sm text-muted">Encryption</label>
                 <select wire:model="values.mail_encryption" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
                     <option value="tls">TLS</option><option value="ssl">SSL</option><option value="none">None</option>
@@ -70,7 +73,8 @@
             <div><label class="mb-1 block text-sm text-muted">From name</label>
                 <input wire:model="values.mail_from_name" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
             <div class="md:col-span-2"><label class="mb-1 block text-sm text-muted">From address</label>
-                <input type="email" wire:model="values.mail_from_address" placeholder="no-reply@yourapp.com" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none"></div>
+                <input type="email" wire:model="values.mail_from_address" placeholder="no-reply@yourapp.com" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('values.mail_from_address')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror</div>
 
             {{-- Send a test using the values in the form (no save needed). --}}
             <div class="md:col-span-2 flex flex-wrap items-center gap-3 border-t border-white/5 pt-4">
@@ -90,11 +94,13 @@
         {{-- GOOGLE LOGIN --}}
         <div x-show="tab === 'google'" class="space-y-4 rounded-2xl bg-surface p-5">
             <label class="flex items-center gap-3"><input type="checkbox" wire:model="values.google_login_enabled" class="h-5 w-5 accent-[var(--c-accent)]"> <span>Enable "Continue with Google"</span></label>
-            <p class="text-sm text-muted">Create OAuth credentials in Google Cloud Console. Authorised redirect URI: <code class="text-content">{{ url('/auth/google/callback') }}</code></p>
+            <p class="text-sm text-muted">Create OAuth credentials in Google Cloud Console. Authorised redirect URI: <code class="text-content">{{ url('/auth/google/native/callback') }}</code></p>
             <div><label class="mb-1 block text-sm text-muted">Client ID</label>
                 <input wire:model="values.google_client_id" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
             <div><label class="mb-1 block text-sm text-muted">Client secret</label>
-                <input type="password" wire:model="values.google_client_secret" autocomplete="new-password" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
+                <input type="password" wire:model="secrets.google_client_secret" autocomplete="new-password"
+                       placeholder="{{ $secretsSet['google_client_secret'] ? 'Leave blank to keep the saved secret' : 'Not set' }}"
+                       class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
         </div>
 
         {{-- REVENUECAT & BILLING --}}
@@ -111,19 +117,19 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label class="mb-1 block text-sm text-muted">RevenueCat Secret API Key (V1/V2)</label>
-                    <input type="password" wire:model="values.revenuecat_api_key" autocomplete="new-password"
-                           placeholder="sk_..."
+                    <input type="password" wire:model="secrets.revenuecat_api_key" autocomplete="new-password"
+                           placeholder="{{ $secretsSet['revenuecat_api_key'] ? 'Leave blank to keep the saved key' : 'sk_...' }}"
                            class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
                     <p class="mt-1 text-xs text-muted">Used server-side to verify entitlements with RevenueCat REST API.</p>
                 </div>
 
                 <div>
                     <label class="mb-1 block text-sm text-muted">Webhook Authorization Header Secret</label>
-                    <input wire:model="values.revenuecat_webhook_secret"
-                           placeholder="your_custom_webhook_secret"
+                    <input type="password" wire:model="secrets.revenuecat_webhook_secret" autocomplete="new-password"
+                           placeholder="{{ $secretsSet['revenuecat_webhook_secret'] ? 'Leave blank to keep the saved secret' : 'Not set' }}"
                            class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
                     <p class="mt-1 text-xs text-muted">Value set in RevenueCat Dashboard &rarr; Integrations &rarr; Webhooks &rarr; Authorization Header.</p>
-                    @if (trim((string) ($values['revenuecat_webhook_secret'] ?? '')) === '')
+                    @unless ($secretsSet['revenuecat_webhook_secret'])
                         {{-- The webhook creates subscriptions from its request body, so it
                              refuses to process anything until this is set. Renewals,
                              cancellations and expiries will NOT reach the app before then. --}}
@@ -133,7 +139,7 @@
                             until this secret is set here <em>and</em> in the RevenueCat dashboard.
                             RevenueCat retries, so nothing is lost once both sides match.
                         </p>
-                    @endif
+                    @endunless
                 </div>
 
                 <div>
@@ -163,6 +169,8 @@
                        placeholder="premium"
                        class="h-11 w-48 rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
                 <p class="mt-1 text-xs text-muted">Default is <code>premium</code>.</p>
+            </div>
+
             <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
                 <p class="font-semibold text-content">Subscription products</p>
                 <p class="mt-1">The plans are fixed in code. Create a subscription product in your Play Console / App Store Connect
@@ -176,7 +184,7 @@
                         </tr>
                     </thead>
                     <tbody class="text-content">
-                        @foreach (\App\Models\Plan::where('is_active', true)->orderBy('sort_order')->get() as $plan)
+                        @foreach ($plans as $plan)
                             <tr class="border-t border-white/5">
                                 <td class="py-2">{{ $plan->name }}</td>
                                 <td class="py-2">${{ number_format($plan->price, 2) }}</td>
@@ -186,7 +194,6 @@
                     </tbody>
                 </table>
             </div>
-            </div>
         </div>
 
         {{-- HOMEPAGE --}}
@@ -195,11 +202,12 @@
                 <input type="checkbox" wire:model="values.homepage_enabled" class="h-5 w-5 accent-[var(--c-accent)]">
                 <span>Show public marketing homepage at <code class="text-content">/</code></span>
             </label>
-            <p class="text-sm text-muted">When disabled, visitors are redirected to the onboarding screen instead.</p>
+            <p class="text-sm text-muted">When disabled, visitors are sent to the legal pages instead. The app itself is the mobile client - nothing here serves it.</p>
 
             <div class="mb-4">
                 <label class="mb-1 block text-sm text-muted">Google Play Store URL</label>
                 <input wire:model="values.play_store_url" placeholder="https://play.google.com/store/apps/details?id=com.example.app" class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 focus:border-accent focus:outline-none">
+                @error('values.play_store_url')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid gap-4 md:grid-cols-2">
@@ -234,6 +242,7 @@
                 <textarea wire:model="values.home_stats" rows="6"
                           class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs focus:border-accent focus:outline-none"
                           placeholder='[{"value":"50K+","label":"Active users"},{"value":"1M+","label":"Sessions completed"}]'></textarea>
+                @error('values.home_stats')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -241,12 +250,14 @@
                 <p class="mb-1 text-xs text-muted">Icon options: target, activity, trending-up, bell, book-open, shield, heart, zap, star, lock</p>
                 <textarea wire:model="values.home_features" rows="8"
                           class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs focus:border-accent focus:outline-none"></textarea>
+                @error('values.home_features')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label class="mb-1 block text-sm text-muted">How it works steps <span class="text-xs">(JSON array of {number, title, desc})</span></label>
                 <textarea wire:model="values.home_steps" rows="6"
                           class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-xs focus:border-accent focus:outline-none"></textarea>
+                @error('values.home_steps')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
             </div>
         </div>
 
@@ -266,12 +277,13 @@
                                 class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-accent-soft transition-colors">Remove</button>
                     </div>
                 @endif
-                <input type="file" wire:model="ogUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content"></div>
+                <input type="file" wire:model="ogUpload" accept="image/*" class="block w-full text-sm text-muted file:mr-2 file:rounded file:border-0 file:bg-surface-2 file:px-3 file:py-2 file:text-content">
+                @error('ogUpload')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror</div>
         </div>
 
         {{-- CODE INJECTION --}}
         <div x-show="tab === 'code'" class="space-y-4 rounded-2xl bg-surface p-5">
-            <p class="text-sm text-muted">Inject analytics, pixels, fonts or custom markup. Rendered raw - use trusted code only.</p>
+            <p class="text-sm text-muted">Injected into the public homepage and legal pages only - never the admin panel. Rendered raw: use trusted code only.</p>
             <div><label class="mb-1 block text-sm text-muted">&lt;head&gt; injection</label>
                 <textarea wire:model="values.inject_head" rows="3" class="w-full rounded-xl border border-white/10 bg-surface-2 px-3 py-2 font-mono text-sm focus:border-accent focus:outline-none"></textarea></div>
             <div><label class="mb-1 block text-sm text-muted">Body start injection</label>
@@ -284,23 +296,6 @@
 
         {{-- SECURITY --}}
         <div x-show="tab === 'security'" class="space-y-4 rounded-2xl bg-surface p-5">
-
-            {{-- App access toggle --}}
-            <div class="rounded-xl border border-white/5 bg-surface-2 p-4">
-                <div class="flex items-center justify-between gap-4">
-                    <div>
-                        <p class="font-semibold">App access</p>
-                        <p class="mt-0.5 text-sm text-muted">When disabled, all app routes redirect to the landing page. Admin panel stays accessible. Use this to run the app in Android-only mode.</p>
-                    </div>
-                    <label class="relative inline-flex shrink-0 cursor-pointer items-center">
-                        <input type="checkbox" wire:model="values.app_enabled" class="peer sr-only">
-                        <div class="peer h-6 w-11 rounded-full bg-white/10 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-accent peer-checked:after:translate-x-full"></div>
-                    </label>
-                </div>
-                @unless($values['app_enabled'] ?? true)
-                    <p class="mt-2 text-xs font-semibold text-accent-soft">⚠ App is currently closed: web users will see the landing page.</p>
-                @endunless
-            </div>
 
             {{-- Admin login email --}}
             <p class="text-sm font-semibold text-muted">Admin email</p>

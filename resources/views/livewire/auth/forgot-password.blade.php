@@ -1,5 +1,5 @@
 <div class="relative flex min-h-[100dvh] flex-col justify-center px-6 py-10">
-    <a href="{{ route('login') }}" wire:navigate
+    <a href="{{ route('admin.login') }}" wire:navigate
        class="absolute right-3 top-[calc(0.75rem+env(safe-area-inset-top))] grid h-11 w-11 place-items-center rounded-full text-muted tap" aria-label="Close">
         <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </a>
@@ -21,6 +21,6 @@
     </form>
 
     <p class="mt-6 text-center text-sm text-muted">
-        <a href="{{ route('login') }}" wire:navigate class="font-semibold text-accent">Back to log in</a>
+        <a href="{{ route('admin.login') }}" wire:navigate class="font-semibold text-accent">Back to log in</a>
     </p>
 </div>

@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "Finde deinen Beckenboden",
     "firstTitle": "Deine erste Übung",
+    "skipStep": "Diesen Schritt überspringen",
     "whyTitle": "Warum Kegel-Training wirkt"
   },
   "billing": {
-    "alreadyOwned": "Du hast bereits ein aktives Abo. Es wird jetzt wiederhergestellt.",
-    "configuration": "Dieser Tarif kann gerade nicht gekauft werden. Das liegt an uns - bitte versuche es später erneut oder wende dich an den Support.",
+    "alreadyOwned": "Dein Google-Konto hat bereits ein aktives Abo für diese App.",
+    "configuration": "Dieser Tarif kann gerade nicht gekauft werden. Das liegt an uns, bitte versuche es später erneut oder schreib uns über Einstellungen > Hilfe.",
     "declined": "Google Play hat die Zahlung abgelehnt. Prüfe die Zahlungsmethode in deinem Google-Konto und versuche es erneut.",
     "ineligible": "Du bist für dieses Angebot nicht berechtigt. Bitte wähle einen anderen Tarif.",
     "network": "Wir konnten den Store nicht erreichen. Prüfe deine Verbindung und versuche es erneut. Falls dir etwas berechnet wurde, erscheint dein Zugang von allein.",
     "noPermission": "Dein Google-Konto hat auf diesem Gerät keine Berechtigung für Käufe.",
     "notAllowed": "Dieses Gerät oder Google-Konto darf keine Käufe tätigen. Meist liegt das an der Kindersicherung oder an einer fehlenden Zahlungsmethode im Konto.",
     "operationInProgress": "Ein Kauf läuft bereits. Warte einen Moment, bevor du es erneut versuchst.",
-    "otherAccount": "Dieses Abo gehört zu einem anderen Konto. Melde dich mit diesem Konto an oder wende dich an den Support, wir können es übertragen.",
+    "otherAccount": "Dieses Abo gehört zu einem anderen Konto. Melde dich mit diesem Konto an oder schreib uns über Einstellungen > Hilfe, dann übertragen wir es.",
     "paymentPending": "Deine Zahlung wird von Google Play verarbeitet. Bar- und Gutscheinzahlungen können eine Weile dauern. Dein Zugang wird automatisch freigeschaltet, sobald sie durch ist - bitte zahle nicht noch einmal.",
     "storeProblem": "Google Play hat gerade Probleme. Bitte versuche es in ein paar Minuten erneut.",
     "unknown": "Beim Abschluss deines Kaufs ist etwas schiefgelaufen. Bitte versuche es erneut. Falls dir etwas berechnet wurde, erscheint dein Zugang von allein. [{{code}}]",
-    "notEntitled": "Google Play hat den Kauf abgeschlossen, den Zugang aber noch nicht freigegeben. Das klärt sich meist innerhalb einer Minute. Zahle nicht erneut - falls es bleibt, melde dich beim Support und wir klären das."
+    "notEntitled": "Google Play hat den Kauf abgeschlossen, den Zugang aber noch nicht freigegeben. Das klärt sich meist innerhalb einer Minute. Zahle nicht erneut, und wenn es dabei bleibt, schreib uns über Einstellungen > Hilfe."
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "Zurück",
+    "close": "Schließen",
+    "couldNotLoad": "Laden nicht möglich. Prüfe deine Verbindung und versuche es erneut.",
+    "googleUnavailable": "Die Google-Anmeldung ist in dieser Version nicht verfügbar. Nutze stattdessen deine E-Mail-Adresse und dein Passwort.",
+    "hidePassword": "Passwort verbergen",
+    "offline": "Du bist offline. Manches wird erst geladen, wenn du wieder verbunden bist.",
     "or": "oder",
-    "perMonth": "{{price}}/Mon."
+    "perMonth": "{{price}}/Mon.",
+    "showPassword": "Passwort anzeigen",
+    "tryAgain": "Erneut versuchen"
   },
   "errorBoundary": {
+    "goToStart": "Zum Start",
     "somethingWentWrong": "Etwas ist schiefgelaufen",
     "theAppHitAnUnexpected": "Die App hat einen unerwarteten Fehler festgestellt. Bitte versuche es erneut.",
     "tryAgain": "Erneut versuchen"
@@ -200,6 +210,7 @@
     "tryItNow": "Jetzt ausprobieren"
   },
   "find": {
+    "holdA11yHint": "Halte {{seconds}} Sekunden lang gedrückt, während du anspannst.",
     "keepGoing": "Weiter so …",
     "onlyDoThePeeTestDesc": "Das ist nur ein Weg, die Muskeln zu finden, keine Übung. Den Harnstrahl häufig anzuhalten ist nicht gut für deine Blase.",
     "pressAndHold": "Gedrückt halten",
@@ -221,10 +232,12 @@
     "learnTheBasics": "Grundlagen lernen",
     "lessonNumber": "Lektion {{number}}",
     "logIn": "Anmelden",
-    "nextLesson": "Nächste Lektion"
+    "nextLesson": "Nächste Lektion",
+    "nextStepA11y": "Nächster Schritt",
+    "previousStepA11y": "Vorheriger Schritt"
   },
-  "legalPage": {
-    "offlineNotice": "Offline sind keine Inhalte verfügbar. Bitte verbinde dich mit dem Internet, um diese Seite zu laden."
+  "legal": {
+    "aboutBasics": "Beckenbodenübungen, meist Kegel-Übungen genannt, stärken die Muskeln, die deine Blase, deinen Darm und die sexuelle Funktion stützen.\n\nSo geht es:\n1. Finde die Muskeln. Spanne die Muskeln an, mit denen du das Wasserlassen mittendrin anhalten würdest.\n2. Spanne nur den Beckenboden an. Lass Gesäß, Oberschenkel und Bauch entspannt.\n3. Atme dabei die ganze Zeit normal weiter.\n\nEntscheidend ist die Regelmäßigkeit. Trainiere täglich für die besten Ergebnisse."
   },
   "login": {
     "6DigitCode": "6-stelliger Code",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "Jeder Tarif startet mit {{count}} Tag gratis",
     "everyPlanStartsWithTrial_other": "Jeder Tarif startet mit {{count}} Tagen gratis",
     "logOut": "Abmelden",
+    "manageInGooglePlay": "Abo in Google Play verwalten",
     "manageOrCancelAnytime": "Jederzeit in Google Play verwalten oder kündigen.",
     "managePlan": "Abo verwalten",
     "noActiveSubscriptionWasFound": "Es wurde kein aktives Abo zum Wiederherstellen gefunden.",
     "off": "Aus",
     "offeringsUnavailable": "Abos sind auf diesem Gerät gerade nicht verfügbar. Bitte versuche es später noch einmal oder stelle unten einen früheren Kauf wieder her.",
     "on": "An",
-    "paymentProcessedSecurely": "Die Zahlung wird bei der Bestätigung sicher über RevenueCat und den App-Store abgewickelt.",
+    "paymentProcessedSecurely": "Die Zahlung wird bei der Bestätigung sicher über Google Play abgewickelt.",
     "premium": "Premium",
     "priceRenewsAutomatically": "{{price}}, verlängert sich automatisch bis zur Kündigung.",
     "privacyPolicy": "Datenschutzerklärung",
+    "purchaseAlreadyEnded": "Google Play meldet, dass dieses Abo bereits beendet ist, es wurde also nichts freigeschaltet. Falls dir etwas berechnet wurde, melde dich beim Support und wir klären das.",
     "purchaseReceivedButPlanCould": "Kauf erhalten, aber der Tarif konnte nicht zugeordnet werden. Bitte kontaktiere den Support.",
     "renewPlan": "Plan erneuern",
     "renewYourPlan": "Erneuere deinen Plan",
     "restorePurchases": "Käufe wiederherstellen",
+    "restoringPurchase": "Es wird jetzt wiederhergestellt.",
     "restoredPurchaseCouldNotBe": "Der wiederhergestellte Kauf konnte keinem Tarif zugeordnet werden. Bitte kontaktiere den Support.",
     "savePercent": "{{percent}} % SPAREN",
     "signInFirst": "Melde dich an, bevor du ein Abo abschließt.",
@@ -321,6 +337,9 @@
     "switchQueued": "Dein Plan wechselt zu {{plan}}, wenn dein aktueller Plan endet. Heute wird nichts berechnet.",
     "switchQueuedOn": "Dein Plan wechselt am {{date}} zu {{plan}}. Heute wird nichts berechnet.",
     "switchStartsLater": "Die bereits bezahlte Zeit bleibt dir. Der neue Preis gilt ab der nächsten Verlängerung.",
+    "switchChargedNow": "Dir werden jetzt {{price}} für volle {{period}} berechnet; die verbleibende Zeit deines aktuellen Plans kommt oben drauf.",
+    "switchNoChargeToday": "Heute wird nichts berechnet. Dein Plan wechselt bei der nächsten Verlängerung am {{date}} zu {{plan}}.",
+    "switchNoChargeTodayUndated": "Heute wird nichts berechnet. Dein Plan wechselt bei deiner nächsten Verlängerung zu {{plan}}.",
     "switchStartsNow": "Beginnt sofort. Die Zahlung erfolgt heute, deine ungenutzte Zeit kommt obendrauf.",
     "switchToPlan": "Zu {{plan}} wechseln",
     "terms": "AGB",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "Voller Zugriff, monatlich abgerechnet.",
       "name": "1 Monat",
-      "period": "/Monat"
+      "period": "/Monat",
+      "periodNoun": "1 Monat"
     },
     "premium-quarterly": {
       "description": "Alle 3 Monate abgerechnet.",
       "name": "3 Monate",
-      "period": "/3 Monate"
+      "period": "/3 Monate",
+      "periodNoun": "3 Monate"
     },
     "premium-yearly": {
       "description": "Eine Zahlung für das ganze Jahr.",
       "name": "1 Jahr",
-      "period": "/Jahr"
+      "period": "/Jahr",
+      "periodNoun": "1 Jahr"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "Überspringen"
   },
   "register": {
+    "agreeIntro": "Mit dem Erstellen eines Kontos akzeptierst du unsere",
     "alreadyHaveAnAccount": "Du hast schon ein Konto?",
     "confirmPassword": "Passwort bestätigen",
     "continueWithGoogle": "Mit Google fortfahren",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "Das Passwort muss mindestens eine Zahl enthalten.",
     "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
     "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
+    "privacyPolicy": "Datenschutzerklärung",
     "registrationFailed": "Registrierung fehlgeschlagen.",
-    "subtitle": "Dauert eine Minute. Dein Fortschritt wird auf allen Geräten synchronisiert."
+    "subtitle": "Dauert eine Minute. Dein Fortschritt wird auf allen Geräten synchronisiert.",
+    "terms": "AGB"
   },
   "reminders": {
     "channelName": "Trainingserinnerungen",
     "lapseBody": "Ein paar Tage sind vergangen. Eine kurze Einheit genügt, um wieder einzusteigen.",
     "lapseTitle": "Bereit, wenn du es bist",
-    "notificationBody": "Zeit für deine tägliche Kegel-Einheit!",
+    "notificationBody": "Zeit für deine Kegel-Einheit.",
     "notificationTitle": "Kegel-Training",
+    "notificationsOffBody": "Deine Erinnerungen sind gespeichert, aber Kegelee kann keine Benachrichtigungen senden. Aktiviere sie in den Einstellungen deines Handys, um sie zu erhalten.",
+    "notificationsOffTitle": "Benachrichtigungen sind aus",
     "nudgeChannelName": "Erinnerungen",
-    "trialEndingBody": "Dein Abo startet, sofern du es nicht in Google Play kündigst.",
+    "trialEndingBody": "Deine kostenlose Testphase endet morgen. Kündige in Google Play, bevor sie endet, damit dir nichts berechnet wird.",
     "trialEndingTitle": "Deine kostenlose Testphase endet morgen"
   },
   "schedule": {
     "active": "Aktiv",
     "addTime": "Zeit hinzufügen",
-    "allowExactBody": "Deine Erinnerungen sind eingestellt.\n\nDamit sie exakt zur Zeit ausgelöst werden, erlaube \"Wecker und Erinnerungen\" für Kegelee - sonst kommen sie eventuell ein paar Minuten später.",
-    "allowExactTitle": "Exakte Erinnerungen erlauben",
     "daysLeft_one": "noch {{count}} Tag",
     "daysLeft_other": "noch {{count}} Tage",
     "daysSet_one": "{{count}} Tag festgelegt",
     "daysSet_other": "{{count}} Tage festgelegt",
-    "error": "Fehler",
-    "errorTitle": "Fehler",
     "failedToSaveReminders": "Die Erinnerungen konnten nicht gespeichert werden.",
-    "limitReached": "Limit erreicht",
     "limitReachedBody": "Du kannst bis zu 5 Erinnerungszeiten pro Tag festlegen.",
-    "limitReachedTitle": "Limit erreicht",
     "monthNumber": "Monat {{number}}",
     "notNow": "Jetzt nicht",
     "openSettings": "Einstellungen öffnen",
     "reminders": "Erinnerungen",
-    "remindersSaved": "Erinnerungen gespeichert",
     "remindersSavedBody": "Deine wöchentlichen Trainingserinnerungen sind eingeplant.",
-    "remindersSavedTitle": "Erinnerungen gespeichert",
+    "remindersTurnedOffBody": "Die Erinnerungen sind aus. Wähle mindestens einen Tag, an dem du erinnert werden möchtest.",
+    "removeTimeA11y": "{{time}} entfernen",
     "repeatOn": "Wiederholen am",
     "saveAddReminders": "Erinnerungen speichern",
     "schedule": "Zeitplan",
@@ -456,6 +477,7 @@
     "cancel": "Abbrechen",
     "cancelledUntilDate": "Gekündigt. Dein Zugang bleibt bis zum {{date}} aktiv.",
     "cancelledUntilPeriodEnd": "Gekündigt. Dein Zugang bleibt bis zum Ende der bezahlten Periode aktiv.",
+    "contactSupport": "Support kontaktieren",
     "deleteAccount": "Konto löschen",
     "deleteAccount2": "Konto löschen?",
     "deleteCodeSent": "Wir haben einen 6-stelligen Code an {{email}} geschickt. Gib ihn ein, um dein Konto dauerhaft zu löschen.",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "Der Fortschritt konnte nicht zurückgesetzt werden. Bitte prüfe deine Internetverbindung.",
     "failedToSendDeleteCode": "Der Löschcode konnte nicht gesendet werden. Bitte prüfe deine Internetverbindung.",
     "gotIt": "Verstanden",
+    "help": "Hilfe",
     "language": "Sprache",
     "logOut": "Abmelden",
+    "logOutConfirmBody": "Zum erneuten Anmelden brauchst du dein Passwort, und alles, was noch nicht synchronisiert ist, geht verloren.",
+    "logOutConfirmTitle": "Abmelden?",
     "manageSubscription": "Abo verwalten",
     "noActiveSubscription": "Kein aktives Abo",
     "opensGooglePlay": "Öffnet Google Play, um den Tarif zu wechseln, zu kündigen oder die automatische Verlängerung auszuschalten.",
     "paymentIssueDetail": "Es gibt ein Problem mit der Zahlung für dein Abo. Bitte aktualisiere deine Zahlungsmethode in Google Play.",
     "renewsOn": "Verlängert sich am {{date}}.",
     "reset": "Zurücksetzen",
-    "resetConfirmBody": "Damit werden deine Trainingstage, Einheiten, Messungen und dein Wissensfortschritt gelöscht. Das lässt sich nicht rückgängig machen.",
+    "resetConfirmBody": "Damit werden deine Trainingstage, Einheiten und Messungen gelöscht. Dein Konto, dein Abo und deine Erinnerungen bleiben erhalten. Das lässt sich nicht rückgängig machen.",
     "resetProgress": "Fortschritt zurücksetzen",
     "resetProgress2": "Fortschritt zurücksetzen?",
-    "resetSuccessBody": "Dein Trainingsfortschritt wurde gelöscht.",
-    "resetSuccessTitle": "Zurückgesetzt",
+    "resetSuccessBody": "Deine Trainingstage, Einheiten und Messungen wurden gelöscht.",
+    "resetSuccessTitle": "Fortschritt zurückgesetzt",
     "restartBody": "Schließe die App und öffne sie erneut, um die Layoutrichtung zu übernehmen.",
+    "restartNow": "Jetzt neu starten",
     "restartRequired": "Neustart erforderlich",
+    "rtlRestartConfirm": "{{language}} wird von rechts nach links dargestellt. Die App wird neu gestartet.",
     "sendCode": "Code senden",
     "subActive": "Aktiv",
     "subCancelled": "Gekündigt",
@@ -497,44 +524,13 @@
     "subscribe": "Abonnieren",
     "subscribeToUnlockFullAccess": "Abonniere für vollen Zugriff",
     "subscription": "Abo",
+    "supportEmailBody": "Beschreibe, was passiert ist, und wir schauen uns das an.\n\n---\nKonto-ID: {{id}}",
+    "supportEmailSubject": "Kegelee Support",
     "tapToChangePlan": "Zum Ändern des Tarifs tippen",
     "terms": "AGB",
     "trialEndsNoRenew": "Die kostenlose Testphase endet am {{date}}. Sie verlängert sich nicht.",
     "trialEndsThenBilling": "Die kostenlose Testphase endet am {{date}}, danach beginnt die Abrechnung.",
     "updatePaymentMethod": "Aktualisiere deine Zahlungsmethode in Google Play."
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "Du hast schon ein Konto? Anmelden",
-    "back": "Zurück",
-    "bestValue": "BESTER WERT",
-    "billingDisclosure": "Die Zahlung wird bei der Bestätigung sicher über RevenueCat und den App-Store abgewickelt. Dein Abo verlängert sich automatisch zum angezeigten Preis, bis du es in deinen Abo-Einstellungen kündigst; das Deinstallieren der App kündigt es nicht und erstattet nichts. Mit dem Fortfahren stimmst du unseren",
-    "close": "Schließen",
-    "confirmPassword": "Passwort bestätigen",
-    "continue": "Weiter",
-    "continueWithGoogle": "Mit Google fortfahren",
-    "couldNotOpenGoogle": "Google-Anmeldung konnte nicht geöffnet werden. Bitte versuche es erneut.",
-    "couldNotReachServer": "Der Server ist nicht erreichbar. Prüfe deine Internetverbindung und versuche es erneut.",
-    "createAccount": "Konto erstellen",
-    "createAccountSubscribe": "Konto erstellen & abonnieren",
-    "creatingAccount": "Konto wird erstellt …",
-    "emailAddress": "E-Mail-Adresse",
-    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein.",
-    "emailOrPasswordIncorrect": "E-Mail oder Passwort ist falsch.",
-    "emailRequired": "E-Mail ist erforderlich.",
-    "fullName": "Vollständiger Name",
-    "googleSignInFailed": "Google-Anmeldung fehlgeschlagen. Bitte versuche es erneut.",
-    "headline": "Plan wählen und loslegen",
-    "nameRequired": "Name ist erforderlich.",
-    "noAccountYetCreateOne": "Noch kein Konto? Jetzt erstellen",
-    "password": "Passwort",
-    "passwordRequired": "Passwort ist erforderlich.",
-    "passwordRules": "Das Passwort muss mindestens 6 Zeichen lang sein und eine Zahl enthalten.",
-    "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein.",
-    "signIn": "Anmelden",
-    "signInSubscribe": "Anmelden & abonnieren",
-    "signingIn": "Anmeldung läuft …",
-    "subscribe": "Abonnieren",
-    "terms": "AGB"
   },
   "tabs": {
     "profile": "Profil",
@@ -570,15 +566,18 @@
     "available": "Verfügbar",
     "bestHold": "Bester Halt {{seconds}} s",
     "complete": "GESCHAFFT",
+    "dayLabel": "Tag {{day}}",
     "daysLeft_one": "{{count}} Tag",
     "daysLeft_other": "{{count}} Tage",
     "exercises": "Übungen",
     "extraSessionsOptional": "Weitere Einheiten sind optional",
+    "freeCapCta": "Abonnieren",
+    "freeCapReached": "Dein kostenloser Tarif endet an Tag {{day}}. Abonniere, um weiterzumachen.",
     "knowledge": "Wissen",
     "measureDaily": "Miss täglich, um Fortschritte zu sehen",
     "minutes_one": "{{count}} Min.",
     "minutes_other": "{{count}} Min.",
-    "monthDay": "MONAT {{month}}   /   TAG {{day}}",
+    "monthLabel": "Monat {{month}}",
     "progressTracker": "Fortschritt",
     "readyWhenYouAre": "Bereit, wenn du es bist",
     "ringA11y": "{{done}} von {{required}} Einheiten heute erledigt",
@@ -587,7 +586,7 @@
     "sessions": "EINHEITEN",
     "sessionsCompleteToday_one": "{{count}} Einheit schließt den Tag ab",
     "sessionsCompleteToday_other": "{{count}} Einheiten schließen den Tag ab",
-    "startWorkout": "Training starten",
+    "startWorkout": "Einheit starten",
     "streakDays_one": "{{count}} Tag Serie",
     "streakDays_other": "{{count}} Tage Serie",
     "todayIsDone": "Heute ist geschafft",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "Zurück zur Anmeldung",
-    "codeResent": "Bestätigungscode erneut gesendet!",
+    "codeResent": "Bestätigungscode erneut gesendet.",
     "didnTReceiveTheCode": "Keinen Code erhalten? Erneut senden",
     "enterSixDigitCode": "Bitte gib einen 6-stelligen Bestätigungscode ein.",
     "failedToResendCode": "Der Code konnte nicht erneut gesendet werden.",
@@ -611,19 +610,19 @@
   "why": {
     "cardRealMuscle": "Ein echter Muskel. Trainiere ihn, und er wird stärker.",
     "squeezeTheWrongMusclesAnd": "Spannst du die falschen Muskeln an, bringt es dir nichts.",
-    "theNextLessonShowsYou": "Die nächste Lektion zeigt dir genau, wo deine Muskeln sind.",
-    "thenYouDoYourFirst": "Dann machst du deine erste echte Übung, geführt vom Kreis."
+    "theNextLessonShowsYou": "Die nächste Lektion zeigt dir genau, wo deine Muskeln sind."
   },
   "workout": {
     "back": "Zurück",
+    "couldNotStartBody": "Beim Zusammenstellen deiner Einheit ist etwas schiefgelaufen. Versuche es erneut, oder geh zurück und starte sie im Trainings-Tab.",
+    "couldNotStartTitle": "Einheit konnte nicht gestartet werden",
     "exerciseTutorial": "Übungsanleitung",
     "greatJob": "Gut gemacht!",
     "ifYouLeaveThisSession": "Wenn du gehst, zählt diese Einheit nicht für deinen Tagesfortschritt.",
-    "leaveTraining": "Training verlassen?",
+    "leaveTraining": "Diese Einheit verlassen?",
     "minutesLeft_one": "noch {{count}} Min",
     "minutesLeft_other": "noch {{count}} Min",
-    "noExercises": "Keine Übungen",
-    "noExercisesBody": "Für dieses Training sind noch keine Übungen freigeschaltet.",
+    "noExercisesBody": "Für diese Einheit sind noch keine Übungen freigeschaltet.",
     "noExercisesTitle": "Keine Übungen",
     "noGoBack": "Nein, zurück",
     "pause": "Pause",
@@ -634,7 +633,7 @@
     "tryAgain": "Erneut versuchen",
     "watchTheQuickTutorialFor": "Sieh dir die kurze Anleitung zu dieser Übung an und kehre dann zu deiner Einheit zurück.",
     "watchTutorial": "Anleitung ansehen",
-    "yesQuitTraining": "Ja, Training beenden"
+    "yesQuitTraining": "Ja, Einheit verlassen"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "Du bist bereits auf der leichtesten Stufe.",

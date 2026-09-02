@@ -1,17 +1,28 @@
-<div>
+{{-- Switching page or language throws away whatever is in the editor, and a
+     legal page is not something to retype. Any input marks the form dirty; the
+     confirm only appears while it is. --}}
+<div x-data="{
+        dirty: false,
+        leave(run) {
+            if (this.dirty && ! window.confirm('You have unsaved changes. Discard them?')) return;
+            this.dirty = false;
+            run();
+        },
+     }"
+     @page-saved.window="dirty = false">
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold">Pages</h1>
             <p class="text-sm text-muted">Privacy policy, refund policy and any other content pages.</p>
         </div>
-        <button wire:click="newPage" class="rounded-xl bg-surface px-4 py-2.5 text-sm font-semibold tap">New page</button>
+        <button type="button" @click="leave(() => $wire.newPage())" class="rounded-xl bg-surface px-4 py-2.5 text-sm font-semibold tap">New page</button>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[260px_1fr]">
         {{-- List --}}
         <div class="space-y-2">
-            @foreach ($pages as $page)
-                <button wire:click="edit({{ $page->id }})"
+            @forelse ($pages as $page)
+                <button type="button" @click="leave(() => $wire.edit({{ $page->id }}))"
                         class="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left tap {{ $editingId === $page->id ? 'bg-accent/15' : 'bg-surface' }}">
                     <span>
                         <span class="block text-sm font-medium">{{ $page->title }}</span>
@@ -19,11 +30,17 @@
                     </span>
                     @unless ($page->is_published)<span class="text-xs text-muted">Draft</span>@endunless
                 </button>
-            @endforeach
+            @empty
+                <div class="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center">
+                    <p class="text-sm font-medium">No pages yet</p>
+                    <p class="mt-1 text-xs text-muted">The privacy policy and terms are what the Play listing links to. Create them here.</p>
+                </div>
+            @endforelse
         </div>
 
         {{-- Editor --}}
-        <form wire:submit="save" class="space-y-4 rounded-2xl bg-surface p-5">
+        <form wire:submit="save" class="space-y-4 rounded-2xl bg-surface p-5"
+              @input="dirty = true" @wysiwyg-input="dirty = true">
             <div class="flex items-center justify-between">
                 <h2 class="font-semibold">{{ $editingId ? 'Edit page' : 'New page' }}</h2>
                 @if ($savedMessage)<span class="text-sm font-semibold text-success">{{ $savedMessage }}</span>@endif
@@ -45,7 +62,7 @@
                     <div class="flex flex-wrap gap-1.5">
                         @foreach ($locales as $tag => $name)
                             @php($state = $localeStates[$tag] ?? 'missing')
-                            <button type="button" wire:click="switchLocale('{{ $tag }}')"
+                            <button type="button" @click="leave(() => $wire.switchLocale('{{ $tag }}'))"
                                     title="{{ $name }}"
                                     class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs tap {{ $locale === $tag ? 'bg-accent/20 font-semibold text-content' : 'bg-surface text-muted' }}">
                                 <span class="h-2 w-2 shrink-0 rounded-full {{ $state === 'done' ? 'bg-success' : ($state === 'draft' ? 'bg-accent/60' : 'bg-white/20') }}"></span>

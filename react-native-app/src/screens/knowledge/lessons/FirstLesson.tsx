@@ -62,6 +62,16 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
   const [remaining, setRemaining] = useState(TREMBLING[0].seconds);
   const [playing, setPlaying] = useState(false);
   const [tried, setTried] = useState(false);
+  /**
+   * The way past the guided try for anyone who cannot sit through it.
+   *
+   * Finishing the lesson required watching a ten-second demo run to its end;
+   * there was no other exit, so a reader who could not wait, could not see the
+   * circle, or had simply done this before was held on the step. Same
+   * treatment as the hold in FindLesson: an 8-second delay, so it never
+   * appears in front of somebody who was about to finish it properly.
+   */
+  const [showSkip, setShowSkip] = useState(false);
 
   const iRef = useRef(0);
   const remRef = useRef(TREMBLING[0].seconds);
@@ -144,6 +154,22 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
     return () => stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
+
+  useEffect(() => {
+    if (step !== 2 || tried) {
+      setShowSkip(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowSkip(true), 8000);
+    return () => clearTimeout(timer);
+  }, [step, tried]);
+
+  const skipTry = () => {
+    stop();
+    setShowSkip(false);
+    setTried(true);
+    onFinished();
+  };
 
   // Fallback must carry a labelKey like a real segment: the circle renders
   // t(cur.labelKey), and a stray `label` here resolved to t(undefined).
@@ -277,7 +303,11 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
         <View style={styles.circle}>
           <Ring offset={CIRC * (1 - pct)} />
           {!playing && !tried ? (
-            <TouchableOpacity style={styles.startBtn} onPress={() => play(false)}>
+            <TouchableOpacity
+              style={styles.startBtn}
+              accessibilityRole="button"
+              onPress={() => play(false)}
+            >
               <Text style={styles.startBtnText}>{t('first.start')}</Text>
             </TouchableOpacity>
           ) : tried ? (
@@ -309,11 +339,33 @@ export const FirstLesson: React.FC<Props> = ({ step, onFinished }) => {
               relax: t('catalogue.steps.relax'),
             })}
       </Text>
+
+      {showSkip ? (
+        <TouchableOpacity
+          style={styles.skipBtn}
+          accessibilityRole="button"
+          onPress={skipTry}
+        >
+          <Text style={styles.skipText}>{t('basics.skipStep')}</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };
 
 const makeStyles = (COLORS: Palette) => StyleSheet.create({
+  skipBtn: {
+    marginTop: 8,
+    minHeight: 44,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  skipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+    textDecorationLine: 'underline',
+  },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   // The one text style on this screen, identical to the text-only slides.
   line: {

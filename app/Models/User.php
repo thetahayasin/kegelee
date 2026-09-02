@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone', 'api_token', 'onboarding_experience', 'onboarding_daily_time', 'onboarding_baseline_seconds', 'onboarding_level', 'onboarding_completed_at', 'onboarding_skipped', 'free_session_completed_at'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone', 'api_token', 'onboarding_experience', 'onboarding_daily_time', 'onboarding_baseline_seconds', 'onboarding_level', 'onboarding_completed_at', 'onboarding_skipped', 'free_session_completed_at', 'last_seen_at'])]
 #[Hidden(['password', 'remember_token', 'api_token'])]
 class User extends Authenticatable
 {
@@ -24,6 +24,10 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'onboarded_at' => 'datetime',
+            // Stamped on every sync push, so it is "last had the app open"
+            // to within a sync interval - the cheapest answer there is to
+            // whether an account is still alive.
+            'last_seen_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'onboarding_completed_at' => 'datetime',
@@ -66,7 +70,16 @@ class User extends Authenticatable
      */
     public function getFunnelStageAttribute(): string
     {
-        if ($this->subscriptions()->whereIn('status', ['active', 'trialing'])->exists()) {
+        // Bounded by ends_at, like activeSubscription(). Without it a row left
+        // 'active' with a date in the past counted as subscribed here while
+        // the gate that decides access said otherwise, so the funnel reported
+        // customers the app was showing a paywall to.
+        $subscribed = $this->subscriptions()
+            ->whereIn('status', ['active', 'trialing'])
+            ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->exists();
+
+        if ($subscribed) {
             return 'subscribed';
         }
         if ($this->workoutSessions()->exists()) {
@@ -89,6 +102,12 @@ class User extends Authenticatable
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
+    }
+
+    /** Every install this account has pushed from. */
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 
     public function workoutSessions(): HasMany

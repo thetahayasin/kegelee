@@ -22,11 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
         ]);
 
+        // The training app is the React Native client now, so the gates it
+        // used to need on the web (subscription, basics, app-enabled) went
+        // with those screens. The web serves marketing, legal, the admin
+        // panel and the API.
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
-            'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,
-            'basics' => \App\Http\Middleware\EnsureBasicsCompleted::class,
-            'app.enabled' => \App\Http\Middleware\EnsureAppEnabled::class,
             'api.user' => \App\Http\Middleware\ResolveApiUser::class,
         ]);
 
@@ -44,13 +45,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhooks/revenuecat',
         ]);
 
-        $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
+        // Only requests actually addressed to us are served. Host headers are
+        // client-controlled, and they end up inside absolute URLs (password
+        // reset links, the ICS feed's UIDs, cache keys), so an unfiltered one
+        // is a poisoning primitive. Laravel skips this in local and in tests,
+        // where the host is always localhost.
+        $middleware->trustHosts(at: fn () => array_filter([
+            parse_url((string) config('app.url'), PHP_URL_HOST),
+        ]));
 
-        // Device app only: pull backend content + two-way sync user data on
-        // page navigations. No-op on the backend (CONTENT_SYNC_URL empty).
-        $middleware->web(append: [
-            \App\Http\Middleware\SyncWithBackend::class,
-        ]);
+        // NOT enabled: TLS terminates at this app's own Apache
+        // (public/.htaccess does the http->https redirect itself), so there is
+        // no proxy whose X-Forwarded-* headers we should believe. Turn this on
+        // - and only then - if the app is ever moved behind a load balancer or
+        // CDN, otherwise any client can claim any IP and scheme.
+        // $middleware->trustProxies(at: '*');
+
+        $middleware->append(\App\Http\Middleware\CacheStaticAssets::class);
 
         // Guests hitting the app land on the public homepage (or onboarding when
         // the homepage is disabled). Admin routes redirect to the admin login.
@@ -61,9 +72,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ? route('admin.login')
             : route('landing'));
 
-        // Authenticated users hitting guest-only routes (login, register) land
-        // on the main app screen instead of the unpredictable / → LandingController chain.
-        $middleware->redirectUsersTo('/app');
+        // The only authenticated surface left on the web is the admin panel,
+        // so a signed-in user on a guest-only route belongs there rather than
+        // on /app, which went with the training screens.
+        $middleware->redirectUsersTo('/mystic');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Livewire component updates (POST /livewire/update) must get JSON

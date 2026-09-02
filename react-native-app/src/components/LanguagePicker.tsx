@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import RNRestart from 'react-native-restart';
 import Svg, { Path } from 'react-native-svg';
@@ -9,6 +9,7 @@ import { Palette } from '../theme/colors';
 import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES, setLanguage } from '../i18n';
 import { refreshContentForCurrentLocale } from '../services/sync';
+import { trackCurrent } from '../services/events';
 
 interface Props {
   visible: boolean;
@@ -31,15 +32,61 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
   const COLORS = useTheme();
   const { t } = useTranslation();
   const [restartNeeded, setRestartNeeded] = useState(false);
+  // Held so unmounting the picker cannot leave a restart armed. Without this,
+  // closing the sheet in the 250ms window still killed the app a moment later.
+  const restartTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (restartTimer.current) clearTimeout(restartTimer.current);
+    },
+    [],
+  );
 
   const current = i18n.language as LanguageTag;
   const tags = Object.keys(SUPPORTED_LANGUAGES) as LanguageTag[];
+
+  const restartNow = () => {
+    // Switching between LTR and RTL flips the whole layout, and I18nManager
+    // cannot do that to a running bundle - the change only lands on a fresh
+    // one. Rather than leaving the user to close and reopen the app by hand
+    // (which the previous build asked them to do, and which reads like a
+    // failure), reload it for them. The language choice is already persisted,
+    // so the new bundle comes up in the right language and direction.
+    //
+    // A frame of delay lets AsyncStorage flush and the picker paint its
+    // closing state, so the restart looks deliberate rather than like a crash.
+    // If the native module is missing for any reason, fall back to the
+    // ask-the-user prompt instead of silently doing nothing.
+    onClose();
+    restartTimer.current = setTimeout(() => {
+      restartTimer.current = null;
+      try {
+        RNRestart.restart();
+      } catch {
+        setRestartNeeded(true);
+      }
+    }, 250);
+  };
 
   const choose = async (tag: LanguageTag) => {
     if (tag === current) {
       onClose();
       return;
     }
+    /**
+     * Recorded around the switch, with the OLD tag as the detail.
+     *
+     * Both halves matter. The new tag says which languages are worth keeping
+     * translated; the old one says what they were reading before, which is the
+     * only way to see people arriving on a device language the app guessed
+     * wrong and correcting it by hand - a mis-detected locale looks exactly
+     * like a happy user until you can see them leaving it.
+     *
+     * This component is used from Settings and from the guest screens, so it
+     * uses the current-user helper rather than requiring an account.
+     */
+    trackCurrent('language_changed', tag, current);
     const { needsRestart } = await setLanguage(tag);
     // Legal pages live on the backend, so the new language's copies have to be
     // pulled - the bundled strings switch instantly but Terms would otherwise
@@ -47,25 +94,21 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
     // background refresh and the picker should close immediately.
     refreshContentForCurrentLocale();
     if (needsRestart) {
-      // Switching between LTR and RTL flips the whole layout, and I18nManager
-      // cannot do that to a running bundle - the change only lands on a fresh
-      // one. Rather than leaving the user to close and reopen the app by hand
-      // (which the previous build asked them to do, and which reads like a
-      // failure), reload it for them. The language choice is already persisted
-      // above, so the new bundle comes up in the right language and direction.
-      //
-      // A frame of delay lets AsyncStorage flush and the picker paint its
-      // closing state, so the restart looks deliberate rather than like a
-      // crash. If the native module is missing for any reason, fall back to
-      // the old ask-the-user prompt instead of silently doing nothing.
-      onClose();
-      setTimeout(() => {
-        try {
-          RNRestart.restart();
-        } catch {
-          setRestartNeeded(true);
-        }
-      }, 250);
+      // An app that vanishes and comes back is indistinguishable from a crash
+      // if nobody said it was going to happen, and this is the only place in
+      // the app that does it. Say what is about to happen and let them back
+      // out - the language is already applied either way, so Cancel simply
+      // leaves the flip until the next launch rather than losing the choice.
+      Alert.alert(
+        t('settings.restartRequired'),
+        t('settings.rtlRestartConfirm', {
+          language: SUPPORTED_LANGUAGES[tag] ?? tag,
+        }),
+        [
+          { text: t('settings.cancel'), style: 'cancel', onPress: onClose },
+          { text: t('settings.restartNow'), onPress: restartNow },
+        ],
+      );
       return;
     }
     onClose();
@@ -87,16 +130,31 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
             <View style={styles.restart}>
               <Text style={styles.restartTitle}>{t('settings.restartRequired')}</Text>
               <Text style={styles.restartBody}>{t('settings.restartBody')}</Text>
-              <TouchableOpacity style={styles.restartBtn} onPress={dismissRestart}>
+              <TouchableOpacity
+                style={styles.restartBtn}
+                accessibilityRole="button"
+                onPress={dismissRestart}
+              >
                 <Text style={styles.restartBtnText}>{t('settings.gotIt')}</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+            // One language out of 29, which is a radio group. The tick beside
+            // the current one is drawn but was announced as nothing, so a
+            // screen reader met 29 identical buttons with no way to tell which
+            // language was already in force.
+            <ScrollView
+              style={styles.list}
+              showsVerticalScrollIndicator={false}
+              accessibilityRole="radiogroup"
+            >
               {tags.map((tag, index) => (
                 <TouchableOpacity
                   key={tag}
                   style={[styles.row, index > 0 && styles.rowBorder]}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: tag === current, checked: tag === current }}
+                  accessibilityLabel={SUPPORTED_LANGUAGES[tag]}
                   onPress={() => choose(tag)}
                 >
                   <Text style={styles.rowText}>{SUPPORTED_LANGUAGES[tag]}</Text>
@@ -117,7 +175,11 @@ export const LanguagePicker: React.FC<Props> = ({ visible, onClose }) => {
           )}
 
           {restartNeeded ? null : (
-            <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.closeBtn}
+              accessibilityRole="button"
+              onPress={onClose}
+            >
               <Text style={styles.closeBtnText}>{t('settings.cancel')}</Text>
             </TouchableOpacity>
           )}

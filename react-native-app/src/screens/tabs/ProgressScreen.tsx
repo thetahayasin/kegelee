@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   ScrollView,
   ActivityIndicator,
   Modal,
   Animated,
   I18nManager,
+  useWindowDimensions,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,7 +20,7 @@ import { PremiumNotice } from '../../components/PremiumNotice';
 import { PROGRESS_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 import { useIsFocused, useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { tabBarClearance, Palette } from '../../theme/colors';
+import { tabBarClearance, Palette, SPACE } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
   getMeasurements,
@@ -29,6 +29,7 @@ import {
 import { getLocalDateString } from '../../services/progression';
 import { syncNow } from '../../services/sync';
 import Svg, { Path } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { track } from '../../services/events';
 
 /**
@@ -43,12 +44,25 @@ import { track } from '../../services/events';
  * the inner two keep their original ratios to it.
  */
 const RING_MAX = 380;
-const RING_OUTER = Math.min(RING_MAX, Math.round(Dimensions.get('window').width * 0.86));
-const RING_SIZES = [
-  RING_OUTER,
-  Math.round(RING_OUTER * (300 / RING_MAX)),
-  Math.round(RING_OUTER * (230 / RING_MAX)),
-];
+/**
+ * Derived from the LIVE window, not from a module-load snapshot.
+ *
+ * `Dimensions.get` runs once when the bundle is required, so the whole point
+ * of making these proportional was lost on any window that changes after
+ * launch - a fold, split screen, a rotation - which is exactly when the
+ * outermost ring runs off the edges again.
+ */
+const ringSizesFor = (width: number) => {
+  const outer = Math.min(RING_MAX, Math.round(width * 0.86));
+  return [
+    outer,
+    Math.round(outer * (300 / RING_MAX)),
+    Math.round(outer * (230 / RING_MAX)),
+  ];
+};
+
+/** Kept in one place so the button's height and the scroll padding cannot drift. */
+const CTA_HEIGHT = 56;
 
 export const ProgressScreen = () => {
   const styles = useThemedStyles(makeStyles);
@@ -58,6 +72,17 @@ export const ProgressScreen = () => {
   const { user, subscribed } = useAuth();
   const navigation = useNavigation<NavigationProp<any>>();
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  const ringSizes = useMemo(() => ringSizesFor(windowWidth), [windowWidth]);
+  const holdBtnSize = useMemo(() => {
+    const size = Math.min(208, ringSizes[2] - 16);
+    return { width: size, height: size, borderRadius: size / 2 };
+  }, [ringSizes]);
+
+  // tabBarClearance already carries one SPACE.lg of breathing room above the
+  // floating bar; the button sits in that gap rather than adding a second one.
+  const ctaBottom = tabBarClearance(insets.bottom) - SPACE.lg;
+  const scrollPadBottom = ctaBottom + CTA_HEIGHT + SPACE.xl;
 
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<'days' | 'weeks' | 'months'>('weeks');
@@ -81,6 +106,8 @@ export const ProgressScreen = () => {
    * elements, and pointing at a spinner spotlights nothing.
    */
   const [showTour, setShowTour] = useState(false);
+  /** Whether this mount has already opened (or completed) the tour. */
+  const tourHandledRef = useRef(false);
   const tourMeasureRef = useRef<View>(null);
   const tourChartRef = useRef<View>(null);
   /**
@@ -98,6 +125,8 @@ export const ProgressScreen = () => {
 
   const timerRef = useRef<any | null>(null);
   const startRef = useRef<number>(0);
+  /** Mirrors `holding` for the press handlers - see beginMeasure. */
+  const holdingRef = useRef(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const loadData = async () => {
@@ -119,7 +148,12 @@ export const ProgressScreen = () => {
         // for a named month is both clearer and unambiguous, and Intl renders
         // it in the device language with that language's own field order, so
         // no string of ours needs translating.
+        // In the READER's timezone, matching the "Today" comparison below.
+        // Without it, the printed date and the day the app calls today are
+        // derived from two different clocks, so a measurement could be
+        // labelled with yesterday's date and still be counted as today.
         const dateFormat: Intl.DateTimeFormatOptions = {
+          timeZone: user.timezone || undefined,
           year: 'numeric',
           month: 'short',
           day: 'numeric',
@@ -135,9 +169,15 @@ export const ProgressScreen = () => {
             }
           }
         })();
-        // Check if today
+        // Both sides in the READER's timezone.
+        //
+        // The left-hand side already was; the right-hand side was the raw
+        // date part of a UTC timestamp. For anyone far enough from UTC those
+        // are different days for several hours out of every twenty-four, so a
+        // measurement taken minutes ago was labelled with yesterday's or
+        // tomorrow's date instead of "Today".
         const todayStr = getLocalDateString(user.timezone);
-        const itemDateStr = lastItem.measured_at.split('T')[0];
+        const itemDateStr = getLocalDateString(user.timezone, dateObj);
         if (todayStr === itemDateStr) {
           label = t('progress.today');
         }
@@ -158,7 +198,11 @@ export const ProgressScreen = () => {
       // Runs for everybody now. The guard here existed because the screen
       // used to be a wall for a free account, and there is no point touring a
       // wall; the tracker is visible to everyone.
-      if (user && !(await hasSeenTour('progress', user.id))) {
+      // Guarded on a ref as well as on the stored flag: loadData runs on
+      // every focus, and the flag is only written when the tour is DISMISSED,
+      // so leaving the tab mid-tour and returning restarted it from step one.
+      if (user && !tourHandledRef.current && !(await hasSeenTour('progress', user.id))) {
+        tourHandledRef.current = true;
         setShowTour(true);
       }
     } catch (e) {
@@ -178,8 +222,24 @@ export const ProgressScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused, mode]);
 
+  /**
+   * Bucket the chart in the READER's timezone, not the device's.
+   *
+   * Every boundary here was built with `new Date(y, m, d)`, which is midnight
+   * on the DEVICE. A user whose stored timezone differs from the phone's - who
+   * travelled, or whose phone is set to something else - had each session
+   * counted into whichever bar the device's calendar put it in, so the same
+   * hold could appear on the wrong day and the "last 7 days" window could be
+   * off by one at both ends. Comparing YYYY-MM-DD strings produced in the
+   * user's zone removes the device from the question entirely.
+   */
   const calculateBuckets = (measurements: any[], currentMode: 'days' | 'weeks' | 'months') => {
-    const today = new Date();
+    const tz = user?.timezone;
+    const localDay = (d: Date) => getLocalDateString(tz, d);
+    // "Now", as a date the reader would recognise. Parsed back at UTC noon so
+    // the setDate arithmetic below cannot land on a DST boundary and repeat or
+    // skip a day - the same trick getStreak uses.
+    const today = new Date(`${getLocalDateString(tz)}T12:00:00Z`);
     let count = 6;
     let unit: 'day' | 'week' | 'month' = 'week';
     if (currentMode === 'days') {
@@ -193,50 +253,61 @@ export const ProgressScreen = () => {
     const barsList = [];
 
     for (let i = count - 1; i >= 0; i--) {
-      let bucketStart: Date;
-      let bucketEnd: Date;
+      // Inclusive YYYY-MM-DD bounds rather than millisecond instants, so a
+      // measurement lands in the bucket the reader would put it in.
+      let bucketFrom: string;
+      let bucketTo: string;
       let label = '';
+      // Formatted in UTC, because the bucket dates are BUILT in UTC (noon, to
+      // dodge DST). Letting the label render in the device zone would print a
+      // different day from the one the bucket actually covers wherever the
+      // offset is far enough from zero - at UTC+14, noon UTC is already
+      // tomorrow. The language still comes from the reader.
       const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) => {
+        const withZone = { ...opts, timeZone: 'UTC' };
         try {
-          return d.toLocaleDateString(i18n.language, opts);
+          return d.toLocaleDateString(i18n.language, withZone);
         } catch {
-          return d.toLocaleDateString('en-US', opts);
+          try {
+            return d.toLocaleDateString('en-US', withZone);
+          } catch {
+            return d.toLocaleDateString();
+          }
         }
       };
 
       if (unit === 'day') {
         const d = new Date(today);
-        d.setDate(today.getDate() - i);
-        bucketStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
-        bucketEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+        d.setUTCDate(today.getUTCDate() - i);
+        bucketFrom = d.toISOString().slice(0, 10);
+        bucketTo = bucketFrom;
         label = fmt(d, { day: 'numeric', month: 'short' });
       } else if (unit === 'month') {
-        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-        bucketStart = new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0);
-        bucketEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
+        const d = new Date(
+          Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - i, 1, 12),
+        );
+        const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0, 12));
+        bucketFrom = d.toISOString().slice(0, 10);
+        bucketTo = end.toISOString().slice(0, 10);
         label = fmt(d, { month: 'short' });
       } else {
-        // week
+        // week, starting Sunday
         const d = new Date(today);
-        d.setDate(today.getDate() - i * 7);
-        // Start of week (Sunday)
-        const dayOfWeek = d.getDay();
+        d.setUTCDate(today.getUTCDate() - i * 7);
         const startDay = new Date(d);
-        startDay.setDate(d.getDate() - dayOfWeek);
-        bucketStart = new Date(startDay.getFullYear(), startDay.getMonth(), startDay.getDate(), 0, 0, 0);
-
+        startDay.setUTCDate(d.getUTCDate() - d.getUTCDay());
         const endDay = new Date(startDay);
-        endDay.setDate(startDay.getDate() + 6);
-        bucketEnd = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate(), 23, 59, 59);
-
-        label = fmt(bucketStart, { day: 'numeric', month: 'short' });
+        endDay.setUTCDate(startDay.getUTCDate() + 6);
+        bucketFrom = startDay.toISOString().slice(0, 10);
+        bucketTo = endDay.toISOString().slice(0, 10);
+        label = fmt(startDay, { day: 'numeric', month: 'short' });
       }
 
       // Filter max seconds in bucket
       const value = measurements
         .filter((m) => {
-          const t = new Date(m.measured_at).getTime();
-          return t >= bucketStart.getTime() && t <= bucketEnd.getTime();
+          const day = localDay(new Date(m.measured_at));
+          return day >= bucketFrom && day <= bucketTo;
         })
         .reduce((max, m) => (m.seconds > max ? m.seconds : max), 0);
 
@@ -249,7 +320,7 @@ export const ProgressScreen = () => {
     // Range label
     let rangeLbl = '';
     if (barsList.length > 0) {
-      const yearStr = today.getFullYear();
+      const yearStr = today.getUTCFullYear();
       rangeLbl = `${barsList[0].label} - ${barsList[barsList.length - 1].label} ${yearStr}`;
     }
 
@@ -265,7 +336,15 @@ export const ProgressScreen = () => {
 
   // Measuring Hold interaction
   const beginMeasure = () => {
-    if (holding || done) return;
+    // Guarded on the REF, not on `holding`. State does not update within the
+    // same tick, so a second onPressIn arriving before React re-rendered - a
+    // second finger, a fast double press - passed this check and started a
+    // second interval. The first was then orphaned, ticking against the same
+    // state for as long as the screen lived, and `endMeasure` could only ever
+    // clear the last one.
+    if (holdingRef.current || done) return;
+    holdingRef.current = true;
+    if (timerRef.current) clearInterval(timerRef.current);
     setHolding(true);
     setDone(false);
     setElapsed(0);
@@ -287,6 +366,7 @@ export const ProgressScreen = () => {
   // mid-hold - which the back button invites - left an 80ms interval running
   // against an unmounted screen, setting state forever.
   useEffect(() => () => {
+    holdingRef.current = false;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -294,10 +374,12 @@ export const ProgressScreen = () => {
   }, []);
 
   const endMeasure = () => {
-    if (!holding) return;
+    if (!holdingRef.current) return;
+    holdingRef.current = false;
     setHolding(false);
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
     const finalSecs = (Date.now() - startRef.current) / 1000;
     setResult(finalSecs);
@@ -315,7 +397,7 @@ export const ProgressScreen = () => {
     setSaving(true);
     try {
       await insertMeasurement(user.id, result, 0); // saved with synced = 0
-      track(user.id, 'measurement_taken', null, { seconds: result });
+      track(user.id, 'measurement_taken', null, null, { seconds: result });
       setMeasuring(false);
       setDone(false);
       setResult(0);
@@ -357,7 +439,7 @@ export const ProgressScreen = () => {
           notice above made it worse by adding another row. */}
       <ScrollView
         ref={scrollRef}
-        contentContainerStyle={{ paddingBottom: tabBarClearance(insets.bottom) }}
+        contentContainerStyle={{ paddingBottom: scrollPadBottom }}
         showsVerticalScrollIndicator={false}
       >
         {/* Title Row */}
@@ -447,11 +529,16 @@ export const ProgressScreen = () => {
         </View>
 
         {/* Range Toggles */}
-        <View style={styles.toggleRow}>
+        {/* One choice out of three, which is a radio group. Unlabelled
+            Touchables announced only their own text, so nothing said the three
+            were alternatives or which one was currently in force. */}
+        <View style={styles.toggleRow} accessibilityRole="radiogroup">
           {(['days', 'weeks', 'months'] as const).map((tMode) => (
             <TouchableOpacity
               key={tMode}
               style={[styles.toggleBtn, mode === tMode && styles.toggleBtnActive]}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: mode === tMode, checked: mode === tMode }}
               onPress={() => setMode(tMode)}
             >
               <Text style={[styles.toggleText, mode === tMode && styles.toggleTextActive]}>
@@ -461,31 +548,39 @@ export const ProgressScreen = () => {
           ))}
         </View>
 
-        {/* Measure CTA */}
-        <View style={styles.ctaContainer}>
-          <View ref={tourMeasureRef} collapsable={false}>
-          {/* The ask, at the point of use.
-              A free account sees the whole tracker - the chart, the best
-              result, the range tabs - and only meets the subscription when it
-              reaches for the one thing that writes to it. That is a far more
-              honest offer than a page that refuses to show itself, and it is
-              the moment the reader actually wants the feature. */}
-          <TouchableOpacity
-            style={styles.ctaBtn}
-            onPress={() => {
-              if (subscribed) {
-                setMeasuring(true);
-                return;
-              }
-              track(user?.id, 'lock_tapped', 'measure');
-              navigation.navigate('Paywall');
-            }}
-          >
-            <Text style={styles.ctaBtnText}>{t('progress.takeMeasurement')}</Text>
-          </TouchableOpacity>
-          </View>
-        </View>
       </ScrollView>
+
+      {/* Measure CTA.
+          A sibling of the ScrollView, not a child of it. It was absolutely
+          positioned INSIDE the scroll content, which anchors it to the content
+          rather than to the screen: it sat at the bottom of the scrollable
+          area and slid away the moment anyone scrolled, so the one action on
+          this tab was only reachable at one scroll position. The content pads
+          itself by the same amount below so nothing ends up underneath it. */}
+      <View style={[styles.ctaContainer, { bottom: ctaBottom }]}>
+        <View ref={tourMeasureRef} collapsable={false}>
+        {/* The ask, at the point of use.
+            A free account sees the whole tracker - the chart, the best
+            result, the range tabs - and only meets the subscription when it
+            reaches for the one thing that writes to it. That is a far more
+            honest offer than a page that refuses to show itself, and it is
+            the moment the reader actually wants the feature. */}
+        <TouchableOpacity
+          style={styles.ctaBtn}
+          accessibilityRole="button"
+          onPress={() => {
+            if (subscribed) {
+              setMeasuring(true);
+              return;
+            }
+            track(user?.id, 'lock_tapped', 'measure');
+            navigation.navigate('Paywall', { source: 'measure' });
+          }}
+        >
+          <Text style={styles.ctaBtnText}>{t('progress.takeMeasurement')}</Text>
+        </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Measurement Overlay Modal */}
       <Modal
@@ -503,6 +598,9 @@ export const ProgressScreen = () => {
           <View style={styles.overlayHeader}>
             <TouchableOpacity
               style={styles.closeBtn}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.back')}
               onPress={() => {
                 setMeasuring(false);
                 setDone(false);
@@ -510,9 +608,7 @@ export const ProgressScreen = () => {
                 setElapsed(0);
               }}
             >
-              <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-                <Path d="M15 19l-7-7 7-7" stroke={COLORS.textMuted} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              </Svg>
+              <Chevron direction="back" size={24} color={COLORS.textMuted} strokeWidth={2.5} />
             </TouchableOpacity>
             <Text
               style={styles.overlayHeaderTitle}
@@ -526,7 +622,7 @@ export const ProgressScreen = () => {
 
           <View style={styles.overlayCenter}>
             <View style={styles.ringsContainer}>
-              {RING_SIZES.map((ring) => (
+              {ringSizes.map((ring) => (
                 <View
                   key={ring}
                   style={[
@@ -540,7 +636,9 @@ export const ProgressScreen = () => {
                 <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
                   <TouchableOpacity
                     activeOpacity={1}
-                    style={styles.holdBtn}
+                    style={[styles.holdBtn, holdBtnSize]}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('progress.pressAndHold')}
                     onPressIn={beginMeasure}
                     onPressOut={endMeasure}
                   >
@@ -610,6 +708,7 @@ export const ProgressScreen = () => {
         }
         onDone={(completed) => {
           setShowTour(false);
+          tourHandledRef.current = true;
           if (user) markTourSeen('progress', user.id, completed);
         }}
       />
@@ -788,12 +887,13 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   ctaContainer: {
     position: 'absolute',
-    bottom: 24,
+    // `bottom` is supplied inline: it depends on the live safe-area inset,
+    // which the memoised stylesheet must not close over.
     start: 20,
     end: 20,
   },
   ctaBtn: {
-    height: 56,
+    height: CTA_HEIGHT,
     backgroundColor: COLORS.accent,
     borderRadius: 16,
     justifyContent: 'center',
@@ -852,10 +952,9 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   // Sized against the innermost ring rather than fixed at 208, so the button
   // keeps its place inside them on a narrow phone instead of swallowing them.
+  // The dimensions themselves are applied inline from the live window; only
+  // the palette-dependent parts belong in the memoised stylesheet.
   holdBtn: {
-    width: Math.min(208, RING_SIZES[2] - 16),
-    height: Math.min(208, RING_SIZES[2] - 16),
-    borderRadius: Math.min(104, (RING_SIZES[2] - 16) / 2),
     backgroundColor: COLORS.accent,
     justifyContent: 'center',
     alignItems: 'center',

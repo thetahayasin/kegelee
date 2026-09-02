@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('v1')->middleware('api.user')->group(function () {
 
-    // Backend-managed content: knowledge lessons + legal page titles.
-    // Exercises, levels, onboarding and plans are hardcoded in the app.
-    // No user auth needed; the API key is enough.
+    // Backend-managed content: legal pages. Exercises, levels, onboarding and
+    // plans are hardcoded in the app. Public: there is nothing user-specific
+    // in it, and no shared API key exists to ask for.
     Route::get('/content', [SyncController::class, 'content']);
 
     // Legal pages are served live (online-only) so the app always shows the
@@ -31,7 +31,6 @@ Route::prefix('v1')->middleware('api.user')->group(function () {
     Route::middleware('throttle:20,1')->group(function () {
         Route::post('/auth/login', [SyncController::class, 'remoteLogin']);
         Route::post('/auth/register', [SyncController::class, 'remoteRegister']);
-        Route::post('/auth/change-password', [SyncController::class, 'remoteChangePassword']);
         Route::post('/auth/verify', [SyncController::class, 'remoteVerify']);
         Route::post('/auth/resend', [SyncController::class, 'remoteResend']);
 
@@ -48,14 +47,28 @@ Route::prefix('v1')->middleware('api.user')->group(function () {
         Route::post('/auth/google/token', [SyncController::class, 'googleToken']);
     });
 
-    // User-specific data — requires auth session cookie.
-    Route::middleware('auth')->group(function () {
+    // User-specific data — requires the per-user API token (or a session).
+    //
+    // Throttled explicitly here rather than through withMiddleware's
+    // throttleApi(): this api group is custom (ResolveApiUser, no Sanctum),
+    // so the framework's default limiter never applied to it. 60/min is well
+    // above a device's sync rate - it pushes on navigation, not per second.
+    Route::middleware(['auth', 'throttle:60,1'])->group(function () {
         Route::post('/user/push', [SyncController::class, 'push']);
         Route::get('/user/pull', [SyncController::class, 'pull']);
         Route::post('/user/reset', [SyncController::class, 'reset']);
 
-        // Account deletion (emailed code confirmation).
-        Route::post('/user/delete-code', [SyncController::class, 'deleteCode']);
+        // Changing a password is an authenticated act: it used to name the
+        // account in the request body, which made it a guessing oracle for
+        // any address an attacker knew.
+        Route::post('/auth/change-password', [SyncController::class, 'remoteChangePassword']);
+
+        // Account deletion (emailed code confirmation). The code send has its
+        // own named limiter - six a minute, because every call costs an email
+        // - which a second plain throttle here could not do: it would share
+        // the group's counter and charge each request twice.
+        Route::post('/user/delete-code', [SyncController::class, 'deleteCode'])
+            ->middleware('throttle:delete-code');
         Route::post('/user/delete', [SyncController::class, 'deleteAccount']);
     });
 });

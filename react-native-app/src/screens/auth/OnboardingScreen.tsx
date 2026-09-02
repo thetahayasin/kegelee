@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -6,9 +6,10 @@ import {
   Image,
   StyleSheet,
   FlatList,
-  Dimensions,
+  BackHandler,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  useWindowDimensions,
 } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,7 +21,7 @@ import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
 import { useTheme, useThemeMode, useThemedStyles } from '../../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ONBOARDING_QUIZ_KEY } from '../../context/AuthContext';
-import { OnboardingQuiz, QuizResult } from './OnboardingQuiz';
+import { OnboardingQuiz, QuizResult, levelFromQuiz } from './OnboardingQuiz';
 import { track } from '../../services/events';
 
 /**
@@ -47,8 +48,14 @@ import { track } from '../../services/events';
  * that might not be there.
  */
 
-const { width, height } = Dimensions.get('window');
-const ART_H = Math.round(height * 0.52);
+/**
+ * The artwork's height, from the LIVE window rather than a module-load
+ * snapshot. `Dimensions.get` runs once when the bundle is required, so a
+ * window that changes afterwards - a fold, split screen - left the photograph
+ * and the paging width sized for a screen that is no longer there, which on a
+ * pager means the slides stop landing on their boundaries.
+ */
+const artHeightFor = (height: number) => Math.round(height * 0.52);
 
 /**
  * Text drawn ON the photograph.
@@ -102,7 +109,7 @@ const SLIDES = [
  * so nothing needs it. The photograph shows as taken, and dissolves into the
  * page only where it actually has to meet it.
  */
-const Scrim = () => {
+const Scrim = ({ width, artH }: { width: number; artH: number }) => {
   const COLORS = useTheme();
   const { scheme } = useThemeMode();
 
@@ -124,7 +131,7 @@ const Scrim = () => {
   if (scheme === 'light') return null;
 
   return (
-    <Svg width={width} height={ART_H} style={StyleSheet.absoluteFill} pointerEvents="none">
+    <Svg width={width} height={artH} style={StyleSheet.absoluteFill} pointerEvents="none">
       <Defs>
         <LinearGradient id="obScrim" x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor={COLORS.bg} stopOpacity="0" />
@@ -134,7 +141,7 @@ const Scrim = () => {
           <Stop offset="1" stopColor={COLORS.bg} stopOpacity="1" />
         </LinearGradient>
       </Defs>
-      <Rect width={width} height={ART_H} fill="url(#obScrim)" />
+      <Rect width={width} height={artH} fill="url(#obScrim)" />
     </Svg>
   );
 };
@@ -148,6 +155,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
   const listRef = useRef<FlatList>(null);
+  const { width, height } = useWindowDimensions();
+  const artH = artHeightFor(height);
 
   const [index, setIndex] = useState(0);
   const isLast = index === SLIDES.length - 1;
@@ -161,9 +170,40 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
    */
   const [quizVisible, setQuizVisible] = useState(false);
 
-  const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const next = Math.round(e.nativeEvent.contentOffset.x / width);
-    setIndex((cur) => (cur === next ? cur : next));
+  /**
+   * Which slides have already been counted.
+   *
+   * A ref, not state: onScroll fires on every frame of a swipe, so the guard
+   * has to be readable and writable synchronously inside the handler. Without
+   * it a single slow drag would record the same slide a dozen times and the
+   * "where do people stop" step counts would be a measure of scroll velocity.
+   */
+  const seenSlides = useRef(new Set<string>());
+
+  const onScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const next = Math.round(e.nativeEvent.contentOffset.x / width);
+      setIndex((cur) => (cur === next ? cur : next));
+      // Once the slide has SETTLED on a boundary, and once per slide. The
+      // subject is the position rather than the key, so renaming or reordering
+      // the artwork cannot silently redefine step 2 in an existing report.
+      const slide = SLIDES[next];
+      if (!slide) return;
+      const step = `slide${next + 1}`;
+      if (seenSlides.current.has(step)) return;
+      seenSlides.current.add(step);
+      track(null, 'onboarding_step', step);
+    },
+    [width],
+  );
+
+  // The first slide is on screen before anything scrolls, so nothing would
+  // ever report it - and a step nobody reaches is indistinguishable from a
+  // step nobody records. This is the denominator the rest are read against.
+  useEffect(() => {
+    if (seenSlides.current.has('slide1')) return;
+    seenSlides.current.add('slide1');
+    track(null, 'onboarding_step', 'slide1');
   }, []);
 
   // Finishing the slides opens the quiz.
@@ -186,6 +226,9 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
    * every later 'you have improved' depends on having.
    */
   const finishQuiz = (result: QuizResult) => {
+    // The last step of the sequence, recorded beside the other three so the
+    // funnel reads as one list rather than three slides plus a special case.
+    track(null, 'onboarding_step', 'quiz');
     // Recorded here rather than in the quiz, because this is where the result
     // is known - including whether it was answered or skipped, which is the
     // only interesting thing about it.
@@ -197,18 +240,6 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
       null,
       result.skipped ? 'quiz_skipped' : 'quiz_completed',
       null,
-      { level: result.level, experience: result.experience, dailyTime: result.dailyTime },
-    );
-    // Recorded here rather than in the quiz, because this is where the result
-    // is known - including whether it was answered or skipped, which is the
-    // only interesting thing about it.
-    //
-    // There is no account yet, so this is queued against the id the sync layer
-    // resolves once one exists; a guest quiz that never becomes an account is
-    // genuinely not attributable and is not counted.
-    track(
-      null,
-      result.skipped ? 'quiz_skipped' : 'quiz_completed',
       null,
       { level: result.level, experience: result.experience, dailyTime: result.dailyTime },
     );
@@ -231,6 +262,29 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     // for money from someone who still has not used the thing.
     navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] });
   };
+  /**
+   * Skip goes to the quiz's END STATE, not to the quiz.
+   *
+   * It used to call `finish`, which opens the quiz - so the one control
+   * labelled Skip put three more questions in front of the reader, and the
+   * only way past them was a second Skip inside the quiz itself. Skipping now
+   * records the same `quiz_skipped` event the quiz would have recorded, keeps
+   * the default level, and lands where finishing lands. The result shape is
+   * built here rather than reached for through the quiz because there is no
+   * quiz to ask.
+   */
+  const skipEverything = () => {
+    finishQuiz({
+      // The level the quiz itself produces from no answers, computed rather
+      // than typed out, so the two cannot drift apart.
+      level: levelFromQuiz(0, 0),
+      baselineSeconds: 0,
+      experience: null,
+      dailyTime: null,
+      skipped: true,
+    });
+  };
+
   const goToLogin = () => {
     onComplete();
     navigation.reset({ index: 1, routes: [{ name: 'Knowledge' }, { name: 'Login' }] });
@@ -244,6 +298,26 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     listRef.current?.scrollToIndex({ index: index + 1, animated: true });
   };
 
+  /**
+   * Android back steps BACK through the slides.
+   *
+   * Onboarding is the stack root, so an unhandled back quits the app - from
+   * slide three, on a first run, with no warning. The quiz already guards
+   * against exactly this (see OnboardingQuiz); the slides in front of it did
+   * not. Returning false on the first slide is deliberate: back out of the
+   * first screen of the app IS quit, and that one is the reader's to make.
+   */
+  useEffect(() => {
+    if (quizVisible) return;
+    const onBack = () => {
+      if (index <= 0) return false;
+      listRef.current?.scrollToIndex({ index: index - 1, animated: true });
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
+    return () => sub.remove();
+  }, [index, quizVisible]);
+
   if (quizVisible) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'bottom', 'left', 'right']}>
@@ -256,7 +330,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <View style={styles.skipRow} pointerEvents="box-none">
         <TouchableOpacity
-          onPress={finish}
+          onPress={skipEverything}
           hitSlop={12}
           style={styles.skipBtn}
           accessibilityRole="button"
@@ -277,16 +351,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         keyExtractor={(s) => s.key}
         getItemLayout={(_d, i) => ({ length: width, offset: width * i, index: i })}
         renderItem={({ item }) => (
-          <View style={styles.slide}>
-            <View style={styles.art}>
+          <View style={[styles.slide, { width }]}>
+            <View style={[styles.art, { width, height: artH }]}>
               <Image
                 source={item.art}
-                style={styles.artImage}
+                style={{ width, height: artH }}
                 resizeMode="cover"
                 accessibilityRole="image"
                 accessible={false}
               />
-              <Scrim />
+              <Scrim width={width} artH={artH} />
             </View>
             {/* The photograph pages with the swipe; the words did not, so
                 they were simply present the moment the slide arrived. Rising
@@ -362,7 +436,8 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   // appearance the reader chose.
   skipText: { ...TYPE.bodySm, color: ON_ART, fontWeight: '600' },
 
-  slide: { width, flex: 1 },
+  // Width comes from the live window; only what does not depend on it is here.
+  slide: { flex: 1 },
   /**
    * The photograph block.
    *
@@ -377,14 +452,11 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
    * there.
    */
   art: {
-    height: ART_H,
-    width,
     backgroundColor: COLORS.bg,
     borderBottomLeftRadius: RADIUS.xl,
     borderBottomRightRadius: RADIUS.xl,
     overflow: 'hidden',
   },
-  artImage: { height: ART_H, width },
 
   copy: {
     flex: 1,

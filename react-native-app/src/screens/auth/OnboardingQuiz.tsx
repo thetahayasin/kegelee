@@ -9,10 +9,9 @@ import {
   Easing,
   AccessibilityInfo,
   BackHandler,
-  I18nManager,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import Svg, { Path } from 'react-native-svg';
+import { Chevron } from '../../components/Chevron';
 import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
 import { LESSON_TEXT } from '../../components/LessonLine';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
@@ -350,21 +349,7 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
               </Text>
               {/* Mirrored in RTL - a "go on" chevron pointing right in Arabic
                   points backwards. */}
-              <Svg
-                width={18}
-                height={18}
-                viewBox="0 0 24 24"
-                fill="none"
-                style={I18nManager.isRTL ? styles.flip : undefined}
-              >
-                <Path
-                  d="M9 6l6 6-6 6"
-                  stroke={selected ? COLORS.accent : COLORS.textMuted}
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
+              <Chevron size={18} color={selected ? COLORS.accent : COLORS.textMuted} />
             </TouchableOpacity>
           );
         })}
@@ -383,21 +368,7 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
               accessibilityRole="button"
               accessibilityLabel={t('allExercises.backA11y')}
             >
-              <Svg
-                width={22}
-                height={22}
-                viewBox="0 0 24 24"
-                fill="none"
-                style={I18nManager.isRTL ? styles.flip : undefined}
-              >
-                <Path
-                  d="M15 6l-6 6 6 6"
-                  stroke={COLORS.textMuted}
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
+              <Chevron direction="back" size={22} color={COLORS.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -526,7 +497,6 @@ export const OnboardingQuiz: React.FC<Props> = ({ onDone }) => {
 
 const makeStyles = (COLORS: Palette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bg },
-  flip: { transform: [{ scaleX: -1 }] },
 
   topBar: {
     flexDirection: 'row',

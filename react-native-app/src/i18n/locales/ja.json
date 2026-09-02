@@ -8,22 +8,23 @@
   "basics": {
     "findTitle": "骨盤底筋を見つける",
     "firstTitle": "はじめてのエクササイズ",
+    "skipStep": "このステップをスキップ",
     "whyTitle": "骨盤底トレーニングが効く理由"
   },
   "billing": {
-    "alreadyOwned": "すでに有効なサブスクリプションがあります。いま復元しています。",
-    "configuration": "このプランは現在購入できません。こちら側の問題です。しばらくしてからお試しいただくか、サポートまでご連絡ください。",
+    "alreadyOwned": "お使いの Google アカウントには、このアプリの有効なサブスクリプションがすでにあります。",
+    "configuration": "このプランは現在購入できません。こちら側の問題です。しばらくしてからもう一度お試しいただくか、設定＞ヘルプからご連絡ください。",
     "declined": "Google Play がお支払いを拒否しました。Google アカウントのお支払い方法をご確認のうえ、もう一度お試しください。",
     "ineligible": "このオファーの対象ではありません。別のプランをお選びください。",
     "network": "ストアに接続できませんでした。通信環境を確認してもう一度お試しください。すでに課金されている場合は、自動的にご利用いただけるようになります。",
     "noPermission": "お使いの Google アカウントには、この端末で購入する権限がありません。",
     "notAllowed": "この端末または Google アカウントでは購入が許可されていません。多くの場合、ペアレンタルコントロールか、アカウントにお支払い方法が登録されていないことが原因です。",
     "operationInProgress": "すでに購入手続きが進行中です。少し待ってからもう一度お試しください。",
-    "otherAccount": "このサブスクリプションは別のアカウントのものです。そのアカウントでログインするか、サポートにご連絡いただければ移行できます。",
+    "otherAccount": "このサブスクリプションは別のアカウントのものです。そのアカウントでログインしていただくか、設定＞ヘルプからご連絡いただければ移行できます。",
     "paymentPending": "Google Play がお支払いを処理しています。現金やバウチャーでのお支払いには時間がかかることがあります。完了すると自動的に利用できるようになりますので、重ねてお支払いなさらないでください。",
     "storeProblem": "Google Play で現在障害が発生しています。数分後にもう一度お試しください。",
     "unknown": "購入の完了中に問題が発生しました。もう一度お試しください。すでに課金されている場合は、自動的にご利用いただけるようになります。 [{{code}}]",
-    "notEntitled": "Google Play での購入は完了しましたが、まだアクセスが付与されていません。通常は1分以内に解消されます。重複してお支払いにならず、解消されない場合はサポートまでご連絡ください。"
+    "notEntitled": "Google Play での購入は完了しましたが、まだアクセスが付与されていません。通常は1分以内に解消されます。重ねてお支払いにならないでください。解消されない場合は、設定＞ヘルプからご連絡ください。"
   },
   "catalogue": {
     "exercises": {
@@ -173,10 +174,19 @@
     }
   },
   "common": {
+    "back": "戻る",
+    "close": "閉じる",
+    "couldNotLoad": "読み込めませんでした。接続を確認してもう一度お試しください。",
+    "googleUnavailable": "このビルドでは Google ログインを利用できません。メールアドレスとパスワードをお使いください。",
+    "hidePassword": "パスワードを非表示",
+    "offline": "オフラインです。再接続するまで読み込めないものがあります。",
     "or": "または",
-    "perMonth": "{{price}}/月"
+    "perMonth": "{{price}}/月",
+    "showPassword": "パスワードを表示",
+    "tryAgain": "再試行"
   },
   "errorBoundary": {
+    "goToStart": "最初に戻る",
     "somethingWentWrong": "問題が発生しました",
     "theAppHitAnUnexpected": "予期しないエラーが発生しました。もう一度お試しください。",
     "tryAgain": "再試行"
@@ -200,6 +210,7 @@
     "tryItNow": "今すぐ試す"
   },
   "find": {
+    "holdA11yHint": "締めながら {{seconds}} 秒間押し続けてください。",
     "keepGoing": "その調子です…",
     "onlyDoThePeeTestDesc": "これは筋肉を見つけるための方法であって、エクササイズではありません。頻繁に尿を止めるのは膀胱によくありません。",
     "pressAndHold": "長押し",
@@ -221,10 +232,12 @@
     "learnTheBasics": "基本を学ぶ",
     "lessonNumber": "レッスン {{number}}",
     "logIn": "ログイン",
-    "nextLesson": "次のレッスン"
+    "nextLesson": "次のレッスン",
+    "nextStepA11y": "次のステップ",
+    "previousStepA11y": "前のステップ"
   },
-  "legalPage": {
-    "offlineNotice": "オフラインでは表示できるコンテンツがありません。インターネットに接続してこのページを読み込んでください。"
+  "legal": {
+    "aboutBasics": "骨盤底筋の運動は一般にケーゲル体操と呼ばれ、膀胱や腸、性機能を支える筋肉を鍛えます。\n\nやり方:\n1. 筋肉を見つけます。尿を途中で止めるときに使う筋肉を締めてください。\n2. 骨盤底筋だけを締めます。お尻、太もも、お腹は力を抜いたままにします。\n3. 最初から最後まで、いつもどおり呼吸を続けてください。\n\n効果を生むのは継続です。最良の結果を得るために毎日続けましょう。"
   },
   "login": {
     "6DigitCode": "6桁のコード",
@@ -295,20 +308,23 @@
     "everyPlanStartsWithTrial_one": "どのプランも{{count}}日間の無料トライアルから",
     "everyPlanStartsWithTrial_other": "どのプランも{{count}}日間の無料トライアルから",
     "logOut": "ログアウト",
+    "manageInGooglePlay": "Google Play でサブスクリプションを管理",
     "manageOrCancelAnytime": "Google Play でいつでも管理・解約できます。",
     "managePlan": "プラン管理",
     "noActiveSubscriptionWasFound": "復元できる有効なサブスクリプションが見つかりませんでした。",
     "off": "オフ",
     "offeringsUnavailable": "この端末では現在サブスクリプションをご利用いただけません。しばらくしてからお試しいただくか、下から以前の購入を復元してください。",
     "on": "オン",
-    "paymentProcessedSecurely": "確定時に RevenueCat とアプリストアを通じて安全に決済されます。",
+    "paymentProcessedSecurely": "確定時に Google Play を通じて安全に決済されます。",
     "premium": "プレミアム",
     "priceRenewsAutomatically": "{{price}}、解約するまで自動更新されます。",
     "privacyPolicy": "プライバシーポリシー",
+    "purchaseAlreadyEnded": "Google Play によると、このサブスクリプションはすでに終了しているため、何も解除されませんでした。お支払いが発生している場合は、サポートまでご連絡ください。こちらで対応いたします。",
     "purchaseReceivedButPlanCould": "購入は完了しましたが、プランを特定できませんでした。サポートにご連絡ください。",
     "renewPlan": "プランを更新",
     "renewYourPlan": "プランを更新しましょう",
     "restorePurchases": "購入を復元",
+    "restoringPurchase": "いま復元しています。",
     "restoredPurchaseCouldNotBe": "復元した購入をプランに紐づけできませんでした。サポートにご連絡ください。",
     "savePercent": "{{percent}} % お得",
     "signInFirst": "登録の前にログインしてください。",
@@ -321,6 +337,9 @@
     "switchQueued": "現在のプランが終了すると、プランが{{plan}}に変わります。本日の請求はありません。",
     "switchQueuedOn": "{{date}}にプランが{{plan}}に変わります。本日の請求はありません。",
     "switchStartsLater": "支払い済みの期間はそのまま使えます。新しい料金は次回の更新から適用されます。",
+    "switchChargedNow": "本日、{{period}}分の全額 {{price}} をお支払いいただきます。現在のプランの残り期間は上乗せされます。",
+    "switchNoChargeToday": "本日の請求はありません。次回更新日の{{date}}にプランが{{plan}}に変わります。",
+    "switchNoChargeTodayUndated": "本日の請求はありません。次回の更新時にプランが{{plan}}に変わります。",
     "switchStartsNow": "すぐに開始します。本日お支払いいただき、未使用分は上乗せされます。",
     "switchToPlan": "{{plan}}に変更",
     "terms": "利用規約",
@@ -333,17 +352,20 @@
     "premium-monthly": {
       "description": "フルアクセス、毎月のお支払い。",
       "name": "1か月",
-      "period": "/月"
+      "period": "/月",
+      "periodNoun": "1か月"
     },
     "premium-quarterly": {
       "description": "3か月ごとのお支払い。",
       "name": "3か月",
-      "period": "/3か月"
+      "period": "/3か月",
+      "periodNoun": "3か月"
     },
     "premium-yearly": {
       "description": "1年分をまとめて1回のお支払い。",
       "name": "1年",
-      "period": "/年"
+      "period": "/年",
+      "periodNoun": "1年"
     }
   },
   "premium": {
@@ -389,6 +411,7 @@
     "skip": "スキップ"
   },
   "register": {
+    "agreeIntro": "アカウントを作成すると、以下に同意したものとみなされます",
     "alreadyHaveAnAccount": "すでにアカウントをお持ちですか？",
     "confirmPassword": "パスワードの確認",
     "continueWithGoogle": "Googleで続行",
@@ -405,41 +428,39 @@
     "passwordNeedsNumber": "パスワードには数字を1つ以上含めてください。",
     "passwordTooShort": "パスワードは6文字以上にしてください。",
     "passwordsDoNotMatch": "パスワードが一致しません。",
+    "privacyPolicy": "プライバシーポリシー",
     "registrationFailed": "登録に失敗しました。",
-    "subtitle": "1分で終わります。進捗は端末間で同期されます。"
+    "subtitle": "1分で終わります。進捗は端末間で同期されます。",
+    "terms": "利用規約"
   },
   "reminders": {
     "channelName": "トレーニングのリマインダー",
     "lapseBody": "数日空きました。短いセッション1回で習慣を取り戻せます。",
     "lapseTitle": "いつでも再開できます",
-    "notificationBody": "今日の骨盤底トレーニングの時間です！",
+    "notificationBody": "骨盤底トレーニングの時間です。",
     "notificationTitle": "骨盤底トレーニング",
+    "notificationsOffBody": "リマインダーは保存しましたが、Kegelee から通知を送信できません。受け取るにはスマートフォンの設定で通知をオンにしてください。",
+    "notificationsOffTitle": "通知はオフです",
     "nudgeChannelName": "お知らせ",
-    "trialEndingBody": "Google Play で解約しない限り、サブスクリプションが開始されます。",
+    "trialEndingBody": "無料トライアルは明日終了します。料金が発生しないよう、終了前に Google Play で解約してください。",
     "trialEndingTitle": "無料トライアルは明日終了します"
   },
   "schedule": {
     "active": "オン",
     "addTime": "時間を追加",
-    "allowExactBody": "リマインダーを設定しました。\n\n正確な時刻に鳴らすには、Kegelee に「アラームとリマインダー」を許可してください。許可しない場合、数分遅れることがあります。",
-    "allowExactTitle": "正確なリマインダーを許可",
     "daysLeft_one": "残り {{count}} 日",
     "daysLeft_other": "残り {{count}} 日",
     "daysSet_one": "{{count}} 日設定済み",
     "daysSet_other": "{{count}} 日設定済み",
-    "error": "エラー",
-    "errorTitle": "エラー",
     "failedToSaveReminders": "リマインダーを保存できませんでした。",
-    "limitReached": "上限に達しました",
     "limitReachedBody": "リマインダーは1日に5件まで設定できます。",
-    "limitReachedTitle": "上限に達しました",
     "monthNumber": "{{number}}か月目",
     "notNow": "今はしない",
     "openSettings": "設定を開く",
     "reminders": "リマインダー",
-    "remindersSaved": "リマインダーを保存しました",
     "remindersSavedBody": "毎週のトレーニングリマインダーを設定しました。",
-    "remindersSavedTitle": "リマインダーを保存しました",
+    "remindersTurnedOffBody": "リマインダーはオフです。通知を受け取る曜日を1つ以上選んでください。",
+    "removeTimeA11y": "{{time}} を削除",
     "repeatOn": "繰り返す曜日",
     "saveAddReminders": "リマインダーを保存",
     "schedule": "スケジュール",
@@ -456,6 +477,7 @@
     "cancel": "キャンセル",
     "cancelledUntilDate": "解約済みです。{{date}} まではご利用いただけます。",
     "cancelledUntilPeriodEnd": "解約済みです。お支払い済みの期間が終わるまではご利用いただけます。",
+    "contactSupport": "サポートに問い合わせる",
     "deleteAccount": "アカウントを削除",
     "deleteAccount2": "アカウントを削除しますか？",
     "deleteCodeSent": "6桁のコードを {{email}} に送信しました。アカウントを完全に削除するには、そのコードを入力してください。",
@@ -473,21 +495,26 @@
     "failedToResetProgress": "進捗をリセットできませんでした。インターネット接続をご確認ください。",
     "failedToSendDeleteCode": "削除コードを送信できませんでした。インターネット接続をご確認ください。",
     "gotIt": "OK",
+    "help": "ヘルプ",
     "language": "言語",
     "logOut": "ログアウト",
+    "logOutConfirmBody": "再度ログインするにはパスワードが必要です。まだ同期されていないデータは失われます。",
+    "logOutConfirmTitle": "ログアウトしますか？",
     "manageSubscription": "サブスクリプションを管理",
     "noActiveSubscription": "有効なサブスクリプションはありません",
     "opensGooglePlay": "Google Play を開いて、プランの変更・解約・自動更新の停止ができます。",
     "paymentIssueDetail": "サブスクリプションのお支払いに問題があります。Google Play でお支払い方法を更新してください。",
     "renewsOn": "{{date}} に更新されます。",
     "reset": "リセット",
-    "resetConfirmBody": "トレーニング日、セッション、測定値、レッスンの進捗がすべて消去されます。この操作は取り消せません。",
+    "resetConfirmBody": "トレーニング日、セッション、測定値が消去されます。アカウント、サブスクリプション、リマインダーはそのまま残ります。この操作は取り消せません。",
     "resetProgress": "進捗をリセット",
     "resetProgress2": "進捗をリセットしますか？",
-    "resetSuccessBody": "トレーニングの記録を消去しました。",
-    "resetSuccessTitle": "リセットしました",
+    "resetSuccessBody": "トレーニング日、セッション、測定値を消去しました。",
+    "resetSuccessTitle": "進捗をリセットしました",
     "restartBody": "レイアウトの方向を切り替えるため、アプリを一度終了してから開き直してください。",
+    "restartNow": "今すぐ再起動",
     "restartRequired": "再起動が必要です",
+    "rtlRestartConfirm": "{{language}} は右から左へのレイアウトを使用します。アプリを再起動します。",
     "sendCode": "コードを送信",
     "subActive": "有効",
     "subCancelled": "解約済み",
@@ -497,44 +524,13 @@
     "subscribe": "登録する",
     "subscribeToUnlockFullAccess": "登録してすべての機能を利用する",
     "subscription": "サブスクリプション",
+    "supportEmailBody": "何が起きたかをご記入ください。確認いたします。\n\n---\nアカウントID: {{id}}",
+    "supportEmailSubject": "Kegelee サポート",
     "tapToChangePlan": "タップしてプランを変更",
     "terms": "利用規約",
     "trialEndsNoRenew": "無料トライアルは {{date}} に終了します。更新はされません。",
     "trialEndsThenBilling": "無料トライアルは {{date}} に終了し、その後お支払いが始まります。",
     "updatePaymentMethod": "Google Play でお支払い方法を更新してください。"
-  },
-  "subscribeSheet": {
-    "alreadyHaveAnAccountSign": "すでにアカウントをお持ちですか？ ログイン",
-    "back": "戻る",
-    "bestValue": "いちばんお得",
-    "billingDisclosure": "お支払いは確定時に RevenueCat とアプリストアを通じて安全に処理されます。サブスクリプションは、サブスクリプション設定で解約されるまで表示価格で自動更新されます。アプリを削除しても解約や返金は行われません。続行すると、以下に同意したものとみなされます:",
-    "close": "閉じる",
-    "confirmPassword": "パスワードの確認",
-    "continue": "続ける",
-    "continueWithGoogle": "Googleで続行",
-    "couldNotOpenGoogle": "Google ログインを開けませんでした。もう一度お試しください。",
-    "couldNotReachServer": "サーバーに接続できませんでした。通信環境を確認してもう一度お試しください。",
-    "createAccount": "アカウントを作成",
-    "createAccountSubscribe": "アカウントを作成して登録",
-    "creatingAccount": "アカウントを作成中…",
-    "emailAddress": "メールアドレス",
-    "emailInvalid": "有効なメールアドレスを入力してください。",
-    "emailOrPasswordIncorrect": "メールアドレスまたはパスワードが正しくありません。",
-    "emailRequired": "メールアドレスを入力してください。",
-    "fullName": "氏名",
-    "googleSignInFailed": "Google ログインに失敗しました。もう一度お試しください。",
-    "headline": "プランを選んでトレーニングを始める",
-    "nameRequired": "名前を入力してください。",
-    "noAccountYetCreateOne": "アカウントをお持ちでないですか？ 作成する",
-    "password": "パスワード",
-    "passwordRequired": "パスワードを入力してください。",
-    "passwordRules": "パスワードは6文字以上で、数字を含める必要があります。",
-    "passwordsDoNotMatch": "パスワードが一致しません。",
-    "signIn": "ログイン",
-    "signInSubscribe": "ログインして登録",
-    "signingIn": "ログイン中…",
-    "subscribe": "登録する",
-    "terms": "利用規約"
   },
   "tabs": {
     "profile": "プロフィール",
@@ -570,15 +566,18 @@
     "available": "利用可能",
     "bestHold": "最長キープ {{seconds}} 秒",
     "complete": "完了",
+    "dayLabel": "{{day}}日目",
     "daysLeft_one": "あと{{count}}日",
     "daysLeft_other": "あと{{count}}日",
     "exercises": "エクササイズ",
     "extraSessionsOptional": "追加のセッションは任意です",
+    "freeCapCta": "登録する",
+    "freeCapReached": "無料プランは{{day}}日目までです。続けるには登録してください。",
     "knowledge": "基礎知識",
     "measureDaily": "毎日測定して変化を記録",
     "minutes_one": "{{count}}分",
     "minutes_other": "{{count}}分",
-    "monthDay": "{{month}}か月目   /   {{day}}日目",
+    "monthLabel": "{{month}}か月目",
     "progressTracker": "進捗トラッカー",
     "readyWhenYouAre": "準備ができたら始めましょう",
     "ringA11y": "今日は{{required}}回中{{done}}回完了",
@@ -587,7 +586,7 @@
     "sessions": "セッション",
     "sessionsCompleteToday_one": "{{count}}回で今日は達成",
     "sessionsCompleteToday_other": "{{count}}回で今日は達成",
-    "startWorkout": "トレーニングを開始",
+    "startWorkout": "セッションを開始",
     "streakDays_one": "{{count}}日連続",
     "streakDays_other": "{{count}}日連続",
     "todayIsDone": "今日は達成しました",
@@ -597,7 +596,7 @@
   },
   "verifyEmail": {
     "backToLogIn": "ログインに戻る",
-    "codeResent": "確認コードを再送しました！",
+    "codeResent": "確認コードを再送しました。",
     "didnTReceiveTheCode": "コードが届きませんか？ 再送信",
     "enterSixDigitCode": "6桁の確認コードを入力してください。",
     "failedToResendCode": "コードを再送できませんでした。",
@@ -611,19 +610,19 @@
   "why": {
     "cardRealMuscle": "本物の筋肉です。鍛えれば強くなります。",
     "squeezeTheWrongMusclesAnd": "違う筋肉を締めても効果はありません。",
-    "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。",
-    "thenYouDoYourFirst": "そのあと、円のガイドに合わせて最初の本格的なエクササイズを行います。"
+    "theNextLessonShowsYou": "次のレッスンで、筋肉の位置を正確にご案内します。"
   },
   "workout": {
     "back": "戻る",
+    "couldNotStartBody": "セッションの準備中に問題が発生しました。もう一度お試しいただくか、戻ってトレーニングタブから開始してください。",
+    "couldNotStartTitle": "セッションを開始できませんでした",
     "exerciseTutorial": "エクササイズの解説",
     "greatJob": "お疲れさまでした",
     "ifYouLeaveThisSession": "ここで終了すると、このセッションは今日の進捗に反映されません。",
-    "leaveTraining": "トレーニングを終了しますか？",
+    "leaveTraining": "このセッションを終了しますか？",
     "minutesLeft_one": "残り {{count}} 分",
     "minutesLeft_other": "残り {{count}} 分",
-    "noExercises": "エクササイズがありません",
-    "noExercisesBody": "このセッションで解放されているエクササイズがありません。",
+    "noExercisesBody": "このセッションで解放されているエクササイズはまだありません。",
     "noExercisesTitle": "エクササイズがありません",
     "noGoBack": "いいえ、戻る",
     "pause": "一時停止",
@@ -634,7 +633,7 @@
     "tryAgain": "再試行",
     "watchTheQuickTutorialFor": "このエクササイズの短い解説を見てから、セッションに戻りましょう。",
     "watchTutorial": "解説を見る",
-    "yesQuitTraining": "はい、終了する"
+    "yesQuitTraining": "はい、セッションを終了"
   },
   "workoutComplete": {
     "alreadyEasiestLevel": "すでにいちばんやさしいレベルです。",

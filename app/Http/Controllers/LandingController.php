@@ -7,30 +7,20 @@ use App\Services\SettingsService;
 class LandingController extends Controller
 {
     /**
-     * GET / - the public marketing homepage when enabled; otherwise route
-     * users straight into the app flow.
+     * GET / - the public marketing homepage.
+     *
+     * There is no web app behind it any more: the product is the mobile app,
+     * and this page's job is to explain it and link to the store listing.
      */
     public function __invoke(SettingsService $settings)
     {
-        // App closed: every onward destination ('/welcome', '/app', the
-        // knowledge base) is behind 'app.enabled', which redirects back here.
-        // Redirecting on would be an infinite loop, so show the homepage and
-        // let its app_disabled notice explain why there is nowhere to go.
-        if (! $settings->get('app_enabled', true)) {
-            return view('landing');
+        // Homepage switched off from the admin panel. The legal pages are the
+        // only other public surface, and they have to stay reachable because
+        // the Play listing links straight at them.
+        if (! $settings->get('homepage_enabled', true)) {
+            return redirect()->route('legal.index');
         }
 
-        // When a public marketing homepage is enabled, always show it -
-        // visitors reach the store listing via the "Download" link.
-        if ($settings->get('homepage_enabled', true)) {
-            return view('landing');
-        }
-
-        // Homepage disabled (native-app / no-marketing mode).
-        if (auth()->check() && auth()->user()->onboarded_at) {
-            return redirect()->route('home');
-        }
-
-        return redirect()->route('onboarding');
+        return view('landing');
     }
 }

@@ -96,9 +96,16 @@
 </IfModule>
 
 <IfModule mod_headers.c>
-    # Long-term cache for static assets
+    # Long-term cache ONLY for Vite's hashed bundles under /build. Admin
+    # uploads under /storage keep their path when replaced, and sw.js must be
+    # re-fetched to retire the old service worker, so neither may be immutable.
+    SetEnvIf Request_URI "^/build/" IMMUTABLE_ASSET=1
+    SetEnvIf Request_URI "^/storage/" REVALIDATE_ASSET=1
+    SetEnvIf Request_URI "^/sw\.js$" WORKER_SCRIPT=1
     <FilesMatch "\.(css|js|mjs|woff|woff2|ttf|otf|eot|svg|png|jpg|jpeg|gif|webp|avif|ico)$">
-        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set Cache-Control "public, max-age=31536000, immutable" env=IMMUTABLE_ASSET
+        Header set Cache-Control "public, max-age=86400, must-revalidate" env=REVALIDATE_ASSET
+        Header set Cache-Control "no-cache, must-revalidate" env=WORKER_SCRIPT
     </FilesMatch>
 
     # Security Headers

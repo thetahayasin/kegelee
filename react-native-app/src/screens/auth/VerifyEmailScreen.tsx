@@ -18,6 +18,7 @@ import { Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { api } from '../../services/api';
 import { Watermark } from '../../components/Watermark';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path } from 'react-native-svg';
 
 type RouteParams = {
@@ -25,6 +26,10 @@ type RouteParams = {
     email: string;
   };
 };
+
+const RESEND_COOLDOWN_SECONDS = 60;
+/** Per address: two accounts being verified on one device do not share a cooldown. */
+const resendKey = (email: string) => `@verify_resend_until_${email.toLowerCase()}`;
 
 export const VerifyEmailScreen = () => {
   const styles = useThemedStyles(makeStyles);
@@ -58,6 +63,32 @@ export const VerifyEmailScreen = () => {
     return () => clearTimeout(timer);
   }, [resendIn]);
 
+  /**
+   * The cooldown survives a relaunch.
+   *
+   * It lived only in component state, so backgrounding the app - which is
+   * exactly what someone does to go and read the email - reset it to zero.
+   * The rate limit then meant nothing: the tap that the countdown existed to
+   * prevent was available again the moment the reader came back with the code
+   * still in flight. The DEADLINE is stored rather than the seconds left, so
+   * time spent outside the app counts against it like time spent inside.
+   */
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(resendKey(email))
+      .then((raw) => {
+        if (cancelled || !raw) return;
+        const until = parseInt(raw, 10);
+        if (!Number.isFinite(until)) return;
+        const left = Math.ceil((until - Date.now()) / 1000);
+        if (left > 0) setResendIn(Math.min(left, RESEND_COOLDOWN_SECONDS));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [email]);
+
   const handleVerify = async () => {
     setError('');
     if (code.length !== 6) {
@@ -66,16 +97,27 @@ export const VerifyEmailScreen = () => {
     }
 
     setLoading(true);
-    const res = await api.verifyEmail({ email, code });
-    setLoading(false);
-
-    if (res.ok && res.data?.success) {
-      // Code accepted: establish the session now (register deliberately does not
-      // sign in, so the verify screen stays mounted until this point). The
-      // navigator switches automatically once the auth context is populated.
-      await completeAuth(res.data);
-    } else {
-      setError(res.error || t('verifyEmail.verificationFailed'));
+    // `completeAuth` writes to the database and the auth context, either of
+    // which can throw. It was awaited outside any guard AFTER setLoading(false)
+    // had already run for the request, so a failure there left the screen with
+    // no session, no error and a Verify button that looked ready but would
+    // resubmit a code the server has now consumed.
+    try {
+      const res = await api.verifyEmail({ email, code });
+      if (res.ok && res.data?.success) {
+        // Code accepted: establish the session now (register deliberately does
+        // not sign in, so the verify screen stays mounted until this point).
+        // The navigator switches automatically once the auth context is
+        // populated.
+        await completeAuth(res.data);
+      } else {
+        setError(res.error || t('verifyEmail.verificationFailed'));
+      }
+    } catch (e) {
+      console.error('Email verification failed', e);
+      setError(t('common.couldNotLoad'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,17 +126,26 @@ export const VerifyEmailScreen = () => {
     setResendSuccess('');
     setError('');
     setResendLoading(true);
-    const res = await api.resendVerification({ email });
-    setResendLoading(false);
-
-    if (res.ok) {
-      setResendSuccess(t('verifyEmail.codeResent'));
-      // Only on success. A send that failed should be retryable at once -
-      // making someone wait out a cooldown for our error would be the wrong
-      // way round.
-      setResendIn(60);
-    } else {
-      setError(res.error || t('verifyEmail.failedToResendCode'));
+    try {
+      const res = await api.resendVerification({ email });
+      if (res.ok) {
+        setResendSuccess(t('verifyEmail.codeResent'));
+        // Only on success. A send that failed should be retryable at once -
+        // making someone wait out a cooldown for our error would be the wrong
+        // way round.
+        setResendIn(RESEND_COOLDOWN_SECONDS);
+        AsyncStorage.setItem(
+          resendKey(email),
+          String(Date.now() + RESEND_COOLDOWN_SECONDS * 1000),
+        ).catch(() => {});
+      } else {
+        setError(res.error || t('verifyEmail.failedToResendCode'));
+      }
+    } catch (e) {
+      console.error('Resend verification failed', e);
+      setError(t('common.couldNotLoad'));
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -164,6 +215,11 @@ export const VerifyEmailScreen = () => {
               keyboardType="number-pad"
               maxLength={6}
               autoFocus
+              // Lets Android offer the code straight from the notification
+              // instead of making the reader memorise six digits, switch apps
+              // and type them back in.
+              textContentType="oneTimeCode"
+              autoComplete="sms-otp"
             />
 
             <TouchableOpacity style={styles.btn} onPress={handleVerify} disabled={loading}>

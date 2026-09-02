@@ -82,13 +82,34 @@ const DEVICE_LANGUAGE_KEY = '@device_language';
  */
 export const resolveLanguage = (tag: string | null | undefined): LanguageTag => {
   if (!tag) return 'en';
-  if (tag in SUPPORTED_LANGUAGES) return tag as LanguageTag;
+  // Object.hasOwn, not `in`. `in` walks the prototype chain, so a device
+  // reporting a locale of "constructor" or "toString" resolved to a
+  // "supported" language that does not exist and crashed the bundle load.
+  if (Object.hasOwn(SUPPORTED_LANGUAGES, tag)) return tag as LanguageTag;
 
   const [base, region] = tag.split('-');
   if (base === 'es' && region && region.toUpperCase() !== 'ES') return 'es-419';
   if (base === 'pt') return 'pt-BR';
+  /**
+   * Norwegian is one language here and two (plus a macro tag) on devices.
+   *
+   * Android reports Bokmal as "nb" and Nynorsk as "nn"; only the macrolanguage
+   * "no" matched the file we ship, so a Norwegian phone - which is almost
+   * always set to nb-NO - fell through to English while a complete Norwegian
+   * translation sat in the bundle unused.
+   */
+  if (base === 'nb' || base === 'nn') return 'no';
+  /**
+   * Every Chinese variant gets Simplified, including the Traditional ones.
+   *
+   * zh-Hant, zh-HK and zh-TW are genuinely different writing systems from
+   * zh-Hans, and this is a compromise, not a translation decision: there is no
+   * zh-Hant file in locales/ to send them to. Simplified is at least the same
+   * language rather than English. If a Traditional bundle is ever added, this
+   * is the line that routes to it.
+   */
   if (base === 'zh') return 'zh-Hans';
-  if (base in SUPPORTED_LANGUAGES) return base as LanguageTag;
+  if (Object.hasOwn(SUPPORTED_LANGUAGES, base)) return base as LanguageTag;
   return 'en';
 };
 
@@ -170,7 +191,9 @@ export const setLanguage = async (tag: LanguageTag): Promise<{ needsRestart: boo
 export const getStoredLanguage = async (): Promise<LanguageTag | null> => {
   try {
     const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
-    return stored && stored in SUPPORTED_LANGUAGES ? (stored as LanguageTag) : null;
+    return stored && Object.hasOwn(SUPPORTED_LANGUAGES, stored)
+      ? (stored as LanguageTag)
+      : null;
   } catch {
     return null;
   }
@@ -184,7 +207,43 @@ export const getStoredLanguage = async (): Promise<LanguageTag | null> => {
  * English on a German phone meant it - but someone who never picked anything
  * should follow their phone, including after they change it.
  */
-export const initI18n = async (): Promise<LanguageTag> => {
+/**
+ * What to show when a key resolves to nothing at all.
+ *
+ * Not the same answer in both builds, on purpose. In development the FULL key
+ * is what you need: it tells you exactly which string to add and to which
+ * file, and a humanised guess would hide the problem behind something that
+ * looks deliberate. In production nobody should ever see a dotted key path in
+ * the interface, so the last segment is un-camel-cased into something
+ * readable - "settings.failedToResetProgress" becomes "Failed to reset
+ * progress", which is wrong-ish English rather than a leaked identifier.
+ */
+export const missingKeyText = (key: string): string => {
+  if (__DEV__) return key;
+  const last = key.split('.').pop() ?? key;
+  const words = last
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, (_m, a: string, b: string) => `${a} ${b.toLowerCase()}`)
+    .trim();
+  if (!words) return key;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
+/**
+ * What initI18n has to tell its caller.
+ *
+ * `needsRestart` is true when applying the language flipped the layout
+ * direction. React Native cannot mirror a running bundle - I18nManager only
+ * takes effect on a fresh one - so a first launch on an Arabic or Hebrew phone
+ * comes up left-to-right with right-to-left text in it until something
+ * reloads. The caller owns that reload; this just reports that it is needed.
+ */
+export interface I18nInitResult {
+  language: LanguageTag;
+  needsRestart: boolean;
+}
+
+export const initI18n = async (): Promise<I18nInitResult> => {
   const manual = await getStoredLanguage();
 
   // getLocales() can come back EMPTY when the native module has not finished
@@ -206,7 +265,9 @@ export const initI18n = async (): Promise<LanguageTag> => {
     try {
       cached = await AsyncStorage.getItem(DEVICE_LANGUAGE_KEY);
     } catch {}
-    language = cached && cached in SUPPORTED_LANGUAGES ? (cached as LanguageTag) : 'en';
+    language = cached && Object.hasOwn(SUPPORTED_LANGUAGES, cached)
+      ? (cached as LanguageTag)
+      : 'en';
   }
 
   // Hoisted so TypeScript keeps the narrowing: `language` is a let now, and an
@@ -228,13 +289,13 @@ export const initI18n = async (): Promise<LanguageTag> => {
     // turns apostrophes in French and Italian copy into &#39;.
     interpolation: { escapeValue: false },
     returnNull: false,
-    // A key with no translation should render the English text, not the key.
-    parseMissingKeyHandler: (key) => key.split('.').pop() ?? key,
+    // A key with no translation anywhere (not even English) must still render
+    // as something. See missingKeyText for why dev and release differ.
+    parseMissingKeyHandler: (key) => missingKeyText(key),
   });
 
   ensureBundle(language);
-  applyDirection(language);
-  return language;
+  return { language, needsRestart: applyDirection(language) };
 };
 
 export default i18n;

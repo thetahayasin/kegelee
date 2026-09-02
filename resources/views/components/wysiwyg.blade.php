@@ -17,15 +17,30 @@
     wire:ignore
     x-data="{
         content: @entangle($model),
-        sync() { this.content = this.$refs.editor.innerHTML; },
+        sync() {
+            this.content = this.$refs.editor.innerHTML;
+            // Lets the surrounding form know something changed (the editor is
+            // wire:ignore, so no native input event escapes it).
+            this.$dispatch('wysiwyg-input');
+        },
         exec(command, value = null) {
             this.$refs.editor.focus();
             document.execCommand(command, false, value);
             this.sync();
         },
         addLink() {
-            const url = window.prompt('Link URL (include https://)');
-            if (url) this.exec('createLink', url);
+            const url = (window.prompt('Link URL (include https://)') || '').trim();
+            if (! url) return;
+
+            // Only schemes that mean 'go somewhere'. createLink will happily
+            // build javascript: and data: hrefs, and this content is rendered
+            // on a public page for every visitor.
+            if (! /^(https?:\/\/|mailto:)/i.test(url)) {
+                window.alert('Links must start with https://, http:// or mailto:');
+                return;
+            }
+
+            this.exec('createLink', url);
         },
     }"
     x-init="
