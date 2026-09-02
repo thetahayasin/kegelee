@@ -962,7 +962,28 @@ class SyncController extends Controller
             return;
         }
 
-        if ((int) $user->level_id === (int) $user->onboarding_level) {
+        /**
+         * onboarding_level is a NUMBER (1-5, and the column is a tinyint
+         * constrained to that range). users.level_id is a foreign key to
+         * levels.id. They are not the same thing and only look alike because a
+         * freshly seeded database hands out ids 1..5 in number order - the
+         * seeder matches on `number`, so ids drift the moment a level is ever
+         * recreated.
+         *
+         * Writing the number straight into level_id is therefore a foreign key
+         * violation waiting for a database where they differ, and because this
+         * runs on every pull, that violation is thrown on every pull: a 500 on
+         * the endpoint the whole app depends on, so nothing syncs at all - not
+         * subscriptions, not workouts - and the write never lands, so it
+         * happens again on the next try, forever.
+         *
+         * Resolve the number to an id, and do nothing at all if no level has
+         * that number.
+         */
+        $toNumber = (int) $user->onboarding_level;
+        $to = (int) (Level::where('number', $toNumber)->value('id') ?? 0);
+
+        if ($to === 0 || (int) $user->level_id === $to) {
             return;
         }
 
@@ -975,12 +996,7 @@ class SyncController extends Controller
         }
 
         $from = (int) $user->level_id;
-        $to = (int) $user->onboarding_level;
-
-        // Difficulty is the level's NUMBER, not its row id. They usually run in
-        // step and are not the same thing.
         $fromNumber = (int) ($user->level?->number ?? 0);
-        $toNumber = (int) (\App\Models\Level::whereKey($to)->value('number') ?? 0);
 
         $user->update(['level_id' => $to]);
 
@@ -1009,7 +1025,20 @@ class SyncController extends Controller
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        $this->returnLapsedUserToOnboardingLevel($user);
+        /**
+         * Wrapped, and it must stay wrapped.
+         *
+         * Returning somebody's difficulty is a convenience. The pull is how
+         * every device on the network gets its state, and letting a
+         * convenience throw here takes the whole app offline for that account:
+         * one bad write and no workout, measurement or subscription change
+         * moves in either direction, on every sync, until the code is fixed.
+         *
+         * That is not hypothetical - it is exactly what a foreign key
+         * violation in here did. Reported so it is not silent, and survivable
+         * so it can never do that again.
+         */
+        rescue(fn () => $this->returnLapsedUserToOnboardingLevel($user));
 
         $position = $progression->position($user);
         $today = $progression->todayProgress($user);

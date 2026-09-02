@@ -475,17 +475,24 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
-        if ((int) $user->level_id === (int) $user->onboarding_level) {
+        /**
+         * onboarding_level is a level NUMBER; level_id is a foreign key to
+         * levels.id. This used to assign the first straight into the second,
+         * which is only ever correct on a database whose ids happen to have
+         * been handed out in number order - the seeder matches on `number`, so
+         * they drift as soon as a level is recreated. Everywhere else it is
+         * either the wrong difficulty or a foreign key violation thrown inside
+         * a webhook handler.
+         */
+        $toNumber = (int) $user->onboarding_level;
+        $to = (int) (\App\Models\Level::where('number', $toNumber)->value('id') ?? 0);
+
+        if ($to === 0 || (int) $user->level_id === $to) {
             return;
         }
 
         $from = (int) $user->level_id;
-        $to = (int) $user->onboarding_level;
-
-        // Up or down in DIFFICULTY, which is the level's number, not its row
-        // id. They usually run in step and are not the same thing.
         $fromNumber = (int) ($user->level?->number ?? 0);
-        $toNumber = (int) (\App\Models\Level::whereKey($to)->value('number') ?? 0);
 
         $user->update(['level_id' => $to]);
 

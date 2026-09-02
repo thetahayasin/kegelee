@@ -114,6 +114,58 @@ class LevelResetOnPullTest extends TestCase
         $this->assertSame(4, (int) $user->fresh()->level_id);
     }
 
+    public function test_it_survives_levels_whose_ids_do_not_match_their_numbers(): void
+    {
+        /**
+         * The one that took production down.
+         *
+         * onboarding_level is a NUMBER; users.level_id is a foreign key to
+         * levels.id. A fresh test database hands out ids 1..5 in number order,
+         * so the two look interchangeable and every test passed while the code
+         * wrote a number straight into the key. On a database where they have
+         * drifted - the seeder matches on `number`, so recreating a level is
+         * enough - that is a foreign key violation, thrown on EVERY pull,
+         * which took down syncing entirely rather than just the level reset.
+         *
+         * Push the ids away from the numbers and the difference stops being
+         * invisible.
+         */
+        $user = $this->user(level: 5, onboardingLevel: 2);
+
+        // A level whose number and id cannot coincide: the catalogue seeds
+        // 1-5, so this one lands on the next id while carrying number 9.
+        // Renumbering the seeded rows instead would only fight the foreign
+        // keys already pointing at them.
+        $odd = \App\Models\Level::create([
+            'number' => 9,
+            'name' => 'Drifted',
+            'days_to_complete' => 30,
+            'is_active' => true,
+            'sort_order' => 9,
+        ]);
+        $this->assertNotSame(9, (int) $odd->id, 'fixture must have id != number');
+
+        $user->update(['onboarding_level' => 9]);
+        $this->sub($user, 'expired', now()->subDay());
+
+        // The old code assigned level_id = 9, which no level has.
+        $this->pull($user)->assertOk();
+
+        $this->assertSame((int) $odd->id, (int) $user->fresh()->level_id);
+    }
+
+    public function test_a_broken_level_reset_can_never_break_the_pull(): void
+    {
+        // A number no level has. The reset has nowhere to go, and the only
+        // acceptable outcome is that the pull is unaffected - it is how every
+        // device gets its state, and a convenience must not be able to stop it.
+        $user = $this->user(level: 5, onboardingLevel: 4);
+        \App\Models\Level::where('number', 4)->delete();
+        $this->sub($user, 'expired', now()->subDay());
+
+        $this->pull($user)->assertOk()->assertJsonPath('user.is_subscribed', false);
+    }
+
     public function test_it_records_the_change_once_not_on_every_pull(): void
     {
         $user = $this->user(level: 5, onboardingLevel: 2);
