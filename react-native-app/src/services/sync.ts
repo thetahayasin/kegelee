@@ -19,7 +19,7 @@ const safeJson = (raw: string): Record<string, unknown> | null => {
     return null;
   }
 };
-import { scheduleReminders } from './reminders';
+import { scheduleReminders, cancelAllReminders } from './reminders';
 import { reportError } from './errors';
 import { purchaseRecordedAt } from './billing';
 import { ONBOARDING_PUSH_KEY } from '../context/AuthContext';
@@ -720,6 +720,21 @@ const runSync = async (userId: number): Promise<SyncResult> => {
 
     const data = pullRes.data;
 
+    /**
+     * The backend's own verdict on entitlement, read here so everything below
+     * can use it.
+     *
+     * Taken straight off the payload rather than from the rows this sync is
+     * about to write: the whole point is to be right even on a sync where the
+     * subscriptions section fails to apply, and applySection reports such a
+     * failure without stopping the sync.
+     *
+     * `undefined` means the field was absent - an older backend saying nothing.
+     * That is not the same as `false`, and nothing here may treat it as such.
+     */
+    const serverSaysSubscribed: boolean | undefined =
+      typeof data?.user?.is_subscribed === 'boolean' ? data.user.is_subscribed : undefined;
+
     // Update local user details in SQLite. This is the CORE state - the level,
     // the plan position, the timezone every date in the app is computed in -
     // and the one part of the pull whose failure means the sync did not
@@ -815,6 +830,30 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       // would cancel and wipe what they just set. The local table already holds
       // pulled + locally saved reminders at this point, so it is the truth.
       const mergedReminders = await getReminders(userId);
+
+      /**
+       * Not for an account the server says is not entitled.
+       *
+       * Reminders are a subscriber feature, and AuthContext cancels them the
+       * moment the gate closes. This ran on every pull and put them straight
+       * back, so the two fought and this one won - it fires on every sync,
+       * while the cancel fires once per state change. A lapsed account went on
+       * being notified indefinitely by a screen it could no longer open, which
+       * is precisely the state that cancel exists to produce.
+       *
+       * The rows stay in the table either way. Nothing is deleted, so
+       * subscribing again restores the same schedule rather than asking
+       * somebody to set their week up a second time.
+       *
+       * Only skipped on an explicit `false`. `undefined` is a backend that does
+       * not send the field, and reading silence as "not entitled" would strip
+       * the reminders of every paying subscriber on an older server.
+       */
+      if (serverSaysSubscribed === false) {
+        await cancelAllReminders();
+        return;
+      }
+
       await scheduleReminders(
         mergedReminders.map((r) => ({
           weekday: r.weekday,
@@ -904,15 +943,9 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     await applySection('drain', () => drainPendingPushes(userId, timezone));
 
     lastSyncAt.set(userId, Date.now());
-    // Read straight off the payload, NOT from the rows just written: the point
-    // of it is to be right even on a sync where the subscriptions section
-    // failed to apply, and applySection reports such a failure without
-    // stopping the sync.
-    const serverSubscribed =
-      typeof data?.user?.is_subscribed === 'boolean' ? data.user.is_subscribed : undefined;
     syncCompleteListeners.forEach((cb) => {
       try {
-        cb(userId, serverSubscribed);
+        cb(userId, serverSaysSubscribed);
       } catch {}
     });
     return { success: true };

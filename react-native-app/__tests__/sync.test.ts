@@ -46,6 +46,7 @@ jest.mock('../src/services/events', () => ({
 
 jest.mock('../src/services/reminders', () => ({
   scheduleReminders: jest.fn(async () => ({ scheduled: true, permission: 'granted' })),
+  cancelAllReminders: jest.fn(async () => {}),
 }));
 
 jest.mock('../src/services/billing', () => ({
@@ -65,6 +66,7 @@ import { api } from '../src/services/api';
 import * as queries from '../src/db/queries';
 import * as events from '../src/services/events';
 import { purchaseRecordedAt } from '../src/services/billing';
+import { scheduleReminders, cancelAllReminders } from '../src/services/reminders';
 import { syncNow } from '../src/services/sync';
 import { APP_VERSION } from '../src/constants/version';
 
@@ -132,6 +134,60 @@ beforeEach(() => {
   mockedApi.pushState.mockResolvedValue({ ok: true, status: 200, data: {} });
   mockedApi.pullState.mockResolvedValue({ ok: true, status: 200, data: pullPayload() });
   mockedApi.pullContent.mockResolvedValue({ ok: true, status: 200, data: { pages: [], settings: {} } });
+});
+
+describe('reminders follow the subscription', () => {
+  /**
+   * The pull rescheduled reminders on every sync, and AuthContext cancels them
+   * when the gate closes. So the two fought and this side won, because it runs
+   * on every sync while the cancel runs once per state change: a lapsed account
+   * kept being notified indefinitely by a screen it could no longer open, with
+   * the app correctly showing no subscription the whole time.
+   */
+  it('does not put a lapsed account\'s reminders back', async () => {
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload({
+        user: { name: 'A', email: 'a@b.c', level_id: 2, level_started_days: 3, timezone: 'UTC', is_subscribed: false },
+      }),
+    });
+
+    await syncNow(1);
+
+    expect(scheduleReminders).not.toHaveBeenCalled();
+    expect(cancelAllReminders).toHaveBeenCalled();
+  });
+
+  it('still schedules them for a subscriber', async () => {
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload({
+        user: { name: 'A', email: 'a@b.c', level_id: 2, level_started_days: 3, timezone: 'UTC', is_subscribed: true },
+      }),
+    });
+
+    await syncNow(1);
+
+    expect(scheduleReminders).toHaveBeenCalled();
+    expect(cancelAllReminders).not.toHaveBeenCalled();
+  });
+
+  it('leaves a subscriber alone when the backend does not send the field', async () => {
+    // An older server saying nothing must not be read as "not entitled", or it
+    // would strip the reminders of every paying customer on it.
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload(),
+    });
+
+    await syncNow(1);
+
+    expect(scheduleReminders).toHaveBeenCalled();
+    expect(cancelAllReminders).not.toHaveBeenCalled();
+  });
 });
 
 describe('push payload', () => {
