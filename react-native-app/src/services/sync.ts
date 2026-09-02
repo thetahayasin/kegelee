@@ -234,6 +234,46 @@ const devicePayload = async () => ({
   locale: i18n.language,
 });
 
+/**
+ * The server accepts at most ten subscriptions in a push, and rejects the
+ * WHOLE request when there are more.
+ *
+ * Local subscription rows only ever accumulate. Every plan change, every
+ * resubscribe, every restore is a new purchase token and therefore a new row;
+ * reconcileLocalSubscriptions marks the dead ones 'expired' but nothing has
+ * ever deleted one. Push them all and a device that has been through eleven
+ * purchases sends eleven, gets a 422, and - because the push runs first and
+ * returns early - takes the pull down with it. Workouts, measurements and
+ * events stop moving too, in both directions, permanently, for a subscription
+ * the account may have finished with months ago. Clearing the app's storage is
+ * the only thing that has ever fixed it, which is exactly what it looked like.
+ *
+ * Ten is the server's number, so nine leaves a margin for it to change without
+ * this quietly becoming the bug again.
+ */
+const MAX_PUSHED_SUBSCRIPTIONS = 9;
+
+/**
+ * Which rows to spend that budget on.
+ *
+ * The push exists to tell the backend about purchases made ON THE DEVICE, so
+ * the rows worth sending are the ones it may not have: plan_id is set by a
+ * pull, so a null one has never been acknowledged and is exactly what this is
+ * for. After that, most recent first - an old expired row is the least
+ * interesting thing on the device, and the newest is the one someone is
+ * probably in the middle of buying.
+ */
+const selectSubscriptionsToPush = (rows: DBSubscription[]): DBSubscription[] =>
+  rows
+    .filter((s) => !!s.purchase_token)
+    .sort((a, b) => {
+      const aUnacked = a.plan_id == null ? 0 : 1;
+      const bUnacked = b.plan_id == null ? 0 : 1;
+      if (aUnacked !== bUnacked) return aUnacked - bUnacked;
+      return (Date.parse(b.started_at || '') || 0) - (Date.parse(a.started_at || '') || 0);
+    })
+    .slice(0, MAX_PUSHED_SUBSCRIPTIONS);
+
 const subscriptionPayload = (s: DBSubscription, userId: number) => ({
   store: s.store || 'revenuecat',
   // The id the purchase is actually filed under at RevenueCat. It is only the
@@ -603,9 +643,7 @@ const runSync = async (userId: number): Promise<SyncResult> => {
       // learns about them here. Every local purchase token is re-sent each sync
       // (the backend ignores tokens it already verified), which is what
       // delivers a purchase made offline - same as the web UserSyncService.
-      subscriptions: localSubs
-        .filter((s) => !!s.purchase_token)
-        .map((s) => subscriptionPayload(s, userId)),
+      subscriptions: selectSubscriptionsToPush(localSubs).map((s) => subscriptionPayload(s, userId)),
     };
 
     // 2. Push to Laravel

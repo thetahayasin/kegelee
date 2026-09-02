@@ -135,6 +135,45 @@ beforeEach(() => {
 });
 
 describe('push payload', () => {
+  /**
+   * The server takes ten subscriptions and used to reject the entire request
+   * for an eleventh. Local rows only accumulate - a new purchase token per plan
+   * change, resubscribe and restore, and nothing ever deletes one - so a device
+   * eventually sent more than that on every sync. The push then 422'd, and
+   * because the client returns early when the push fails, the pull never ran
+   * either. Workouts stopped syncing because of an old subscription, and
+   * reinstalling was the only cure.
+   */
+  it('never sends more subscriptions than the server will accept', async () => {
+    q.getSubscriptions.mockResolvedValue(
+      Array.from({ length: 15 }, (_, i) =>
+        subRow({ id: i + 1, purchase_token: `tok-${i}`, started_at: iso(-i * DAY) }),
+      ),
+    );
+
+    await syncNow(1);
+
+    const sent = mockedApi.pushState.mock.calls[0][0].subscriptions;
+    expect(sent.length).toBeLessThanOrEqual(9);
+  });
+
+  it('spends that budget on the rows the server may not have', async () => {
+    // plan_id is written by a pull, so a null one has never been acknowledged
+    // and is the whole reason the push exists. It must not be the row that
+    // gets trimmed away in favour of ten old expired ones.
+    q.getSubscriptions.mockResolvedValue([
+      ...Array.from({ length: 12 }, (_, i) =>
+        subRow({ id: i + 1, plan_id: 1, purchase_token: `old-${i}`, started_at: iso(-100 * DAY) }),
+      ),
+      subRow({ id: 99, plan_id: null, purchase_token: 'brand-new', started_at: iso(-1) }),
+    ]);
+
+    await syncNow(1);
+
+    const sent = mockedApi.pushState.mock.calls[0][0].subscriptions;
+    expect(sent.map((s: any) => s.purchase_token)).toContain('brand-new');
+  });
+
   it('sends the row\'s own RevenueCat id, product and grace date', async () => {
     q.getSubscriptions.mockResolvedValue([subRow({ grace_period_ends_at: iso(3 * DAY) })]);
     await syncNow(1);
