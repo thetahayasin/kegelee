@@ -16,4 +16,4 @@
  * "share of installs on the newest version" be answered - and, when a crash
  * report or a support message arrives, what version it came from.
  */
-export const APP_VERSION = '1.0.107';
+export const APP_VERSION = '1.0.108';
