@@ -811,10 +811,14 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
  * Both periods are still taken so this stays the single place that decides.
  */
 export const replacementModeFor = (
-  _nextMonths: number | null,
-  _currentMonths: number | null,
+  nextMonths: number | null,
+  currentMonths: number | null,
 ): string => {
-  return WITHOUT_PRORATION;
+  // An unmeasurable period takes the proven mode. Guessing toward the one
+  // still under test, on incomplete information, is the wrong way round.
+  if (nextMonths === null || currentMonths === null) return WITHOUT_PRORATION;
+
+  return nextMonths > currentMonths ? WITH_TIME_PRORATION : WITHOUT_PRORATION;
 };
 
 /**
@@ -884,11 +888,34 @@ export const requestPlanPurchase = async (
    * The joined id is still what decides WHETHER this is a change, above; it is
    * only the replacement target that has to be the parent.
    */
-  const replacedSubscriptionId = (oldProductId || '').split(':')[0];
-  const productChangeInfo = replacedSubscriptionId && !sameAsCurrent
+  const mode = opts?.replacementMode ?? WITHOUT_PRORATION;
+
+  /**
+   * Which form of the old product id to send, and it depends on the mode.
+   *
+   * WITHOUT_PRORATION is proven with the BARE subscription id, which is what
+   * Play's own Purchase.getProducts() reports - it names the subscription and
+   * never the base plan.
+   *
+   * A prorated change gets the JOINED id instead. The request goes through
+   * RevenueCat, not to Play directly, and RevenueCat's catalogue is keyed by
+   * the joined form: `premium_monthly:p3m` is the product name in their
+   * dashboard. If they resolve this against their own products, the bare
+   * parent matches three of them at once and the change cannot be pinned to a
+   * purchase - which would explain why every prorated attempt was declined
+   * while the same id worked without proration.
+   *
+   * This is the last untested pairing. If it is declined as well, the honest
+   * conclusion is that this catalogue accepts one mode.
+   */
+  const replacedProductId = mode === WITHOUT_PRORATION
+    ? (oldProductId || '').split(':')[0]
+    : (oldProductId || '');
+
+  const productChangeInfo = replacedProductId && !sameAsCurrent
     ? {
-        oldProductIdentifier: replacedSubscriptionId,
-        replacementMode: opts?.replacementMode ?? WITH_TIME_PRORATION,
+        oldProductIdentifier: replacedProductId,
+        replacementMode: mode,
       }
     : null;
 

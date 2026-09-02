@@ -160,30 +160,35 @@ describe('replacementModeFor', () => {
    * three are documented as valid, so these tests pin observed behaviour over
    * documented behaviour on purpose.
    */
-  it('uses the accepted mode in both directions', () => {
-    // Four modes tried against a real device on this catalogue and exactly one
-    // was accepted. Google recommends two of the declined three for precisely
-    // the transitions they were declined on, so this pins what the store does
-    // over what the docs say.
-    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITHOUT_PRORATION);
+  it('prorates an upgrade and leaves a downgrade alone', () => {
+    // Upgrade: WITH_TIME_PRORATION, Google's recommendation, paired this time
+    // with the JOINED old product id - the one combination never tried on a
+    // device. Downgrade: WITHOUT_PRORATION, which is proven.
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITH_TIME_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITH_TIME_PRORATION);
+    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(WITH_TIME_PRORATION);
+
     expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(3, 3)).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(null, 3)).toBe(WITHOUT_PRORATION);
   });
 
-  it('never sends a mode that was declined on a device', () => {
+  it('takes the proven mode for an equal or unmeasurable period', () => {
+    // Guessing toward the mode still under test, on incomplete information,
+    // is the wrong way round.
+    expect(replacementModeFor(3, 3)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(null, 3)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(3, null)).toBe(WITHOUT_PRORATION);
+  });
+
+  it('never sends the two modes already declined on a device', () => {
     const pairs: Array<[number | null, number | null]> = [
       [1, 12], [12, 1], [3, 3], [null, 3], [3, null], [null, null],
     ];
 
-    // Both of these were declined by Play on this catalogue and reached the
-    // customer as their payment method being refused.
     for (const [next, current] of pairs) {
       const mode = replacementModeFor(next, current);
       expect(mode).not.toBe(DEFERRED);
-      expect(mode).not.toBe(WITH_TIME_PRORATION);
       expect(mode).not.toBe(CHARGE_PRORATED_PRICE);
     }
   });
@@ -230,10 +235,12 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     // The SUBSCRIPTION, not the base plan: Play identifies an existing
     // purchase by subscription id and never reports which base plan runs, so
     // naming p1y matches no active purchase and the change is declined.
+    // A non-WITHOUT_PRORATION mode carries the JOINED id, so RevenueCat can
+    // pin the change to one base plan rather than to the parent of three.
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.objectContaining({ identifier: '$rc_monthly' }),
       null,
-      { oldProductIdentifier: 'premium_monthly', replacementMode: 'DEFERRED' },
+      { oldProductIdentifier: 'premium_monthly:p1y', replacementMode: 'DEFERRED' },
     );
   });
 
@@ -260,7 +267,7 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.anything(),
       null,
-      expect.objectContaining({ oldProductIdentifier: 'premium_monthly' }),
+      expect.objectContaining({ oldProductIdentifier: 'premium_monthly:p3m' }),
     );
   });
 
@@ -276,10 +283,12 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
       replacementMode: WITH_TIME_PRORATION,
     });
 
+    // The store could not answer, so the caller's own value is used - joined,
+    // because the mode prorates.
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.anything(),
       null,
-      expect.objectContaining({ oldProductIdentifier: 'premium_monthly' }),
+      expect.objectContaining({ oldProductIdentifier: 'premium_monthly:p3m' }),
     );
   });
 
@@ -468,6 +477,35 @@ describe('describePurchaseFailure', () => {
   it('still treats a user cancel as no error at all', () => {
     expect(describePurchaseFailure({ code: '1' }).cancelled).toBe(true);
     expect(describePurchaseFailure({ userCancelled: true }).cancelled).toBe(true);
+  });
+});
+
+describe('the old product id sent to the store', () => {
+  it('sends the joined id when prorating', () => {
+    // RevenueCat's catalogue is keyed by the joined form, so a prorated change
+    // names the exact base plan being replaced.
+    expect(replacementModeFor(12, 1)).toBe(WITH_TIME_PRORATION);
+  });
+
+  it('sends the bare subscription for the proven mode', async () => {
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
+      infoEntitledTo('premium_monthly:p1y'),
+    );
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:monthly'),
+      productIdentifier: 'premium_monthly',
+    });
+
+    await requestPlanPurchase(42, monthly, {
+      oldProductId: yearly.store_product_id,
+      replacementMode: WITHOUT_PRORATION,
+    });
+
+    expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
+      expect.anything(),
+      null,
+      { oldProductIdentifier: 'premium_monthly', replacementMode: WITHOUT_PRORATION },
+    );
   });
 });
 
