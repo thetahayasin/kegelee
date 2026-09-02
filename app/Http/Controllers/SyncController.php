@@ -263,9 +263,33 @@ class SyncController extends Controller
             $user->update(['timezone' => $tz]);
         }
 
-        // --- Level (chosen difficulty) - so a level change persists server-side. ---
+        /**
+         * Level (chosen difficulty), from accounts allowed to choose one.
+         *
+         * Choosing a difficulty is part of the subscription - the picker is
+         * padlocked for a free account - and a lapse puts the account back on
+         * the level its quiz chose. That reset could never stick, because this
+         * accepted whatever level the device sent, from anybody.
+         *
+         * The device is holding the paid level: it has not pulled since the
+         * reset, and would not stop holding it if it had, because the push runs
+         * FIRST in a sync. So the order was: the server resets to level 2, the
+         * device pushes level 5, the server writes 5, and the pull the device
+         * then does agrees with it. Every sync, forever. The customer stayed
+         * locked to a difficulty they could no longer change, which is exactly
+         * the state the reset exists to prevent, and reinstalling was the only
+         * way out.
+         *
+         * A free account has no business setting this at all, so the honest fix
+         * is not a special case for the reset but the same rule the UI already
+         * draws: no subscription, no level change. Admins keep it so the app
+         * can still be previewed.
+         */
         $levelId = $request->input('level_id');
-        if ($levelId && Level::where('id', $levelId)->exists()) {
+        if ($levelId
+            && ($user->is_admin || $user->isSubscribed())
+            && Level::where('id', $levelId)->exists()
+        ) {
             $user->update(['level_id' => (int) $levelId]);
         }
         if ($request->has('level_started_days')) {

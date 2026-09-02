@@ -166,6 +166,50 @@ class LevelResetOnPullTest extends TestCase
         $this->pull($user)->assertOk()->assertJsonPath('user.is_subscribed', false);
     }
 
+    public function test_a_lapsed_device_cannot_push_its_paid_level_back(): void
+    {
+        /**
+         * Why the reset never stuck.
+         *
+         * A sync pushes before it pulls, and the device is still holding the
+         * level it had while paying. The push accepted any level from anybody,
+         * so: server resets to 2, device pushes 5, server writes 5, and the
+         * pull that follows agrees. Every sync, forever - the customer locked
+         * to a difficulty they could no longer change, which is the exact state
+         * the reset exists to undo.
+         */
+        $user = $this->user(level: 5, onboardingLevel: 2);
+        $this->sub($user, 'expired', now()->subDay());
+        $paidLevel = (int) $user->level_id;
+
+        // First sync: the pull performs the reset.
+        $this->pull($user)->assertOk()->assertJsonPath('user.level_id', 2);
+
+        // Second sync. The device has not applied the reset yet - it pushes
+        // before it pulls - so it offers the level it was on while paying.
+        // That offer is what used to undo the reset on every single sync.
+        $this->withHeaders(['X-User-Token' => $user->apiToken()])
+            ->postJson('/api/v1/user/push', ['level_id' => $paidLevel])
+            ->assertOk();
+
+        $this->assertSame(2, (int) $user->fresh()->level_id);
+        $this->pull($user)->assertOk()->assertJsonPath('user.level_id', 2);
+    }
+
+    public function test_a_paying_subscriber_can_still_change_level(): void
+    {
+        // The picker is theirs while they pay, and this must not take it away.
+        $user = $this->user(level: 2, onboardingLevel: 2);
+        $this->sub($user, 'active', now()->addMonth());
+        $target = (int) \App\Models\Level::where('number', 4)->value('id');
+
+        $this->withHeaders(['X-User-Token' => $user->apiToken()])
+            ->postJson('/api/v1/user/push', ['level_id' => $target])
+            ->assertOk();
+
+        $this->assertSame($target, (int) $user->fresh()->level_id);
+    }
+
     public function test_it_records_the_change_once_not_on_every_pull(): void
     {
         $user = $this->user(level: 5, onboardingLevel: 2);
