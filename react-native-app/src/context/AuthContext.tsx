@@ -768,7 +768,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // device. computeSubscribed keeps the admin bypass.
   useEffect(() => {
     if (!user) return;
-    const off = onSyncComplete((syncedUserId) => {
+    const off = onSyncComplete((syncedUserId, serverSubscribed) => {
       if (syncedUserId !== user.id) return;
       (async () => {
         // Reaching this listener AT ALL is the "successful server response"
@@ -783,17 +783,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const active = await getActiveSubscription(user.id).catch(() => null);
 
+        /**
+         * The server's own verdict outranks our copy of its rows.
+         *
+         * Everything below reasons about local rows, which is a mirror, and a
+         * mirror can be stale in the one direction that matters. The
+         * subscriptions section of a pull is applied inside a try/catch that
+         * reports the failure and lets the sync succeed, so a device could
+         * hold a row the backend had already expired and keep granting access
+         * off it - through restarts, because the bootstrap reads the same
+         * copy. Nothing here could ever notice, because everything here was
+         * asking the copy.
+         *
+         * `false` is positive evidence from a successful round trip, which is
+         * the standard the revocation rule already sets, so it is safe to act
+         * on. `undefined` is a backend that does not send it; that keeps the
+         * old row-derived path rather than reading silence as revocation.
+         *
+         * It has to RETURN, not fall through. The row branch below reopens the
+         * gate for any local row carrying a plan_id, and a stale row is
+         * precisely one the backend once acknowledged - so falling through
+         * would hand the decision straight back to the copy this exists to
+         * overrule.
+         */
         // Keep the trial warning in step with whatever the sync just learned.
         // Passing a null trial_ends_at cancels it, so this one call covers
         // every transition: a trial starting, converting, being cancelled, or
         // having been bought on another device entirely. The trial's end date
         // was previously known to the app and told to nobody - a conversion
         // moment missed, and the kind of unannounced charge people dispute.
+        //
+        // Hoisted above the verdict so it still runs on the paths that return.
         scheduleTrialEndingWarning(
-          String(active?.status || '').toLowerCase() === 'trialing'
+          serverSubscribed !== false &&
+            String(active?.status || '').toLowerCase() === 'trialing'
             ? active?.trial_ends_at ?? null
             : null,
         ).catch(() => {});
+
+        if (serverSubscribed === false) {
+          setSubscribed(false);
+          return;
+        }
+
+        if (serverSubscribed === true) {
+          // Paid, whatever this device does or does not hold. A row that has
+          // not arrived yet, or failed to apply, is not evidence against a
+          // backend that has just said yes.
+          setSubscribed(true);
+          return;
+        }
 
         if (active) {
           // A row the backend has acknowledged comes back from the pull with a
@@ -936,6 +975,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     return () => sub.remove();
   }, [user]);
+
+  /**
+   * Close the gate when the entitlement's own clock runs out.
+   *
+   * Every other path here is event-driven - a sync finished, RevenueCat spoke,
+   * the app came forward - and time passing is none of those. A subscription
+   * whose `ends_at` slipped by while the app sat open on screen kept working,
+   * because nothing was left to notice: the row was already local, already
+   * read, and no new event was coming. Backgrounding and returning fixed it,
+   * which is a fix nobody thinks to try.
+   *
+   * A timer set for the exact moment, not a poll. There is one deadline and it
+   * is known, so a wakeup at that instant is both cheaper and sharper than
+   * checking every minute for something that happens once.
+   *
+   * Re-reads the rows rather than trusting the timer alone: by the time it
+   * fires a sync may already have extended, replaced or renewed the row, and
+   * getActiveSubscription applies the whole entitlement rule (grace periods,
+   * a cancelled row still inside its paid period) instead of this having to
+   * restate it. A sync also refreshes the answer through onSyncComplete, so
+   * this only has to catch the case where no sync happens at all.
+   */
+  useEffect(() => {
+    if (!user || !subscribed || user.is_admin) return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    (async () => {
+      const active = await getActiveSubscription(user.id).catch(() => null);
+      if (cancelled) return;
+
+      const endsAt = Date.parse(active?.ends_at || '');
+      // No row, or an open-ended one, has no deadline to wait for.
+      if (!active || !Number.isFinite(endsAt)) return;
+
+      // A second past the expiry, so the re-read lands on the far side of the
+      // boundary rather than exactly on it. setTimeout is a 32-bit signed
+      // millisecond count, so anything beyond ~24 days overflows and fires
+      // immediately; a yearly plan is well past that, and there is nothing to
+      // do until much nearer the date anyway.
+      const delay = endsAt + 1000 - Date.now();
+      if (delay <= 0 || delay > 0x7fffffff) return;
+
+      timer = setTimeout(() => {
+        computeSubscribed(user.id, user.is_admin)
+          .then((stillEntitled) => {
+            if (!cancelled) setSubscribed(stillEntitled);
+          })
+          .catch(() => {});
+      }, delay);
+    })();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [user, subscribed]);
 
   /**
    * Google sign-in returns from the Custom Tab through the app deeplink

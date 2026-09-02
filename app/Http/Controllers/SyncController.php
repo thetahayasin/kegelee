@@ -938,6 +938,69 @@ class SyncController extends Controller
      * Returns the authenticated user's progress data so a device can
      * re-hydrate its local IndexedDB after a fresh install or cache clear.
      */
+    /**
+     * Put a lapsed account back on the level its quiz chose, on read.
+     *
+     * The same rule already runs on RevenueCat's EXPIRATION and REVOCATION
+     * events, and that is still the fast path. But it is the ONLY path: a lapse
+     * that arrives any other way - a Play notification instead of a RevenueCat
+     * one, a webhook dropped while the app was down, or simply `ends_at`
+     * passing with no event behind it at all - left the account entitled to
+     * nothing and still sitting on a paid difficulty it cannot leave, because
+     * the picker is padlocked for a free account. Paying again was the only
+     * exit. There is no scheduled sweep to catch it either.
+     *
+     * Deriving it here instead makes it self-healing: whatever route the lapse
+     * took, the next pull puts them back. Idempotent by construction - once the
+     * two ids match, this does nothing, so the event below is recorded once.
+     */
+    private function returnLapsedUserToOnboardingLevel(\App\Models\User $user): void
+    {
+        // Accounts from before onboarding was captured have nowhere to go back
+        // to, and guessing a level for them is worse than leaving it alone.
+        if (! $user->onboarding_level) {
+            return;
+        }
+
+        if ((int) $user->level_id === (int) $user->onboarding_level) {
+            return;
+        }
+
+        // isSubscribed() covers the whole entitlement rule, including a
+        // cancelled row still inside its paid period and a plan change whose
+        // old row expired while the new one runs. Dropping a paying customer's
+        // difficulty in the middle of either would be a worse bug than this.
+        if ($user->isSubscribed()) {
+            return;
+        }
+
+        $from = (int) $user->level_id;
+        $to = (int) $user->onboarding_level;
+
+        // Difficulty is the level's NUMBER, not its row id. They usually run in
+        // step and are not the same thing.
+        $fromNumber = (int) ($user->level?->number ?? 0);
+        $toNumber = (int) (\App\Models\Level::whereKey($to)->value('number') ?? 0);
+
+        $user->update(['level_id' => $to]);
+
+        // Never at the cost of the response: a report that cannot be written
+        // must not turn a successful pull into a 500.
+        rescue(fn () => \App\Models\UserEvent::record(
+            $user->id,
+            \App\Models\UserEvent::LEVEL_CHANGED,
+            $toNumber > $fromNumber ? 'up' : 'down',
+            'lapse',
+            ['from' => $from, 'to' => $to, 'via' => 'pull'],
+        ), report: false);
+
+        Log::info('Level reset to the onboarding level on pull after lapse', [
+            'user_id' => $user->id,
+            'from' => $from,
+            'to' => $to,
+        ]);
+    }
+
     public function pull(Request $request, ProgressionService $progression): JsonResponse
     {
         $user = $request->user();
@@ -945,6 +1008,8 @@ class SyncController extends Controller
         if (! $user) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
+
+        $this->returnLapsedUserToOnboardingLevel($user);
 
         $position = $progression->position($user);
         $today = $progression->todayProgress($user);
@@ -964,6 +1029,25 @@ class SyncController extends Controller
                 // finished signing up - it restarted both.
                 'level_started_days' => (int) $user->level_started_days,
                 'onboarded_at' => $user->onboarded_at?->toIso8601String(),
+                /**
+                 * This server's own verdict on entitlement, not the raw rows.
+                 *
+                 * The rows below are a mirror, and the app was deriving the
+                 * gate from its copy of them. That works right up until a
+                 * mirror write does not land - the subscriptions section of a
+                 * pull is applied inside a try/catch that reports and moves on
+                 * - and then the device keeps its last good row forever. It
+                 * survives a restart, because the bootstrap reads the same
+                 * stale copy. A subscription the server had already expired
+                 * went on granting access with nothing on either side to say
+                 * why.
+                 *
+                 * Sign-in already answered this question (`is_subscribed` in
+                 * the login payload) and then never answered it again. Saying
+                 * it on every pull costs one boolean and makes the device's
+                 * derivation a fallback rather than the only source.
+                 */
+                'is_subscribed' => $user->isSubscribed(),
             ],
             'position'         => $position,
             'today'            => $today,

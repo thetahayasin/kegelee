@@ -61,7 +61,14 @@ const lastSyncAt = new Map<number, number>();
 // subscriptions) is in SQLite. AuthContext listens to re-evaluate the
 // subscription gate - the RN equivalent of the web re-checking
 // isSubscribed() on every navigation (RTDN cancellations land via pull).
-type SyncCompleteListener = (userId: number) => void;
+/**
+ * `serverSubscribed` is the backend's own answer, straight from the pull, and
+ * is `undefined` when the payload did not carry one. The three states are all
+ * different and a boolean cannot hold them: true and false are verdicts to act
+ * on, undefined is an older backend saying nothing, which must keep the
+ * previous row-derived behaviour rather than read as "not subscribed".
+ */
+type SyncCompleteListener = (userId: number, serverSubscribed?: boolean) => void;
 const syncCompleteListeners = new Set<SyncCompleteListener>();
 
 export const onSyncComplete = (cb: SyncCompleteListener): (() => void) => {
@@ -807,9 +814,15 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     await applySection('drain', () => drainPendingPushes(userId, timezone));
 
     lastSyncAt.set(userId, Date.now());
+    // Read straight off the payload, NOT from the rows just written: the point
+    // of it is to be right even on a sync where the subscriptions section
+    // failed to apply, and applySection reports such a failure without
+    // stopping the sync.
+    const serverSubscribed =
+      typeof data?.user?.is_subscribed === 'boolean' ? data.user.is_subscribed : undefined;
     syncCompleteListeners.forEach((cb) => {
       try {
-        cb(userId);
+        cb(userId, serverSubscribed);
       } catch {}
     });
     return { success: true };
