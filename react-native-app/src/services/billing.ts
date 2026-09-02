@@ -52,6 +52,8 @@ export const WITHOUT_PRORATION =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.WITHOUT_PRORATION ?? 'WITHOUT_PRORATION';
 export const CHARGE_PRORATED_PRICE =
   (Purchases as any)?.STORE_REPLACEMENT_MODE?.CHARGE_PRORATED_PRICE ?? 'CHARGE_PRORATED_PRICE';
+export const CHARGE_FULL_PRICE =
+  (Purchases as any)?.STORE_REPLACEMENT_MODE?.CHARGE_FULL_PRICE ?? 'CHARGE_FULL_PRICE';
 
 // Real SDK types rather than `any`: this file decides who is entitled and what
 // gets charged, so it is the last place that should opt out of type checking.
@@ -775,40 +777,45 @@ export const describePurchaseFailure = (e: any): PurchaseFailure => {
 /**
  * Which replacement mode Play should apply when moving between two plans.
  *
- * WITHOUT_PRORATION, both directions. FIVE combinations have now been tried
- * against a real device on this catalogue and exactly one is accepted:
+ * Play allows only TWO modes when switching between auto-renewing base plans
+ * of the SAME subscription, which is exactly what this catalogue is:
  *
- *   joined old id + DEFERRED                declined
- *   bare   old id + WITH_TIME_PRORATION     declined
- *   bare   old id + CHARGE_PRORATED_PRICE   declined
- *   joined old id + WITH_TIME_PRORATION     declined
- *   bare   old id + WITHOUT_PRORATION       ACCEPTED
+ *   CHARGE_FULL_PRICE     allowed - charge now, full new cycle, old time credited
+ *   WITHOUT_PRORATION     allowed - no charge today, new price at the old renewal
+ *   WITH_TIME_PRORATION   NOT allowed for this transition
+ *   CHARGE_PRORATED_PRICE NOT allowed for this transition
+ *   DEFERRED              NOT allowed for this transition
  *
- * Google documents all four modes as valid and recommends two of the declined
- * three for exactly the transitions they were declined on, so this pins
- * observed behaviour over documented behaviour deliberately. A declined change
- * reaches the customer as their payment method being refused, which is both
- * alarming and untrue.
+ * That rule was found after the fact, and it predicts every result we got on a
+ * real device: the three disallowed modes were each declined, and the one
+ * allowed mode we tried worked. Worth recording, because WITH_TIME_PRORATION
+ * is Play's DEFAULT replacement behaviour and CHARGE_PRORATED_PRICE is what
+ * Google recommends for upgrades - both are wrong here, and a declined change
+ * reaches the customer as their payment method being refused.
  *
- * The one that works is also the only one that asks Play to compute nothing:
- * no money moves today and the renewal date does not shift. Every declined
- * mode needs either a prorated amount or a new date. That points at the test
- * environment rather than the catalogue - licence-tester subscriptions renew
- * every ten minutes, and prorating a period compressed to minutes may simply
- * not be supported. If so these modes would work in production, and the only
- * way to find out is a purchase from an account that is not a licence tester.
+ * WITHOUT_PRORATION in both directions is the deliberate choice between the
+ * two legal ones. The plan changes immediately, nothing is charged that day,
+ * and the new price is taken when the old period would have renewed - so
+ * nobody pays twice for the same days going either way.
  *
- * Not a bad outcome either way: the plan changes immediately, nothing is
- * charged today, and the new price is taken when the old period would have
- * renewed. Nobody pays twice for the same days in either direction.
+ * CHARGE_FULL_PRICE is the alternative for upgrades: charged on the spot for a
+ * full new cycle, with the unused time from the old plan credited on top. It
+ * bills sooner and is not worse for the customer, so it is a revenue decision
+ * rather than a technical one. Change it here.
  *
  * Both periods are still taken so this stays the single place that decides.
  */
 export const replacementModeFor = (
-  _nextMonths: number | null,
-  _currentMonths: number | null,
+  nextMonths: number | null,
+  currentMonths: number | null,
 ): string => {
-  return WITHOUT_PRORATION;
+  // An unknown length is not treated as an upgrade. Everywhere else in this
+  // flow the safe default is to assume one, because the cost of guessing
+  // wrong is making somebody wait. Here the cost is charging them a year on
+  // a guess, so this is the one place that needs to be sure.
+  if (nextMonths === null || currentMonths === null) return WITHOUT_PRORATION;
+
+  return nextMonths > currentMonths ? CHARGE_FULL_PRICE : WITHOUT_PRORATION;
 };
 
 /**
@@ -881,26 +888,17 @@ export const requestPlanPurchase = async (
   const mode = opts?.replacementMode ?? WITHOUT_PRORATION;
 
   /**
-   * Which form of the old product id to send, and it depends on the mode.
+   * The BARE subscription id, whatever the mode.
    *
-   * WITHOUT_PRORATION is proven with the BARE subscription id, which is what
-   * Play's own Purchase.getProducts() reports - it names the subscription and
-   * never the base plan.
-   *
-   * A prorated change gets the JOINED id instead. The request goes through
-   * RevenueCat, not to Play directly, and RevenueCat's catalogue is keyed by
-   * the joined form: `premium_monthly:p3m` is the product name in their
-   * dashboard. If they resolve this against their own products, the bare
-   * parent matches three of them at once and the change cannot be pinned to a
-   * purchase - which would explain why every prorated attempt was declined
-   * while the same id worked without proration.
-   *
-   * This is the last untested pairing. If it is declined as well, the honest
-   * conclusion is that this catalogue accepts one mode.
+   * This used to send the joined `premium_monthly:p1y` for a prorating mode,
+   * on the theory that RevenueCat resolves the replaced product against its
+   * own catalogue, where the joined form is the product name. That was
+   * tested: joined and bare were declined identically under
+   * WITH_TIME_PRORATION, so the id form was never what decided it - the mode
+   * was. Bare is the only form Play has ever accepted here, and the only one
+   * Purchase.getProducts() reports.
    */
-  const replacedProductId = mode === WITHOUT_PRORATION
-    ? (oldProductId || '').split(':')[0]
-    : (oldProductId || '');
+  const replacedProductId = (oldProductId || '').split(':')[0];
 
   const productChangeInfo = replacedProductId && !sameAsCurrent
     ? {

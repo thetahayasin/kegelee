@@ -45,6 +45,7 @@ import {
   WITH_TIME_PRORATION,
   WITHOUT_PRORATION,
   CHARGE_PRORATED_PRICE,
+  CHARGE_FULL_PRICE,
   replacementModeFor,
   PURCHASE_NOT_ENTITLED,
   requestPlanPurchase,
@@ -152,36 +153,47 @@ describe('replacementModeFor', () => {
   const M = (p: typeof monthly) => planMonths(p);
 
   /**
-   * One mode, both directions, because it is the only one Play accepts here.
+   * An upgrade prorates; everything else does not.
    *
-   * DEFERRED and WITH_TIME_PRORATION were each tried against a real device on
-   * this catalogue and each was declined, which reaches the customer as their
-   * payment method being refused. Only WITHOUT_PRORATION went through. All
-   * three are documented as valid, so these tests pin observed behaviour over
-   * documented behaviour on purpose.
+   * DEFERRED, WITH_TIME_PRORATION and CHARGE_PRORATED_PRICE were each tried
+   * against a real device on this catalogue and each was declined, which
+   * reaches the customer as their payment method being refused. That was read
+   * as Play accepting a single mode here. It is not: the two prorating modes
+   * tried both hold the billing period fixed, and every switch in this
+   * catalogue changes it, so neither could ever have expressed one.
+   *
+   * CHARGE_FULL_PRICE is the mode Google names for a move to a longer billing
+   * period, and it is the only one of the five that both starts the new period
+   * today and credits the days already paid for.
    */
-  it('uses the one accepted mode in both directions', () => {
-    // Five combinations tried on a real device; exactly one is accepted.
-    // Google recommends two of the declined ones for precisely the
-    // transitions they were declined on, so this pins what the store does
-    // over what the docs say.
-    expect(replacementModeFor(M(yearly), M(monthly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
-    expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
+  it('charges the full price of a longer period, with the old time credited', () => {
+    expect(replacementModeFor(M(yearly), M(monthly))).toBe(CHARGE_FULL_PRICE);
+    expect(replacementModeFor(M(quarterly), M(monthly))).toBe(CHARGE_FULL_PRICE);
+    expect(replacementModeFor(M(yearly), M(quarterly))).toBe(CHARGE_FULL_PRICE);
   });
 
-  it('takes the proven mode for an equal or unmeasurable period', () => {
-    // Guessing toward the mode still under test, on incomplete information,
-    // is the wrong way round.
+  it('leaves a downgrade on the mode that charges nothing today', () => {
+    // CHARGE_FULL_PRICE here would take a full period's money to put somebody
+    // on a cheaper plan, which is the opposite of what they asked for.
+    expect(replacementModeFor(M(monthly), M(yearly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(monthly), M(quarterly))).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(M(quarterly), M(yearly))).toBe(WITHOUT_PRORATION);
+  });
+
+  it('does not charge a full period on an equal or unmeasurable length', () => {
+    // Elsewhere in this flow an unknown length is assumed to be an upgrade,
+    // because the cost of guessing wrong is making somebody wait. Here the
+    // cost is taking a year's money on a guess.
     expect(replacementModeFor(3, 3)).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(null, 3)).toBe(WITHOUT_PRORATION);
     expect(replacementModeFor(3, null)).toBe(WITHOUT_PRORATION);
+    expect(replacementModeFor(null, null)).toBe(WITHOUT_PRORATION);
   });
 
-  it('never sends the two modes already declined on a device', () => {
+  it('never sends one of the three modes a device has already declined', () => {
     const pairs: Array<[number | null, number | null]> = [
-      [1, 12], [12, 1], [3, 3], [null, 3], [3, null], [null, null],
+      [1, 12], [12, 1], [3, 1], [1, 3], [12, 3], [3, 12],
+      [3, 3], [null, 3], [3, null], [null, null],
     ];
 
     for (const [next, current] of pairs) {
@@ -196,7 +208,9 @@ describe('replacementModeFor', () => {
     // Play rejects the number outright, and the rejection surfaces as a
     // generic failure with nothing pointing back here.
     expect(typeof WITHOUT_PRORATION).toBe('string');
+    expect(typeof CHARGE_FULL_PRICE).toBe('string');
     expect(WITHOUT_PRORATION).toBe('WITHOUT_PRORATION');
+    expect(CHARGE_FULL_PRICE).toBe('CHARGE_FULL_PRICE');
   });
 });
 
@@ -231,15 +245,16 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
       replacementMode: DEFERRED,
     });
 
-    // The SUBSCRIPTION, not the base plan: Play identifies an existing
-    // purchase by subscription id and never reports which base plan runs, so
-    // naming p1y matches no active purchase and the change is declined.
-    // A non-WITHOUT_PRORATION mode carries the JOINED id, so RevenueCat can
-    // pin the change to one base plan rather than to the parent of three.
+    // The SUBSCRIPTION, not the base plan, and for every mode: Play identifies
+    // an existing purchase by subscription id and never reports which base
+    // plan runs, so naming p1y matches no active purchase and the change is
+    // declined. The joined id was sent here for a while on the theory that a
+    // prorating mode needed it to pin the change to one base plan; joined and
+    // bare were then declined identically on a device, which disproved it.
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.objectContaining({ identifier: '$rc_monthly' }),
       null,
-      { oldProductIdentifier: 'premium_monthly:p1y', replacementMode: 'DEFERRED' },
+      { oldProductIdentifier: 'premium_monthly', replacementMode: 'DEFERRED' },
     );
   });
 
@@ -248,25 +263,28 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     // caller can only pass what the catalogue maps that slug to. When the row
     // is stale that is the wrong product, and Play rejects a replacement that
     // names a product the customer does not hold. Ask the store instead.
+    //
+    // The stale value here is the LEGACY `premium_quarterly`, which is a
+    // subscription of its own. That is the only stale case the bare id cannot
+    // absorb: the three current plans all reduce to `premium_monthly`, so a
+    // row naming the wrong one of those would come out right by accident.
     (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
       infoEntitledTo('premium_monthly:p3m'),
     );
-    // After an immediate proration upgrade the entitlement has moved to p1y.
     (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
       customerInfo: infoEntitledTo('premium_monthly:p1y'),
       productIdentifier: 'premium_monthly',
     });
 
     await requestPlanPurchase(42, yearly, {
-      // Stale: the row says monthly, but they are really on p3m.
-      oldProductId: monthly.store_product_id,
-      replacementMode: WITH_TIME_PRORATION,
+      oldProductId: 'premium_quarterly',
+      replacementMode: CHARGE_FULL_PRICE,
     });
 
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.anything(),
       null,
-      expect.objectContaining({ oldProductIdentifier: 'premium_monthly:p3m' }),
+      expect.objectContaining({ oldProductIdentifier: 'premium_monthly' }),
     );
   });
 
@@ -278,17 +296,42 @@ describe('requestPlanPurchase on a deferred downgrade', () => {
     });
 
     await requestPlanPurchase(42, yearly, {
-      oldProductId: quarterly.store_product_id,
-      replacementMode: WITH_TIME_PRORATION,
+      oldProductId: 'premium_quarterly',
+      replacementMode: CHARGE_FULL_PRICE,
     });
 
-    // The store could not answer, so the caller's own value is used - joined,
-    // because the mode prorates.
+    // The store could not answer, so the caller's own value is used - still
+    // reduced to its subscription, which for a legacy id is already bare.
     expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
       expect.anything(),
       null,
-      expect.objectContaining({ oldProductIdentifier: 'premium_monthly:p3m' }),
+      expect.objectContaining({ oldProductIdentifier: 'premium_quarterly' }),
     );
+  });
+
+  it('reduces a joined old product id to its subscription for every mode', async () => {
+    // The regression this replaced: a prorating mode used to send the joined
+    // id, so an upgrade named a base plan Play cannot match to a purchase.
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
+      infoEntitledTo('premium_monthly:p3m'),
+    );
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: infoEntitledTo('premium_monthly:p1y'),
+      productIdentifier: 'premium_monthly',
+    });
+
+    for (const mode of [CHARGE_FULL_PRICE, WITHOUT_PRORATION, DEFERRED]) {
+      await requestPlanPurchase(42, yearly, {
+        oldProductId: quarterly.store_product_id,
+        replacementMode: mode,
+      });
+
+      expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
+        expect.anything(),
+        null,
+        { oldProductIdentifier: 'premium_monthly', replacementMode: mode },
+      );
+    }
   });
 
   it('accepts a purchase whose entitlement names another product', async () => {

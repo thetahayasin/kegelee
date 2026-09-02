@@ -43,6 +43,7 @@ import {
   refreshCustomerInfo,
   PlanPricing,
   replacementModeFor,
+  CHARGE_FULL_PRICE,
 } from '../../services/billing';
 import { syncNow } from '../../services/sync';
 import { formatSubscriptionDate } from '../../utils/localDate';
@@ -188,22 +189,6 @@ export const PaywallScreen = () => {
   // about the stack.
   const canClose = navigation.canGoBack();
 
-  /**
-   * Whether moving to `next` from `from` is an upgrade.
-   *
-   * Longer billing period = upgrade. See the note in `subscribe`.
-   */
-  const isLongerPlan = (next: PlanDef, from: PlanDef) => {
-    // planMonths returns null for an interval it cannot express in months.
-    // Treating an unknown length as an upgrade is the safer default: starting
-    // the new plan immediately with the old time credited never loses anybody
-    // paid days, whereas deferring by mistake makes them wait for something
-    // they have already bought.
-    const a = planMonths(next);
-    const b = planMonths(from);
-    if (a === null || b === null) return true;
-    return a >= b;
-  };
 
   /**
    * What will happen if this plan is tapped, in one line, BEFORE it is tapped.
@@ -221,10 +206,19 @@ export const PaywallScreen = () => {
     if (!from || from.slug === plan.slug || !subscriptionIsRenewing(activeSub)) {
       return null;
     }
-    // Both directions behave identically now: the plan moves immediately and
-    // the new price is taken when the old period would have renewed. One line
-    // describes both, and it is the reassuring half - no paid time is lost.
-    return 'paywall.switchStartsLater';
+    /**
+     * Asked of the function that picks the replacement mode, rather than
+     * re-deriving "is this an upgrade" alongside it.
+     *
+     * There used to be a second copy of that rule right here, and the two
+     * drifted apart across several changes of mode - the screen promising
+     * credited time while the mode being sent deferred everything, and later
+     * one line claiming both directions behaved identically. A notice that
+     * contradicts what Play then does is worse than no notice at all.
+     */
+    return replacementModeFor(planMonths(plan), planMonths(from)) === CHARGE_FULL_PRICE
+      ? 'paywall.switchStartsNow'
+      : 'paywall.switchStartsLater';
   };
 
   /**

@@ -61,8 +61,14 @@ jest.mock('react-native-purchases', () => ({
     // billing.ts was fixed to stop sending, because Play rejects a number
     // where it expects a mode name. A mock reproducing the bug would let the
     // regression back in while the suite stayed green.
+    // All five, as the real enum exposes them. Two of them used to be missing
+    // here, so billing.ts silently fell through to its own string literals and
+    // the tests could not have caught a member being read under the wrong name.
     STORE_REPLACEMENT_MODE: {
+      WITHOUT_PRORATION: 'WITHOUT_PRORATION',
       WITH_TIME_PRORATION: 'WITH_TIME_PRORATION',
+      CHARGE_FULL_PRICE: 'CHARGE_FULL_PRICE',
+      CHARGE_PRORATED_PRICE: 'CHARGE_PRORATED_PRICE',
       DEFERRED: 'DEFERRED',
     },
   },
