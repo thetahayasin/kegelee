@@ -3,7 +3,7 @@ import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setApiToken } from '../services/api';
 import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions, getMeasurements, insertMeasurement } from '../db/queries';
-import { syncNow, syncIfStale, onSyncComplete, onAuthFailure, flushEvents } from '../services/sync';
+import { syncNow, syncIfStale, onSyncComplete, onAuthFailure, flushPendingWork } from '../services/sync';
 import {
   claimGuestEvents,
   deleteGuestEvents,
@@ -694,7 +694,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
        */
       if (userId) {
         await bestEffort('trackLogout', () => track(userId, 'logged_out'));
-        await bestEffort('flushEvents', () => flushEvents(userId));
+        // The training too, not just the instrumentation. clearUserData below
+        // drops every row this account owns, so a session finished offline is
+        // gone unless it goes now - which is what the confirmation dialog used
+        // to warn about instead of fixing.
+        await bestEffort('flushPendingWork', () =>
+          flushPendingWork(userId, Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'),
+        );
       }
       // Guest rows belong to nobody, so clearUserData - which is scoped to an
       // account - cannot reach them. Left behind, the next person to sign in

@@ -518,26 +518,19 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
             CTA colour) sitting between two identical red buttons, so "clear my
             progress" and "destroy my account" read as the same weight. */}
         <View style={styles.actionsContainer}>
-          {/* Confirmed, because it is not undoable in one tap the way it
-              looks. Logging out clears the local database, so anything not yet
-              synced is gone and getting back in needs the password - and this
-              button sits directly above two destructive ones, which is exactly
-              where a mis-tap happens. */}
+          {/* Not confirmed. Signing out is what every other app does in one
+              tap, and the two things the old dialog warned about are no longer
+              true: logout pushes the outbox before clearing, so nothing
+              unsynced is lost, and "you will need your password" was wrong for
+              anybody who signed up with Google and has none. Reset progress
+              and Delete account below are still confirmed, because those are
+              the ones that cannot be undone by signing back in. */}
           <TouchableOpacity
             style={[styles.actionBtn, styles.logoutBtn]}
             accessibilityRole="button"
-            onPress={() =>
-              Alert.alert(t('settings.logOutConfirmTitle'), t('settings.logOutConfirmBody'), [
-                { text: t('settings.cancel'), style: 'cancel' },
-                {
-                  text: t('settings.logOut'),
-                  style: 'destructive',
-                  onPress: () => {
-                    logout();
-                  },
-                },
-              ])
-            }
+            onPress={() => {
+              logout();
+            }}
           >
             <Text style={styles.logoutBtnText}>{t('settings.logOut')}</Text>
           </TouchableOpacity>
