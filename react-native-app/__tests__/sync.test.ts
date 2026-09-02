@@ -392,11 +392,15 @@ describe('subscription reconcile', () => {
     );
   });
 
-  it('leaves a purchase recorded minutes ago alone', async () => {
+  it('leaves an unacknowledged purchase recorded minutes ago alone', async () => {
     // The push and the RevenueCat webhook have not had time to land, so the
-    // server not knowing about it yet proves nothing.
+    // server not knowing about it yet proves nothing. plan_id null is what
+    // makes it ours-and-unconfirmed: recordCompletedPurchase writes that, and
+    // a row that has been through a pull comes back with one set.
     (purchaseRecordedAt as jest.Mock).mockResolvedValue(Date.now() - 60_000);
-    q.getSubscriptions.mockResolvedValue([subRow({ purchase_token: 'tok-fresh' })]);
+    q.getSubscriptions.mockResolvedValue([
+      subRow({ purchase_token: 'tok-fresh', plan_id: null }),
+    ]);
     mockedApi.pullState.mockResolvedValue({
       ok: true,
       status: 200,
@@ -408,6 +412,39 @@ describe('subscription reconcile', () => {
     expect(q.saveSubscription).not.toHaveBeenCalledWith(
       1,
       expect.objectContaining({ status: 'expired' }),
+    );
+  });
+
+  it('retires a row the server acknowledged and has now dropped, however recent', async () => {
+    /**
+     * Cancelling shortly after subscribing. The settle window is for a purchase
+     * the backend has not seen; this row carries a plan_id, so it HAS been
+     * seen, and a complete pull that omits it is an answer rather than a delay.
+     *
+     * It used to be held by the window regardless, and because purchaseRecordedAt
+     * is one stamp for the whole device, any recent purchase froze every row on
+     * the phone. That is why a cancellation minutes after buying did nothing
+     * until the app's storage was cleared.
+     */
+    (purchaseRecordedAt as jest.Mock).mockResolvedValue(Date.now() - 60_000);
+    q.getSubscriptions.mockResolvedValue([
+      subRow({ purchase_token: 'tok-cancelled', plan_id: 1 }),
+    ]);
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload({ subscriptions: [] }),
+    });
+
+    await syncNow(1);
+
+    expect(q.saveSubscription).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({
+        purchase_token: 'tok-cancelled',
+        status: 'expired',
+        auto_renewing: 0,
+      }),
     );
   });
 

@@ -324,13 +324,44 @@ export const syncIfStale = (userId: number, maxAgeMs = 60_000): Promise<SyncResu
 };
 
 /**
+ * Get everything this account has not yet sent to the server, before its rows
+ * are deleted. Returns whether the outbox is now empty.
+ *
+ * Logout used to flush the analytics events and only those, which is why the
+ * confirmation had to warn that "anything not yet synced will be lost". It
+ * was telling the truth: a workout finished on a train, or a measurement taken
+ * in a lift, sat in the outbox and clearUserData dropped it. Asking somebody
+ * to accept losing their own training as the price of signing out is not a
+ * warning, it is an unfinished feature with a dialog in front of it.
+ *
+ * A full syncNow still cannot be used here - it pulls state back down and
+ * writes it into the very tables the caller is tearing down - but the push
+ * half was always safe on its own, and is what should have been running.
+ *
+ * `true` means there is nothing left to lose. The caller decides what to do
+ * with a `false`; it must never stop the logout, because somebody on a plane
+ * has to be able to sign out of a phone they are handing over.
+ */
+export const flushPendingWork = async (userId: number, timezone: string): Promise<boolean> => {
+  if (!userId) return true;
+  try {
+    await drainPendingPushes(userId, timezone);
+    const [sessions, measurements, events] = await Promise.all([
+      getUnsyncedWorkoutSessions(userId),
+      getUnsyncedMeasurements(userId),
+      getUnsyncedEvents(userId),
+    ]);
+    return sessions.length === 0 && measurements.length === 0 && events.length === 0;
+  } catch {
+    return false;
+  }
+};
+
+/**
  * Send the queued events and nothing else.
  *
- * For logout, which is the one moment where the outbox is about to be deleted:
- * clearUserData drops this account's rows, so anything still queued - the
- * logged_out event itself included - is lost unless it goes now. A full
- * syncNow cannot be used, because it pulls state back down and writes it to
- * tables the caller is in the middle of tearing down.
+ * Kept for callers that only have instrumentation to get rid of. Logout uses
+ * flushPendingWork above, which covers the training data too.
  *
  * Needs nothing but the id: no user row is read, so it still works after the
  * session has been half dismantled. Silent on every failure, like the rest of
@@ -356,14 +387,20 @@ export const flushEvents = async (userId: number): Promise<void> => {
  *
  * A purchase completes on the DEVICE and reaches our backend by two
  * independent routes - this sync's push, and RevenueCat's webhook - neither of
- * which is instant. So a token the pull does not mention is ambiguous for a
- * while: it might be a subscription that ended somewhere else, or it might be
- * the one the customer paid for ninety seconds ago that nothing server-side
- * has processed yet. Expiring the second kind is taking away access somebody
- * just bought, which is unrecoverable without support. A day of protection
- * costs at most a day of access to a purchase the server never accepts.
+ * which is instant. So a token the pull does not mention is briefly ambiguous:
+ * it might be a subscription that ended somewhere else, or the one the
+ * customer paid for ninety seconds ago that nothing server-side has processed
+ * yet. Expiring the second kind takes away access somebody just bought.
+ *
+ * Was 24 hours, which was far past the point of protecting anything. Both
+ * routes land within seconds; nothing legitimate takes hours. What a day
+ * actually bought was a day in which a CANCELLATION could not be applied,
+ * because `recordedAt` is one stamp for the whole device - so a purchase made
+ * this morning froze every row on the phone until tomorrow, and cancelling
+ * minutes later did nothing no matter how many times the app was reopened.
+ * Half an hour is already generous for a round trip measured in seconds.
  */
-const PURCHASE_SETTLE_MS = 24 * 60 * 60 * 1000;
+const PURCHASE_SETTLE_MS = 30 * 60 * 1000;
 
 /**
  * Retire local subscription rows the server no longer knows about.
@@ -403,8 +440,23 @@ const reconcileLocalSubscriptions = async (
     if (serverTokens.has(row.purchase_token)) continue;
     if (String(row.status || '').toLowerCase() === 'expired') continue;
 
-    const settledFrom = recordedAt ?? Date.parse(row.started_at || '');
-    if (Number.isFinite(settledFrom) && now - settledFrom < PURCHASE_SETTLE_MS) continue;
+    /**
+     * The grace is for a purchase the SERVER HAS NOT SEEN YET, and only that.
+     *
+     * A row with a plan_id came back from a pull, which means the backend knew
+     * this token and set it. If the same backend now returns a complete list
+     * without it, that is not "we have not caught up" - it is an answer. The
+     * old rule gave those rows the settle window too, so a cancellation could
+     * not be applied while any purchase on the device was recent, which is
+     * exactly the case where someone cancels shortly after subscribing.
+     *
+     * recordCompletedPurchase writes plan_id: null, so our own optimistic rows
+     * - the ones this window exists for - still get it.
+     */
+    if (row.plan_id == null) {
+      const settledFrom = recordedAt ?? Date.parse(row.started_at || '');
+      if (Number.isFinite(settledFrom) && now - settledFrom < PURCHASE_SETTLE_MS) continue;
+    }
 
     const endsAt = Date.parse(row.ends_at || '');
     await saveSubscription(userId, {
