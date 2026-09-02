@@ -129,6 +129,36 @@ class SyncController extends Controller
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
+        /**
+         * Trim the subscription list rather than reject the request for it.
+         *
+         * The cap below is right - a push is an outbox drain, not a bulk
+         * import - but rejecting the whole request when it is exceeded broke
+         * the rule stated below it, that one bad row must never fail the same
+         * sync forever. Local subscription rows only accumulate: every plan
+         * change and resubscribe is a new purchase token, and the client sent
+         * all of them on every sync. Past ten, the 422 killed the entire push,
+         * and the pull with it, since the client returns early when the push
+         * fails. Workouts stopped syncing because of a subscription the
+         * account had finished with, and reinstalling was the only cure.
+         *
+         * Fixed in the client too, which now sends nine at most. This is here
+         * because every device already carrying the old build is stuck until
+         * it updates, and they should not have to.
+         *
+         * Newest first, so the trim keeps the rows worth having.
+         */
+        if (is_array($request->input('subscriptions'))) {
+            $subs = collect($request->input('subscriptions'))
+                ->filter(fn ($s) => is_array($s))
+                ->sortByDesc(fn ($s) => (string) ($s['started_at'] ?? ''))
+                ->take(10)
+                ->values()
+                ->all();
+
+            $request->merge(['subscriptions' => $subs]);
+        }
+
         // A push drains a device's outbox; it is never a bulk import. Bounding
         // every array stops a single request tying up the server, and the
         // shapes reject payloads no client of ours sends. Individual rows are
