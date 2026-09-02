@@ -600,28 +600,36 @@ export const TrainingScreen = () => {
                 : t('training.sessionsCompleteToday', { count: required })}
             </Text>
 
-            {/* A free account that has spent its allowance.
-                Every further session is recorded but the day count no longer
-                moves, so the ring, the plan position and the next unlock all
-                sit still and nothing on the screen said why. One line that
-                names the boundary, and the way past it. Never a wall: the
-                Start button above is untouched and training stays free. */}
-            {freeCapReached && (
-              <View style={styles.freeCapRow}>
-                <Text style={styles.freeCapText}>
-                  {t('training.freeCapReached', { day: FREE_DAY_CAP })}
-                </Text>
-                <TouchableOpacity
-                  style={styles.freeCapBtn}
-                  accessibilityRole="button"
-                  onPress={() => navigation.navigate('Paywall', { source: 'training' })}
-                >
-                  <Text style={styles.freeCapBtnText}>{t('training.freeCapCta')}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
         </View>
+
+        {/* A free account that has spent its allowance.
+            Every further session is recorded but the day count no longer
+            moves, so the ring, the plan position and the next unlock all
+            sit still and nothing on the screen said why. One line that
+            names the boundary, and the way past it. Never a wall: the
+            Start button above is untouched and training stays free.
+
+            Its own card, outside the hero. Inside the action strip it turned
+            the screen's one status object into a status object that sometimes
+            also sells something, and the ask inherited the hero's weight on
+            exactly the days a free reader was already being told no. Out here
+            it is a separate thing that can be read, or not, without changing
+            what the hero says. */}
+        {freeCapReached && (
+          <View style={styles.freeCapCard}>
+            <Text style={styles.freeCapText}>
+              {t('training.freeCapReached', { day: FREE_DAY_CAP })}
+            </Text>
+            <TouchableOpacity
+              style={styles.freeCapBtn}
+              accessibilityRole="button"
+              onPress={() => navigation.navigate('Paywall', { source: 'training' })}
+            >
+              <Text style={styles.freeCapBtnText}>{t('training.freeCapCta')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* What you are working towards.
             The grid shows locked exercises with a day count, but a bare "6
@@ -838,28 +846,34 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     ...TYPE.overline,
     color: COLORS.textDim,
   },
-  freeCapRow: {
-    marginTop: 14,
-    alignItems: 'center',
-    gap: 10,
+  /* Free-day cap notice ---------------------------------------------------
+     Built from the same tokens as subNotice above, which is the other card on
+     this screen that states a fact and offers one way to act on it. The old
+     rule here was hand-set numbers (14 / 13 / 19 / 22 / 44) from before the
+     scale existed, so it drifted from every neighbouring card as soon as the
+     theme moved. */
+  freeCapCard: {
+    marginHorizontal: SPACE.lg,
+    marginTop: SPACE.lg,
+    padding: SPACE.lg,
+    borderRadius: RADIUS.md + 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+    gap: SPACE.md,
   },
-  freeCapText: {
-    fontSize: 13,
-    lineHeight: 19,
-    textAlign: 'center',
-    color: COLORS.textMuted,
-  },
+  freeCapText: { ...TYPE.bodySm, color: COLORS.white, lineHeight: 19 },
   freeCapBtn: {
+    alignSelf: 'flex-start',
     minHeight: 44,
-    paddingHorizontal: 22,
-    borderRadius: 14,
-    backgroundColor: COLORS.surface2,
-    alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: SPACE.xl,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.accentWash,
   },
   freeCapBtnText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    ...TYPE.caption,
+    fontWeight: '700',
     color: COLORS.accentText,
   },
   unlockCard: {

@@ -79,9 +79,11 @@ export const ProgressScreen = () => {
     return { width: size, height: size, borderRadius: size / 2 };
   }, [ringSizes]);
 
-  // tabBarClearance already carries one SPACE.lg of breathing room above the
-  // floating bar; the button sits in that gap rather than adding a second one.
-  const ctaBottom = tabBarClearance(insets.bottom) - SPACE.lg;
+  // Sits ON the clearance, not inside it. Subtracting SPACE.lg here spent the
+  // gap the clearance exists to create, so the button's lower edge landed flush
+  // against the top of the floating bar and the two read as one welded object.
+  // Full clearance plus a step keeps a visible band of background between them.
+  const ctaBottom = tabBarClearance(insets.bottom) + SPACE.sm;
   const scrollPadBottom = ctaBottom + CTA_HEIGHT + SPACE.xl;
 
   const [loading, setLoading] = useState(true);
