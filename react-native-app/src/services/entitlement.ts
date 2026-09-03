@@ -318,3 +318,36 @@ export const resolveEntitlement = async (
 
   return NOT_ENTITLED;
 };
+
+/**
+ * The subscription this account actually owns, or null when it owns none.
+ *
+ * The row-shaped answer to the same question `resolveEntitlement` answers as a
+ * boolean, and the one every screen that DESCRIBES a subscription should ask.
+ *
+ * `getActiveSubscription` is a read of the local mirror, and the mirror can be
+ * stale in the one direction that matters: a subscription the backend has
+ * already expired can still look live here, either because a pull's
+ * subscriptions section failed to apply or because it is inside the
+ * renewal-lag allowance that exists for the opposite case. Screens that asked
+ * it directly therefore went on calling a dead plan the "current plan" while
+ * the rest of the app - which asks the rule - had correctly locked the account
+ * out. On the paywall that is not cosmetic: the current plan's card is
+ * disabled, because there is nothing to buy on a plan you already own, so a
+ * lapsed customer was shown their expired plan and prevented from buying it
+ * back. Clearing app storage did not help, because the next pull restored the
+ * same row.
+ *
+ * Falls back to the raw row when the rule says entitled but names no row - an
+ * admin, or a backend that has confirmed the account while its rows are still
+ * in flight - so those keep showing whatever the device does know about.
+ */
+export const entitledSubscription = async (
+  userId: number,
+  isAdmin: boolean,
+): Promise<DBSubscription | null> => {
+  const entitlement = await resolveEntitlement(userId, isAdmin);
+  if (!entitlement.active) return null;
+  if (entitlement.subscription) return entitlement.subscription;
+  return getActiveSubscription(userId).catch(() => null);
+};

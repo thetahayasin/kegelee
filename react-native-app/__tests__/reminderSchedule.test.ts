@@ -20,6 +20,7 @@ import notifee from '@notifee/react-native';
 
 jest.mock('../src/db/queries', () => ({
   getReminders: jest.fn(async () => []),
+  getDBUser: jest.fn(async () => ({ id: 3, is_admin: 0 })),
 }));
 
 jest.mock('../src/services/entitlement', () => ({
@@ -38,13 +39,14 @@ jest.mock('../src/i18n', () => ({
   default: { t: (k: string) => k, language: 'en' },
 }));
 
-import { getReminders } from '../src/db/queries';
+import { getDBUser, getReminders } from '../src/db/queries';
 import { resolveEntitlement } from '../src/services/entitlement';
 import {
   REMINDER_HORIZON_MS,
   applyReminderSchedule,
   remindersScheduledThrough,
   scheduleReminders,
+  topUpFromDelivery,
 } from '../src/services/reminders';
 
 const notif = notifee as unknown as Record<string, jest.Mock>;
@@ -72,6 +74,7 @@ beforeEach(async () => {
     authorizationStatus: 1,
     android: { alarm: 1 },
   });
+  (getDBUser as jest.Mock).mockResolvedValue({ id: USER, is_admin: 0 });
   mockedReminders.mockResolvedValue([]);
   mockedEntitlement.mockResolvedValue({
     active: true,
@@ -383,6 +386,80 @@ describe('applyReminderSchedule', () => {
     const result = await applyReminderSchedule(USER, false, { requestPermission: true });
 
     expect(result.permission).toBe('denied');
+    expect(notif.createTriggerNotification).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The half that makes a bounded schedule survive an unbounded absence.
+ *
+ * A four-week window is refilled whenever the app runs, which covers everybody
+ * who opens it - and not the person the reminders exist for, who is being
+ * nudged precisely because they have stopped opening it. Their window would run
+ * out about a month in, and the app would go silent on a paying customer.
+ * Notifee hands every delivery to a background handler, and that is the one
+ * moment this app is guaranteed to be running for them.
+ */
+describe('every delivery re-arms the series', () => {
+  const REMINDER_ID = 'reminder_0_08_00_w0';
+
+  const weekOf = (id: number) => [
+    { user_id: id, weekday: 0, times: ['08:00'], is_enabled: 1 },
+    { user_id: id, weekday: 3, times: ['08:00'], is_enabled: 1 },
+  ];
+
+  it('extends a window that is running down, with no app open', async () => {
+    mockedEntitlement.mockResolvedValue({
+      active: true,
+      source: 'subscription',
+      expiresAt: Date.now() + 5 * DAY,
+      subscription: { auto_renewing: 0 },
+    });
+    mockedReminders.mockResolvedValue(weekOf(USER));
+    await applyReminderSchedule(USER, false);
+
+    notif.createTriggerNotification.mockClear();
+    await topUpFromDelivery(REMINDER_ID);
+
+    expect(notif.createTriggerNotification).toHaveBeenCalled();
+  });
+
+  it('cancels the rest of the series when the entitlement has ended', async () => {
+    // The same hook, doing the opposite job. A lapsed account that never opens
+    // the app has its remaining notifications withdrawn by the next one that
+    // fires, rather than serving out the tail of a window it no longer pays
+    // for.
+    mockedReminders.mockResolvedValue(weekOf(USER));
+    await applyReminderSchedule(USER, false);
+
+    notif.cancelTriggerNotifications.mockClear();
+    notif.createTriggerNotification.mockClear();
+    notif.getTriggerNotificationIds.mockResolvedValue([REMINDER_ID]);
+    mockedEntitlement.mockResolvedValue({
+      active: false,
+      source: 'server',
+      expiresAt: null,
+      subscription: null,
+    });
+
+    await topUpFromDelivery(REMINDER_ID);
+
+    expect(notif.cancelTriggerNotifications).toHaveBeenCalledWith([REMINDER_ID]);
+    expect(notif.createTriggerNotification).not.toHaveBeenCalled();
+  });
+
+  it('ignores a notification that is not one of ours', async () => {
+    await topUpFromDelivery('nudge_lapse');
+    await topUpFromDelivery(null);
+
+    expect(getDBUser).not.toHaveBeenCalled();
+  });
+
+  it('does nothing when nobody is signed in', async () => {
+    (getDBUser as jest.Mock).mockResolvedValue(null);
+
+    await topUpFromDelivery(REMINDER_ID);
+
     expect(notif.createTriggerNotification).not.toHaveBeenCalled();
   });
 });

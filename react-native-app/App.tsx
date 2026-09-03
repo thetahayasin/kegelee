@@ -35,6 +35,7 @@ import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { initDB } from './src/db/sqlite';
 import { initI18n } from './src/i18n';
 import { reportError } from './src/services/errors';
+import { topUpFromDelivery } from './src/services/reminders';
 import { trackAppOpened, trackReminderTapped } from './src/services/events';
 import { Palette } from './src/theme/colors';
 import {
@@ -217,6 +218,12 @@ const Shell = () => {
    */
   useEffect(() => {
     const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
+      // Same re-arm as the background handler in index.js, so "every delivery
+      // extends the series" holds without an exception for the app happening
+      // to be on screen when one arrives.
+      if (type === EventType.DELIVERED || type === EventType.PRESS) {
+        topUpFromDelivery(detail?.notification?.id).catch(() => {});
+      }
       if (type !== EventType.PRESS) return;
       trackReminderTapped(detail?.notification?.id);
     });

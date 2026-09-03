@@ -28,7 +28,8 @@ import {
 import { LanguagePicker } from '../../components/LanguagePicker';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
-import { getAppSetting, clearProgressData, getActiveSubscription } from '../../db/queries';
+import { getAppSetting, clearProgressData } from '../../db/queries';
+import { entitledSubscription } from '../../services/entitlement';
 import { planBySlug, playSubscriptionId } from '../../constants/plans';
 import { getRevenueCatManagementUrl } from '../../services/billing';
 import { syncNow } from '../../services/sync';
@@ -169,7 +170,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
        * the rest of the app cannot contradict each other; this row only fills
        * in the detail when there is one to show.
        */
-      const sub = await getActiveSubscription(user.id);
+      const sub = await entitledSubscription(user.id, !!user.is_admin);
       setSubscription(sub);
 
       // Subscription management deep link (RevenueCat customer management URL or store deep link)

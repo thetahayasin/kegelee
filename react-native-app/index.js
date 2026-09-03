@@ -10,6 +10,7 @@ import { enableFreeze } from 'react-native-screens';
 import notifee, { EventType } from '@notifee/react-native';
 import App from './App';
 import { trackReminderTapped } from './src/services/events';
+import { topUpFromDelivery } from './src/services/reminders';
 import { name as appName } from './app.json';
 
 // Suspend rendering of screens that are not visible (react-freeze). Paired with
@@ -27,6 +28,21 @@ notifee.onBackgroundEvent(async ({ type, detail }) => {
   }
   if (type === EventType.PRESS) {
     await trackReminderTapped(detail?.notification?.id);
+  }
+  /**
+   * Every delivery re-arms the series - see topUpFromDelivery.
+   *
+   * Reminders are scheduled a bounded distance ahead, so that they stop on
+   * their own when a subscription ends rather than firing forever. The person
+   * who most needs them is the one who has stopped opening the app, and their
+   * window would otherwise run out with nothing left to refill it. This is the
+   * only moment this app is guaranteed to be running for them.
+   *
+   * On DELIVERED as well as PRESS: a reminder that arrives and is ignored is
+   * exactly the case that matters, and it never produces a press.
+   */
+  if (type === EventType.DELIVERED || type === EventType.PRESS) {
+    await topUpFromDelivery(detail?.notification?.id);
   }
 });
 

@@ -31,6 +31,7 @@ import {
   subscriptionIsRenewing,
   DBSubscription,
 } from '../../db/queries';
+import { entitledSubscription } from '../../services/entitlement';
 import { planMonths, perMonthLabel, savingsPercent } from '../../constants/pricing';
 import {
   PLANS,
@@ -702,8 +703,22 @@ export const PaywallScreen = () => {
       if (user) {
         syncNow(user.id).catch(() => {});
       }
+      /**
+       * The plan this account actually owns, by the same rule the rest of the
+       * app uses - NOT a raw read of the local subscriptions table.
+       *
+       * This screen used to ask `getActiveSubscription`, which is a read of
+       * the mirror, and the mirror can still look live for a subscription the
+       * backend has already expired. Everything downstream of this value is
+       * then wrong in the worst possible direction: the plan gets a "current
+       * plan" badge, its card is DISABLED because there is nothing to buy on a
+       * plan you already own, and the header offers to change a plan instead
+       * of selling one. A lapsed customer arriving to re-subscribe was shown
+       * their dead plan and blocked from buying it back, and clearing app
+       * storage did not help because the next pull put the same row back.
+       */
       const current = user
-        ? await getActiveSubscription(user.id).catch(() => null)
+        ? await entitledSubscription(user.id, !!user.is_admin).catch(() => null)
         : null;
       if (!mounted) return;
       setActiveSub(current);

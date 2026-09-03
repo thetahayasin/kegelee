@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeModules, Platform } from 'react-native';
 import i18n from '../i18n';
-import { getReminders } from '../db/queries';
+import { getDBUser, getReminders } from '../db/queries';
 import { resolveEntitlement } from './entitlement';
 import { track } from './events';
 import notifee, {
@@ -605,6 +605,40 @@ export const applyReminderSchedule = async (
     fingerprint: result.scheduled ? fingerprint : 'unset',
   });
   return result;
+};
+
+/**
+ * Re-arm the series from the notification that just fired.
+ *
+ * The one thing that makes a bounded schedule survive an unbounded absence.
+ *
+ * Reminders are scheduled four weeks ahead and topped up whenever the app runs,
+ * which covers everybody who opens it. It does not cover the person the
+ * reminders exist FOR: somebody who has stopped training, is still paying, and
+ * is being nudged precisely because they are not opening the app. Their window
+ * would quietly run out about a month in, and the one mechanism this app has
+ * for bringing them back would go silent on a paying customer.
+ *
+ * Notifee delivers an event to the background handler every time a reminder is
+ * shown, and that handler is ordinary JS with the database and the stored
+ * verdict in reach. So each delivery refills the window, and the series keeps
+ * itself alive for exactly as long as the entitlement does - no app open
+ * required, and no standing instruction to Android that outlives the
+ * subscription. When the entitlement HAS ended, this is what cancels the rest
+ * of the series instead of extending it.
+ *
+ * Cheap: applyReminderSchedule does nothing at all until the window is running
+ * down or something about the schedule has changed.
+ */
+export const topUpFromDelivery = async (notificationId?: string | null): Promise<void> => {
+  if (!notificationId || !notificationId.startsWith('reminder_')) return;
+  try {
+    const user = await getDBUser();
+    if (!user) return;
+    await applyReminderSchedule(user.id, user.is_admin === 1);
+  } catch {
+    // A failed top-up costs the tail of the window, not this notification.
+  }
 };
 
 /**

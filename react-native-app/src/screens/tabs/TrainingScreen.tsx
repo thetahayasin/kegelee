@@ -19,10 +19,10 @@ import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/color
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
   getMaxMeasurement,
-  getActiveSubscription,
 } from '../../db/queries';
 import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
+import { entitledSubscription } from '../../services/entitlement';
 import { getPosition, getTodayProgress, getStreak } from '../../services/progression';
 import {
   EXERCISES,
@@ -171,7 +171,11 @@ export const TrainingScreen = () => {
       // Subscription notice. Read here rather than in its own effect so it
       // refreshes with everything else - on focus, and on pull-to-refresh
       // after a sync has had a chance to change the answer.
-      const sub = await getActiveSubscription(user.id).catch(() => null);
+      // The rule, not the raw row: a banner saying "your access ends on the
+      // 4th" over an account that has ALREADY lost access is worse than no
+      // banner, and the local row can still look live after the backend has
+      // expired it.
+      const sub = await entitledSubscription(user.id, !!user.is_admin).catch(() => null);
       const status = String(sub?.status || '').toLowerCase();
       if (status === 'canceled') {
         setSubNotice({
