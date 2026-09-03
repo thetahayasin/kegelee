@@ -400,6 +400,66 @@ describe('applyReminderSchedule', () => {
  * Notifee hands every delivery to a background handler, and that is the one
  * moment this app is guaranteed to be running for them.
  */
+/**
+ * What a real subscriber actually gets, as opposed to a Play TEST subscription.
+ *
+ * Worth pinning because the two look alarmingly different on a device and the
+ * difference is correct. A licence tester's monthly plan renews every FIVE
+ * MINUTES, so its `ends_at` is minutes away and the entitlement ceiling - not
+ * the horizon - is what binds: about a week of reminders, which reads like the
+ * schedule has been truncated. A real monthly subscriber's `ends_at` is a month
+ * out, the ceiling lands beyond the horizon, and the full four weeks are
+ * scheduled. Both are the same rule.
+ */
+describe('a real subscriber, not a five-minute test one', () => {
+  const everyDay = Array.from({ length: 7 }, (_, weekday) => ({
+    user_id: USER,
+    weekday,
+    times: ['08:00'],
+    is_enabled: 1,
+  }));
+
+  it('gets four weeks at a time, so each day repeats weekly', async () => {
+    // A monthly plan: ends_at ~30 days out, still auto-renewing.
+    mockedEntitlement.mockResolvedValue({
+      active: true,
+      source: 'subscription',
+      expiresAt: Date.now() + 31 * DAY,
+      subscription: { auto_renewing: 1 },
+    });
+    mockedReminders.mockResolvedValue(everyDay);
+
+    await applyReminderSchedule(USER, false);
+
+    const stamps = scheduledTimestamps().sort((a, b) => a - b);
+    // Seven days a week for four weeks.
+    expect(stamps.length).toBe(28);
+    // And the same weekday recurs seven days apart, four times over.
+    const mondays = stamps.filter((at) => new Date(at).getDay() === 1);
+    expect(mondays.length).toBe(4);
+    expect(Math.max(...stamps)).toBeGreaterThan(Date.now() + 26 * DAY);
+    expect(Math.max(...stamps)).toBeLessThanOrEqual(Date.now() + REMINDER_HORIZON_MS);
+  });
+
+  it('is capped by the period when the period is shorter than the horizon', async () => {
+    // The test-subscription shape: minutes of entitlement, so the ceiling is
+    // the renewal headroom and roughly a week is scheduled.
+    mockedEntitlement.mockResolvedValue({
+      active: true,
+      source: 'subscription',
+      expiresAt: Date.now() + DAY,
+      subscription: { auto_renewing: 1 },
+    });
+    mockedReminders.mockResolvedValue(everyDay);
+
+    await applyReminderSchedule(USER, false);
+
+    const stamps = scheduledTimestamps();
+    expect(stamps.length).toBeLessThan(28);
+    expect(Math.max(...stamps)).toBeLessThanOrEqual(Date.now() + 8 * DAY);
+  });
+});
+
 describe('every delivery re-arms the series', () => {
   const REMINDER_ID = 'reminder_0_08_00_w0';
 
