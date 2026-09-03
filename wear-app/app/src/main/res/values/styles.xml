@@ -1,0 +1,10 @@
+<resources>
+    <!--
+      The launch window, painted in the app's own ground colour so the moment
+      between tapping the icon and Compose's first frame is not a white flash
+      on an otherwise dark app.
+    -->
+    <style name="KegeleeSplash" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowBackground">@color/ke_bg</item>
+    </style>
+</resources>
