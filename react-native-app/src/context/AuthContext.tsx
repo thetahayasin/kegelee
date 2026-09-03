@@ -19,8 +19,8 @@ import {
   scheduleTrialEndingWarning,
 } from '../services/reminders';
 import {
+  clearNegativeVerdict,
   forgetEntitlementState,
-  forgetServerVerdict,
   rememberServerVerdict,
   resolveEntitlement,
 } from '../services/entitlement';
@@ -169,6 +169,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const userRef = useRef<User | null>(null);
   userRef.current = user;
 
+  /** Bumped by every optimistic raise; see `evaluateEntitlement`. */
+  const raiseGeneration = useRef(0);
+
   /**
    * Re-derive the gate from the shared resolver.
    *
@@ -190,7 +193,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const current = userRef.current;
     if (!current) return false;
     try {
+      /**
+       * Which raise this derivation started after.
+       *
+       * The foreground fires a derivation and a store refresh together, and
+       * the derivation is a local read while the refresh is a network call -
+       * so the derivation ordinarily finishes first. Ordinarily is not always,
+       * and if it landed second it would overwrite a just-confirmed purchase
+       * with a NO it had read before the row existed. A raise arriving
+       * mid-derivation is newer information than the read being held, so the
+       * read stands down rather than contradicting it.
+       */
+      const generation = raiseGeneration.current;
       const { active } = await resolveEntitlement(current.id, current.is_admin);
+      if (!active && raiseGeneration.current !== generation) return true;
       setSubscribed(active);
       return active;
     } catch (e) {
@@ -210,19 +226,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * is not an unbacked grant - it is skipping the round trip that would
    * otherwise sit between paying and being let in.
    *
-   * The stored server verdict is dropped first. A `false` recorded moments
-   * before somebody paid would otherwise outrank the row they have just
-   * bought, and leave them looking at the paywall until the next sync
-   * corrected it.
+   * Deliberately does NOT re-derive afterwards. Every other trigger does, and
+   * they are the ones allowed to lower the gate; this one exists to raise it
+   * the instant money moves, and following it with a derivation would put the
+   * paywall back in front of anybody whose row had not been written yet.
+   *
+   * A stored "not subscribed" is dropped, because it predates the purchase and
+   * would otherwise outrank it until the next sync. Only the negative one - a
+   * stored `true` may be the only thing holding this account's gate open.
    */
   const markSubscribed = useCallback(() => {
+    raiseGeneration.current += 1;
     setSubscribed(true);
     const current = userRef.current;
+    if (current) clearNegativeVerdict(current.id).catch(() => {});
+  }, []);
+
+  /**
+   * The store says this customer is entitled, so make that stick.
+   *
+   * RevenueCat has verified the purchase, which is the strongest evidence
+   * there is - but it is evidence held in another process, and the gate is
+   * derived from what this device knows. Raising a flag that nothing local
+   * backs means the next derivation, seconds later on the same foreground,
+   * reaches the opposite conclusion and drops the customer back on the
+   * paywall.
+   *
+   * So the entitlement is written down: the same reconcile the cold start
+   * runs, which turns a live RevenueCat entitlement into a local subscription
+   * row with a real expiry. After that every later derivation agrees on its
+   * own, including offline ones, and the row lapses honestly when the
+   * entitlement does.
+   *
+   * Only when nothing local already covers it. Re-recording a purchase that is
+   * already written would restate a row the sync has since corrected.
+   */
+  const adoptStoreEntitlement = useCallback(async () => {
+    const current = userRef.current;
     if (!current) return;
-    forgetServerVerdict(current.id)
-      .then(() => evaluateEntitlement())
-      .catch(() => {});
-  }, [evaluateEntitlement]);
+    markSubscribed();
+    try {
+      if (await getActiveSubscription(current.id)) return;
+      const purchase = await reconcileEntitlementOnLaunch(current.id);
+      if (!purchase) return;
+      await recordCompletedPurchase(current.id, purchase);
+    } catch (e) {
+      // The gate is already open; failing to persist the reason for it costs
+      // this account nothing until the next derivation, which a sync will have
+      // corrected by then in the ordinary case.
+      reportError(e, 'auth:adoptStoreEntitlement');
+    }
+  }, [markSubscribed]);
 
   /**
    * Tell the events module who is signed in.
@@ -939,12 +993,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     const off = onCustomerInfoChange((customerInfo) => {
       if (hasActiveEntitlement(customerInfo)) {
-        markSubscribed();
+        adoptStoreEntitlement().catch(() => {});
       }
       syncNow(user.id).catch(() => {});
     });
     return off;
-  }, [user, markSubscribed]);
+  }, [user, adoptStoreEntitlement]);
 
   /**
    * Re-check entitlement every time the app comes back to the foreground.
@@ -996,12 +1050,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       trackAppOpened('foreground');
       refreshCustomerInfo(user.id)
         .then((active) => {
-          if (active) markSubscribed();
+          if (active) return adoptStoreEntitlement();
         })
         .catch(() => {});
     });
     return () => sub.remove();
-  }, [user, evaluateEntitlement, markSubscribed]);
+  }, [user, evaluateEntitlement, adoptStoreEntitlement]);
 
   /**
    * Close the gate when the entitlement's own clock runs out.

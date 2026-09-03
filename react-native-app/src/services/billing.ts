@@ -21,7 +21,7 @@ import {
  * is what lets the resolver stay free of a dependency on the billing SDK.
  * Re-exported so the existing importers of this module keep working.
  */
-import { forgetServerVerdict, markPurchaseRecorded } from './entitlement';
+import { clearNegativeVerdict, markPurchaseRecorded } from './entitlement';
 
 export { markPurchaseRecorded, purchaseRecordedAt } from './entitlement';
 
@@ -1327,16 +1327,18 @@ export const recordCompletedPurchase = async (
   await markPurchaseRecorded(userId);
 
   /**
-   * And drop whatever the server last said about this account.
+   * And drop a stored "not subscribed", if that is what the server last said.
    *
    * A stored `false` outranks the local rows by design - it is how a device
    * stops granting access off a row the backend has already expired - but it
-   * predates the purchase being written on the line above. Left in place it
-   * would sit on top of a subscription somebody has just paid for and hold
-   * them on the paywall until the next sync corrected it. The purchase is
-   * newer evidence than the verdict, so the verdict goes.
+   * predates the purchase written on the line above. Left in place it would sit
+   * on top of a subscription somebody has just paid for and hold them on the
+   * paywall until the next sync corrected it. The purchase is newer evidence.
+   *
+   * Only the negative one: a stored `true` may be the only thing holding the
+   * gate open for this account, and clearing it here would be self-defeating.
    */
-  await forgetServerVerdict(userId);
+  await clearNegativeVerdict(userId);
 
   try {
     await api.pushState({

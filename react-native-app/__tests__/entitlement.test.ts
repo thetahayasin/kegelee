@@ -30,6 +30,7 @@ import {
 import {
   UNVERIFIED_GRACE_MS,
   VERDICT_TTL_MS,
+  clearNegativeVerdict,
   forgetEntitlementState,
   forgetServerVerdict,
   markPurchaseRecorded,
@@ -141,6 +142,20 @@ describe('the server verdict', () => {
     await forgetServerVerdict(USER);
     mockedActive.mockResolvedValue(row());
 
+    expect((await resolveEntitlement(USER, false)).active).toBe(true);
+  });
+
+  it('drops a stored no on a purchase, and keeps a stored yes', async () => {
+    // The asymmetry is the point, and getting it backwards locks people out: a
+    // stored `true` can be the ONLY thing holding the gate open for a purchase
+    // made on another device, so the event that CONFIRMS somebody is entitled
+    // must not be the event that discards it.
+    await rememberServerVerdict(USER, false);
+    await clearNegativeVerdict(USER);
+    expect((await resolveEntitlement(USER, false)).active).toBe(false);
+
+    await rememberServerVerdict(USER, true);
+    await clearNegativeVerdict(USER);
     expect((await resolveEntitlement(USER, false)).active).toBe(true);
   });
 

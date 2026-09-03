@@ -153,6 +153,24 @@ export const forgetServerVerdict = async (userId: number | string): Promise<void
 };
 
 /**
+ * Drop the stored verdict only if it is a NO.
+ *
+ * The distinction matters, and getting it wrong locks people out. A stored
+ * `false` recorded moments before somebody paid is about to be contradicted by
+ * the row being written, so it has to go. A stored `true` may be the ONLY
+ * thing holding the gate open - a purchase made on another device, or a pull
+ * whose subscriptions section failed to apply - and clearing it on the very
+ * event that confirms the customer is entitled would close the gate on them.
+ *
+ * So: this is what a purchase and an optimistic raise call. `forgetServerVerdict`
+ * is for sign-out, where the whole account's state goes.
+ */
+export const clearNegativeVerdict = async (userId: number): Promise<void> => {
+  const verdict = await readServerVerdict(userId);
+  if (verdict && !verdict.subscribed) await forgetServerVerdict(userId);
+};
+
+/**
  * Everything this rule remembers about one account, gone.
  *
  * For sign-out. Both keys are per-account, so leaving them behind means a
