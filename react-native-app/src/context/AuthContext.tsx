@@ -936,6 +936,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // real answer with it.
         await rememberServerVerdict(user.id, serverSubscribed);
 
+        /**
+         * Then take up whatever the pull just wrote about the account itself.
+         *
+         * The pull is authoritative for the level - that is what lets the
+         * server return a lapsed subscriber to their quiz level - and it wrote
+         * that straight into SQLite. Nothing lifted it into React. `setUser`
+         * had exactly five callers: the cold start, sign-in, the quiz seed,
+         * sign-out, and an edit made on THIS device. A level the server
+         * changed, or one changed on another phone, therefore sat in SQLite
+         * being rendered by nobody until the app was killed and reopened, at
+         * which point the cold start read it and the new level "arrived". That
+         * is the restart people were doing.
+         *
+         * Re-reading the row is deliberately the whole answer rather than
+         * merging named fields: the cold start builds the context from exactly
+         * this row, so reading it here is what makes a running app and a
+         * restarted one agree by construction. The mid-sync race that could
+         * make this revert a fresh local choice is handled where it belongs,
+         * in the pull itself - see sync.ts.
+         */
+        const row = await getDBUser().catch(() => null);
+        if (row && row.id === user.id) {
+          setUser((prev) => {
+            if (!prev || prev.id !== row.id) return prev;
+            const next: User = {
+              ...prev,
+              name: row.name,
+              email: row.email,
+              is_admin: row.is_admin === 1,
+              level_id: row.level_id,
+              level_started_days: row.level_started_days,
+              onboarded: row.onboarded_at !== null,
+              timezone: row.timezone,
+            };
+            /**
+             * Same object back when nothing moved.
+             *
+             * A sync runs on nearly every foreground and most screen focuses,
+             * and a fresh `user` object each time would re-render every
+             * consumer and re-arm every effect that lists `user` in its deps -
+             * the entitlement timer, the store listeners, the reminder rule -
+             * for a row that is byte-identical to the one already in hand.
+             */
+            const changed = (Object.keys(next) as (keyof User)[]).some(
+              (key) => next[key] !== prev[key],
+            );
+            return changed ? next : prev;
+          });
+        }
+
         const entitled = await evaluateEntitlement();
 
         // Keep the trial warning in step with whatever the sync just learned.

@@ -756,11 +756,35 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     // and the one part of the pull whose failure means the sync did not
     // happen. Everything after it is wrapped so that it cannot be.
     const remoteUser = data.user;
+
+    /**
+     * Did somebody change their level while this sync was in the air?
+     *
+     * The push at the top of this function sent the level read from SQLite
+     * before the request went out, so the pull normally echoes back the very
+     * value we sent and applying it is a no-op. The exception is a level picked
+     * DURING the round trip: the server never saw it, so its answer is the old
+     * one, and writing that back would silently undo a choice made seconds ago
+     * - the local row loses it, and the next sync then pushes the reverted
+     * value up as if it were intentional.
+     *
+     * Compare-and-set. The server stays authoritative for the level, which is
+     * what lets it return a lapsed subscriber to their quiz level; it just does
+     * not get to overwrite an edit it has not been told about yet. The local
+     * value survives and goes up on the next push.
+     */
+    const localNow = await getDBUser().catch(() => null);
+    const levelEditedMidSync =
+      !!localNow && !!user && localNow.level_id !== user.level_id;
     await saveDBUser({
       name: remoteUser.name,
       email: remoteUser.email,
-      level_id: remoteUser.level_id,
-      level_started_days: remoteUser.level_started_days,
+      ...(levelEditedMidSync
+        ? {}
+        : {
+            level_id: remoteUser.level_id,
+            level_started_days: remoteUser.level_started_days,
+          }),
       // The server's own timestamp, verbatim.
       //
       // This used to be `onboarded ? new Date().toISOString() : null`, which

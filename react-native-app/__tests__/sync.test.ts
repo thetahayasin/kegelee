@@ -225,6 +225,62 @@ describe('reminders follow the subscription', () => {
   });
 });
 
+/**
+ * Who owns the level, and when.
+ *
+ * The server is authoritative - that is what lets it return a lapsed
+ * subscriber to their quiz level - and the pull writes its answer into the
+ * local row. The one thing it must not do is overwrite a level the reader
+ * picked while the request was in the air: the push went out before they
+ * touched it, so the server's answer is simply older, and writing it back
+ * would undo the choice and then push the reverted value up as if it had been
+ * deliberate.
+ */
+describe('the level the pull is allowed to write', () => {
+  const pulledUser = (over: Record<string, any> = {}) => ({
+    name: 'A',
+    email: 'a@b.c',
+    level_id: 2,
+    level_started_days: 3,
+    timezone: 'UTC',
+    ...over,
+  });
+
+  it("takes the server's level when nothing changed underneath it", async () => {
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload({ user: pulledUser({ level_id: 1, level_started_days: 0 }) }),
+    });
+
+    await syncNow(1);
+
+    const saved = q.saveDBUser.mock.calls.map(([arg]) => arg).filter((a) => 'name' in a);
+    expect(saved[0]).toMatchObject({ level_id: 1, level_started_days: 0 });
+  });
+
+  it('leaves a level picked mid-sync alone', async () => {
+    // The push read level 2 on the way out; by the time the pull lands the
+    // reader has chosen 5, which the server has not been told about yet.
+    q.getDBUser
+      .mockResolvedValueOnce({ id: 1, level_id: 2, level_started_days: 3 })
+      .mockResolvedValue({ id: 1, level_id: 5, level_started_days: 0 });
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload({ user: pulledUser({ level_id: 2, level_started_days: 3 }) }),
+    });
+
+    await syncNow(1);
+
+    const saved = q.saveDBUser.mock.calls.map(([arg]) => arg).filter((a) => 'name' in a);
+    expect(saved[0]).not.toHaveProperty('level_id');
+    expect(saved[0]).not.toHaveProperty('level_started_days');
+    // Everything else the pull owns still lands.
+    expect(saved[0]).toMatchObject({ name: 'A', email: 'a@b.c' });
+  });
+});
+
 describe('push payload', () => {
   /**
    * The server takes ten subscriptions and used to reject the entire request
