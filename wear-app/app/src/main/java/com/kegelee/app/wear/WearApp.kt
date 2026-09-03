@@ -2,6 +2,8 @@ package com.kegelee.app.wear
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,17 +14,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -217,32 +223,27 @@ private fun HomeScreen(
             // strong, and it is the one progress figure worth a glance.
             if (p.bestHold > 0) item { StatRow("Best hold", "${p.bestHold}s") }
 
-            item {
-                CompactChip(
-                    onClick = onChangeLevel,
-                    colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.text),
-                    label = { Text("Difficulty · ${Catalogue.levelName(p.levelId)}", color = Ke.text, fontSize = 11.sp, maxLines = 1) },
-                )
-            }
-            item {
-                CompactChip(
-                    onClick = onExercises,
-                    colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.text),
-                    label = { Text("Exercises", color = Ke.text, fontSize = 11.sp) },
-                )
-            }
-            item {
-                CompactChip(
-                    onClick = onAppearance,
-                    colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.text),
-                    label = { Text("Appearance", color = Ke.text, fontSize = 11.sp) },
-                )
+            item { ActionChip("Difficulty · ${Catalogue.levelName(p.levelId)}", onChangeLevel) }
+            item { ActionChip("Exercises", onExercises) }
+            item { ActionChip("Appearance", onAppearance) }
+
+            if (p.entitled) {
+                item { Text("Reminders", color = Ke.textMuted, fontSize = 10.sp) }
+                val groups = p.activeReminders.groupBy { it.times.sorted().joinToString(" ") }
+                if (groups.isEmpty()) {
+                    item { Text("Set them in the app", color = Ke.textMuted, fontSize = 9.sp) }
+                } else {
+                    items(groups.entries.toList()) { (times, days) ->
+                        ReminderRow(
+                            days = days.mapNotNull { WEEKDAY_NAMES.getOrNull(it.weekday) }.joinToString(", "),
+                            times = times,
+                        )
+                    }
+                }
             }
 
             item {
-                if (p.entitled) {
-                    RemindersBlock(p)
-                } else {
+                if (!p.entitled) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Premium", color = Ke.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                         Text(
@@ -333,6 +334,32 @@ private fun TodayRing(done: Int, required: Int, syncing: Boolean) {
     }
 }
 
+/**
+ * A tappable row that looks tappable.
+ *
+ * Wear's CompactChip is a pill with a fill and no edge, which is fine on a dark
+ * ground and invisible on a light one - the light palette's chip colour differs
+ * from its background by three values, so every one of these read as plain text
+ * somebody was supposed to guess at. The border is what fixes it, and it is
+ * transparent in dark mode where the fill already does the job.
+ */
+@Composable
+private fun ActionChip(label: String, onClick: () -> Unit) {
+    val Ke = LocalPalette.current
+    Box(
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .clip(RoundedCornerShape(50))
+            .background(Ke.control)
+            .border(1.dp, Ke.controlEdge, RoundedCornerShape(50))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 9.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, color = Ke.text, fontSize = 11.sp, maxLines = 1, fontWeight = FontWeight.Medium)
+    }
+}
+
 @Composable
 private fun StatRow(label: String, value: String) {
     val Ke = LocalPalette.current
@@ -347,40 +374,29 @@ private fun StatRow(label: String, value: String) {
 }
 
 /**
- * The reminder week, in a line or two.
+ * The reminder week, one row per group of days that share a time.
  *
- * Shown because the watch is what actually buzzes, so "when am I being
- * reminded" is a question to answer here. Read-only because building a
- * seven-day schedule on a 40mm screen would be worse than the phone's editor in
- * every respect - and grouped by shared time, because "Mon, Wed, Fri 08:00" is
- * one glance where three rows saying the same thing are not.
+ * It used to be a stacked block inside a single list item, and near the bottom
+ * of a round screen the list scaled the whole stack down together - three lines
+ * squeezed into the height of one and overlapping, which is why it could not be
+ * read. One row per group lets each be scaled on its own, and the day names and
+ * the times share a line instead of fighting for two.
  */
 @Composable
-private fun RemindersBlock(p: Profile) {
+private fun ReminderRow(days: String, times: String) {
     val Ke = LocalPalette.current
-    val active = p.activeReminders
-    Text("Reminders", color = Ke.textMuted, fontSize = 10.sp)
-    Spacer(Modifier.height(2.dp))
-
-    if (active.isEmpty()) {
-        Text("Set them in the app", color = Ke.textMuted, fontSize = 9.sp)
-        return
-    }
-
-    // Monday-first, matching the backend's own weekday index.
-    val names = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    active.groupBy { it.times.sorted().joinToString(" ") }.forEach { (times, days) ->
-        Text(
-            days.mapNotNull { names.getOrNull(it.weekday) }.joinToString(", "),
-            color = Ke.text,
-            fontSize = 10.sp,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-        )
-        Text(times, color = Ke.accent, fontSize = 9.sp, textAlign = TextAlign.Center, maxLines = 1)
-        Spacer(Modifier.height(3.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 2.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(days, color = Ke.textMuted, fontSize = 10.sp, maxLines = 1)
+        Text(times, color = Ke.accent, fontSize = 10.sp, maxLines = 1, fontWeight = FontWeight.SemiBold)
     }
 }
+
+/** Monday-first, matching the backend's own weekday index. */
+private val WEEKDAY_NAMES = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 // --- Session ---------------------------------------------------------------
 
@@ -396,8 +412,22 @@ private fun RemindersBlock(p: Profile) {
 private fun SessionScreen(engine: SessionEngine, onStop: () -> Unit, onFinished: () -> Unit) {
     val Ke = LocalPalette.current
     val context = LocalContext.current
-    val step = engine.currentStep
     val paused = engine.phase == SessionEngine.Phase.PAUSED
+
+    /**
+     * One tick per frame, from the frame clock.
+     *
+     * The engine used to run its own `delay(50)` loop, which is twenty updates
+     * a second on a timer with no relationship to when the display redraws:
+     * some landed between frames and were discarded, the rest arrived unevenly,
+     * and the ring moved in visible steps. `withFrameNanos` hands it exactly
+     * one update per frame, aligned to that frame.
+     */
+    LaunchedEffect(engine.phase) {
+        while (engine.phase == SessionEngine.Phase.RUNNING) {
+            withFrameNanos { engine.tick() }
+        }
+    }
 
     LaunchedEffect(engine.phase) {
         if (engine.phase == SessionEngine.Phase.DONE) {
@@ -406,51 +436,59 @@ private fun SessionScreen(engine: SessionEngine, onStop: () -> Unit, onFinished:
         }
     }
 
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        /**
-         * What is being trained, above the ring rather than inside it.
-         *
-         * It was a third line in the middle of the circle and it did not fit -
-         * "Next: Reverse Clamp" was wider than the ring and ran onto the stroke
-         * at both ends. Out here it has the full width of the screen, and the
-         * chevron does the work "Next:" was doing in a fraction of the room.
-         */
-        Row(
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            if (engine.isResting) Glyph.Next(color = Ke.textMuted, size = 8.dp)
-            Text(
-                text = if (engine.isResting) {
-                    engine.nextExerciseSlug?.let { Catalogue.exerciseName(it) } ?: "Rest"
-                } else {
-                    Catalogue.exerciseName(engine.blockSlug)
-                },
-                color = Ke.textMuted,
-                fontSize = 10.sp,
-                maxLines = 1,
-            )
-        }
+    /**
+     * Remembered lambdas, and derived text. Both matter, for the same reason.
+     *
+     * Reading `engine.blockRemaining` in the body of this composable subscribes
+     * it to `stepProgress` underneath - which changes every frame - so this
+     * whole screen was invalidated sixty times a second even though the number
+     * it wanted changes once. And because the lambdas below were rebuilt on
+     * each of those passes, they were never equal to the previous ones, so
+     * TrainingCircle could not skip either: the deferred reads bought nothing.
+     *
+     * `derivedStateOf` notifies only when the computed VALUE changes, and
+     * `remember` gives the lambdas a stable identity. Together they take this
+     * screen from recomposing per frame to recomposing per second, while the
+     * ring still moves per frame in the draw phase.
+     */
+    val glowScale = remember(engine) { { engine.glowScale } }
+    val glowAlpha = remember(engine) { { engine.glowAlpha } }
+    val ringPct = remember(engine) { { engine.ringPct } }
+    val sessionProgress = remember(engine) { { engine.sessionProgress } }
 
-        TrainingCircle(
-            // A paused circle settles to rest rather than freezing mid-squeeze:
-            // a held shape with no clock behind it reads as "keep holding".
-            contraction = if (paused) 0f else engine.contraction,
-            // Both per-BLOCK, so the ring fills once across an exercise and the
-            // numeral counts that exercise down - see the note in SessionEngine
-            // on why per-step made this read "1, 0, 1, 0".
-            stepProgress = engine.blockProgress,
-            sessionProgress = engine.sessionProgress,
-            isContract = step?.isContract == true,
-            isResting = engine.isResting,
-            pursuitMs = engine.pursuitMs,
-            label = when {
-                paused -> "Paused"
+    val seconds by remember(engine) { derivedStateOf { engine.blockRemaining } }
+    val label by remember(engine) {
+        derivedStateOf {
+            when {
+                engine.phase == SessionEngine.Phase.PAUSED -> "Paused"
                 engine.isResting -> "Rest"
-                else -> step?.label.orEmpty()
-            },
-            seconds = engine.blockRemaining,
+                else -> engine.currentStep?.label.orEmpty()
+            }
+        }
+    }
+    /**
+     * The exercise being trained now, and nothing about what follows.
+     *
+     * A "Next · Reverse Clamp" line during rests was dropped: it is one more
+     * thing to read on a screen whose whole point is that you do not have to
+     * read it, and knowing what is coming changes nothing about the rest you
+     * are currently taking. A rest simply says "Rest".
+     */
+    val exercise by remember(engine) {
+        derivedStateOf {
+            if (engine.isResting) "" else Catalogue.exerciseName(engine.blockSlug)
+        }
+    }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        TrainingCircle(
+            glowScale = glowScale,
+            glowAlpha = glowAlpha,
+            ringPct = ringPct,
+            sessionProgress = sessionProgress,
+            seconds = seconds,
+            label = label,
+            exercise = exercise,
         )
 
         Row(
@@ -459,12 +497,12 @@ private fun SessionScreen(engine: SessionEngine, onStop: () -> Unit, onFinished:
         ) {
             CompactChip(
                 onClick = { if (paused) engine.resume() else engine.pause() },
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.text),
+                colors = ChipDefaults.chipColors(backgroundColor = Ke.control, contentColor = Ke.text),
                 label = { Text(if (paused) "Resume" else "Pause", color = Ke.text, fontSize = 11.sp) },
             )
             CompactChip(
                 onClick = onStop,
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.surface, contentColor = Ke.textMuted),
+                colors = ChipDefaults.chipColors(backgroundColor = Ke.control, contentColor = Ke.textMuted),
                 label = { Text("End", color = Ke.textMuted, fontSize = 11.sp) },
             )
         }
@@ -499,9 +537,19 @@ private fun DoneScreen(seconds: Int, onDismiss: () -> Unit) {
          * count is theirs.
          */
         val p = profile
+        /**
+         * The session's LENGTH, not the stopwatch.
+         *
+         * A wall-clock reading came out as "1m 58s" or "2m 3s" depending on
+         * when the last step happened to land, which invites somebody to
+         * wonder whether they did it wrong. The plan says two minutes; the
+         * screen says two minutes.
+         */
+        val planned = (Catalogue.level(p?.levelId ?: 1).totalSessionSeconds / 60.0)
+            .roundToInt().coerceAtLeast(1)
         Text(
-            if (p != null) "${p.todayDone}/${p.todayRequired.coerceAtLeast(1)} today  ·  ${seconds / 60}m ${seconds % 60}s"
-            else "${seconds / 60}m ${seconds % 60}s",
+            if (p != null) "${p.todayDone}/${p.todayRequired.coerceAtLeast(1)} today  ·  $planned min"
+            else "$planned min",
             color = Ke.textMuted,
             fontSize = 11.sp,
             textAlign = TextAlign.Center,
@@ -538,7 +586,7 @@ private fun TopBack(onBack: () -> Unit) {
     val Ke = LocalPalette.current
     CompactChip(
         onClick = onBack,
-        colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.textMuted),
+        colors = ChipDefaults.chipColors(backgroundColor = Ke.control, contentColor = Ke.textMuted),
         label = { Glyph.Back(color = Ke.textMuted, size = 12.dp) },
     )
 }
@@ -591,7 +639,7 @@ private fun LevelScreen(onDone: () -> Unit) {
                     onDone()
                 },
                 colors = ChipDefaults.chipColors(
-                    backgroundColor = if (selected) Ke.accent else Ke.surface2,
+                    backgroundColor = if (selected) Ke.accent else Ke.control,
                     contentColor = if (selected) Ke.bg else Ke.text,
                 ),
                 label = {
@@ -650,7 +698,7 @@ private fun AppearanceScreen(mode: ThemeMode, onPick: (ThemeMode) -> Unit, onDon
             CompactChip(
                 onClick = { onPick(value); onDone() },
                 colors = ChipDefaults.chipColors(
-                    backgroundColor = if (selected) Ke.accent else Ke.surface2,
+                    backgroundColor = if (selected) Ke.accent else Ke.control,
                     contentColor = if (selected) Ke.bg else Ke.text,
                 ),
                 label = {

@@ -6,15 +6,11 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
 /**
  * Runs one guided session.
@@ -43,8 +39,15 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     var stepIndex by mutableIntStateOf(0)
         private set
 
-    /** How far through the current step, 0f..1f. Drives the ring. */
-    var stepProgress by mutableStateOf(0f)
+    /**
+     * How far through the current step, 0f..1f.
+     *
+     * `mutableFloatStateOf`, not `mutableStateOf<Float>`: the boxed one
+     * allocates a java.lang.Float on every write, and this is written on every
+     * frame. Sixty allocations a second is exactly the kind of thing that makes
+     * a watch feel sticky.
+     */
+    var stepProgress by mutableFloatStateOf(0f)
         private set
 
     /** Whole seconds left in the current step, for the numeral. */
@@ -56,7 +59,6 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         private set
 
     private var steps: List<PlayStep> = emptyList()
-    private var ticker: Job? = null
 
     /** Wall clock when the current step began, adjusted for time spent paused. */
     private var stepStartedAt = 0L
@@ -220,6 +222,107 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
             return steps.getOrNull(end + 1)?.slug?.takeIf { it != "rest" }
         }
 
+    // --- The chase -----------------------------------------------------------
+
+    /**
+     * The phone does not draw its targets. It CHASES them.
+     *
+     * `updateGlowAnimation` runs on a 50ms tick and each time restarts an
+     * `Animated.timing` from wherever the value currently is toward the new
+     * target, over `pursuitMs`, with `Easing.out(Easing.quad)`. The result is a
+     * low-pass filter: a gradual ramp is tracked with negligible lag, while a
+     * step boundary's jump eases out instead of snapping in one frame.
+     *
+     * Feeding the target straight to the screen - which is what this did until
+     * now - produces the right numbers with the wrong motion, and for an
+     * exercise the motion IS the instruction. So the structure is reproduced
+     * exactly: a pursuit restarted every 50ms, evaluated every frame.
+     */
+    private class Chase(var value: Float) {
+        var from = value
+        var to = value
+        var startedAt = 0L
+        var durationMs = 1
+
+        fun retarget(target: Float, durationMs: Int, now: Long) {
+            from = value
+            to = target
+            startedAt = now
+            this.durationMs = durationMs.coerceAtLeast(1)
+        }
+
+        /** @param easeOutQuad false for a linear chase, as the ring uses. */
+        fun advance(now: Long, easeOutQuad: Boolean) {
+            val t = ((now - startedAt).toFloat() / durationMs).coerceIn(0f, 1f)
+            val eased = if (easeOutQuad) 1f - (1f - t) * (1f - t) else t
+            value = from + (to - from) * eased
+        }
+    }
+
+    /** Scale 0.58..1.0 and alpha 0.08..1.0, exactly the phone's ranges. */
+    private val glowScaleChase = Chase(0.58f)
+    private val glowAlphaChase = Chase(0.08f)
+    /** The ring's own arc, chased linearly - see `LiveProgressRing`. */
+    private val ringChase = Chase(0f)
+
+    private var lastPursuitAt = 0L
+    private var lastPushedPct = -1f
+    private var lastPushAt = 0L
+
+    /**
+     * The three values the screen actually draws.
+     *
+     * Backed by plain floats updated inside `tick`, and published through
+     * `mutableFloatStateOf` so a deferred read in the draw phase sees them.
+     */
+    var glowScale by mutableFloatStateOf(0.58f)
+        private set
+    var glowAlpha by mutableFloatStateOf(0.08f)
+        private set
+    var ringPct by mutableFloatStateOf(0f)
+        private set
+
+    /** The phone's own tick cadence, which the pursuit timings are sized for. */
+    private val PURSUIT_TICK_MS = 50L
+
+    private fun runPursuit(now: Long) {
+        // 1. The glow. Target and duration exactly as updateGlowAnimation.
+        val step = currentStep
+        val intensity = contraction
+        val targetScale = 0.58f + intensity * 0.42f
+        val targetAlpha = if (step == null || step.isRest) 0f else 0.08f + intensity * 0.92f
+        val pursuit = pursuitMs
+        glowScaleChase.retarget(targetScale, pursuit, now)
+        glowAlphaChase.retarget(targetAlpha, pursuit, now)
+
+        /**
+         * 2. The ring, which the phone pushes only on real movement.
+         *
+         * `pushTickDisplays` skips anything that would not change the picture -
+         * the same integer count and under 0.2% of arc - so a long, slow step
+         * updates well below the tick rate. The chase duration is the gap since
+         * the last push that DID happen, clamped 50..250ms, so the arc is still
+         * travelling when the next one lands rather than arriving early and
+         * waiting.
+         */
+        val pct = blockProgress
+        if (lastPushedPct < 0f || kotlin.math.abs(pct - lastPushedPct) > 0.002f) {
+            val gap = if (lastPushAt == 0L) 50L else (now - lastPushAt)
+            ringChase.retarget(pct, gap.coerceIn(50L, 250L).toInt(), now)
+            lastPushedPct = pct
+            lastPushAt = now
+        }
+    }
+
+    private fun advanceChases(now: Long) {
+        glowScaleChase.advance(now, easeOutQuad = true)
+        glowAlphaChase.advance(now, easeOutQuad = true)
+        ringChase.advance(now, easeOutQuad = false)
+        glowScale = glowScaleChase.value
+        glowAlpha = glowAlphaChase.value
+        ringPct = ringChase.value
+    }
+
     fun start(newSteps: List<PlayStep>) {
         if (newSteps.isEmpty()) return
         steps = newSteps
@@ -227,8 +330,16 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         elapsedSeconds = 0
         sessionStartedAt = System.currentTimeMillis()
         beginStep()
+        val now = System.currentTimeMillis()
+        lastPursuitAt = now
+        lastPushedPct = -1f
+        lastPushAt = 0L
+        glowScaleChase.value = 0.58f
+        glowAlphaChase.value = 0.08f
+        ringChase.value = 0f
+        runPursuit(now)
+        advanceChases(now)
         phase = Phase.RUNNING
-        runTicker()
         cue(steps.first())
     }
 
@@ -236,7 +347,6 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         if (phase != Phase.RUNNING) return
         pausedAt = System.currentTimeMillis()
         phase = Phase.PAUSED
-        ticker?.cancel()
     }
 
     fun resume() {
@@ -248,11 +358,9 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         stepStartedAt += pausedFor
         sessionStartedAt += pausedFor
         phase = Phase.RUNNING
-        runTicker()
     }
 
     fun stop() {
-        ticker?.cancel()
         phase = Phase.IDLE
         steps = emptyList()
         stepIndex = 0
@@ -270,22 +378,29 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         stepRemaining = (currentStep?.seconds ?: 0.0).toInt().coerceAtLeast(0)
     }
 
-    private fun runTicker() {
-        ticker?.cancel()
-        ticker = viewModelScope.launch {
-            while (isActive && phase == Phase.RUNNING) {
-                tick()
-                // ~20fps. Fast enough that the ring reads as continuous, slow
-                // enough that a watch is not repainting for the sake of it.
-                delay(50)
-            }
+    /**
+     * Advance the session. Called once per FRAME by the screen.
+     *
+     * It used to be a `delay(50)` loop inside the engine - twenty updates a
+     * second, on a timer with no relationship to when the display actually
+     * redraws. Every third or fourth update landed between frames and was
+     * thrown away, and the ones that survived arrived at uneven intervals, so
+     * the ring moved in visible steps. Driving it from `withFrameNanos` means
+     * one update per frame, aligned to the frame, which is what "smooth"
+     * actually is.
+     */
+    fun tick() {
+        val now = System.currentTimeMillis()
+        // The pursuit is restarted on the phone's 50ms cadence; the chases are
+        // evaluated on every frame. Both halves matter - see `runPursuit`.
+        if (now - lastPursuitAt >= PURSUIT_TICK_MS) {
+            lastPursuitAt = now
+            runPursuit(now)
         }
-    }
+        advanceChases(now)
 
-    private fun tick() {
         val step = currentStep ?: return finish()
         val lengthMs = (step.seconds * 1000).toLong().coerceAtLeast(1L)
-        val now = System.currentTimeMillis()
         val into = now - stepStartedAt
 
         elapsedSeconds = ((now - sessionStartedAt) / 1000).toInt()
@@ -319,7 +434,6 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     }
 
     private fun finish() {
-        ticker?.cancel()
         phase = Phase.DONE
         stepProgress = 1f
         stepRemaining = 0
@@ -364,8 +478,5 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         }
     }
 
-    override fun onCleared() {
-        ticker?.cancel()
-        super.onCleared()
-    }
+
 }

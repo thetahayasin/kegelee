@@ -28,6 +28,17 @@ data class Palette(
     val accentSoft: Color,
     val text: Color,
     val textMuted: Color,
+    /**
+     * The fill behind a tappable row, and its edge.
+     *
+     * Its own token because `surface2` cannot do this job in both palettes: in
+     * the light one it is #F7F8F4 against a #F4F6F0 ground - a difference of
+     * three values - so every chip disappeared into the background and read as
+     * plain text somebody was expected to guess was tappable. Dark mode never
+     * showed the problem, which is why it took a second look to find.
+     */
+    val control: Color,
+    val controlEdge: Color,
     val track: Color,
     /** The halo behind the training ring. Its own token, as on the phone. */
     val glow: Color,
@@ -42,6 +53,9 @@ val DarkPalette = Palette(
     accentSoft = Color(0xFFD6FFA1),
     text = Color(0xFFF2F5EE),
     textMuted = Color(0xFF9AA3B2),
+    // A step up from the ground is plenty on a dark screen.
+    control = Color(0xFF1F2531),
+    controlEdge = Color(0x00000000),
     track = Color(0xFF232937),
     glow = Color(0xFFC1FF72),
     danger = Color(0xFFFF8A80),
@@ -55,6 +69,10 @@ val LightPalette = Palette(
     accentSoft = Color(0xFF3F6212),
     text = Color(0xFF14181A),
     textMuted = Color(0xFF585F59),
+    // White against the off-white ground, plus a hairline - which is what the
+    // phone's own light cards do, and the only way a control reads as one here.
+    control = Color(0xFFFFFFFF),
+    controlEdge = Color(0x22141A1A),
     track = Color(0xFFE2E6DC),
     glow = Color(0xFF5F9E0A),
     danger = Color(0xFFC0392B),
