@@ -63,7 +63,7 @@ object Repo {
      */
     fun seedDemo(context: Context) {
         Catalogue.load(context)
-        _profile.value = Profile(
+        val demo = Profile(
             name = "Demo",
             levelId = 2,
             entitled = true,
@@ -74,14 +74,39 @@ object Repo {
             todayRequired = 2,
             streak = 3,
             bestHold = 42,
-            reminders = listOf(
-                ReminderDay(weekday = 0, times = listOf("08:00", "20:00"), enabled = true),
-                ReminderDay(weekday = 2, times = listOf("08:00", "20:00"), enabled = true),
-                ReminderDay(weekday = 4, times = listOf("08:00"), enabled = true),
-            ),
+            reminders = demoReminders(),
             syncedAt = System.currentTimeMillis(),
         )
+        _profile.value = demo
+        // Persisted and armed, so the demo exercises the REMINDER path too -
+        // scheduling, the Monday-first weekday conversion and the notification
+        // itself - rather than only the screens.
+        Store.setProfile(context, demo)
+        Reminders.apply(context, demo)
         _auth.value = Auth.SIGNED_IN
+    }
+
+    /**
+     * A demo week with one slot a minute from now.
+     *
+     * The fixed Mon/Wed/Fri 08:00 week proved the list rendered and nothing
+     * else: no reminder was ever going to fire while somebody was watching. One
+     * slot on today's weekday, a minute out, makes the whole chain observable -
+     * alarm armed, alarm delivered, notification posted, next one re-armed.
+     */
+    private fun demoReminders(): List<ReminderDay> {
+        val cal = java.util.Calendar.getInstance().apply { add(java.util.Calendar.MINUTE, 1) }
+        // Calendar is Sunday-first; the backend's weekday index is Monday-first.
+        val mondayFirst = (cal.get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7
+        val soon = String.format(
+            java.util.Locale.US, "%02d:%02d",
+            cal.get(java.util.Calendar.HOUR_OF_DAY),
+            cal.get(java.util.Calendar.MINUTE),
+        )
+        return listOf(
+            ReminderDay(weekday = mondayFirst, times = listOf(soon), enabled = true),
+            ReminderDay(weekday = 2, times = listOf("08:00", "20:00"), enabled = true),
+        )
     }
 
     // --- Signing in ---------------------------------------------------------

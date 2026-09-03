@@ -58,7 +58,7 @@ object Reminders {
         // Not entitled means no reminders, the same rule the phone applies. An
         // account that cannot open the training screen should not be nudged
         // toward it.
-        if (profile == null || !profile.entitled) return
+        if (profile == null || !profile.entitledAsOf(System.currentTimeMillis())) return
 
         val alarms = context.getSystemService(android.app.AlarmManager::class.java) ?: return
         val now = System.currentTimeMillis()

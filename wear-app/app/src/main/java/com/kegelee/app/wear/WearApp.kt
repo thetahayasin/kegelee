@@ -205,9 +205,10 @@ private fun HomeScreen(
                              * earned while subscribed keep unlocking things
                              * after the subscription ended.
                              */
-                            val days = if (p.entitled) p.completedDays
+                            val entitled = p.entitledAsOf(System.currentTimeMillis())
+                            val days = if (entitled) p.completedDays
                             else minOf(p.completedDays, Catalogue.freeDayCap)
-                            val playlist = SessionBuilder.buildDaily(days, p.levelId, p.entitled)
+                            val playlist = SessionBuilder.buildDaily(days, p.levelId, entitled)
                             if (playlist.steps.isNotEmpty()) onStart(playlist.steps)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
@@ -241,7 +242,7 @@ private fun HomeScreen(
             item { ActionChip("Exercises", onExercises) }
             item { ActionChip("Appearance", onAppearance) }
 
-            if (p.entitled) {
+            if (p.entitledAsOf(System.currentTimeMillis())) {
                 item { Text("Reminders", color = Ke.textMuted, fontSize = 10.sp) }
                 // Comma-separated: "08:00 20:00" read as one strange time rather
                 // than two reminders.
@@ -259,7 +260,7 @@ private fun HomeScreen(
             }
 
             item {
-                if (!p.entitled) {
+                if (!p.entitledAsOf(System.currentTimeMillis())) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Premium", color = Ke.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                         Text(
@@ -762,7 +763,7 @@ private data class ExerciseRow(
 private fun ExercisesScreen(onDone: () -> Unit) {
     val Ke = LocalPalette.current
     val profile by Repo.profile.collectAsStateWithLifecycle()
-    val entitled = profile?.entitled == true
+    val entitled = profile?.entitledAsOf(System.currentTimeMillis()) == true
     // Same cap as the session builder: a free account's plan stops advancing,
     // so a countdown past the cap would tick toward a day that never arrives.
     val days = (profile?.completedDays ?: 0).let {

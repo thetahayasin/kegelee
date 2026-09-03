@@ -33,10 +33,30 @@ data class Profile(
 ) {
     val todayComplete: Boolean get() = todayRequired > 0 && todayDone >= todayRequired
 
+    /**
+     * Entitlement, with a staleness bound.
+     *
+     * `entitled` on its own is what the server last said, and a cached yes has
+     * no expiry - so a subscription that lapsed while the watch was offline
+     * would keep the full exercise set indefinitely. That is the same bug the
+     * phone had, where the gate could be raised and never lowered.
+     *
+     * A week is far longer than the gap between syncs on any watch in use (one
+     * runs on every app open), so in practice this never bites a paying
+     * customer; it bounds the failure for a device that has genuinely stopped
+     * checking. Erring long is deliberate - the cost of being late is a few
+     * free days, the cost of being early is locking out somebody who paid.
+     */
+    fun entitledAsOf(now: Long): Boolean =
+        entitled && syncedAt > 0L && (now - syncedAt) < ENTITLEMENT_TTL_MS
+
     /** Only the days actually switched on, in week order. */
     val activeReminders: List<ReminderDay>
         get() = reminders.filter { it.enabled && it.times.isNotEmpty() }.sortedBy { it.weekday }
 }
+
+/** How long a cached "subscribed" is honoured without a successful sync. */
+const val ENTITLEMENT_TTL_MS: Long = 7L * 24 * 60 * 60 * 1000
 
 /**
  * One day of the reminder week.
