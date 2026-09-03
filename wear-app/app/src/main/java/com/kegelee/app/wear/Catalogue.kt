@@ -84,6 +84,16 @@ object Catalogue {
 
     fun level(number: Int): LevelDef = levels[number.toString()] ?: LevelDef()
 
+    /**
+     * How many training days a free account can accumulate.
+     *
+     * Exactly enough to unlock the third free exercise and not one more, which
+     * is how the phone defines it - derived from the catalogue rather than
+     * written down, so it cannot drift when the free set changes.
+     */
+    val freeDayCap: Int
+        get() = freeSlugs.mapNotNull { exercises[it]?.unlockAfterDays }.maxOrNull() ?: 0
+
     fun cycleSeconds(slug: String): Double =
         exercises[slug]?.pattern?.sumOf { it.seconds } ?: 0.0
 

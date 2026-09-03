@@ -150,48 +150,78 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
      *
      * The final tick increments past the last step and only then calls
      * `finish()`, so a recomposition landing in between asked the block maths
-     * about index 107 of a 107-step session and took the whole app down with an
-     * IndexOutOfBounds. Every reader below goes through this instead of the raw
-     * field, which is the fix at the one place all of them share rather than
-     * five separate guards that can be forgotten individually.
+     * about index 107 of a 107-step session and took the whole app down.
      */
     private val safeIndex: Int
         get() = if (steps.isEmpty()) 0 else stepIndex.coerceIn(0, steps.lastIndex)
 
-    private fun blockStartOf(index: Int): Int {
-        val slug = steps.getOrNull(index)?.slug ?: return index
+    /**
+     * The current block's bounds, computed once when the block CHANGES.
+     *
+     * This used to be worked out from scratch on every read: two loops walking
+     * outward to find the block's edges, then an IntRange allocated and summed
+     * to total it. `blockProgress` called it twice, `blockRemaining` again, and
+     * a `derivedStateOf` read them every frame to see whether a once-a-second
+     * number had moved - so a session was walking its own step list and
+     * allocating ranges sixty times a second to redraw an arc. On a watch that
+     * is exactly the kind of quiet waste that turns into visible stutter.
+     *
+     * Recomputed only when the step index leaves the cached block, which is a
+     * few times a minute.
+     */
+    private var cachedBlockFor = -1
+    private var cachedStart = 0
+    private var cachedEnd = 0
+    private var cachedTotal = 1.0
+    private var cachedTailAfter = DoubleArray(0)
+
+    private fun ensureBlock(index: Int) {
+        if (steps.isEmpty()) return
+        if (index in cachedStart..cachedEnd && cachedBlockFor >= 0) return
+
+        val slug = steps[index].slug
         var start = index
         while (start > 0 && steps[start - 1].slug == slug) start--
-        return start
-    }
-
-    private fun blockEndOf(index: Int): Int {
-        val slug = steps.getOrNull(index)?.slug ?: return index
         var end = index
         while (end + 1 < steps.size && steps[end + 1].slug == slug) end++
-        return end
+
+        cachedStart = start
+        cachedEnd = end
+        cachedBlockFor = index
+        var total = 0.0
+        for (i in start..end) total += steps[i].seconds
+        cachedTotal = total.coerceAtLeast(1.0)
+
+        /**
+         * Seconds remaining AFTER each step in the block, precomputed.
+         *
+         * Turns "how much of this exercise is left" into one array lookup plus
+         * the current step's own remainder, instead of a loop-and-sum per read.
+         */
+        val tail = DoubleArray(end - start + 1)
+        var running = 0.0
+        for (i in end downTo start) {
+            tail[i - start] = running
+            running += steps[i].seconds
+        }
+        cachedTailAfter = tail
     }
 
     /** Which block is running. */
     val blockIndex: Int
-        get() = if (steps.isEmpty()) 0 else blockStartOf(safeIndex)
-
-    /** Total seconds in the current block. */
-    private val blockTotal: Double
         get() {
-            if (steps.isEmpty()) return 1.0
-            val start = blockStartOf(safeIndex)
-            val end = blockEndOf(safeIndex)
-            return (start..end).sumOf { steps.getOrNull(it)?.seconds ?: 0.0 }.coerceAtLeast(1.0)
+            if (steps.isEmpty()) return 0
+            ensureBlock(safeIndex)
+            return cachedStart
         }
 
     /** Seconds still to run in the current block, unrounded. */
     private val blockRemainingRaw: Double
         get() {
             val step = currentStep ?: return 0.0
+            ensureBlock(safeIndex)
             val inStep = (step.seconds * (1f - stepProgress)).toDouble()
-            val end = blockEndOf(safeIndex)
-            val after = ((safeIndex + 1)..end).sumOf { steps.getOrNull(it)?.seconds ?: 0.0 }
+            val after = cachedTailAfter.getOrElse(safeIndex - cachedStart) { 0.0 }
             return (inStep + after).coerceAtLeast(0.0)
         }
 
@@ -202,8 +232,9 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     /** What the ring fills with: progress through this exercise, 0f..1f. */
     val blockProgress: Float
         get() {
-            val total = blockTotal
-            return ((total - blockRemainingRaw) / total).toFloat().coerceIn(0f, 1f)
+            if (steps.isEmpty()) return 0f
+            ensureBlock(safeIndex)
+            return ((cachedTotal - blockRemainingRaw) / cachedTotal).toFloat().coerceIn(0f, 1f)
         }
 
     /** The exercise this block trains, or "rest". */
@@ -218,8 +249,8 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     val nextExerciseSlug: String?
         get() {
             if (!isResting) return null
-            val end = blockEndOf(safeIndex)
-            return steps.getOrNull(end + 1)?.slug?.takeIf { it != "rest" }
+            ensureBlock(safeIndex)
+            return steps.getOrNull(cachedEnd + 1)?.slug?.takeIf { it != "rest" }
         }
 
     // --- The chase -----------------------------------------------------------
@@ -326,6 +357,9 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     fun start(newSteps: List<PlayStep>) {
         if (newSteps.isEmpty()) return
         steps = newSteps
+        cachedBlockFor = -1
+        cachedStart = 0
+        cachedEnd = 0
         stepIndex = 0
         elapsedSeconds = 0
         sessionStartedAt = System.currentTimeMillis()

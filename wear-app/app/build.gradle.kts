@@ -59,11 +59,36 @@ android {
          * genuinely confusing afternoon if you do not know it.
          */
         create("release") {
-            val props = Properties()
-            val propsFile = rootProject.file("keystore.properties")
+            /**
+             * The phone app's own keystore.properties, read where it already
+             * lives.
+             *
+             * Not copied here, and no second file to keep in step: this reads
+             * `react-native-app/android/keystore.properties` directly, so there
+             * is exactly one place the release credentials exist and no chance
+             * of the watch drifting onto a different key. A local
+             * `wear-app/keystore.properties` still wins if one is present, for
+             * a machine laid out differently.
+             *
+             * The key is not optional. Google Sign-In verifies the calling
+             * app's package AND signing certificate against the OAuth client,
+             * so a debug-signed build fails with DEVELOPER_ERROR however
+             * correct the code is - and Play will not accept two differently
+             * signed artifacts in one listing.
+             */
+            val local = rootProject.file("keystore.properties")
+            val phone = rootProject.file("../react-native-app/android/keystore.properties")
+            val propsFile = if (local.exists()) local else phone
             if (propsFile.exists()) {
+                val props = Properties()
                 props.load(propsFile.inputStream())
-                storeFile = rootProject.file(props.getProperty("storeFile"))
+                // storeFile in the phone's file is relative to its app module.
+                val base = if (propsFile == phone) {
+                    rootProject.file("../react-native-app/android/app")
+                } else {
+                    rootProject.projectDir
+                }
+                storeFile = File(base, props.getProperty("storeFile"))
                 storePassword = props.getProperty("storePassword")
                 keyAlias = props.getProperty("keyAlias")
                 keyPassword = props.getProperty("keyPassword")
@@ -73,17 +98,31 @@ android {
 
     buildTypes {
         debug {
-            // A distinct name only. NOT a distinct applicationId: an
-            // applicationIdSuffix would break Data Layer pairing, which is the
-            // one thing this app cannot work without.
+            /**
+             * Debug builds are signed with the RELEASE key.
+             *
+             * Unusual, and necessary: Google Sign-In checks the signing
+             * certificate against the OAuth client, so a debug-keystore build
+             * cannot sign in at all - it fails with DEVELOPER_ERROR (status
+             * 10), which looks like a code fault and is not one. Signing debug
+             * with the same key is what makes the sign-in flow testable before
+             * a release build exists.
+             *
+             * No applicationIdSuffix, for the same reason: the package is half
+             * of what the OAuth client is registered against.
+             */
             isMinifyEnabled = false
+            val signed = rootProject.file("keystore.properties").exists() ||
+                rootProject.file("../react-native-app/android/keystore.properties").exists()
+            if (signed) signingConfig = signingConfigs.getByName("release")
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            val props = rootProject.file("keystore.properties")
-            signingConfig = if (props.exists()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
+            val signed = rootProject.file("keystore.properties").exists() ||
+                rootProject.file("../react-native-app/android/keystore.properties").exists()
+            signingConfig = if (signed) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 

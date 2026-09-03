@@ -193,7 +193,21 @@ private fun HomeScreen(
                      */
                     Button(
                         onClick = {
-                            val playlist = SessionBuilder.buildDaily(p.completedDays, p.levelId, p.entitled)
+                            /**
+                             * A free account's day count is CAPPED, not just
+                             * its exercise pool.
+                             *
+                             * The phone bounds it twice over: the pool is
+                             * narrowed to the free set, and the plan stops
+                             * advancing at FREE_DAY_CAP so the day-based
+                             * unlock can never reach a paid exercise. Passing
+                             * the raw count here would have let a day total
+                             * earned while subscribed keep unlocking things
+                             * after the subscription ended.
+                             */
+                            val days = if (p.entitled) p.completedDays
+                            else minOf(p.completedDays, Catalogue.freeDayCap)
+                            val playlist = SessionBuilder.buildDaily(days, p.levelId, p.entitled)
                             if (playlist.steps.isNotEmpty()) onStart(playlist.steps)
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
@@ -229,7 +243,9 @@ private fun HomeScreen(
 
             if (p.entitled) {
                 item { Text("Reminders", color = Ke.textMuted, fontSize = 10.sp) }
-                val groups = p.activeReminders.groupBy { it.times.sorted().joinToString(" ") }
+                // Comma-separated: "08:00 20:00" read as one strange time rather
+                // than two reminders.
+                val groups = p.activeReminders.groupBy { it.times.sorted().joinToString(", ") }
                 if (groups.isEmpty()) {
                     item { Text("Set them in the app", color = Ke.textMuted, fontSize = 9.sp) }
                 } else {
@@ -746,8 +762,12 @@ private data class ExerciseRow(
 private fun ExercisesScreen(onDone: () -> Unit) {
     val Ke = LocalPalette.current
     val profile by Repo.profile.collectAsStateWithLifecycle()
-    val days = profile?.completedDays ?: 0
     val entitled = profile?.entitled == true
+    // Same cap as the session builder: a free account's plan stops advancing,
+    // so a countdown past the cap would tick toward a day that never arrives.
+    val days = (profile?.completedDays ?: 0).let {
+        if (entitled) it else minOf(it, Catalogue.freeDayCap)
+    }
 
     val listState = rememberScalingLazyListState()
     val rotaryFocus = remember { FocusRequester() }
