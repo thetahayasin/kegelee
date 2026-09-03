@@ -63,6 +63,16 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     private var sessionStartedAt = 0L
     private var pausedAt = 0L
 
+    /**
+     * The step being run, or null once the session has run off the end.
+     *
+     * Deliberately the RAW index, not the clamped one. `tick` detects the end
+     * of the session by this going null, so clamping it here - which a previous
+     * attempt did, to stop the block maths reading past the list - meant the
+     * session never finished at all. The clamp belongs to the display getters
+     * below, which have to survive the frame between the last increment and
+     * `finish()`; this one has to report the truth.
+     */
     val currentStep: PlayStep? get() = steps.getOrNull(stepIndex)
     val totalSteps: Int get() = steps.size
 
@@ -71,18 +81,143 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         get() = if (steps.isEmpty()) 0f else (stepIndex + stepProgress) / steps.size
 
     /**
-     * How contracted the circle is right now, 0f..1f.
+     * How hard the squeeze should be right now, 0f..1f.
      *
-     * The catalogue gives every segment a `from` and a `to`, and the circle
-     * travels between them across the step. That is what the phone draws and it
-     * is the instruction itself: the ring swelling IS "squeeze", and it reads
-     * without a word being processed. A countdown alone would be a timer, not a
-     * cue.
+     * `from` and `to` come from the catalogue and the step's own progress moves
+     * between them - but through a smoothstep, not linearly. The phone eases
+     * the same way (`t * t * (3 - 2t)` in WorkoutScreen), and it matters: a
+     * linear ramp starts and stops abruptly, which reads as a jerk rather than
+     * a breath.
      */
     val contraction: Float
         get() {
             val step = currentStep ?: return 0f
-            return (step.from + (step.to - step.from) * stepProgress).toFloat().coerceIn(0f, 1f)
+            val t = stepProgress.coerceIn(0f, 1f)
+            val eased = t * t * (3f - 2f * t)
+            return (step.from + (step.to - step.from) * eased).toFloat().coerceIn(0f, 1f)
+        }
+
+    /** A rest beat has no glow at all - see the phone's `targetOpacity`. */
+    val isResting: Boolean get() = currentStep?.isRest == true
+
+    /**
+     * How long the glow may take to reach a new target, in milliseconds.
+     *
+     * Ported from the phone's smooth-pursuit, and the reason the motion reads
+     * as the same app. Two effects, both deliberate:
+     *
+     *  - The chase is proportional to the step, clamped to 80..240ms. A fixed
+     *    filter swallowed most of a 0.3s step, which came out as a dead pause
+     *    between reps.
+     *  - A step ENTERED with a big jump gets longer to settle. Front Clamp
+     *    builds to full over three seconds then drops instantly; without this
+     *    the fall collapsed in two frames and then sat still for the rest of
+     *    the beat. Only real jumps qualify, so the graded Elevator steps stay
+     *    crisp - which is the point of those exercises.
+     */
+    val pursuitMs: Int
+        get() {
+            val step = currentStep ?: return 240
+            val base = (step.seconds * 400).toInt().coerceIn(80, 240)
+            val entryFrom = steps.getOrNull(safeIndex - 1)?.to ?: 0.0
+            val entryJump = kotlin.math.abs(step.from - entryFrom)
+            val settle = if (entryJump > 0.3) {
+                minOf(entryJump * 520.0, step.seconds * 1000.0 * 0.6).toInt()
+            } else 0
+            return maxOf(base, settle)
+        }
+
+    // --- Blocks -------------------------------------------------------------
+
+    /**
+     * A BLOCK is one exercise, or one rest - not one step.
+     *
+     * This distinction is the whole reason the first version looked wrong. An
+     * exercise is many contract/relax steps in a row, and driving the ring and
+     * the numeral from the STEP made them reset every half second: the count
+     * read "1, 0, 1, 0" and the arc flicked back to empty on every rep, which
+     * says nothing about how far through anything you are.
+     *
+     * The phone drives both from the block (`getBlockPct` / `getBlockRemaining`
+     * in WorkoutScreen), so the ring fills once across a whole exercise and the
+     * number counts that exercise down. The per-step values still drive the
+     * glow, because the squeeze itself IS per step.
+     */
+    /**
+     * `stepIndex` clamped into the list.
+     *
+     * The final tick increments past the last step and only then calls
+     * `finish()`, so a recomposition landing in between asked the block maths
+     * about index 107 of a 107-step session and took the whole app down with an
+     * IndexOutOfBounds. Every reader below goes through this instead of the raw
+     * field, which is the fix at the one place all of them share rather than
+     * five separate guards that can be forgotten individually.
+     */
+    private val safeIndex: Int
+        get() = if (steps.isEmpty()) 0 else stepIndex.coerceIn(0, steps.lastIndex)
+
+    private fun blockStartOf(index: Int): Int {
+        val slug = steps.getOrNull(index)?.slug ?: return index
+        var start = index
+        while (start > 0 && steps[start - 1].slug == slug) start--
+        return start
+    }
+
+    private fun blockEndOf(index: Int): Int {
+        val slug = steps.getOrNull(index)?.slug ?: return index
+        var end = index
+        while (end + 1 < steps.size && steps[end + 1].slug == slug) end++
+        return end
+    }
+
+    /** Which block is running. */
+    val blockIndex: Int
+        get() = if (steps.isEmpty()) 0 else blockStartOf(safeIndex)
+
+    /** Total seconds in the current block. */
+    private val blockTotal: Double
+        get() {
+            if (steps.isEmpty()) return 1.0
+            val start = blockStartOf(safeIndex)
+            val end = blockEndOf(safeIndex)
+            return (start..end).sumOf { steps.getOrNull(it)?.seconds ?: 0.0 }.coerceAtLeast(1.0)
+        }
+
+    /** Seconds still to run in the current block, unrounded. */
+    private val blockRemainingRaw: Double
+        get() {
+            val step = currentStep ?: return 0.0
+            val inStep = (step.seconds * (1f - stepProgress)).toDouble()
+            val end = blockEndOf(safeIndex)
+            val after = ((safeIndex + 1)..end).sumOf { steps.getOrNull(it)?.seconds ?: 0.0 }
+            return (inStep + after).coerceAtLeast(0.0)
+        }
+
+    /** What the big numeral shows: seconds left in this exercise. */
+    val blockRemaining: Int
+        get() = kotlin.math.ceil(blockRemainingRaw).toInt().coerceAtLeast(0)
+
+    /** What the ring fills with: progress through this exercise, 0f..1f. */
+    val blockProgress: Float
+        get() {
+            val total = blockTotal
+            return ((total - blockRemainingRaw) / total).toFloat().coerceIn(0f, 1f)
+        }
+
+    /** The exercise this block trains, or "rest". */
+    val blockSlug: String get() = currentStep?.slug.orEmpty()
+
+    /**
+     * The exercise after this rest, so the rest can say what it is leading to.
+     *
+     * Only meaningful during a rest; an exercise block has no "next" worth
+     * announcing while it is still running.
+     */
+    val nextExerciseSlug: String?
+        get() {
+            if (!isResting) return null
+            val end = blockEndOf(safeIndex)
+            return steps.getOrNull(end + 1)?.slug?.takeIf { it != "rest" }
         }
 
     fun start(newSteps: List<PlayStep>) {

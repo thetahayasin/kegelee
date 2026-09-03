@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.text.SimpleDateFormat
@@ -72,6 +73,12 @@ object Repo {
             todayDone = 1,
             todayRequired = 2,
             streak = 3,
+            bestHold = 42,
+            reminders = listOf(
+                ReminderDay(weekday = 0, times = listOf("08:00", "20:00"), enabled = true),
+                ReminderDay(weekday = 2, times = listOf("08:00", "20:00"), enabled = true),
+                ReminderDay(weekday = 4, times = listOf("08:00"), enabled = true),
+            ),
             syncedAt = System.currentTimeMillis(),
         )
         _auth.value = Auth.SIGNED_IN
@@ -159,7 +166,13 @@ object Repo {
                     return@withContext false
                 }
                 is Api.Result.Ok -> {
-                    _profile.value = parseProfile(res.value).also { Store.setProfile(context, it) }
+                    val fresh = parseProfile(res.value)
+                    _profile.value = fresh
+                    Store.setProfile(context, fresh)
+                    // The schedule is the phone's, so re-arm from it on every
+                    // pull: a week changed there takes effect here with nobody
+                    // doing anything, and a switched-off day stops ringing.
+                    Reminders.apply(context, fresh)
                     _lastError.value = null
                     return@withContext true
                 }
@@ -185,8 +198,60 @@ object Repo {
             todayDone = today?.get("done")?.jsonPrimitive?.intOrNullSafe() ?: 0,
             todayRequired = today?.get("required")?.jsonPrimitive?.intOrNullSafe() ?: 2,
             streak = streakFrom(payload),
+            bestHold = bestHoldFrom(payload),
+            reminders = remindersFrom(payload),
             syncedAt = System.currentTimeMillis(),
         )
+    }
+
+    /**
+     * The longest hold on record, which is the one measurement worth a glance.
+     *
+     * The pull sends the whole measurement history and the phone shows the best
+     * of it as a personal record. Reducing rather than taking the newest is the
+     * point: a bad day should not replace a best.
+     */
+    private fun bestHoldFrom(payload: JsonObject): Int {
+        val rows = (payload["measurements"] as? JsonArray) ?: return 0
+        return rows.mapNotNull { el ->
+            (el as? JsonObject)?.get("seconds")?.jsonPrimitive?.intOrNullSafe()
+        }.maxOrNull() ?: 0
+    }
+
+    /** The reminder week, so the watch can show it and ring for it. */
+    private fun remindersFrom(payload: JsonObject): List<ReminderDay> {
+        val rows = (payload["reminders"] as? JsonArray) ?: return emptyList()
+        return rows.mapNotNull { el ->
+            val row = el as? JsonObject ?: return@mapNotNull null
+            val weekday = row["weekday"]?.jsonPrimitive?.intOrNullSafe() ?: return@mapNotNull null
+            val times = (row["times"] as? JsonArray)
+                ?.mapNotNull { it.jsonPrimitive.contentOrNullSafe() }
+                ?.filter { it.isNotBlank() }
+                .orEmpty()
+            val enabled = row["is_enabled"]?.jsonPrimitive?.booleanOrNullSafe() ?: false
+            ReminderDay(weekday = weekday, times = times, enabled = enabled)
+        }
+    }
+
+    // --- Changing the level -------------------------------------------------
+
+    /**
+     * Change difficulty from the wrist.
+     *
+     * Applied locally first so the screen answers immediately, then pushed. The
+     * push carries `level_id` on every sync anyway, so a failure here is not
+     * lost - the next sync sends it. The server is still authoritative: its
+     * next pull overwrites this, which is what makes a change made on the phone
+     * win if the two ever disagree.
+     */
+    suspend fun setLevel(context: Context, level: Int) {
+        val clamped = level.coerceIn(1, 5)
+        val current = _profile.value ?: return
+        if (current.levelId == clamped) return
+        val next = current.copy(levelId = clamped)
+        _profile.value = next
+        Store.setProfile(context, next)
+        sync(context)
     }
 
     /**
@@ -198,7 +263,7 @@ object Repo {
      * to it, which is why the walk starts at yesterday when today is open.
      */
     private fun streakFrom(payload: JsonObject): Int {
-        val days = (payload["training_days"] as? kotlinx.serialization.json.JsonArray) ?: return 0
+        val days = (payload["training_days"] as? JsonArray) ?: return 0
         val completed = days.mapNotNull { el ->
             val row = el as? JsonObject ?: return@mapNotNull null
             val done = row["completed_at"]?.jsonPrimitive?.contentOrNullSafe()

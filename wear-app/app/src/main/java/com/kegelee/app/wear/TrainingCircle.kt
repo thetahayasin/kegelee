@@ -1,10 +1,15 @@
 package com.kegelee.app.wear
 
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -14,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -25,154 +29,236 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.Text
 
 /**
+ * `Easing.out(Easing.quad)` from the phone, which Compose has no name for.
+ *
+ * Decelerating: fastest at the start of the chase, settling gently. Matching it
+ * matters more than it sounds - a linear or spring chase gives the same numbers
+ * a different feel, and the whole point of this component is that the movement
+ * is recognisably the same as the app's.
+ */
+private val QuadOut = Easing { t -> 1f - (1f - t) * (1f - t) }
+
+/**
  * The training circle from the phone app, on a watch.
  *
- * This is the piece worth getting exactly right, because it is not decoration -
- * it is the instruction. The phone draws a ring that SWELLS as the pelvic floor
- * should tighten and settles as it releases, lit by a halo that brightens with
- * it, and people follow the shape rather than reading the word. A generic
- * countdown would have been a different exercise wearing the same name.
+ * Not decoration - it is the instruction. People follow the light rather than
+ * reading the word, which is why the rhythm is copied from
+ * `WorkoutScreen.updateGlowAnimation` rather than approximated.
  *
- * Three layers, outside in, matching `WorkoutScreen`'s own stack:
+ * The important structural point, and the one the first attempt got wrong: **the
+ * ring does not change size.** On the phone it is fixed, its arc filling with
+ * the step's progress, and it is the HALO behind it that swells and brightens
+ * as the contraction builds. Scaling the ring instead produced something that
+ * moved but did not look like the same exercise.
  *
- *  1. A faint session arc around the very edge - how much of the whole workout
- *     is behind you, answered without a number.
- *  2. The halo (`ContractGlow` on the phone): a radial wash that is nothing at
- *     rest and strongest at full contraction, so the screen brightens as you
- *     squeeze. It is drawn OUTSIDE the ring, never under it, or it would wash
- *     out the thing it is meant to light.
- *  3. The ring itself: a track, a progress arc drawn from twelve o'clock, and a
- *     radius that grows with the contraction.
+ * So, back to front:
+ *
+ *  1. The halo. A radial gradient that is empty where the ring sits and rises
+ *     to its brightest just outside it, so it reads as light coming off the
+ *     ring. Its box is 1.7x the ring - the phone's `GLOW_SCALE` - and it is
+ *     scaled 0.58..1.0 and faded 0.08..1.0 by the contraction. A rest beat has
+ *     none at all.
+ *  2. A faint rim arc at the very edge: how much of the whole session is done,
+ *     answered without a number.
+ *  3. The ring: a track, and a progress arc drawn from twelve o'clock.
+ *  4. Seconds, and the cue, small and inside.
  */
 @Composable
 fun TrainingCircle(
-    /** 0f..1f, how tight the squeeze is right now. Drives size and glow. */
+    /** 0f..1f, already eased by the engine. Drives the halo. */
     contraction: Float,
-    /** 0f..1f through the current step. Fills the arc. */
+    /** 0f..1f through the current step. Fills the ring's arc. */
     stepProgress: Float,
-    /** 0f..1f through the whole session. Fills the outer edge. */
+    /** 0f..1f through the whole session. Fills the rim. */
     sessionProgress: Float,
     isContract: Boolean,
+    isResting: Boolean,
+    /** How long the halo may take to reach a new target - see SessionEngine. */
+    pursuitMs: Int,
     label: String,
     seconds: Int,
+    /** What follows this block, shown under the cue. Null hides the line. */
+    upcoming: String? = null,
     modifier: Modifier = Modifier,
-    diameter: Dp = 126.dp,
+    /** The ring. Everything else is sized from it. */
+    ring: Dp = 96.dp,
 ) {
     /**
-     * The contraction is smoothed, deliberately.
+     * One colour for both phases, as the phone has it.
      *
-     * The engine recomputes about twenty times a second, and binding the radius
-     * straight to that made the ring move in visible steps. Chasing the value
-     * fills in the frames between, which is the same trick the phone plays with
-     * its Animated.Value - and here it matters more, because a jerky cue is a
-     * cue somebody stops trusting.
+     * `LiveProgressRing` draws its arc in `accentText` whatever the step is,
+     * and `ContractGlow` is always the lime `glow` token - so a two-colour
+     * scheme here read as a different app, and a blue ring inside a lime halo
+     * looked like a mistake besides. The phase is carried by the light: a
+     * contraction is bright and wide, a release is dim and close. That is the
+     * distinction the design already makes, and it survives being glanced at
+     * far better than a hue change does.
      */
-    val eased by animateFloatAsState(targetValue = contraction, label = "contraction")
+    val cue = Ke.Accent
 
-    val cue = if (isContract) Ke.Accent else Ke.Relax
+    /**
+     * Two chased values, exactly as the phone animates them.
+     *
+     * The engine recomputes about twenty times a second and these tween toward
+     * whatever it last said, which makes the timing a low-pass filter: gradual
+     * ramps track with no visible lag, while a step boundary's jump eases out
+     * instead of snapping in a single frame.
+     */
+    val glowScale by animateFloatAsState(
+        targetValue = 0.58f + contraction * 0.42f,
+        animationSpec = tween(durationMillis = pursuitMs, easing = QuadOut),
+        label = "glowScale",
+    )
+    val glowAlpha by animateFloatAsState(
+        targetValue = if (isResting) 0f else 0.08f + contraction * 0.92f,
+        animationSpec = tween(durationMillis = pursuitMs, easing = QuadOut),
+        label = "glowAlpha",
+    )
 
-    Box(modifier = modifier.size(diameter), contentAlignment = Alignment.Center) {
+    /**
+     * The arc is chased too, not bound straight to the engine.
+     *
+     * The block progress is recomputed twenty times a second, and drawing it
+     * raw moved the sweep in twenty visible steps per second - which on a ring
+     * this size reads as a stutter. A short linear tween fills in the frames
+     * between, the same reason the phone runs its `strokeDashoffset` through an
+     * Animated.Value. Linear, not eased: progress through an exercise is
+     * genuinely linear and easing it would make the arc lie about the clock.
+     */
+    val sweep by animateFloatAsState(
+        targetValue = stepProgress.coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 90, easing = LinearEasing),
+        label = "sweep",
+    )
+    val rimSweep by animateFloatAsState(
+        targetValue = sessionProgress.coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 220, easing = LinearEasing),
+        label = "rimSweep",
+    )
 
-        // 1 + 2. The halo, and the session arc at the rim.
-        Canvas(Modifier.fillMaxSize()) {
-            val c = Offset(size.width / 2f, size.height / 2f)
+    // 1.7x the ring, so the halo has somewhere to reach.
+    val box = ring * 1.7f
 
-            /**
-             * Nothing at rest, strongest at full squeeze.
-             *
-             * Alpha carries the contraction rather than radius alone: a halo
-             * that only grew would still be visible during a full release,
-             * which is precisely when the screen should be calm.
-             */
-            if (eased > 0.01f) {
-                val haloRadius = size.minDimension / 2f * (0.62f + 0.38f * eased)
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            cue.copy(alpha = 0.00f),
-                            cue.copy(alpha = 0.16f * eased),
-                            cue.copy(alpha = 0.00f),
-                        ),
-                        center = c,
-                        radius = haloRadius,
-                    ),
-                    radius = haloRadius,
-                    center = c,
-                )
-            }
+    Box(modifier = modifier.size(box), contentAlignment = Alignment.Center) {
 
-            val rim = 3.dp.toPx()
-            val rimInset = rim / 2f
-            drawArc(
-                color = Ke.Track.copy(alpha = 0.55f),
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = Offset(rimInset, rimInset),
-                size = Size(size.width - rim, size.height - rim),
-                style = Stroke(width = rim, cap = StrokeCap.Round),
-            )
-            drawArc(
-                color = cue.copy(alpha = 0.45f),
-                startAngle = -90f,
-                sweepAngle = 360f * sessionProgress.coerceIn(0f, 1f),
-                useCenter = false,
-                topLeft = Offset(rimInset, rimInset),
-                size = Size(size.width - rim, size.height - rim),
-                style = Stroke(width = rim, cap = StrokeCap.Round),
+        // 1. The halo.
+        Canvas(Modifier.size(box)) {
+            if (glowAlpha <= 0.01f) return@Canvas
+            val centre = Offset(size.width / 2f, size.height / 2f)
+            val radius = (size.minDimension / 2f) * glowScale
+            if (radius <= 0f) return@Canvas
+            drawCircle(
+                brush = Brush.radialGradient(
+                    /**
+                     * The phone's own stops. Empty until 56% - where the ring
+                     * itself sits - because a halo drawn under the ring washes
+                     * out the thing it is meant to be lighting. Brightest at
+                     * 90% and easing off at the rim, so the edge is light
+                     * rather than a drawn circle.
+                     */
+                    0.00f to Ke.Glow.copy(alpha = 0f),
+                    0.56f to Ke.Glow.copy(alpha = 0f),
+                    0.66f to Ke.Glow.copy(alpha = 0.08f * glowAlpha),
+                    0.90f to Ke.Glow.copy(alpha = 0.42f * glowAlpha),
+                    1.00f to Ke.Glow.copy(alpha = 0.24f * glowAlpha),
+                    center = centre,
+                    radius = radius,
+                ),
+                radius = radius,
+                center = centre,
             )
         }
 
-        // 3. The ring that breathes.
-        Canvas(Modifier.fillMaxSize()) {
-            val stroke = 9.dp.toPx()
-            // 68% of the box at rest, 92% at full contraction. Enough travel to
-            // read across a room; not so much that it collides with the rim arc.
-            val scale = 0.68f + 0.24f * eased
-            val outer = size.minDimension * scale
-            val inset = (size.minDimension - outer) / 2f
+        // 2. The session rim.
+        Canvas(Modifier.size(box)) {
+            val w = 3.dp.toPx()
+            val inset = w / 2f
+            drawArc(
+                color = Ke.Track.copy(alpha = 0.4f),
+                startAngle = -90f,
+                sweepAngle = 360f,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = Size(size.width - w, size.height - w),
+                style = Stroke(width = w, cap = StrokeCap.Round),
+            )
+            drawArc(
+                color = cue.copy(alpha = 0.4f),
+                startAngle = -90f,
+                sweepAngle = 360f * rimSweep,
+                useCenter = false,
+                topLeft = Offset(inset, inset),
+                size = Size(size.width - w, size.height - w),
+                style = Stroke(width = w, cap = StrokeCap.Round),
+            )
+        }
 
+        // 3. The ring. Fixed size - see the note at the top.
+        Canvas(Modifier.size(ring)) {
+            val w = 8.dp.toPx()
+            val inset = w / 2f
             drawArc(
                 color = Ke.Track,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                topLeft = Offset(inset + stroke / 2f, inset + stroke / 2f),
-                size = Size(outer - stroke, outer - stroke),
-                style = Stroke(width = stroke, cap = StrokeCap.Round),
+                topLeft = Offset(inset, inset),
+                size = Size(size.width - w, size.height - w),
+                style = Stroke(width = w, cap = StrokeCap.Round),
             )
             drawArc(
                 color = cue,
                 startAngle = -90f,
-                sweepAngle = 360f * stepProgress.coerceIn(0f, 1f),
+                sweepAngle = 360f * sweep,
                 useCenter = false,
-                topLeft = Offset(inset + stroke / 2f, inset + stroke / 2f),
-                size = Size(outer - stroke, outer - stroke),
-                style = Stroke(width = stroke, cap = StrokeCap.Round),
+                topLeft = Offset(inset, inset),
+                size = Size(size.width - w, size.height - w),
+                style = Stroke(width = w, cap = StrokeCap.Round),
             )
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        /**
+         * 4. The readout, sitting a little high in the ring.
+         *
+         * Nudged up rather than centred because there are now three lines and a
+         * centred block put the third one on the ring's lower stroke. Raising
+         * the group leaves the count optically centred - which is the thing the
+         * eye goes to - and gives what is coming next somewhere to live.
+         */
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.offset(y = (-6).dp),
+        ) {
             Text(
                 text = "$seconds",
                 color = Ke.Text,
-                fontSize = 34.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
             )
-            // The cue sits inside the ring so the eye never has to leave the
-            // shape it is following. Capped at one line and sized to fit the
-            // longest label in the catalogue ("Release slowly") within the
-            // smaller circle.
             Text(
                 text = label,
                 color = cue,
-                fontSize = 11.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 6.dp),
+                modifier = Modifier.padding(horizontal = 4.dp),
             )
+            // What is coming, in place of the phone's carousel along the bottom
+            // - there is no room for that here, and this is the same answer to
+            // the same question.
+            if (!upcoming.isNullOrBlank()) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = upcoming,
+                    color = Ke.TextMuted,
+                    fontSize = 8.sp,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                )
+            }
         }
     }
 }

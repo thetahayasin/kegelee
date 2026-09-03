@@ -28,6 +28,10 @@ object Ke {
     /** The release cue. Cool against the accent's warmth, so the two phases
      *  are distinguishable at a glance and not only by the word. */
     val Relax = Color(0xFF7FD4FF)
+    /** The halo behind the training ring - `glow` in the phone's dark palette.
+     *  Its own token there, and kept as one here, because it is a light source
+     *  rather than an accent and the two are free to diverge. */
+    val Glow = Color(0xFFC1FF72)
     val Danger = Color(0xFFFF8A80)
 }
 

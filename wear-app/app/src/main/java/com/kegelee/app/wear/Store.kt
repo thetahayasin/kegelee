@@ -25,10 +25,33 @@ data class Profile(
     @SerialName("todayDone") val todayDone: Int = 0,
     @SerialName("todayRequired") val todayRequired: Int = 2,
     @SerialName("streak") val streak: Int = 0,
+    /** Longest hold recorded, in seconds. 0 when nothing has been measured. */
+    @SerialName("bestHold") val bestHold: Int = 0,
+    /** The reminder week, as the phone has it. Monday-first weekdays. */
+    @SerialName("reminders") val reminders: List<ReminderDay> = emptyList(),
     @SerialName("syncedAt") val syncedAt: Long = 0L,
 ) {
     val todayComplete: Boolean get() = todayRequired > 0 && todayDone >= todayRequired
+
+    /** Only the days actually switched on, in week order. */
+    val activeReminders: List<ReminderDay>
+        get() = reminders.filter { it.enabled && it.times.isNotEmpty() }.sortedBy { it.weekday }
 }
+
+/**
+ * One day of the reminder week.
+ *
+ * `weekday` is the backend's Monday-first index (0 = Mon .. 6 = Sun), NOT
+ * `Calendar`'s Sunday-first one. The phone carries the same trap and names it
+ * in services/reminders.ts; getting it wrong shows Monday's reminder on a
+ * Tuesday, which fails quietly.
+ */
+@Serializable
+data class ReminderDay(
+    @SerialName("weekday") val weekday: Int = 0,
+    @SerialName("times") val times: List<String> = emptyList(),
+    @SerialName("enabled") val enabled: Boolean = false,
+)
 
 /**
  * Token, profile and outbox on disk.

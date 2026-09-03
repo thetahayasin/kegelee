@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Reminders buzz on the wrist, which is the whole reason to have them
+         here rather than only on the phone. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="false"
@@ -47,6 +50,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Delivers a reminder and arms the following one; see Reminders.kt.
+             Not exported: nothing outside this app has business firing it. -->
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false" />
 
     </application>
 </manifest>
