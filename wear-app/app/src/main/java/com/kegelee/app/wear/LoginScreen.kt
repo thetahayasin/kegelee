@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun LoginScreen(onGoogleSignIn: () -> Unit) {
+    val Ke = LocalPalette.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -67,11 +68,11 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        Text("Kegelee", color = Ke.Accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text("Kegelee", color = Ke.accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(4.dp))
         Text(
             "Sign in to train",
-            color = Ke.TextMuted,
+            color = Ke.textMuted,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
         )
@@ -80,14 +81,14 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
         if (!showPassword) {
             CompactChip(
                 onClick = onGoogleSignIn,
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.Accent, contentColor = Ke.Bg),
-                label = { Text("Continue with Google", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
+                colors = ChipDefaults.chipColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
+                label = { Text("Continue with Google", color = Ke.bg, fontSize = 12.sp, fontWeight = FontWeight.Bold) },
             )
             Spacer(Modifier.height(8.dp))
             CompactChip(
                 onClick = { showPassword = true },
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.Surface2, contentColor = Ke.Text),
-                label = { Text("Use email instead", fontSize = 11.sp) },
+                colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.text),
+                label = { Text("Use email instead", color = Ke.text, fontSize = 11.sp) },
             )
         } else {
             /**
@@ -121,20 +122,20 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                         busy = false
                     }
                 },
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.Accent, contentColor = Ke.Bg),
-                label = { Text(if (busy) "Signing in…" else "Sign in", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
+                colors = ChipDefaults.chipColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
+                label = { Text(if (busy) "Signing in…" else "Sign in", color = Ke.bg, fontSize = 12.sp, fontWeight = FontWeight.Bold) },
             )
             Spacer(Modifier.height(6.dp))
             CompactChip(
                 onClick = { showPassword = false; error = null },
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.Surface, contentColor = Ke.TextMuted),
-                label = { Text("Back", fontSize = 11.sp) },
+                colors = ChipDefaults.chipColors(backgroundColor = Ke.surface, contentColor = Ke.textMuted),
+                label = { Text("Back", color = Ke.textMuted, fontSize = 11.sp) },
             )
         }
 
         error?.let {
             Spacer(Modifier.height(8.dp))
-            Text(it, color = Ke.Danger, fontSize = 11.sp, textAlign = TextAlign.Center)
+            Text(it, color = Ke.danger, fontSize = 11.sp, textAlign = TextAlign.Center)
         }
     }
 }
@@ -147,25 +148,26 @@ private fun WatchField(
     keyboardType: KeyboardType,
     isPassword: Boolean = false,
 ) {
+    val Ke = LocalPalette.current
     androidx.compose.foundation.text.BasicTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
         textStyle = androidx.compose.ui.text.TextStyle(
-            color = Ke.Text,
+            color = Ke.text,
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
         ),
-        cursorBrush = androidx.compose.ui.graphics.SolidColor(Ke.Accent),
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(Ke.accent),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
         modifier = Modifier
             .fillMaxWidth()
-            .background(Ke.Surface2, RoundedCornerShape(14.dp))
+            .background(Ke.surface2, RoundedCornerShape(14.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         decorationBox = { inner ->
             if (value.isEmpty()) {
-                Text(placeholder, color = Ke.TextMuted, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text(placeholder, color = Ke.textMuted, fontSize = 13.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             inner()
         },

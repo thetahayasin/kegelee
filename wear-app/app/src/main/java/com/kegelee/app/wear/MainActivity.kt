@@ -3,6 +3,10 @@ package com.kegelee.app.wear
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -60,9 +64,18 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            KegeleeTheme {
+            // Held here rather than inside the theme so a change repaints the
+            // whole tree, and written through to disk so it survives a restart.
+            var themeMode by remember { mutableStateOf(Store.themeMode(applicationContext)) }
+
+            KegeleeTheme(mode = themeMode) {
                 WearApp(
                     engine = engine,
+                    themeMode = themeMode,
+                    onThemeMode = { picked ->
+                        themeMode = picked
+                        Store.setThemeMode(applicationContext, picked)
+                    },
                     onGoogleSignIn = {
                         val options = GoogleSignInOptions
                             .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

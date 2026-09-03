@@ -66,6 +66,7 @@ object Store {
     private const val K_TOKEN = "token"
     private const val K_PROFILE = "profile"
     private const val K_OUTBOX = "outbox"
+    private const val K_THEME = "theme"
 
     /** Beyond this the watch has not seen a network for weeks; keep the newest. */
     private const val MAX_OUTBOX = 100
@@ -95,6 +96,23 @@ object Store {
      */
     fun signOut(context: Context) {
         prefs(context).edit().remove(K_TOKEN).remove(K_PROFILE).remove(K_OUTBOX).apply()
+    }
+
+    // --- Appearance ---------------------------------------------------------
+
+    /**
+     * Kept out of `signOut`, unlike everything else here.
+     *
+     * The palette is a property of the device and the person holding it, not of
+     * the account: signing out and being handed a light app at night would be a
+     * surprise nobody asked for.
+     */
+    fun themeMode(context: Context): ThemeMode =
+        runCatching { ThemeMode.valueOf(prefs(context).getString(K_THEME, null) ?: "SYSTEM") }
+            .getOrDefault(ThemeMode.SYSTEM)
+
+    fun setThemeMode(context: Context, mode: ThemeMode) {
+        prefs(context).edit().putString(K_THEME, mode.name).apply()
     }
 
     // --- Profile ------------------------------------------------------------

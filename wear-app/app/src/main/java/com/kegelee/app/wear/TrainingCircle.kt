@@ -77,12 +77,11 @@ fun TrainingCircle(
     pursuitMs: Int,
     label: String,
     seconds: Int,
-    /** What follows this block, shown under the cue. Null hides the line. */
-    upcoming: String? = null,
     modifier: Modifier = Modifier,
     /** The ring. Everything else is sized from it. */
-    ring: Dp = 96.dp,
+    ring: Dp = 88.dp,
 ) {
+    val Ke = LocalPalette.current
     /**
      * One colour for both phases, as the phone has it.
      *
@@ -94,7 +93,7 @@ fun TrainingCircle(
      * distinction the design already makes, and it survives being glanced at
      * far better than a hue change does.
      */
-    val cue = Ke.Accent
+    val cue = Ke.accent
 
     /**
      * Two chased values, exactly as the phone animates them.
@@ -156,11 +155,11 @@ fun TrainingCircle(
                      * 90% and easing off at the rim, so the edge is light
                      * rather than a drawn circle.
                      */
-                    0.00f to Ke.Glow.copy(alpha = 0f),
-                    0.56f to Ke.Glow.copy(alpha = 0f),
-                    0.66f to Ke.Glow.copy(alpha = 0.08f * glowAlpha),
-                    0.90f to Ke.Glow.copy(alpha = 0.42f * glowAlpha),
-                    1.00f to Ke.Glow.copy(alpha = 0.24f * glowAlpha),
+                    0.00f to Ke.glow.copy(alpha = 0f),
+                    0.56f to Ke.glow.copy(alpha = 0f),
+                    0.66f to Ke.glow.copy(alpha = 0.08f * glowAlpha),
+                    0.90f to Ke.glow.copy(alpha = 0.42f * glowAlpha),
+                    1.00f to Ke.glow.copy(alpha = 0.24f * glowAlpha),
                     center = centre,
                     radius = radius,
                 ),
@@ -174,7 +173,7 @@ fun TrainingCircle(
             val w = 3.dp.toPx()
             val inset = w / 2f
             drawArc(
-                color = Ke.Track.copy(alpha = 0.4f),
+                color = Ke.track.copy(alpha = 0.4f),
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -198,7 +197,7 @@ fun TrainingCircle(
             val w = 8.dp.toPx()
             val inset = w / 2f
             drawArc(
-                color = Ke.Track,
+                color = Ke.track,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -218,47 +217,30 @@ fun TrainingCircle(
         }
 
         /**
-         * 4. The readout, sitting a little high in the ring.
+         * 4. Two lines only: the count, and the cue.
          *
-         * Nudged up rather than centred because there are now three lines and a
-         * centred block put the third one on the ring's lower stroke. Raising
-         * the group leaves the count optically centred - which is the thing the
-         * eye goes to - and gives what is coming next somewhere to live.
+         * A third line naming the exercise used to live here and it was wider
+         * than the ring - the text ran onto the stroke on both sides. There is
+         * no width for it inside a 90dp circle, so it moved out of the ring
+         * entirely and sits above it now; see the session layout.
          */
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.offset(y = (-6).dp),
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "$seconds",
-                color = Ke.Text,
-                fontSize = 22.sp,
+                color = Ke.text,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
             )
             Text(
                 text = label,
                 color = cue,
-                fontSize = 9.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 4.dp),
             )
-            // What is coming, in place of the phone's carousel along the bottom
-            // - there is no room for that here, and this is the same answer to
-            // the same question.
-            if (!upcoming.isNullOrBlank()) {
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = upcoming,
-                    color = Ke.TextMuted,
-                    fontSize = 8.sp,
-                    maxLines = 1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 10.dp),
-                )
-            }
         }
     }
 }
