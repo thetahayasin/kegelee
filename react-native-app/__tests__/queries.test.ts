@@ -47,6 +47,7 @@ import {
   clearProgressData,
   clearUserData,
   getActiveSubscription,
+  subscriptionEntitlementEndsAt,
   getSubscriptionByToken,
   markRemindersSynced,
   saveDBUser,
@@ -242,6 +243,109 @@ describe('getActiveSubscription', () => {
     ]);
     const active = await getActiveSubscription(1);
     expect(active?.plan_slug).toBe('yearly');
+  });
+});
+
+/**
+ * The boundary of the entitlement rule, as opposed to the rule itself.
+ *
+ * `subscriptionEntitles` answers "is this row entitling right now", which is
+ * enough to decide what to render and not enough to decide anything about the
+ * future. Two things need the future: the timer that closes the gate while the
+ * app sits open, and the reminder schedule, which hands notifications to
+ * Android days in advance and therefore has to know how far ahead it may
+ * promise anything at all.
+ *
+ * Pinned against getActiveSubscription rather than on its own, because the two
+ * are the same rule read at two different times and the whole risk is drift
+ * between them.
+ */
+describe('subscriptionEntitlementEndsAt', () => {
+  const iso = (offsetMs: number) => new Date(Date.now() + offsetMs).toISOString();
+  const DAY = 24 * 60 * 60 * 1000;
+
+  const row = (over: Partial<Record<string, any>>) => ({
+    id: 1,
+    user_id: 1,
+    plan_id: null,
+    plan_slug: 'monthly',
+    status: 'active',
+    store: 'revenuecat',
+    purchase_token: 'tok',
+    google_order_id: null,
+    trial_ends_at: null,
+    started_at: iso(-DAY),
+    ends_at: iso(DAY),
+    grace_period_ends_at: null,
+    canceled_at: null,
+    auto_renewing: 1,
+    ...over,
+  }) as any;
+
+  it('reports no deadline for an open-ended entitlement', () => {
+    expect(subscriptionEntitlementEndsAt(row({ ends_at: null }))).toBeNull();
+  });
+
+  it('ends a non-renewing period exactly at its date', () => {
+    const endsAt = iso(5 * DAY);
+    expect(subscriptionEntitlementEndsAt(row({ ends_at: endsAt, auto_renewing: 0 })))
+      .toBe(Date.parse(endsAt));
+  });
+
+  it('carries the renewal-reporting lag for an auto-renewing row', () => {
+    // getActiveSubscription keeps such a row alive for a day past its expiry,
+    // so its boundary is the far end of that window - not `ends_at` itself.
+    const endsAt = iso(5 * DAY);
+    expect(subscriptionEntitlementEndsAt(row({ ends_at: endsAt, auto_renewing: 1 })))
+      .toBeGreaterThan(Date.parse(endsAt));
+  });
+
+  it('ends a cancelled row at the date it is paid up to', () => {
+    const endsAt = iso(5 * DAY);
+    const deadline = subscriptionEntitlementEndsAt(
+      row({ status: 'canceled', ends_at: endsAt, auto_renewing: 0 }),
+    );
+    // No renewal is coming, so no lag allowance either.
+    expect(deadline).toBe(Date.parse(endsAt));
+  });
+
+  it("ends a past_due row at Play's grace period", () => {
+    const graceEnds = iso(3 * DAY);
+    expect(
+      subscriptionEntitlementEndsAt(
+        row({ status: 'past_due', ends_at: iso(-2 * DAY), grace_period_ends_at: graceEnds }),
+      ),
+    ).toBe(Date.parse(graceEnds));
+  });
+
+  it('gives a status that never entitles a deadline in the past', () => {
+    // 0, not null: null means "no deadline", and a caller arming a timer off
+    // it would wait forever for a row that grants nothing.
+    for (const status of ['paused', 'on_hold', 'expired']) {
+      expect(subscriptionEntitlementEndsAt(row({ status, ends_at: iso(30 * DAY) }))).toBe(0);
+    }
+  });
+
+  it('agrees with getActiveSubscription about where the line is', async () => {
+    // The property that matters: entitling now implies a deadline in the
+    // future, and vice versa. Checked across every shape above.
+    const shapes = [
+      row({}),
+      row({ auto_renewing: 0, ends_at: iso(-DAY) }),
+      row({ status: 'canceled', ends_at: iso(2 * DAY) }),
+      row({ status: 'canceled', ends_at: iso(-2 * DAY) }),
+      row({ status: 'past_due', ends_at: iso(-2 * DAY), grace_period_ends_at: iso(DAY) }),
+      row({ status: 'past_due', ends_at: iso(-2 * DAY), grace_period_ends_at: iso(-DAY) }),
+      row({ status: 'paused' }),
+    ];
+
+    for (const shape of shapes) {
+      mockExecuted.length = 0;
+      mockRespond = (sql) => (sql.includes('FROM subscriptions') ? [shape] : []);
+      const entitledNow = (await getActiveSubscription(1)) !== null;
+      const deadline = subscriptionEntitlementEndsAt(shape);
+      expect(entitledNow).toBe(deadline === null || deadline > Date.now());
+    }
   });
 });
 

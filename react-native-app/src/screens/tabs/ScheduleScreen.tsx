@@ -27,14 +27,13 @@ import {
 import { getDBConnection } from '../../db/sqlite';
 import { getPosition } from '../../services/progression';
 import {
-  scheduleReminders,
+  applyReminderSchedule,
   showTimePicker,
   openNotificationSettings,
   openExactAlarmSettings,
   isExactAlarmAllowed,
   dbWeekdayToJs,
   jsWeekdayToDb,
-  ReminderConfig,
 } from '../../services/reminders';
 import { syncNow } from '../../services/sync';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
@@ -261,7 +260,6 @@ export const ScheduleScreen = () => {
       // week promised a nudge that was never going to arrive.
       const turningOff = selectedDays.length === 0;
       // Loop through all 7 days of the week
-      const reminderConfigs: ReminderConfig[] = [];
       for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
         const isEnabled = selectedDays.includes(dayIndex);
 
@@ -269,23 +267,19 @@ export const ScheduleScreen = () => {
 
         // Save to SQLite
         await saveReminder(user.id, dbWeekday, times, isEnabled ? 1 : 0, 0); // synced = 0
-
-        reminderConfigs.push({
-          weekday: dbWeekday,
-          times,
-          isEnabled,
-        });
       }
 
-      // Schedule via the Notifee helper. Always an inexact, Doze-friendly
-      // alarm on Android 12+ now: the exact-alarm permissions were taken out
-      // of the manifest because Play does not accept training reminders as a
-      // justification for them.
-      const scheduleRes = await scheduleReminders(reminderConfigs, {
+      // Scheduled from the rows just written, through the one helper that owns
+      // the rule - so what a person sets here is capped at their entitlement
+      // exactly like a background reschedule is, rather than this screen
+      // handing the OS its own uncapped copy. It requests notification
+      // permission, which is the point of asking here: the system dialog
+      // follows a tap that plainly means "yes, remind me". Always an inexact,
+      // Doze-friendly alarm on Android 12+ now: the exact-alarm permissions
+      // were taken out of the manifest because Play does not accept training
+      // reminders as a justification for them.
+      const scheduleRes = await applyReminderSchedule(user.id, !!user.is_admin, {
         requestPermission: true,
-        // Attributes the permission answer to the person being asked; the
-        // event itself is recorded inside scheduleReminders, at the dialog.
-        userId: user.id,
       });
       // How many days and times, not which - the shape of the commitment is
       // what predicts whether someone keeps training; the specific hours are
@@ -315,10 +309,15 @@ export const ScheduleScreen = () => {
       // scheduled: without the permission the reminder still arrives, just
       // minutes late, so this is a "could be better", not a failure. Nobody
       // turning reminders off needs to hear about alarm precision.
+      // `scheduledThrough` rather than a count of the days handed in: the old
+      // test was `reminderConfigs.length > 0`, and that array always held all
+      // seven weekdays whether or not any of them was enabled, so it was true
+      // on every save. This is the thing the comment above actually means -
+      // notifications exist, and their timing is worth mentioning.
       const exactAlarmOff =
         !turningOff &&
         scheduleRes.permission !== 'denied' &&
-        reminderConfigs.length > 0 &&
+        scheduleRes.scheduledThrough !== null &&
         !(await isExactAlarmAllowed().catch(() => true));
 
       setNotice(

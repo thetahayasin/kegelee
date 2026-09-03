@@ -95,7 +95,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
-  const { user, logout } = useAuth();
+  const { user, logout, subscribed } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState<any[]>([]);
@@ -157,9 +157,18 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
       }
       setPages(pagesList);
 
-      // 2. Fetch subscription status - the ACTIVE subscription (an entitled
-      // trialing/active one, or a canceled one whose paid period hasn't
-      // ended), exactly like the web Settings' activeSubscription().
+      /**
+       * 2. The row behind the badge - its plan, dates and renewal state.
+       *
+       * WHETHER to show an active card is `subscribed` from the auth context,
+       * not the presence of this row. The two can differ, and when they did
+       * this screen was the one that looked broken: an account entitled by the
+       * backend's own verdict, or by a purchase whose row had not landed yet,
+       * saw "No active subscription" here while every premium feature in the
+       * app was open. Both now come from the same resolver, so the card and
+       * the rest of the app cannot contradict each other; this row only fills
+       * in the detail when there is one to show.
+       */
       const sub = await getActiveSubscription(user.id);
       setSubscription(sub);
 
@@ -191,7 +200,16 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
           );
         }
       } else {
-        setManageUrl(null);
+        // Entitled with no local row to build a deep link from - the backend
+        // says yes and this device has not been handed the row yet. Play's own
+        // subscriptions list is the only route that is certainly correct, and
+        // an entitled account with no way at all to reach a cancel button
+        // would be worse than an extra tap.
+        setManageUrl(
+          subscribed
+            ? 'https://play.google.com/store/account/subscriptions'
+            : null,
+        );
       }
     } catch (e) {
       console.error(e);
@@ -204,11 +222,14 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
     if (isFocused) {
       loadData();
     }
-    // Intentionally keyed to focus/mount only: loadData is recreated every
-    // render, so listing it here would refetch in a loop. Wrap it in
+    // `subscribed` belongs here: it decides which card is drawn, so the screen
+    // has to re-read the row when the gate moves under it - a purchase, an
+    // expiry noticed while this screen is on top.
+    // Otherwise intentionally keyed to focus/mount only: loadData is recreated
+    // every render, so listing it here would refetch in a loop. Wrap it in
     // useCallback before adding it to these deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFocused]);
+  }, [isFocused, subscribed]);
 
   const handleResetProgress = async () => {
     if (!user) return;
@@ -324,7 +345,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
         {/* Subscription section */}
         <Text style={styles.sectionLabel}>{t('settings.subscription')}</Text>
         <View style={styles.menuContainer}>
-          {subscription ? (
+          {subscribed ? (
             // Tappable so a subscriber can reach the plan switcher. The paywall
             // doubles as "Manage Plan" and owns the RevenueCat product-change
             // flow (upgrade prorates immediately, downgrade defers to period

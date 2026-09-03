@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import Purchases from 'react-native-purchases';
 import { api } from './api';
@@ -16,6 +15,15 @@ import {
   planBySlug,
   playSubscriptionId,
 } from '../constants/plans';
+/**
+ * The grant stamp and the stored verdict live with the entitlement rule, not
+ * here: they are two of the things that rule reads, and keeping them beside it
+ * is what lets the resolver stay free of a dependency on the billing SDK.
+ * Re-exported so the existing importers of this module keep working.
+ */
+import { forgetServerVerdict, markPurchaseRecorded } from './entitlement';
+
+export { markPurchaseRecorded, purchaseRecordedAt } from './entitlement';
 
 /**
  * RevenueCat-backed subscriptions for the mobile paywall.
@@ -1204,44 +1212,6 @@ export type RecordResult = 'recorded' | 'duplicate' | 'unmatched' | 'expired';
  * the RevenueCat identifiers so Laravel can verify the customer before saving
  * its authoritative subscription row.
  */
-/**
- * When THIS device recorded a purchase, as opposed to when the subscription
- * originally began.
- *
- * The gate grants unconfirmed access for a grace window while the backend
- * catches up, and it used to measure that window from the row's started_at.
- * That field carries RevenueCat's originalPurchaseDate - the FIRST ever
- * purchase on the account - so for anyone resubscribing, restoring, switching
- * plans or reinstalling it is months old. The window was therefore already
- * expired the instant they paid: markSubscribed opened the gate, the next sync
- * read a months-old started_at with a still-null plan_id, and closed it again.
- * The paywall came back, kept polling, and only stuck once the server
- * confirmed the row - which is the "it fixes itself after a few restarts"
- * report.
- *
- * Recorded separately so the grace window measures the thing it is actually
- * about: how long ago we took the money without the server agreeing yet.
- */
-const grantKey = (userId: number | string) => `@purchase_recorded_at_${userId}`;
-
-export const markPurchaseRecorded = async (userId: number): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(grantKey(userId), String(Date.now()));
-  } catch {
-    // Falls back to started_at in the gate check; never worth throwing here.
-  }
-};
-
-export const purchaseRecordedAt = async (userId: number): Promise<number | null> => {
-  try {
-    const v = await AsyncStorage.getItem(grantKey(userId));
-    const n = v ? Number(v) : NaN;
-    return Number.isFinite(n) ? n : null;
-  } catch {
-    return null;
-  }
-};
-
 export const recordCompletedPurchase = async (
   userId: number,
   purchase: CompletedPurchase,
@@ -1355,6 +1325,18 @@ export const recordCompletedPurchase = async (
 
   // Stamp the LOCAL grant, not the subscription's own start date.
   await markPurchaseRecorded(userId);
+
+  /**
+   * And drop whatever the server last said about this account.
+   *
+   * A stored `false` outranks the local rows by design - it is how a device
+   * stops granting access off a row the backend has already expired - but it
+   * predates the purchase being written on the line above. Left in place it
+   * would sit on top of a subscription somebody has just paid for and hold
+   * them on the paywall until the next sync corrected it. The purchase is
+   * newer evidence than the verdict, so the verdict goes.
+   */
+  await forgetServerVerdict(userId);
 
   try {
     await api.pushState({

@@ -45,8 +45,15 @@ jest.mock('../src/services/events', () => ({
 }));
 
 jest.mock('../src/services/reminders', () => ({
-  scheduleReminders: jest.fn(async () => ({ scheduled: true, permission: 'granted' })),
-  cancelAllReminders: jest.fn(async () => {}),
+  applyReminderSchedule: jest.fn(async () => ({
+    scheduled: true,
+    permission: 'granted',
+    scheduledThrough: null,
+  })),
+}));
+
+jest.mock('../src/services/entitlement', () => ({
+  rememberServerVerdict: jest.fn(async () => {}),
 }));
 
 jest.mock('../src/services/billing', () => ({
@@ -66,7 +73,8 @@ import { api } from '../src/services/api';
 import * as queries from '../src/db/queries';
 import * as events from '../src/services/events';
 import { purchaseRecordedAt } from '../src/services/billing';
-import { scheduleReminders, cancelAllReminders } from '../src/services/reminders';
+import { applyReminderSchedule } from '../src/services/reminders';
+import { rememberServerVerdict } from '../src/services/entitlement';
 import { syncNow } from '../src/services/sync';
 import { APP_VERSION } from '../src/constants/version';
 
@@ -136,47 +144,61 @@ beforeEach(() => {
   mockedApi.pullContent.mockResolvedValue({ ok: true, status: 200, data: { pages: [], settings: {} } });
 });
 
+const userPayload = (over: Record<string, any> = {}) => ({
+  name: 'A',
+  email: 'a@b.c',
+  level_id: 2,
+  level_started_days: 3,
+  timezone: 'UTC',
+  ...over,
+});
+
 describe('reminders follow the subscription', () => {
   /**
-   * The pull rescheduled reminders on every sync, and AuthContext cancels them
-   * when the gate closes. So the two fought and this side won, because it runs
-   * on every sync while the cancel runs once per state change: a lapsed account
-   * kept being notified indefinitely by a screen it could no longer open, with
-   * the app correctly showing no subscription the whole time.
+   * The pull rescheduled reminders on every sync, and AuthContext cancelled
+   * them when the gate closed. The two fought over the same OS alarms and this
+   * side won, because it runs on every sync while the cancel runs once per
+   * state change: a lapsed account kept being notified indefinitely by a
+   * screen it could no longer open, with the app correctly showing no
+   * subscription the whole time.
+   *
+   * Neither side decides any more. Both call applyReminderSchedule, which
+   * applies the whole rule from services/entitlement - so what is pinned here
+   * is what the sync still owns: recording the backend's verdict, and doing it
+   * BEFORE handing over, since the rule is about to read it.
    */
-  it('does not put a lapsed account\'s reminders back', async () => {
+  it('hands the reminder rule the account, rather than applying its own', async () => {
     mockedApi.pullState.mockResolvedValue({
       ok: true,
       status: 200,
-      data: pullPayload({
-        user: { name: 'A', email: 'a@b.c', level_id: 2, level_started_days: 3, timezone: 'UTC', is_subscribed: false },
-      }),
+      data: pullPayload({ user: userPayload({ is_subscribed: false }) }),
     });
 
     await syncNow(1);
 
-    expect(scheduleReminders).not.toHaveBeenCalled();
-    expect(cancelAllReminders).toHaveBeenCalled();
+    expect(rememberServerVerdict).toHaveBeenCalledWith(1, false);
+    expect(applyReminderSchedule).toHaveBeenCalledWith(1, false);
   });
 
-  it('still schedules them for a subscriber', async () => {
+  it('stores the verdict before the rule reads it', async () => {
     mockedApi.pullState.mockResolvedValue({
       ok: true,
       status: 200,
-      data: pullPayload({
-        user: { name: 'A', email: 'a@b.c', level_id: 2, level_started_days: 3, timezone: 'UTC', is_subscribed: true },
-      }),
+      data: pullPayload({ user: userPayload({ is_subscribed: false }) }),
     });
 
     await syncNow(1);
 
-    expect(scheduleReminders).toHaveBeenCalled();
-    expect(cancelAllReminders).not.toHaveBeenCalled();
+    const stored = (rememberServerVerdict as jest.Mock).mock.invocationCallOrder[0];
+    const applied = (applyReminderSchedule as jest.Mock).mock.invocationCallOrder[0];
+    expect(stored).toBeLessThan(applied);
   });
 
-  it('leaves a subscriber alone when the backend does not send the field', async () => {
-    // An older server saying nothing must not be read as "not entitled", or it
-    // would strip the reminders of every paying customer on it.
+  it('passes the verdict through untouched when the backend does not send one', async () => {
+    // An older server saying nothing is silence, not "not entitled".
+    // rememberServerVerdict is what decides to leave the last real answer
+    // alone, so what matters here is that the absent field arrives as
+    // undefined rather than being coerced on the way.
     mockedApi.pullState.mockResolvedValue({
       ok: true,
       status: 200,
@@ -185,8 +207,21 @@ describe('reminders follow the subscription', () => {
 
     await syncNow(1);
 
-    expect(scheduleReminders).toHaveBeenCalled();
-    expect(cancelAllReminders).not.toHaveBeenCalled();
+    expect(rememberServerVerdict).toHaveBeenCalledWith(1, undefined);
+    expect(applyReminderSchedule).toHaveBeenCalled();
+  });
+
+  it('reports an admin as an admin, so the bypass survives the handover', async () => {
+    q.getDBUser.mockResolvedValue({ id: 1, level_id: 2, level_started_days: 3, is_admin: 1 });
+    mockedApi.pullState.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: pullPayload({ user: userPayload({ is_subscribed: false }) }),
+    });
+
+    await syncNow(1);
+
+    expect(applyReminderSchedule).toHaveBeenCalledWith(1, true);
   });
 });
 

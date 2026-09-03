@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { AppState, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api, setApiToken } from '../services/api';
-import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getSubscriptions, getMeasurements, insertMeasurement } from '../db/queries';
+import { getDBUser, saveDBUser, clearUserData, getWorkoutSessionsCount, getActiveSubscription, getMeasurements, insertMeasurement } from '../db/queries';
 import { syncNow, syncIfStale, onSyncComplete, onAuthFailure, flushPendingWork } from '../services/sync';
 import {
   claimGuestEvents,
@@ -11,14 +11,25 @@ import {
   track,
   trackAppOpened,
 } from '../services/events';
-import { cancelAllReminders, cancelAllNudges, scheduleTrialEndingWarning } from '../services/reminders';
+import {
+  applyReminderSchedule,
+  cancelAllReminders,
+  cancelAllNudges,
+  forgetReminderSchedule,
+  scheduleTrialEndingWarning,
+} from '../services/reminders';
+import {
+  forgetEntitlementState,
+  forgetServerVerdict,
+  rememberServerVerdict,
+  resolveEntitlement,
+} from '../services/entitlement';
 import { googleNativeSignOut, consumeGoogleNonce } from '../services/googleAuth';
 import {
   logoutBilling,
   onCustomerInfoChange,
   hasActiveEntitlement,
   refreshCustomerInfo,
-  purchaseRecordedAt,
   reconcileEntitlementOnLaunch,
   recordCompletedPurchase,
 } from '../services/billing';
@@ -76,30 +87,21 @@ const computeBasicsDone = async (userId: number, isAdmin: boolean): Promise<bool
   return false;
 };
 
-// Whether this account may pass the subscription gate: an active/trialing
-// subscription (or a canceled one whose paid period hasn't ended) in the
-// local subscriptions table, kept current by every sync. Admins bypass the
-// gate so they can preview the app - the same rule as the web's
-// EnsureSubscribed middleware.
-// How long an optimistic, server-unconfirmed purchase keeps access.
-//
-// recordCompletedPurchase grants immediately, so nobody waits on a round trip
-// to start training. The backend acknowledges through the sync push and the
-// RevenueCat webhook, and an acknowledged row comes back from the pull with a
-// plan_id set.
-//
-// 72h is far beyond any legitimate acknowledgement delay - the push goes out
-// seconds after the purchase - while bounding a grant the server never
-// recognises to three days instead of the twelve months a yearly plan's
-// ends_at would otherwise allow. Erring long is deliberate: the cost of
-// waiting is a few free days, the cost of being early is locking out someone
-// who actually paid.
-const UNVERIFIED_GRACE_MS = 72 * 60 * 60 * 1000;
-
+/**
+ * Whether this account may pass the subscription gate.
+ *
+ * A thin wrapper over the shared resolver, which owns the whole rule: the
+ * admin bypass, the backend's own verdict, the local subscription rows and
+ * their dates, and the bounded window for a purchase the server has not
+ * acknowledged yet. See services/entitlement.
+ *
+ * The gate is derived from it on EVERY trigger rather than being nudged up and
+ * down by whichever event fired last, which is what stopped the app and the
+ * Settings screen giving different answers about the same account.
+ */
 const computeSubscribed = async (userId: number, isAdmin: boolean): Promise<boolean> => {
-  if (isAdmin) return true;
   try {
-    return !!(await getActiveSubscription(userId));
+    return (await resolveEntitlement(userId, isAdmin)).active;
   } catch {
     return false;
   }
@@ -155,13 +157,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Instant access right after a Play purchase completes (the local
-  // subscription row is already written): flip the gate without waiting for
-  // a sync round-trip, like the web's local-record-then-redirect.
-  // Stable identity: PaywallScreen calls this from a useCallback-memoised
-  // purchase handler, and a fresh function every render would either
-  // invalidate that memo or sit in the deps array as a lint error.
-  const markSubscribed = useCallback(() => setSubscribed(true), []);
+  /**
+   * The signed-in account, readable from callbacks that must keep a stable
+   * identity across renders.
+   *
+   * PaywallScreen memoises its purchase handler on `markSubscribed`, so a
+   * fresh function on every user change would either invalidate that memo or
+   * sit in a deps array as a lint error. The ref lets the callbacks below stay
+   * `[]`-memoised while still acting on the current account.
+   */
+  const userRef = useRef<User | null>(null);
+  userRef.current = user;
+
+  /**
+   * Re-derive the gate from the shared resolver.
+   *
+   * The single way `subscribed` moves. Everything that used to call
+   * `setSubscribed` directly - the sync listener, the RevenueCat push, the
+   * foreground refresh, the expiry timer - calls this instead, so the answer
+   * comes from one rule applied to durable state rather than from whichever
+   * event happened to fire last.
+   *
+   * That is what fixes the two halves of the same bug. The gate could
+   * previously only be RAISED by those events and LOWERED by exactly one of
+   * them, so an account whose subscription had ended kept its premium features
+   * until a sync completed - while the Settings screen, reading the local rows
+   * directly, already said there was no subscription. Deriving on every
+   * trigger from a time-aware rule means the gate falls on its own, offline
+   * and unprompted, at the moment the entitlement does.
+   */
+  const evaluateEntitlement = useCallback(async (): Promise<boolean> => {
+    const current = userRef.current;
+    if (!current) return false;
+    try {
+      const { active } = await resolveEntitlement(current.id, current.is_admin);
+      setSubscribed(active);
+      return active;
+    } catch (e) {
+      // The resolver reads SQLite and AsyncStorage and swallows both, so this
+      // is close to unreachable - but a failure to READ the rule is not
+      // evidence against the customer, so the gate is left where it was.
+      reportError(e, 'auth:evaluateEntitlement');
+      return false;
+    }
+  }, []);
+
+  /**
+   * Instant access right after a Play purchase completes.
+   *
+   * The local subscription row is already written by the time this is called
+   * (PaywallScreen checks `getActiveSubscription` before calling it), so this
+   * is not an unbacked grant - it is skipping the round trip that would
+   * otherwise sit between paying and being let in.
+   *
+   * The stored server verdict is dropped first. A `false` recorded moments
+   * before somebody paid would otherwise outrank the row they have just
+   * bought, and leave them looking at the paywall until the next sync
+   * corrected it.
+   */
+  const markSubscribed = useCallback(() => {
+    setSubscribed(true);
+    const current = userRef.current;
+    if (!current) return;
+    forgetServerVerdict(current.id)
+      .then(() => evaluateEntitlement())
+      .catch(() => {});
+  }, [evaluateEntitlement]);
 
   /**
    * Tell the events module who is signed in.
@@ -176,45 +237,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   /**
-   * Reminders stop when the subscription does.
+   * Reminders follow the entitlement, in both directions.
    *
-   * cancelAllReminders() was called on login and on logout, and nowhere else -
-   * so an account that subscribed, set a week of reminders and then lapsed
-   * kept being notified indefinitely, by a feature it could no longer open,
-   * for a plan that was no longer moving. The notifications are scheduled with
-   * the OS, so nothing about them expires on its own; something has to go and
-   * cancel them.
+   * Two things were wrong here. The first is that a reminder is not a piece of
+   * app state: it is an alarm handed to Android, and it outlives the process
+   * that created it. They were created as weekly REPEATING triggers, which is
+   * an instruction to fire forever, so cancelling them required the app to run
+   * - and the defining feature of a lapsed account is that it does not open
+   * the app. Someone who cancelled went on being reminded indefinitely by a
+   * screen they could no longer open. That half is fixed at the source: the
+   * schedule is now a bounded series that runs out on its own, capped at the
+   * entitlement (see services/reminders).
    *
-   * The rule is a STATE, not a transition: an account without a subscription
-   * should have no reminders scheduled, so whenever that is known to be the
-   * case, clear them.
-   *
-   * The first version only fired on a true -> false transition within a
-   * running session, and that missed the case that actually happens. Someone
-   * cancels, closes the app, and opens it days later: `subscribed` restores as
-   * false, there is no transition from anything, and nothing cancels - while
-   * the notifications, which were handed to the OS and outlive the process,
-   * carry on firing indefinitely for a feature the account can no longer open.
+   * The second is that this effect only ever CANCELLED, while the sync's own
+   * reminders section re-scheduled on every pull. The two fought over the same
+   * alarms and the one that ran more often won. Both now call the same
+   * `applyReminderSchedule`, which applies the whole rule - clear when not
+   * entitled, schedule the local rows out to the entitlement when entitled -
+   * so there is nothing left for them to disagree about.
    *
    * Guarded two ways. `isLoading` keeps it from acting on the false that every
    * cold start begins with, before the restore has decided; and the ref keeps
-   * it to once per state rather than once per render.
+   * it to once per account-and-state rather than once per render, because
+   * applying the schedule is real work at the native bridge.
    */
-  const remindersClearedFor = useRef<boolean | null>(null);
+  const remindersAppliedFor = useRef<string | null>(null);
   useEffect(() => {
     // Wait for the restore to decide. `subscribed` is false while it runs, and
     // acting on that would cancel a paying subscriber's reminders on every
     // single app open.
-    if (isLoading) return;
+    if (isLoading || !user) return;
+    const key = `${user.id}:${subscribed}`;
     // Already handled this state; nothing to do until it changes.
-    if (remindersClearedFor.current === subscribed) return;
-    remindersClearedFor.current = subscribed;
+    if (remindersAppliedFor.current === key) return;
+    remindersAppliedFor.current = key;
 
+    applyReminderSchedule(user.id, user.is_admin).catch(() => {});
     if (!subscribed) {
-      cancelAllReminders().catch(() => {});
       cancelAllNudges().catch(() => {});
     }
-  }, [isLoading, subscribed]);
+  }, [isLoading, subscribed, user]);
 
   const markBasicsDone = () => {
     setBasicsDone(true);
@@ -444,6 +506,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // the local subscriptions table is still empty until the first sync
     // pulls the rows down. A subscribed returning user goes straight in; an
     // unsubscribed one lands on the paywall, exactly like the web login flow.
+    //
+    // Stored, not just applied. This is the same verdict the pull sends, from
+    // the same server-side method, and everything that re-derives the gate
+    // afterwards reads it from there - so recording it is what stops the very
+    // first local re-derivation, seconds later, reaching the opposite
+    // conclusion from an empty subscriptions table.
+    await rememberServerVerdict(
+      localUser.id,
+      typeof userPayload.is_subscribed === 'boolean' ? userPayload.is_subscribed : undefined,
+    );
     const nextSubscribed =
       localUser.is_admin || userPayload.is_subscribed === true;
 
@@ -732,6 +804,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Clear storage keys
       await bestEffort('token', () => AsyncStorage.removeItem('@api_token'));
+      // What the entitlement rule remembers is this account's, and it is read
+      // back by user id - so leaving it behind would let one person's stored
+      // answer decide the next person's access on a shared device. The
+      // reminder record goes with it: the notifications were cancelled above,
+      // and a record claiming they still stand would make the next sign-in
+      // skip the rebuild it needs.
+      if (userId !== undefined) {
+        await bestEffort('entitlement', () => forgetEntitlementState(userId));
+        await bestEffort('reminderState', () => forgetReminderSchedule(userId));
+      }
       setToken(null);
       setApiToken(null);
       setUser(null);
@@ -766,138 +848,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  // Re-evaluate the subscription gate after every successful sync: the pull
-  // keeps the local subscriptions table current, so this is what closes the
-  // gate when a subscription expires or Google reports a cancellation via
-  // RTDN (the web re-checks isSubscribed() on every navigation). It also
-  // opens the gate when a pull reveals a subscription bought on another
-  // device. computeSubscribed keeps the admin bypass.
+  /**
+   * Re-evaluate the gate after every successful sync.
+   *
+   * The pull carries the backend's own verdict and refreshes the local rows,
+   * so this is what closes the gate when a subscription expires or Google
+   * reports a cancellation via RTDN, and what opens it when a pull reveals a
+   * subscription bought on another device. It is the RN equivalent of the web
+   * re-checking isSubscribed() on every navigation.
+   *
+   * This used to restate the whole entitlement rule inline - the server's
+   * verdict, then the local rows, then the unverified-purchase grace window,
+   * then a special case for a device holding no rows at all - and it was the
+   * ONLY place that could close the gate. Both halves of that were wrong. The
+   * rule now lives in services/entitlement, where the cold start, the
+   * foreground and the expiry timer all read the same copy of it; and the
+   * verdict is written down rather than applied once and forgotten, so it
+   * still counts the next time anything asks.
+   *
+   * Reaching this listener AT ALL is the "successful server response" that
+   * makes a revocation safe to act on: it only fires once a push and a pull
+   * have both come back clean. A network failure returns early in syncNow and
+   * never gets here, so a connectivity problem can never cost anyone access.
+   */
   useEffect(() => {
     if (!user) return;
     const off = onSyncComplete((syncedUserId, serverSubscribed) => {
       if (syncedUserId !== user.id) return;
       (async () => {
-        // Reaching this listener AT ALL is the "successful server response"
-        // the revocation rule requires: it only fires once a push and a pull
-        // have both come back clean. A network failure returns early in
-        // syncNow and never gets here, so a connectivity problem can never
-        // cost anyone access.
-        if (user.is_admin) {
-          setSubscribed(true);
-          return;
-        }
+        // Written down first, because the resolver reads it. `undefined` is a
+        // backend that does not send the field - silence, not a verdict - and
+        // rememberServerVerdict ignores it rather than overwriting the last
+        // real answer with it.
+        await rememberServerVerdict(user.id, serverSubscribed);
 
-        const active = await getActiveSubscription(user.id).catch(() => null);
+        const entitled = await evaluateEntitlement();
 
-        /**
-         * The server's own verdict outranks our copy of its rows.
-         *
-         * Everything below reasons about local rows, which is a mirror, and a
-         * mirror can be stale in the one direction that matters. The
-         * subscriptions section of a pull is applied inside a try/catch that
-         * reports the failure and lets the sync succeed, so a device could
-         * hold a row the backend had already expired and keep granting access
-         * off it - through restarts, because the bootstrap reads the same
-         * copy. Nothing here could ever notice, because everything here was
-         * asking the copy.
-         *
-         * `false` is positive evidence from a successful round trip, which is
-         * the standard the revocation rule already sets, so it is safe to act
-         * on. `undefined` is a backend that does not send it; that keeps the
-         * old row-derived path rather than reading silence as revocation.
-         *
-         * It has to RETURN, not fall through. The row branch below reopens the
-         * gate for any local row carrying a plan_id, and a stale row is
-         * precisely one the backend once acknowledged - so falling through
-         * would hand the decision straight back to the copy this exists to
-         * overrule.
-         */
         // Keep the trial warning in step with whatever the sync just learned.
         // Passing a null trial_ends_at cancels it, so this one call covers
         // every transition: a trial starting, converting, being cancelled, or
         // having been bought on another device entirely. The trial's end date
         // was previously known to the app and told to nobody - a conversion
         // moment missed, and the kind of unannounced charge people dispute.
-        //
-        // Hoisted above the verdict so it still runs on the paths that return.
+        const active = entitled
+          ? await getActiveSubscription(user.id).catch(() => null)
+          : null;
         scheduleTrialEndingWarning(
-          serverSubscribed !== false &&
-            String(active?.status || '').toLowerCase() === 'trialing'
+          String(active?.status || '').toLowerCase() === 'trialing'
             ? active?.trial_ends_at ?? null
             : null,
         ).catch(() => {});
-
-        if (serverSubscribed === false) {
-          setSubscribed(false);
-          return;
-        }
-
-        if (serverSubscribed === true) {
-          // Paid, whatever this device does or does not hold. A row that has
-          // not arrived yet, or failed to apply, is not evidence against a
-          // backend that has just said yes.
-          setSubscribed(true);
-          return;
-        }
-
-        if (active) {
-          // A row the backend has acknowledged comes back from the pull with a
-          // plan_id. recordCompletedPurchase writes plan_id: null, so a null
-          // one is still nothing but our own optimistic grant.
-          const serverConfirmed = active.plan_id != null;
-          // When WE recorded the purchase, not when the subscription first
-          // began. started_at carries RevenueCat's originalPurchaseDate, which
-          // is months old for anyone resubscribing, restoring, switching plans
-          // or reinstalling - so measuring the grace window from it expired
-          // that window before the customer had finished paying, and this
-          // branch closed the gate on them seconds after markSubscribed opened
-          // it. Falls back to started_at only for rows written before this was
-          // recorded, which are old enough that the distinction is moot.
-          const recordedAt = await purchaseRecordedAt(user.id).catch(() => null);
-          const grantedAt = recordedAt ?? Date.parse(active.started_at || '');
-          /**
-           * An unreadable or absent grant date is NOT an open-ended grace.
-           *
-           * `!Number.isFinite(grantedAt) || ...` meant a row with no parseable
-           * started_at and no recorded stamp stayed in grace forever - the one
-           * shape of row that most needs checking, since it is what a corrupt
-           * or hand-written local grant looks like. And a clock set into the
-           * future made `Date.now() - grantedAt` negative, which is also
-           * "inside the window" no matter how old the grant is; clamping the
-           * grant to now caps that at the full window rather than eternity.
-           */
-          const stillInGrace =
-            Number.isFinite(grantedAt) &&
-            Date.now() - Math.min(grantedAt, Date.now()) < UNVERIFIED_GRACE_MS;
-
-          // Keep access while the backend agrees, and keep it while the
-          // purchase has not yet had a fair chance to reach the backend.
-          if (serverConfirmed || stillInGrace) {
-            setSubscribed(true);
-            return;
-          }
-
-          // Unconfirmed, and well past the point where a working purchase
-          // would have been acknowledged - across at least one successful
-          // round trip. Only now is this a purchase the server does not
-          // recognise rather than one it has not seen yet.
-          setSubscribed(false);
-          return;
-        }
-
-        // No active row. Lower only on positive evidence: rows present but
-        // none active is a real expiry. NO rows at all is absence of
-        // information, and treating that as revocation is what used to yank
-        // paying users to the paywall and flicker the navigator between
-        // stacks.
-        const rows = await getSubscriptions(user.id).catch(() => []);
-        if (rows.length > 0) {
-          setSubscribed(false);
-        }
       })().catch(() => {});
     });
     return off;
-  }, [user]);
+  }, [user, evaluateEntitlement]);
 
   // The account this device is signed in as no longer exists, or is no longer
   // allowed in. Deleting a user on the backend used to leave the app fully
@@ -919,48 +923,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  // RevenueCat pushes a new CustomerInfo whenever entitlements change -
-  // renewal, expiry, a billing problem, or a purchase restored on another
-  // device. Without this the app only learns on its next sync.
-  //
-  // Deliberately asymmetric: an active entitlement opens the gate immediately
-  // (RevenueCat has already verified the purchase, so making the user wait for
-  // a sync would be wrong), but we never CLOSE the gate from here. Revocation
-  // stays with the backend-confirmed path in onSyncComplete, so a transient
-  // RevenueCat blip can't yank access from a paying user. Triggering a sync
-  // here means a genuine expiry is still picked up promptly.
+  /**
+   * RevenueCat pushes a new CustomerInfo whenever entitlements change -
+   * renewal, expiry, a billing problem, or a purchase restored on another
+   * device. Without this the app only learns on its next sync.
+   *
+   * Still deliberately asymmetric about what it does with a "yes": an active
+   * entitlement RevenueCat has already verified opens the gate immediately,
+   * because making somebody who has paid wait for a round trip would be wrong.
+   * A "no" is not acted on here - a transient RevenueCat blip must not yank
+   * access from a paying customer - but the sync it triggers reaches the
+   * listener above, which re-derives the answer from the backend's verdict.
+   */
   useEffect(() => {
     if (!user) return;
     const off = onCustomerInfoChange((customerInfo) => {
       if (hasActiveEntitlement(customerInfo)) {
-        setSubscribed(true);
+        markSubscribed();
       }
       syncNow(user.id).catch(() => {});
     });
     return off;
-  }, [user]);
+  }, [user, markSubscribed]);
 
-  // Re-check entitlement every time the app comes back to the foreground.
-  //
-  // This is what closes the hole a renewal used to fall into. Every other
-  // syncNow call site lives inside a tab or workout screen, and the navigator
-  // unmounts all of them the moment the subscription gate closes - so a user
-  // sitting on the paywall had no code left running that could ever notice
-  // Play had charged them and renewed. They stayed locked out until the app
-  // was killed and reopened, which is the one thing that remounted the paywall
-  // and re-ran its one-shot sync.
-  //
-  // Both halves are needed. The sync picks up the row once our backend has
-  // processed the RevenueCat webhook; refreshCustomerInfo asks RevenueCat
-  // directly, which is live well before that and covers the case where the
-  // webhook is delayed or was missed. RAISE-only, like every other gate
-  // listener here: revocation stays with the backend-confirmed path in
-  // onSyncComplete, so a foreground with flaky network can never cost a paying
-  // user their access.
+  /**
+   * Re-check entitlement every time the app comes back to the foreground.
+   *
+   * Three things happen here and they cover different failures.
+   *
+   * `evaluateEntitlement` is the local one: no network, no store, just the
+   * rule applied to what this device already knows. It is what closes the gate
+   * for somebody whose subscription ended while the app was in the background
+   * or the phone was offline, and it is the reason the app and the Settings
+   * screen can no longer give different answers about the same account - both
+   * now read the same resolver, on the same event.
+   *
+   * The sync picks the row up once our backend has processed the RevenueCat
+   * webhook, and closes the hole a renewal used to fall into: every other
+   * syncNow call site lives inside a tab or workout screen, and the navigator
+   * unmounts all of them the moment the gate closes, so somebody sitting on
+   * the paywall had no code left running that could notice Play had charged
+   * them. refreshCustomerInfo asks RevenueCat directly, which is live well
+   * before the webhook and covers the case where it was delayed or missed.
+   * Both are RAISE-only; revocation stays with the two paths that cannot be
+   * wrong about it - the local clock, and the backend's own verdict.
+   */
   useEffect(() => {
     if (!user) return;
     const sub = AppState.addEventListener('change', (state) => {
       if (state !== 'active') return;
+      // Free, and first: it needs no network and settles the common case
+      // before anything slower has started.
+      evaluateEntitlement().catch(() => {});
+      // Refill the reminder window if it is running down, and clear it if the
+      // entitlement has gone. Also network-free: it exists precisely for the
+      // device whose sync never succeeds, which would otherwise either fall
+      // silent when the horizon elapsed or go on notifying past a lapse it
+      // never heard about. Skips the native work entirely when nothing has
+      // changed and the window still has room.
+      applyReminderSchedule(user.id, user.is_admin).catch(() => {});
       // syncIfStale, not syncNow. Android delivers 'active' for every
       // transient interruption - a notification shade pull, a permission
       // dialog, the recents switcher - so on a phone in normal use this fired
@@ -975,33 +996,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       trackAppOpened('foreground');
       refreshCustomerInfo(user.id)
         .then((active) => {
-          if (active) setSubscribed(true);
+          if (active) markSubscribed();
         })
         .catch(() => {});
     });
     return () => sub.remove();
-  }, [user]);
+  }, [user, evaluateEntitlement, markSubscribed]);
 
   /**
    * Close the gate when the entitlement's own clock runs out.
    *
    * Every other path here is event-driven - a sync finished, RevenueCat spoke,
    * the app came forward - and time passing is none of those. A subscription
-   * whose `ends_at` slipped by while the app sat open on screen kept working,
-   * because nothing was left to notice: the row was already local, already
-   * read, and no new event was coming. Backgrounding and returning fixed it,
-   * which is a fix nobody thinks to try.
+   * whose period ended while the app sat open on screen kept working, because
+   * nothing was left to notice: the row was already local, already read, and
+   * no new event was coming. Backgrounding and returning fixed it, which is a
+   * fix nobody thinks to try.
    *
-   * A timer set for the exact moment, not a poll. There is one deadline and it
-   * is known, so a wakeup at that instant is both cheaper and sharper than
-   * checking every minute for something that happens once.
+   * The deadline comes from the resolver, so it is the boundary of the whole
+   * rule rather than of one column: a cancelled row's paid-through date, a
+   * past_due row's grace period, an unverified purchase's window, or the point
+   * at which the server's stored verdict goes stale, whichever comes first.
    *
-   * Re-reads the rows rather than trusting the timer alone: by the time it
-   * fires a sync may already have extended, replaced or renewed the row, and
-   * getActiveSubscription applies the whole entitlement rule (grace periods,
-   * a cancelled row still inside its paid period) instead of this having to
-   * restate it. A sync also refreshes the answer through onSyncComplete, so
-   * this only has to catch the case where no sync happens at all.
+   * Two things the previous version got wrong, and both left the gate open.
+   * It read `ends_at` and gave up when the delay was already negative - which
+   * is exactly the state a gate that has been raised by some other path and
+   * never lowered is in, so the one case that most needed closing was the one
+   * case it skipped. And it gave up on any delay past ~24 days rather than
+   * waiting as long as it could and asking again, so a yearly plan simply had
+   * no timer.
+   *
+   * Re-derives rather than trusting the timer: by the time it fires a sync may
+   * have extended, replaced or renewed the entitlement.
    */
   useEffect(() => {
     if (!user || !subscribed || user.is_admin) return;
@@ -1009,30 +1035,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
 
-    (async () => {
-      const active = await getActiveSubscription(user.id).catch(() => null);
-      if (cancelled) return;
+    // setTimeout takes a 32-bit signed millisecond count, so anything beyond
+    // ~24 days overflows and fires immediately. Waiting the maximum and then
+    // re-arming covers a yearly plan without a poll.
+    const MAX_DELAY = 0x7fffffff;
 
-      const endsAt = Date.parse(active?.ends_at || '');
-      // No row, or an open-ended one, has no deadline to wait for.
-      if (!active || !Number.isFinite(endsAt)) return;
-
-      // A second past the expiry, so the re-read lands on the far side of the
-      // boundary rather than exactly on it. setTimeout is a 32-bit signed
-      // millisecond count, so anything beyond ~24 days overflows and fires
-      // immediately; a yearly plan is well past that, and there is nothing to
-      // do until much nearer the date anyway.
-      const delay = endsAt + 1000 - Date.now();
-      if (delay <= 0 || delay > 0x7fffffff) return;
-
+    const armFor = (deadline: number) => {
+      // A second past the boundary, so the re-read lands on the far side of it
+      // rather than exactly on it.
+      const delay = Math.min(Math.max(deadline + 1000 - Date.now(), 0), MAX_DELAY);
       timer = setTimeout(() => {
-        computeSubscribed(user.id, user.is_admin)
-          .then((stillEntitled) => {
-            if (!cancelled) setSubscribed(stillEntitled);
-          })
-          .catch(() => {});
+        if (cancelled) return;
+        arm();
       }, delay);
-    })();
+    };
+
+    const arm = () => {
+      resolveEntitlement(user.id, user.is_admin)
+        .then((entitlement) => {
+          if (cancelled) return;
+          setSubscribed(entitlement.active);
+          // No deadline at all - an open-ended entitlement - has nothing to
+          // wait for. A closed gate has nothing to wait for either: the paths
+          // that reopen it are all events, and they re-run this effect.
+          if (!entitlement.active || entitlement.expiresAt === null) return;
+          armFor(entitlement.expiresAt);
+        })
+        .catch(() => {});
+    };
+
+    arm();
 
     return () => {
       cancelled = true;

@@ -657,6 +657,44 @@ const subscriptionEntitles = (sub: DBSubscription, now: number): boolean => {
   return false;
 };
 
+/**
+ * The instant at which `subscriptionEntitles` stops being true for this row.
+ *
+ * The gate used to be told only "is this row entitling right now", which is
+ * enough to decide what to render and not enough to decide anything about the
+ * future. Two things need the future: the timer that closes the gate while the
+ * app sits open, and the reminder schedule, which hands notifications to the
+ * OS days in advance and therefore has to know how far ahead it is still
+ * allowed to promise anything.
+ *
+ * Derived from `subscriptionEntitles` rather than restating it: every branch
+ * below is the boundary of the matching branch above, so the two cannot drift.
+ *
+ * `null` means no deadline at all - an open-ended entitlement. `0` means this
+ * row never entitles, whatever the clock says.
+ */
+export const subscriptionEntitlementEndsAt = (sub: DBSubscription): number | null => {
+  const status = String(sub.status || '').toLowerCase();
+  const endsAt = msOrNull(sub.ends_at);
+
+  if (status === 'trialing' || status === 'active') {
+    if (endsAt === null) return null;
+    // An auto-renewing row is entitled through the renewal-lag allowance, so
+    // its boundary is the far end of that window rather than `ends_at` itself.
+    return Number(sub.auto_renewing) === 1 ? endsAt + RENEWAL_LAG_GRACE_MS : endsAt;
+  }
+
+  if (status === 'canceled') return endsAt ?? 0;
+
+  if (status === 'past_due') {
+    const graceEnds = msOrNull(sub.grace_period_ends_at);
+    if (graceEnds !== null) return graceEnds;
+    return endsAt === null ? 0 : endsAt + PAST_DUE_FALLBACK_GRACE_MS;
+  }
+
+  return 0;
+};
+
 export const getActiveSubscription = async (userId: number): Promise<DBSubscription | null> => {
   const now = Date.now();
   const rows: DBSubscription[] = await query(

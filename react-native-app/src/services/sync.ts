@@ -19,7 +19,8 @@ const safeJson = (raw: string): Record<string, unknown> | null => {
     return null;
   }
 };
-import { scheduleReminders, cancelAllReminders } from './reminders';
+import { applyReminderSchedule } from './reminders';
+import { rememberServerVerdict } from './entitlement';
 import { reportError } from './errors';
 import { purchaseRecordedAt } from './billing';
 import { ONBOARDING_PUSH_KEY } from '../context/AuthContext';
@@ -27,7 +28,6 @@ import {
   getUnsyncedWorkoutSessions,
   getUnsyncedMeasurements,
   getUnsyncedReminders,
-  getReminders,
   markWorkoutSessionsSynced,
   markMeasurementsSynced,
   markRemindersSynced,
@@ -735,6 +735,22 @@ const runSync = async (userId: number): Promise<SyncResult> => {
     const serverSaysSubscribed: boolean | undefined =
       typeof data?.user?.is_subscribed === 'boolean' ? data.user.is_subscribed : undefined;
 
+    /**
+     * Written down before anything below reads it.
+     *
+     * The verdict used to be handed to the sync-complete listeners at the very
+     * end and applied once, to a React state, which meant everything that
+     * re-derived the gate afterwards - a cold start, a foreground, the expiry
+     * timer - went back to the local rows and could reach the opposite
+     * conclusion. Storing it here makes it part of the state the shared
+     * resolver reads, and puts it in place before the reminder section a few
+     * lines down asks that resolver whether this account is still entitled.
+     *
+     * `undefined` is a backend that does not send the field. rememberServerVerdict
+     * treats that as silence and leaves the last real answer alone.
+     */
+    await rememberServerVerdict(userId, serverSaysSubscribed);
+
     // Update local user details in SQLite. This is the CORE state - the level,
     // the plan position, the timezone every date in the app is computed in -
     // and the one part of the pull whose failure means the sync did not
@@ -823,44 +839,31 @@ const runSync = async (userId: number): Promise<SyncResult> => {
         await saveReminder(userId, r.weekday, r.times, r.is_enabled ? 1 : 0, 1);
       }
 
-      // Schedule reminders locally using Notifee - from the merged LOCAL DB state,
-      // not the raw pull payload. The login-time sync runs in the background; if
-      // the user saves reminders on the Schedule screen while a pull with no (or
-      // stale) server reminders is still in flight, scheduling from the payload
-      // would cancel and wipe what they just set. The local table already holds
-      // pulled + locally saved reminders at this point, so it is the truth.
-      const mergedReminders = await getReminders(userId);
-
       /**
-       * Not for an account the server says is not entitled.
+       * Then re-apply the whole rule, from the merged LOCAL state.
        *
-       * Reminders are a subscriber feature, and AuthContext cancels them the
-       * moment the gate closes. This ran on every pull and put them straight
-       * back, so the two fought and this one won - it fires on every sync,
-       * while the cancel fires once per state change. A lapsed account went on
-       * being notified indefinitely by a screen it could no longer open, which
-       * is precisely the state that cancel exists to produce.
+       * Not from the raw pull payload: the login-time sync runs in the
+       * background, and if somebody saves reminders on the Schedule screen
+       * while a pull carrying no (or stale) server reminders is still in
+       * flight, scheduling from the payload would cancel and wipe what they
+       * just set. The local table holds pulled + locally saved rows by this
+       * point, so it is the truth. applyReminderSchedule reads it.
+       *
+       * It also decides entitlement rather than this section doing it. What
+       * used to be here was half the rule - skip on an explicit server `false`
+       * - which left the other cases wrong: an older backend that sends no
+       * verdict, or a device whose entitlement has since lapsed on its own
+       * clock, both had their reminders put straight back on every pull, while
+       * AuthContext was cancelling them once per state change. The sync ran far
+       * more often, so the sync won, and a lapsed account went on being
+       * notified by a screen it could no longer open.
        *
        * The rows stay in the table either way. Nothing is deleted, so
        * subscribing again restores the same schedule rather than asking
        * somebody to set their week up a second time.
-       *
-       * Only skipped on an explicit `false`. `undefined` is a backend that does
-       * not send the field, and reading silence as "not entitled" would strip
-       * the reminders of every paying subscriber on an older server.
        */
-      if (serverSaysSubscribed === false) {
-        await cancelAllReminders();
-        return;
-      }
-
-      await scheduleReminders(
-        mergedReminders.map((r) => ({
-          weekday: r.weekday,
-          times: r.times,
-          isEnabled: r.is_enabled === 1,
-        }))
-      );
+      const localUser = await getDBUser().catch(() => null);
+      await applyReminderSchedule(userId, localUser?.is_admin === 1);
     });
 
     await applySection('basics', async () => {

@@ -31,7 +31,7 @@ import {
 } from '../../constants/catalogues';
 import { syncNow } from '../../services/sync';
 import { getReminders, saveReminder } from '../../db/queries';
-import { openNotificationSettings, scheduleReminders } from '../../services/reminders';
+import { applyReminderSchedule, openNotificationSettings } from '../../services/reminders';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -129,20 +129,15 @@ export const WorkoutCompleteScreen = () => {
       for (let weekday = 0; weekday < 7; weekday++) {
         await saveReminder(user.id, weekday, DEFAULT_REMINDER_TIMES, 1, 0);
       }
-      // Requests notification permission itself, which is the whole point of
-      // asking here: the system dialog now follows a tap that plainly means
-      // "yes, remind me" instead of arriving cold at sign-in.
-      const res = await scheduleReminders(
-        Array.from({ length: 7 }, (_, weekday) => ({
-          weekday,
-          times: DEFAULT_REMINDER_TIMES,
-          isEnabled: true,
-        })),
-        // userId so the permission answer can be attributed: scheduleReminders
-        // records notification_permission itself, at the one moment the system
-        // dialog is actually shown.
-        { requestPermission: true, userId: user.id },
-      );
+      // Scheduled from the rows just written, through the one helper that
+      // owns the rule, so this offer cannot hand the OS a schedule that
+      // outlives the entitlement behind it. Requests notification permission
+      // itself, which is the whole point of asking here: the system dialog now
+      // follows a tap that plainly means "yes, remind me" instead of arriving
+      // cold at sign-in, and the answer is attributed to the person asked.
+      const res = await applyReminderSchedule(user.id, !!user.is_admin, {
+        requestPermission: true,
+      });
       // A refusal is not a save. The card used to say "Reminders set" either
       // way, so someone who declined the system dialog was told the one
       // mechanism that brings them back was on when it was not, and would only

@@ -1,9 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeModules, Platform } from 'react-native';
 import i18n from '../i18n';
+import { getReminders } from '../db/queries';
+import { resolveEntitlement } from './entitlement';
 import { track } from './events';
 import notifee, {
   TriggerType,
-  RepeatFrequency,
   TimestampTrigger,
   AlarmType,
   AndroidImportance,
@@ -41,7 +43,134 @@ export interface ScheduleResult {
   /** Whether the trigger notifications were actually created. */
   scheduled: boolean;
   permission: 'granted' | 'denied' | 'unknown';
+  /**
+   * The instant the last notification handed to the OS will fire, or null when
+   * none were. See `REMINDER_HORIZON_MS` for why there is an end at all.
+   */
+  scheduledThrough: number | null;
 }
+
+/**
+ * How far ahead reminders are handed to the OS, and why there is a limit.
+ *
+ * These used to be created as `RepeatFrequency.WEEKLY` triggers, which is an
+ * instruction to Android to re-arm them forever. Nothing about that expires:
+ * once the alarm exists it fires every week whether or not the app is ever
+ * opened again, whether or not the account still pays, and whether or not the
+ * feature that created it is still reachable. The app cancelled them when it
+ * noticed a lapse - but noticing requires the app to run, and the whole point
+ * of a lapsed account is that it does not open the app. So somebody who
+ * cancelled went on being reminded, indefinitely, by a screen they could no
+ * longer open.
+ *
+ * Discrete one-shot triggers over a rolling window fix that at the source: the
+ * schedule runs out on its own, so the OS stops on the date we last had
+ * permission to promise, with no code needing to run to make it happen. Every
+ * sync and every foreground while entitled tops the window back up.
+ *
+ * Four weeks is chosen to comfortably outlast the gap between app opens for
+ * anybody actually training (a single reminder tap tops it up), while bounding
+ * a lapsed account's leftover notifications to weeks rather than forever.
+ */
+export const REMINDER_HORIZON_MS = 28 * 24 * 60 * 60 * 1000;
+
+/**
+ * A hard ceiling on how many triggers this app will hold at once.
+ *
+ * AlarmManager rejects new alarms past a few hundred per app, and a rejection
+ * part-way through the loop would leave a half-built schedule. Seven days at
+ * the two times a plan asks for is 14 a week, so 64 covers the full horizon
+ * with room to spare and only ever bites on a schedule far denser than the UI
+ * can produce.
+ */
+const MAX_SCHEDULED_REMINDERS = 64;
+
+/**
+ * How close to the end of the window a top-up starts.
+ *
+ * A week of slack, so a device that opens the app even once a week never
+ * reaches the edge, and one that does not is refilled the moment it comes
+ * back.
+ */
+const REMINDER_TOPUP_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Extra room past an auto-renewing subscription's `ends_at`.
+ *
+ * A renewal is invisible to a device that has not synced since it happened:
+ * the local row still carries the old expiry, so capping strictly at it would
+ * silence a paying subscriber's reminders on their renewal date. A notification
+ * is not access, and the two failure modes are not symmetric - over-notifying a
+ * lapsed account for a few days is a far smaller harm than going quiet on
+ * somebody who is still paying, and reminders are the one thing that brings
+ * either of them back to the app, where the truth is re-established.
+ *
+ * Deliberately NOT applied to a cancelled or expired row. Those have no
+ * renewal coming, so there is nothing to leave room for.
+ */
+const RENEWAL_HEADROOM_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * What is currently handed to the OS for this account: how far ahead it runs,
+ * and what it was built from.
+ *
+ * Both halves earn their place. `through` is what lets a device that cannot
+ * reach the network - and therefore never runs the sync that would normally
+ * re-schedule - refill the window from its own local rows before it empties.
+ * `fingerprint` is what stops the schedule being torn down and rebuilt on
+ * every single pull: applying it is dozens of calls across the native bridge,
+ * the sync runs on nearly every foreground, and almost none of those syncs
+ * change anything about the week the reader set.
+ */
+const scheduleStateKey = (userId: number | string) =>
+  `@reminders_scheduled_through_${userId}`;
+
+interface ScheduleState {
+  through: number | null;
+  fingerprint: string;
+}
+
+const rememberScheduleState = async (
+  userId: number,
+  state: ScheduleState,
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(scheduleStateKey(userId), JSON.stringify(state));
+  } catch {}
+};
+
+const readScheduleState = async (userId: number): Promise<ScheduleState | null> => {
+  try {
+    const raw = await AsyncStorage.getItem(scheduleStateKey(userId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.fingerprint !== 'string') return null;
+    const through = parsed.through === null ? null : Number(parsed.through);
+    if (through !== null && !Number.isFinite(through)) return null;
+    return { through, fingerprint: parsed.fingerprint };
+  } catch {
+    return null;
+  }
+};
+
+/** When the reminders currently handed to the OS run out. */
+export const remindersScheduledThrough = async (
+  userId: number,
+): Promise<number | null> => (await readScheduleState(userId))?.through ?? null;
+
+/**
+ * Forget what was scheduled for an account, without touching the OS.
+ *
+ * For sign-out, which cancels the notifications separately. Left behind, the
+ * record would claim a full window still stood over alarms that no longer
+ * exist, and the next sign-in would skip the rebuild it needs - so the account
+ * that came back would simply never be reminded again.
+ */
+export const forgetReminderSchedule = async (userId: number): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(scheduleStateKey(userId));
+  } catch {}
+};
 
 /**
  * Calculates the next trigger date/time for a given weekday, hour, and minute.
@@ -156,8 +285,13 @@ export const scheduleReminders = async (
    * `userId` is only needed when `requestPermission` is set: it attributes the
    * answer to the person who was asked. Every other caller of this function is
    * a background reschedule that asks nobody anything and records nothing.
+   *
+   * `until` is the instant the account's entitlement runs out. Nothing is
+   * scheduled past it, which is what stops a lapsed account being reminded by
+   * a feature it can no longer open. `null` or absent means no known deadline,
+   * and the horizon alone applies.
    */
-  opts?: { requestPermission?: boolean; userId?: number },
+  opts?: { requestPermission?: boolean; userId?: number; until?: number | null },
 ): Promise<ScheduleResult> => {
   // Cancelling is bookkeeping and its failure is not the caller's problem, so
   // it keeps its own guard rather than aborting the schedule.
@@ -231,7 +365,7 @@ export const scheduleReminders = async (
   }
 
   if (permission === 'denied') {
-    return { scheduled: false, permission };
+    return { scheduled: false, permission, scheduledThrough: null };
   }
 
   try {
@@ -258,7 +392,32 @@ export const scheduleReminders = async (
       ? AlarmType.SET_EXACT_AND_ALLOW_WHILE_IDLE
       : AlarmType.SET_AND_ALLOW_WHILE_IDLE;
 
-    // 4. Schedule trigger notifications for enabled days and times
+    /**
+     * The last instant anything may be scheduled for.
+     *
+     * The rolling horizon and the entitlement deadline, whichever comes first.
+     * A `null` deadline means nothing is known to end, so the horizon decides
+     * on its own - an admin, or a subscription with no expiry at all.
+     */
+    const now = Date.now();
+    const horizonEnd = now + REMINDER_HORIZON_MS;
+    const until = typeof opts?.until === 'number' ? opts.until : null;
+    const cutoff = until === null ? horizonEnd : Math.min(horizonEnd, until);
+
+    // Nothing left to promise. Not an error: it is the correct outcome for an
+    // entitlement that has already run out, and the caller cancelled above.
+    if (cutoff <= now) {
+      return { scheduled: true, permission, scheduledThrough: null };
+    }
+
+    /**
+     * Every occurrence, gathered before anything is handed to the OS.
+     *
+     * Built first so the count can be capped and the list sorted by time: with
+     * a ceiling to respect, the ones that should survive it are the SOONEST,
+     * not whichever weekday the loop happened to reach first.
+     */
+    const occurrences: { at: number; id: string }[] = [];
     for (const config of configs) {
       if (!config.isEnabled) {
         continue;
@@ -272,47 +431,180 @@ export const scheduleReminders = async (
           continue;
         }
 
-        const nextTrigger = getNextTriggerDate(dbWeekdayToJs(config.weekday), h, m);
-        const notificationId = `reminder_${config.weekday}_${hStr}_${mStr}`;
-
-        const trigger: TimestampTrigger = {
-          type: TriggerType.TIMESTAMP,
-          timestamp: nextTrigger.getTime(),
-          repeatFrequency: RepeatFrequency.WEEKLY,
-          // Deliver through AlarmManager, not Notifee's default WorkManager, which
-          // Android defers indefinitely in Doze and OEM battery optimisers kill
-          // when the app is swiped away (reminders silently never fire). alarmType
-          // is exact when the user has granted "Alarms & reminders", else an
-          // inexact Doze-friendly fallback.
-          alarmManager: {
-            type: alarmType,
-          },
-        };
-
-        await notifee.createTriggerNotification(
-          {
-            id: notificationId,
-            title: i18n.t('reminders.notificationTitle'),
-            body: i18n.t('reminders.notificationBody'),
-            android: {
-              channelId,
-              // Channel settings own the sound on Android 8+; this covers the
-              // pre-channel devices (minSdk 24 = Android 7).
-              sound: 'default',
-              pressAction: {
-                id: 'default',
-              },
-            },
-          },
-          trigger
-        );
+        // The first occurrence, then the same slot a week later, and again,
+        // until the cutoff. One trigger per firing rather than one repeating
+        // trigger, so the series ENDS - see REMINDER_HORIZON_MS.
+        const occurrence = getNextTriggerDate(dbWeekdayToJs(config.weekday), h, m);
+        for (let week = 0; occurrence.getTime() <= cutoff; week++) {
+          occurrences.push({
+            // Week-indexed rather than date-stamped: the id is reported with
+            // every reminder_tapped event, and a date in it would make each
+            // one unique and the figure useless to group by.
+            at: occurrence.getTime(),
+            id: `reminder_${config.weekday}_${hStr}_${mStr}_w${week}`,
+          });
+          // Date arithmetic, not `+ 7 * 24h`. Adding a fixed number of
+          // milliseconds moves an 08:00 reminder to 07:00 or 09:00 across a
+          // daylight-saving change; adding seven days to the date keeps the
+          // wall-clock time the reader chose.
+          occurrence.setDate(occurrence.getDate() + 7);
+        }
       }
     }
-    return { scheduled: true, permission };
+
+    occurrences.sort((a, b) => a.at - b.at);
+    const scheduled = occurrences.slice(0, MAX_SCHEDULED_REMINDERS);
+
+    for (const occurrence of scheduled) {
+      const trigger: TimestampTrigger = {
+        type: TriggerType.TIMESTAMP,
+        timestamp: occurrence.at,
+        // Deliver through AlarmManager, not Notifee's default WorkManager, which
+        // Android defers indefinitely in Doze and OEM battery optimisers kill
+        // when the app is swiped away (reminders silently never fire). alarmType
+        // is exact when the user has granted "Alarms & reminders", else an
+        // inexact Doze-friendly fallback.
+        alarmManager: {
+          type: alarmType,
+        },
+      };
+
+      await notifee.createTriggerNotification(
+        {
+          id: occurrence.id,
+          title: i18n.t('reminders.notificationTitle'),
+          body: i18n.t('reminders.notificationBody'),
+          android: {
+            channelId,
+            // Channel settings own the sound on Android 8+; this covers the
+            // pre-channel devices (minSdk 24 = Android 7).
+            sound: 'default',
+            pressAction: {
+              id: 'default',
+            },
+          },
+        },
+        trigger
+      );
+    }
+
+    return {
+      scheduled: true,
+      permission,
+      scheduledThrough: scheduled.length > 0 ? scheduled[scheduled.length - 1].at : null,
+    };
   } catch (e) {
     console.error('Failed to schedule Notifee reminders', e);
-    return { scheduled: false, permission };
+    return { scheduled: false, permission, scheduledThrough: null };
   }
+};
+
+/**
+ * Bring this device's scheduled reminders into line with the account's
+ * entitlement, from the local rows alone.
+ *
+ * The one place the rule lives, so the two callers cannot disagree. It used to
+ * be spread across a sync section that RE-SCHEDULED on every pull and a
+ * context effect that CANCELLED on every state change, and they fought: the
+ * sync ran far more often, so it won, and a lapsed account had its reminders
+ * put straight back after every cancel.
+ *
+ * The rule is a state, not a transition:
+ *
+ *   entitled     -> the local rows are scheduled, out to the entitlement
+ *   not entitled -> nothing is scheduled
+ *
+ * The rows themselves are never touched. Nothing is deleted, so subscribing
+ * again restores the same schedule rather than asking somebody to set their
+ * week up a second time.
+ *
+ * Network-free by construction: `resolveEntitlement` reads SQLite and
+ * AsyncStorage, which is what lets an offline device still refill its own
+ * window before it empties, and still go quiet when its subscription ends.
+ */
+export const applyReminderSchedule = async (
+  userId: number,
+  isAdmin: boolean,
+  /**
+   * `requestPermission` is for the two places a person has just tapped
+   * something that plainly means "yes, remind me": saving on the Schedule tab,
+   * and accepting the offer on the completion screen. Every other caller is a
+   * background reschedule that asks nobody anything - and implies `force`,
+   * because somebody is waiting on the answer.
+   *
+   * `force` rebuilds the schedule even when nothing appears to have changed.
+   */
+  opts?: { requestPermission?: boolean; force?: boolean },
+): Promise<ScheduleResult> => {
+  const entitlement = await resolveEntitlement(userId, isAdmin);
+
+  if (!entitlement.active) {
+    // Always, and never skipped by the fingerprint below. This is the safety
+    // path - one bridge call to list the pending triggers, and a second only
+    // if there are any - and the cost of getting it wrong is somebody being
+    // notified by a feature they cannot open.
+    await cancelAllReminders();
+    await rememberScheduleState(userId, { through: null, fingerprint: 'none' });
+    return { scheduled: false, permission: 'unknown', scheduledThrough: null };
+  }
+
+  /**
+   * How far ahead this account may be promised anything.
+   *
+   * An auto-renewing row gets a renewal's worth of headroom, because a
+   * renewal that has happened but not yet reached this device leaves the
+   * local expiry looking older than it is - see RENEWAL_HEADROOM_MS.
+   */
+  const autoRenewing = Number(entitlement.subscription?.auto_renewing) === 1;
+  const until =
+    entitlement.expiresAt === null
+      ? null
+      : entitlement.expiresAt + (autoRenewing ? RENEWAL_HEADROOM_MS : 0);
+
+  const rows = await getReminders(userId);
+  const configs = rows.map((r) => ({
+    weekday: r.weekday,
+    times: r.times,
+    isEnabled: r.is_enabled === 1,
+  }));
+
+  /**
+   * Everything the resulting schedule depends on, except the clock.
+   *
+   * The clock is deliberately left out and handled by the window check
+   * instead: a fingerprint that moved with `now` would never match, which is
+   * the behaviour this exists to avoid. `until` is stable between renewals, so
+   * a cancellation or a plan change does change it and does force a rebuild.
+   */
+  const fingerprint = JSON.stringify([until, configs.filter((c) => c.isEnabled)]);
+  const forced = opts?.force || opts?.requestPermission;
+
+  if (!forced) {
+    const state = await readScheduleState(userId);
+    // Same week, same ceiling, and the window still has room in it. Rebuilding
+    // would hand the OS the identical set of alarms it already holds.
+    if (
+      state
+      && state.fingerprint === fingerprint
+      && state.through !== null
+      && state.through - Date.now() > REMINDER_TOPUP_THRESHOLD_MS
+    ) {
+      return { scheduled: true, permission: 'unknown', scheduledThrough: state.through };
+    }
+  }
+
+  const result = await scheduleReminders(configs, {
+    until,
+    requestPermission: opts?.requestPermission,
+    userId,
+  });
+  await rememberScheduleState(userId, {
+    through: result.scheduled ? result.scheduledThrough : null,
+    // A failed or refused attempt must not be remembered as the current
+    // state, or the next call would skip the retry it needs.
+    fingerprint: result.scheduled ? fingerprint : 'unset',
+  });
+  return result;
 };
 
 /**
