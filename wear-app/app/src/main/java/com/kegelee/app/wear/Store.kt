@@ -87,6 +87,7 @@ object Store {
     private const val K_PROFILE = "profile"
     private const val K_OUTBOX = "outbox"
     private const val K_THEME = "theme"
+    private const val K_HAPTICS = "haptics"
 
     /** Beyond this the watch has not seen a network for weeks; keep the newest. */
     private const val MAX_OUTBOX = 100
@@ -133,6 +134,24 @@ object Store {
 
     fun setThemeMode(context: Context, mode: ThemeMode) {
         prefs(context).edit().putString(K_THEME, mode.name).apply()
+    }
+
+    // --- Haptics ------------------------------------------------------------
+
+    /**
+     * The session cue, off by default.
+     *
+     * Matches the phone's `haptics_enabled`, which also ships off: a buzz on
+     * the wrist during a private exercise is something to opt into, not
+     * something to discover. Device-local like the appearance, because it is a
+     * property of this watch rather than of the account - and kept out of
+     * `signOut` for the same reason.
+     */
+    fun hapticsEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(K_HAPTICS, false)
+
+    fun setHapticsEnabled(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(K_HAPTICS, enabled).apply()
     }
 
     // --- Profile ------------------------------------------------------------

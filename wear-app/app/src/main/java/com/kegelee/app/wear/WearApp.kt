@@ -67,6 +67,7 @@ fun WearApp(
     onThemeMode: (ThemeMode) -> Unit,
 ) {
     val Ke = LocalPalette.current
+    val context = LocalContext.current
     val auth by Repo.auth.collectAsStateWithLifecycle()
     var screen by remember { mutableStateOf(Screen.HOME) }
 
@@ -107,7 +108,19 @@ fun WearApp(
             )
 
             else -> HomeScreen(
-                onStart = { steps -> engine.start(steps); screen = Screen.SESSION },
+                onStart = { steps ->
+                    /**
+                     * Both gates, read at the moment a session starts.
+                     *
+                     * The stored preference AND the entitlement, exactly as the
+                     * phone requires: a lapsed account stops being buzzed even
+                     * though its saved preference still says yes.
+                     */
+                    engine.hapticsEnabled = Store.hapticsEnabled(context) &&
+                        Repo.profile.value?.entitledAsOf(System.currentTimeMillis()) == true
+                    engine.start(steps)
+                    screen = Screen.SESSION
+                },
                 onChangeLevel = { screen = Screen.LEVEL },
                 onExercises = { screen = Screen.EXERCISES },
                 onAppearance = { screen = Screen.APPEARANCE },
@@ -241,6 +254,7 @@ private fun HomeScreen(
             item { ActionChip("Difficulty · ${Catalogue.levelName(p.levelId)}", onChangeLevel) }
             item { ActionChip("Exercises", onExercises) }
             item { ActionChip("Appearance", onAppearance) }
+            item { HapticsChip(entitled = p.entitledAsOf(System.currentTimeMillis())) }
 
             if (p.entitledAsOf(System.currentTimeMillis())) {
                 item { Text("Reminders", color = Ke.textMuted, fontSize = 10.sp) }
@@ -282,6 +296,51 @@ private fun HomeScreen(
          * to worry about it. It syncs on every open, after every session and
          * whenever the level changes; that is the app's job, done quietly.
          */
+    }
+}
+
+/**
+ * The session cue, and the one setting on this screen that can be locked.
+ *
+ * Premium, like the phone's - the buzz is part of the subscription, so a free
+ * account sees the row and what it would give them rather than having it hidden
+ * and never knowing it exists. Tapping it while locked does nothing, because
+ * there is nothing here that could unlock it; the watch cannot sell anything.
+ */
+@Composable
+private fun HapticsChip(entitled: Boolean) {
+    val Ke = LocalPalette.current
+    val context = LocalContext.current
+    var on by remember { mutableStateOf(Store.hapticsEnabled(context)) }
+
+    Row(
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .clip(RoundedCornerShape(50))
+            .background(Ke.control)
+            .border(1.dp, Ke.controlEdge, RoundedCornerShape(50))
+            .clickable(enabled = entitled) {
+                on = !on
+                Store.setHapticsEnabled(context, on)
+            }
+            .padding(horizontal = 16.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            "Vibration",
+            color = if (entitled) Ke.text else Ke.textMuted,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+        )
+        Text(
+            if (!entitled) "Premium" else if (on) "On" else "Off",
+            color = if (!entitled) Ke.textMuted else if (on) Ke.accent else Ke.textMuted,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+        )
     }
 }
 

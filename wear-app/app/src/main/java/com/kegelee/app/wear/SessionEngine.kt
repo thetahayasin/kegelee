@@ -2,6 +2,7 @@ package com.kegelee.app.wear
 
 import android.content.Context
 import android.os.Build
+import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -472,16 +473,23 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         stepProgress = 1f
         stepRemaining = 0
         elapsedSeconds = ((System.currentTimeMillis() - sessionStartedAt) / 1000).toInt()
-        doneCue()
     }
 
     // --- Haptics ------------------------------------------------------------
 
+    /**
+     * Whether the cue may fire at all.
+     *
+     * Set by the screen before a session starts, from the stored preference AND
+     * the entitlement. Both, because the phone requires both: a lapsed account
+     * must stop being buzzed even though its saved preference still says yes.
+     */
+    var hapticsEnabled: Boolean = false
+
     private val vibrator: Vibrator? by lazy {
         runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val manager = appContext.getSystemService(VibratorManager::class.java)
-                manager?.defaultVibrator
+                appContext.getSystemService(VibratorManager::class.java)?.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")
                 appContext.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
@@ -490,27 +498,52 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     }
 
     /**
-     * Two distinguishable cues, because they mean opposite things.
+     * One 60ms buzz, on contraction only. Exactly the phone's cue.
      *
-     * A squeeze is a firm double pulse and a release is one soft one, so the
-     * difference is legible through a sleeve without looking. A single
-     * undifferentiated buzz would tell somebody that *something* changed and
-     * leave them to guess which.
+     * This is not UI polish - it tells you when to squeeze while your eyes are
+     * off the screen, which is closer to an alarm than to a keypress. Long
+     * enough to read through a sleeve, short enough not to smear into the next
+     * beat of a staircase exercise, whose steps are a second apart.
+     *
+     * Deliberately NOT the two-tone scheme this had before - a firm double
+     * pulse to squeeze and a soft one to release. That was a nicer idea and a
+     * different exercise: the phone buzzes on contraction and stays silent on
+     * release, so a release cue here would have people letting go on a signal
+     * their phone never gives them. Same reasoning as the circle.
      */
     private fun cue(step: PlayStep) {
-        val effect = if (step.isContract) {
-            VibrationEffect.createWaveform(longArrayOf(0, 90, 80, 90), -1)
-        } else {
-            VibrationEffect.createWaveform(longArrayOf(0, 45), -1)
-        }
-        runCatching { vibrator?.vibrate(effect) }
-    }
-
-    private fun doneCue() {
+        if (!hapticsEnabled || !step.isContract || step.isRest) return
         runCatching {
-            vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 120, 90, 120, 90, 220), -1))
+            /**
+             * The usage has to be declared, or the buzz never happens.
+             *
+             * A `VibrationEffect` sent with no attributes carries USAGE_UNKNOWN,
+             * and the system scales that against an intensity setting which is
+             * unset on a stock device - so it is silently scaled to zero. The
+             * effect is dispatched, the vibrator logs nothing, and no error is
+             * raised anywhere: the cue simply never fires. That is exactly what
+             * was happening, and it is invisible without looking at
+             * `dumpsys vibrator_manager`.
+             *
+             * ALARM rather than HARDWARE_FEEDBACK, which is what Compose's touch
+             * ripple uses. Touch feedback is tied to the screen being looked at
+             * and can be filtered when it is not; this cue exists precisely for
+             * the moments the wrist is down and the eyes are elsewhere, which is
+             * the phone's own reasoning - its comment calls the cue closer to an
+             * alarm than to a keypress.
+             */
+            val attrs = VibrationAttributes.Builder()
+                .setUsage(VibrationAttributes.USAGE_ALARM)
+                .build()
+            vibrator?.vibrate(
+                VibrationEffect.createOneShot(CUE_MS, VibrationEffect.DEFAULT_AMPLITUDE),
+                attrs,
+            )
         }
     }
 
-
+    private companion object {
+        /** The phone's `CUE_MS`. */
+        const val CUE_MS = 60L
+    }
 }
