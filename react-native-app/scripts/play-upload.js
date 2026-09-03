@@ -13,9 +13,12 @@
  *   1. A bundle goes up through the RESUMABLE upload endpoint. The simple
  *      `uploadType=media` path silently truncates large bodies, and an .aab is
  *      tens of megabytes.
- *   2. `changesNotSentForReview` must be sent on commit. Without it an app
- *      that is already published comes back with "Changes cannot be sent for
- *      review automatically", the edit is rejected, and the upload is wasted.
+ *   2. `changesNotSentForReview` is required on commit for some apps and
+ *      rejected outright for others, Play will not say which in advance, and
+ *      it has flipped for this app between releases. Either mistake fails the
+ *      commit and wastes the upload that came before it, so the commit here
+ *      tries one and reads the other out of the rejection rather than
+ *      guessing.
  *
  * The release notes are read from the track's existing listing when none are
  * given, so a release never silently drops the notes the last one carried.
@@ -195,12 +198,31 @@ function versionCodeFromGradle() {
       body: JSON.stringify({ track: TRACK, releases: [release] }),
     });
 
-    // 4. Commit. `changesNotSentForReview` is not optional for an app that is
-    //    already published: without it Play rejects the whole edit.
-    const result = await call(
-      `${base}/edits/${edit.id}:commit?changesNotSentForReview=true`,
-      { method: 'POST', headers: jsonHeaders },
-    );
+    /**
+     * 4. Commit, either way round.
+     *
+     * Play insists on `changesNotSentForReview` for some apps and forbids it
+     * for others, will not say which beforehand, and has changed its mind
+     * about this one between releases. It names the answer in the rejection
+     * both times, so try the plain commit and take the other route when the
+     * error asks for it. Anything else is a real failure and is re-thrown.
+     */
+    const commit = (notSentForReview) =>
+      call(
+        `${base}/edits/${edit.id}:commit${notSentForReview ? '?changesNotSentForReview=true' : ''}`,
+        { method: 'POST', headers: jsonHeaders },
+      );
+
+    let result;
+    try {
+      result = await commit(false);
+    } catch (err) {
+      if (!/cannot be sent for review|changesNotSentForReview must be set/i.test(err.message)) {
+        throw err;
+      }
+      console.log('commit: this app will not auto-submit for review, retrying');
+      result = await commit(true);
+    }
     committed = true;
     console.log(`committed: edit ${result.id} -> ${TRACK}`);
   } finally {
