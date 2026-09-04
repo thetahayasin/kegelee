@@ -452,13 +452,15 @@ class RevenueCatWebhookController extends Controller
     }
 
     /**
-     * Put a lapsed subscriber back on the level their quiz chose.
+     * Put a lapsed subscriber back on the level a free account belongs on.
      *
      * Choosing a difficulty is part of the subscription, so someone who lapses
      * keeps the level they picked while paying and has no way to leave it. That
      * strands them on a level they may not want, with paying again as the only
      * exit. The quiz level is where the app put them on its own judgement, and
-     * is where a free user would be, so it is the honest place to land.
+     * is where a free user would be, so it is the honest place to land; an
+     * account with no quiz level of its own lands on level 1 rather than, as
+     * this used to, keeping the paid difficulty for good.
      *
      * Only when the account has no other live subscription: a plan change can
      * expire the old row while the new one is running, and dropping a paying
@@ -467,7 +469,7 @@ class RevenueCatWebhookController extends Controller
     private function resetLevelToOnboarding(Subscription $sub, array $event = []): void
     {
         $user = $sub->user;
-        if (! $user || ! $user->onboarding_level) {
+        if (! $user) {
             return;
         }
 
@@ -476,23 +478,27 @@ class RevenueCatWebhookController extends Controller
         }
 
         /**
+         * One rule, read from one place.
+         *
          * onboarding_level is a level NUMBER; level_id is a foreign key to
          * levels.id. This used to assign the first straight into the second,
          * which is only ever correct on a database whose ids happen to have
          * been handed out in number order - the seeder matches on `number`, so
          * they drift as soon as a level is recreated. Everywhere else it is
          * either the wrong difficulty or a foreign key violation thrown inside
-         * a webhook handler.
+         * a webhook handler. freeLevelId() does that resolution, and the pull
+         * calls the same method, so the fast path here and the self-healing
+         * path there can never land somebody on different levels.
          */
-        $toNumber = (int) $user->onboarding_level;
-        $to = (int) (\App\Models\Level::where('number', $toNumber)->value('id') ?? 0);
+        $to = $user->freeLevelId();
 
-        if ($to === 0 || (int) $user->level_id === $to) {
+        if ($to === null || (int) $user->level_id === $to) {
             return;
         }
 
         $from = (int) $user->level_id;
         $fromNumber = (int) ($user->level?->number ?? 0);
+        $toNumber = (int) (\App\Models\Level::whereKey($to)->value('number') ?? 0);
 
         $user->update(['level_id' => $to]);
 
@@ -511,7 +517,8 @@ class RevenueCatWebhookController extends Controller
 
         Log::info('Level reset to the onboarding level after lapse', [
             'user_id' => $user->id,
-            'level_id' => (int) $user->onboarding_level,
+            'from' => $from,
+            'to' => $to,
         ]);
     }
 

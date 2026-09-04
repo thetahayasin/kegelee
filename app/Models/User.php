@@ -177,6 +177,52 @@ class User extends Authenticatable
     }
 
     /**
+     * The difficulty a NON-paying account belongs on, as a levels.id.
+     *
+     * Choosing a difficulty is part of the subscription: the picker is
+     * padlocked for a free account, so whatever level someone was on when they
+     * stopped paying is a level they can no longer leave. Paying again is the
+     * only exit. This is where they go back to.
+     *
+     * The quiz level is the first answer, because it is where the app put them
+     * on its own judgement and where a free account that never subscribed
+     * would be sitting. Level 1 is the second, and it is the reason this
+     * method exists: both callers used to give up entirely when
+     * onboarding_level was null - an account created before the quiz was
+     * captured, or one whose profile push never landed - which meant the ONE
+     * case with no starting level of its own was also the one case that stayed
+     * on a paid difficulty forever. There is always somewhere to go back to.
+     *
+     * onboarding_level is a level NUMBER (1-5, a tinyint); users.level_id is a
+     * foreign key to levels.id. They are not the same thing and only look
+     * alike on a freshly seeded database, where the seeder happens to hand out
+     * ids in number order - it matches on `number`, so they drift the moment a
+     * level is recreated. Writing the number straight into the key is a
+     * foreign key violation on any database where they have. So the number is
+     * resolved to an id here, once, and callers only ever see an id.
+     *
+     * Null means this database has no level to offer at all - not even a level
+     * 1 - and a caller that gets it must leave the account alone rather than
+     * write something the foreign key will reject.
+     */
+    public function freeLevelId(): ?int
+    {
+        $number = (int) ($this->onboarding_level ?? 0);
+
+        if ($number >= 1) {
+            $id = (int) (Level::where('number', $number)->value('id') ?? 0);
+
+            if ($id > 0) {
+                return $id;
+            }
+        }
+
+        // Their own starting level is gone, or they never had one. Level 1 is
+        // the free tier's floor and the level every account starts on.
+        return (int) (Level::where('number', 1)->value('id') ?? 0) ?: null;
+    }
+
+    /**
      * True once the user has completed every "Learn the basics" lesson. The
      * basics are the only active knowledge lessons (see App\Support\BasicsLessons
      * / KnowledgeSeeder), so this is simply "all active lessons completed".

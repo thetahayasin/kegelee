@@ -103,15 +103,66 @@ class LevelResetOnPullTest extends TestCase
         $this->assertSame(5, (int) $user->fresh()->level_id);
     }
 
-    public function test_it_leaves_accounts_with_no_quiz_level_alone(): void
+    public function test_an_account_with_no_quiz_level_goes_back_to_level_one(): void
     {
-        // Nowhere to go back to. Guessing is worse than leaving it.
+        /**
+         * The hole the whole reset fell through.
+         *
+         * Both reset paths gave up when onboarding_level was null - an account
+         * created before the quiz was captured, or one whose write-once profile
+         * push never landed - on the reasoning that there was nowhere to send
+         * them. The effect was the opposite of leaving them alone: they kept
+         * the difficulty they bought, on an account the paywall had already
+         * closed, and the picker is padlocked for a free account, so nothing in
+         * the app could ever move them off it. Restarting did not help, because
+         * the pull kept returning the same level.
+         *
+         * Level 1 is where every account starts and where the free tier sits.
+         */
         $user = $this->user(level: 4, onboardingLevel: null);
+        $this->sub($user, 'expired', now()->subDay());
+
+        $levelOne = (int) \App\Models\Level::where('number', 1)->value('id');
+
+        $this->pull($user)
+            ->assertOk()
+            ->assertJsonPath('user.level_id', $levelOne)
+            ->assertJsonPath('user.is_subscribed', false);
+
+        $this->assertSame($levelOne, (int) $user->fresh()->level_id);
+    }
+
+    public function test_a_quiz_level_that_no_longer_exists_falls_back_to_level_one(): void
+    {
+        // The level they started on has been removed from the catalogue. That
+        // is a reason to pick a different destination, not a reason to leave a
+        // free account sitting on level 5.
+        $user = $this->user(level: 5, onboardingLevel: 4);
+        \App\Models\Level::where('number', 4)->delete();
         $this->sub($user, 'expired', now()->subDay());
 
         $this->pull($user)->assertOk();
 
-        $this->assertSame(4, (int) $user->fresh()->level_id);
+        $this->assertSame(
+            (int) \App\Models\Level::where('number', 1)->value('id'),
+            (int) $user->fresh()->level_id,
+        );
+    }
+
+    public function test_it_leaves_the_level_alone_when_there_is_no_level_to_move_to(): void
+    {
+        // No levels at all. Anything written here is a foreign key the table
+        // will reject - on every pull, taking syncing down with it - so this is
+        // the one case that must still do nothing.
+        $user = $this->user(level: 5, onboardingLevel: 2);
+        $this->sub($user, 'expired', now()->subDay());
+        \App\Models\User::where('id', '!=', $user->id)->update(['level_id' => null]);
+        \App\Models\Level::whereKeyNot($user->level_id)->delete();
+        \App\Models\Level::whereKey($user->level_id)->update(['number' => 5]);
+
+        $this->pull($user)->assertOk()->assertJsonPath('user.is_subscribed', false);
+
+        $this->assertSame(5, (int) $user->fresh()->level_id);
     }
 
     public function test_it_survives_levels_whose_ids_do_not_match_their_numbers(): void
@@ -156,9 +207,10 @@ class LevelResetOnPullTest extends TestCase
 
     public function test_a_broken_level_reset_can_never_break_the_pull(): void
     {
-        // A number no level has. The reset has nowhere to go, and the only
-        // acceptable outcome is that the pull is unaffected - it is how every
-        // device gets its state, and a convenience must not be able to stop it.
+        // A number no level has. Wherever the reset ends up sending them - the
+        // level-1 fallback, or nowhere at all - the only outcome this test
+        // cares about is that the pull is unaffected: it is how every device
+        // gets its state, and a convenience must not be able to stop it.
         $user = $this->user(level: 5, onboardingLevel: 4);
         \App\Models\Level::where('number', 4)->delete();
         $this->sub($user, 'expired', now()->subDay());

@@ -993,7 +993,7 @@ class SyncController extends Controller
      * re-hydrate its local IndexedDB after a fresh install or cache clear.
      */
     /**
-     * Put a lapsed account back on the level its quiz chose, on read.
+     * Put a lapsed account back on the level a free account belongs on, on read.
      *
      * The same rule already runs on RevenueCat's EXPIRATION and REVOCATION
      * events, and that is still the fast path. But it is the ONLY path: a lapse
@@ -1007,37 +1007,29 @@ class SyncController extends Controller
      * Deriving it here instead makes it self-healing: whatever route the lapse
      * took, the next pull puts them back. Idempotent by construction - once the
      * two ids match, this does nothing, so the event below is recorded once.
+     *
+     * Where "back" is - the quiz level, or level 1 for an account that has no
+     * quiz level of its own - comes from User::freeLevelId(), which the webhook
+     * path reads too, so the two can never disagree about it.
      */
     private function returnLapsedUserToOnboardingLevel(\App\Models\User $user): void
     {
-        // Accounts from before onboarding was captured have nowhere to go back
-        // to, and guessing a level for them is worse than leaving it alone.
-        if (! $user->onboarding_level) {
-            return;
-        }
-
         /**
-         * onboarding_level is a NUMBER (1-5, and the column is a tinyint
-         * constrained to that range). users.level_id is a foreign key to
-         * levels.id. They are not the same thing and only look alike because a
-         * freshly seeded database hands out ids 1..5 in number order - the
-         * seeder matches on `number`, so ids drift the moment a level is ever
-         * recreated.
+         * Null means this database has no level to put them on at all, and it
+         * is the only case where leaving the account alone is right: anything
+         * else written here is a foreign key the levels table rejects, thrown
+         * on EVERY pull, which takes syncing down entirely - not subscriptions,
+         * not workouts - rather than just the level reset.
          *
-         * Writing the number straight into level_id is therefore a foreign key
-         * violation waiting for a database where they differ, and because this
-         * runs on every pull, that violation is thrown on every pull: a 500 on
-         * the endpoint the whole app depends on, so nothing syncs at all - not
-         * subscriptions, not workouts - and the write never lands, so it
-         * happens again on the next try, forever.
-         *
-         * Resolve the number to an id, and do nothing at all if no level has
-         * that number.
+         * This used to give up on a missing onboarding_level as well, which is
+         * how the bug survived: an account created before the quiz was
+         * captured, or one whose profile push never landed, has no quiz level
+         * to go back to, so it was the one account that kept its paid
+         * difficulty forever. freeLevelId() answers level 1 for those.
          */
-        $toNumber = (int) $user->onboarding_level;
-        $to = (int) (Level::where('number', $toNumber)->value('id') ?? 0);
+        $to = $user->freeLevelId();
 
-        if ($to === 0 || (int) $user->level_id === $to) {
+        if ($to === null || (int) $user->level_id === $to) {
             return;
         }
 
@@ -1051,6 +1043,10 @@ class SyncController extends Controller
 
         $from = (int) $user->level_id;
         $fromNumber = (int) ($user->level?->number ?? 0);
+        // Read back off the id rather than off onboarding_level: the two differ
+        // whenever the fallback was used, and the event below reports a
+        // direction that has to describe the level actually written.
+        $toNumber = (int) (Level::whereKey($to)->value('number') ?? 0);
 
         $user->update(['level_id' => $to]);
 

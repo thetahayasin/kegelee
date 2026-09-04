@@ -125,10 +125,18 @@ class LevelResetOnLapseTest extends TestCase
         $this->assertSame(5, (int) $user->fresh()->level_id);
     }
 
-    public function test_it_does_nothing_without_a_recorded_quiz_level(): void
+    public function test_an_account_with_no_quiz_level_goes_back_to_level_one(): void
     {
-        // Accounts from before onboarding was captured have nowhere to go
-        // back to. Guessing a level for them would be worse than leaving it.
+        /**
+         * This used to return early and write nothing.
+         *
+         * Accounts from before onboarding was captured, and accounts whose
+         * profile push never landed, have no quiz level to go back to - so
+         * the one group with no starting level of its own was also the only
+         * group that kept a paid difficulty after lapsing, permanently, with
+         * the picker padlocked against fixing it. Level 1 is where every
+         * account starts and where the free tier sits, so it is the floor.
+         */
         $user = $this->subscriber(level: 4, onboardingLevel: 0);
         $user->update(['onboarding_level' => null]);
 
@@ -139,6 +147,7 @@ class LevelResetOnLapseTest extends TestCase
             'transaction_id' => 'TXN-1',
         ])->assertOk();
 
-        $this->assertSame(4, (int) $user->fresh()->level_id);
+        $levelOne = (int) \App\Models\Level::where('number', 1)->value('id');
+        $this->assertSame($levelOne, (int) $user->fresh()->level_id);
     }
 }
