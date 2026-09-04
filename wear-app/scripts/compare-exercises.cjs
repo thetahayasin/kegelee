@@ -60,10 +60,11 @@ function deviceArgs() {
 /** Ask the phone's own test runner for its answer. */
 function dumpPhone() {
   const out = path.join(TMP, 'phone.json');
+  const gateOut = path.join(TMP, 'phone-gate.json');
   const spec = path.join(PHONE_ROOT, '__tests__', '__compare_dump.test.ts');
   fs.writeFileSync(spec, `
 import fs from 'fs';
-import { EXERCISES, getSteps } from '../src/constants/catalogues';
+import { EXERCISES, FREE_EXERCISE_SLUGS, getSteps } from '../src/constants/catalogues';
 import { getDurationForLevel } from '../src/services/sessionBuilder';
 it('dumps every exercise at every level', () => {
   const out: any = {};
@@ -78,6 +79,19 @@ it('dumps every exercise at every level', () => {
       };
     }
   }
+  // The GATE: which exercises a session may draw on at a given day count. A
+  // step dump says what an exercise does, not whether it should be offered.
+  const gate: any = {};
+  for (const d of [0, 1, 2, 3, 5, 7, 14, 20, 36, 50, 109, 200]) {
+    gate[d] = {};
+    for (const entitled of [true, false]) {
+      gate[d][String(entitled)] = Object.values(EXERCISES)
+        .filter((ex: any) => d >= ex.unlock_after_days && (entitled || FREE_EXERCISE_SLUGS.includes(ex.slug)))
+        .sort((a: any, b: any) => a.sort_order - b.sort_order)
+        .map((ex: any) => ex.slug);
+    }
+  }
+  fs.writeFileSync(process.env.COMPARE_GATE as string, JSON.stringify(gate, null, 1));
   fs.writeFileSync(process.env.COMPARE_OUT as string, JSON.stringify(out, null, 1));
   expect(true).toBe(true);
 });
@@ -85,14 +99,17 @@ it('dumps every exercise at every level', () => {
   try {
     run('npx', ['jest', '__tests__/__compare_dump.test.ts', '--silent'], {
       cwd: PHONE_ROOT,
-      env: { ...process.env, COMPARE_OUT: out },
+      env: { ...process.env, COMPARE_OUT: out, COMPARE_GATE: gateOut },
       stdio: 'pipe',
       shell: process.platform === 'win32',
     });
   } finally {
     fs.unlinkSync(spec);
   }
-  return JSON.parse(fs.readFileSync(out, 'utf8'));
+  return {
+    steps: JSON.parse(fs.readFileSync(out, 'utf8')),
+    gate: JSON.parse(fs.readFileSync(gateOut, 'utf8')),
+  };
 }
 
 /** Ask the watch build on the device for its answer. */
@@ -119,7 +136,11 @@ function dumpWatch(dev) {
       '  gradlew assembleDebug && adb install -r app/build/outputs/apk/debug/app-debug.apk',
     );
   }
-  return JSON.parse(raw);
+  let gateRaw = '';
+  try {
+    gateRaw = run('adb', [...dev, 'shell', 'run-as', PKG, 'cat', `/data/data/${PKG}/files/gate.json`]);
+  } catch { gateRaw = '{}'; }
+  return { steps: JSON.parse(raw), gate: JSON.parse(gateRaw || '{}') };
 }
 
 function main() {
@@ -128,19 +149,35 @@ function main() {
   const phone = dumpPhone();
   process.stdout.write('watch: asking the build on the device...\n');
   const watch = dumpWatch(dev);
-
-  const slugs = Object.keys(phone);
-  let checked = 0;
   const problems = [];
 
+  // --- The gate: which exercises may appear at all ---
+  let gateChecks = 0;
+  for (const day of Object.keys(phone.gate)) {
+    for (const tier of ['true', 'false']) {
+      gateChecks++;
+      const p = (phone.gate[day][tier] || []).join(',');
+      const w = ((watch.gate[day] || {})[tier] || []).join(',');
+      if (p !== w) {
+        problems.push(
+          `day ${day} (${tier === 'true' ? 'subscribed' : 'free'}): ` +
+          `phone offers [${p}] watch offers [${w}]`,
+        );
+      }
+    }
+  }
+
+  const slugs = Object.keys(phone.steps);
+  let checked = 0;
+
   for (const slug of slugs) {
-    if (!watch[slug]) {
+    if (!watch.steps[slug]) {
       problems.push(`${slug}: missing from the watch entirely`);
       continue;
     }
     for (let level = 1; level <= 5; level++) {
-      const p = phone[slug][level];
-      const w = watch[slug][level];
+      const p = phone.steps[slug][level];
+      const w = watch.steps[slug][level];
       checked++;
       if (!w) {
         problems.push(`${slug} L${level}: missing from the watch`);
@@ -161,9 +198,15 @@ function main() {
     }
   }
 
-  process.stdout.write(`\nCompared ${checked} exercise/level combinations.\n`);
+  process.stdout.write(
+    `\nCompared ${checked} exercise/level combinations, ` +
+    `and the unlock gate at ${gateChecks} day/tier points.\n`,
+  );
   if (problems.length === 0) {
-    process.stdout.write('Every duration, step count, phase, length and from->to pair matches.\n');
+    process.stdout.write(
+      'Every duration, step count, phase, length and from->to pair matches,\n' +
+      'and both agree on which exercises are unlocked at every day count checked.\n',
+    );
     return;
   }
   process.stdout.write(`\n${problems.length} difference(s):\n`);

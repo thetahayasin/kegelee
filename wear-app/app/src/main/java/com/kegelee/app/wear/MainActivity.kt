@@ -86,10 +86,17 @@ class MainActivity : ComponentActivity() {
          * `--ez dump true` writes the whole catalogue as this app computes it
          * and exits, so it can be diffed against the phone's. Debug only.
          */
+        // TESTING ONLY - see DebugFlags, which is meant to be deleted.
+        if (BuildConfig.DEBUG && intent?.hasExtra("unlock") == true) {
+            DebugFlags.setUnlockAll(applicationContext, intent.getBooleanExtra("unlock", false))
+        }
+
         if (BuildConfig.DEBUG && intent?.getBooleanExtra("dump", false) == true) {
             Catalogue.load(applicationContext)
             java.io.File(applicationContext.filesDir, "exercises.json")
                 .writeText(SessionBuilder.dumpAllForComparison())
+            java.io.File(applicationContext.filesDir, "gate.json")
+                .writeText(SessionBuilder.dumpGateForComparison())
             finish()
             return
         }

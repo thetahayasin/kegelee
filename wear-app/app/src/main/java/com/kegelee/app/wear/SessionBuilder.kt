@@ -192,6 +192,33 @@ object SessionBuilder {
      * Debug builds only: `MainActivity` guards the call behind BuildConfig.DEBUG,
      * so nothing here reaches a release.
      */
+    /**
+     * Which exercises are available at a given day count, on both tiers.
+     *
+     * Added because "Front Clamp appeared and it was not unlocked" is a
+     * question about the GATE, and the step dump does not cover the gate at
+     * all - it compares what an exercise does, not whether it should have been
+     * offered. This compares the pool itself.
+     */
+    fun dumpGateForComparison(): String {
+        val q = '"'
+        val days = listOf(0, 1, 2, 3, 5, 7, 14, 20, 36, 50, 109, 200)
+        val out = StringBuilder()
+        out.appendLine("{")
+        days.forEachIndexed { di, d ->
+            out.appendLine("  $q$d$q: {")
+            listOf(true, false).forEachIndexed { ei, entitled ->
+                val slugs = Catalogue.availableSlugs(d, entitled)
+                val cells = slugs.joinToString(", ") { "$q$it$q" }
+                val comma = if (ei == 0) "," else ""
+                out.appendLine("    $q$entitled$q: [$cells]$comma")
+            }
+            out.appendLine(if (di < days.size - 1) "  }," else "  }")
+        }
+        out.appendLine("}")
+        return out.toString()
+    }
+
     fun dumpAllForComparison(): String {
         val q = '"'
         val out = StringBuilder()
