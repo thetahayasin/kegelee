@@ -115,22 +115,17 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                 },
             )
             Spacer(Modifier.height(8.dp))
-            /**
-             * Email is an icon and nothing else.
-             *
-             * Two labelled buttons stacked on a 40mm screen read as a choice
-             * between equals, and they are not: Google is one tap and email is
-             * a fallback for anyone who signed up that way. An envelope says
-             * that without spending a line of text on it, and leaves the screen
-             * with one obvious thing to press.
-             */
+            // Words, not an icon. The Google button earns its mark because the
+            // mark IS how that button is recognised; an envelope is just a
+            // picture of the word "email", and a bare one leaves somebody
+            // guessing what pressing it does.
             CompactChip(
                 onClick = { showPassword = true },
                 colors = ChipDefaults.chipColors(
                     backgroundColor = Ke.control,
                     contentColor = Ke.textMuted,
                 ),
-                label = { EnvelopeMark(tint = Ke.textMuted, size = 18.dp) },
+                label = { Text("Use email instead", color = Ke.textMuted, fontSize = 11.sp) },
             )
         } else {
             /**
@@ -240,36 +235,5 @@ private fun GoogleMark(size: Dp) {
         scale(scale, scale, pivot = Offset.Zero) {
             paths.forEach { (colour, path) -> drawPath(path, colour) }
         }
-    }
-}
-
-/**
- * An envelope, for the email route.
- *
- * Drawn rather than shipped as an asset: it is four straight lines, and a
- * vector drawable for that would be a file to find rather than a shape to read.
- */
-@Composable
-private fun EnvelopeMark(tint: Color, size: Dp) {
-    Canvas(Modifier.size(size)) {
-        val w = this.size.width
-        val h = this.size.height * 0.74f
-        val top = (this.size.height - h) / 2f
-        val stroke = Stroke(width = this.size.minDimension * 0.11f)
-
-        drawRoundRect(
-            color = tint,
-            topLeft = Offset(0f, top),
-            size = androidx.compose.ui.geometry.Size(w, h),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(h * 0.16f),
-            style = stroke,
-        )
-        // The flap: two lines from the top corners meeting in the middle.
-        val flap = Path().apply {
-            moveTo(0f, top)
-            lineTo(w / 2f, top + h * 0.58f)
-            lineTo(w, top)
-        }
-        drawPath(flap, tint, style = stroke)
     }
 }
