@@ -48,6 +48,15 @@ const STATUS = arg('status', 'completed');
 const FRACTION = arg('fraction', null);
 const NOTES = arg('notes', null);
 const DRY_RUN = flag('dry-run');
+/**
+ * Promote a build that is already on Play to another track, without uploading.
+ *
+ * A promotion is the same artifact moving from one track to another, and Play
+ * will not accept a version code twice - so re-running the upload path to
+ * promote fails with "already on Play" and would need a pointless rebuild at a
+ * new code just to ship bytes it already has.
+ */
+const PROMOTE = arg('promote', null);
 
 const b64url = (input) =>
   Buffer.from(typeof input === 'string' ? input : JSON.stringify(input))
@@ -116,11 +125,13 @@ function versionCodeFromGradle() {
 }
 
 (async () => {
-  if (!fs.existsSync(AAB)) throw new Error(`no bundle at ${AAB} - build it first`);
-  const bundle = fs.readFileSync(AAB);
-  const expected = versionCodeFromGradle();
+  const promoting = PROMOTE !== null;
+  if (!promoting && !fs.existsSync(AAB)) throw new Error(`no bundle at ${AAB} - build it first`);
+  const bundle = promoting ? null : fs.readFileSync(AAB);
+  const expected = promoting ? Number(PROMOTE) : versionCodeFromGradle();
 
-  console.log(`bundle:  ${AAB} (${(bundle.length / 1024 / 1024).toFixed(1)} MB)`);
+  if (promoting) console.log(`promote: versionCode ${expected} (no upload)`);
+  else console.log(`bundle:  ${AAB} (${(bundle.length / 1024 / 1024).toFixed(1)} MB)`);
   console.log(`package: ${PACKAGE}`);
   console.log(`track:   ${TRACK} (${STATUS}${FRACTION ? `, ${FRACTION}` : ''})`);
   if (expected) console.log(`version: ${expected} per build.gradle`);
@@ -140,7 +151,13 @@ function versionCodeFromGradle() {
     // API's own error for this arrives after the whole bundle has gone up.
     const existing = await call(`${base}/edits/${edit.id}/bundles`, { headers });
     const used = (existing.bundles || []).map((b) => b.versionCode);
-    if (expected && used.includes(expected)) {
+    if (promoting && !used.includes(expected)) {
+      throw new Error(
+        `versionCode ${expected} is not on Play, so there is nothing to promote ` +
+        `(has: ${used.sort((a, b) => a - b).join(', ')})`,
+      );
+    }
+    if (!promoting && expected && used.includes(expected)) {
       throw new Error(
         `versionCode ${expected} is already on Play (has: ${used.sort((a, b) => a - b).join(', ')})`,
       );
@@ -166,6 +183,9 @@ function versionCodeFromGradle() {
       return;
     }
 
+    // Promotion skips straight to the track assignment: the artifact is
+    // already there, only which track serves it changes.
+    const uploaded = promoting ? { versionCode: expected } : await (async () => {
     // 1. Open a resumable session. The simple media path truncates a body this
     //    size without saying so.
     const startRes = await fetch(
@@ -188,17 +208,19 @@ function versionCodeFromGradle() {
 
     // 2. Send the bundle.
     console.log('uploading...');
-    const uploaded = await call(session, {
+    const sent = await call(session, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/octet-stream', 'Content-Length': String(bundle.length) },
       body: bundle,
     });
-    console.log(`uploaded: versionCode ${uploaded.versionCode}, sha1 ${uploaded.sha1}`);
-    if (expected && uploaded.versionCode !== expected) {
-      throw new Error(
-        `the bundle reports versionCode ${uploaded.versionCode} but build.gradle says ${expected} - the artifact is stale`,
-      );
-    }
+      console.log(`uploaded: versionCode ${sent.versionCode}, sha1 ${sent.sha1}`);
+      if (expected && sent.versionCode !== expected) {
+        throw new Error(
+          `the bundle reports versionCode ${sent.versionCode} but ${expected} was expected - the artifact is stale`,
+        );
+      }
+      return sent;
+    })();
 
     /**
      * 3. Point the track at it, WITHOUT dropping the other form factor.
