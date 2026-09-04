@@ -55,8 +55,9 @@ object Api {
         token: String?,
         body: JsonObject?,
     ): Result<JsonObject> {
+        var conn: HttpURLConnection? = null
         return runCatching {
-            val conn = (URL("$BASE$path").openConnection() as HttpURLConnection).apply {
+            conn = (URL("$BASE$path").openConnection() as HttpURLConnection).apply {
                 requestMethod = method
                 connectTimeout = CONNECT_TIMEOUT_MS
                 readTimeout = READ_TIMEOUT_MS
@@ -78,41 +79,86 @@ object Api {
                 }
             }
 
-            val code = conn.responseCode
-            val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
+            val live = conn!!
+            val code = live.responseCode
+            val text = (if (code in 200..299) live.inputStream else live.errorStream)
                 ?.bufferedReader()?.use(BufferedReader::readText).orEmpty()
-            conn.disconnect()
 
-            if (code == 401 || code == 403) {
+            /**
+             * A value, not an early return.
+             *
+             * These were `return Result.Failed(...)` straight out of `call`,
+             * which is a non-local return through the lambda - so it skipped
+             * the `also` below and leaked the connection on exactly the paths
+             * most likely to be hit repeatedly: an expired token retrying, a
+             * server erroring on every sync.
+             */
+            when {
+                code == 401 || code == 403 -> {
+                    /**
+                     * Say what the server said, not "Signed out".
+                     *
+                     * A 401 means two different things here. On an
+                     * authenticated call it means the token is dead and the
+                     * watch has to sign out; on a LOGIN it means the password
+                     * was wrong, and the server sends a sentence saying exactly
+                     * that. Collapsing both into "Signed out" showed somebody
+                     * who mistyped their password a message about a session
+                     * they never had.
+                     *
+                     * The `unauthorized` flag still travels, because that is
+                     * what the sync path keys off - only the words change.
+                     */
+                    val said = runCatching {
+                        (json.parseToJsonElement(text) as? JsonObject)
+                            ?.get("error")?.toString()?.trim('"')
+                    }.getOrNull()?.takeIf { it.isNotBlank() && it != "null" }
+                    Result.Failed(said ?: "Signed out", unauthorized = true)
+                }
+
+                code !in 200..299 -> {
+                    val msg = runCatching {
+                        (json.parseToJsonElement(text) as? JsonObject)
+                            ?.get("message")?.toString()?.trim('"')
+                    }.getOrNull()?.takeIf { it.isNotBlank() && it != "null" }
+                    Result.Failed(msg ?: "Request failed ($code)")
+                }
+
                 /**
-                 * Say what the server said, not "Signed out".
+                 * A 2xx that is not a JSON object is a network problem, not a
+                 * bug.
                  *
-                 * A 401 means two different things here. On an authenticated
-                 * call it means the token is dead and the watch has to sign
-                 * out; on a LOGIN it means the password was wrong, and the
-                 * server sends a sentence saying exactly that. Collapsing both
-                 * into "Signed out" showed somebody who mistyped their password
-                 * a message about a session they never had.
-                 *
-                 * The `unauthorized` flag still travels, because that is what
-                 * the sync path keys off - only the words change.
+                 * A captive portal, a proxy sign-in page or a WAF challenge all
+                 * answer 200 with HTML. Casting it straight to JsonObject
+                 * surfaced the parser's own exception text on screen, and
+                 * "Unexpected JSON token at offset 0" is not something anybody
+                 * can act on - it reads as the app being broken rather than the
+                 * connection being intercepted.
                  */
-                val said = runCatching {
-                    (json.parseToJsonElement(text) as? JsonObject)
-                        ?.get("error")?.toString()?.trim('"')
-                }.getOrNull()?.takeIf { it.isNotBlank() && it != "null" }
-                return Result.Failed(said ?: "Signed out", unauthorized = true)
+                else -> (json.parseToJsonElement(text) as? JsonObject)
+                    ?.let { Result.Ok(it) }
+                    ?: Result.Failed("Couldn't reach the server. Check the watch's connection.")
             }
-            if (code !in 200..299) {
-                val msg = runCatching {
-                    json.parseToJsonElement(text).let { el ->
-                        (el as? JsonObject)?.get("message")?.toString()?.trim('"')
-                    }
-                }.getOrNull()
-                return Result.Failed(msg ?: "Request failed ($code)")
-            }
-            Result.Ok(json.parseToJsonElement(text) as JsonObject)
-        }.getOrElse { Result.Failed(it.message ?: "No connection") }
+        }.getOrElse {
+            Result.Failed(
+                when (it) {
+                    is java.net.UnknownHostException,
+                    is java.net.ConnectException,
+                    -> "No connection."
+                    is java.net.SocketTimeoutException -> "The server took too long to answer."
+                    // Anything the parser threw is the same hijacked-response
+                    // case as above, reached by a different route.
+                    is kotlinx.serialization.SerializationException,
+                    is IllegalArgumentException,
+                    -> "Couldn't reach the server. Check the watch's connection."
+                    else -> it.message ?: "No connection."
+                },
+            )
+        }.also {
+            // In `also` rather than inline: a throw while reading the body used
+            // to skip the disconnect entirely and leak the connection.
+            runCatching { conn?.disconnect() }
+        }
     }
 
     private fun timezone(): String = runCatching { TimeZone.getDefault().id }.getOrDefault("UTC")

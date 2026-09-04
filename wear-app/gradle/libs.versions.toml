@@ -10,6 +10,7 @@ horologist = "0.6.22"
 playServicesAuth = "21.2.0"
 kotlinxSerialization = "1.7.3"
 coroutines = "1.9.0"
+junit = "4.13.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,6 +38,11 @@ play-services-auth = { group = "com.google.android.gms", name = "play-services-a
 
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "coroutines" }
+
+# Unit tests, on the JVM. The logic worth testing here - the streak walk, the
+# Monday-first weekday conversion, the entitlement window - is all pure, so it
+# needs no device and no Robolectric.
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

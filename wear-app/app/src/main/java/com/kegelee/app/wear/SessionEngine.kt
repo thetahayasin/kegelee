@@ -394,6 +394,7 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         cachedEnd = 0
         stepIndex = 0
         elapsedSeconds = 0
+        pausedByUser = false
         sessionStartedAt = System.currentTimeMillis()
         beginStep()
         val now = System.currentTimeMillis()
@@ -409,14 +410,57 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
         cue(steps.first())
     }
 
+    /**
+     * Whether the PERSON paused, as opposed to the app going away.
+     *
+     * The distinction is what makes the automatic pause safe: leaving and
+     * coming back resumes, but coming back to a session somebody deliberately
+     * paused leaves it paused, which is what they asked for.
+     */
+    private var pausedByUser = false
+
     fun pause() {
         if (phase != Phase.RUNNING) return
-        pausedAt = System.currentTimeMillis()
-        phase = Phase.PAUSED
+        pausedByUser = true
+        holdClock()
     }
 
     fun resume() {
         if (phase != Phase.PAUSED) return
+        pausedByUser = false
+        releaseClock()
+    }
+
+    /**
+     * The app stopped being drawn, so stop the session with it.
+     *
+     * `tick` is driven by `withFrameNanos`, which stops when the app is not
+     * drawing - but the clocks it reads are the wall clock and keep running. So
+     * a session left running through a screen timeout came back and advanced
+     * one step per FRAME to catch up: the circle flickered through half the
+     * workout in a second and `cue()` fired for every contraction it passed,
+     * which on a wrist is a volley of buzzes out of nowhere. `elapsedSeconds`
+     * counted the dark time too, so the recorded session was longer than the
+     * one anybody did.
+     *
+     * Pausing on the way out means there is nothing to catch up on the way
+     * back in. Wear screens time out in seconds and blank whenever an arm
+     * drops, so this is the normal path through a session, not an edge case.
+     */
+    fun onEnterBackground() {
+        if (phase == Phase.RUNNING) holdClock()
+    }
+
+    fun onEnterForeground() {
+        if (phase == Phase.PAUSED && !pausedByUser) releaseClock()
+    }
+
+    private fun holdClock() {
+        pausedAt = System.currentTimeMillis()
+        phase = Phase.PAUSED
+    }
+
+    private fun releaseClock() {
         // Slide both clocks forward by the length of the pause, so the step
         // resumes where it stopped instead of jumping to wherever the wall
         // clock has got to.
@@ -428,6 +472,7 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
 
     fun stop() {
         phase = Phase.IDLE
+        pausedByUser = false
         steps = emptyList()
         stepIndex = 0
         stepProgress = 0f
@@ -563,13 +608,35 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
              * the phone's own reasoning - its comment calls the cue closer to an
              * alarm than to a keypress.
              */
-            val attrs = VibrationAttributes.Builder()
-                .setUsage(VibrationAttributes.USAGE_ALARM)
-                .build()
-            vibrator?.vibrate(
-                VibrationEffect.createOneShot(CUE_MS, VibrationEffect.DEFAULT_AMPLITUDE),
-                attrs,
-            )
+            val effect = VibrationEffect.createOneShot(CUE_MS, VibrationEffect.DEFAULT_AMPLITUDE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val attrs = VibrationAttributes.Builder()
+                    .setUsage(VibrationAttributes.USAGE_ALARM)
+                    .build()
+                vibrator?.vibrate(effect, attrs)
+            } else {
+                /**
+                 * Below 33 the same declaration is made with AudioAttributes.
+                 *
+                 * `VibrationAttributes` did not become public until API 33 and
+                 * minSdk here is 30, so the call above raises NoSuchMethodError
+                 * on Wear OS 3 and 3.5 - and the runCatching around this block
+                 * swallowed it, which is the same silent failure as the
+                 * USAGE_UNKNOWN bug that came before it. Android lint had it
+                 * as a build error the whole time; nothing was running lint.
+                 *
+                 * USAGE_ALARM on either type, for the reason given above: this
+                 * cue exists for the moments the wrist is down.
+                 */
+                @Suppress("DEPRECATION")
+                vibrator?.vibrate(
+                    effect,
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build(),
+                )
+            }
         }
     }
 

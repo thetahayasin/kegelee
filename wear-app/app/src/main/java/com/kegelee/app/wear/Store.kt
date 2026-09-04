@@ -114,9 +114,20 @@ object Store {
      * The outbox goes too. Anything still queued belongs to the account that is
      * leaving, and handing it to whoever signs in next would file one person's
      * training under another's.
+     *
+     * @param keepOutbox for the one case where nobody chose to leave: the
+     *   server rejected the token. That is not a handover to anybody, it is
+     *   usually transient, and throwing away finished workouts over it loses
+     *   training that would have uploaded on the next attempt. The queue is
+     *   keyed by `client_id`, so it stays safe to push whenever a token
+     *   returns.
      */
-    fun signOut(context: Context) {
-        prefs(context).edit().remove(K_TOKEN).remove(K_PROFILE).remove(K_OUTBOX).apply()
+    fun signOut(context: Context, keepOutbox: Boolean = false) {
+        prefs(context).edit().apply {
+            remove(K_TOKEN)
+            remove(K_PROFILE)
+            if (!keepOutbox) remove(K_OUTBOX)
+        }.apply()
     }
 
     // --- Appearance ---------------------------------------------------------

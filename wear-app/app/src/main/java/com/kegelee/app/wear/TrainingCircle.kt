@@ -15,10 +15,13 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,7 +77,22 @@ fun TrainingCircle(
     val Ke = LocalPalette.current
     val box = ring * 1.7f
 
-    Box(modifier = modifier.size(box), contentAlignment = Alignment.Center) {
+    /**
+     * What a screen reader is told, since none of this is text it can reach.
+     *
+     * The circle is raw Canvas and the numerals inside it are three separate
+     * unrelated Texts, so TalkBack read a bare number with no idea what it was
+     * counting. Merged into one node with a spoken state, which is also what
+     * gets announced when the cue changes.
+     */
+    val spoken = listOf(exercise, label, "${seconds}s").filter { it.isNotBlank() }.joinToString(", ")
+
+    Box(
+        modifier = modifier
+            .size(box)
+            .semantics(mergeDescendants = true) { stateDescription = spoken },
+        contentAlignment = Alignment.Center,
+    ) {
 
         /**
          * Halo, rim and ring in ONE draw pass, with the gradient cached.
@@ -197,6 +215,7 @@ fun TrainingCircle(
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = label,
@@ -204,6 +223,7 @@ fun TrainingCircle(
                 fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
             if (exercise.isNotBlank()) {
@@ -211,8 +231,10 @@ fun TrainingCircle(
                 Text(
                     text = exercise,
                     color = Ke.textMuted,
-                    fontSize = 8.sp,
+                    // 8sp was below anything readable on a wrist at arm's length.
+                    fontSize = 10.sp,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
                 )
             }

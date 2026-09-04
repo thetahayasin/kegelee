@@ -33,6 +33,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.focus.FocusRequester
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
@@ -44,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.ChipDefaults
@@ -74,6 +78,20 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+
+    /**
+     * The Google route's state, which lives outside this screen.
+     *
+     * The picker is an activity result handled by MainActivity, so neither the
+     * spinner nor the failure can be local `remember`s the way the email
+     * route's are - the screen is still composed while the sign-in happens
+     * somewhere else entirely.
+     */
+    val googleBusy by Repo.authBusy.collectAsStateWithLifecycle()
+    val googleError by Repo.authError.collectAsStateWithLifecycle()
+
+    // Whichever route last said something is what gets shown.
+    val shown = error ?: googleError
 
     /**
      * A Wear list, not a padded Column.
@@ -110,7 +128,8 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
         if (showPassword) {
             item {
                 CompactChip(
-                    onClick = { showPassword = false; error = null },
+                    onClick = { showPassword = false; error = null; Repo.clearGoogleSignIn() },
+                    modifier = Modifier.semantics { contentDescription = "Back" },
                     colors = ChipDefaults.chipColors(
                         backgroundColor = Ke.control,
                         contentColor = Ke.textMuted,
@@ -144,7 +163,7 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
              * than a plain chip would be.
              */
             CompactChip(
-                onClick = onGoogleSignIn,
+                onClick = { if (!googleBusy) onGoogleSignIn() },
                 colors = ChipDefaults.chipColors(
                     backgroundColor = Color.White,
                     contentColor = Color(0xFF1F1F1F),
@@ -152,11 +171,14 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                 icon = { GoogleMark(size = 16.dp) },
                 label = {
                     Text(
-                        "Sign in with Google",
+                        // Says it is working, so nobody presses it three times
+                        // while an account picker is on its way up.
+                        if (googleBusy) "Signing in…" else "Sign in with Google",
                         color = Color(0xFF1F1F1F),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 },
             )
@@ -167,7 +189,7 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
             // picture of the word "email", and a bare one leaves somebody
             // guessing what pressing it does.
             CompactChip(
-                onClick = { showPassword = true },
+                onClick = { Repo.clearGoogleSignIn(); showPassword = true },
                 colors = ChipDefaults.chipColors(
                     backgroundColor = Ke.control,
                     contentColor = Ke.textMuted,
@@ -216,7 +238,7 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
             }
         }
 
-        error?.let { message ->
+        shown?.let { message ->
             item {
                 Text(
                     message,

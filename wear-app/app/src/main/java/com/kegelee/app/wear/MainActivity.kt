@@ -16,7 +16,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
@@ -62,24 +66,78 @@ class MainActivity : ComponentActivity() {
         if (!granted) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
+    /**
+     * Ask on the way IN to a signed-in state, not only on the next launch.
+     *
+     * `onStart` asks when somebody is already signed in, which skips the one
+     * moment it matters most: a first sign-in happens after `onStart` has
+     * already run, so the prompt did not appear until the app was next opened
+     * by hand - and any reminder armed in between fired an alarm that posted
+     * nothing. That is the original silent-reminder bug arriving through a
+     * different door.
+     */
+    private fun watchForSignIn() {
+        lifecycleScope.launch {
+            var wasSignedIn = Repo.auth.value == Repo.Auth.SIGNED_IN
+            Repo.auth.collect { state ->
+                val signedIn = state == Repo.Auth.SIGNED_IN
+                if (signedIn && !wasSignedIn) ensureNotificationPermission()
+                wasSignedIn = signedIn
+            }
+        }
+    }
+
+    /**
+     * Google sign-in, with every way it can fail actually reported.
+     *
+     * This used to read the token and, if it was null, do nothing at all - so a
+     * cancelled picker, a watch without Play services, a network drop and a
+     * token the backend would have rejected were indistinguishable: the login
+     * screen reappeared unchanged and people pressed the button again. The
+     * email route already had an error line; this one now writes to the same
+     * place.
+     */
     private val googleSignIn = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        val token = runCatching {
+        val account = runCatching {
             GoogleSignIn.getSignedInAccountFromIntent(result.data).getResult(
                 com.google.android.gms.common.api.ApiException::class.java,
-            ).idToken
-        }.getOrNull()
-        if (!token.isNullOrBlank()) {
-            lifecycleScope.launch { Repo.signInWithGoogle(applicationContext, token) }
+            )
+        }
+        val token = account.getOrNull()?.idToken
+        val failure = account.exceptionOrNull()
+        val cancelled = (failure as? ApiException)?.statusCode == CommonStatusCodes.CANCELED
+
+        when {
+            !token.isNullOrBlank() -> lifecycleScope.launch {
+                val error = Repo.signInWithGoogle(applicationContext, token)
+                if (error != null) Repo.failGoogleSignIn(error)
+            }
+            // Cancelling is a choice, not a fault: drop the spinner, say nothing.
+            cancelled -> Repo.clearGoogleSignIn()
+            else -> Repo.failGoogleSignIn(googleFailureMessage(failure))
         }
     }
+
+    /** Google's status codes, in words somebody can act on. */
+    private fun googleFailureMessage(error: Throwable?): String =
+        when ((error as? ApiException)?.statusCode) {
+            CommonStatusCodes.NETWORK_ERROR ->
+                "No connection. Try again when the watch is online."
+            CommonStatusCodes.SIGN_IN_REQUIRED ->
+                "No Google account on this watch. Add one in Settings, or use email."
+            CommonStatusCodes.DEVELOPER_ERROR ->
+                "This build cannot sign in with Google. Use email instead."
+            else -> "Google sign-in did not work. Try again, or use email."
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(android.R.style.Theme_DeviceDefault)
         super.onCreate(savedInstanceState)
 
         Repo.bootstrap(applicationContext)
+        watchForSignIn()
         // Debug-only stand-in for a signed-in account, so the session player is
         // reachable on an emulator. Never compiled into a release.
         /**
@@ -114,6 +172,7 @@ class MainActivity : ComponentActivity() {
                         Store.setThemeMode(applicationContext, picked)
                     },
                     onGoogleSignIn = {
+                        Repo.beginGoogleSignIn()
                         val options = GoogleSignInOptions
                             .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                             .requestIdToken(webClientId)
@@ -148,8 +207,17 @@ class MainActivity : ComponentActivity() {
              * schedule is already on disk; arming from it needs nobody's
              * permission and no radio.
              */
-            Reminders.apply(applicationContext, Store.profile(applicationContext))
-            lifecycleScope.launch { Repo.sync(applicationContext) }
+            /**
+             * Off the main thread: `apply` clears 32 PendingIntents before it
+             * arms anything, and that is 32 binder round trips standing between
+             * launch and the first frame.
+             */
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    Reminders.apply(applicationContext, Store.profile(applicationContext))
+                }
+                Repo.sync(applicationContext)
+            }
         }
     }
 }

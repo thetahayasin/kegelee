@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The notification's small icon.
+
+  Android silhouettes small icons - every non-transparent pixel is repainted a
+  flat colour - so the launcher mipmap this used to point at arrived as an
+  indistinct grey blob. A small icon has to carry its meaning in its SHAPE
+  alone, which is why this is a single white glyph on transparency.
+
+  The mark is the training ring the whole app is built around, with the gap at
+  the top that the session arc grows from.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,3.2c-4.86,0 -8.8,3.94 -8.8,8.8s3.94,8.8 8.8,8.8 8.8,-3.94 8.8,-8.8c0,-1.62 -0.44,-3.14 -1.2,-4.45l-1.73,1c0.59,1.02 0.93,2.2 0.93,3.45 0,3.75 -3.05,6.8 -6.8,6.8s-6.8,-3.05 -6.8,-6.8 3.05,-6.8 6.8,-6.8c1.6,0 3.07,0.55 4.23,1.48l1.27,-1.55C15.98,3.89 14.08,3.2 12,3.2z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,7.6m-2.2,0a2.2,2.2 0,1 1,4.4 0a2.2,2.2 0,1 1,-4.4 0" />
+</vector>

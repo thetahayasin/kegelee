@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nothing this app stores may leave the watch.
+
+  `allowBackup="false"` already covers the legacy path, but from Android 12 the
+  cloud-backup and device-transfer paths are configured separately and default
+  to including app data. What is stored here is a session token and a training
+  history, so both are excluded outright rather than filtered: a token restored
+  onto a different device is a credential that has been copied.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+    </device-transfer>
+</data-extraction-rules>

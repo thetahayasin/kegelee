@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import java.util.Calendar
 
@@ -34,8 +33,20 @@ object Reminders {
     /** Never promise further ahead than this without the app having run again. */
     private const val HORIZON_DAYS = 8
 
+    /**
+     * How many slots can be armed, and the reason it is a hard limit.
+     *
+     * `cancelAll` clears request codes BASE_REQUEST + 0 until this, so anything
+     * armed past it could never be cancelled again: it would keep firing
+     * through a schedule change, an unsubscription and a sign-out, with no way
+     * for the app to stop it. Arming fewer reminders than asked for is a bad
+     * day; arming one that cannot be turned off is a support ticket nobody can
+     * close.
+     */
+    private const val MAX_SLOTS = 32
+
     fun ensureChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        // No SDK_INT guard: minSdk is 30, so channels always exist here.
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, "Training reminders", NotificationManager.IMPORTANCE_HIGH)
@@ -67,6 +78,7 @@ object Reminders {
         var slot = 0
         for (day in profile.activeReminders) {
             for (time in day.times) {
+                if (slot >= MAX_SLOTS) return
                 val at = nextOccurrence(day.weekday, time, now) ?: continue
                 if (at > horizon) continue
                 val intent = Intent(context, ReminderReceiver::class.java).setAction(ACTION)
@@ -91,7 +103,7 @@ object Reminders {
         val alarms = context.getSystemService(android.app.AlarmManager::class.java) ?: return
         // 7 days x a few slots each, comfortably covering anything the phone's
         // editor can produce.
-        for (i in 0 until 32) {
+        for (i in 0 until MAX_SLOTS) {
             val intent = Intent(context, ReminderReceiver::class.java).setAction(ACTION)
             val pending = PendingIntent.getBroadcast(
                 context,
@@ -114,7 +126,8 @@ object Reminders {
      * Converting here, once, is what stops Monday's reminder arriving on a
      * Tuesday.
      */
-    private fun nextOccurrence(mondayFirstWeekday: Int, time: String, now: Long): Long? {
+    // internal, not private, so the test source set can reach it.
+    internal fun nextOccurrence(mondayFirstWeekday: Int, time: String, now: Long): Long? {
         val parts = time.split(":")
         val hour = parts.getOrNull(0)?.toIntOrNull() ?: return null
         val minute = parts.getOrNull(1)?.toIntOrNull() ?: return null
@@ -145,7 +158,10 @@ object Reminders {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            // A monochrome drawable, not the launcher mipmap: Android
+            // silhouettes small icons, so a full-colour bitmap arrives as an
+            // indistinct grey blob.
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Time to train")
             .setContentText("A quick session keeps the streak going")
             .setContentIntent(open)

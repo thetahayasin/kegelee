@@ -100,6 +100,24 @@ android {
         }
     }
 
+    /**
+     * Lint runs on the way to a release, and NewApi stops it.
+     *
+     * `android.os.Vibrator#vibrate` with VibrationAttributes is API 33 and
+     * minSdk here is 30, so the premium haptic cue threw NoSuchMethodError on
+     * every Wear OS 3 watch - swallowed by a runCatching, so it simply never
+     * buzzed. Lint had called it an error the entire time and nothing ever ran
+     * lint: `lintVital`, which is the one that runs automatically on a release
+     * build, only checks issues marked FATAL, and NewApi is merely an error.
+     *
+     * Marking it fatal puts it in lintVital's set, so a release build now fails
+     * rather than shipping a feature that cannot work on half the install base.
+     */
+    lint {
+        abortOnError = true
+        fatal += "NewApi"
+    }
+
     buildTypes {
         debug {
             /**
@@ -157,6 +175,8 @@ android {
 }
 
 dependencies {
+    testImplementation(libs.junit)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

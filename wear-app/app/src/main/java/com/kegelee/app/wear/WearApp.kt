@@ -1,5 +1,6 @@
 package com.kegelee.app.wear
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,11 +21,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -36,10 +38,18 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
@@ -54,7 +64,6 @@ import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private enum class Screen { HOME, SESSION, DONE, LEVEL, EXERCISES, APPEARANCE, ACCOUNT }
@@ -161,6 +170,41 @@ private fun HomeScreen(
     val syncing by Repo.syncing.collectAsStateWithLifecycle()
 
     val p = profile
+
+    /**
+     * Entitlement, resolved ONCE for this pass.
+     *
+     * `entitledAsOf(System.currentTimeMillis())` was called at four separate
+     * points on this screen alone. It is a wall-clock read rather than snapshot
+     * state, so nothing recomposes when the TTL lapses and two calls in the
+     * same frame can in principle disagree - four answers to one question.
+     */
+    val entitled = p?.entitledAsOf(System.currentTimeMillis()) == true
+
+    /**
+     * Why the last sync did not work, if it did not.
+     *
+     * This state existed and no screen read it, so a dead token or an
+     * unreachable server presented as stale figures that quietly stopped
+     * moving. There is no manual sync button by design, which makes saying
+     * nothing worse rather than better: without a reason there is nothing to
+     * act on.
+     */
+    val lastError by Repo.lastError.collectAsStateWithLifecycle()
+
+    /**
+     * Set when Start produced nothing to do.
+     *
+     * `buildDaily` returns an empty playlist if the catalogue failed to load -
+     * and `Catalogue.load` swallows its own errors - so the button silently did
+     * nothing at all, forever, with no way to tell a broken asset from a broken
+     * app.
+     */
+    var startFailed by remember { mutableStateOf(false) }
+
+    /** Set when a locked row is pressed, so the lock explains itself. */
+    var lockedNote by remember { mutableStateOf(false) }
+
     /**
      * Open on the ring, not on the row below it.
      *
@@ -194,10 +238,26 @@ private fun HomeScreen(
 
                 if (p == null) {
                     Text(
-                        if (syncing) "Syncing…" else "Not synced yet",
+                        when {
+                            syncing -> "Syncing…"
+                            lastError != null -> "Can't sync"
+                            else -> "Not synced yet"
+                        },
                         color = Ke.textMuted,
                         fontSize = 11.sp,
                     )
+                    lastError?.let {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            it,
+                            color = Ke.textMuted,
+                            fontSize = 9.sp,
+                            textAlign = TextAlign.Center,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 20.dp),
+                        )
+                    }
                 } else {
                     /**
                      * A free account still trains, on the free exercises.
@@ -223,11 +283,15 @@ private fun HomeScreen(
                              * earned while subscribed keep unlocking things
                              * after the subscription ended.
                              */
-                            val entitled = p.entitledAsOf(System.currentTimeMillis())
                             val days = if (entitled) p.completedDays
                             else minOf(p.completedDays, Catalogue.freeDayCap)
                             val playlist = SessionBuilder.buildDaily(days, p.levelId, entitled)
-                            if (playlist.steps.isNotEmpty()) onStart(playlist.steps)
+                            if (playlist.steps.isNotEmpty()) {
+                                startFailed = false
+                                onStart(playlist.steps)
+                            } else {
+                                startFailed = true
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
                         modifier = Modifier.size(width = 128.dp, height = 44.dp),
@@ -245,6 +309,16 @@ private fun HomeScreen(
                         color = Ke.textMuted,
                         fontSize = 10.sp,
                     )
+                    if (startFailed) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "No exercises available. Open the phone app to sync your plan.",
+                            color = Ke.danger,
+                            fontSize = 9.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 14.dp),
+                        )
+                    }
                 }
             }
         }
@@ -261,16 +335,27 @@ private fun HomeScreen(
                 // before the tap - the same treatment the Vibration row gets.
                 LockableChip(
                     label = "Difficulty · ${Catalogue.levelName(p.levelId)}",
-                    locked = !p.entitledAsOf(System.currentTimeMillis()),
+                    locked = !entitled,
                     onClick = onChangeLevel,
                 )
             }
             item { ActionChip("Exercises", onExercises) }
             item { ActionChip("Appearance", onAppearance) }
             item { ActionChip("Account", onAccount) }
-            item { HapticsChip(entitled = p.entitledAsOf(System.currentTimeMillis())) }
+            item { HapticsChip(entitled = entitled, onLockedTap = { lockedNote = true }) }
+            if (lockedNote && !entitled) {
+                item {
+                    Text(
+                        "Vibration cues are part of Premium",
+                        color = Ke.accent,
+                        fontSize = 9.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+            }
 
-            if (p.entitledAsOf(System.currentTimeMillis())) {
+            if (entitled) {
                 item { Text("Reminders", color = Ke.textMuted, fontSize = 10.sp) }
                 // Comma-separated: "08:00 20:00" read as one strange time rather
                 // than two reminders.
@@ -287,8 +372,8 @@ private fun HomeScreen(
                 }
             }
 
-            item {
-                if (!p.entitledAsOf(System.currentTimeMillis())) {
+            if (!entitled) {
+                item {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Premium", color = Ke.accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                         Text(
@@ -318,11 +403,11 @@ private fun HomeScreen(
  *
  * Premium, like the phone's - the buzz is part of the subscription, so a free
  * account sees the row and what it would give them rather than having it hidden
- * and never knowing it exists. Tapping it while locked does nothing, because
- * there is nothing here that could unlock it; the watch cannot sell anything.
+ * and never knowing it exists. Tapping it while locked says so, rather than
+ * doing nothing - the watch cannot sell anything, but it can explain itself.
  */
 @Composable
-private fun HapticsChip(entitled: Boolean) {
+private fun HapticsChip(entitled: Boolean, onLockedTap: () -> Unit) {
     val Ke = LocalPalette.current
     val context = LocalContext.current
     var on by remember { mutableStateOf(Store.hapticsEnabled(context)) }
@@ -330,10 +415,21 @@ private fun HapticsChip(entitled: Boolean) {
     Row(
         modifier = Modifier
             .padding(vertical = 2.dp)
+            .defaultMinSize(minHeight = TAP_TARGET)
             .clip(RoundedCornerShape(50))
             .background(Ke.control)
             .border(1.dp, Ke.controlEdge, RoundedCornerShape(50))
-            .clickable(enabled = entitled) {
+            /**
+             * Locked still answers.
+             *
+             * This was `clickable(enabled = entitled)`, so a free account
+             * pressed a row marked Premium and got nothing at all - while the
+             * Difficulty row beside it, locked in exactly the same way, opened
+             * a screen explaining itself. Two locked controls behaving
+             * differently teaches nothing except that the app is unreliable.
+             */
+            .clickable {
+                if (!entitled) return@clickable onLockedTap()
                 on = !on
                 Store.setHapticsEnabled(context, on)
             }
@@ -347,6 +443,7 @@ private fun HapticsChip(entitled: Boolean) {
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
         Text(
             if (!entitled) "Premium" else if (on) "On" else "Off",
@@ -354,6 +451,7 @@ private fun HapticsChip(entitled: Boolean) {
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -439,6 +537,7 @@ private fun ActionChip(label: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(vertical = 2.dp)
+            .defaultMinSize(minHeight = TAP_TARGET)
             .clip(RoundedCornerShape(50))
             .background(Ke.control)
             .border(1.dp, Ke.controlEdge, RoundedCornerShape(50))
@@ -446,7 +545,7 @@ private fun ActionChip(label: String, onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 9.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = Ke.text, fontSize = 11.sp, maxLines = 1, fontWeight = FontWeight.Medium)
+        Text(label, color = Ke.text, fontSize = 11.sp, maxLines = 1, fontWeight = FontWeight.Medium, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -463,6 +562,7 @@ private fun LockableChip(label: String, locked: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(vertical = 2.dp)
+            .defaultMinSize(minHeight = TAP_TARGET)
             .clip(RoundedCornerShape(50))
             .background(Ke.control)
             .border(1.dp, Ke.controlEdge, RoundedCornerShape(50))
@@ -477,23 +577,31 @@ private fun LockableChip(label: String, locked: Boolean, onClick: () -> Unit) {
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
         if (locked) {
-            Text("Premium", color = Ke.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            Text("Premium", color = Ke.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
 
+/**
+ * A label and its figure, inset clear of the glass.
+ *
+ * With no horizontal padding this is a full-width row on a CIRCULAR display,
+ * so both ends sat outside the screen: "Streak" rendered as "reak" and
+ * "3 days" as "3 da". The chips beside it were already inset; this was not.
+ */
 @Composable
 private fun StatRow(label: String, value: String) {
     val Ke = LocalPalette.current
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp, vertical = 3.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, color = Ke.textMuted, fontSize = 12.sp, maxLines = 1)
-        Text(value, color = Ke.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Text(label, color = Ke.textMuted, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(value, color = Ke.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -514,13 +622,23 @@ private fun ReminderRow(days: String, times: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(days, color = Ke.textMuted, fontSize = 10.sp, maxLines = 1)
-        Text(times, color = Ke.accent, fontSize = 10.sp, maxLines = 1, fontWeight = FontWeight.SemiBold)
+        Text(days, color = Ke.textMuted, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(times, color = Ke.accent, fontSize = 10.sp, maxLines = 1, fontWeight = FontWeight.SemiBold, overflow = TextOverflow.Ellipsis)
     }
 }
 
 /** Monday-first, matching the backend's own weekday index. */
 private val WEEKDAY_NAMES = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+/**
+ * The smallest a tappable row may be.
+ *
+ * The custom chips came out around 36dp, which is under the 48dp minimum on
+ * the smallest screen the product runs on - and these rows are reached while
+ * walking, which is the case the guideline exists for. Wear's own CompactChip
+ * already pads its tap target to this; the hand-rolled ones did not.
+ */
+private val TAP_TARGET = 48.dp
 
 /**
  * Who is signed in, and the way out.
@@ -563,10 +681,10 @@ private fun AccountScreen(onDone: () -> Unit) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Account", color = Ke.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 profile?.name?.takeIf { it.isNotBlank() }?.let {
-                    Text(it, color = Ke.text, fontSize = 11.sp, maxLines = 1)
+                    Text(it, color = Ke.text, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 profile?.email?.takeIf { it.isNotBlank() }?.let {
-                    Text(it, color = Ke.textMuted, fontSize = 9.sp, maxLines = 1)
+                    Text(it, color = Ke.textMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }
@@ -612,11 +730,73 @@ private fun AccountScreen(onDone: () -> Unit) {
  * most - to say something a small line inside the ring can say continuously
  * without covering anything.
  */
+/**
+ * Hold the display awake for as long as this is composed.
+ *
+ * A Wear screen times out in seconds and blanks the moment a wrist drops, and
+ * a guided session is exactly the case where nobody is touching it - so the
+ * circle somebody is following went dark part way through every session. The
+ * manifest had asked for WAKE_LOCK since the first commit and nothing had ever
+ * used it.
+ *
+ * `View.keepScreenOn` rather than a wake lock: it is scoped to the view, so it
+ * cannot outlive the screen and leak, and `onDispose` releases it on every
+ * exit - finishing, ending early, backing out or being destroyed. The phone app
+ * does the same thing through `KeepAwake.activate` in WorkoutScreen.
+ */
+@Composable
+private fun KeepScreenOn() {
+    val view = LocalView.current
+    DisposableEffect(view) {
+        view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
+}
+
+/**
+ * Stop the session while the app is not on screen, and pick it up on return.
+ *
+ * See `SessionEngine.onEnterBackground` for why this matters: the tick is
+ * driven by the frame clock and stops with the app, but the wall clock it reads
+ * does not - so without this a session came back and replayed every missed step
+ * at frame rate, buzzing for each one.
+ */
+@Composable
+private fun PauseWhileAway(engine: SessionEngine) {
+    val owner = LocalLifecycleOwner.current
+    DisposableEffect(owner, engine) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_STOP -> engine.onEnterBackground()
+                Lifecycle.Event.ON_START -> engine.onEnterForeground()
+                else -> Unit
+            }
+        }
+        owner.lifecycle.addObserver(observer)
+        onDispose { owner.lifecycle.removeObserver(observer) }
+    }
+}
+
 @Composable
 private fun SessionScreen(engine: SessionEngine, onStop: () -> Unit, onFinished: () -> Unit) {
     val Ke = LocalPalette.current
     val context = LocalContext.current
     val paused = engine.phase == SessionEngine.Phase.PAUSED
+
+    KeepScreenOn()
+    PauseWhileAway(engine)
+
+    /**
+     * Back does not throw the session away without asking.
+     *
+     * Ending is one tap from Pause on a 40mm screen, and a stray back gesture
+     * mid-session used to discard the whole workout silently. The first press
+     * pauses and arms the confirmation; the second ends it.
+     */
+    var confirmEnd by remember { mutableStateOf(false) }
+    BackHandler {
+        if (confirmEnd) onStop() else { engine.pause(); confirmEnd = true }
+    }
 
     /**
      * One tick per frame, from the frame clock.
@@ -633,6 +813,17 @@ private fun SessionScreen(engine: SessionEngine, onStop: () -> Unit, onFinished:
         }
     }
 
+    /**
+     * Show the completion screen NOW, and let the upload follow.
+     *
+     * `recordSession` used to be awaited here, and it ends in a full push and
+     * pull - 15s connect plus 30s read, twice. On a weak connection somebody
+     * who had just finished sat looking at the frozen last frame of their
+     * session, Pause and End still showing, for the better part of a minute.
+     *
+     * Waiting bought nothing: the session is written to the outbox before any
+     * network call, so it is already safe by the time this runs.
+     */
     LaunchedEffect(engine.phase) {
         if (engine.phase == SessionEngine.Phase.DONE) {
             Repo.recordSession(context, engine.elapsedSeconds, engine.trainedSlugs())
@@ -695,19 +886,46 @@ private fun SessionScreen(engine: SessionEngine, onStop: () -> Unit, onFinished:
             exercise = exercise,
         )
 
+        /**
+         * Clear of the curve.
+         *
+         * 4dp from the bottom put the End chip's shoulder into the bezel on a
+         * round screen, where it was both clipped and hard to hit.
+         */
         Row(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             CompactChip(
-                onClick = { if (paused) engine.resume() else engine.pause() },
+                onClick = {
+                    confirmEnd = false
+                    if (paused) engine.resume() else engine.pause()
+                },
                 colors = ChipDefaults.chipColors(backgroundColor = Ke.control, contentColor = Ke.text),
-                label = { Text(if (paused) "Resume" else "Pause", color = Ke.text, fontSize = 11.sp) },
+                label = { Text(if (paused) "Resume" else "Pause", color = Ke.text, fontSize = 12.sp) },
             )
+            /**
+             * Ending asks once.
+             *
+             * This sat one tap from Pause on a 40mm screen and threw the whole
+             * workout away on the first press, with nothing recorded and no way
+             * back. It now pauses and asks; the second press ends it.
+             */
             CompactChip(
-                onClick = onStop,
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.control, contentColor = Ke.textMuted),
-                label = { Text("End", color = Ke.textMuted, fontSize = 11.sp) },
+                onClick = { if (confirmEnd) onStop() else { engine.pause(); confirmEnd = true } },
+                colors = ChipDefaults.chipColors(
+                    backgroundColor = if (confirmEnd) Ke.danger else Ke.control,
+                    contentColor = if (confirmEnd) Ke.bg else Ke.textMuted,
+                ),
+                label = {
+                    Text(
+                        if (confirmEnd) "End it?" else "End",
+                        color = if (confirmEnd) Ke.bg else Ke.textMuted,
+                        fontSize = 12.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
             )
         }
     }
@@ -791,6 +1009,10 @@ private fun TopBack(onBack: () -> Unit) {
     CompactChip(
         onClick = onBack,
         colors = ChipDefaults.chipColors(backgroundColor = Ke.control, contentColor = Ke.textMuted),
+        // Named for TalkBack: an icon-only control otherwise announces as an
+        // unlabelled button, which on the one way out of a screen is the worst
+        // place for it.
+        modifier = Modifier.semantics { contentDescription = "Back" },
         label = { Glyph.Back(color = Ke.textMuted, size = 12.dp) },
     )
 }
@@ -809,7 +1031,6 @@ private fun TopBack(onBack: () -> Unit) {
 private fun LevelScreen(onDone: () -> Unit) {
     val Ke = LocalPalette.current
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val profile by Repo.profile.collectAsStateWithLifecycle()
     val current = profile?.levelId ?: 1
 
@@ -848,6 +1069,7 @@ private fun LevelScreen(onDone: () -> Unit) {
                     color = if (entitled) Ke.textMuted else Ke.accent,
                     fontSize = 9.sp,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -857,7 +1079,9 @@ private fun LevelScreen(onDone: () -> Unit) {
             CompactChip(
                 enabled = entitled,
                 onClick = {
-                    scope.launch { Repo.setLevel(context, level) }
+                    // Not launched here: `setLevel` owns its own scope now, so
+                    // closing the picker on the next line cannot cancel it.
+                    Repo.setLevel(context, level)
                     onDone()
                 },
                 colors = ChipDefaults.chipColors(
@@ -871,6 +1095,7 @@ private fun LevelScreen(onDone: () -> Unit) {
                         fontSize = 11.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 },
             )
@@ -947,6 +1172,7 @@ private fun AppearanceScreen(mode: ThemeMode, onPick: (ThemeMode) -> Unit, onDon
                         fontSize = 11.sp,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 },
             )
@@ -1058,6 +1284,7 @@ private fun ExercisesScreen(onDone: () -> Unit) {
                         fontSize = 11.sp,
                         fontWeight = if (row.open) FontWeight.SemiBold else FontWeight.Normal,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
@@ -1065,6 +1292,7 @@ private fun ExercisesScreen(onDone: () -> Unit) {
                         color = if (row.open) Ke.accent else Ke.textMuted,
                         fontSize = 9.sp,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 if (row.showProgress) {
