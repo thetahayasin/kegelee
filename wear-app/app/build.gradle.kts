@@ -49,7 +49,7 @@ android {
          * collide again as the phone climbs - and so a code on its own says
          * which app it came from.
          */
-        versionCode = 1002
+        versionCode = 1003
         versionName = "1.0.111"
     }
 
@@ -121,6 +121,17 @@ android {
             if (signed) signingConfig = signingConfigs.getByName("release")
         }
         release {
+            /**
+             * Ship native debug symbols with the bundle.
+             *
+             * Compose drags in a prebuilt `libandroidx.graphics.path.so`, so
+             * this app has native code whether or not it wanted any - and Play
+             * warns that a crash in it arrives as a bare address rather than a
+             * stack. FULL packages what symbols the build can find, which costs
+             * nothing at runtime: they live beside the bundle on Play, not
+             * inside the app.
+             */
+            ndk { debugSymbolLevel = "FULL" }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
