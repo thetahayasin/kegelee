@@ -57,6 +57,17 @@ const DRY_RUN = flag('dry-run');
  * new code just to ship bytes it already has.
  */
 const PROMOTE = arg('promote', null);
+/**
+ * Remove draft releases a track is holding, leaving the live one alone.
+ *
+ * A track can hold a draft ALONGSIDE the release that is actually rolled out.
+ * The Console shows the draft, so a track that is serving a build perfectly
+ * well reads as a broken release that "does not add or remove any app bundles"
+ * and that no existing user can upgrade to - both of which are true of a draft
+ * duplicating what is already live, and neither of which can be fixed from the
+ * release page the errors appear on.
+ */
+const DROP_DRAFTS = flag('drop-drafts');
 
 const b64url = (input) =>
   Buffer.from(typeof input === 'string' ? input : JSON.stringify(input))
@@ -126,11 +137,13 @@ function versionCodeFromGradle() {
 
 (async () => {
   const promoting = PROMOTE !== null;
-  if (!promoting && !fs.existsSync(AAB)) throw new Error(`no bundle at ${AAB} - build it first`);
-  const bundle = promoting ? null : fs.readFileSync(AAB);
-  const expected = promoting ? Number(PROMOTE) : versionCodeFromGradle();
+  const uploads = !promoting && !DROP_DRAFTS;
+  if (uploads && !fs.existsSync(AAB)) throw new Error(`no bundle at ${AAB} - build it first`);
+  const bundle = uploads ? fs.readFileSync(AAB) : null;
+  const expected = promoting ? Number(PROMOTE) : uploads ? versionCodeFromGradle() : null;
 
-  if (promoting) console.log(`promote: versionCode ${expected} (no upload)`);
+  if (DROP_DRAFTS) console.log('mode:    drop-drafts (no upload)');
+  else if (promoting) console.log(`promote: versionCode ${expected} (no upload)`);
   else console.log(`bundle:  ${AAB} (${(bundle.length / 1024 / 1024).toFixed(1)} MB)`);
   console.log(`package: ${PACKAGE}`);
   console.log(`track:   ${TRACK} (${STATUS}${FRACTION ? `, ${FRACTION}` : ''})`);
@@ -145,8 +158,66 @@ function versionCodeFromGradle() {
   const edit = await call(`${base}/edits`, { method: 'POST', headers: jsonHeaders });
   console.log(`edit:    ${edit.id}`);
 
+  /**
+   * Commit, either way round.
+   *
+   * Play insists on `changesNotSentForReview` for some apps and forbids it for
+   * others, will not say which beforehand, and has changed its mind about this
+   * one between releases. It names the answer in the rejection both times, so
+   * try the plain commit and take the other route when the error asks for it.
+   * Anything else is a real failure and is re-thrown.
+   */
+  const commitEdit = async () => {
+    const commit = (notSentForReview) =>
+      call(
+        `${base}/edits/${edit.id}:commit${notSentForReview ? '?changesNotSentForReview=true' : ''}`,
+        { method: 'POST', headers: jsonHeaders },
+      );
+    try {
+      return await commit(false);
+    } catch (err) {
+      if (!/cannot be sent for review|changesNotSentForReview must be set/i.test(err.message)) {
+        throw err;
+      }
+      console.log('commit: this app will not auto-submit for review, retrying');
+      return commit(true);
+    }
+  };
+
   let committed = false;
   try {
+    if (DROP_DRAFTS) {
+      const track = await call(`${base}/edits/${edit.id}/tracks/${TRACK}`, { headers });
+      const all = track.releases || [];
+      const drafts = all.filter((r) => r.status === 'draft');
+      const keep = all.filter((r) => r.status !== 'draft');
+      for (const r of all) {
+        console.log(`${r.status === 'draft' ? 'drop:   ' : 'keep:   '} ${r.status} ${(r.versionCodes || []).join(', ')}`);
+      }
+      if (drafts.length === 0) {
+        console.log(`track:   ${TRACK} holds no drafts, nothing to do`);
+        return;
+      }
+      // Refuse to empty a track: a draft-only track is a release that was never
+      // rolled out, and silently deleting it loses work rather than unblocking it.
+      if (keep.length === 0) {
+        throw new Error(`every release on ${TRACK} is a draft - dropping them would empty the track`);
+      }
+      if (DRY_RUN) {
+        console.log('dry run: nothing changed, edit discarded');
+        return;
+      }
+      await call(`${base}/edits/${edit.id}/tracks/${TRACK}`, {
+        method: 'PUT',
+        headers: jsonHeaders,
+        body: JSON.stringify({ track: TRACK, releases: keep }),
+      });
+      await commitEdit();
+      committed = true;
+      console.log(`committed: ${TRACK} now holds only its live release`);
+      return;
+    }
+
     // Refuse a version code Play already holds BEFORE spending the upload: the
     // API's own error for this arrives after the whole bundle has gone up.
     const existing = await call(`${base}/edits/${edit.id}/bundles`, { headers });
@@ -172,9 +243,22 @@ function versionCodeFromGradle() {
     // says, so a release never silently loses the notes the last one carried.
     const currentTrack = await call(`${base}/edits/${edit.id}/tracks/${TRACK}`, { headers })
       .catch(() => null);
+    /**
+     * The release that is actually being served, which is NOT necessarily the
+     * first one: a track can hold a draft alongside it, and a draft carries no
+     * notes and no meaning for what is live. Reading index 0 blindly would
+     * carry the DRAFT's version codes into the assignment below and drop the
+     * live release - the same "replaces what was there" trap as the band split.
+     */
+    const liveRelease = (currentTrack?.releases || []).find((r) => r.status !== 'draft')
+      || currentTrack?.releases?.[0]
+      || null;
+    if ((currentTrack?.releases || []).length > 1) {
+      console.log(`track:   ${currentTrack.releases.length} releases present, using the ${liveRelease?.status} one`);
+    }
     let releaseNotes = NOTES ? [{ language: 'en-US', text: NOTES }] : null;
     if (!releaseNotes) {
-      releaseNotes = currentTrack?.releases?.[0]?.releaseNotes || null;
+      releaseNotes = liveRelease?.releaseNotes || null;
       if (releaseNotes) console.log('notes:   carried over from the current release');
     }
 
@@ -236,7 +320,7 @@ function versionCodeFromGradle() {
      * advances on its own without either being able to delete the other.
      */
     const BAND = (code) => (Number(code) >= 1000 ? 'wear' : 'phone');
-    const liveCodes = (currentTrack?.releases?.[0]?.versionCodes || []).map(String);
+    const liveCodes = (liveRelease?.versionCodes || []).map(String);
     const kept = liveCodes.filter((c) => BAND(c) !== BAND(uploaded.versionCode));
     const versionCodes = [...kept, String(uploaded.versionCode)]
       .sort((a, b) => Number(a) - Number(b));
@@ -256,31 +340,8 @@ function versionCodeFromGradle() {
       body: JSON.stringify({ track: TRACK, releases: [release] }),
     });
 
-    /**
-     * 4. Commit, either way round.
-     *
-     * Play insists on `changesNotSentForReview` for some apps and forbids it
-     * for others, will not say which beforehand, and has changed its mind
-     * about this one between releases. It names the answer in the rejection
-     * both times, so try the plain commit and take the other route when the
-     * error asks for it. Anything else is a real failure and is re-thrown.
-     */
-    const commit = (notSentForReview) =>
-      call(
-        `${base}/edits/${edit.id}:commit${notSentForReview ? '?changesNotSentForReview=true' : ''}`,
-        { method: 'POST', headers: jsonHeaders },
-      );
-
-    let result;
-    try {
-      result = await commit(false);
-    } catch (err) {
-      if (!/cannot be sent for review|changesNotSentForReview must be set/i.test(err.message)) {
-        throw err;
-      }
-      console.log('commit: this app will not auto-submit for review, retrying');
-      result = await commit(true);
-    }
+    // 4. Commit.
+    const result = await commitEdit();
     committed = true;
     console.log(`committed: edit ${result.id} -> ${TRACK}`);
   } finally {
