@@ -86,30 +86,6 @@ class MainActivity : ComponentActivity() {
          * `--ez dump true` writes the whole catalogue as this app computes it
          * and exits, so it can be diffed against the phone's. Debug only.
          */
-        // TESTING ONLY - see DebugFlags, which is meant to be deleted.
-        if (BuildConfig.DEBUG && intent?.hasExtra("unlock") == true) {
-            DebugFlags.setUnlockAll(applicationContext, intent.getBooleanExtra("unlock", false))
-        }
-
-        /**
-         * TESTING ONLY - goes with DebugFlags.
-         *
-         * Posts deliberately wrong credentials and writes whatever the server
-         * says to a file. Proves the endpoint RESOLVES without anybody typing a
-         * real password: "route not found" and "credentials do not match" are
-         * different answers, and only the second means the wiring is right.
-         */
-        if (BuildConfig.DEBUG && intent?.getBooleanExtra("pingauth", false) == true) {
-            Thread {
-                val res = Api.login("nobody@example.invalid", "definitely-not-the-password")
-                val text = when (res) {
-                    is Api.Result.Ok -> "OK (unexpected): ${res.value}"
-                    is Api.Result.Failed -> "FAILED: ${res.message} (unauthorized=${res.unauthorized})"
-                }
-                java.io.File(applicationContext.filesDir, "pingauth.txt").writeText(text)
-            }.start()
-        }
-
         if (BuildConfig.DEBUG && intent?.getBooleanExtra("dump", false) == true) {
             Catalogue.load(applicationContext)
             java.io.File(applicationContext.filesDir, "exercises.json")

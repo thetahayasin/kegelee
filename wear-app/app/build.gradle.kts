@@ -49,7 +49,7 @@ android {
          * collide again as the phone climbs - and so a code on its own says
          * which app it came from.
          */
-        versionCode = 1001
+        versionCode = 1002
         versionName = "1.0.111"
     }
 

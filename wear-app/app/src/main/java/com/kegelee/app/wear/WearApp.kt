@@ -224,9 +224,7 @@ private fun HomeScreen(
                              * after the subscription ended.
                              */
                             val entitled = p.entitledAsOf(System.currentTimeMillis())
-                            // TESTING ONLY - see DebugFlags, meant to be deleted.
-                            val days = if (DebugFlags.unlockAll(context)) DebugFlags.UNLOCKED_DAYS
-                            else if (entitled) p.completedDays
+                            val days = if (entitled) p.completedDays
                             else minOf(p.completedDays, Catalogue.freeDayCap)
                             val playlist = SessionBuilder.buildDaily(days, p.levelId, entitled)
                             if (playlist.steps.isNotEmpty()) onStart(playlist.steps)
@@ -987,11 +985,8 @@ private fun ExercisesScreen(onDone: () -> Unit) {
     val entitled = profile?.entitledAsOf(System.currentTimeMillis()) == true
     // Same cap as the session builder: a free account's plan stops advancing,
     // so a countdown past the cap would tick toward a day that never arrives.
-    val context = LocalContext.current
     val days = (profile?.completedDays ?: 0).let {
-        // TESTING ONLY - see DebugFlags, meant to be deleted.
-        if (DebugFlags.unlockAll(context)) DebugFlags.UNLOCKED_DAYS
-        else if (entitled) it else minOf(it, Catalogue.freeDayCap)
+        if (entitled) it else minOf(it, Catalogue.freeDayCap)
     }
 
     val listState = rememberScalingLazyListState()
