@@ -176,4 +176,45 @@ object SessionBuilder {
 
         return Playlist(out, exercises, (finalAcc * 10).roundToInt() / 10.0)
     }
+
+    /**
+     * Every exercise at every level, as this app computes it.
+     *
+     * Exists so "are the exercises the same as the phone?" can be answered by
+     * DIFFING rather than by looking. It emits the real Kotlin output - the same
+     * `durationForLevel` and `steps` a session uses - which is the only version
+     * worth checking; a transcription of this logic into another language would
+     * only prove the transcription right.
+     *
+     * The phone dumps the same shape from its own test runner, so the two files
+     * can be compared byte for byte. See scripts/compare-exercises.cjs.
+     *
+     * Debug builds only: `MainActivity` guards the call behind BuildConfig.DEBUG,
+     * so nothing here reaches a release.
+     */
+    fun dumpAllForComparison(): String {
+        val q = '"'
+        val out = StringBuilder()
+        out.appendLine("{")
+        val slugs = Catalogue.exercises.values.sortedBy { it.sortOrder }.map { it.slug }
+        slugs.forEachIndexed { si, slug ->
+            out.appendLine("  $q$slug$q: {")
+            for (level in 1..5) {
+                val duration = durationForLevel(slug, level)
+                val steps = steps(slug, duration)
+                val cells = steps.joinToString(", ") { st ->
+                    "$q${st.phase} ${trim(st.seconds)} ${trim(st.from)}->${trim(st.to)}$q"
+                }
+                val comma = if (level < 5) "," else ""
+                out.appendLine("    $q$level$q: {${q}duration$q: ${trim(duration)}, ${q}steps$q: [$cells]}$comma")
+            }
+            out.appendLine(if (si < slugs.size - 1) "  }," else "  }")
+        }
+        out.appendLine("}")
+        return out.toString()
+    }
+
+    /** Numbers as the phone's JSON writes them: 29 not 29.0, 2.4 stays 2.4. */
+    private fun trim(v: Double): String =
+        if (v == v.toLong().toDouble()) v.toLong().toString() else v.toString()
 }

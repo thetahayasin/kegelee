@@ -82,6 +82,18 @@ class MainActivity : ComponentActivity() {
         Repo.bootstrap(applicationContext)
         // Debug-only stand-in for a signed-in account, so the session player is
         // reachable on an emulator. Never compiled into a release.
+        /**
+         * `--ez dump true` writes the whole catalogue as this app computes it
+         * and exits, so it can be diffed against the phone's. Debug only.
+         */
+        if (BuildConfig.DEBUG && intent?.getBooleanExtra("dump", false) == true) {
+            Catalogue.load(applicationContext)
+            java.io.File(applicationContext.filesDir, "exercises.json")
+                .writeText(SessionBuilder.dumpAllForComparison())
+            finish()
+            return
+        }
+
         if (BuildConfig.DEBUG && intent?.getBooleanExtra("demo", false) == true) {
             Repo.seedDemo(applicationContext)
         }
