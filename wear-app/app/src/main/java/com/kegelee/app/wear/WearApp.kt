@@ -57,7 +57,7 @@ import androidx.wear.compose.material.TimeText
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-private enum class Screen { HOME, SESSION, DONE, LEVEL, EXERCISES, APPEARANCE }
+private enum class Screen { HOME, SESSION, DONE, LEVEL, EXERCISES, APPEARANCE, ACCOUNT }
 
 @Composable
 fun WearApp(
@@ -101,6 +101,8 @@ fun WearApp(
 
             screen == Screen.EXERCISES -> ExercisesScreen(onDone = { screen = Screen.HOME })
 
+            screen == Screen.ACCOUNT -> AccountScreen(onDone = { screen = Screen.HOME })
+
             screen == Screen.APPEARANCE -> AppearanceScreen(
                 mode = themeMode,
                 onPick = onThemeMode,
@@ -124,6 +126,7 @@ fun WearApp(
                 onChangeLevel = { screen = Screen.LEVEL },
                 onExercises = { screen = Screen.EXERCISES },
                 onAppearance = { screen = Screen.APPEARANCE },
+                onAccount = { screen = Screen.ACCOUNT },
             )
         }
     }
@@ -150,6 +153,7 @@ private fun HomeScreen(
     onChangeLevel: () -> Unit,
     onExercises: () -> Unit,
     onAppearance: () -> Unit,
+    onAccount: () -> Unit,
 ) {
     val Ke = LocalPalette.current
     val profile by Repo.profile.collectAsStateWithLifecycle()
@@ -254,6 +258,7 @@ private fun HomeScreen(
             item { ActionChip("Difficulty · ${Catalogue.levelName(p.levelId)}", onChangeLevel) }
             item { ActionChip("Exercises", onExercises) }
             item { ActionChip("Appearance", onAppearance) }
+            item { ActionChip("Account", onAccount) }
             item { HapticsChip(entitled = p.entitledAsOf(System.currentTimeMillis())) }
 
             if (p.entitledAsOf(System.currentTimeMillis())) {
@@ -473,6 +478,87 @@ private fun ReminderRow(days: String, times: String) {
 
 /** Monday-first, matching the backend's own weekday index. */
 private val WEEKDAY_NAMES = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+/**
+ * Who is signed in, and the way out.
+ *
+ * There was no way out at all: `Repo.signOut` existed and nothing on any screen
+ * called it, so an account signed in on a watch was signed in permanently and
+ * the login screen was unreachable once passed. That also made the sign-in flow
+ * impossible to look at again without wiping the app's data over adb, which is
+ * not a thing to ask of anybody.
+ *
+ * Confirmation before it happens, because a mis-tap on a small screen should
+ * not end a session - and because signing out drops the outbox with it, so
+ * anything not yet uploaded goes. The count is shown when there is one, rather
+ * than discovered afterwards.
+ */
+@Composable
+private fun AccountScreen(onDone: () -> Unit) {
+    val Ke = LocalPalette.current
+    val context = LocalContext.current
+    val profile by Repo.profile.collectAsStateWithLifecycle()
+    val pending by Repo.pending.collectAsStateWithLifecycle()
+    var confirming by remember { mutableStateOf(false) }
+
+    val listState = rememberScalingLazyListState()
+    val rotaryFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
+
+    ScalingLazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .rotaryScrollable(
+                RotaryScrollableDefaults.snapBehavior(listState),
+                focusRequester = rotaryFocus,
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Account", color = Ke.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                profile?.name?.takeIf { it.isNotBlank() }?.let {
+                    Text(it, color = Ke.text, fontSize = 11.sp, maxLines = 1)
+                }
+                profile?.email?.takeIf { it.isNotBlank() }?.let {
+                    Text(it, color = Ke.textMuted, fontSize = 9.sp, maxLines = 1)
+                }
+            }
+        }
+
+        if (!confirming) {
+            item { ActionChip("Sign out", onClick = { confirming = true }) }
+        } else {
+            item {
+                Text(
+                    if (pending > 0) {
+                        "Sign out? $pending session${if (pending == 1) "" else "s"} not uploaded yet"
+                    } else {
+                        "Sign out of this watch?"
+                    },
+                    color = Ke.textMuted,
+                    fontSize = 9.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                )
+            }
+            item {
+                CompactChip(
+                    onClick = { Repo.signOut(context) },
+                    colors = ChipDefaults.chipColors(
+                        backgroundColor = Ke.danger,
+                        contentColor = Ke.bg,
+                    ),
+                    label = { Text("Sign out", color = Ke.bg, fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                )
+            }
+            item { ActionChip("Keep me signed in", onClick = { confirming = false }) }
+        }
+
+        item { ActionChip("Back", onDone) }
+    }
+}
 
 // --- Session ---------------------------------------------------------------
 
