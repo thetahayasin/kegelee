@@ -99,8 +99,17 @@ async function call(url, options) {
   return text ? JSON.parse(text) : {};
 }
 
-/** The versionCode Gradle stamped into the bundle we are about to send. */
+/**
+ * The versionCode we expect the bundle to carry.
+ *
+ * `--expect` exists because this script is no longer only for the phone: the
+ * Wear app is a separate Gradle project, so reading THIS project's build.gradle
+ * while uploading that project's bundle reported the phone's number and refused
+ * the upload as a duplicate. Given explicitly, it stays a real check.
+ */
 function versionCodeFromGradle() {
+  const explicit = arg('expect', null);
+  if (explicit) return Number(explicit);
   const gradle = fs.readFileSync(path.join(ROOT, 'android', 'app', 'build.gradle'), 'utf8');
   const match = gradle.match(/versionCode\s+(\d+)/);
   return match ? Number(match[1]) : null;
@@ -136,13 +145,19 @@ function versionCodeFromGradle() {
         `versionCode ${expected} is already on Play (has: ${used.sort((a, b) => a - b).join(', ')})`,
       );
     }
+    if (expected) {
+      // Same rule as the band split below, stated where it is easiest to act on.
+      const band = expected >= 1000 ? 'wear' : 'phone';
+      console.log(`band:    ${band} (codes ${band === 'wear' ? '>=1000' : '<1000'})`);
+    }
 
     // Release notes: whatever was passed, else whatever this track already
     // says, so a release never silently loses the notes the last one carried.
+    const currentTrack = await call(`${base}/edits/${edit.id}/tracks/${TRACK}`, { headers })
+      .catch(() => null);
     let releaseNotes = NOTES ? [{ language: 'en-US', text: NOTES }] : null;
     if (!releaseNotes) {
-      const current = await call(`${base}/edits/${edit.id}/tracks/${TRACK}`, { headers }).catch(() => null);
-      releaseNotes = current?.releases?.[0]?.releaseNotes || null;
+      releaseNotes = currentTrack?.releases?.[0]?.releaseNotes || null;
       if (releaseNotes) console.log('notes:   carried over from the current release');
     }
 
@@ -185,9 +200,30 @@ function versionCodeFromGradle() {
       );
     }
 
-    // 3. Point the track at it.
+    /**
+     * 3. Point the track at it, WITHOUT dropping the other form factor.
+     *
+     * Assigning a track's releases replaces what was there. The listing serves
+     * a phone build and a Wear build from the same track, so writing only the
+     * code just uploaded would have stopped serving the other one - publishing
+     * a watch update by removing the phone app.
+     *
+     * Version codes are banded to make this decidable: under 1000 is the phone,
+     * 1000 and up is the watch. The upload replaces the code in ITS OWN band
+     * and carries every other band through untouched, so each form factor
+     * advances on its own without either being able to delete the other.
+     */
+    const BAND = (code) => (Number(code) >= 1000 ? 'wear' : 'phone');
+    const liveCodes = (currentTrack?.releases?.[0]?.versionCodes || []).map(String);
+    const kept = liveCodes.filter((c) => BAND(c) !== BAND(uploaded.versionCode));
+    const versionCodes = [...kept, String(uploaded.versionCode)]
+      .sort((a, b) => Number(a) - Number(b));
+    if (kept.length > 0) {
+      console.log(`track:   keeping ${kept.join(', ')} alongside ${uploaded.versionCode}`);
+    }
+
     const release = {
-      versionCodes: [String(uploaded.versionCode)],
+      versionCodes,
       status: STATUS,
       ...(releaseNotes ? { releaseNotes } : {}),
       ...(FRACTION ? { userFraction: Number(FRACTION) } : {}),

@@ -38,14 +38,18 @@ android {
         targetSdk = 37
 
         /**
-         * Tracks the phone app's own versionCode.
+         * The watch has its own version-code band, starting at 1000.
          *
-         * Play treats the Wear artifact as a separate form factor of the same
-         * listing, so the numbers do not have to match - but keeping them in
-         * step means "which watch build shipped with which phone build" is a
-         * question with an obvious answer instead of a spreadsheet.
+         * It cannot share the phone's number: Play requires every artifact in a
+         * listing to have a UNIQUE version code, whatever form factor it is
+         * for, and the phone is already on 128. Matching them looked tidy and
+         * would have been rejected at upload.
+         *
+         * A band rather than "the next free number" so the two counters never
+         * collide again as the phone climbs - and so a code on its own says
+         * which app it came from.
          */
-        versionCode = 128
+        versionCode = 1001
         versionName = "1.0.111"
     }
 

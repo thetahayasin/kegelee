@@ -84,7 +84,24 @@ object Api {
             conn.disconnect()
 
             if (code == 401 || code == 403) {
-                return Result.Failed("Signed out", unauthorized = true)
+                /**
+                 * Say what the server said, not "Signed out".
+                 *
+                 * A 401 means two different things here. On an authenticated
+                 * call it means the token is dead and the watch has to sign
+                 * out; on a LOGIN it means the password was wrong, and the
+                 * server sends a sentence saying exactly that. Collapsing both
+                 * into "Signed out" showed somebody who mistyped their password
+                 * a message about a session they never had.
+                 *
+                 * The `unauthorized` flag still travels, because that is what
+                 * the sync path keys off - only the words change.
+                 */
+                val said = runCatching {
+                    (json.parseToJsonElement(text) as? JsonObject)
+                        ?.get("error")?.toString()?.trim('"')
+                }.getOrNull()?.takeIf { it.isNotBlank() && it != "null" }
+                return Result.Failed(said ?: "Signed out", unauthorized = true)
             }
             if (code !in 200..299) {
                 val msg = runCatching {
