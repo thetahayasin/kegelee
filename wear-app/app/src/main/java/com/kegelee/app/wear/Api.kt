@@ -25,7 +25,16 @@ import java.util.TimeZone
  * APK for that is weight on a device that has little to spare.
  */
 object Api {
-    private const val BASE = "https://kegelee.com/api"
+    /**
+     * The versioned prefix is part of the base, not something callers add.
+     *
+     * Every route lives under `Route::prefix('v1')` in routes/api.php, and this
+     * was pointing at `/api` - so the very first request came back "the route
+     * api/auth/login could not be found" and every other endpoint would have
+     * done the same. The phone builds `${base}/v1${endpoint}` for the same
+     * reason; this keeps the v1 here so no call site can forget it.
+     */
+    private const val BASE = "https://kegelee.com/api/v1"
 
     /** Watches roam and radios sleep, so be patient but never indefinite. */
     private const val CONNECT_TIMEOUT_MS = 15_000
@@ -53,7 +62,15 @@ object Api {
                 readTimeout = READ_TIMEOUT_MS
                 setRequestProperty("Accept", "application/json")
                 setRequestProperty("Content-Type", "application/json")
-                token?.let { setRequestProperty("Authorization", "Bearer $it") }
+                /**
+                 * `X-User-Token`, which is what the server actually reads.
+                 *
+                 * ResolveApiUser looks at that header and nothing else, so the
+                 * Authorization: Bearer this used to send was ignored - every
+                 * authenticated call would have come back unauthorised even
+                 * once login worked. The phone sends the same header.
+                 */
+                token?.let { setRequestProperty("X-User-Token", it) }
                 doInput = true
                 if (body != null) {
                     doOutput = true
