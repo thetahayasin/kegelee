@@ -121,9 +121,40 @@ class SessionEngine(private val appContext: Context) : ViewModel() {
     val pursuitMs: Int
         get() {
             val step = currentStep ?: return 240
-            val base = (step.seconds * 400).toInt().coerceIn(80, 240)
             val entryFrom = steps.getOrNull(safeIndex - 1)?.to ?: 0.0
             val entryJump = kotlin.math.abs(step.from - entryFrom)
+
+            /**
+             * A step whose target MOVES needs the chase to follow it, not trail
+             * it. This is why the release looked abrupt.
+             *
+             * A relax ramps its target from 1 to 0 across half a second.
+             * Chasing that with a 200ms pursuit restarted every 50ms leaves the
+             * drawn value trailing by more than the target's entire range - at
+             * 400ms in, the target is 0.10 and the glow is still showing 0.90 -
+             * and then the next contraction arrives and pulls it back up. The
+             * light never reached the bottom, so a fade read as a snap.
+             *
+             * A short pursuit tracks instead of trailing: what gets drawn is
+             * the eased curve the catalogue describes, and the release finishes
+             * before the next squeeze starts. Still a filter, smoothing the
+             * 50ms staircase into a continuous fall - just not a lag.
+             */
+            val span = kotlin.math.abs(step.to - step.from)
+            if (span > 0.05) {
+                return (step.seconds * 1000 * 0.18).toInt().coerceIn(40, 120)
+            }
+
+            /**
+             * A HOLD is the opposite case, and keeps the phone's numbers.
+             *
+             * `from == to` means the target never moves, so there is nothing to
+             * track and the only movement is arriving at it. Easing that entry
+             * over the settle window is what gives a hold its ramp up, its
+             * plateau, and then the release - which is the shape confirmed
+             * against the phone.
+             */
+            val base = (step.seconds * 400).toInt().coerceIn(80, 240)
             val settle = if (entryJump > 0.3) {
                 minOf(entryJump * 520.0, step.seconds * 1000.0 * 0.6).toInt()
             } else 0

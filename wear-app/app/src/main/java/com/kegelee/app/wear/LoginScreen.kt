@@ -30,6 +30,12 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.FocusRequester
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.Dp
@@ -69,25 +75,44 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    Column(
+    /**
+     * A Wear list, not a padded Column.
+     *
+     * The email form was unreachable in two ways at once. Its Back chip sat
+     * below the bottom of a 384px screen with nothing that would scroll to it -
+     * `verticalScroll` handles a finger drag but ignores the crown, which is
+     * the gesture people reach for - and a padded Column slices content against
+     * the curve rather than scaling it. Both are what ScalingLazyColumn is for,
+     * and it is what every other screen here already uses.
+     */
+    val listState = rememberScalingLazyListState(initialCenterItemIndex = 0)
+    val rotaryFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
+
+    ScalingLazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(top = 30.dp, bottom = 26.dp, start = 16.dp, end = 16.dp),
+            .rotaryScrollable(
+                RotaryScrollableDefaults.snapBehavior(listState),
+                focusRequester = rotaryFocus,
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
     ) {
-        Text("Kegelee", color = Ke.accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(4.dp))
-        Text(
-            "Sign in to train",
-            color = Ke.textMuted,
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(14.dp))
+        item {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Kegelee", color = Ke.accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Sign in to train",
+                    color = Ke.textMuted,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
 
         if (!showPassword) {
+            item {
             /**
              * The real four-colour mark, on a white pill.
              *
@@ -114,7 +139,8 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                     )
                 },
             )
-            Spacer(Modifier.height(8.dp))
+            }
+            item {
             // Words, not an icon. The Google button earns its mark because the
             // mark IS how that button is recognised; an envelope is just a
             // picture of the word "email", and a bare one leaves somebody
@@ -127,6 +153,7 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                 ),
                 label = { Text("Use email instead", color = Ke.textMuted, fontSize = 11.sp) },
             )
+            }
         } else {
             /**
              * Wear's own text field, which hands off to the system input
@@ -134,13 +161,15 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
              * offers. Rolling a custom one would take that choice away, and
              * voice is how most people will actually get through this.
              */
+            item {
             WatchField(
                 value = email,
                 onValueChange = { email = it },
                 placeholder = "Email",
                 keyboardType = KeyboardType.Email,
             )
-            Spacer(Modifier.height(6.dp))
+            }
+            item {
             WatchField(
                 value = password,
                 onValueChange = { password = it },
@@ -148,7 +177,8 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                 keyboardType = KeyboardType.Password,
                 isPassword = true,
             )
-            Spacer(Modifier.height(10.dp))
+            }
+            item {
             CompactChip(
                 onClick = {
                     if (busy || email.isBlank() || password.isBlank()) return@CompactChip
@@ -162,17 +192,26 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                 colors = ChipDefaults.chipColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
                 label = { Text(if (busy) "Signing in…" else "Sign in", color = Ke.bg, fontSize = 12.sp, fontWeight = FontWeight.Bold) },
             )
-            Spacer(Modifier.height(6.dp))
+            }
+            item {
             CompactChip(
                 onClick = { showPassword = false; error = null },
                 colors = ChipDefaults.chipColors(backgroundColor = Ke.surface, contentColor = Ke.textMuted),
                 label = { Text("Back", color = Ke.textMuted, fontSize = 11.sp) },
             )
+            }
         }
 
-        error?.let {
-            Spacer(Modifier.height(8.dp))
-            Text(it, color = Ke.danger, fontSize = 11.sp, textAlign = TextAlign.Center)
+        error?.let { message ->
+            item {
+                Text(
+                    message,
+                    color = Ke.danger,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 14.dp),
+                )
+            }
         }
     }
 }
