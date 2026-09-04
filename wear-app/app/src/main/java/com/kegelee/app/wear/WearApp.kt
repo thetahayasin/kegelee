@@ -515,6 +515,7 @@ private fun AccountScreen(onDone: () -> Unit) {
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        item { TopBack(onDone) }
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Account", color = Ke.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -555,8 +556,6 @@ private fun AccountScreen(onDone: () -> Unit) {
             }
             item { ActionChip("Keep me signed in", onClick = { confirming = false }) }
         }
-
-        item { ActionChip("Back", onDone) }
     }
 }
 

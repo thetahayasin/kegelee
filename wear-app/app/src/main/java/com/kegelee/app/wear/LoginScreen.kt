@@ -156,6 +156,25 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
             }
         } else {
             /**
+             * Back FIRST, above everything on this screen.
+             *
+             * At the bottom it was only reachable after scrolling past both
+             * fields and the sign-in button - which is precisely when somebody
+             * has decided they are done and wants out. Above them it is the
+             * first thing under the thumb.
+             */
+            item {
+                CompactChip(
+                    onClick = { showPassword = false; error = null },
+                    colors = ChipDefaults.chipColors(
+                        backgroundColor = Ke.control,
+                        contentColor = Ke.textMuted,
+                    ),
+                    label = { Glyph.Back(color = Ke.textMuted, size = 12.dp) },
+                )
+            }
+
+            /**
              * Wear's own text field, which hands off to the system input
              * screen - keyboard, handwriting or voice, whichever the watch
              * offers. Rolling a custom one would take that choice away, and
@@ -191,13 +210,6 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
                 },
                 colors = ChipDefaults.chipColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
                 label = { Text(if (busy) "Signing in…" else "Sign in", color = Ke.bg, fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-            )
-            }
-            item {
-            CompactChip(
-                onClick = { showPassword = false; error = null },
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.surface, contentColor = Ke.textMuted),
-                label = { Text("Back", color = Ke.textMuted, fontSize = 11.sp) },
             )
             }
         }
