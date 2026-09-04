@@ -80,6 +80,23 @@ fun WearApp(
     val auth by Repo.auth.collectAsStateWithLifecycle()
     var screen by remember { mutableStateOf(Screen.HOME) }
 
+    /**
+     * Back goes back, instead of closing the app.
+     *
+     * Navigation here is one `screen` variable and nothing was handling the
+     * back press, so it fell through to the system and finished the activity -
+     * from any screen. Somebody checking which level they were on and pressing
+     * back was thrown out of the app entirely.
+     *
+     * SESSION is excluded because it handles its own: ending a workout asks
+     * first, which is a different question from leaving a settings list. DONE
+     * dismisses, since acknowledging is the only thing that screen is for.
+     */
+    BackHandler(enabled = screen != Screen.HOME && screen != Screen.SESSION) {
+        if (screen == Screen.DONE) engine.stop()
+        screen = Screen.HOME
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize().background(Ke.bg),
         /**
