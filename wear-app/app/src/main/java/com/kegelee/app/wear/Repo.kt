@@ -61,12 +61,17 @@ object Repo {
      * Deliberately a separate entry point rather than a fallback: nothing may
      * reach for an invented account when a real sync merely failed.
      */
-    fun seedDemo(context: Context) {
+    /**
+     * @param entitled false seeds a FREE account, which is the state most of
+     *   the gating is about and the one hardest to reach by hand - a real free
+     *   account cannot be conjured without a second login. `--ez free true`.
+     */
+    fun seedDemo(context: Context, entitled: Boolean = true) {
         Catalogue.load(context)
         val demo = Profile(
             name = "Demo",
             levelId = 2,
-            entitled = true,
+            entitled = entitled,
             completedDays = 12,
             day = 13,
             month = 1,
@@ -273,6 +278,19 @@ object Repo {
         val clamped = level.coerceIn(1, 5)
         val current = _profile.value ?: return
         if (current.levelId == clamped) return
+
+        /**
+         * A free account cannot change level, and the server is the one that
+         * says so.
+         *
+         * `pushState` ignores a pushed `level_id` unless the account is
+         * subscribed or an admin - "no subscription, no level change". Applying
+         * it locally anyway produced the worst possible version of that: the
+         * picker moved, the push was quietly dropped, and the next pull put the
+         * old level back. It looked like the app forgetting rather than a
+         * feature being locked.
+         */
+        if (!current.entitledAsOf(System.currentTimeMillis())) return
         val next = current.copy(levelId = clamped)
         _profile.value = next
         Store.setProfile(context, next)

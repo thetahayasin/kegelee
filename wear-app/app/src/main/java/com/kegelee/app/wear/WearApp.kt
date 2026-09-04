@@ -255,7 +255,15 @@ private fun HomeScreen(
             // strong, and it is the one progress figure worth a glance.
             if (p.bestHold > 0) item { StatRow("Best hold", "${p.bestHold}s") }
 
-            item { ActionChip("Difficulty · ${Catalogue.levelName(p.levelId)}", onChangeLevel) }
+            item {
+                // Marked here rather than only inside, so the lock is visible
+                // before the tap - the same treatment the Vibration row gets.
+                LockableChip(
+                    label = "Difficulty · ${Catalogue.levelName(p.levelId)}",
+                    locked = !p.entitledAsOf(System.currentTimeMillis()),
+                    onClick = onChangeLevel,
+                )
+            }
             item { ActionChip("Exercises", onExercises) }
             item { ActionChip("Appearance", onAppearance) }
             item { ActionChip("Account", onAccount) }
@@ -438,6 +446,40 @@ private fun ActionChip(label: String, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Text(label, color = Ke.text, fontSize = 11.sp, maxLines = 1, fontWeight = FontWeight.Medium)
+    }
+}
+
+/**
+ * An action row that can be locked, with the reason on its face.
+ *
+ * Still tappable when locked - the screen it opens explains what Premium buys
+ * and shows the current setting, which is more use than a control that does
+ * nothing when pressed.
+ */
+@Composable
+private fun LockableChip(label: String, locked: Boolean, onClick: () -> Unit) {
+    val Ke = LocalPalette.current
+    Row(
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .clip(RoundedCornerShape(50))
+            .background(Ke.control)
+            .border(1.dp, Ke.controlEdge, RoundedCornerShape(50))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            label,
+            color = if (locked) Ke.textMuted else Ke.text,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+        )
+        if (locked) {
+            Text("Premium", color = Ke.accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        }
     }
 }
 
@@ -770,6 +812,17 @@ private fun LevelScreen(onDone: () -> Unit) {
     val profile by Repo.profile.collectAsStateWithLifecycle()
     val current = profile?.levelId ?: 1
 
+    /**
+     * Locked for a free account, and it says so instead of pretending.
+     *
+     * The server ignores a pushed level change without a subscription, so the
+     * picker used to move, the change was quietly dropped, and the next pull
+     * put the old level back - which reads as the app forgetting rather than
+     * as a locked feature. The list is still shown, because seeing which level
+     * you are on is useful whether or not you can change it.
+     */
+    val entitled = profile?.entitledAsOf(System.currentTimeMillis()) == true
+
     val listState = rememberScalingLazyListState()
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
@@ -788,13 +841,20 @@ private fun LevelScreen(onDone: () -> Unit) {
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Difficulty", color = Ke.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text("Sets how long a session runs", color = Ke.textMuted, fontSize = 9.sp, maxLines = 1)
+                Text(
+                    if (entitled) "Sets how long a session runs"
+                    else "Changing this is part of Premium",
+                    color = if (entitled) Ke.textMuted else Ke.accent,
+                    fontSize = 9.sp,
+                    maxLines = 1,
+                )
             }
         }
 
         items((1..5).toList()) { level ->
             val selected = level == current
             CompactChip(
+                enabled = entitled,
                 onClick = {
                     scope.launch { Repo.setLevel(context, level) }
                     onDone()
@@ -815,6 +875,18 @@ private fun LevelScreen(onDone: () -> Unit) {
             )
         }
 
+
+        if (!entitled) {
+            item {
+                Text(
+                    "Subscribe in the app to change difficulty",
+                    color = Ke.textMuted,
+                    fontSize = 9.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 14.dp),
+                )
+            }
+        }
     }
 }
 
@@ -861,6 +933,8 @@ private fun AppearanceScreen(mode: ThemeMode, onPick: (ThemeMode) -> Unit, onDon
                 colors = ChipDefaults.chipColors(
                     backgroundColor = if (selected) Ke.accent else Ke.control,
                     contentColor = if (selected) Ke.bg else Ke.text,
+                    disabledBackgroundColor = if (selected) Ke.accent else Ke.control,
+                    disabledContentColor = if (selected) Ke.bg else Ke.textMuted,
                 ),
                 label = {
                     // Inked explicitly. Wear's Chip does not push contentColor

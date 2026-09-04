@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (BuildConfig.DEBUG && intent?.getBooleanExtra("demo", false) == true) {
-            Repo.seedDemo(applicationContext)
+            Repo.seedDemo(applicationContext, entitled = intent?.getBooleanExtra("free", false) != true)
         }
 
         setContent {
