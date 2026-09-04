@@ -24,6 +24,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -79,16 +88,49 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
         Spacer(Modifier.height(14.dp))
 
         if (!showPassword) {
+            /**
+             * The real four-colour mark, on a white pill.
+             *
+             * Google's branding guidance is specific about this - the G is not
+             * recut or recoloured, and it sits on white or on its own blue.
+             * Painting it in the app's accent, or leaving it off entirely,
+             * makes the one button people scan for by its logo harder to find
+             * than a plain chip would be.
+             */
             CompactChip(
                 onClick = onGoogleSignIn,
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.accent, contentColor = Ke.bg),
-                label = { Text("Continue with Google", color = Ke.bg, fontSize = 12.sp, fontWeight = FontWeight.Bold) },
+                colors = ChipDefaults.chipColors(
+                    backgroundColor = Color.White,
+                    contentColor = Color(0xFF1F1F1F),
+                ),
+                icon = { GoogleMark(size = 16.dp) },
+                label = {
+                    Text(
+                        "Sign in with Google",
+                        color = Color(0xFF1F1F1F),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                    )
+                },
             )
             Spacer(Modifier.height(8.dp))
+            /**
+             * Email is an icon and nothing else.
+             *
+             * Two labelled buttons stacked on a 40mm screen read as a choice
+             * between equals, and they are not: Google is one tap and email is
+             * a fallback for anyone who signed up that way. An envelope says
+             * that without spending a line of text on it, and leaves the screen
+             * with one obvious thing to press.
+             */
             CompactChip(
                 onClick = { showPassword = true },
-                colors = ChipDefaults.chipColors(backgroundColor = Ke.surface2, contentColor = Ke.text),
-                label = { Text("Use email instead", color = Ke.text, fontSize = 11.sp) },
+                colors = ChipDefaults.chipColors(
+                    backgroundColor = Ke.control,
+                    contentColor = Ke.textMuted,
+                ),
+                label = { EnvelopeMark(tint = Ke.textMuted, size = 18.dp) },
             )
         } else {
             /**
@@ -172,4 +214,62 @@ private fun WatchField(
             inner()
         },
     )
+}
+
+/**
+ * Google's "G", drawn from the same four path definitions the phone uses.
+ *
+ * Copied verbatim out of the app's own GoogleLogo component rather than
+ * re-traced, so the two screens cannot end up with subtly different marks - and
+ * because the shape is Google's, not ours to redraw. The viewBox is 48x48 and
+ * the paths are scaled to whatever size is asked for.
+ */
+@Composable
+private fun GoogleMark(size: Dp) {
+    val paths = remember {
+        listOf(
+            Color(0xFFEA4335) to "M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z",
+            Color(0xFF4285F4) to "M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z",
+            Color(0xFFFBBC05) to "M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z",
+            Color(0xFF34A853) to "M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z",
+        ).map { (colour, data) -> colour to PathParser().parsePathString(data).toPath() }
+    }
+
+    Canvas(Modifier.size(size)) {
+        val scale = this.size.minDimension / 48f
+        scale(scale, scale, pivot = Offset.Zero) {
+            paths.forEach { (colour, path) -> drawPath(path, colour) }
+        }
+    }
+}
+
+/**
+ * An envelope, for the email route.
+ *
+ * Drawn rather than shipped as an asset: it is four straight lines, and a
+ * vector drawable for that would be a file to find rather than a shape to read.
+ */
+@Composable
+private fun EnvelopeMark(tint: Color, size: Dp) {
+    Canvas(Modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height * 0.74f
+        val top = (this.size.height - h) / 2f
+        val stroke = Stroke(width = this.size.minDimension * 0.11f)
+
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(0f, top),
+            size = androidx.compose.ui.geometry.Size(w, h),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(h * 0.16f),
+            style = stroke,
+        )
+        // The flap: two lines from the top corners meeting in the middle.
+        val flap = Path().apply {
+            moveTo(0f, top)
+            lineTo(w / 2f, top + h * 0.58f)
+            lineTo(w, top)
+        }
+        drawPath(flap, tint, style = stroke)
+    }
 }
