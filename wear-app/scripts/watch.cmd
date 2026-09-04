@@ -71,7 +71,7 @@ goto :eof
 
 :install
 pushd "%~dp0.."
-call gradlew.bat assembleDebug
+call "%~dp0..\gradlew.bat" assembleDebug
 if errorlevel 1 (popd & exit /b 1)
 adb %DEV% install -r app\build\outputs\apk\debug\app-debug.apk
 popd
