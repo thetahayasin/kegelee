@@ -99,6 +99,27 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        /**
+         * The way out sits ABOVE the wordmark, not under it.
+         *
+         * A back control below the title is below the thing it is meant to take
+         * you out of, which reads as part of the content rather than as
+         * navigation - and on a round screen it also pushes the first field
+         * toward the fold. Topmost is the only position that means "out".
+         */
+        if (showPassword) {
+            item {
+                CompactChip(
+                    onClick = { showPassword = false; error = null },
+                    colors = ChipDefaults.chipColors(
+                        backgroundColor = Ke.control,
+                        contentColor = Ke.textMuted,
+                    ),
+                    label = { Glyph.Back(color = Ke.textMuted, size = 12.dp) },
+                )
+            }
+        }
+
         item {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Kegelee", color = Ke.accent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -155,25 +176,6 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
             )
             }
         } else {
-            /**
-             * Back FIRST, above everything on this screen.
-             *
-             * At the bottom it was only reachable after scrolling past both
-             * fields and the sign-in button - which is precisely when somebody
-             * has decided they are done and wants out. Above them it is the
-             * first thing under the thumb.
-             */
-            item {
-                CompactChip(
-                    onClick = { showPassword = false; error = null },
-                    colors = ChipDefaults.chipColors(
-                        backgroundColor = Ke.control,
-                        contentColor = Ke.textMuted,
-                    ),
-                    label = { Glyph.Back(color = Ke.textMuted, size = 12.dp) },
-                )
-            }
-
             /**
              * Wear's own text field, which hands off to the system input
              * screen - keyboard, handwriting or voice, whichever the watch
