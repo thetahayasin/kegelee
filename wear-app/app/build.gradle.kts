@@ -50,7 +50,7 @@ android {
          * which app it came from.
          */
         versionCode = 1003
-        versionName = "1.0.111"
+        versionName = "1.0.112"
     }
 
     signingConfigs {
