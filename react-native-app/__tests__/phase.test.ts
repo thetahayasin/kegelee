@@ -13,7 +13,7 @@
  * move anyone between stacks, and so must not remount the container under a
  * person who has just paid.
  */
-import { appPhase } from '../src/navigation/phase';
+import { appPhase, guestInitialRoute } from '../src/navigation/phase';
 
 const phase = (isAuthenticated: boolean, basicsDone: boolean) =>
   appPhase({ isAuthenticated, basicsDone });
@@ -46,5 +46,33 @@ describe('appPhase', () => {
     expect(appPhase.length).toBe(1);
     const keys = Object.keys({ isAuthenticated: true, basicsDone: true });
     expect(keys.sort()).toEqual(['basicsDone', 'isAuthenticated']);
+  });
+});
+
+describe('guestInitialRoute', () => {
+  it('shows the slides to a guest who has not seen them', () => {
+    expect(guestInitialRoute(false)).toBe('Onboarding');
+  });
+
+  it('lands a returning guest on the basics, not on a sign-in wall', () => {
+    /**
+     * The regression this exists for.
+     *
+     * The navigator's own comment said Knowledge and its code said 'Login', so
+     * every launch after the first asked a guest to sign in before showing
+     * them anything. The lessons ARE what a guest is given under freemium, and
+     * the slides - with the onboarding quiz behind them - were unreachable
+     * from there, so nobody who took that route ever answered the quiz. The
+     * account they eventually made arrived at the server with no
+     * onboarding_level, which is the state that used to strand a lapsed
+     * subscriber on a paid difficulty for good.
+     */
+    expect(guestInitialRoute(true)).toBe('Knowledge');
+  });
+
+  it('never routes a guest straight to Login', () => {
+    // Login and Register still live in the guest stack; they are pushed ON TOP
+    // of Knowledge and close back down to it. Neither is ever the root.
+    expect([guestInitialRoute(true), guestInitialRoute(false)]).not.toContain('Login');
   });
 });

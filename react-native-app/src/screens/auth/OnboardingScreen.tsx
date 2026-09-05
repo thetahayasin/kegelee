@@ -21,7 +21,7 @@ import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
 import { useTheme, useThemeMode, useThemedStyles } from '../../theme/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ONBOARDING_QUIZ_KEY } from '../../context/AuthContext';
-import { OnboardingQuiz, QuizResult, levelFromQuiz } from './OnboardingQuiz';
+import { OnboardingQuiz, QuizResult } from './OnboardingQuiz';
 import { track } from '../../services/events';
 
 /**
@@ -263,31 +263,44 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     navigation.reset({ index: 0, routes: [{ name: 'Knowledge' }] });
   };
   /**
-   * Skip goes to the quiz's END STATE, not to the quiz.
+   * Skip skips the SLIDES, and then asks the quiz.
    *
-   * It used to call `finish`, which opens the quiz - so the one control
-   * labelled Skip put three more questions in front of the reader, and the
-   * only way past them was a second Skip inside the quiz itself. Skipping now
-   * records the same `quiz_skipped` event the quiz would have recorded, keeps
-   * the default level, and lands where finishing lands. The result shape is
-   * built here rather than reached for through the quiz because there is no
-   * quiz to ask.
+   * This went the other way for a while: Skip jumped to the quiz's end state
+   * and recorded a default level, on the reasoning that a control labelled
+   * Skip should not put three more questions in front of the reader. The
+   * reasoning is fine and the cost was not. The quiz is the only thing that
+   * ever sets a starting level, and a level is not decoration - it is the
+   * session length, and it is the level a lapsed subscriber is returned to.
+   * Every account that took this route reached the server with a default level
+   * that described nobody.
+   *
+   * So the questions are asked. The quiz carries its own Skip for anyone who
+   * genuinely does not want to answer, which is the honest place for that
+   * choice: it is offered once, next to the questions being declined, instead
+   * of being taken on the reader's behalf by a button on a photograph.
    */
-  const skipEverything = () => {
-    finishQuiz({
-      // The level the quiz itself produces from no answers, computed rather
-      // than typed out, so the two cannot drift apart.
-      level: levelFromQuiz(0, 0),
-      baselineSeconds: 0,
-      experience: null,
-      dailyTime: null,
-      skipped: true,
-    });
+  const skipToQuiz = () => {
+    setQuizVisible(true);
   };
 
+  /**
+   * "Already have an account" pushes Login ON TOP of the slides.
+   *
+   * It used to call onComplete() first, which stores `@onboarded` forever, and
+   * then reset the stack so Knowledge was the root. Both were wrong for the
+   * person who taps this by mistake - and on a screen whose other two controls
+   * are Continue and Skip, mistaking it is easy. They had not onboarded, but
+   * the app recorded that they had, so the slides never came back and the quiz
+   * behind them was never asked again. Their account reached the server with
+   * no onboarding_level at all.
+   *
+   * Nothing is recorded here now. A push means Back returns to the slides they
+   * were actually on, and a real returning user is marked as onboarded by
+   * signing in (see handleAuthResponse), which is the event that genuinely
+   * proves this device is past its first run.
+   */
   const goToLogin = () => {
-    onComplete();
-    navigation.reset({ index: 1, routes: [{ name: 'Knowledge' }, { name: 'Login' }] });
+    navigation.navigate('Login');
   };
 
   const advance = () => {
@@ -330,7 +343,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <View style={styles.skipRow} pointerEvents="box-none">
         <TouchableOpacity
-          onPress={skipEverything}
+          onPress={skipToQuiz}
           hitSlop={12}
           style={styles.skipBtn}
           accessibilityRole="button"

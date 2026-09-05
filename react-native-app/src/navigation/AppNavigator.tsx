@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../context/AuthContext';
-import { appPhase } from './phase';
+import { appPhase, guestInitialRoute } from './phase';
 import { OnboardingScreen } from '../screens/auth/OnboardingScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { RegisterScreen } from '../screens/auth/RegisterScreen';
@@ -315,10 +315,16 @@ export const AppNavigator = () => {
     // onboarding is done they land on Learn the basics (Knowledge) as the root,
     // mirroring the web guest funnel (onboarding -> dismiss -> knowledge.index).
     // Login / Register sit on top of the basics and close back down to them.
+    //
+    // That is what this comment always said, and for a while it was not what
+    // the code did - the root was 'Login', so every launch after the first put
+    // a sign-in wall in front of a guest who was supposed to be reading the
+    // lessons. The decision moved to navigation/phase, where it is a pure
+    // function with a test, because a comment cannot fail a build.
     return (
       <AuthStack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName={onboarded ? 'Login' : 'Onboarding'}
+        initialRouteName={guestInitialRoute(onboarded)}
       >
         <AuthStack.Screen name="Onboarding">
           {() => <OnboardingScreen onComplete={() => setOnboarded(true)} />}

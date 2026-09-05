@@ -452,6 +452,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(apiToken);
     setApiToken(apiToken);
 
+    /**
+     * Signing in is what proves this device is past its first run.
+     *
+     * The onboarding slides used to record themselves as done the moment
+     * somebody tapped "Already have an account", which marked a first-run
+     * device as onboarded on a tap that might have been a mistake - and the
+     * quiz sits behind those slides, so it was never asked again. That tap
+     * records nothing now, which leaves this as the honest place to say it:
+     * an account has been signed into, so there is nothing left to introduce.
+     *
+     * Without this the slides would come back after a sign-out, which is the
+     * opposite mistake - the returning user's level already lives on the
+     * server, and re-running onboarding at them is noise.
+     */
+    await setOnboarded(true).catch(() => {
+      // A stored flag, not the session. Failing to write it costs a repeat of
+      // the slides, never the sign-in.
+    });
+
     const onboardedAt = userPayload.onboarded_at || null;
 
     // Save to SQLite
