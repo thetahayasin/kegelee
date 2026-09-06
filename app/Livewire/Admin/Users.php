@@ -263,7 +263,11 @@ class Users extends Component
                 // funnel column below needs both for every user on the page,
                 // and asking per row is 40 extra queries for 20 users.
                 'completedLessons as lessons_done_count' => fn ($q) => $q->whereNotNull('knowledge_lesson_user.completed_at'),
-                'subscriptions as active_subs_count' => fn ($q) => $q->whereIn('status', ['active', 'trialing']),
+                // entitled(), not `status IN (active, trialing)`. The status
+                // column alone marked a lapsed account as a subscriber on
+                // every row of this table, and dropped cancelled subscribers
+                // who are still inside a period they paid for.
+                'subscriptions as active_subs_count' => fn ($q) => $q->entitled(),
             ])
             ->latest()
             ->paginate(20);

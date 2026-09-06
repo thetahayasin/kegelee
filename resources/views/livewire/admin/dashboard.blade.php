@@ -45,19 +45,11 @@
 
     {{-- ─── Secondary counts (content inventory) ─────────────────────────── --}}
     <div class="grid grid-cols-4 gap-3">
-        @php
-            $secondaryLinks = [
-                'Pages'       => 'admin.pages',
-                'Subscribers' => 'admin.subscriptions',
-                'Users'       => 'admin.users',
-                'Sessions'    => 'admin.dashboard',
-            ];
-        @endphp
-        @foreach ($secondary as $label => $value)
-            <a href="{{ route($secondaryLinks[$label]) }}"
+        @foreach ($secondary as $tile)
+            <a href="{{ route($tile['route']) }}"
                class="flex flex-col items-center justify-center gap-1 rounded-xl border border-white/5 bg-surface-2/60 py-4 text-center hover:border-accent/30 hover:bg-accent/5 transition-colors">
-                <span class="text-xl font-bold tabular-nums">{{ $value }}</span>
-                <span class="text-xs font-medium text-muted">{{ $label }}</span>
+                <span class="text-xl font-bold tabular-nums">{{ $tile['value'] }}</span>
+                <span class="text-xs font-medium text-muted">{{ $tile['label'] }}</span>
             </a>
         @endforeach
     </div>

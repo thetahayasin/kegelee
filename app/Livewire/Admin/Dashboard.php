@@ -69,9 +69,17 @@ class Dashboard extends Component
             ->whereHas('completedLessons', fn ($q) => $q->whereNotNull('knowledge_lesson_user.completed_at'))
             ->count();
         $trained = (clone $funnelBase)->whereHas('workoutSessions')->count();
-        $subscribed = (clone $funnelBase)
-            ->whereHas('subscriptions', fn ($q) => $q->whereIn('status', ['active', 'trialing']))
-            ->count();
+        // EVER subscribed, not entitled right now, and the distinction is the
+        // whole point of the step. A funnel measures how far people got, so
+        // somebody who subscribed in March and lapsed in April still reached
+        // it; scoping this to live subscriptions would let the last bar FALL
+        // as customers churn, which reads as people failing to convert when
+        // what actually happened is that they converted and left. That breaks
+        // the cumulative property the block above is written around.
+        //
+        // "How many are subscribed now" is a different question and it is the
+        // Subscribers card, which uses entitled().
+        $subscribed = (clone $funnelBase)->whereHas('subscriptions')->count();
 
         $funnel = [
             ['label' => 'Signed up', 'value' => $totalUsers],
@@ -105,13 +113,30 @@ class Dashboard extends Component
                 ['label' => 'Total users', 'value' => $totalUsers, 'icon' => 'users'],
                 ['label' => 'Today sessions', 'value' => $todaySessions, 'icon' => 'activity'],
                 ['label' => 'This week', 'value' => $weekSessions, 'icon' => 'trending'],
-                ['label' => 'Active subs', 'value' => Subscription::whereIn('status', ['active', 'trialing'])->count(), 'icon' => 'star'],
+                // People with access right now, counted the one way the whole
+                // app counts it. This card used to be rows matching
+                // `status IN (active, trialing)` with no date bound, so every
+                // subscription whose EXPIRATION never arrived was still being
+                // counted as a live customer - the reason the dashboard said
+                // three subscribers while two of them had run out.
+                ['label' => 'Subscribers', 'value' => Subscription::entitled()->distinct('user_id')->count('user_id'), 'icon' => 'star'],
             ],
+            // Each tile carries its own destination. The view used to hold a
+            // label-keyed map of routes, so renaming a tile did not produce a
+            // wrong link, it produced a 500 on the whole dashboard from an
+            // undefined key - a label is a piece of copy and must never be
+            // load-bearing.
             'secondary' => [
-                'Pages' => Page::where('is_published', true)->count(),
-                'Subscribers' => Subscription::whereIn('status', ['active', 'trialing'])->distinct('user_id')->count('user_id'),
-                'Users' => $totalUsers,
-                'Sessions' => WorkoutSession::count(),
+                ['label' => 'Pages', 'value' => Page::where('is_published', true)->count(), 'route' => 'admin.pages'],
+                // Deliberately a different number from Subscribers above, and
+                // the gap between the two IS the reading: everyone entitled
+                // today, minus everyone who will still be here after their
+                // period ends. A cancelled subscriber appears in one and not
+                // the other, so a widening gap is churn already decided and
+                // not yet arrived.
+                ['label' => 'Renewing', 'value' => Subscription::renewing()->distinct('user_id')->count('user_id'), 'route' => 'admin.subscriptions'],
+                ['label' => 'Users', 'value' => $totalUsers, 'route' => 'admin.users'],
+                ['label' => 'Sessions', 'value' => WorkoutSession::count(), 'route' => 'admin.dashboard'],
             ],
             'chart' => $chart,
             'chartMax' => max(1, $chart->max('value')),

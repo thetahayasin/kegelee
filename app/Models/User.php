@@ -137,35 +137,31 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    /**
+     * The row that currently grants this account access, if any.
+     *
+     * The rule itself lives in Subscription::scopeEntitled(), which is the one
+     * definition of "entitled" in the codebase. It used to be written out here
+     * instead, which made this the fourth place the question was answered and
+     * the only one that answered it correctly - the admin's own counts each
+     * had a partial copy, and every copy was wrong in a different direction.
+     *
+     * Worth spelling out what the scope encodes, because two of its three
+     * branches look like bugs until you know the store's behaviour:
+     *
+     * - 'canceled' means auto-renew was switched off in Google Play. The
+     *   customer has paid through the end of the period and keeps access to it.
+     * - 'past_due' means Google is RETRYING the card, and its grace period is
+     *   defined as the window where the subscriber keeps access. Excluding it
+     *   locked out paying customers the instant Google told us to keep serving
+     *   them.
+     *
+     * Both are bounded by ends_at, so neither can grant a day beyond what was
+     * paid for: when the grace really does run out, Play sends the expiration.
+     */
     public function activeSubscription(): ?Subscription
     {
-        return $this->subscriptions()
-            ->where(function ($q) {
-                // Active / trialing: entitled while not yet expired.
-                $q->where(function ($w) {
-                    $w->whereIn('status', ['trialing', 'active'])
-                      ->where(fn ($e) => $e->whereNull('ends_at')->orWhere('ends_at', '>', now()));
-                })
-                // Canceled (e.g. auto-renew turned off in Google Play): keep
-                // access until the paid period actually ends.
-                ->orWhere(function ($w) {
-                    $w->where('status', 'canceled')->where('ends_at', '>', now());
-                })
-                // Past due = Google is RETRYING the card, and its grace period
-                // is defined as the window where the subscriber keeps access.
-                // We were doing the opposite: SUBSCRIPTION_IN_GRACE_PERIOD and
-                // BILLING_ISSUE both write 'past_due', which this clause used
-                // to exclude, so a card blip locked out a paying customer the
-                // instant Google told us to keep serving them. Bounded by
-                // ends_at exactly like 'canceled', so it can never grant
-                // beyond the period already paid for - when the grace really
-                // does run out, Play sends the expiration that sets 'expired'.
-                ->orWhere(function ($w) {
-                    $w->where('status', 'past_due')->where('ends_at', '>', now());
-                });
-            })
-            ->latest('id')
-            ->first();
+        return $this->subscriptions()->entitled()->latest('id')->first();
     }
 
     /** @var bool|null Per-request cache for isSubscribed(). */

@@ -361,26 +361,21 @@ class Subscriptions extends Component
             ->when($this->filterPlan, fn ($q) => $q->where('plan_id', $this->filterPlan))
             ->latest();
 
-        // Every card counts LIVE records only, bounded by ends_at, because a
-        // missed EXPIRATION leaves the status saying 'active' forever. Two of
-        // them were bounded and two were not, so the same lapsed subscriber
-        // could be absent from Active and still counted under Canceled - the
-        // four cards did not describe one population.
+        // Every card counts LIVE records only, because a missed EXPIRATION
+        // leaves the status saying 'active' forever. This was four hand-written
+        // WHERE clauses, two of them bounded and two not, so the same lapsed
+        // subscriber could be absent from Active and still counted under
+        // Canceled - the four cards did not describe one population.
         //
-        // 'canceled' and 'past_due' are entitled until their paid period runs
-        // out (auto-renew off, and a card being retried), which is exactly the
-        // definition Subscription::isEntitled() uses.
-        $live = fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now());
-
+        // Now they are entitled() split by status, which makes that structural
+        // rather than a thing to remember: the four cards sum to exactly the
+        // number of entitled rows, and they cannot drift apart again without
+        // the shared scope changing underneath all of them at once.
         $summary = [
-            'active' => Subscription::where('status', 'active')->where($live)->count(),
-            'trialing' => Subscription::where('status', 'trialing')->where($live)->count(),
-            'canceled' => Subscription::where('status', 'canceled')
-                ->where('ends_at', '>', now())
-                ->count(),
-            'past_due' => Subscription::where('status', 'past_due')
-                ->where('ends_at', '>', now())
-                ->count(),
+            'active' => Subscription::entitled()->where('status', 'active')->count(),
+            'trialing' => Subscription::entitled()->where('status', 'trialing')->count(),
+            'canceled' => Subscription::entitled()->where('status', 'canceled')->count(),
+            'past_due' => Subscription::entitled()->where('status', 'past_due')->count(),
         ];
 
         return view('livewire.admin.subscriptions', [

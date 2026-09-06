@@ -208,10 +208,12 @@ class Money extends ReportPage
             ->groupBy('subject')
             ->pluck('total', 'subject');
 
-        $live = Subscription::query()
+        // "Live" here means entitled: this column answers which plans people
+        // are actually on right now, so a cancelled subscriber still inside
+        // their paid period belongs in it. The local copy of the rule that
+        // used to be here left them out.
+        $live = Subscription::entitled()
             ->join('plans', 'plans.id', '=', 'subscriptions.plan_id')
-            ->whereIn('subscriptions.status', ['active', 'trialing'])
-            ->where(fn ($q) => $q->whereNull('subscriptions.ends_at')->orWhere('subscriptions.ends_at', '>', now()))
             ->groupBy('plans.slug')
             ->select(['plans.slug', DB::raw('COUNT(*) as total')])
             ->pluck('total', 'slug');

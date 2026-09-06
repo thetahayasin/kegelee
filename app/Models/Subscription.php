@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -123,6 +124,48 @@ class Subscription extends Model
     }
 
     /**
+     * isEntitled(), in SQL.
+     *
+     * This has to exist as a scope and not only as a predicate. isEntitled()
+     * answers for ONE loaded row, and every "how many subscribers" figure in
+     * the admin is a count() that cannot call it - so each screen wrote the
+     * WHERE by hand and they disagreed. The dashboard counted
+     * `status IN (active, trialing)` with no date bound at all, which counts
+     * every lapsed row whose EXPIRATION never arrived; the subscriptions page
+     * bounded it; the reports bounded it a third way that dropped cancelled
+     * subscribers who are still inside a period they paid for. One question,
+     * four answers, and nothing to say which was the real one.
+     *
+     * Edit this and isEntitled() together. They are one sentence written
+     * twice, because PHP and SQL cannot share it.
+     */
+    public function scopeEntitled(Builder $query): Builder
+    {
+        // Qualified because half the callers join `plans` to price the rows.
+        // An unqualified `status` is fine today only because plans happens not
+        // to have that column, which is not a guarantee worth resting on.
+        $status = $query->qualifyColumn('status');
+        $endsAt = $query->qualifyColumn('ends_at');
+
+        return $query->where(function (Builder $q) use ($status, $endsAt) {
+            $q->where(function (Builder $w) use ($status, $endsAt) {
+                // A null ends_at is an open-ended grant (an admin comp), and
+                // it stays entitled until something puts a date on it.
+                $w->whereIn($status, ['active', 'trialing'])
+                    ->where(fn (Builder $e) => $e->whereNull($endsAt)->orWhere($endsAt, '>', now()));
+            })->orWhere(function (Builder $w) use ($status, $endsAt) {
+                // Paid through the end of the period, whichever reason it will
+                // not renew. Never null here: an open-ended cancelled row
+                // would grant access forever, which is the one shape that
+                // escapes every sweep we have.
+                $w->whereIn($status, ['canceled', 'past_due'])
+                    ->whereNotNull($endsAt)
+                    ->where($endsAt, '>', now());
+            });
+        });
+    }
+
+    /**
      * Whether this will bill again, as far as we know.
      *
      * `auto_renewing` is written by both webhooks and is the only field that
@@ -132,8 +175,45 @@ class Subscription extends Model
      */
     public function willRenew(): bool
     {
+        // The date bound is not decoration. A row whose period ended while its
+        // EXPIRATION was lost still says auto_renewing = true forever, and
+        // without this the subscriptions table printed "Renews" beside a row
+        // it was simultaneously calling expired.
         return $this->auto_renewing
-            && in_array($this->status, ['active', 'trialing', 'past_due'], true);
+            && in_array($this->status, ['active', 'trialing', 'past_due'], true)
+            && ($this->ends_at === null || $this->ends_at->isFuture());
+    }
+
+    /**
+     * willRenew(), in SQL. The money question, not the access one.
+     *
+     * Deliberately NOT the same set as entitled(). Somebody who cancelled
+     * yesterday still has access and still counts as a subscriber, but their
+     * next payment is never arriving, so folding them into MRR overstates
+     * recurring revenue by exactly the people who have already left. Counting
+     * one of these two sets and labelling it the other is the same mistake as
+     * ignoring ends_at, one storey up, so the two scopes are named for the
+     * question rather than for the rows.
+     */
+    public function scopeRenewing(Builder $query): Builder
+    {
+        $endsAt = $query->qualifyColumn('ends_at');
+
+        return $query->where($query->qualifyColumn('auto_renewing'), true)
+            ->whereIn($query->qualifyColumn('status'), ['active', 'trialing', 'past_due'])
+            ->where(fn (Builder $e) => $e->whereNull($endsAt)->orWhere($endsAt, '>', now()));
+    }
+
+    /**
+     * Rows that have run out, whatever their status column still claims.
+     *
+     * The complement of entitled() for reporting on churn, and the set the
+     * dashboard was silently counting as live.
+     */
+    public function scopeLapsed(Builder $query): Builder
+    {
+        return $query->whereNotNull($query->qualifyColumn('ends_at'))
+            ->where($query->qualifyColumn('ends_at'), '<=', now());
     }
 
     public function discount(): BelongsTo

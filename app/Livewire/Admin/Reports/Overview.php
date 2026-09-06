@@ -161,17 +161,23 @@ class Overview extends ReportPage
         return UserEvent::where('name', $name)->whereBetween('occurred_at', [$from, $to])->count();
     }
 
-    /** @return array{total: int, trialing: int} */
+    /**
+     * @return array{total: int, trialing: int}
+     *
+     * Both figures go through Subscription::entitled() rather than a local
+     * copy of the rule. The copy that used to live here bounded the dates
+     * correctly but only looked at 'active' and 'trialing', so every
+     * subscriber who had cancelled and was still inside the period they paid
+     * for was missing from "Subscribers right now" while the app was still
+     * serving them - the same misstatement as the dashboard's, pointing the
+     * other way.
+     */
     private function subscriberCounts(): array
     {
-        $live = fn () => Subscription::query()
-            ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()));
-
         return [
-            'total' => (int) $live()->whereIn('status', ['active', 'trialing'])
-                ->distinct()->count('user_id'),
-            'trialing' => (int) $live()->where('status', 'trialing')
-                ->distinct()->count('user_id'),
+            'total' => (int) Subscription::entitled()->distinct()->count('user_id'),
+            'trialing' => (int) Subscription::entitled()
+                ->where('status', 'trialing')->distinct()->count('user_id'),
         ];
     }
 
@@ -213,14 +219,22 @@ class Overview extends ReportPage
      *
      * Trials are excluded: nobody has paid for one yet.
      *
+     * renewing(), NOT entitled(), and the difference is the whole character of
+     * the number. Entitled counts everyone with access today, which includes
+     * people who cancelled last week and are running out their period - real
+     * subscribers, but their next payment is never arriving. Recurring revenue
+     * is a forecast, so it may only count money that will actually recur, and
+     * the two sets have to be kept apart or this card quietly reports churned
+     * customers as income for one more period.
+     *
      * @return array{amount: float, subscribers: int}
      */
     private function monthlyMoney(): array
     {
-        $rows = Subscription::query()
+        $rows = Subscription::renewing()
             ->join('plans', 'plans.id', '=', 'subscriptions.plan_id')
-            ->where('subscriptions.status', 'active')
-            ->where(fn ($q) => $q->whereNull('subscriptions.ends_at')->orWhere('subscriptions.ends_at', '>', now()))
+            // Trials have a price attached but nobody has been charged it yet.
+            ->where('subscriptions.status', '!=', 'trialing')
             ->groupBy('plans.price', 'plans.interval', 'plans.interval_count')
             ->select([
                 'plans.price',
