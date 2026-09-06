@@ -64,7 +64,13 @@
                 @forelse ($users as $user)
                     <tr class="border-b border-white/5 last:border-0">
                         <td class="p-4">
-                            <p class="font-medium">{{ $user->name }}</p>
+                            {{-- The name is the way into this person's full
+                                 report. The inline timeline below stays as it
+                                 is: it answers "what did they just do" without
+                                 losing your place in the table, which is a
+                                 different need from reading the whole account. --}}
+                            <a href="{{ route('admin.users.report', $user) }}"
+                               class="font-medium hover:text-accent transition-colors">{{ $user->name ?: 'No name' }}</a>
                             <p class="text-xs text-muted">{{ $user->email }}</p>
                             @if (! $user->email_verified_at)
                                 <span class="mt-1 inline-block rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-400">Unverified</span>

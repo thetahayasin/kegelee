@@ -161,6 +161,20 @@ Route::prefix('mystic')->name('admin.')->group(function () {
         Route::get('users', Admin\Users::class)->name('users');
 
         /**
+         * One account, in full.
+         *
+         * The users table can only show what fits in a row, so answering "what
+         * happened with this account" meant reading three screens that each
+         * defined a subscriber differently. This page reads the same scopes
+         * the reports do, so it cannot contradict them.
+         *
+         * Registered AFTER 'users' so the literal path wins; a bare
+         * {user} here would otherwise swallow nothing, but the ordering is
+         * what keeps it that way when somebody adds 'users/export' later.
+         */
+        Route::get('users/{user}', Admin\UserReport::class)->name('users.report');
+
+        /**
          * Reports.
          *
          * Six pages rather than one, because they answer six different
