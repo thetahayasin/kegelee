@@ -46,7 +46,30 @@ final class Window
         return Carbon::now();
     }
 
-    /** The same length again, immediately before this one. */
+    /**
+     * The same window, shifted back by its own length.
+     *
+     * "The same length" is the entire job, and it used to run from prevSince()
+     * to since() - a whole number of days - while the current window runs from
+     * since() to NOW, which is a whole number of days minus however much of
+     * today has not happened yet. So every comparison on every report page put
+     * a partial period against a complete one and reported the difference as
+     * change.
+     *
+     * The bias is not small and it is not constant. On the 7-day window a
+     * completely flat metric read as down 10% by mid-morning and down 14% just
+     * after midnight, recovering through the day as today filled up: the
+     * figures moved on their own, all day, every day, and the direction was
+     * always the same one. 30 days understated by ~2%, 90 by ~1%.
+     *
+     * Shifting the whole window back by `days` keeps both ends aligned to the
+     * same time of day, so the two periods are the same length whenever they
+     * are asked and a flat metric reads as flat. The cost is that the previous
+     * period now stops `days` before now rather than exactly where this one
+     * starts, leaving the last part-day before the window unattributed to
+     * either. That is the honest trade: a small gap between two comparable
+     * periods beats no gap between two periods that cannot be compared.
+     */
     public function prevSince(): Carbon
     {
         return $this->since()->copy()->subDays($this->days);
@@ -54,7 +77,7 @@ final class Window
 
     public function prevUntil(): Carbon
     {
-        return $this->since();
+        return $this->until()->copy()->subDays($this->days);
     }
 
     /** "the last 30 days", for writing into a sentence. */
