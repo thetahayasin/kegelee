@@ -24,6 +24,33 @@
         @endforeach
     </div>
 
+    {{-- ─── Recurring revenue ─────────────────────────────────────────────
+         Everything above counts EVENTS, which answers "what happened". These
+         answer "what is it worth and who is leaving", which no amount of event
+         counting reaches. The arithmetic is in SubscriptionMetrics so these and
+         the Overview's money card cannot drift apart. --}}
+    <div>
+        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-muted">Recurring revenue</h2>
+            <p class="max-w-xl text-xs text-dim">
+                List prices, before Google's cut, before tax and before refunds. There is no ledger to read,
+                so these are a measure of size and shape rather than of what lands in the bank.
+            </p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            @foreach ($recurring['rows'] as $row)
+                {{-- A missing value is a sentence, not a zero: "not enough
+                     churn to divide by" is true and useful, and "$0.00" in the
+                     same box is neither. --}}
+                <x-admin.stat :label="$row['label']"
+                              :value="$row['value'] ?? 'Not yet'"
+                              :detail="$row['detail']"
+                              :means="$row['means']" />
+            @endforeach
+        </div>
+    </div>
+
     {{-- ─── Where the paywall was opened from ─────────────────────────────── --}}
     <div class="rounded-2xl border border-white/5 bg-surface p-5">
         <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">

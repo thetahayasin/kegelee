@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class Subscription extends Model
 {
@@ -99,11 +100,33 @@ class Subscription extends Model
      */
     public function getEffectiveStatusAttribute(): string
     {
-        $lapsed = $this->ends_at !== null && $this->ends_at->isPast();
+        return self::effectiveStatusFor($this->status, $this->ends_at);
+    }
 
-        return $lapsed && in_array($this->status, ['active', 'trialing'], true)
+    /**
+     * The same rule for a row that is not a model.
+     *
+     * The reports read subscriptions through joins and select a handful of
+     * columns rather than hydrating models, so they cannot reach the accessor
+     * above - and the one that could not reach it printed the raw status,
+     * which is how the "last 25 subscriptions" table came to label a row
+     * "Active" directly underneath a figure that had correctly excluded it.
+     * That table exists so a number can be checked against a name, so it is
+     * the worst place in the admin for the two to disagree.
+     */
+    public static function effectiveStatusFor(?string $status, mixed $endsAt): string
+    {
+        $status = (string) $status;
+
+        if ($endsAt === null) {
+            return $status;
+        }
+
+        $endsAt = $endsAt instanceof \DateTimeInterface ? Carbon::instance($endsAt) : Carbon::parse($endsAt);
+
+        return $endsAt->isPast() && in_array($status, ['active', 'trialing'], true)
             ? 'expired'
-            : $this->status;
+            : $status;
     }
 
     public function isEntitled(): bool

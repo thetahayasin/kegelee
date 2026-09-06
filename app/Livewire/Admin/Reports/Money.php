@@ -6,6 +6,7 @@ use App\Models\Subscription;
 use App\Models\UserEvent;
 use App\Support\Reports\Delta;
 use App\Support\Reports\PlainWords;
+use App\Support\Reports\SubscriptionMetrics;
 use App\Support\Reports\Window;
 use Illuminate\Support\Facades\DB;
 
@@ -112,6 +113,7 @@ class Money extends ReportPage
                     'ifLow' => null,
                 ],
             ],
+            'recurring' => $this->recurring($window),
             'bySource' => $this->paywallSources($since, $until),
             'plans' => $this->planMix($since, $until),
             'switches' => $this->switches($since, $until),
@@ -197,6 +199,95 @@ class Money extends ReportPage
             $best['people'],
             'people who reached the paywall from "'.$best['label'].'" went on to pay. That is the best-performing place to ask.',
         );
+    }
+
+    /**
+     * The recurring-revenue view of the same customers.
+     *
+     * Everything above this on the page counts EVENTS - purchases, paywalls,
+     * failures - which answers "what happened". These answer "what is it
+     * worth and who is leaving", which no amount of event counting gets to.
+     *
+     * The arithmetic lives in SubscriptionMetrics rather than here, so the
+     * Overview's money card and these cards cannot drift apart. That has
+     * already gone wrong once with the definition of a subscriber, and money
+     * is the worse place for it to happen.
+     *
+     * Nulls are rendered as a sentence rather than as a zero. "No churn yet,
+     * so there is nothing to divide by" is a true and useful thing to read;
+     * "$0.00" in the same box is neither.
+     *
+     * @return array<string, mixed>
+     */
+    private function recurring(Window $window): array
+    {
+        $mrr = SubscriptionMetrics::mrr();
+        $arpu = SubscriptionMetrics::arpu();
+        $churn = SubscriptionMetrics::churn($window);
+        $reasons = SubscriptionMetrics::churnReasons($window);
+        $refunds = SubscriptionMetrics::refunds($window);
+        $ltv = SubscriptionMetrics::ltv($window);
+
+        $money = fn (?float $n) => $n === null ? null : '$'.number_format($n, 2);
+
+        return [
+            'rows' => [
+                [
+                    'label' => 'Monthly recurring revenue',
+                    'value' => $money($mrr['amount']),
+                    'detail' => PlainWords::people($mrr['subscribers']).' billing again',
+                    'means' => 'Every subscription that will bill again, with each plan spread over the months it covers. List prices, before Google\'s cut, tax and refunds - a measure of size, not of what lands in the bank.',
+                ],
+                [
+                    'label' => 'Annual run rate',
+                    'value' => $money($mrr['amount'] * 12),
+                    'detail' => 'this month, twelve times',
+                    'means' => 'What a year at today\'s rate would come to. It assumes nothing changes, which it will, so it is a scale rather than a forecast.',
+                ],
+                [
+                    'label' => 'Revenue per subscriber',
+                    'value' => $money($arpu),
+                    'detail' => $arpu === null ? 'nobody is billing yet' : 'per month, on average',
+                    'means' => 'Recurring revenue divided by the subscriptions that make it up. Someone who has cancelled is in neither half, so this does not fall just because a person left.',
+                ],
+                [
+                    'label' => 'Churn',
+                    'value' => $churn['rate'] === null ? null : $churn['rate'].'%',
+                    // No "who were": PlainWords::people() says "1 person" for a
+                    // single subscriber, and the verb then disagrees with it.
+                    'detail' => $churn['base'] > 0
+                        ? $churn['churned'].' of '.PlainWords::people($churn['base']).' subscribed when '.$window->label().' began'
+                        : 'nobody was subscribed when this window opened',
+                    'means' => 'People, not rows: a plan change closes one subscription and opens another, and that is not somebody leaving. Counted by whether they have access NOW, so a missed expiry webhook cannot hide a departure.',
+                ],
+                [
+                    'label' => 'Left by choice',
+                    'value' => number_format($reasons['voluntary']),
+                    'detail' => $reasons['involuntary'].' more lost to a failed card',
+                    'means' => 'Cancellations against payment failures. The first is a product problem and the second is a payments problem, and one "churn" number hides which of the two you have.',
+                ],
+                [
+                    'label' => 'Came back',
+                    'value' => number_format($churn['reactivated']),
+                    'detail' => 'subscribed again in '.$window->label(),
+                    'means' => 'People who were not subscribed when the window opened and are now, on a subscription that began inside it.',
+                ],
+                [
+                    'label' => 'Lifetime value',
+                    'value' => $money($ltv),
+                    'detail' => $ltv === null ? 'needs some churn to estimate from' : 'at the current churn rate',
+                    'means' => 'Revenue per subscriber divided by monthly churn. It assumes today\'s churn continues for ever, so treat it as an order of magnitude and not a figure to plan against.',
+                ],
+                [
+                    'label' => 'Refunded',
+                    'value' => $refunds['rate'] === null ? null : $refunds['rate'].'%',
+                    'detail' => $refunds['purchases'] > 0
+                        ? $refunds['refunds'].' of '.number_format($refunds['purchases']).' purchases'
+                        : 'no purchases in this window',
+                    'means' => 'Refunds and revocations against purchases. Worth watching apart from churn: a rate that climbs is usually a broken checkout rather than people changing their minds.',
+                ],
+            ],
+        ];
     }
 
     /** What people bought, and what is live right now. */
@@ -334,6 +425,12 @@ class Money extends ReportPage
                 'plans.slug as plan',
                 'subscriptions.status',
                 'subscriptions.started_at',
+                // Selected for effectiveStatusFor(). Without it this table
+                // printed the raw status, so a lapsed row read "Active"
+                // directly beneath figures that had correctly excluded it -
+                // in the one table on the page whose whole job is letting a
+                // number be checked against a name.
+                'subscriptions.ends_at',
                 'subscriptions.trial_ends_at',
             ])
             ->get()
@@ -341,7 +438,7 @@ class Money extends ReportPage
                 'email' => $row->email,
                 'name' => $row->name,
                 'plan' => $row->plan ?: 'no plan recorded',
-                'status' => $row->status,
+                'status' => Subscription::effectiveStatusFor($row->status, $row->ends_at),
                 'trial' => $row->trial_ends_at !== null,
                 'started' => $row->started_at ? \Illuminate\Support\Carbon::parse($row->started_at)->format('j M Y') : '-',
             ])

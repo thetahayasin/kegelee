@@ -8,8 +8,8 @@ use App\Models\UserEvent;
 use App\Models\WorkoutSession;
 use App\Support\Reports\Delta;
 use App\Support\Reports\PlainWords;
+use App\Support\Reports\SubscriptionMetrics;
 use App\Support\Reports\Window;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Is the app growing, and is anyone paying?
@@ -55,7 +55,7 @@ class Overview extends ReportPage
 
         [$trials, $trialsPaid] = $this->trialToPaid($since, $until);
 
-        $monthly = $this->monthlyMoney();
+        $monthly = SubscriptionMetrics::mrr();
 
         $totalAccounts = User::where('is_admin', false)->count();
 
@@ -208,66 +208,4 @@ class Overview extends ReportPage
         return [$trialUsers->count(), (int) $paid];
     }
 
-    /**
-     * Roughly what a month of the current subscribers is worth.
-     *
-     * List prices added up and spread over the months each plan covers. It is
-     * before Google's cut, before tax and before refunds, so it is a measure of
-     * size rather than of what lands in the bank - which the card says out
-     * loud, because a money figure with an unstated assumption is worse than
-     * no money figure.
-     *
-     * Trials are excluded: nobody has paid for one yet.
-     *
-     * renewing(), NOT entitled(), and the difference is the whole character of
-     * the number. Entitled counts everyone with access today, which includes
-     * people who cancelled last week and are running out their period - real
-     * subscribers, but their next payment is never arriving. Recurring revenue
-     * is a forecast, so it may only count money that will actually recur, and
-     * the two sets have to be kept apart or this card quietly reports churned
-     * customers as income for one more period.
-     *
-     * @return array{amount: float, subscribers: int}
-     */
-    private function monthlyMoney(): array
-    {
-        $rows = Subscription::renewing()
-            ->join('plans', 'plans.id', '=', 'subscriptions.plan_id')
-            // Trials have a price attached but nobody has been charged it yet.
-            ->where('subscriptions.status', '!=', 'trialing')
-            ->groupBy('plans.price', 'plans.interval', 'plans.interval_count')
-            ->select([
-                'plans.price',
-                'plans.interval',
-                'plans.interval_count',
-                DB::raw('COUNT(*) as total'),
-            ])
-            ->get();
-
-        $amount = 0.0;
-        $subscribers = 0;
-
-        foreach ($rows as $row) {
-            $count = max(1, (int) $row->interval_count);
-
-            // How many months one payment covers. A lifetime plan is left out
-            // rather than spread over a guessed number of years.
-            $months = match ($row->interval) {
-                'day' => $count / 30,
-                'week' => $count * 7 / 30,
-                'month' => $count,
-                'year' => $count * 12,
-                default => null,
-            };
-
-            if ($months === null || $months <= 0) {
-                continue;
-            }
-
-            $amount += ((float) $row->price / $months) * (int) $row->total;
-            $subscribers += (int) $row->total;
-        }
-
-        return ['amount' => round($amount, 2), 'subscribers' => $subscribers];
-    }
 }

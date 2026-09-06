@@ -97,4 +97,29 @@ class MoneyReportTest extends TestCase
             ->assertOk()
             ->assertSee("before Google's cut", false);
     }
+
+    public function test_the_recent_table_reports_the_status_that_is_actually_true(): void
+    {
+        // The table exists so a figure above it can be checked against a name,
+        // which makes it the worst place in the admin to print a status the
+        // dates contradict. It used to select the raw column, so a row whose
+        // expiry never arrived read "Active" underneath cards that had
+        // correctly left it out.
+        \App\Models\Subscription::create([
+            'user_id' => \App\Models\User::factory()->create()->id,
+            'plan_id' => \App\Models\Plan::first()?->id,
+            'status' => 'active',
+            'store' => 'revenuecat',
+            'purchase_token' => 'lapsed-but-says-active',
+            'started_at' => now()->subMonths(2),
+            'ends_at' => now()->subDay(),
+            'auto_renewing' => true,
+        ]);
+
+        $row = collect($this->page()->viewData('recent'))
+            ->firstWhere('started', now()->subMonths(2)->format('j M Y'));
+
+        $this->assertNotNull($row);
+        $this->assertSame('expired', $row['status']);
+    }
 }
