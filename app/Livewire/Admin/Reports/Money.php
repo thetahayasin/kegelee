@@ -120,9 +120,11 @@ class Money extends ReportPage
             'failures' => $this->failures($since, $until),
             'restores' => $this->restores($since, $until),
             'endings' => $this->endings($since, $until),
-            'lapsed' => Subscription::whereNotNull('ends_at')
-                ->where('ends_at', '<', now())
-                ->whereNotIn('status', ['active', 'trialing'])
+            // lapsed(), not a hand-rolled copy of it. The copy also excluded
+            // status IN (active, trialing), which is the one shape a lapsed
+            // row takes when its EXPIRATION never arrived - so the count
+            // dropped exactly the subscriptions it existed to find.
+            'lapsed' => Subscription::lapsed()
                 ->whereBetween('ends_at', [$since, $until])
                 ->count(),
             'recent' => $this->recentPurchases(),
