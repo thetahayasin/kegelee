@@ -19,6 +19,19 @@ export const planMonths = (plan: PlanDef): number | null => {
 };
 
 /**
+ * The amount inside a store price string: the run of digits with whatever a
+ * market puts between them.
+ *
+ * The separators are not decoration - if one is missing from this class the
+ * run stops early and only PART of the amount gets swapped, which is how
+ * "CHF 1’699.00" came back as "CHF 141.58’699.00". Covered: the ASCII pair,
+ * the space family (\s takes in the non-breaking and narrow no-break spaces
+ * that French, Polish, Russian and Ukrainian group with), and the apostrophes
+ * Switzerland and Liechtenstein group with.
+ */
+const NUMERIC_RUN = /\d[\d.,\s'’]*\d|\d/;
+
+/**
  * A plan's price expressed per month, reusing the STORE's own formatting.
  *
  * Rather than reformatting through Intl (symbol position and decimal separator
@@ -31,7 +44,7 @@ export const perMonthLabel = (
   months: number | null,
 ): string | null => {
   if (!pricing?.priceString || pricing.price == null || !months || months <= 1) return null;
-  const numeric = pricing.priceString.match(/\d[\d.,\s]*\d|\d/);
+  const numeric = pricing.priceString.match(NUMERIC_RUN);
   if (!numeric) return null;
   const sample = numeric[0];
   const separator = /,\d{1,2}$/.test(sample) ? ',' : '.';
@@ -84,7 +97,7 @@ export const savingsPercent = (
  */
 export const zeroPriceLike = (priceString?: string | null): string | null => {
   const source = priceString || '';
-  const numeric = source.match(/\d[\d.,\s]*\d|\d/);
+  const numeric = source.match(NUMERIC_RUN);
   if (!numeric) return null;
   const sample = numeric[0];
   // The decimal separator is whichever of . or , has one or two digits after
@@ -94,5 +107,14 @@ export const zeroPriceLike = (priceString?: string | null): string | null => {
   const zero = decimals
     ? `0${sample[decimals.index]}${'0'.repeat(decimals[1].length)}`
     : '0';
-  return source.replace(sample, zero);
+  const zeroed = source.replace(sample, zero);
+
+  /**
+   * Every digit has to be a zero now, or the run stopped short of the whole
+   * amount and what is left is not free - it is a smaller price. This screen
+   * gets one thing wrong at a time: a null sends the caller to the store's own
+   * free-phase string, while "CHF 0’699.00" under "3 days free" is a figure
+   * somebody would hold us to.
+   */
+  return /[1-9]/.test(zeroed) ? null : zeroed;
 };

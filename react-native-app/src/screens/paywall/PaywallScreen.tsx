@@ -1166,7 +1166,7 @@ export const PaywallScreen = () => {
                       </View>
                     ) : null}
                   </View>
-                  <View style={styles.planPriceWrap}>
+                  <View style={[styles.planPriceWrap, cardTrial ? styles.planPriceWrapTrial : null]}>
                     {/* Never a price we would have to take back. The store's
                         own localized string, or a placeholder while we are
                         still asking - not the USD catalogue figure, which is
@@ -1688,10 +1688,19 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   planPriceWrap: {
     alignItems: 'flex-end',
-    // The trial's "then ..." line is the longest thing this column ever holds
-    // and it is allowed to wrap. Without a ceiling it takes the width it wants
-    // from the plan name and description sitting beside it.
-    maxWidth: '48%',
+  },
+  /**
+   * The ceiling belongs to the trial state alone.
+   *
+   * The "then ..." line is the longest thing this column ever holds and it is
+   * allowed to wrap, so without a ceiling it takes the width it wants from the
+   * plan name beside it. But the headline in that state is a zero - never more
+   * than a few characters - so the cap only ever lands on the small line.
+   * Applied to every state it would have wrapped the price itself in the
+   * markets that write one longest: "Rs 1,29,900.00" broken across two lines.
+   */
+  planPriceWrapTrial: {
+    maxWidth: '52%',
   },
   planPrice: {
     fontSize: 19,

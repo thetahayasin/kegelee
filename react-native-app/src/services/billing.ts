@@ -691,28 +691,28 @@ export const getPlanPricing = async (
   }
 
   /**
-   * Why the trial did, or did not, reach the paywall.
+   * Why a plan is being sold without a trial.
    *
-   * Dev builds only. The answer is three facts deep - what the store said
-   * about eligibility, whether this customer has ever bought anything, and
-   * whether Play served an offer with a free phase at all - and none of them
-   * are visible from the screen, which simply shows a price. Testing against
-   * Play Billing Lab, where the purchase sheet offers a trial the app is not
-   * allowed to advertise, this line is the difference between the two.
+   * Dev builds only, and silent whenever every plan got its trial - there is
+   * nothing to explain then. A quiet paywall otherwise has two completely
+   * different causes that look identical on screen, and this line separates
+   * them: `freePhase: null` is the STORE declining to offer this Google
+   * account a trial, while a free phase alongside `everPurchased: true` is
+   * this app declining to advertise one the store did offer.
+   *
+   * Worth the six lines because of Play Billing Lab specifically, where the
+   * purchase sheet can show a trial that `queryProductDetails` never served.
    */
   if (__DEV__) {
-    const refused = matched.filter(
-      ({ plan, pkg }) =>
-        pkg?.product?.defaultOption?.freePhase && !out[plan.slug]?.freeTrialDays,
-    );
-    if (refused.length > 0) {
-      console.log('[billing] free phase offered but trial not advertised', {
+    const quiet = matched.filter(({ plan }) => !out[plan.slug]?.freeTrialDays);
+    if (quiet.length > 0) {
+      console.log('[billing] no trial advertised', {
         askedTheStore: eligibility !== null,
         everPurchased,
-        plans: refused.map(({ plan, pkg }) => ({
+        plans: quiet.map(({ plan, pkg }) => ({
           slug: plan.slug,
-          introStatus: eligibility?.[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN,
           freePhase: pkg?.product?.defaultOption?.freePhase?.billingPeriod?.iso8601 ?? null,
+          introStatus: eligibility?.[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN,
         })),
       });
     }

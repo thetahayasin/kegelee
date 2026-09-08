@@ -33,6 +33,22 @@ describe('zeroPriceLike', () => {
     expect(zeroPriceLike('PKR 1,999')).toBe('PKR 0');
   });
 
+  it('groups the way Switzerland does', () => {
+    // The apostrophe is a thousands separator. Left out of the numeric run it
+    // stopped the swap after the first digit, and "CHF 1’699.00" came back as
+    // "CHF 0’699.00" - a figure a reader would hold us to, printed under
+    // "3 days free".
+    expect(zeroPriceLike('CHF 1’699.00')).toBe('CHF 0.00');
+    expect(zeroPriceLike("CHF 1'699.00")).toBe('CHF 0.00');
+  });
+
+  it('returns nothing rather than a partly zeroed amount', () => {
+    // Whatever separator this is, the run stopped short of the whole number.
+    // One wrong thing at a time: null sends the caller to the store's own
+    // free-phase string instead.
+    expect(zeroPriceLike('12٬345,00 د.إ')).toBeNull();
+  });
+
   it('gives up rather than print a zero in the wrong script', () => {
     // No ASCII digits to swap: the caller falls back to the store's own
     // free-phase string instead.
