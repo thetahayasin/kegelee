@@ -61,6 +61,24 @@ class Subscriptions extends Component
     public ?string $storeMsg = null;
     public bool $storeMsgOk = false;
 
+    /**
+     * Correct the rows before showing them.
+     *
+     * A missed EXPIRATION leaves a subscription at 'active' with a date in the
+     * past. Everything on this page already reads through effective_status and
+     * entitled(), so the display was right either way - but the status FILTER
+     * cannot be, since it is a WHERE on the raw column, and an admin who picks
+     * "Expired" should not be shown fewer rows than the ones labelled expired
+     * in front of them.
+     *
+     * On mount rather than in render(), so it runs when an admin opens the
+     * page and not again on every keystroke in the search box.
+     */
+    public function mount(): void
+    {
+        Subscription::sweepLapsed();
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();

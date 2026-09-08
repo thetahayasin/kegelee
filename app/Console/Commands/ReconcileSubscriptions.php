@@ -171,15 +171,12 @@ class ReconcileSubscriptions extends Command
     /**
      * Rows that ran out over a day ago and never heard otherwise.
      *
-     * A day of slack, not zero: an expiry and its renewal are not simultaneous,
-     * and expiring somebody mid-renewal would lock out a customer who has just
-     * paid.
+     * The sweep itself lives on the model, because this command is no longer
+     * the only caller: the pull endpoint and the admin list run it too, so a
+     * host with no working scheduler still writes these rows down.
      */
     private function expireLongLapsed(): int
     {
-        return Subscription::whereIn('status', ['active', 'trialing'])
-            ->whereNotNull('ends_at')
-            ->where('ends_at', '<', now()->subDay())
-            ->update(['status' => 'expired', 'auto_renewing' => false]);
+        return Subscription::sweepLapsed();
     }
 }

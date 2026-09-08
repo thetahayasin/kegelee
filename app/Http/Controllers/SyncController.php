@@ -1088,6 +1088,20 @@ class SyncController extends Controller
          * violation in here did. Reported so it is not silent, and survivable
          * so it can never do that again.
          */
+        /**
+         * Write down this account's expired rows before anything reads them.
+         *
+         * The scheduled reconcile used to be the only thing that did this, so
+         * an unfired scheduler left rows sitting at 'active' with a date months
+         * past. Doing it here means an account corrects itself the next time
+         * its own device syncs, with no cron in the picture.
+         *
+         * Scoped to this user and access-neutral by construction - see
+         * Subscription::sweepLapsed(). Rescued for the same reason the level
+         * reset below is: a convenience must never take a device offline.
+         */
+        rescue(fn () => \App\Models\Subscription::sweepLapsed($user->id));
+
         rescue(fn () => $this->returnLapsedUserToOnboardingLevel($user));
 
         $position = $progression->position($user);
