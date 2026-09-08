@@ -343,7 +343,7 @@
     "switchStartsNow": "Hemen başlar. Ücret bugün alınır ve kullanmadığın süre üstüne eklenir.",
     "switchToPlan": "{{plan}} planına geç",
     "terms": "Koşullar",
-    "thenPrice": "ardından {{price}}",
+    "thenPrice": "sonra {{price}}",
     "trialThenPrice_one": "{{count}} gün ücretsiz, sonra {{price}}. Deneme bitmeden iptal etmezsen otomatik yenilenir.",
     "trialThenPrice_other": "{{count}} gün ücretsiz, sonra {{price}}. Deneme bitmeden iptal etmezsen otomatik yenilenir.",
     "uninstallingDoesNotCancel": "Uygulamayı kaldırmak aboneliği iptal etmez ve para iadesi sağlamaz.",
