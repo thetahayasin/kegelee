@@ -65,7 +65,26 @@ const WEEK = [
 const scheduledTimestamps = (): number[] =>
   notif.createTriggerNotification.mock.calls.map((call) => call[1].timestamp);
 
+/**
+ * A fixed Friday, 10:00 local.
+ *
+ * Everything here is measured from "now" - five days of entitlement, a
+ * reminder on Monday - so the calendar decides whether a window contains any
+ * occurrence at all, and on the real clock these assertions passed or failed
+ * by the day of the week. "Schedules the local rows out to the entitlement"
+ * failed every Tuesday: the next Monday falls a day past a five-day ceiling,
+ * nothing is scheduled, and the test that exists to check what WAS scheduled
+ * has an empty list to look at. Friday puts Monday three days out, inside
+ * every window this file uses, and pins the rest with it.
+ *
+ * Fake timers rather than a Date.now stub, matching reminders.test.ts: the
+ * scheduler builds its candidate dates from `new Date()`.
+ */
+const FRIDAY = new Date(2026, 5, 19, 10, 0, 0);
+
 beforeEach(async () => {
+  jest.useFakeTimers();
+  jest.setSystemTime(FRIDAY);
   jest.clearAllMocks();
   await AsyncStorage.clear();
   notif.getTriggerNotificationIds.mockResolvedValue([]);
@@ -82,6 +101,10 @@ beforeEach(async () => {
     expiresAt: null,
     subscription: null,
   });
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 describe('the schedule ends', () => {
