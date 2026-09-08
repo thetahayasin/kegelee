@@ -343,6 +343,7 @@
     "switchStartsNow": "すぐに開始します。本日お支払いいただき、未使用分は上乗せされます。",
     "switchToPlan": "{{plan}}に変更",
     "terms": "利用規約",
+    "thenPrice": "その後 {{price}}",
     "trialThenPrice_one": "{{count}}日間無料、その後 {{price}}。トライアル終了前に解約しない限り自動更新されます。",
     "trialThenPrice_other": "{{count}}日間無料、その後 {{price}}。トライアル終了前に解約しない限り自動更新されます。",
     "uninstallingDoesNotCancel": "アプリを削除しても解約や返金にはなりません。",

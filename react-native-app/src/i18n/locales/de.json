@@ -343,6 +343,7 @@
     "switchStartsNow": "Beginnt sofort. Die Zahlung erfolgt heute, deine ungenutzte Zeit kommt obendrauf.",
     "switchToPlan": "Zu {{plan}} wechseln",
     "terms": "AGB",
+    "thenPrice": "danach {{price}}",
     "trialThenPrice_one": "{{count}} Tag gratis, danach {{price}}. Verlängert sich automatisch, wenn du nicht vor Ende der Testphase kündigst.",
     "trialThenPrice_other": "{{count}} Tage gratis, danach {{price}}. Verlängert sich automatisch, wenn du nicht vor Ende der Testphase kündigst.",
     "uninstallingDoesNotCancel": "Das Deinstallieren der App kündigt kein Abo und erstattet nichts.",

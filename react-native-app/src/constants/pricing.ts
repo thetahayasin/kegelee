@@ -62,3 +62,37 @@ export const savingsPercent = (
   // Anything under ~5% reads as noise and invites "that is not a saving".
   return percent >= 5 ? percent : null;
 };
+
+/**
+ * The same price with its amount zeroed: "Rs 1,700.00" -> "Rs 0.00".
+ *
+ * What a free trial costs today, written the way that market writes money.
+ * The store's own free-phase string is not usable for this on its own: Play
+ * formats a zero phase as the localized word for "free" in some markets and as
+ * an amount in others, so the figure under the plan name would change shape
+ * from country to country and stop lining up with the price beside it.
+ *
+ * Swaps the numeric run inside the store's priceString - the same trick
+ * perMonthLabel uses, and for the same reason - so the currency symbol, its
+ * placement and the decimal separator survive exactly as the store wrote them.
+ * The number of decimals is copied too: a market quoted "$5.99" gets "$0.00",
+ * one quoted "¥600" gets "¥0".
+ *
+ * Returns null when the price carries no ASCII digits to swap (Arabic-Indic
+ * numerals, for one), leaving the caller to fall back rather than print a zero
+ * in the wrong script.
+ */
+export const zeroPriceLike = (priceString?: string | null): string | null => {
+  const source = priceString || '';
+  const numeric = source.match(/\d[\d.,\s]*\d|\d/);
+  if (!numeric) return null;
+  const sample = numeric[0];
+  // The decimal separator is whichever of . or , has one or two digits after
+  // it at the end. "1,700.00" is two decimals; "1,999" is none, and reading
+  // its thousands separator as one would print "0,99" for a rupee price.
+  const decimals = /[.,](\d{1,2})$/.exec(sample);
+  const zero = decimals
+    ? `0${sample[decimals.index]}${'0'.repeat(decimals[1].length)}`
+    : '0';
+  return source.replace(sample, zero);
+};

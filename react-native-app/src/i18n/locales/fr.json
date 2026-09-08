@@ -347,6 +347,7 @@
     "switchStartsNow": "Commence maintenant. Le paiement a lieu aujourd'hui, et votre temps restant s'ajoute.",
     "switchToPlan": "Passer à {{plan}}",
     "terms": "Conditions",
+    "thenPrice": "puis {{price}}",
     "trialThenPrice_one": "{{count}} jour gratuit, puis {{price}}. Renouvelé automatiquement sauf résiliation avant la fin de l'essai.",
     "trialThenPrice_many": "{{count}} jours gratuits, puis {{price}}. Renouvelé automatiquement sauf résiliation avant la fin de l'essai.",
     "trialThenPrice_other": "{{count}} jours gratuits, puis {{price}}. Renouvelé automatiquement sauf résiliation avant la fin de l'essai.",

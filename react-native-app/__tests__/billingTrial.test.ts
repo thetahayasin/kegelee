@@ -212,3 +212,60 @@ describe('trial eligibility', () => {
     expect(pricing['premium-quarterly'].freeTrialDays).toBeNull();
   });
 });
+
+/**
+ * What the paywall prints where a price goes, once it IS allowed to say
+ * "free". The figure has to be the same money written the same way - the
+ * store's own currency, symbol placement and decimals, at zero - because it
+ * sits directly above the price it turns into.
+ */
+describe('trial price', () => {
+  it('quotes the trial at zero in the plan\'s own currency', async () => {
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].trialPriceString).toBe('$0.00');
+  });
+
+  it('never quotes a zero without a trial behind it', async () => {
+    // Same refusal as everywhere else in this file: no eligibility, no free
+    // days, and therefore no free price either. A zero on a card the store
+    // would charge for on the spot is the whole failure this fails closed on.
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(returningCustomer);
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].freeTrialDays).toBeNull();
+    expect(pricing['premium-quarterly'].trialPriceString).toBeNull();
+  });
+
+  it('falls back to the store\'s own free phase where the digits are not ASCII', async () => {
+    // Arabic-Indic numerals: there is no numeric run to swap, so the amount
+    // Play formatted for that market is used as it stands rather than a zero
+    // printed in the wrong script.
+    (Purchases.getOfferings as jest.Mock).mockResolvedValue({
+      current: {
+        availablePackages: PLANS.map((p) => ({
+          identifier: p.revenuecat_package_id,
+          product: {
+            identifier: p.store_product_id,
+            priceString: '٥٫٩٩ ر.س',
+            price: 5.99,
+            currencyCode: 'SAR',
+            defaultOption: {
+              storeProductId: p.store_product_id,
+              freePhase: {
+                billingPeriod: { iso8601: 'P3D' },
+                price: { formatted: '٠٫٠٠ ر.س', amountMicros: 0, currencyCode: 'SAR' },
+              },
+            },
+          },
+        })),
+      },
+    });
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].freeTrialDays).toBe(3);
+    expect(pricing['premium-quarterly'].trialPriceString).toBe('٠٫٠٠ ر.س');
+  });
+});

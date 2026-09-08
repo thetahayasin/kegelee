@@ -343,6 +343,7 @@
     "switchStartsNow": "Begint nu. Je betaalt vandaag en je ongebruikte tijd komt erbij.",
     "switchToPlan": "Overstappen naar {{plan}}",
     "terms": "Voorwaarden",
+    "thenPrice": "daarna {{price}}",
     "trialThenPrice_one": "{{count}} dag gratis, daarna {{price}}. Wordt automatisch verlengd tenzij je voor het einde van de proefperiode opzegt.",
     "trialThenPrice_other": "{{count}} dagen gratis, daarna {{price}}. Wordt automatisch verlengd tenzij je voor het einde van de proefperiode opzegt.",
     "uninstallingDoesNotCancel": "De app verwijderen zegt een abonnement niet op en geeft geen geld terug.",

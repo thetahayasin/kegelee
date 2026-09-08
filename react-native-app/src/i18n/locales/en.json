@@ -343,6 +343,7 @@
     "switchStartsNow": "Starts now. You are charged today, and your unused time is added on top.",
     "switchToPlan": "Switch to {{plan}}",
     "terms": "Terms",
+    "thenPrice": "then {{price}}",
     "trialThenPrice_one": "{{count}}-day free trial, then {{price}}. Renews automatically unless you cancel before the trial ends.",
     "trialThenPrice_other": "{{count}}-day free trial, then {{price}}. Renews automatically unless you cancel before the trial ends.",
     "uninstallingDoesNotCancel": "Uninstalling the app does not cancel or refund a subscription.",

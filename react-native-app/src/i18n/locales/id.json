@@ -343,6 +343,7 @@
     "switchStartsNow": "Mulai sekarang. Pembayaran ditagih hari ini, dan sisa waktumu ditambahkan.",
     "switchToPlan": "Pindah ke {{plan}}",
     "terms": "Ketentuan",
+    "thenPrice": "lalu {{price}}",
     "trialThenPrice_one": "Gratis {{count}} hari, lalu {{price}}. Diperpanjang otomatis kecuali kamu batalkan sebelum masa coba berakhir.",
     "trialThenPrice_other": "Gratis {{count}} hari, lalu {{price}}. Diperpanjang otomatis kecuali kamu batalkan sebelum masa coba berakhir.",
     "uninstallingDoesNotCancel": "Menghapus aplikasi tidak membatalkan langganan atau mengembalikan dana.",

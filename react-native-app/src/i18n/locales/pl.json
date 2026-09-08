@@ -351,6 +351,7 @@
     "switchStartsNow": "Zaczyna się teraz. Płatność pobierzemy dziś, a niewykorzystany czas dodamy.",
     "switchToPlan": "Przejdź na {{plan}}",
     "terms": "Regulamin",
+    "thenPrice": "potem {{price}}",
     "trialThenPrice_one": "{{count}} dzień za darmo, potem {{price}}. Odnawia się automatycznie, jeśli nie anulujesz przed końcem okresu próbnego.",
     "trialThenPrice_few": "{{count}} dni za darmo, potem {{price}}. Odnawia się automatycznie, jeśli nie anulujesz przed końcem okresu próbnego.",
     "trialThenPrice_many": "{{count}} dni za darmo, potem {{price}}. Odnawia się automatycznie, jeśli nie anulujesz przed końcem okresu próbnego.",

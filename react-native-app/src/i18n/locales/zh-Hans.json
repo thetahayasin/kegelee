@@ -343,6 +343,7 @@
     "switchStartsNow": "立即生效。今天扣款，未使用的时间会额外加上。",
     "switchToPlan": "切换到{{plan}}",
     "terms": "条款",
+    "thenPrice": "之后 {{price}}",
     "trialThenPrice_one": "免费 {{count}} 天，之后 {{price}}。若未在试用结束前取消，将自动续订。",
     "trialThenPrice_other": "免费 {{count}} 天，之后 {{price}}。若未在试用结束前取消，将自动续订。",
     "uninstallingDoesNotCancel": "卸载应用不会取消订阅，也不会退款。",

@@ -343,6 +343,7 @@
     "switchStartsNow": "바로 시작됩니다. 오늘 결제되며, 남은 기간은 추가로 더해집니다.",
     "switchToPlan": "{{plan}}(으)로 변경",
     "terms": "이용약관",
+    "thenPrice": "이후 {{price}}",
     "trialThenPrice_one": "{{count}}일 무료, 이후 {{price}}. 체험 종료 전에 해지하지 않으면 자동 갱신됩니다.",
     "trialThenPrice_other": "{{count}}일 무료, 이후 {{price}}. 체험 종료 전에 해지하지 않으면 자동 갱신됩니다.",
     "uninstallingDoesNotCancel": "앱을 삭제해도 구독이 해지되거나 환불되지 않습니다.",

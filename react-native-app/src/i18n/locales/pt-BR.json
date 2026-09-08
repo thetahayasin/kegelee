@@ -347,6 +347,7 @@
     "switchStartsNow": "Começa agora. A cobrança é hoje, e seu tempo não usado é somado.",
     "switchToPlan": "Mudar para {{plan}}",
     "terms": "Termos",
+    "thenPrice": "depois {{price}}",
     "trialThenPrice_one": "{{count}} dia grátis, depois {{price}}. Renova automaticamente, a menos que você cancele antes do fim do teste.",
     "trialThenPrice_many": "{{count}} dias grátis, depois {{price}}. Renova automaticamente, a menos que você cancele antes do fim do teste.",
     "trialThenPrice_other": "{{count}} dias grátis, depois {{price}}. Renova automaticamente, a menos que você cancele antes do fim do teste.",

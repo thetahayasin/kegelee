@@ -15,6 +15,7 @@ import {
   planBySlug,
   playSubscriptionId,
 } from '../constants/plans';
+import { zeroPriceLike } from '../constants/pricing';
 /**
  * The grant stamp and the stored verdict live with the entitlement rule, not
  * here: they are two of the things that rule reads, and keeping them beside it
@@ -482,6 +483,13 @@ export interface PlanPricing {
   price: number | null;
   currencyCode: string | null;
   freeTrialDays: number | null;
+  /**
+   * What the trial costs today, in this market's own currency and format:
+   * "Rs 0.00", "0,00 zł", "¥0". Null whenever freeTrialDays is null, so the
+   * two always agree - the paywall may only print this beside a trial it is
+   * allowed to advertise.
+   */
+  trialPriceString: string | null;
 }
 
 const iso8601PeriodDays = (iso?: string | null): number | null => {
@@ -529,6 +537,27 @@ const freeTrialDaysFor = (
   }
 
   return null;
+};
+
+/**
+ * What the trial itself costs, for the paywall to print where a price goes.
+ *
+ * Derived from the plan's own priceString first, so the zero and the figure it
+ * turns into afterwards are written the same way - same symbol, same
+ * placement, same number of decimals. The store's free-phase string is the
+ * fallback for the markets whose digits are not ASCII: it is localized by the
+ * store itself, so it may read "Free" rather than an amount, which is still
+ * true and still that reader's own language.
+ */
+const trialPriceStringFor = (pkg: PurchasesPackage): string | null => {
+  const derived = zeroPriceLike(pkg?.product?.priceString);
+  if (derived) return derived;
+
+  const fromPhase = pkg?.product?.defaultOption?.freePhase?.price?.formatted;
+  if (fromPhase) return fromPhase;
+
+  const intro = pkg?.product?.introPrice;
+  return intro && Number(intro.price) === 0 ? intro.priceString || null : null;
 };
 
 // INTRO_ELIGIBILITY_STATUS, pinned rather than imported.
@@ -648,12 +677,45 @@ export const getPlanPricing = async (
           ? false
           : !everPurchased;
 
+    const freeTrialDays = trialAllowed ? freeTrialDaysFor(pkg, status) : null;
+
     out[plan.slug] = {
       priceString: pkg.product.priceString,
       price: typeof pkg.product?.price === 'number' ? pkg.product.price : null,
       currencyCode: pkg.product?.currencyCode || null,
-      freeTrialDays: trialAllowed ? freeTrialDaysFor(pkg, status) : null,
+      freeTrialDays,
+      // Tied to the days rather than computed on its own: a zero price with no
+      // trial behind it is the paywall quoting free access it cannot grant.
+      trialPriceString: freeTrialDays ? trialPriceStringFor(pkg) : null,
     };
+  }
+
+  /**
+   * Why the trial did, or did not, reach the paywall.
+   *
+   * Dev builds only. The answer is three facts deep - what the store said
+   * about eligibility, whether this customer has ever bought anything, and
+   * whether Play served an offer with a free phase at all - and none of them
+   * are visible from the screen, which simply shows a price. Testing against
+   * Play Billing Lab, where the purchase sheet offers a trial the app is not
+   * allowed to advertise, this line is the difference between the two.
+   */
+  if (__DEV__) {
+    const refused = matched.filter(
+      ({ plan, pkg }) =>
+        pkg?.product?.defaultOption?.freePhase && !out[plan.slug]?.freeTrialDays,
+    );
+    if (refused.length > 0) {
+      console.log('[billing] free phase offered but trial not advertised', {
+        askedTheStore: eligibility !== null,
+        everPurchased,
+        plans: refused.map(({ plan, pkg }) => ({
+          slug: plan.slug,
+          introStatus: eligibility?.[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN,
+          freePhase: pkg?.product?.defaultOption?.freePhase?.billingPeriod?.iso8601 ?? null,
+        })),
+      });
+    }
   }
 
   return out;

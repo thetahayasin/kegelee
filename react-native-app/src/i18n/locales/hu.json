@@ -343,6 +343,7 @@
     "switchStartsNow": "Most indul. A díjat ma vonjuk le, a fel nem használt idő pedig hozzáadódik.",
     "switchToPlan": "Váltás erre: {{plan}}",
     "terms": "Feltételek",
+    "thenPrice": "utána {{price}}",
     "trialThenPrice_one": "{{count}} nap ingyen, utána {{price}}. Automatikusan megújul, ha a próba vége előtt nem mondod le.",
     "trialThenPrice_other": "{{count}} nap ingyen, utána {{price}}. Automatikusan megújul, ha a próba vége előtt nem mondod le.",
     "uninstallingDoesNotCancel": "Az alkalmazás törlése nem mondja le az előfizetést és nem jár visszatérítéssel.",

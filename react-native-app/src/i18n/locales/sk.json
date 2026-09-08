@@ -351,6 +351,7 @@
     "switchStartsNow": "Začne hneď. Platba prebehne dnes a nevyužitý čas sa pripočíta.",
     "switchToPlan": "Prejsť na {{plan}}",
     "terms": "Podmienky",
+    "thenPrice": "potom {{price}}",
     "trialThenPrice_one": "{{count}} deň zdarma, potom {{price}}. Obnovuje sa automaticky, ak nezrušíte pred koncom skúšky.",
     "trialThenPrice_few": "{{count}} dni zdarma, potom {{price}}. Obnovuje sa automaticky, ak nezrušíte pred koncom skúšky.",
     "trialThenPrice_many": "{{count}} dňa zdarma, potom {{price}}. Obnovuje sa automaticky, ak nezrušíte pred koncom skúšky.",

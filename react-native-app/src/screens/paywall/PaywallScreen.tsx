@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Modal,
   Linking,
+  I18nManager,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1101,6 +1102,22 @@ export const PaywallScreen = () => {
             const months = planMonths(plan);
             const perMonth = perMonthLabel(pricing[plan.slug], months);
             const savings = savingsPercent(pricing, plan, months);
+            /**
+             * What THIS card is asking for today.
+             *
+             * Per plan rather than from the selected one: eligibility is the
+             * store's answer about a product, and a card must never quote a
+             * zero the plan it belongs to would not honour. `trialPriceString`
+             * is null unless getPlanPricing also granted the days, and a plan
+             * switch is never a new trial - so a subscriber sees prices.
+             */
+            const cardTrial = activeSub ? null : pricing[plan.slug]?.trialPriceString ?? null;
+            // The price the zero turns into, with its period: "$5.99/month".
+            // Shown small beside the trial, because "free" without the number
+            // that follows it is the half of the offer people get angry about.
+            const afterTrial = cardTrial && pricing[plan.slug]?.priceString
+              ? `${pricing[plan.slug]?.priceString}${t(planPeriodKey(plan.slug))}`
+              : null;
             return (
               <TouchableOpacity
                 key={plan.slug}
@@ -1113,7 +1130,9 @@ export const PaywallScreen = () => {
                 accessibilityRole="radio"
                 accessibilityState={{ selected, disabled: isCurrent }}
                 accessibilityLabel={`${t(planNameKey(plan.slug))}, ${
-                  pricing[plan.slug]?.priceString ?? ''
+                  cardTrial && afterTrial
+                    ? `${cardTrial}, ${t('paywall.thenPrice', { price: afterTrial })}`
+                    : pricing[plan.slug]?.priceString ?? ''
                 }${isCurrent ? `, ${t('paywall.currentPlan')}` : ''}`}
                 disabled={isCurrent}
                 style={[
@@ -1152,8 +1171,21 @@ export const PaywallScreen = () => {
                         own localized string, or a placeholder while we are
                         still asking - not the USD catalogue figure, which is
                         the wrong number in every market but one and reads as
-                        a bait-and-switch when it changes a second later. */}
-                    {pricing[plan.slug]?.priceString ? (
+                        a bait-and-switch when it changes a second later.
+
+                        On a trial the figure is what the tap actually costs
+                        TODAY, which is nothing: the same currency written the
+                        same way, at zero. The price it becomes is directly
+                        under it - the two belong together, and a zero on its
+                        own would be an offer of free access. */}
+                    {cardTrial && afterTrial ? (
+                      <>
+                        <Text style={styles.planPrice}>{cardTrial}</Text>
+                        <Text style={styles.planThenPrice} numberOfLines={2}>
+                          {t('paywall.thenPrice', { price: afterTrial })}
+                        </Text>
+                      </>
+                    ) : pricing[plan.slug]?.priceString ? (
                       <Text style={styles.planPrice}>
                         {pricing[plan.slug]?.priceString}
                       </Text>
@@ -1162,7 +1194,11 @@ export const PaywallScreen = () => {
                     ) : (
                       <Text style={styles.planPrice}>--</Text>
                     )}
-                    {perMonth ? (
+                    {/* The per-month equivalent stands down during a trial.
+                        Three stacked figures in a column this narrow stop
+                        being a price and become a table, and the one that
+                        matters is what happens when the free days end. */}
+                    {perMonth && !cardTrial ? (
                       <Text style={styles.planPerMonth}>
                         {t('common.perMonth', { price: perMonth })}
                       </Text>
@@ -1555,6 +1591,21 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     color: COLORS.textDim,
     fontVariant: ['tabular-nums'],
   },
+  /**
+   * The price the trial becomes.
+   *
+   * Brighter than the per-month aside it stands in for: this one is a
+   * disclosure, not a convenience, and it sits under a zero. It may wrap to
+   * two lines, so it needs the alignment spelled out - a wrapped second line
+   * would otherwise start at the left edge of a right-aligned column.
+   */
+  planThenPrice: {
+    marginTop: 2,
+    fontSize: 11,
+    color: COLORS.textMuted,
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
+    fontVariant: ['tabular-nums'],
+  },
   planCard: {
     // Was 2px at 10% white on every card, which read as an unfilled form field
     // rather than a choice. The unselected state is now a quiet hairline and
@@ -1637,6 +1688,10 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
   },
   planPriceWrap: {
     alignItems: 'flex-end',
+    // The trial's "then ..." line is the longest thing this column ever holds
+    // and it is allowed to wrap. Without a ceiling it takes the width it wants
+    // from the plan name and description sitting beside it.
+    maxWidth: '48%',
   },
   planPrice: {
     fontSize: 19,

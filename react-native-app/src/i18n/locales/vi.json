@@ -343,6 +343,7 @@
     "switchStartsNow": "Bắt đầu ngay. Bạn được tính phí hôm nay và thời gian chưa dùng sẽ được cộng thêm.",
     "switchToPlan": "Chuyển sang {{plan}}",
     "terms": "Điều khoản",
+    "thenPrice": "sau đó {{price}}",
     "trialThenPrice_one": "Miễn phí {{count}} ngày, sau đó {{price}}. Tự động gia hạn trừ khi bạn hủy trước khi hết dùng thử.",
     "trialThenPrice_other": "Miễn phí {{count}} ngày, sau đó {{price}}. Tự động gia hạn trừ khi bạn hủy trước khi hết dùng thử.",
     "uninstallingDoesNotCancel": "Gỡ ứng dụng không hủy gói đăng ký và không hoàn tiền.",

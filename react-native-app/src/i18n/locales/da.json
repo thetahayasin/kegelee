@@ -343,6 +343,7 @@
     "switchStartsNow": "Starter nu. Du betaler i dag, og din ubrugte tid lægges oveni.",
     "switchToPlan": "Skift til {{plan}}",
     "terms": "Vilkår",
+    "thenPrice": "derefter {{price}}",
     "trialThenPrice_one": "{{count}} dags gratis prøve, derefter {{price}}. Fornyes automatisk, medmindre du opsiger inden prøven slutter.",
     "trialThenPrice_other": "{{count}} dages gratis prøve, derefter {{price}}. Fornyes automatisk, medmindre du opsiger inden prøven slutter.",
     "uninstallingDoesNotCancel": "At afinstallere appen opsiger ikke abonnementet og giver ikke refusion.",

@@ -347,6 +347,7 @@
     "switchStartsNow": "Parte subito. Il pagamento avviene oggi e il tempo non usato viene aggiunto.",
     "switchToPlan": "Passa a {{plan}}",
     "terms": "Termini",
+    "thenPrice": "poi {{price}}",
     "trialThenPrice_one": "{{count}} giorno gratis, poi {{price}}. Si rinnova automaticamente se non disdici prima della fine della prova.",
     "trialThenPrice_many": "{{count}} giorni gratis, poi {{price}}. Si rinnova automaticamente se non disdici prima della fine della prova.",
     "trialThenPrice_other": "{{count}} giorni gratis, poi {{price}}. Si rinnova automaticamente se non disdici prima della fine della prova.",

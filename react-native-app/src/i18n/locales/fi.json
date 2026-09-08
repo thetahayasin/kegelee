@@ -343,6 +343,7 @@
     "switchStartsNow": "Alkaa heti. Veloitus tapahtuu tänään, ja käyttämätön aika lisätään päälle.",
     "switchToPlan": "Vaihda tilaukseen {{plan}}",
     "terms": "Ehdot",
+    "thenPrice": "sitten {{price}}",
     "trialThenPrice_one": "{{count}} päivä ilmaiseksi, sitten {{price}}. Uusiutuu automaattisesti, ellet peruuta ennen jakson loppua.",
     "trialThenPrice_other": "{{count}} päivää ilmaiseksi, sitten {{price}}. Uusiutuu automaattisesti, ellet peruuta ennen jakson loppua.",
     "uninstallingDoesNotCancel": "Sovelluksen poistaminen ei peruuta tilausta eikä palauta rahoja.",

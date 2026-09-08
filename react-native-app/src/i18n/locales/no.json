@@ -343,6 +343,7 @@
     "switchStartsNow": "Starter nå. Du betaler i dag, og ubrukt tid legges til.",
     "switchToPlan": "Bytt til {{plan}}",
     "terms": "Vilkår",
+    "thenPrice": "deretter {{price}}",
     "trialThenPrice_one": "{{count}} dag gratis, deretter {{price}}. Fornyes automatisk med mindre du sier opp før prøveperioden er over.",
     "trialThenPrice_other": "{{count}} dager gratis, deretter {{price}}. Fornyes automatisk med mindre du sier opp før prøveperioden er over.",
     "uninstallingDoesNotCancel": "Å avinstallere appen sier ikke opp abonnementet og gir ikke refusjon.",
