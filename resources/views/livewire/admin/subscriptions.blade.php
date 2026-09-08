@@ -148,11 +148,17 @@
                                         class="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-muted hover:text-content tap">
                                     Plan
                                 </button>
-                                {{-- Cancel / Reactivate. The label says which of
-                                     the two cancellations this is: one that
-                                     reaches Google, or one that only writes our
-                                     own row and leaves the customer billing. --}}
-                                @if (in_array($sub->status, ['active','trialing','past_due']))
+                                {{-- Cancel / Reactivate. Keyed to effective_status,
+                                     not the raw column: a row left 'active' with a
+                                     date in the past is finished, and keying this to
+                                     `status` put a Cancel button under a badge
+                                     reading Expired.
+
+                                     The label also says which of the two
+                                     cancellations this is: one that reaches Google,
+                                     or one that only writes our own row and leaves
+                                     the customer billing. --}}
+                                @if (in_array($sub->effective_status, ['active','trialing','past_due']))
                                     @php($reachesStore = $this->canContactStore($sub))
                                     <button wire:click="cancel({{ $sub->id }})"
                                             wire:confirm="{{ $reachesStore

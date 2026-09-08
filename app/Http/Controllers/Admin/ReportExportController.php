@@ -89,7 +89,10 @@ class ReportExportController extends Controller
                     ->withCount([
                         'trainingDays as completed_days_count' => fn ($q) => $q->whereNotNull('completed_at'),
                         'workoutSessions as sessions_count',
-                        'subscriptions as live_subs_count' => fn ($q) => $q->whereIn('status', ['active', 'trialing']),
+                        // entitled(), not a bare status check. A row left
+                        // 'active' with a date in the past is not a subscriber,
+                        // and this column is headed "subscribed now".
+                        'subscriptions as live_subs_count' => fn ($q) => $q->entitled(),
                     ])
                     ->orderBy('id'),
                 fn (User $u) => [
