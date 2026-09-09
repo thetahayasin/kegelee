@@ -151,4 +151,37 @@ class AdminUsersPageTest extends TestCase
             ->set('search', 'nobody-by-that-name')
             ->assertSee('No accounts match');
     }
+    public function test_the_activity_drawer_names_the_two_clocks_it_prints(): void
+    {
+        // Every row in the drawer carries two stacked timestamps. Unlabelled,
+        // they read as one date jumping about for no reason: where a user's
+        // evening is already the reader's next day, the two lines legitimately
+        // show different dates, and there was nothing on the screen saying so.
+        config(['app.admin_timezone' => 'Asia/Karachi']);
+        $this->member->update(['timezone' => 'Europe/Paris']);
+
+        \App\Models\UserEvent::record($this->member->id, \App\Models\UserEvent::APP_OPENED, 'cold', null, null, 'tz-1');
+
+        Livewire::test(UsersPage::class)
+            ->call('toggleTimeline', $this->member->id)
+            ->assertSee('Europe/Paris')
+            ->assertSee('Asia/Karachi')
+            ->assertSee('(theirs)')
+            ->assertSee('(yours)');
+    }
+
+    public function test_the_drawer_says_nothing_about_zones_when_there_is_only_one(): void
+    {
+        // Naming the same zone twice is noise, and the second line is dropped
+        // in that case anyway, so there is nothing to explain.
+        config(['app.admin_timezone' => 'Asia/Karachi']);
+        $this->member->update(['timezone' => 'Asia/Karachi']);
+
+        \App\Models\UserEvent::record($this->member->id, \App\Models\UserEvent::APP_OPENED, 'cold', null, null, 'tz-2');
+
+        Livewire::test(UsersPage::class)
+            ->call('toggleTimeline', $this->member->id)
+            ->assertSee('Times in Asia/Karachi.')
+            ->assertDontSee('(theirs)');
+    }
 }

@@ -196,9 +196,28 @@
                             <td colspan="99" class="bg-white/[0.03] p-0">
                                 <div class="px-4 py-4">
                                     <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-                                        <p class="text-[10px] font-bold uppercase tracking-wider text-muted">
-                                            Activity - most recent first
-                                        </p>
+                                        <div class="min-w-0">
+                                            <p class="text-[10px] font-bold uppercase tracking-wider text-muted">
+                                                Activity - most recent first
+                                            </p>
+                                            {{-- Which of the two stacked times
+                                                 is which. Without this the
+                                                 rows are two unlabelled dates,
+                                                 and where their evening is
+                                                 already the reader's next day
+                                                 the column looks like it is
+                                                 jumping between two dates for
+                                                 no reason. --}}
+                                            @php $rowZones = \App\Support\AdminClock::pair($user); @endphp
+                                            <p class="mt-0.5 text-[10px] text-dim">
+                                                @if ($rowZones['user'] === $rowZones['admin'])
+                                                    Times in {{ $rowZones['user'] }}.
+                                                @else
+                                                    Times in <span class="font-semibold text-muted">{{ $rowZones['user'] }}</span> (theirs),
+                                                    then <span class="font-semibold text-muted">{{ $rowZones['admin'] }}</span> (yours).
+                                                @endif
+                                            </p>
+                                        </div>
 
                                         {{-- Only the kinds this person actually
                                              has, so the list never offers a
