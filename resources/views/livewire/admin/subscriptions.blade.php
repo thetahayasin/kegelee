@@ -118,7 +118,7 @@
                                 <div class="flex flex-col gap-0.5">
                                     <span class="text-xs font-medium {{ $sub->willRenew() ? 'text-content' : 'text-muted' }}">
                                         {{ $sub->willRenew() ? 'Renews' : 'Ends' }}
-                                        <span class="tabular-nums">{{ $sub->ends_at->format('j M Y') }}</span>
+                                        <x-admin.when :at="$sub->ends_at" :zones="\App\Support\AdminClock::pair($sub->user)" :with-time="false" class="ml-1" />
                                     </span>
                                     <span class="text-[11px] {{ $sub->ends_at->isPast() ? 'text-accent-soft' : 'text-dim' }}">
                                         {{ $sub->ends_at->diffForHumans() }}
@@ -191,9 +191,9 @@
                             <td colspan="6" class="px-6 py-4">
                                 <div class="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-3">
                                     <div><span class="text-muted">ID</span><span class="ml-2 font-mono">{{ $sub->id }}</span></div>
-                                    <div><span class="text-muted">Started</span><span class="ml-2">{{ $sub->started_at?->format('j M Y') ?? '—' }}</span></div>
-                                    <div><span class="text-muted">Trial ends</span><span class="ml-2">{{ $sub->trial_ends_at?->format('j M Y') ?? '—' }}</span></div>
-                                    <div><span class="text-muted">Canceled at</span><span class="ml-2">{{ $sub->canceled_at?->format('j M Y H:i') ?? '—' }}</span></div>
+                                    <div><span class="text-muted">Started</span><span class="ml-2"><x-admin.when :at="$sub->started_at" :zones="\App\Support\AdminClock::pair($sub->user)" :with-time="false" fallback="—" /></span></div>
+                                    <div><span class="text-muted">Trial ends</span><span class="ml-2"><x-admin.when :at="$sub->trial_ends_at" :zones="\App\Support\AdminClock::pair($sub->user)" :with-time="false" fallback="—" /></span></div>
+                                    <div><span class="text-muted">Canceled at</span><span class="ml-2"><x-admin.when :at="$sub->canceled_at" :zones="\App\Support\AdminClock::pair($sub->user)" fallback="—" /></span></div>
                                     <div><span class="text-muted">Order ID</span><span class="ml-2 font-mono text-xs">{{ $sub->google_order_id ?? $sub->store_transaction_id ?? '—' }}</span></div>
                                     <div class="sm:col-span-3 break-all"><span class="text-muted">Purchase token</span><span class="ml-2 font-mono text-xs">{{ $sub->purchase_token ? substr($sub->purchase_token, 0, 60).'…' : '—' }}</span></div>
                                     {{-- The store's own word for the state. Our
@@ -202,7 +202,7 @@
                                          tellable from an account hold. --}}
                                     <div><span class="text-muted">Store state</span><span class="ml-2">{{ $sub->store_state ? str_replace('_', ' ', $sub->store_state) : '—' }}</span></div>
                                     <div><span class="text-muted">Auto renew</span><span class="ml-2">{{ $sub->auto_renewing ? 'On' : 'Off' }}</span></div>
-                                    <div><span class="text-muted">Last store event</span><span class="ml-2">{{ $sub->last_event_at?->format('j M Y H:i') ?? '—' }}</span></div>
+                                    <div><span class="text-muted">Last store event</span><span class="ml-2"><x-admin.when :at="$sub->last_event_at" :zones="\App\Support\AdminClock::pair($sub->user)" fallback="—" /></span></div>
                                     @if ($sub->discount_id)
                                         <div><span class="text-muted">Discount</span><span class="ml-2">#{{ $sub->discount_id }}</span></div>
                                     @endif

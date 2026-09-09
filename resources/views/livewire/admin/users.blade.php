@@ -137,7 +137,9 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td class="p-4 text-xs text-muted">{{ $user->created_at->format('j M Y') }}</td>
+                        <td class="p-4 text-xs text-muted">
+                            <x-admin.when :at="$user->created_at" :zones="\App\Support\AdminClock::pair($user)" :with-time="false" fallback="?" />
+                        </td>
                         <td class="p-4 text-xs text-muted">
                             {{-- Written on every sync, so it means "the app was
                                  open", give or take a sync interval. --}}
@@ -225,9 +227,13 @@
                                              always says what it means. --}}
                                         <div class="flex flex-wrap items-baseline gap-3 border-l border-white/10 py-1.5 pl-3"
                                              title="{{ $ev->description }}">
-                                            <span class="w-32 shrink-0 text-[11px] tabular-nums text-dim">
-                                                {{ $ev->occurred_at->format('j M, H:i') }}
-                                            </span>
+                                            {{-- Their clock on top, the
+                                                 reader's underneath, the same
+                                                 way the full report prints
+                                                 every timestamp. --}}
+                                            <x-admin.when :at="$ev->occurred_at"
+                                                          :zones="\App\Support\AdminClock::pair($user)"
+                                                          class="w-32 shrink-0 text-[11px] text-dim" />
                                             <span class="text-xs font-semibold">{{ $ev->label }}</span>
                                             @if ($ev->subject)
                                                 <span class="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-muted">

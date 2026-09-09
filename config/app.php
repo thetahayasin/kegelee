@@ -69,6 +69,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | The clock the admin console reads timestamps on. Storage stays UTC and
+    | must: the whole day-rollover rule is built on a UTC instant plus the
+    | account's own zone, and moving app.timezone would move every stored
+    | boundary with it. This only decides which wall clock a stored instant is
+    | PRINTED against.
+    |
+    | Pakistan by default because that is where the console is read from. It
+    | wins over the signed-in admin's own users.timezone, which is written from
+    | whatever device last synced - a test handset left on another zone would
+    | otherwise quietly move every timestamp in the admin.
+    |
+    */
+
+    'admin_timezone' => env('ADMIN_TIMEZONE', 'Asia/Karachi'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
