@@ -363,4 +363,124 @@ class UserEvent extends Model
 
         return self::DETAIL_LABELS[$this->detail] ?? $this->detail;
     }
+
+    /**
+     * Which part of the app an event came from.
+     *
+     * A timeline is forty different event names in one column, and read as a
+     * flat list the only question it can answer is "what happened next". The
+     * questions actually asked of it are "what were they doing in the app" and
+     * "what happened around the money", and those need the rows sorted into
+     * areas before they can be seen at all.
+     *
+     * Area, not outcome: a failed purchase still belongs with the money. How
+     * an event went is TONES, below, and the two are read together.
+     */
+    public const AREA_ACCOUNT = 'account';
+
+    public const AREA_ONBOARDING = 'onboarding';
+
+    public const AREA_TRAINING = 'training';
+
+    public const AREA_LEARNING = 'learning';
+
+    public const AREA_MONEY = 'money';
+
+    public const AREA_SETTINGS = 'settings';
+
+    /** Areas in the order they are shown, with a label for each. */
+    public const AREA_LABELS = [
+        self::AREA_TRAINING => 'Training',
+        self::AREA_MONEY => 'Money',
+        self::AREA_LEARNING => 'Learning',
+        self::AREA_ONBOARDING => 'First run',
+        self::AREA_ACCOUNT => 'Account',
+        self::AREA_SETTINGS => 'Settings',
+    ];
+
+    public const AREAS = [
+        self::APP_OPENED => self::AREA_ACCOUNT,
+        self::SIGNUP_STARTED => self::AREA_ACCOUNT,
+        self::ACCOUNT_CREATED => self::AREA_ACCOUNT,
+        self::LOGGED_IN => self::AREA_ACCOUNT,
+        self::LOGGED_OUT => self::AREA_ACCOUNT,
+        self::EMAIL_CODE_SENT => self::AREA_ACCOUNT,
+        self::EMAIL_CODE_VERIFIED => self::AREA_ACCOUNT,
+        self::EMAIL_CODE_FAILED => self::AREA_ACCOUNT,
+        self::ONBOARDING_STEP => self::AREA_ONBOARDING,
+        self::QUIZ_COMPLETED => self::AREA_ONBOARDING,
+        self::QUIZ_SKIPPED => self::AREA_ONBOARDING,
+        self::TOUR_COMPLETED => self::AREA_ONBOARDING,
+        self::TOUR_SKIPPED => self::AREA_ONBOARDING,
+        self::LESSON_STARTED => self::AREA_LEARNING,
+        self::LESSON_COMPLETED => self::AREA_LEARNING,
+        self::WORKOUT_STARTED => self::AREA_TRAINING,
+        self::WORKOUT_COMPLETED => self::AREA_TRAINING,
+        self::WORKOUT_ABANDONED => self::AREA_TRAINING,
+        self::LEVEL_CHANGED => self::AREA_TRAINING,
+        self::EXERCISE_PREVIEWED => self::AREA_TRAINING,
+        self::MEASUREMENT_TAKEN => self::AREA_TRAINING,
+        self::LOCK_TAPPED => self::AREA_MONEY,
+        self::PAYWALL_VIEWED => self::AREA_MONEY,
+        self::PAYWALL_DISMISSED => self::AREA_MONEY,
+        self::PURCHASE_STARTED => self::AREA_MONEY,
+        self::PURCHASE_COMPLETED => self::AREA_MONEY,
+        self::PURCHASE_FAILED => self::AREA_MONEY,
+        self::RESTORE_ATTEMPTED => self::AREA_MONEY,
+        self::RESTORE_FINISHED => self::AREA_MONEY,
+        self::SUBSCRIPTION_MANAGED => self::AREA_MONEY,
+        self::SUBSCRIPTION_STARTED => self::AREA_MONEY,
+        self::SUBSCRIPTION_RENEWED => self::AREA_MONEY,
+        self::SUBSCRIPTION_ENDED => self::AREA_MONEY,
+        self::NOTIFICATION_PERMISSION => self::AREA_SETTINGS,
+        self::REMINDER_TAPPED => self::AREA_SETTINGS,
+        self::REMINDERS_SET => self::AREA_SETTINGS,
+        self::APPEARANCE_CHANGED => self::AREA_SETTINGS,
+        self::LANGUAGE_CHANGED => self::AREA_SETTINGS,
+        self::ERROR_BOUNDARY_HIT => self::AREA_SETTINGS,
+    ];
+
+    /**
+     * How an event went, where it went a particular way.
+     *
+     * Only the ones that carry a verdict are listed. Most events are neither
+     * good nor bad - opening the app is not an achievement - and marking every
+     * row would leave nothing standing out, which is the whole point of
+     * marking any of them.
+     *
+     * Read alongside the area, never instead of it, and never rendered as
+     * colour alone: a bad row says what it is in words too.
+     */
+    public const TONE_GOOD = 'good';
+
+    public const TONE_BAD = 'bad';
+
+    public const TONES = [
+        self::ACCOUNT_CREATED => self::TONE_GOOD,
+        self::EMAIL_CODE_VERIFIED => self::TONE_GOOD,
+        self::QUIZ_COMPLETED => self::TONE_GOOD,
+        self::LESSON_COMPLETED => self::TONE_GOOD,
+        self::WORKOUT_COMPLETED => self::TONE_GOOD,
+        self::TOUR_COMPLETED => self::TONE_GOOD,
+        self::MEASUREMENT_TAKEN => self::TONE_GOOD,
+        self::PURCHASE_COMPLETED => self::TONE_GOOD,
+        self::SUBSCRIPTION_STARTED => self::TONE_GOOD,
+        self::SUBSCRIPTION_RENEWED => self::TONE_GOOD,
+        self::EMAIL_CODE_FAILED => self::TONE_BAD,
+        self::WORKOUT_ABANDONED => self::TONE_BAD,
+        self::QUIZ_SKIPPED => self::TONE_BAD,
+        self::PURCHASE_FAILED => self::TONE_BAD,
+        self::SUBSCRIPTION_ENDED => self::TONE_BAD,
+        self::ERROR_BOUNDARY_HIT => self::TONE_BAD,
+    ];
+
+    public function getAreaAttribute(): string
+    {
+        return self::AREAS[$this->name] ?? self::AREA_SETTINGS;
+    }
+
+    public function getToneAttribute(): ?string
+    {
+        return self::TONES[$this->name] ?? null;
+    }
 }

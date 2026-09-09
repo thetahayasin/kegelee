@@ -9,6 +9,7 @@ use App\Models\TrainingDay;
 use App\Models\User;
 use App\Models\UserEvent;
 use App\Models\WorkoutSession;
+use App\Support\AdminClock;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -47,8 +48,8 @@ class UserReport extends Component
     /** The timeline is long; this is how many rows are on screen. */
     public int $timelineLimit = 100;
 
-    /** Days of history in the activity chart. */
-    private const CHART_DAYS = 90;
+    /** How far back the activity figures look. */
+    private const WINDOW_DAYS = 90;
 
     public function mount(User $user): void
     {
@@ -77,13 +78,26 @@ class UserReport extends Component
             'subscriptions' => $user->subscriptions()->with('plan')->orderByDesc('id')->get(),
             'money' => $this->money(),
             'training' => $this->training(),
-            'activity' => $this->activityChart(),
+            'activity' => $this->activity(),
             'measurements' => $this->measurements(),
             'lessons' => $user->completedLessons()->orderByDesc('knowledge_lesson_user.completed_at')->get(),
             'devices' => Device::where('user_id', $user->id)->orderByDesc('last_seen_at')->get(),
-            'timeline' => $this->timeline(),
+            // Grouped into days for the view, and counted before grouping:
+            // after it, count() is a number of days, and "show more" compares
+            // against a number of events.
+            'timeline' => $this->timeline()->groupBy(
+                fn (UserEvent $ev) => $ev->occurred_at
+                    ->copy()
+                    ->setTimezone(AdminClock::zoneFor($user))
+                    ->toDateString()
+            ),
+            'timelineShown' => $this->timeline()->count(),
             'timelineTotal' => $this->timelineQuery()->count(),
             'eventNames' => $this->eventNames(),
+            // Every timestamp on this page is printed on both, and every daily
+            // figure is bucketed on the first. Passed down rather than looked
+            // up per row: one page, one answer about which clocks it is on.
+            'zones' => AdminClock::pair($user),
         ])->title($user->name ?: $user->email);
     }
 
@@ -162,10 +176,19 @@ class UserReport extends Component
         $finished = (clone $sessions)->whereNotNull('completed_at')->count();
         $started = (clone $sessions)->count();
 
+        // The `date` column, not completed_at. Both describe the same day, but
+        // only one of them is already the user's own: `date` is written in
+        // their zone by the sync (see SyncController::push), while completed_at
+        // is the UTC instant, and folding that to a date here would put a
+        // 21:30 session in Karachi on the day before and break the streak the
+        // app is showing them.
         $days = TrainingDay::where('user_id', $this->user->id)
             ->whereNotNull('completed_at')
-            ->orderBy('completed_at')
-            ->pluck('completed_at');
+            ->orderBy('date')
+            ->pluck('date')
+            // A DATE column comes back as Y-m-d, but a legacy row written as a
+            // full timestamp would not match a date string on the way out.
+            ->map(fn ($day) => substr((string) $day, 0, 10));
 
         return [
             'started' => $started,
@@ -178,7 +201,7 @@ class UserReport extends Component
             'daysTrained' => $days->count(),
             'firstSession' => (clone $sessions)->min('started_at'),
             'lastSession' => (clone $sessions)->max('completed_at'),
-            'currentStreak' => $this->streak($days),
+            'currentStreak' => $this->streak($days, AdminClock::zoneFor($this->user)),
             'level' => $this->user->level,
         ];
     }
@@ -190,16 +213,21 @@ class UserReport extends Component
      * so the count starts at yesterday in that case. Anything stricter reports
      * every streak as broken for most of the day.
      *
-     * @param  Collection<int, Carbon>  $days
+     * "Today" is theirs, not the server's. On UTC it ran a day ahead of anyone
+     * far enough east: their current day was not in the set yet, the cursor
+     * stepped back to what was still today for them, and a live streak was
+     * reported one short of what the app was showing.
+     *
+     * @param  Collection<int, string>  $days  Y-m-d, already in the user's zone
      */
-    private function streak(Collection $days): int
+    private function streak(Collection $days, string $zone): int
     {
         if ($days->isEmpty()) {
             return 0;
         }
 
-        $set = $days->map(fn (Carbon $d) => $d->toDateString())->flip();
-        $cursor = Carbon::today();
+        $set = $days->flip();
+        $cursor = Carbon::today($zone);
 
         if (! $set->has($cursor->toDateString())) {
             $cursor = $cursor->subDay();
@@ -216,37 +244,79 @@ class UserReport extends Component
     }
 
     /**
-     * Finished workouts per day for the chart.
+     * Finished workouts per day, as a calendar grid.
      *
-     * Bucketed on UTC dates, like every other daily figure in the admin. The
-     * app stores a timezone per account and this does not use it, so a session
-     * finished late at night in a positive offset lands on the previous day
-     * here. The view says so rather than leaving it to be discovered.
+     * Bucketed on the account's own midnight, which is the same boundary the
+     * app and the sync already use, so a cell here means the day the person
+     * actually trained. It used to fold DATE(completed_at) in SQL, which is
+     * UTC: a 21:30 session in Karachi landed on the day before, and the chart
+     * disagreed with both the streak beside it and the app in their hand.
      *
-     * @return Collection<int, array{date: string, label: string, value: int}>
+     * Folded in PHP rather than pushed into the query on purpose. The window
+     * can straddle a DST change, so there is no one offset to add to the
+     * column, and the portable way to say it in SQL differs per driver. This
+     * is one person's sessions - a few hundred rows at the outside.
+     *
+     * Figures, not a picture. Every one of these is a sentence somebody could
+     * read down the phone to a customer.
+     *
+     * @return array<string, mixed>
      */
-    private function activityChart(): Collection
+    private function activity(): array
     {
-        $since = Carbon::today()->subDays(self::CHART_DAYS - 1);
+        $zone = AdminClock::zoneFor($this->user);
+        $today = Carbon::today($zone);
+        $start = $today->copy()->subDays(self::WINDOW_DAYS - 1);
 
         $counts = WorkoutSession::where('user_id', $this->user->id)
             ->whereNotNull('completed_at')
-            ->where('completed_at', '>=', $since)
-            ->selectRaw('DATE(completed_at) as day, COUNT(*) as total')
-            ->groupBy('day')
-            ->pluck('total', 'day');
+            // Converted before it is bound. A Carbon in a non-UTC zone is
+            // formatted at its own wall time on the way into the query, which
+            // would move the window's edge by the offset it was meant to
+            // account for.
+            ->where('completed_at', '>=', $start->copy()->utc()->toDateTimeString())
+            ->pluck('completed_at')
+            ->countBy(fn (Carbon $at) => $at->copy()->setTimezone($zone)->toDateString());
 
-        return collect(range(0, self::CHART_DAYS - 1))
-            ->map(function (int $offset) use ($since, $counts) {
-                $date = $since->copy()->addDays($offset);
-                $key = $date->toDateString();
+        $byWeekday = array_fill(1, 7, 0);
+        $thisWeek = 0;
+        $lastWeek = 0;
+        $weekStart = $today->copy()->startOfWeek(Carbon::MONDAY);
+        $priorWeekStart = $weekStart->copy()->subWeek();
 
-                return [
-                    'date' => $key,
-                    'label' => $date->format('j M'),
-                    'value' => (int) ($counts[$key] ?? 0),
-                ];
-            });
+        foreach ($counts as $date => $value) {
+            $day = Carbon::parse($date, $zone);
+            $byWeekday[$day->dayOfWeekIso] += $value;
+
+            if ($day->greaterThanOrEqualTo($weekStart)) {
+                $thisWeek += $value;
+            } elseif ($day->greaterThanOrEqualTo($priorWeekStart)) {
+                $lastWeek += $value;
+            }
+        }
+
+        arsort($byWeekday);
+        $topWeekday = array_key_first($byWeekday);
+
+        return [
+            'zone' => $zone,
+            'windowDays' => self::WINDOW_DAYS,
+            'from' => $start->format('j M Y'),
+            'to' => $today->format('j M Y'),
+            'total' => (int) $counts->sum(),
+            // Days with at least one finished workout. countBy only ever
+            // creates a key for a day that had one, so this is the count of
+            // keys rather than a second pass.
+            'daysTrained' => $counts->count(),
+            'thisWeek' => $thisWeek,
+            'lastWeek' => $lastWeek,
+            // Null rather than "Monday" for somebody who has never trained:
+            // arsort over an all-zero list still has a first key, and printing
+            // it would invent a habit out of no data at all.
+            'busiestWeekday' => $byWeekday[$topWeekday] > 0
+                ? Carbon::now($zone)->startOfWeek(Carbon::MONDAY)->addDays($topWeekday - 1)->format('l')
+                : null,
+        ];
     }
 
     /** @return array<string, mixed> */
@@ -276,9 +346,22 @@ class UserReport extends Component
             ->when($this->event !== '', fn ($q) => $q->where('name', $this->event));
     }
 
+    /**
+     * The rows on screen, fetched once.
+     *
+     * Memoised because render() needs them twice - grouped into days to draw,
+     * and counted flat to decide whether "show more" has anything left to
+     * show - and a private property is not state Livewire has to carry between
+     * requests, only within one.
+     *
+     * @var Collection<int, UserEvent>|null
+     */
+    private ?Collection $timelineCache = null;
+
+    /** @return Collection<int, UserEvent> */
     private function timeline(): Collection
     {
-        return $this->timelineQuery()
+        return $this->timelineCache ??= $this->timelineQuery()
             ->orderByDesc('occurred_at')
             ->orderByDesc('id')
             ->limit($this->timelineLimit)
@@ -290,13 +373,27 @@ class UserReport extends Component
      *
      * Built from their own rows rather than from UserEvent::NAMES, so the
      * filter never offers something that would return an empty list.
+     *
+     * Grouped into areas, and the areas kept in AREA_LABELS order rather than
+     * in count order: forty chips sorted by frequency is a wall, and the same
+     * chip moves every time somebody trains. Under a heading each one sits
+     * where it sat last time, which is what makes it findable.
      */
     private function eventNames(): Collection
     {
-        return UserEvent::where('user_id', $this->user->id)
+        $rows = UserEvent::where('user_id', $this->user->id)
             ->selectRaw('name, COUNT(*) as total')
             ->groupBy('name')
             ->orderByDesc('total')
-            ->get();
+            ->get()
+            ->groupBy(fn (UserEvent $row) => UserEvent::AREAS[$row->name] ?? UserEvent::AREA_SETTINGS);
+
+        return collect(UserEvent::AREA_LABELS)
+            ->map(fn (string $label, string $area) => [
+                'label' => $label,
+                'rows' => $rows->get($area, collect()),
+            ])
+            ->filter(fn (array $group) => $group['rows']->isNotEmpty())
+            ->values();
     }
 }
