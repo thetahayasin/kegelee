@@ -135,4 +135,107 @@ class FreeDayCapTest extends TestCase
         $this->assertNotNull($days[1]->completed_at);
         $this->assertNull($days[2]->completed_at);
     }
+    private function subscribe(): void
+    {
+        $plan = Plan::first() ?? Plan::create([
+            'name' => 'Premium monthly',
+            'slug' => 'premium-monthly',
+            'price' => 9.99,
+            'interval' => 'month',
+            'interval_count' => 1,
+        ]);
+
+        Subscription::create([
+            'user_id' => $this->user->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+            'started_at' => now()->subDay(),
+            'ends_at' => now()->addMonth(),
+            'purchase_token' => 'cap-test-'.uniqid('', true),
+        ]);
+
+        $this->user->refresh();
+    }
+
+    /** One extra workout on a date that already has its two. */
+    private function pushOneMore(string $date, string $clientId): void
+    {
+        $this->withHeaders(['X-User-Token' => $this->user->apiToken()])
+            ->postJson('/api/v1/user/push', ['workout_sessions' => [[
+                'client_id' => $clientId,
+                'exercise_slug' => 'trembling',
+                'duration_seconds' => 120,
+                'completed_at_iso' => $date.'T18:00:00+00:00',
+            ]]])
+            ->assertOk();
+    }
+
+    private function day(string $date): TrainingDay
+    {
+        return TrainingDay::where('user_id', $this->user->id)->where('date', $date)->sole();
+    }
+
+    /**
+     * What paying actually buys, step by step.
+     *
+     * The cap is checked when a session is RECORDED, and nothing sweeps back
+     * over days that were left open. So subscribing does not tick over a day
+     * the account was already stuck on - it takes one more workout - and the
+     * days abandoned before that stay abandoned. Support gets asked this
+     * ("I paid, why does it still say day 1"), so the sequence is pinned
+     * rather than left to be reasoned out from two call sites.
+     */
+    public function test_subscribing_lifts_the_cap_but_does_not_close_the_stuck_day_by_itself(): void
+    {
+        $this->pushDay('2026-08-01', 'a');
+        $this->pushDay('2026-08-02', 'b');
+
+        $this->assertNotNull($this->day('2026-08-01')->completed_at, 'the one free day closed');
+        $this->assertNull($this->day('2026-08-02')->completed_at, 'the second day was capped');
+
+        $this->subscribe();
+
+        // Paying alone changes nothing already written down.
+        $this->assertNull(
+            $this->day('2026-08-02')->completed_at,
+            'nothing sweeps back over a day that was left open',
+        );
+
+        // One more workout on that day is what closes it: the session count is
+        // already past the requirement, and the cap no longer blocks.
+        $this->pushOneMore('2026-08-02', 'b-extra');
+
+        $this->assertNotNull($this->day('2026-08-02')->completed_at);
+        $this->assertSame(3, $this->day('2026-08-02')->sessions_count);
+    }
+
+    public function test_days_after_subscribing_close_on_two_workouts_like_anybody_else(): void
+    {
+        $this->pushDay('2026-08-01', 'a');
+        $this->pushDay('2026-08-02', 'b');
+        $this->subscribe();
+
+        $this->pushDay('2026-08-03', 'c');
+        $this->pushDay('2026-08-04', 'd');
+
+        $this->assertNotNull($this->day('2026-08-03')->completed_at);
+        $this->assertNotNull($this->day('2026-08-04')->completed_at);
+    }
+
+    public function test_the_plan_carries_on_rather_than_restarting(): void
+    {
+        // The point of freezing the DAY rather than the workout: when the cap
+        // lifts, the count picks up from what they had actually reached.
+        $this->pushDay('2026-08-01', 'a');
+        $this->pushDay('2026-08-02', 'b');
+        $this->subscribe();
+        $this->pushOneMore('2026-08-02', 'b-extra');
+        $this->pushDay('2026-08-03', 'c');
+
+        $completed = TrainingDay::where('user_id', $this->user->id)
+            ->whereNotNull('completed_at')
+            ->count();
+
+        $this->assertSame(3, $completed, 'day 1 free, day 2 unstuck, day 3 normal');
+    }
 }

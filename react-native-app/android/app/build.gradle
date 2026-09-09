@@ -159,8 +159,20 @@ android {
         applicationId "com.kegelee.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 129
-        versionName "1.0.112"
+        // Stays under 1000, and must. The watch (wear-app) ships inside this
+        // same Play app and scripts/play-upload.js decides which form factor
+        // an artifact is from its version code alone: under 1000 is the phone,
+        // 1000 and up is the watch. It then replaces the code in its OWN band
+        // and carries the other through, so that shipping one form factor
+        // cannot delete the other.
+        //
+        // So a phone build numbered above 1000 would be filed as a watch
+        // build: it would take the watch's slot, drop the live watch release,
+        // and leave phones on the previous code. play-version-check.js reports
+        // a band-blind "nextFree" (1005 while the watch sits at 1004) - that
+        // number is the next free code in the app, NOT the next phone code.
+        versionCode 130
+        versionName "1.0.113"
 
         // CMake arguments:
         //  - CMAKE_OBJECT_PATH_MAX: belt-and-suspenders cap on New-Arch codegen
