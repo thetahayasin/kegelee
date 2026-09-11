@@ -36,7 +36,6 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.compose.foundation.Canvas
@@ -103,7 +102,7 @@ fun LoginScreen(onGoogleSignIn: () -> Unit) {
      * the curve rather than scaling it. Both are what ScalingLazyColumn is for,
      * and it is what every other screen here already uses.
      */
-    val listState = rememberScalingLazyListState(initialCenterItemIndex = 0)
+    val listState = rememberIndicatedListState(initialCenterItemIndex = 0)
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
 

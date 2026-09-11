@@ -53,7 +53,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.material.Button
@@ -61,6 +60,7 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
@@ -97,6 +97,7 @@ fun WearApp(
         screen = Screen.HOME
     }
 
+    ProvideScrollIndicator { scrolling ->
     Scaffold(
         modifier = Modifier.fillMaxSize().background(Ke.bg),
         /**
@@ -108,6 +109,15 @@ fun WearApp(
          * with the thing each screen is actually for.
          */
         timeText = {},
+        /**
+         * The scrollbar the Wear quality guidelines require, and whose absence
+         * had an update rejected. Driven by whichever screen is showing (see
+         * ScrollIndicator.kt); null on the screens that do not scroll, so
+         * nothing is drawn over a session that has nowhere to go.
+         */
+        positionIndicator = {
+            scrolling.value?.let { PositionIndicator(scalingLazyListState = it) }
+        },
     ) {
         when {
             auth == Repo.Auth.SIGNED_OUT -> LoginScreen(onGoogleSignIn = onGoogleSignIn)
@@ -155,6 +165,7 @@ fun WearApp(
                 onAccount = { screen = Screen.ACCOUNT },
             )
         }
+    }
     }
 }
 
@@ -230,7 +241,7 @@ private fun HomeScreen(
      * the Start button. Without this the app opened halfway down its own home
      * screen with the ring above the fold.
      */
-    val listState = rememberScalingLazyListState(initialCenterItemIndex = 0)
+    val listState = rememberIndicatedListState(initialCenterItemIndex = 0)
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
 
@@ -679,7 +690,7 @@ private fun AccountScreen(onDone: () -> Unit) {
     val pending by Repo.pending.collectAsStateWithLifecycle()
     var confirming by remember { mutableStateOf(false) }
 
-    val listState = rememberScalingLazyListState()
+    val listState = rememberIndicatedListState()
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
 
@@ -1062,7 +1073,7 @@ private fun LevelScreen(onDone: () -> Unit) {
      */
     val entitled = profile?.entitledAsOf(System.currentTimeMillis()) == true
 
-    val listState = rememberScalingLazyListState()
+    val listState = rememberIndicatedListState()
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
 
@@ -1146,7 +1157,7 @@ private fun LevelScreen(onDone: () -> Unit) {
 @Composable
 private fun AppearanceScreen(mode: ThemeMode, onPick: (ThemeMode) -> Unit, onDone: () -> Unit) {
     val Ke = LocalPalette.current
-    val listState = rememberScalingLazyListState()
+    val listState = rememberIndicatedListState()
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
 
@@ -1232,7 +1243,7 @@ private fun ExercisesScreen(onDone: () -> Unit) {
         if (entitled) it else minOf(it, Catalogue.freeDayCap)
     }
 
-    val listState = rememberScalingLazyListState()
+    val listState = rememberIndicatedListState()
     val rotaryFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { rotaryFocus.requestFocus() } }
 

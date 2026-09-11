@@ -11,3 +11,6 @@
 /captures/
 .externalNativeBuild/
 .cxx/
+
+# A Gradle user home created here by a mistyped -g flag. Never a source file.
+.gradle_home/
