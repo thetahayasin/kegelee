@@ -167,8 +167,15 @@ class RevenueCatService
             return null;
         }
 
-        return Plan::where('store_product_id', $raw)
-            ->where('is_active', true)
+        $appStoreSlug = array_search($raw, Plan::APP_STORE_PRODUCT_IDS, true);
+
+        return Plan::where('is_active', true)
+            ->where(function ($query) use ($raw, $appStoreSlug) {
+                $query->where('store_product_id', $raw);
+                if ($appStoreSlug !== false) {
+                    $query->orWhere('slug', $appStoreSlug);
+                }
+            })
             ->first();
     }
 }

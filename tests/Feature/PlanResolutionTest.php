@@ -48,6 +48,20 @@ class PlanResolutionTest extends TestCase
         $this->assertSame(59.99, $service->resolvePlan('premium_monthly:p1y')?->price);
     }
 
+    public function test_app_store_products_resolve_to_the_same_plans_as_play(): void
+    {
+        $service = $this->service();
+
+        $this->assertSame(
+            $service->resolvePlan('premium_monthly:monthly')?->id,
+            $service->resolvePlan('com.kegelee.premium.monthly')?->id,
+        );
+        $this->assertSame('premium-quarterly', $service->resolvePlan('com.kegelee.premium.quarterly')?->slug);
+        $this->assertSame('premium-yearly', $service->resolvePlan('com.kegelee.premium.yearly')?->slug);
+        $this->assertNull($service->resolvePlan('com.kegelee.premium.unknown'));
+        $this->assertNull($service->resolvePlan('com.kegelee.premium.yearly:monthly'));
+    }
+
     public function test_it_refuses_to_guess_from_the_parent_subscription(): void
     {
         // `premium_monthly` is the parent of all three base plans, so resolving
@@ -72,6 +86,7 @@ class PlanResolutionTest extends TestCase
 
         // is_active is how a plan gets retired, so it has to gate the lookup.
         $this->assertNull($service->resolvePlan('premium_monthly:p1y'));
+        $this->assertNull($service->resolvePlan('com.kegelee.premium.yearly'));
     }
 
     public function test_the_seeded_catalogue_matches_play(): void

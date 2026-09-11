@@ -28,10 +28,9 @@ import {
 import { LanguagePicker } from '../../components/LanguagePicker';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
-import { getAppSetting, clearProgressData } from '../../db/queries';
+import { clearProgressData } from '../../db/queries';
 import { entitledSubscription } from '../../services/entitlement';
-import { planBySlug, playSubscriptionId } from '../../constants/plans';
-import { getRevenueCatManagementUrl } from '../../services/billing';
+import { manageSubscriptionUrl } from '../../services/billing';
 import { syncNow } from '../../services/sync';
 import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
@@ -173,45 +172,10 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
       const sub = await entitledSubscription(user.id, !!user.is_admin);
       setSubscription(sub);
 
-      // Subscription management deep link (RevenueCat customer management URL or store deep link)
-      if (sub) {
-        const rcUrl = await getRevenueCatManagementUrl(user.id).catch(() => null);
-        if (rcUrl) {
-          setManageUrl(rcUrl);
-        } else {
-          // Fallback when RevenueCat has no management URL for us - offline, an
-          // API hiccup, or a row it does not know about.
-          //
-          // This used to be gated on `sub.store === 'google_play'`, a value
-          // nothing ever writes: purchases are recorded with store
-          // 'revenuecat'. So the branch was unreachable and every fallback
-          // landed on the bare subscriptions LIST, where the user has to pick
-          // this app out of every subscription they own before they can reach
-          // the cancel or resubscribe button. We already hold both halves of
-          // the deep link locally, so build it whenever we can and keep the
-          // list as the last resort.
-          const packageName = await getAppSetting('google_play_package_name', 'com.kegelee.app');
-          // The SUBSCRIPTION id, not the base plan: Play cannot resolve
-          // `premium_monthly:p3m` here and drops the user on the full list.
-          const plan = planBySlug(sub.plan_slug);
-          const sku = plan ? playSubscriptionId(plan) : undefined;
-          setManageUrl(
-            'https://play.google.com/store/account/subscriptions' +
-              (sku && packageName ? `?sku=${sku}&package=${packageName}` : ''),
-          );
-        }
-      } else {
-        // Entitled with no local row to build a deep link from - the backend
-        // says yes and this device has not been handed the row yet. Play's own
-        // subscriptions list is the only route that is certainly correct, and
-        // an entitled account with no way at all to reach a cancel button
-        // would be worse than an extra tap.
-        setManageUrl(
-          subscribed
-            ? 'https://play.google.com/store/account/subscriptions'
-            : null,
-        );
-      }
+      // Settings and the paywall share the store-aware cancellation route.
+      setManageUrl(
+        subscribed ? await manageSubscriptionUrl(user.id, sub?.plan_slug) : null,
+      );
     } catch (e) {
       console.error(e);
     } finally {
@@ -317,7 +281,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
       : trialEnds && t('settings.trialEndsNoRenew', { date: trialEnds });
   } else if (subStatus === 'past_due') {
     subscriptionLabel = t('settings.subPaymentIssue');
-    subscriptionDetail = t('settings.paymentIssueDetail');
+    subscriptionDetail = t(Platform.OS === 'ios' ? 'settings.paymentIssueDetailApple' : 'settings.paymentIssueDetail');
   } else if (subStatus === 'canceled') {
     subscriptionLabel = t('settings.subCancelled');
     subscriptionDetail = subEnds
@@ -403,8 +367,8 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
                 <Text style={styles.menuText}>{t('settings.manageSubscription')}</Text>
                 <Text style={styles.menuSubtext}>
                   {subStatus === 'past_due'
-                    ? t('settings.updatePaymentMethod')
-                    : t('settings.opensGooglePlay')}
+                    ? t(Platform.OS === 'ios' ? 'settings.updatePaymentMethodApple' : 'settings.updatePaymentMethod')
+                    : t(Platform.OS === 'ios' ? 'settings.opensAppStore' : 'settings.opensGooglePlay')}
                 </Text>
               </View>
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">

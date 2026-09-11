@@ -128,6 +128,28 @@ class RevenueCatWebhookTest extends TestCase
         $this->assertTrue($this->user->fresh()->isSubscribed());
     }
 
+    public function test_app_store_purchase_grants_the_matching_premium_plan(): void
+    {
+        $this->seed(\Database\Seeders\PlanSeeder::class);
+        config(['services.revenuecat.webhook_secret' => $this->secret]);
+
+        $this->send($this->event([
+            'store' => 'APP_STORE',
+            'product_id' => 'com.kegelee.premium.yearly',
+            'entitlement_ids' => ['premium'],
+            'transaction_id' => '2000000123456789',
+            'expiration_at_ms' => now()->addYear()->getTimestampMs(),
+        ]), $this->secret)->assertOk();
+
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => $this->user->id,
+            'plan_id' => Plan::where('slug', 'premium-yearly')->value('id'),
+            'store_transaction_id' => '2000000123456789',
+            'status' => 'active',
+        ]);
+        $this->assertTrue($this->user->fresh()->isSubscribed());
+    }
+
     // ------------------------------------------------------------ grace period
 
     public function test_billing_issue_keeps_access_for_the_period_already_paid_for(): void

@@ -18,6 +18,8 @@ export interface PlanDef {
    * than once per plan: Play scopes trial eligibility to the subscription.
    */
   store_product_id: string;
+  /** App Store subscriptions have individual IDs, without Play base plans. */
+  app_store_product_id: string;
   revenuecat_package_id: string;
   is_featured: boolean;
   sort_order: number;
@@ -39,6 +41,7 @@ export const PLANS: PlanDef[] = [
     interval: 'month',
     interval_count: 1,
     store_product_id: 'premium_monthly:monthly',
+    app_store_product_id: 'com.kegelee.premium.monthly',
     revenuecat_package_id: '$rc_monthly',
     is_featured: false,
     sort_order: 1,
@@ -52,6 +55,7 @@ export const PLANS: PlanDef[] = [
     // No hardcoded savings percentage: Play prices are localized per market,
     // so a fixed "Save 11%" can be plainly untrue outside the USD catalogue.
     store_product_id: 'premium_monthly:p3m',
+    app_store_product_id: 'com.kegelee.premium.quarterly',
     revenuecat_package_id: '$rc_three_month',
     is_featured: true,
     sort_order: 2,
@@ -63,6 +67,7 @@ export const PLANS: PlanDef[] = [
     interval: 'year',
     interval_count: 1,
     store_product_id: 'premium_monthly:p1y',
+    app_store_product_id: 'com.kegelee.premium.yearly',
     revenuecat_package_id: '$rc_annual',
     is_featured: false,
     sort_order: 3,
@@ -94,10 +99,13 @@ export const planBySlug = (slug: string | null | undefined): PlanDef | null =>
 export const playSubscriptionId = (plan: PlanDef): string =>
   plan.store_product_id.split(':')[0];
 
+export const storeProductIdForPlan = (plan: PlanDef, platform: string): string =>
+  platform === 'ios' ? plan.app_store_product_id : plan.store_product_id;
+
 export const planByProductId = (productId: string | null | undefined): PlanDef | null => {
   const raw = (productId || '').trim();
   if (!raw) return null;
-  return PLANS.find((p) => p.store_product_id === raw) ?? null;
+  return PLANS.find((p) => p.store_product_id === raw || p.app_store_product_id === raw) ?? null;
 };
 
 /**

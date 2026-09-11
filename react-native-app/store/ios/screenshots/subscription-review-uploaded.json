@@ -1,0 +1,23 @@
+[
+  {
+    "product_id": "com.kegelee.premium.monthly",
+    "screenshot_id": "5765bbef-09f1-47f7-9ba7-5aee3887ba38",
+    "screenshot_state": "COMPLETE",
+    "subscription_state": "READY_TO_SUBMIT",
+    "source": "iphone-6.9/01-training.png"
+  },
+  {
+    "product_id": "com.kegelee.premium.quarterly",
+    "screenshot_id": "fb9f1cf0-d4c5-4150-8883-628a3371cf5d",
+    "screenshot_state": "COMPLETE",
+    "subscription_state": "READY_TO_SUBMIT",
+    "source": "iphone-6.9/01-training.png"
+  },
+  {
+    "product_id": "com.kegelee.premium.yearly",
+    "screenshot_id": "01775284-198a-4d70-a37a-ff6cc8eead82",
+    "screenshot_state": "COMPLETE",
+    "subscription_state": "READY_TO_SUBMIT",
+    "source": "iphone-6.9/01-training.png"
+  }
+]

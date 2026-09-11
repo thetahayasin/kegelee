@@ -14,6 +14,7 @@ import {
   planByProductId,
   planBySlug,
   playSubscriptionId,
+  storeProductIdForPlan,
 } from '../constants/plans';
 import { zeroPriceLike } from '../constants/pricing';
 /**
@@ -48,7 +49,7 @@ const REVENUECAT_ENTITLEMENT_ID = 'premium';
  * and open the paywall instead of failing with "not configured".
  */
 const REVENUECAT_ANDROID_PUBLIC_SDK_KEY = 'goog_mOSmpWsMRRLEZoLcWvRqOencyMq';
-const REVENUECAT_IOS_PUBLIC_SDK_KEY = '';
+const REVENUECAT_IOS_PUBLIC_SDK_KEY = 'appl_fxTEorwDBjZRGLyQUKvsxNyCOFX';
 
 /**
  * The Play applicationId, from android/app/build.gradle.
@@ -455,7 +456,7 @@ const findPackageForPlan = (
   packages.find((pkg: PurchasesPackage) =>
     pkg?.identifier === plan.revenuecat_package_id
       || pkg?.identifier === plan.slug
-      || sameProduct(packageProductId(pkg), plan.store_product_id),
+      || sameProduct(packageProductId(pkg), storeProductIdForPlan(plan, Platform.OS)),
   );
 
 const packageForPlan = async (plan: PlanDef): Promise<PurchasesPackage> => {
@@ -1134,7 +1135,7 @@ export const requestPlanPurchase = async (
   // comparing the parent alone would call every switch a no-op.
   const sameAsCurrent =
     !!oldProductId
-    && sameProduct(oldProductId, packageProductId(rcPackage) || plan.store_product_id);
+    && sameProduct(oldProductId, packageProductId(rcPackage) || storeProductIdForPlan(plan, Platform.OS));
 
   /**
    * The product being replaced is named by its SUBSCRIPTION, not its base plan.
@@ -1165,7 +1166,8 @@ export const requestPlanPurchase = async (
    */
   const replacedProductId = (oldProductId || '').split(':')[0];
 
-  const productChangeInfo = replacedProductId && !sameAsCurrent
+  // StoreKit handles subscription changes through the Apple subscription group.
+  const productChangeInfo = Platform.OS === 'android' && replacedProductId && !sameAsCurrent
     ? {
         oldProductIdentifier: replacedProductId,
         replacementMode: mode,
@@ -1192,7 +1194,7 @@ export const requestPlanPurchase = async (
    */
   const requestedProductId = planByProductId(productIdentifier)
     ? productIdentifier
-    : plan.store_product_id;
+    : storeProductIdForPlan(plan, Platform.OS);
 
   /**
    * The store transaction this very call produced.
@@ -1351,6 +1353,7 @@ export const recordCompletedPurchase = async (
     plan_slug: plan.slug,
     status: purchase.periodType === 'TRIAL' ? 'trialing' : 'active',
     store: 'revenuecat',
+    store_product_id: purchase.productId,
     purchase_token: token,
     google_order_id: purchase.storeTransactionId,
     trial_ends_at: purchase.periodType === 'TRIAL' ? purchase.endsAt : null,
@@ -1431,7 +1434,7 @@ export const recordCompletedPurchase = async (
            * the backend can say it out loud instead of every surface having to
            * infer it from a plan slug that changed and an expiry that did not.
            */
-          plan_change_effective_at: planChanged ? purchase.endsAt : null,
+          plan_change_effective_at: Platform.OS === 'android' && planChanged ? purchase.endsAt : null,
         },
       ],
     });
@@ -1481,9 +1484,9 @@ export const reconcileEntitlementOnLaunch = async (
  * Where to send someone who wants to cancel, change payment method, or resume.
  *
  * RevenueCat's managementURL first, because it is the one that resolves to the
- * right store for the purchase. The Play deep link is the fallback for when
+ * right store for the purchase. The device's store is the fallback when
  * RevenueCat has no URL for us - offline, an API hiccup, a row it does not
- * know about - and it names the SUBSCRIPTION rather than the base plan: Play
+ * know about. The Play link names the SUBSCRIPTION rather than the base plan: Play
  * cannot resolve `premium_monthly:p3m` here and silently drops the reader on
  * the full list of every subscription they own.
  *
@@ -1499,6 +1502,10 @@ export const manageSubscriptionUrl = async (
     if (rcUrl) return rcUrl;
   } catch {
     // Fall through to the deep link.
+  }
+
+  if (Platform.OS === 'ios') {
+    return 'https://apps.apple.com/account/subscriptions';
   }
 
   const packageName = await getAppSetting('google_play_package_name', PLAY_PACKAGE_NAME)

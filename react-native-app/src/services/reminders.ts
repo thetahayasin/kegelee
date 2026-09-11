@@ -793,7 +793,7 @@ export const scheduleTrialEndingWarning = async (
       TRIAL_NOTIFICATION_ID,
       endsAt - TRIAL_WARNING_LEAD_MS,
       i18n.t('reminders.trialEndingTitle'),
-      i18n.t('reminders.trialEndingBody'),
+      i18n.t(Platform.OS === 'ios' ? 'reminders.trialEndingBody_ios' : 'reminders.trialEndingBody'),
     );
   } catch (e) {
     console.warn('Failed to schedule trial-ending warning', e);

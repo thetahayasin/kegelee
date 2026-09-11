@@ -13,17 +13,24 @@
   },
   "billing": {
     "alreadyOwned": "Your Google account already has an active subscription for this app.",
+    "alreadyOwned_ios": "Your Apple Account already has an active subscription for this app.",
     "configuration": "This plan cannot be purchased right now. This is a problem on our side - please try again later, or write to us from Settings > Help.",
     "declined": "Google Play declined the payment. Check the payment method on your Google account, then try again.",
+    "declined_ios": "The App Store declined the payment. Check your Apple Account payment method, then try again.",
     "ineligible": "You are not eligible for this offer. Please choose another plan.",
     "network": "We could not reach the store. Check your connection and try again. If you were charged, your access will appear on its own.",
     "noPermission": "Your Google account does not have permission to make purchases on this device.",
+    "noPermission_ios": "Your Apple Account does not have permission to make purchases on this device.",
     "notAllowed": "This device or Google account is not allowed to make purchases. That is usually parental controls, or no payment method on the account.",
+    "notAllowed_ios": "Purchases are not allowed on this device or Apple Account. Check purchase restrictions and your payment method.",
     "notEntitled": "Google Play completed the purchase but has not granted access yet. This usually clears within a minute. Do not pay again - if it does not clear, write to us from Settings > Help.",
+    "notEntitled_ios": "The App Store completed the purchase but access has not been granted yet. Do not pay again. Try restoring your purchase, or contact us from Settings > Help.",
     "operationInProgress": "A purchase is already in progress. Give it a moment before trying again.",
     "otherAccount": "This subscription belongs to a different account. Sign in with that account, or write to us from Settings > Help and we can move it across.",
     "paymentPending": "Your payment is being processed by Google Play. Cash and voucher payments can take a while. Your access unlocks automatically once it clears, so please do not pay again.",
+    "paymentPending_ios": "Your App Store purchase is pending payment or approval. Access unlocks when it completes; please do not pay again.",
     "storeProblem": "Google Play is having trouble right now. Please try again in a few minutes.",
+    "storeProblem_ios": "The App Store is having trouble right now. Please try again in a few minutes.",
     "unknown": "Something went wrong completing your purchase. Please try again. If you were charged, your access will appear on its own. [{{code}}]"
   },
   "catalogue": {
@@ -316,10 +323,12 @@
     "offeringsUnavailable": "Subscriptions aren't available on this device right now. Please try again later, or restore a previous purchase below.",
     "on": "On",
     "paymentProcessedSecurely": "Payment is processed securely through Google Play on confirmation.",
+    "paymentProcessedSecurely_ios": "Payment is charged to your Apple Account when you confirm the purchase.",
     "premium": "Premium",
     "priceRenewsAutomatically": "{{price}}, renews automatically until cancelled.",
     "privacyPolicy": "Privacy Policy",
     "purchaseAlreadyEnded": "Google Play reports this subscription has already ended, so nothing was unlocked. If you were charged, contact support and we will sort it out.",
+    "purchaseAlreadyEnded_ios": "The App Store reports this subscription has already ended, so nothing was unlocked. If you were charged, contact support.",
     "purchaseReceivedButPlanCould": "Purchase received but plan could not be matched. Contact support.",
     "renewPlan": "Renew Plan",
     "renewYourPlan": "Renew your plan",
@@ -444,6 +453,7 @@
     "notificationsOffTitle": "Notifications are off",
     "nudgeChannelName": "Check-ins",
     "trialEndingBody": "Your free trial ends tomorrow. To avoid being charged, cancel in Google Play before it ends.",
+    "trialEndingBody_ios": "Your free trial ends tomorrow. Manage or cancel it in your Apple subscription settings before it renews.",
     "trialEndingTitle": "Your free trial ends tomorrow"
   },
   "schedule": {
@@ -505,7 +515,9 @@
     "manageSubscription": "Manage subscription",
     "noActiveSubscription": "No active subscription",
     "opensGooglePlay": "Opens Google Play to change plan, cancel, or turn off auto-renew.",
+    "opensAppStore": "Opens your Apple subscriptions to change plan, cancel, or turn off auto-renew.",
     "paymentIssueDetail": "There is an issue with your subscription payment. Please update your payment method in Google Play.",
+    "paymentIssueDetailApple": "There is an issue with your subscription payment. Please update your Apple Account payment method.",
     "renewsOn": "Renews on {{date}}.",
     "reset": "Reset",
     "resetConfirmBody": "This will clear your training days, sessions and measurements. Your account, subscription and reminders are kept. This cannot be undone.",
@@ -532,7 +544,8 @@
     "terms": "Terms",
     "trialEndsNoRenew": "Free trial ends {{date}}. It will not renew.",
     "trialEndsThenBilling": "Free trial ends {{date}}, then billing starts.",
-    "updatePaymentMethod": "Update your payment method in Google Play."
+    "updatePaymentMethod": "Update your payment method in Google Play.",
+    "updatePaymentMethodApple": "Update your Apple Account payment method."
   },
   "tabs": {
     "profile": "Profile",

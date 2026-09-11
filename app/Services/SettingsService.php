@@ -85,7 +85,7 @@ class SettingsService
             'revenuecat_api_key' => '',
             'revenuecat_webhook_secret' => '',
             'revenuecat_android_public_sdk_key' => '',
-            'revenuecat_ios_public_sdk_key' => '',
+            'revenuecat_ios_public_sdk_key' => 'appl_fxTEorwDBjZRGLyQUKvsxNyCOFX',
             'revenuecat_entitlement_id' => 'premium',
 
             // Google Play Billing (legacy fallback)

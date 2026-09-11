@@ -22,9 +22,7 @@
  * factory while the assertions still held the old instance.
  */
 jest.mock('../src/db/queries', () => ({
-  // Any usable key will do; without one initBilling refuses to configure and
-  // every test below fails on "billing is unavailable" instead of on its own
-  // subject. The baked-in fallback is Android-only and Jest reports ios.
+  // Configuration is covered separately by billingIdentity.test.ts.
   getAppSetting: jest.fn(() => Promise.resolve('goog_testkey')),
   saveAppSetting: jest.fn(() => Promise.resolve()),
   saveSubscription: jest.fn(() => Promise.resolve()),
@@ -40,6 +38,7 @@ jest.mock('../src/services/api', () => ({
 }));
 
 import Purchases from 'react-native-purchases';
+import { Platform } from 'react-native';
 import {
   DEFERRED,
   WITH_TIME_PRORATION,
@@ -53,7 +52,7 @@ import {
   restoreRevenueCatPurchases,
   describePurchaseFailure,
 } from '../src/services/billing';
-import { PLANS } from '../src/constants/plans';
+import { PLANS, planByProductId } from '../src/constants/plans';
 import { planMonths } from '../src/constants/pricing';
 import { saveSubscription, getActiveSubscription } from '../src/db/queries';
 import { api } from '../src/services/api';
@@ -120,7 +119,14 @@ const packageFor = (productId: string, identifier: string) => ({
   },
 });
 
+const originalPlatform = Platform.OS;
+
+afterAll(() => {
+  Object.defineProperty(Platform, 'OS', { value: originalPlatform, configurable: true });
+});
+
 beforeEach(() => {
+  Object.defineProperty(Platform, 'OS', { value: 'android', configurable: true });
   (saveSubscription as jest.Mock).mockClear();
   (getActiveSubscription as jest.Mock).mockClear();
   (api.pushState as jest.Mock).mockClear();
@@ -811,5 +817,99 @@ describe('recordCompletedPurchase', () => {
     expect(result).toBe('recorded');
     expect(saveSubscription).toHaveBeenCalled();
     expect(api.pushState).toHaveBeenCalled();
+  });
+});
+
+describe('App Store purchases and restores', () => {
+  const appleInfo = (plan: typeof monthly) => {
+    const info = infoEntitledTo(plan.app_store_product_id);
+    info.subscriptionsByProductIdentifier[plan.app_store_product_id].storeTransactionId = '2000000123456789';
+    return info;
+  };
+
+  beforeEach(() => {
+    Object.defineProperty(Platform, 'OS', { value: 'ios', configurable: true });
+    (getActiveSubscription as jest.Mock).mockResolvedValue(null);
+    (Purchases.getOfferings as jest.Mock).mockResolvedValue({
+      current: {
+        availablePackages: PLANS.map((plan) => ({
+          identifier: plan.revenuecat_package_id,
+          product: {
+            identifier: plan.app_store_product_id,
+            priceString: '$1.00', price: 1, currencyCode: 'USD',
+          },
+        })),
+      },
+    });
+  });
+
+  it('records the Apple product and transaction for a purchase', async () => {
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: appleInfo(yearly),
+      productIdentifier: yearly.app_store_product_id,
+    });
+
+    const purchase = await requestPlanPurchase(42, yearly);
+    expect(purchase.productId).toBe(yearly.app_store_product_id);
+    expect(await recordCompletedPurchase(42, purchase)).toBe('recorded');
+    expect(saveSubscription).toHaveBeenLastCalledWith(42, expect.objectContaining({
+      plan_slug: yearly.slug,
+      store_product_id: yearly.app_store_product_id,
+      purchase_token: '2000000123456789',
+    }));
+    expect(api.pushState).toHaveBeenLastCalledWith({
+      subscriptions: [expect.objectContaining({
+        revenuecat_product_id: yearly.app_store_product_id,
+        store_transaction_id: '2000000123456789',
+      })],
+    });
+  });
+
+  it('lets StoreKit handle a plan switch without Play replacement options', async () => {
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(appleInfo(monthly));
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: appleInfo(yearly), productIdentifier: yearly.app_store_product_id,
+    });
+    (getActiveSubscription as jest.Mock).mockResolvedValue({
+      plan_slug: monthly.slug, purchase_token: 'previous-apple-transaction',
+    });
+
+    const purchase = await requestPlanPurchase(42, yearly, {
+      oldProductId: monthly.app_store_product_id, replacementMode: CHARGE_FULL_PRICE,
+    });
+    expect(Purchases.purchasePackage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ product: expect.objectContaining({ identifier: yearly.app_store_product_id }) }),
+      null, null,
+    );
+    await recordCompletedPurchase(42, purchase);
+    expect(api.pushState).toHaveBeenLastCalledWith({
+      subscriptions: [expect.objectContaining({ plan_change_effective_at: null })],
+    });
+  });
+
+  it.each(PLANS)('restores $slug from its Apple SKU', async (plan) => {
+    (Purchases.restorePurchases as jest.Mock).mockResolvedValue(appleInfo(plan));
+
+    const purchase = await restoreRevenueCatPurchases(42);
+    expect(purchase?.productId).toBe(plan.app_store_product_id);
+    expect(await recordCompletedPurchase(42, purchase!)).toBe('recorded');
+    expect(saveSubscription).toHaveBeenLastCalledWith(42, expect.objectContaining({ plan_slug: plan.slug }));
+  });
+
+  it('keeps the current entitlement when Apple defers the requested change', async () => {
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(appleInfo(yearly));
+    (Purchases.purchasePackage as jest.Mock).mockResolvedValue({
+      customerInfo: appleInfo(yearly), productIdentifier: monthly.app_store_product_id,
+    });
+
+    const purchase = await requestPlanPurchase(42, monthly);
+    expect(purchase.productId).toBe(yearly.app_store_product_id);
+    await recordCompletedPurchase(42, purchase);
+    expect(saveSubscription).toHaveBeenLastCalledWith(42, expect.objectContaining({ plan_slug: yearly.slug }));
+  });
+
+  it('does not resolve an unknown or malformed Apple product', () => {
+    expect(planByProductId('com.kegelee.premium.unknown')).toBeNull();
+    expect(planByProductId(`${yearly.app_store_product_id}:monthly`)).toBeNull();
   });
 });

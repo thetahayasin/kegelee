@@ -1,0 +1,72 @@
+[
+  {
+    "file": "iphone-6.9/01-training.png",
+    "id": "47193b86-6d27-42ef-95a0-9c8fe4c892a6",
+    "set_id": "9c25d2f7-73af-4f3c-b6c3-a33abf25fb50",
+    "state": "COMPLETE",
+    "sha256": "bbe5cc395744c3cfa3cd32bdfe032b542d731ccbd4e3565236e55e98dc74c779"
+  },
+  {
+    "file": "iphone-6.9/02-workout.png",
+    "id": "3345c75b-7519-4e24-9967-84e49f40be73",
+    "set_id": "9c25d2f7-73af-4f3c-b6c3-a33abf25fb50",
+    "state": "COMPLETE",
+    "sha256": "62ff3e57071831583f5826c83b487b5f02c09219559ff8d41d2f32d97746a599"
+  },
+  {
+    "file": "iphone-6.9/03-progress.png",
+    "id": "7cbf9e73-83df-4c80-8afb-955a9b3b4bae",
+    "set_id": "9c25d2f7-73af-4f3c-b6c3-a33abf25fb50",
+    "state": "COMPLETE",
+    "sha256": "38314631c2729bee913b36b235cd9ba9813bd6b5e6d97f2ce520e29a0ca05653"
+  },
+  {
+    "file": "iphone-6.9/04-schedule.png",
+    "id": "6fa955e0-47bd-4e23-acd3-af52e8b40db7",
+    "set_id": "9c25d2f7-73af-4f3c-b6c3-a33abf25fb50",
+    "state": "COMPLETE",
+    "sha256": "68404d736c6735933e893221ce4364b197fa6663717eb4db3a8b9f4e3ed5c269"
+  },
+  {
+    "file": "iphone-6.9/05-basics.png",
+    "id": "5af72bc8-9805-42ea-8d5b-bcf925da24e2",
+    "set_id": "9c25d2f7-73af-4f3c-b6c3-a33abf25fb50",
+    "state": "COMPLETE",
+    "sha256": "33ead09e8c8e666fd5312d4a5e171e39e05afad72d470490b242a7038dc74d47"
+  },
+  {
+    "file": "ipad-13/01-training.png",
+    "id": "c76efc58-f406-49f0-b8d7-be58884d131a",
+    "set_id": "6a4827e8-ea69-41fc-b20d-d5fce1171658",
+    "state": "COMPLETE",
+    "sha256": "7164e8f0f967d4b64f148a61b9937fa14d487a4debad8a90498552a12a68d5c6"
+  },
+  {
+    "file": "ipad-13/02-workout.png",
+    "id": "87ae3c03-e609-415c-bb46-4d5126111d21",
+    "set_id": "6a4827e8-ea69-41fc-b20d-d5fce1171658",
+    "state": "COMPLETE",
+    "sha256": "18f0f2f6056103366832f53a19f08b3e09aeb855da37e1531edebb1ab8331a38"
+  },
+  {
+    "file": "ipad-13/03-progress.png",
+    "id": "53c5ee6f-8646-4790-8dc4-be847c52e50b",
+    "set_id": "6a4827e8-ea69-41fc-b20d-d5fce1171658",
+    "state": "COMPLETE",
+    "sha256": "f72eee454cd95c9ff03bcc70265a7fd3abc5e004cfa8ba632798ba03659e84b3"
+  },
+  {
+    "file": "ipad-13/04-schedule.png",
+    "id": "d352d2b1-1010-4703-9bf6-526f5ac687f4",
+    "set_id": "6a4827e8-ea69-41fc-b20d-d5fce1171658",
+    "state": "COMPLETE",
+    "sha256": "cc7fcac253aa30c3065712581cb2e3197ee5e40ed7e7fd8c92fb52a7636ab512"
+  },
+  {
+    "file": "ipad-13/05-basics.png",
+    "id": "f0604ba3-6272-4893-98e5-f6c3628477b6",
+    "set_id": "6a4827e8-ea69-41fc-b20d-d5fce1171658",
+    "state": "COMPLETE",
+    "sha256": "b7eedfbc4f0e22058a300fbcdf7785d3600dd458f2d0d21ff42503dad7e39812"
+  }
+]

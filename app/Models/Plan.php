@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Plan extends Model
 {
+    /** The App Store products for the same three plans sold on Google Play. */
+    public const APP_STORE_PRODUCT_IDS = [
+        'premium-monthly' => 'com.kegelee.premium.monthly',
+        'premium-quarterly' => 'com.kegelee.premium.quarterly',
+        'premium-yearly' => 'com.kegelee.premium.yearly',
+    ];
+
     protected $guarded = [];
 
     protected $casts = [

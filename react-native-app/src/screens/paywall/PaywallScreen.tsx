@@ -9,6 +9,7 @@ import {
   Modal,
   Linking,
   I18nManager,
+  Platform,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,6 +44,7 @@ import {
   planDescriptionKey,
   planPeriodKey,
   planPeriodNounKey,
+  storeProductIdForPlan,
 } from '../../constants/plans';
 import {
   initBilling,
@@ -287,7 +289,7 @@ export const PaywallScreen = () => {
     // the notice too - it used to be the one case that silently didn't.
     const { switching } = planSwitchFor(activeSub, plan.slug);
     const from = activeSub ? planBySlug(activeSub.plan_slug) : null;
-    if (!from || !switching) {
+    if (!from || !switching || Platform.OS !== 'android') {
       return null;
     }
     /**
@@ -445,7 +447,7 @@ export const PaywallScreen = () => {
          * drift with a sale or a currency.
          */
         // Mid-trial switches must not be charged: see replacementModeFor.
-        const mode = currentPlan
+        const mode = currentPlan && Platform.OS === 'android'
           ? replacementModeFor(
               planMonths(plan),
               planMonths(currentPlan),
@@ -453,7 +455,7 @@ export const PaywallScreen = () => {
             )
           : null;
         const purchase = await requestPlanPurchase(user.id, plan, switching && currentPlan ? {
-          oldProductId: currentPlan.store_product_id,
+          oldProductId: storeProductIdForPlan(currentPlan, Platform.OS),
           replacementMode: mode ?? undefined,
         } : undefined);
 
@@ -471,7 +473,7 @@ export const PaywallScreen = () => {
         // there.
         if (result === 'expired') {
           setMessageTone('error');
-          setMessage(t('paywall.purchaseAlreadyEnded'));
+          setMessage(t(Platform.OS === 'ios' ? 'paywall.purchaseAlreadyEnded_ios' : 'paywall.purchaseAlreadyEnded'));
           return;
         }
 
@@ -501,7 +503,7 @@ export const PaywallScreen = () => {
         // on the plan they are already paying for, until it renews at the new
         // price. The gate is opened below regardless, because the row on disk
         // is what it reads.
-        const noChargeSwitch = switching && mode !== CHARGE_FULL_PRICE;
+        const noChargeSwitch = Platform.OS === 'android' && switching && mode !== CHARGE_FULL_PRICE;
         // Open the gate the moment the purchase is on disk, NOT when the
         // auto-renewal notice is acknowledged.
         //
@@ -564,7 +566,7 @@ export const PaywallScreen = () => {
         setMessageTone(failure.pending || failure.restorable ? 'info' : 'error');
         // The code rides along for the unclassified case, where it is the
         // only thing that makes a support screenshot actionable.
-        const base = t(failure.messageKey, { code: failure.code || 'none' });
+        const base = t(Platform.OS === 'ios' ? [`${failure.messageKey}_ios`, failure.messageKey] : failure.messageKey, { code: failure.code || 'none' });
         if (failure.restorable && switching) {
           /**
            * They already own something - but NOT this plan, or we would not
@@ -866,7 +868,7 @@ export const PaywallScreen = () => {
         setMessageTone(failure.pending ? 'info' : 'error');
         // The code rides along for the unclassified case, where it is the
         // only thing that makes a support screenshot actionable.
-        setMessage(t(failure.messageKey, { code: failure.code || 'none' }));
+        setMessage(t(Platform.OS === 'ios' ? [`${failure.messageKey}_ios`, failure.messageKey] : failure.messageKey, { code: failure.code || 'none' }));
       }
     } finally {
       restoreInFlightRef.current = false;
@@ -938,7 +940,7 @@ export const PaywallScreen = () => {
    * kind of surprise that arrives as a chargeback.
    */
   const currentPlanDef = planBySlug(selectedSwitch.fromSlug);
-  const switchMode = isPlanSwitch && selectedPlanDef && currentPlanDef
+  const switchMode = Platform.OS === 'android' && isPlanSwitch && selectedPlanDef && currentPlanDef
     ? replacementModeFor(
         planMonths(selectedPlanDef),
         planMonths(currentPlanDef),
@@ -1262,7 +1264,7 @@ export const PaywallScreen = () => {
             paragraph, printed verbatim into all 29 locales - and the sentence
             before it already names the app store. */}
         <Text style={styles.legalText}>
-          {t('paywall.paymentProcessedSecurely')}{' '}
+          {t(Platform.OS === 'ios' ? 'paywall.paymentProcessedSecurely_ios' : 'paywall.paymentProcessedSecurely')}{' '}
           {t('paywall.uninstallingDoesNotCancel')}{' '}
           {t('paywall.byContinuingYouAgree')}
         </Text>
@@ -1378,7 +1380,7 @@ export const PaywallScreen = () => {
               ?? (trialDays
                 ? t('paywall.trialThenPrice', { count: trialDays, price: selectedPriceLabel })
                 : t('paywall.priceRenewsAutomatically', { price: selectedPriceLabel }))}{' '}
-            {t('paywall.manageOrCancelAnytime')}
+            {t(Platform.OS === 'ios' ? 'paywall.autoRenewOnHint' : 'paywall.manageOrCancelAnytime')}
           </Text>
         ) : null}
         {/* The route to cancel, change payment method, or resume - for anyone
@@ -1400,7 +1402,7 @@ export const PaywallScreen = () => {
               Linking.openURL(manageUrl).catch(() => {});
             }}
           >
-            <Text style={styles.manageBtnText}>{t('paywall.manageInGooglePlay')}</Text>
+            <Text style={styles.manageBtnText}>{t(Platform.OS === 'ios' ? 'settings.manageSubscription' : 'paywall.manageInGooglePlay')}</Text>
           </TouchableOpacity>
         ) : null}
         {/* Kept on the bar rather than buried under the fine print - a new
@@ -1928,7 +1930,3 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     color: COLORS.onAccent,
   },
 });
-
-
-
-

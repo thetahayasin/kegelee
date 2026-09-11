@@ -30,6 +30,7 @@ jest.mock('../src/services/api', () => ({
 }));
 
 import { getAppSetting } from '../src/db/queries';
+import { Platform } from 'react-native';
 
 type Billing = typeof import('../src/services/billing');
 
@@ -44,11 +45,35 @@ const freshBilling = (): { billing: Billing; Purchases: any } => {
   return { billing, Purchases: purchases };
 };
 
+const originalPlatform = Platform.OS;
+
+afterEach(() => {
+  Object.defineProperty(Platform, 'OS', { value: originalPlatform, configurable: true });
+});
+
 beforeEach(() => {
   (getAppSetting as jest.Mock).mockImplementation(() => Promise.resolve('goog_testkey'));
 });
 
 describe('initBilling identity', () => {
+  it('keeps Apple subscription management available when the SDK cannot load', async () => {
+    Object.defineProperty(Platform, 'OS', { value: 'ios', configurable: true });
+    const { billing, Purchases } = freshBilling();
+    Purchases.configure.mockImplementation(() => { throw new Error('SDK unavailable'); });
+    expect(await billing.manageSubscriptionUrl(42, 'premium-yearly'))
+      .toBe('https://apps.apple.com/account/subscriptions');
+  });
+
+  it('keeps the Android subscription deep link when the SDK cannot load', async () => {
+    Object.defineProperty(Platform, 'OS', { value: 'android', configurable: true });
+    (getAppSetting as jest.Mock).mockImplementation((key: string) =>
+      Promise.resolve(key === 'google_play_package_name' ? 'com.kegelee.app' : 'goog_testkey'));
+    const { billing, Purchases } = freshBilling();
+    Purchases.configure.mockImplementation(() => { throw new Error('SDK unavailable'); });
+    expect(await billing.manageSubscriptionUrl(42, 'premium-yearly'))
+      .toBe('https://play.google.com/store/account/subscriptions?sku=premium_monthly&package=com.kegelee.app');
+  });
+
   it('configures once, then moves identity with logIn', async () => {
     const { billing, Purchases } = freshBilling();
 
@@ -155,24 +180,23 @@ describe('concurrent initBilling calls', () => {
      * force-killed.
      */
     const { billing, Purchases } = freshBilling();
-    (getAppSetting as jest.Mock).mockImplementationOnce(() => Promise.resolve(''));
+    Purchases.configure.mockImplementationOnce(() => { throw new Error('SDK unavailable'); });
 
     expect(await billing.initBilling(1)).toBe(false);
-    expect(Purchases.configure).not.toHaveBeenCalled();
+    expect(Purchases.configure).toHaveBeenCalledTimes(1);
 
     expect(await billing.initBilling(1)).toBe(true);
-    expect(Purchases.configure).toHaveBeenCalledTimes(1);
+    expect(Purchases.configure).toHaveBeenCalledTimes(2);
   });
 
   it('does not let a failing attempt erase a later successful one', async () => {
     /**
-     * The two attempts overlap: the first is still waiting on the key lookup
-     * when the second starts. Clearing the memo unconditionally on failure
-     * meant the slow loser wiped the winner's answer on its way out, sending
-     * the next caller back through configure on an SDK that was already fine.
+     * A delayed identity failure must not prevent the next queued identity
+     * from signing in, or force a second configure on the running SDK.
      */
     const { billing, Purchases } = freshBilling();
-    (getAppSetting as jest.Mock).mockImplementationOnce(
+    await billing.initBilling(7);
+    Purchases.logIn.mockImplementationOnce(
       () => new Promise((_resolve, reject) => setTimeout(() => reject(new Error('slow')), 20)),
     );
 
@@ -182,8 +206,38 @@ describe('concurrent initBilling calls', () => {
     expect(await first).toBe(false);
     expect(await second).toBe(true);
     expect(Purchases.configure).toHaveBeenCalledTimes(1);
+    expect(Purchases.logIn.mock.calls).toEqual([['1'], ['2']]);
     // Still answered from the identity the successful attempt established.
     expect(await billing.initBilling(2)).toBe(true);
     expect(Purchases.configure).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('public SDK key configuration', () => {
+  it.each([['ios', 'appl_'], ['android', 'goog_']])(
+    'configures %s on a first launch without synced settings',
+    async (os, prefix) => {
+      const { billing, Purchases } = freshBilling();
+      Object.defineProperty(Platform, 'OS', { value: os, configurable: true });
+      (getAppSetting as jest.Mock).mockResolvedValue('');
+
+      expect(await billing.initBilling(42)).toBe(true);
+      expect(Purchases.configure).toHaveBeenCalledWith({
+        apiKey: expect.stringMatching(new RegExp(`^${prefix}`)),
+        appUserID: '42',
+      });
+    },
+  );
+
+  it('uses the synced iOS SDK key when available', async () => {
+    const { billing, Purchases } = freshBilling();
+    Object.defineProperty(Platform, 'OS', { value: 'ios', configurable: true });
+    (getAppSetting as jest.Mock).mockResolvedValue('appl_synced_override');
+
+    expect(await billing.initBilling(42)).toBe(true);
+    expect(getAppSetting).toHaveBeenCalledWith('revenuecat_ios_public_sdk_key', '');
+    expect(Purchases.configure).toHaveBeenCalledWith({
+      apiKey: 'appl_synced_override', appUserID: '42',
+    });
   });
 });

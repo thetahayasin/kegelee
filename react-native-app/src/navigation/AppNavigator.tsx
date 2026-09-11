@@ -201,6 +201,7 @@ const TabNavigator = () => {
         // blurred tabs so background tabs cost nothing while training.
         lazy: true,
         freezeOnBlur: true,
+        tabBarLabelPosition: 'below-icon',
         // Without this the tab bar renders the route name verbatim.
         //
         // Rendered rather than passed as a string, because the tab is a fixed
