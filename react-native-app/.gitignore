@@ -87,3 +87,6 @@ android/app/src/main/assets/*.bundle
 # Google Play Developer API service account key used by "eas submit".
 # Grants release-publishing rights on the Play account - never commit.
 play-service-account.json
+
+# Local Expo device and development server state
+.expo/

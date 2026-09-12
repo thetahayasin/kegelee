@@ -17,8 +17,12 @@ signing credentials have been prepared outside source control. The native
 project now integrates Expo modules, includes the 1024 px RGB app icon and
 branded launch screen, and targets iOS 16.4 on the EAS `sdk-57` build image.
 Sign in with Apple is enabled for `com.kegelee.app`; the refreshed provisioning
-profile includes its entitlement. Native build/upload status will be recorded
-here after EAS confirms it.
+profile includes its entitlement. The first EAS build (`c45763ec-2737-481d-bc75-64ebfce1498b`) failed while
+importing the distribution certificate. The same key/certificate has been
+repacked with macOS-compatible PKCS12 encryption and its verified Apple WWDR G3
+chain. EAS also identified a Hermes regression in React Native 0.86.0; runtime
+and matching tooling are updated to 0.86.3, with Expo 57.0.22. All 416 mobile
+tests still pass. Native build/upload status will be updated after the retry.
 
 ## Listing
 
