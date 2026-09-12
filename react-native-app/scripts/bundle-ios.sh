@@ -19,9 +19,9 @@ if [ -z "${ENTRY_FILE:-}" ]; then
   export ENTRY_FILE
 fi
 if [ -z "${CLI_PATH:-}" ]; then
-  CLI_PATH=$("$NODE_BINARY" --print "require.resolve('@expo/cli')")
+  CLI_PATH=$("$NODE_BINARY" --print "require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })")
   export CLI_PATH
 fi
 export BUNDLE_COMMAND="${BUNDLE_COMMAND:-export:embed}"
 REACT_NATIVE_XCODE=$("$NODE_BINARY" --print "require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'")
-exec /bin/sh "$REACT_NATIVE_XCODE"
+exec /bin/bash "$REACT_NATIVE_XCODE"
