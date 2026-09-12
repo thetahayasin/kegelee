@@ -13,6 +13,14 @@
 # already covers it - which is why vendor, dist and node_modules are repeated.
 
 # --- Laravel side: none of it is used to build the Android app -------------
+.env
+.env.*
+**/.env
+**/.env.*
+.mcp.json
+.claude/
+.codex/
+.agents/
 nativephp/
 dist/
 vendor/
@@ -42,6 +50,12 @@ react-native-app/ios/build/
 react-native-app/ios/Pods/
 react-native-app/.expo/
 react-native-app/web-build/
+react-native-app/store/
+react-native-app/play-service-account.json
+react-native-app/credentials.json
+**/*.p8
+**/*.p12
+**/*.mobileprovision
 
 # --- Build artifacts and noise ---------------------------------------------
 *.apk
@@ -55,6 +69,5 @@ coverage/
 .vscode/
 .DS_Store
 
-# NOT excluded on purpose: react-native-app/credentials.json and the keystore
-# under react-native-app/android/app/. The production profile signs with
-# credentialsSource: local, and signing must not break to save a few KB.
+# EAS reads local signing credentials before archiving and sends them through
+# its credential channel. They do not belong in the source archive.

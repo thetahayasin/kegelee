@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../i18n';
 import { saveDBUser } from '../db/queries';
+import type { AppleAuthorization } from './appleAuth';
 
 // Default to production API URL. Can be modified for local dev.
 const DEFAULT_API_BASE = 'https://kegelee.com/api';
@@ -206,9 +207,13 @@ export const api = {
   // picker; the backend verifies it and returns the standard auth payload.
   googleToken: (idToken: string, timezone?: string) =>
     request('/auth/google/token', 'POST', { id_token: idToken, timezone }),
+  appleChallenge: () => request('/auth/apple/challenge', 'POST'),
+  appleToken: (body: AppleAuthorization) => request('/auth/apple/token', 'POST', body),
+  appleDeleteChallenge: () => request('/user/apple-delete-challenge', 'POST'),
+  appleDelete: (body: AppleAuthorization) => request('/user/apple-delete', 'POST', body),
 
   // User actions
-  deleteAccountCode: () => request('/user/delete-code', 'POST'),
+  deleteAccountCode: (platform?: string) => request('/user/delete-code', 'POST', { platform }),
   deleteAccount: (code: string) => request('/user/delete', 'POST', { code }),
   resetProgress: () => request('/user/reset', 'POST'),
 

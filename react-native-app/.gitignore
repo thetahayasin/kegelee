@@ -36,6 +36,9 @@ local.properties
 keystore.properties
 # Holds the release keystore password in plaintext - never commit.
 credentials.json
+*.p8
+*.p12
+*.mobileprovision
 .kotlin/
 
 # node.js

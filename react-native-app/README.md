@@ -131,6 +131,40 @@ does not send Google Play replacement modes or show Play-specific charge
 timing. When Apple defers a change, the app retains the current entitlement
 until RevenueCat reports the new product.
 
+## Sign in with Apple (iOS)
+
+Login and registration use Apple's native button on supported iOS devices;
+Android retains Google sign-in. Both platforms also support email sign-in.
+`expo-apple-authentication` passes a server-issued, five-minute nonce and state
+to Apple's sheet. Laravel verifies the RS256 signature, issuer, bundle ID,
+expiration and nonce, then exchanges the single-use authorization code before
+issuing the existing app session. Returning users are identified by Apple's
+subject even when name/email are omitted. A matching email only links to an
+existing verified account. Refresh tokens are encrypted and excluded from
+user payloads and source control.
+
+On the production backend, run `composer install --no-dev`, `php artisan
+migrate --force`, and configure `APPLE_SIGN_IN_CLIENT_ID`,
+`APPLE_SIGN_IN_TEAM_ID`, `APPLE_SIGN_IN_KEY_ID`, and
+`APPLE_SIGN_IN_PRIVATE_KEY_PATH`, then refresh the Laravel config cache. The
+private path must point to a readable `.p8` developer key with Sign in with
+Apple enabled for this primary App ID. The App Store Connect upload key and
+RevenueCat In-App Purchase key cannot replace it.
+
+Deleting an Apple-linked account on iOS asks for fresh Apple authorization,
+checks the same Apple subject, revokes access and removes account data. This
+avoids requiring email delivery through Apple's Private Relay. Revocation also
+runs for the existing email/web deletion paths. Subscriptions still need to be
+cancelled separately through the App Store, as the deletion screen explains.
+
+Build with `eas build --platform ios --profile production-ios`. Provisioning
+must include `com.apple.developer.applesignin = [Default]`; the native entitlement
+and Expo configuration are committed. Local `credentials.json` and private
+signing files must stay ignored. Upload the resulting build using
+`eas submit --platform ios --profile production-ios --id <build-id>` with the
+App Store Connect API key configured privately. Uploading to TestFlight does
+not submit the app for review; see [submission status](store/ios/README.md).
+
 ## Splash & icon
 
 - Launcher icon: adaptive KE mark (`res/mipmap-*`), identical to the NativePHP build.

@@ -45,6 +45,8 @@ Route::prefix('v1')->middleware('api.user')->group(function () {
         // Fully native Google sign-in (no browser): the device posts the ID
         // token from the Google account picker; verified server-side.
         Route::post('/auth/google/token', [SyncController::class, 'googleToken']);
+        Route::post('/auth/apple/challenge', [SyncController::class, 'appleChallenge']);
+        Route::post('/auth/apple/token', [SyncController::class, 'appleToken']);
     });
 
     // User-specific data — requires the per-user API token (or a session).
@@ -70,5 +72,7 @@ Route::prefix('v1')->middleware('api.user')->group(function () {
         Route::post('/user/delete-code', [SyncController::class, 'deleteCode'])
             ->middleware('throttle:delete-code');
         Route::post('/user/delete', [SyncController::class, 'deleteAccount']);
+        Route::post('/user/apple-delete-challenge', [SyncController::class, 'appleDeleteChallenge']);
+        Route::post('/user/apple-delete', [SyncController::class, 'appleDeleteAccount']);
     });
 });

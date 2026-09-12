@@ -1,6 +1,6 @@
 # Kegelee App Store listing
 
-## Status verified on 2026-09-11
+## Status verified on 2026-09-12
 
 The iOS changes are integrated with upstream `main` through `1ff1c89`
 (nine commits pulled, including the latest trial pricing fixes). The paywall
@@ -12,10 +12,13 @@ submissions. All three subscriptions remain `READY_TO_SUBMIT`. RevenueCat
 confirms the App Store Connect API key is configured; the separate In-App
 Purchase subscription key is still missing.
 
-This Linux workspace has no Xcode, signed-in Expo session or local iOS signing
-credentials. Continue with an authenticated EAS account, a Mac/macOS CI runner,
-or an existing signed IPA. The native project also needs its empty app icon
-catalog populated and its Expo module integration checked before archiving.
+Expo project `@thetahayasin/kegelee` is authenticated and local App Store
+signing credentials have been prepared outside source control. The native
+project now integrates Expo modules, includes the 1024 px RGB app icon and
+branded launch screen, and targets iOS 16.4 on the EAS `sdk-57` build image.
+Sign in with Apple is enabled for `com.kegelee.app`; the refreshed provisioning
+profile includes its entitlement. Native build/upload status will be recorded
+here after EAS confirms it.
 
 ## Listing
 
@@ -96,8 +99,10 @@ Review only after the production login has passed. No random phone was saved.
   training and subscription data actually collected by the app and its SDKs.
 - iOS build, app icon from that build, and device verification of the uploaded
   browser screenshots. Sandbox purchase/restore testing remains pending.
-- Deploy the backend App Store product mappings included with this change and
-  build the updated mobile source. Production deployment is not yet verified.
+- Deploy the backend App Store product mappings and Apple sign-in migration.
+  Configure the dedicated Sign in with Apple developer key using the variables
+  in `.env.example`; this differs from the App Store Connect and In-App Purchase
+  keys. Production deployment and live Apple authorization are not yet verified.
 - Separate In-App Purchase key in RevenueCat; the App Store Connect API key
   is already configured and validated.
 - The live privacy/refund/terms pages currently describe Google Play billing;
@@ -115,8 +120,10 @@ store-aware subscription management and English Apple billing messages. New
 Apple-specific messages fall back to English in other locales until translated.
 The browser capture also identified and fixed truncated iPad tab labels.
 
-Validation after integrating upstream on 2026-09-11: all 407 mobile tests and
-464 backend tests (4,076 assertions) passed, including reviewer creation and
-API login. TypeScript and targeted lint passed. Lint reports four existing
-inline-style warnings in SettingsScreen. Native iOS builds and StoreKit
-purchase/restore behavior have not been tested in this workspace.
+Validation on 2026-09-12: all 416 mobile tests and 489 backend tests
+(4,177 assertions) passed. This includes signed Apple token verification,
+nonce/state replay protection, verified account linking, encrypted token
+storage and authenticated deletion with Apple revocation. TypeScript passed;
+full lint has zero errors and 25 existing warnings. The iOS JavaScript/Hermes
+export passed. Native iOS compilation and StoreKit purchase/restore verification
+remain separate release checks.

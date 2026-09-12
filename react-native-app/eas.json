@@ -21,6 +21,14 @@
         "simulator": true
       }
     },
+    "production-ios": {
+      "extends": "production",
+      "ios": {
+        "image": "sdk-57",
+        "scheme": "Kegelee",
+        "buildConfiguration": "Release"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "credentialsSource": "local",
@@ -31,6 +39,13 @@
     }
   },
   "submit": {
+    "production-ios": {
+      "ios": {
+        "ascAppId": "6809782947",
+        "appleTeamId": "68P36W8488",
+        "bundleIdentifier": "com.kegelee.app"
+      }
+    },
     "production": {
       "android": {
         "serviceAccountKeyPath": "./play-service-account.json",

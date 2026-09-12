@@ -190,7 +190,8 @@
     "or": "or",
     "perMonth": "{{price}}/mo",
     "showPassword": "Show password",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "continue": "Continue"
   },
   "errorBoundary": {
     "goToStart": "Go to start",
@@ -274,7 +275,9 @@
     "resetPassword": "Reset password",
     "resetPasswordCta": "Reset password",
     "sendCodeCta": "Send code",
-    "subtitle": "Welcome back. Pick up where you left off."
+    "subtitle": "Welcome back. Pick up where you left off.",
+    "appleUnavailable": "Sign in with Apple is unavailable on this device.",
+    "appleSignInFailed": "Apple sign-in could not be completed. Please try again."
   },
   "onboarding": {
     "alreadyHaveAnAccount": "Already have an account?",

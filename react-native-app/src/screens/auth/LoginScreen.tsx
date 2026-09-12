@@ -30,6 +30,7 @@ import { nativeGoogleSignIn, openGoogleBrowserSignIn } from '../../services/goog
 import { getAppSetting } from '../../db/queries';
 import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
+import { AppleSignInButton } from '../../components/AppleSignInButton';
 
 export const LoginScreen = () => {
   const styles = useThemedStyles(makeStyles);
@@ -312,7 +313,7 @@ export const LoginScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {googleEnabled && (
+          {Platform.OS === 'android' && googleEnabled && (
             <>
               <View style={[styles.dividerContainer, compact && styles.dividerCompact]}>
                 <View style={styles.divider} />
@@ -336,6 +337,8 @@ export const LoginScreen = () => {
               </TouchableOpacity>
             </>
           )}
+
+          <AppleSignInButton onError={setError} disabled={loading} />
 
           <TouchableOpacity
             style={[styles.switchContainer, compact && styles.switchCompact]}

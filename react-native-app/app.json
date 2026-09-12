@@ -1,12 +1,20 @@
 {
   "name": "Kegelee",
   "displayName": "Kegelee",
+  "slug": "kegelee",
+  "owner": "thetahayasin",
+  "ios": {
+    "bundleIdentifier": "com.kegelee.app",
+    "supportsTablet": true,
+    "usesAppleSignIn": true
+  },
   "extra": {
     "eas": {
       "projectId": "948c7846-b1d0-4e14-b4d7-2057c2d16742"
     }
   },
   "plugins": [
-    "expo-localization"
+    "expo-localization",
+    "expo-apple-authentication"
   ]
 }

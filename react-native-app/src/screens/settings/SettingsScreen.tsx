@@ -28,6 +28,7 @@ import {
 import { LanguagePicker } from '../../components/LanguagePicker';
 import i18n, { LanguageTag, SUPPORTED_LANGUAGES } from '../../i18n';
 import { api } from '../../services/api';
+import { requestAppleAuthorization } from '../../services/appleAuth';
 import { clearProgressData } from '../../db/queries';
 import { entitledSubscription } from '../../services/entitlement';
 import { manageSubscriptionUrl } from '../../services/billing';
@@ -231,12 +232,24 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   const handleSendDeleteCode = async () => {
     setDeleteError('');
     setDeleteLoading(true);
-    const res = await api.deleteAccountCode();
-    setDeleteLoading(false);
-    if (res.ok) {
-      setDeleteStep('code');
-    } else {
-      setDeleteError(res.error || t('settings.failedToSendDeleteCode'));
+    try {
+      const res = await api.deleteAccountCode(Platform.OS);
+      if (!res.ok) throw new Error(res.error || t('settings.failedToSendDeleteCode'));
+      if (res.data?.requires_apple_auth) {
+        const authorization = await requestAppleAuthorization('delete');
+        if (!authorization) return;
+        const deleted = await api.appleDelete(authorization);
+        if (!deleted.ok) throw new Error(deleted.error || t('settings.failedToDeleteAccount'));
+        await logout();
+        setDeleteModalVisible(false);
+        Alert.alert(t('settings.deletedTitle'), t('settings.deletedBody'));
+      } else {
+        setDeleteStep('code');
+      }
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : t('settings.failedToDeleteAccount'));
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -686,7 +699,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
                       {deleteLoading ? (
                         <ActivityIndicator color={COLORS.white} />
                       ) : (
-                        <Text style={styles.modalDeleteBtnText}>{t('settings.sendCode')}</Text>
+                        <Text style={styles.modalDeleteBtnText}>{t('common.continue')}</Text>
                       )}
                     </TouchableOpacity>
                   </View>

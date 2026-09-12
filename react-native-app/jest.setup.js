@@ -163,3 +163,13 @@ jest.mock('expo-localization', () => ({
   ],
   getCalendars: () => [{ timeZone: 'UTC' }],
 }));
+
+jest.mock('expo-apple-authentication', () => ({
+  isAvailableAsync: jest.fn(() => Promise.resolve(false)),
+  signInAsync: jest.fn(),
+  formatFullName: jest.fn(() => 'Apple User'),
+  AppleAuthenticationButton: 'AppleAuthenticationButton',
+  AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+  AppleAuthenticationButtonType: { CONTINUE: 2 },
+  AppleAuthenticationButtonStyle: { WHITE_OUTLINE: 1 },
+}));

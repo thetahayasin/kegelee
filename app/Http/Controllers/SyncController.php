@@ -1265,6 +1265,10 @@ class SyncController extends Controller
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
+        if ($user->apple_id && $request->input('platform') === 'ios') {
+            return response()->json(['success' => true, 'requires_apple_auth' => true]);
+        }
+
         // A code that never left the mail server is not a success: the device
         // would show the "enter the code" field for a code nobody can read.
         if (! \App\Services\CodeSender::send($user->email, 'delete')) {
@@ -1776,6 +1780,99 @@ class SyncController extends Controller
         \Illuminate\Support\Facades\RateLimiter::hit($key, 900);
 
         return false;
+    }
+
+    public function appleChallenge(): JsonResponse
+    {
+        return response()->json(app(\App\Services\AppleSignInService::class)->challenge());
+    }
+
+    public function appleToken(Request $request): JsonResponse
+    {
+        $data = $this->appleCredentials($request);
+        $verified = app(\App\Services\AppleSignInService::class)->redeem($data);
+        $claims = $verified['claims'];
+        [$user, $created] = \Illuminate\Support\Facades\DB::transaction(function () use ($claims, $verified, $data) {
+            $user = \App\Models\User::where('apple_id', $claims['sub'])->lockForUpdate()->first();
+            $created = false;
+            if (! $user) {
+                $email = strtolower((string) ($claims['email'] ?? ''));
+                if (! filter_var($email, FILTER_VALIDATE_EMAIL)
+                    || ! in_array($claims['email_verified'] ?? null, [true, 'true'], true)) {
+                    throw new \App\Exceptions\AppleSignInException('Apple did not provide a verified email address.');
+                }
+                $user = \App\Models\User::where('email', $email)->lockForUpdate()->first();
+                if ($user && ($user->apple_id || ! $user->email_verified_at)) {
+                    throw new \App\Exceptions\AppleSignInException('Verify your existing email account before using Apple sign-in, or use its current sign-in method.', 409);
+                }
+                if (! $user) {
+                    $user = new \App\Models\User([
+                        'name' => trim($data['name'] ?? '') ?: 'Member',
+                        'email' => $email,
+                        'password' => \Illuminate\Support\Str::random(64),
+                        'email_verified_at' => now(),
+                        'level_id' => Level::where('is_active', true)->orderBy('number')->value('id'),
+                        'onboarded_at' => now(),
+                    ]);
+                    $created = true;
+                }
+            }
+            // The subject, rather than an email or client-supplied user ID, is
+            // the identity. Apple may omit name/email on subsequent sign-ins.
+            $user->forceFill([
+                'apple_id' => $claims['sub'],
+                'apple_refresh_token' => $verified['refresh_token'],
+                'onboarded_at' => $user->onboarded_at ?? now(),
+            ])->save();
+
+            return [$user, $created];
+        });
+        $timezone = $data['timezone'] ?? '';
+        if (in_array($timezone, timezone_identifiers_list(), true)) {
+            $user->update(['timezone' => $timezone]);
+        }
+        $this->recordEvent($user->id, $created ? UserEvent::ACCOUNT_CREATED : UserEvent::LOGGED_IN, 'apple');
+
+        return response()->json(['success' => true, 'user' => $this->remoteUserPayload($user)]);
+    }
+
+    public function appleDeleteChallenge(Request $request): JsonResponse
+    {
+        if (! $request->user()->apple_id) {
+            return response()->json(['error' => 'Use email verification to delete this account.'], 422);
+        }
+
+        return response()->json(app(\App\Services\AppleSignInService::class)->challenge($request->user()->id));
+    }
+
+    public function appleDeleteAccount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user->apple_id) {
+            return response()->json(['error' => 'Use email verification to delete this account.'], 422);
+        }
+        $verified = app(\App\Services\AppleSignInService::class)->redeem($this->appleCredentials($request), $user->id);
+        if (! hash_equals($user->apple_id, $verified['claims']['sub'])) {
+            return response()->json(['error' => 'Use the Apple Account linked to this account.'], 422);
+        }
+        // Fresh native authentication avoids depending on Private Relay mail
+        // delivery. Central deletion revokes Apple access before removing data.
+        $user->forceFill(['apple_refresh_token' => $verified['refresh_token']])->save();
+        $user->deleteWithData();
+
+        return response()->json(['success' => true]);
+    }
+
+    private function appleCredentials(Request $request): array
+    {
+        return $request->validate([
+            'challenge_id' => 'required|uuid',
+            'state' => 'required|string|size:64',
+            'identity_token' => 'required|string|max:8192',
+            'authorization_code' => 'required|string|max:4096',
+            'name' => 'nullable|string|max:255',
+            'timezone' => 'nullable|string|max:255',
+        ]);
     }
 
     /**

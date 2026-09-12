@@ -24,6 +24,7 @@ import { nativeGoogleSignIn, openGoogleBrowserSignIn } from '../../services/goog
 import Svg, { Path } from 'react-native-svg';
 import { Watermark } from '../../components/Watermark';
 import { GoogleLogo } from '../../components/GoogleLogo';
+import { AppleSignInButton } from '../../components/AppleSignInButton';
 import { track } from '../../services/events';
 
 export const RegisterScreen = () => {
@@ -280,6 +281,7 @@ export const RegisterScreen = () => {
             </TouchableOpacity>
           </View>
 
+          {Platform.OS === 'android' && <>
           <View style={[styles.dividerContainer, compact && styles.dividerCompact]}>
             <View style={styles.divider} />
             <Text style={styles.dividerText}>{t('common.or')}</Text>
@@ -300,6 +302,9 @@ export const RegisterScreen = () => {
               </>
             )}
           </TouchableOpacity>
+
+          </>}
+          <AppleSignInButton onError={setError} disabled={loading} />
 
           {/* The agreement, where the agreement is actually made.
               Creating the account is the moment someone is bound by these,

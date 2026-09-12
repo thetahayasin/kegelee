@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'password', 'google_id', 'email_verified_at', 'is_admin', 'level_id', 'level_started_days', 'onboarded_at', 'timezone', 'api_token', 'onboarding_experience', 'onboarding_daily_time', 'onboarding_baseline_seconds', 'onboarding_level', 'onboarding_completed_at', 'onboarding_skipped', 'free_session_completed_at', 'last_seen_at'])]
-#[Hidden(['password', 'remember_token', 'api_token'])]
+#[Hidden(['password', 'remember_token', 'api_token', 'apple_id', 'apple_refresh_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -29,6 +29,7 @@ class User extends Authenticatable
             // whether an account is still alive.
             'last_seen_at' => 'datetime',
             'password' => 'hashed',
+            'apple_refresh_token' => 'encrypted',
             'is_admin' => 'boolean',
             'onboarding_completed_at' => 'datetime',
             'onboarding_skipped' => 'boolean',
@@ -269,6 +270,8 @@ class User extends Authenticatable
      */
     public function deleteWithData(): void
     {
+        app(\App\Services\AppleSignInService::class)->revoke($this);
+
         $this->workoutSessions()->delete();
         $this->trainingDays()->delete();
         $this->measurements()->delete();

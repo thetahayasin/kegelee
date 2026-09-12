@@ -35,6 +35,13 @@ return [
         ],
     ],
 
+    'apple' => [
+        'client_id' => env('APPLE_SIGN_IN_CLIENT_ID', 'com.kegelee.app'),
+        'team_id' => env('APPLE_SIGN_IN_TEAM_ID', '68P36W8488'),
+        'key_id' => env('APPLE_SIGN_IN_KEY_ID'),
+        'private_key_path' => env('APPLE_SIGN_IN_PRIVATE_KEY_PATH'),
+    ],
+
     'revenuecat' => [
         'api_key' => env('REVENUECAT_API_KEY', ''),
         'webhook_secret' => env('REVENUECAT_WEBHOOK_SECRET', ''),
