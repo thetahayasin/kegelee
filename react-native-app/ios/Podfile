@@ -20,6 +20,11 @@ if linkage != nil
 end
 
 target 'Kegelee' do
+  # GoogleSignIn's Swift AppCheck dependency imports these Objective-C pods.
+  # Give only those dependencies module maps for this static-library build.
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'RecaptchaInterop', :modular_headers => true
+
   use_expo_modules!
   config = use_native_modules!([
     'node', '--no-warnings', '--eval', "require('expo/bin/autolinking')",
