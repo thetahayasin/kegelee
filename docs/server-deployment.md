@@ -47,24 +47,72 @@ it can break encrypted values and existing sessions. The preview environment
 contains a temporary key and intentionally references an absent database.
 Do not publish it or seed the development database as production.
 
-1. Back up the old host's database, configuration and uploads; coordinate a
-   final copy so writes made during migration are retained.
-2. Import its database and service settings, preserving user/subscription IDs,
-   RevenueCat credentials, mail settings and the original `APP_KEY`. Copy public
-   uploads into `shared/uploads` and relevant private storage separately.
-3. Replace the preview environment with the production environment. Set
-   `APP_ENV=production`, `APP_DEBUG=false`, the new database connection and the
-   existing Apple configuration, using this server's private-key path.
-4. Run `php artisan migrate --force` against the imported database, then rebuild
-   Laravel caches. Do not run `migrate:fresh`, the development seeder or blanket
-   content reseeding. Verify login, data counts, plan resolution, mail and the
-   authenticated RevenueCat webhook. Create the reviewer account only after
-   the production data is available.
-5. Configure the production HTTPS virtual host, queue worker and scheduler.
-   Test the new origin before changing DNS. Switch the domain with a rollback
-   path to the old host and monitor application errors and webhook deliveries.
-6. Verify Apple sign-in, deletion, sandbox purchases and restore in TestFlight.
-   Complete the remaining App Store review fields and privacy disclosures.
+### Production configuration handoff
+
+The existing host's production environment was supplied on 2026-09-17. It
+includes the original `APP_KEY`, local MySQL connection details, the Play
+service-account JSON, Android App Link fingerprints and the deploy key. Keep
+the values in a private server file; this repository records only their names.
+The MySQL address is `127.0.0.1`, so it will refer to the **new** server's
+MySQL instance after migration. Create/import that database and its local
+account before pointing Laravel at it. Confirm the final connection values
+against the new instance rather than assuming the old hosting account exists.
+
+Merge the existing production settings with the private preview's
+`APPLE_SIGN_IN_CLIENT_ID`, `APPLE_SIGN_IN_TEAM_ID`, `APPLE_SIGN_IN_KEY_ID` and
+`APPLE_SIGN_IN_PRIVATE_KEY_PATH`. The old environment has no Apple fields.
+Keep the developer `.p8` file in `shared/keys`, outside the webroot, readable
+by the `kegelee` runtime user. The production `REVENUECAT_API_KEY` and
+`REVENUECAT_WEBHOOK_SECRET` environment values are intentionally blank because
+the admin panel stores them in `app_settings`; verify both after importing the
+database. The SMTP environment is a log fallback for the same reason. The
+Google Play RTDN fields are blank because that direct endpoint is unused.
+
+After composing the private production environment on the new server, run the
+static preflight as the runtime user before starting the app:
+
+```bash
+sudo -u kegelee php /var/www/kegelee/preview/scripts/preflight-production-env.php /var/www/kegelee/shared/production.env
+```
+
+The preflight prints field names and checks, never values. It does not connect
+to MySQL or test the billing credentials stored in the database. Do not copy
+the production environment into a release directory or commit it to Git.
+
+### Data and cutover checks
+
+1. Make a consistent SQL backup from the old host and inventory public uploads
+   under `public/storage` plus any private files under `storage/app/private`.
+   Record counts for `users`, `subscriptions`, `workout_sessions` and
+   `app_settings`, along with the latest IDs and migration status. Keep the old
+   host available for rollback.
+2. Provision MySQL on the new server, create the database and account, and
+   import the backup into a private staging copy first. Compare those four
+   table counts and IDs with the source, and verify the `app_settings` rows for
+   Google sign-in, SMTP, RevenueCat and public page settings. Do not print
+   their secret values into command output or logs.
+3. Point a private copy of the production environment at the staging import.
+   Run `php artisan migrate:status`, then `php artisan migrate --force` and
+   Laravel cache warmup there. Review migration errors and row counts before
+   applying the same steps to the final imported database. Do not use
+   `migrate:fresh`, `scripts/deploy-web.sh --seed`, or blanket content seeding
+   against customer data.
+4. Copy public uploads to `shared/uploads` and private files to persistent
+   storage. Verify a sample of file hashes and permissions. Confirm the
+   release's `public/storage` resolves to the shared uploads path, since the
+   app's public disk writes there.
+5. Make a final source backup/copy during a write pause, import it, and repeat
+   the count and file checks. Set the production environment, run
+   `php artisan migrate --force`, and rebuild Laravel caches. Configure the
+   production HTTPS virtual host, queue worker and scheduler, then test the
+   new origin before changing DNS. Verify login, progress pull/push, billing
+   entitlement resolution, webhook authentication and mail delivery. Create
+   the reviewer account only after the production data is available.
+6. Switch DNS only after those checks pass. Retain the old host and backup for
+   rollback, and monitor errors, queues and webhook deliveries after the
+   switch. Then verify Apple sign-in, deletion, sandbox purchases and restores
+   in TestFlight and complete the App Store review fields and privacy
+   disclosures.
 
 The iOS binary is already uploaded. These server credential changes alone do
 not require a new native build.
