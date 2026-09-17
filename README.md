@@ -14,7 +14,7 @@ gone; anything the app needs, it asks the API for.
 
 ## Stack
 
-- **Laravel 13** (PHP 8.3+)
+- **Laravel 13** (PHP 8.4.1+ for the currently locked dependencies)
 - **Livewire 4** for the admin panel and the legal pages
 - **Tailwind CSS v4**, built with Vite
 - **SQLite** by default (set `DB_CONNECTION` for MySQL/Postgres in production)
@@ -144,6 +144,10 @@ Beyond the usual Laravel keys (`.env.example` has the full set):
 | `REVENUECAT_API_KEY`, `REVENUECAT_WEBHOOK_SECRET` | Fallbacks for the values the admin panel stores. |
 
 ## Deploying
+
+The September 2026 server migration is staged on a private listener. See
+[server deployment](docs/server-deployment.md) for its verified state and the
+production data required before switching the public domain.
 
 With shell access:
 

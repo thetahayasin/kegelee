@@ -1,6 +1,6 @@
 # Kegelee App Store listing
 
-## Status verified on 2026-09-12
+## Status verified on 2026-09-17
 
 The signed iOS release archive **1.0 (5)** built successfully on EAS from
 commit `8caab8d` and was uploaded to App Store Connect on 2026-09-12.
@@ -18,12 +18,21 @@ The Apple authentication module is included in the executable.
 Apple processing completed with `VALID`; build `0af564f2-18a8-4d4e-afe2-5f1926d76470`
 is selected for version `1.0`. The version remains `PREPARE_FOR_SUBMISSION`;
 no App Review details or review submission exist.
-The three subscriptions remain `READY_TO_SUBMIT`. RevenueCat's App Store
-Connect API key is configured, but its separate In-App Purchase subscription
-key remains missing. Live Apple sign-in also needs the dedicated developer key
-and backend deployment; the production challenge endpoint currently returns
-404. Native Apple sign-in and StoreKit transactions have not been exercised
-on a device.
+The three subscriptions were `READY_TO_SUBMIT` on 2026-09-12. RevenueCat's
+App Store Connect and In-App Purchase keys are now configured and both show
+`Valid credentials` after reloading the dashboard. The missing-key warning has
+cleared. All three Apple products map to the current `base_plans` offering and
+the `premium` entitlement; the SDK key matches the uploaded app.
+
+The dedicated Sign in with Apple key is configured locally and in a private
+deployment on this server. Its Apple challenge endpoint returns HTTP 200
+through Nginx and PHP 8.4. This verifies challenge generation and client-secret
+signing, not a completed Apple authorization. The public domain still points
+to the previous host and its challenge endpoint returns 404. Importing the
+production database, configuration and uploads, then switching DNS, remains
+necessary. See [server deployment](../../../docs/server-deployment.md).
+Native Apple sign-in and StoreKit transactions have not been exercised on a
+device.
 
 Expo project `@thetahayasin/kegelee` uses the EAS `sdk-57` image, React Native
 0.86.3 (including the Hermes regression fix), and Expo 57.0.22. The native
@@ -87,9 +96,10 @@ asset IDs and subscription states.
 
 A dedicated local `appreview@kegelee.com` account was seeded and successfully
 signed in through the actual app. Its screenshot data is a local demonstration.
-Production admin/server credentials were not found in the available histories,
-so this account has **not** been created or verified on `kegelee.com`, and its
-credentials have **not** been submitted to Apple.
+The existing production host's credentials/data are not available yet, so this
+account has **not** been created or verified on `kegelee.com`, and its credentials
+have **not** been submitted to Apple. The new server preview contains no demo
+or production database.
 
 `php artisan app:seed-reviewer --credentials-file=/private/path/reviewer.json`
 is ready for the production server once access is available. The private JSON
@@ -111,12 +121,11 @@ Review only after the production login has passed. No random phone was saved.
 - Device verification of the uploaded browser screenshots against build 5.
   Sandbox Apple sign-in, purchase/restore, plan changes and account deletion
   testing remain pending after the server credentials are configured.
-- Deploy the backend App Store product mappings and Apple sign-in migration.
-  Configure the dedicated Sign in with Apple developer key using the variables
-  in `.env.example`; this differs from the App Store Connect and In-App Purchase
-  keys. Production deployment and live Apple authorization are not yet verified.
-- Separate In-App Purchase key in RevenueCat; the App Store Connect API key
-  is already configured and validated.
+- Complete the production migration to this server: preserve the original
+  database, `APP_KEY`, service credentials and uploads; apply pending migrations
+  and verify the backend before switching the domain. The code and dedicated
+  Sign in with Apple key are installed in a private preview. Live Apple
+  authorization is not yet verified.
 - The live privacy/refund/terms pages currently describe Google Play billing;
   their billing sections need to cover Apple before iOS submission. The saved
   Support URL currently leads to the existing purchase-help page with the
