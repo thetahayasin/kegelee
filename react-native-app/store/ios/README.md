@@ -1,23 +1,27 @@
 # Kegelee App Store listing
 
-## Status verified on 2026-09-17
+## Status verified on 2026-09-18
 
-The signed iOS release archive **1.0 (5)** built successfully on EAS from
-commit `8caab8d` and was uploaded to App Store Connect on 2026-09-12.
+The signed iOS release archive **1.0 (6)** built successfully on EAS from
+commit `ebcad02` and was uploaded to App Store Connect on 2026-09-18. The app
+source is unchanged from the earlier 1.0 (5) build; the intervening commits
+changed documentation and the backend preflight script.
 
-- [Successful EAS build](https://expo.dev/accounts/thetahayasin/projects/kegelee/builds/6a30637c-8df7-4a90-b5e5-02b36b504a3e)
-- [Successful upload](https://expo.dev/accounts/thetahayasin/projects/kegelee/submissions/e141cded-9d7b-47a6-9f96-87a086a443c3)
+- [Successful EAS build](https://expo.dev/accounts/thetahayasin/projects/kegelee/builds/3996494b-ebb6-462e-990b-2209f60d839f)
+- [Successful upload](https://expo.dev/accounts/thetahayasin/projects/kegelee/submissions/8a34e041-37cb-4974-b8bf-42761508a3a4)
 - [App Store Connect / TestFlight](https://appstoreconnect.apple.com/apps/6809782947/testflight/ios)
 
-The downloaded 22.5 MB IPA was inspected: bundle ID `com.kegelee.app`, version
+The earlier downloaded 22.5 MB IPA was inspected: bundle ID `com.kegelee.app`, version
 `1.0`, build `5`, iOS 16.4 minimum, iPhone and iPad support, embedded Hermes
 bundle and privacy manifest. Both the provisioning profile and the signed
 Mach-O executable contain `com.apple.developer.applesignin = [Default]`.
 The Apple authentication module is included in the executable.
 
-Apple processing completed with `VALID`; build `0af564f2-18a8-4d4e-afe2-5f1926d76470`
-is selected for version `1.0`. The version remains `PREPARE_FOR_SUBMISSION`;
-no App Review details or review submission exist.
+Apple processing completed with `VALID`; build `2b0ce2c5-d0ae-4e5e-abd9-55c9712df292`
+is selected for version `1.0`. The version remains `PREPARE_FOR_SUBMISSION`.
+A draft review submission contains the subscription group and its three
+subscriptions. Adding the app version to that draft returned Apple API 409
+`STATE_ERROR.ENTITY_STATE_INVALID`. No App Review details have been saved.
 The three subscriptions were `READY_TO_SUBMIT` on 2026-09-12. RevenueCat's
 App Store Connect and In-App Purchase keys are now configured and both show
 `Valid credentials` after reloading the dashboard. The missing-key warning has
@@ -96,9 +100,9 @@ asset IDs and subscription states.
 
 A dedicated local `appreview@kegelee.com` account was seeded and successfully
 signed in through the actual app. Its screenshot data is a local demonstration.
-The existing production host's credentials/data are not available yet, so this
-account has **not** been created or verified on `kegelee.com`, and its credentials
-have **not** been submitted to Apple. The new server preview contains no demo
+This account has **not** been created or verified on `kegelee.com`, and its credentials
+have **not** been submitted to Apple. A live login check on 2026-09-18 returned
+HTTP 401 (credentials do not match). The new server preview contains no demo
 or production database.
 
 `php artisan app:seed-reviewer --credentials-file=/private/path/reviewer.json`
@@ -118,21 +122,22 @@ Review only after the production login has passed. No random phone was saved.
   credentials. Apple rejects saving App Review details without contact fields.
 - App privacy disclosures in the App Store Connect website, based on account,
   training and subscription data actually collected by the app and its SDKs.
-- Device verification of the uploaded browser screenshots against build 5.
+- Device verification of the uploaded browser screenshots against build 6.
   Sandbox Apple sign-in, purchase/restore, plan changes and account deletion
   testing remain pending after the server credentials are configured.
-- Complete the production migration to this server: preserve the original
-  database, `APP_KEY`, service credentials and uploads; apply pending migrations
-  and verify the backend before switching the domain. The code and dedicated
-  Sign in with Apple key are installed in a private preview. Live Apple
-  authorization is not yet verified.
+- Put the backend serving the public domain on the current code and verify its
+  login, Apple challenge and billing endpoints. The owner chose a fresh
+  database without importing old user data. The code and dedicated Sign in
+  with Apple key are installed in a private preview, while the public Apple
+  challenge currently returns HTTP 404. Live Apple authorization is not yet
+  verified.
 - The live privacy/refund/terms pages currently describe Google Play billing;
   their billing sections need to cover Apple before iOS submission. The saved
   Support URL currently leads to the existing purchase-help page with the
   `support@kegelee.com` contact address.
 
-The binary is uploaded; the app and subscriptions have not been submitted for
-review or released.
+The binary is uploaded and selected; the app and subscriptions have not been
+submitted for review or released.
 
 App Store Server Notifications V2 are configured and verified for both
 production and sandbox using the RevenueCat endpoint approved by the owner.
