@@ -1,45 +1,62 @@
 # Kegelee server deployment
 
-## Verified state on 2026-09-17
+## Verified state on 2026-09-24
 
-The backend is installed on `149.102.129.143` as a **private preview**.
+The backend is installed on `149.102.129.143` as a production-ready origin.
 `kegelee.com` still resolves to `145.14.152.2`, where the Apple challenge route
 returns HTTP 404. Public traffic has not been switched.
 
 | Component | Location or state |
 | --- | --- |
-| Backend release | `/var/www/kegelee/releases/20260917-3b434fd` |
-| Source commit | `3b434fd` |
+| Backend release | `/var/www/kegelee/releases/20260924-a6f4a3d` |
+| Source commit | `a6f4a3d` |
 | Preview symlink | `/var/www/kegelee/preview` |
+| Production symlink | `/var/www/kegelee/production` |
 | Shared files | `/var/www/kegelee/shared` |
 | Runtime user | `kegelee` |
 | PHP | PHP 8.4 FPM, dedicated `kegelee` pool |
 | PHP socket | `/run/php/kegelee-fpm.sock` |
-| Nginx configuration | `/etc/nginx/sites-available/kegelee-preview` |
-| HTTP listener | `127.0.0.1:8189`, Host `kegelee.com` |
+| Nginx configuration | `/etc/nginx/sites-available/kegelee-preview` and `/etc/nginx/sites-available/kegelee.com` |
+| HTTP listeners | `127.0.0.1:8189` for direct verification; port 80 prepared for the public domain |
 | Apple private key | Private file under `shared/keys`, readable by the runtime user |
-| Environment | `shared/preview.env`, staging only, not the production environment |
-| Database | None imported or seeded |
+| Environment | `shared/production.env`, private and owned by the runtime user |
+| Database | Fresh local production database migrated and seeded at the owner's direction |
 
 The PHP dependencies were installed from `composer.lock` without development
-packages. Web assets were rebuilt and Laravel's config, route, event and view
-caches warmed. The Sign in with Apple developer key is installed privately;
-the separate purchase key is configured in RevenueCat. No private keys are
-stored in Git or the webroot.
+packages. Laravel's config, route, event and view caches are warm. The Sign in
+with Apple developer key is installed privately; the separate purchase key is
+configured in RevenueCat. No private keys are stored in Git or the webroot.
+Systemd queue and scheduler services are enabled and active.
 
 Verification through Nginx and PHP FPM:
 
 - `GET /up`: HTTP 200.
 - `POST /api/v1/auth/apple/challenge`: HTTP 200 with valid nonce/state lengths.
+- The private App Review account signs in through the production origin with
+  HTTP 200 and receives an API token.
+- English privacy, refund and account-deletion pages mention Apple billing.
 - `GET /.env`: HTTP 403; PHP execution in public uploads: HTTP 404.
 - An untrusted Host header is rejected with HTTP 400.
 - Both PHP 8.3 (existing sites) and PHP 8.4, plus Nginx, remain active.
 
 The challenge check proves that this deployment can read the key and sign the
 Apple client secret. It does not prove a successful device authorization or
-purchase. No migrations were run against a customer database.
+purchase. The owner directed that production start with a fresh database, so
+no legacy customer data was imported.
 
-## Completing the migration
+## Completing the public cutover
+
+The remaining infrastructure action is in Hostinger DNS: change the apex A
+record from `145.14.152.2` to `149.102.129.143`, remove or update the old apex
+AAAA record, and point `www` at the new origin. After public resolution changes,
+issue the Let's Encrypt certificate with Certbot and run the same health,
+Apple challenge, reviewer login and legal-page checks over public HTTPS.
+
+The owner is handling this cutover separately from the App Store submission.
+App Store Connect still requires its regulated-medical-device declaration and
+published App Privacy questionnaire before Apple will accept the app version.
+
+## Historical migration guidance
 
 Obtain the existing host's production `.env`, database backup and uploaded
 files, plus DNS management access. Preserve the existing `APP_KEY`: replacing

@@ -1,6 +1,6 @@
 # Kegelee App Store listing
 
-## Status verified on 2026-09-18
+## Status verified on 2026-09-24
 
 The signed iOS release archive **1.0 (6)** built successfully on EAS from
 commit `ebcad02` and was uploaded to App Store Connect on 2026-09-18. The app
@@ -21,20 +21,26 @@ Apple processing completed with `VALID`; build `2b0ce2c5-d0ae-4e5e-abd9-55c9712d
 is selected for version `1.0`. The version remains `PREPARE_FOR_SUBMISSION`.
 A draft review submission contains the subscription group and its three
 subscriptions. Adding the app version to that draft returned Apple API 409
-`STATE_ERROR.ENTITY_STATE_INVALID`. No App Review details have been saved.
+`STATE_ERROR.ENTITY_STATE_INVALID`. Apple's associated errors identify exactly
+two missing web declarations: the regulated-medical-device answer and published
+App Privacy data usages. App Review details are now saved with
+Khalid Mehmood, the private demo credentials, accurate review notes and the
+owner-requested reserved fictional contact number. The contact number is not
+reachable and can cause review delays if Apple calls it.
 The three subscriptions were `READY_TO_SUBMIT` on 2026-09-12. RevenueCat's
 App Store Connect and In-App Purchase keys are now configured and both show
 `Valid credentials` after reloading the dashboard. The missing-key warning has
 cleared. All three Apple products map to the current `base_plans` offering and
 the `premium` entitlement; the SDK key matches the uploaded app.
 
-The dedicated Sign in with Apple key is configured locally and in a private
-deployment on this server. Its Apple challenge endpoint returns HTTP 200
-through Nginx and PHP 8.4. This verifies challenge generation and client-secret
-signing, not a completed Apple authorization. The public domain still points
-to the previous host and its challenge endpoint returns 404. Importing the
-production database, configuration and uploads, then switching DNS, remains
-necessary. See [server deployment](../../../docs/server-deployment.md).
+The dedicated Sign in with Apple key is configured in the production-ready
+origin on this server. Its Apple challenge endpoint returns HTTP 200 through
+Nginx and PHP 8.4. This verifies challenge generation and client-secret signing,
+not a completed Apple authorization. A fresh production database was migrated
+and seeded at the owner's direction; the private reviewer account signs in and
+receives an API token. The public domain still points to the previous host and
+its challenge endpoint returns 404. The remaining infrastructure step is the
+Hostinger DNS cutover and public TLS certificate. See [server deployment](../../../docs/server-deployment.md).
 Native Apple sign-in and StoreKit transactions have not been exercised on a
 device.
 
@@ -98,12 +104,11 @@ asset IDs and subscription states.
 
 ## Reviewer account
 
-A dedicated local `appreview@kegelee.com` account was seeded and successfully
-signed in through the actual app. Its screenshot data is a local demonstration.
-This account has **not** been created or verified on `kegelee.com`, and its credentials
-have **not** been submitted to Apple. A live login check on 2026-09-18 returned
-HTTP 401 (credentials do not match). The new server preview contains no demo
-or production database.
+A dedicated `appreview@kegelee.com` account is seeded in the new production
+database and signs in successfully through the production origin. Its private
+credentials are stored outside source control and are saved in the App Review
+details. The public domain still reaches the old host, where this account does
+not exist.
 
 `php artisan app:seed-reviewer --credentials-file=/private/path/reviewer.json`
 is ready for the production server once access is available. The private JSON
@@ -113,28 +118,23 @@ and grants one year of non-renewing manual access. It never changes an existing
 account, prints a password, sends mail, or reseeds production content. The
 command and successful API login are covered by `SeedAppReviewerTest`.
 
-Supply the working production credentials and actual contact name/phone to App
-Review only after the production login has passed. No random phone was saved.
-
 ## Remaining submission fields
 
-- Reviewer contact name, international phone number and working app test
-  credentials. Apple rejects saving App Review details without contact fields.
-- App privacy disclosures in the App Store Connect website, based on account,
-  training and subscription data actually collected by the app and its SDKs.
+- Replace the reserved fictional review contact number with a real reachable
+  international number if Apple needs to call during review.
+- In App Information, declare that Kegelee is not a regulated medical device.
+- Enter and publish the App Privacy answers in
+  [`app-privacy.md`](app-privacy.md). Both declarations require an authenticated
+  App Store Connect website session and are unavailable in the public API.
+- After those declarations publish, attach version 1.0 to review submission
+  `72fb7094-53e8-4026-a903-43ac033008a0` and submit the five items together.
 - Device verification of the uploaded browser screenshots against build 6.
   Sandbox Apple sign-in, purchase/restore, plan changes and account deletion
   testing remain pending after the server credentials are configured.
-- Put the backend serving the public domain on the current code and verify its
-  login, Apple challenge and billing endpoints. The owner chose a fresh
-  database without importing old user data. The code and dedicated Sign in
-  with Apple key are installed in a private preview, while the public Apple
-  challenge currently returns HTTP 404. Live Apple authorization is not yet
-  verified.
-- The live privacy/refund/terms pages currently describe Google Play billing;
-  their billing sections need to cover Apple before iOS submission. The saved
-  Support URL currently leads to the existing purchase-help page with the
-  `support@kegelee.com` contact address.
+
+The public-domain cutover is being handled separately at the owner's direction.
+The saved Support URL leads to the refund page and `support@kegelee.com` contact
+address.
 
 The binary is uploaded and selected; the app and subscriptions have not been
 submitted for review or released.
@@ -147,8 +147,8 @@ store-aware subscription management and English Apple billing messages. New
 Apple-specific messages fall back to English in other locales until translated.
 The browser capture also identified and fixed truncated iPad tab labels.
 
-Validation on 2026-09-12: all 416 mobile tests and 489 backend tests
-(4,177 assertions) passed. This includes signed Apple token verification,
+Validation: all 416 mobile tests passed. The complete backend suite passed all
+490 tests with 4,178 assertions on 2026-09-24. This includes signed Apple token verification,
 nonce/state replay protection, verified account linking, encrypted token
 storage and authenticated deletion with Apple revocation. TypeScript passed;
 full lint has zero errors and 25 existing warnings. The iOS JavaScript/Hermes
