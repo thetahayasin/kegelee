@@ -4,6 +4,9 @@ Verified against the iOS app source, server sync payloads, and the privacy
 manifests embedded in the uploaded binary. These answers apply to App Store
 Connect app `6809782947`.
 
+The medical-device declaration and these App Privacy answers were published on
+2026-09-24. Apple then accepted version 1.0 and its subscriptions for review.
+
 ## Medical-device declaration
 
 In **App Information → App Store Regulations & Permits → Regulated Medical
@@ -71,11 +74,12 @@ contacts/address books, photos, audio, browsing history, search history,
 advertising data, or advertising identifiers. It contains no ads and does not
 track people across other companies' apps or websites.
 
-## Final submission sequence
+## Completed submission sequence
 
-1. Save the **No** regulated-medical-device declaration.
-2. Publish every App Privacy answer above.
-3. Add iOS version `1.0` to the existing review submission.
-4. Confirm the draft contains version 1.0, subscription group `22368658`, and
+1. Saved the **No** regulated-medical-device declaration.
+2. Published every App Privacy answer above.
+3. Added iOS version `1.0` to the existing review submission.
+4. Confirmed the draft contained version 1.0, subscription group `22368658`, and
    all three subscriptions.
-5. Submit for review with release set to **After Approval**.
+5. Submitted for review with release set to **After Approval**. Apple reports
+   `WAITING_FOR_REVIEW`.

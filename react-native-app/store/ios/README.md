@@ -18,12 +18,12 @@ Mach-O executable contain `com.apple.developer.applesignin = [Default]`.
 The Apple authentication module is included in the executable.
 
 Apple processing completed with `VALID`; build `2b0ce2c5-d0ae-4e5e-abd9-55c9712df292`
-is selected for version `1.0`. The version remains `PREPARE_FOR_SUBMISSION`.
-A draft review submission contains the subscription group and its three
-subscriptions. Adding the app version to that draft returned Apple API 409
-`STATE_ERROR.ENTITY_STATE_INVALID`. Apple's associated errors identify exactly
-two missing web declarations: the regulated-medical-device answer and published
-App Privacy data usages. App Review details are now saved with
+is selected for version `1.0`. After the regulated-medical-device and App
+Privacy declarations were completed, version 1.0 was attached to review
+submission `72fb7094-53e8-4026-a903-43ac033008a0` with the subscription group
+and all three subscriptions. Apple accepted the five-item submission at
+`2026-09-24T06:43:58.368Z`; both the submission and app version now report
+`WAITING_FOR_REVIEW`. App Review details are saved with
 Khalid Mehmood, the private demo credentials, accurate review notes and the
 owner-requested reserved fictional contact number. The contact number is not
 reachable and can cause review delays if Apple calls it.
@@ -118,16 +118,10 @@ and grants one year of non-renewing manual access. It never changes an existing
 account, prints a password, sends mail, or reseeds production content. The
 command and successful API login are covered by `SeedAppReviewerTest`.
 
-## Remaining submission fields
+## Submitted state and follow-up
 
 - Replace the reserved fictional review contact number with a real reachable
   international number if Apple needs to call during review.
-- In App Information, declare that Kegelee is not a regulated medical device.
-- Enter and publish the App Privacy answers in
-  [`app-privacy.md`](app-privacy.md). Both declarations require an authenticated
-  App Store Connect website session and are unavailable in the public API.
-- After those declarations publish, attach version 1.0 to review submission
-  `72fb7094-53e8-4026-a903-43ac033008a0` and submit the five items together.
 - Device verification of the uploaded browser screenshots against build 6.
   Sandbox Apple sign-in, purchase/restore, plan changes and account deletion
   testing remain pending after the server credentials are configured.
@@ -136,8 +130,8 @@ The public-domain cutover is being handled separately at the owner's direction.
 The saved Support URL leads to the refund page and `support@kegelee.com` contact
 address.
 
-The binary is uploaded and selected; the app and subscriptions have not been
-submitted for review or released.
+The binary, subscription group and three subscriptions are submitted for
+review. They have not been approved or released.
 
 App Store Server Notifications V2 are configured and verified for both
 production and sandbox using the RevenueCat endpoint approved by the owner.

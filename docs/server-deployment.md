@@ -53,8 +53,8 @@ issue the Let's Encrypt certificate with Certbot and run the same health,
 Apple challenge, reviewer login and legal-page checks over public HTTPS.
 
 The owner is handling this cutover separately from the App Store submission.
-App Store Connect still requires its regulated-medical-device declaration and
-published App Privacy questionnaire before Apple will accept the app version.
+The regulated-medical-device declaration and App Privacy questionnaire were
+completed on 2026-09-24, and Apple accepted version 1.0 for review.
 
 ## Historical migration guidance
 
