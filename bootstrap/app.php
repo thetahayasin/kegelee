@@ -31,16 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.user' => \App\Http\Middleware\ResolveApiUser::class,
         ]);
 
-        // Server-to-server webhooks carry no CSRF token: Google Play RTDN comes
-        // from Pub/Sub, RevenueCat posts from its own backend. Both authenticate
-        // themselves instead (RevenueCat via the Authorization header checked in
-        // RevenueCatWebhookController).
+        // Server-to-server requests carry no CSRF token: Google Play RTDN comes
+        // from Pub/Sub, RevenueCat posts from its own backend, and deploy calls
+        // carry the private DEPLOY_KEY bearer token. Each authenticates itself
+        // in its controller instead.
         //
         // The exemption must live HERE: the web group registers
         // PreventRequestForgery, so a route-level withoutMiddleware() naming
         // the deprecated VerifyCsrfToken subclass matches nothing and the
         // push still 419s.
         $middleware->preventRequestForgery(except: [
+            'deploy',
             'webhooks/google-play',
             'webhooks/revenuecat',
         ]);

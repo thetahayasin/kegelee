@@ -37,6 +37,15 @@ class WebSurfaceTest extends TestCase
         $this->get('/')->assertRedirect(route('legal.index'));
     }
 
+    public function test_server_to_server_deploy_requests_are_not_blocked_by_csrf(): void
+    {
+        config(['app.deploy_key' => 'expected-deploy-key']);
+
+        $this->postJson('/deploy', [], [
+            'Authorization' => 'Bearer wrong-deploy-key',
+        ])->assertForbidden();
+    }
+
     public function test_the_admin_panel_renders_for_an_admin(): void
     {
         $this->actingAs(User::factory()->create(['is_admin' => true]));

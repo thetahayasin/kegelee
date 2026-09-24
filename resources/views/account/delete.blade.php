@@ -2,7 +2,7 @@
     The public account-deletion page.
 
     Reachable with no app installed and no session, because that is exactly the
-    person Google Play requires it for: somebody who uninstalled the app and
+    person the app stores require it for: somebody who uninstalled the app and
     still wants their data gone.
 --}}
 <x-layouts.page title="Delete your account">
@@ -33,9 +33,10 @@
 
         <h2 class="mt-6 text-sm font-semibold uppercase tracking-wide text-muted">Your subscription</h2>
         <p class="mt-3 text-sm">
-            Google Play, not us, bills and cancels subscriptions. Deleting your account here does
-            not cancel an active subscription and does not refund it. Cancel it first in the
-            Play Store under <span class="font-medium">Payments &amp; subscriptions &rarr; Subscriptions</span>.
+            Google Play or Apple, not us, bills and cancels subscriptions. Deleting your account
+            here does not cancel an active subscription and does not refund it. Cancel it first
+            in Google Play under <span class="font-medium">Payments &amp; subscriptions &rarr; Subscriptions</span>
+            or in your Apple Account under <span class="font-medium">Subscriptions</span>.
         </p>
     </div>
 
