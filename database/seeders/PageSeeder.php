@@ -33,14 +33,14 @@ class PageSeeder extends Seeder
 <p>This Privacy Policy explains what information Kegelee collects, how it is used, and the choices you have. We keep it short and in plain language.</p>
 
 <h2>What we collect</h2>
-<p>When you create an account we store your name, email address, and a securely hashed password. If you sign in with Google, we receive your name and email address from Google.</p>
+<p>When you create an account we store your name, email address, and a securely hashed password. If you sign in with Google or Apple, we receive the account details that provider shares with us, such as your name and email address.</p>
 <p>While you train, the app records your workout sessions, completed training days, endurance measurements, chosen difficulty level, and reminder times. This progress data is stored on your device first and synced to our server so you can restore it if you reinstall or change phones.</p>
 
 <h2>What we do not collect</h2>
 <p>We do not collect your location, contacts, photos, or any health data beyond the training progress described above. We do not show ads and we never sell your data to anyone.</p>
 
 <h2>Payments</h2>
-<p>Subscriptions are billed by Google Play. We never see or store your card details. We receive a purchase confirmation from Google so we can unlock your subscription and keep it active across your devices.</p>
+<p>Subscriptions are billed by Google Play or the Apple App Store, depending on your device. We never see or store your card details. We receive purchase and subscription status from the store and our billing provider so we can unlock Premium and keep it active across your devices.</p>
 
 <h2>How your data is used</h2>
 <p>Your data is used only to run the app: signing you in, saving your progress, syncing between devices, sending verification and password reset emails, and managing your subscription. That is all.</p>
@@ -59,13 +59,13 @@ HTML,
                 'slug' => 'refund-policy',
                 'title' => 'Refund Policy',
                 'content' => <<<'HTML'
-<p>Kegelee subscriptions are purchased and billed through Google Play, so refunds are handled by Google under the Google Play refund policy.</p>
+<p>Kegelee subscriptions are purchased and billed through Google Play or the Apple App Store. Refunds are handled by the store where you purchased the subscription, under that store's refund policy.</p>
 
 <h2>How to request a refund</h2>
-<p>Open the Google Play Store, go to your account, choose Payments and subscriptions, select the Kegelee purchase, and request a refund. For recent purchases Google usually resolves requests within a day or two.</p>
+<p>For a Google Play purchase, open Google Play and use Payments and subscriptions. For an Apple purchase, use Apple's Report a Problem service or contact Apple Support. Select the Kegelee purchase and follow the store's refund steps.</p>
 
 <h2>Cancelling</h2>
-<p>You can cancel your subscription at any time in Google Play. You keep full access until the end of the period you paid for, and you will not be charged again after that.</p>
+<p>You can cancel your subscription at any time in Google Play or your Apple Account subscription settings. You keep full access until the end of the period you paid for, and you will not be charged again after that.</p>
 
 <h2>Need help?</h2>
 <p>If you have trouble with a purchase or a refund, email us at support@kegelee.com and we will do our best to help.</p>
@@ -87,7 +87,7 @@ HTML,
 <p>You are responsible for keeping your login details safe and for what happens under your account. You must provide accurate information when signing up.</p>
 
 <h2>Subscriptions</h2>
-<p>The full training experience requires a subscription purchased through Google Play. Prices are shown in the app before you buy. Subscriptions renew automatically unless you cancel in Google Play, and cancelling keeps your access until the end of the paid period. Refunds follow our Refund Policy and the Google Play rules.</p>
+<p>The full training experience requires a subscription purchased through Google Play or the Apple App Store. Prices are shown in the app before you buy. Subscriptions renew automatically unless you cancel in your store account settings, and cancelling keeps your access until the end of the paid period. Refunds follow our Refund Policy and the applicable store rules.</p>
 
 <h2>Fair use</h2>
 <p>Do not attempt to copy, resell, break, or abuse the app or its services. We may suspend accounts that do.</p>
