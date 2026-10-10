@@ -18,6 +18,7 @@ import { PremiumNotice } from '../../components/PremiumNotice';
 import { SCHEDULE_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 import { useIsFocused, useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { useBannerHeight } from '../../services/ads';
 import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
@@ -94,6 +95,7 @@ export const ScheduleScreen = () => {
   const { user, subscribed } = useAuth();
   const navigation = useNavigation<NavigationProp<any>>();
   const insets = useSafeAreaInsets();
+  const adHeight = useBannerHeight();
 
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState<any>({ month: 1, days_left: 30, completed: 0, plan_length: 30, day: 1 });
@@ -356,7 +358,7 @@ export const ScheduleScreen = () => {
         // The tab bar floats above the content now, so nothing in the
         // layout reserves room for it. Without this the last card ends
         // up underneath it, unreachable at the bottom of the scroll.
-          { paddingBottom: tabBarClearance(insets.bottom) },
+          { paddingBottom: tabBarClearance(insets.bottom, adHeight) },
         ]}
       >
         {/* Title Row */}

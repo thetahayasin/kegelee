@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "הגדרות פרטיות למודעות",
+    "privacyChoicesHint": "עיון או שינוי של ההסכמה שלך למודעות",
+    "sectionTitle": "מודעות"
+  },
   "allExercises": {
     "available": "זמין",
     "backA11y": "חזרה",

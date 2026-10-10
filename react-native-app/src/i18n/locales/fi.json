@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Mainosten tietosuojavalinnat",
+    "privacyChoicesHint": "Tarkista tai muuta suostumustasi mainoksiin",
+    "sectionTitle": "Mainokset"
+  },
   "allExercises": {
     "available": "Saatavilla",
     "backA11y": "Takaisin",

@@ -17,6 +17,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Free, ad-supported app
+    |--------------------------------------------------------------------------
+    |
+    | The free-ads branch gives every account the whole app and pays for it with
+    | AdMob. The server has to agree with the phone, because it owns the level
+    | and the free day cap: left off, a free account's level change is refused
+    | on push and reverted on the next pull, and its training days stop
+    | completing at the cap. See User::hasPremiumAccess().
+    |
+    | Pairs with FREE_APP in react-native-app/src/constants/monetization.ts.
+    | Real subscriptions keep their own meaning (isSubscribed()), so reporting
+    | and the admin console still count actual payers.
+    |
+    */
+
+    'free_app' => (bool) env('FREE_APP', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

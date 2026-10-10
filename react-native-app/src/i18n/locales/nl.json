@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Privacykeuzes voor advertenties",
+    "privacyChoicesHint": "Bekijk of wijzig je toestemming voor advertenties",
+    "sectionTitle": "Advertenties"
+  },
   "allExercises": {
     "available": "Beschikbaar",
     "backA11y": "Terug",

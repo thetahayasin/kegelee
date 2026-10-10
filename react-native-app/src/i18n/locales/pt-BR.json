@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Opções de privacidade de anúncios",
+    "privacyChoicesHint": "Revise ou altere seu consentimento para anúncios",
+    "sectionTitle": "Anúncios"
+  },
   "allExercises": {
     "available": "Disponível",
     "backA11y": "Voltar",

@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Налаштування конфіденційності реклами",
+    "privacyChoicesHint": "Перегляньте або змініть згоду на рекламу",
+    "sectionTitle": "Реклама"
+  },
   "allExercises": {
     "available": "Доступно",
     "backA11y": "Назад",

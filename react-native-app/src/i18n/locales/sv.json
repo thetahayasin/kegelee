@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Integritetsval för annonser",
+    "privacyChoicesHint": "Granska eller ändra ditt samtycke till annonser",
+    "sectionTitle": "Annonser"
+  },
   "allExercises": {
     "available": "Tillgänglig",
     "backA11y": "Tillbaka",

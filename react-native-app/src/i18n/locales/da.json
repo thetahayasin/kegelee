@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Privatlivsvalg for annoncer",
+    "privacyChoicesHint": "Se eller ændr dit samtykke til annoncer",
+    "sectionTitle": "Annoncer"
+  },
   "allExercises": {
     "available": "Tilgængelig",
     "backA11y": "Tilbage",

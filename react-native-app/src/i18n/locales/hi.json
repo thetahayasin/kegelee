@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "विज्ञापन गोपनीयता विकल्प",
+    "privacyChoicesHint": "विज्ञापनों के लिए अपनी सहमति देखें या बदलें",
+    "sectionTitle": "विज्ञापन"
+  },
   "allExercises": {
     "available": "उपलब्ध",
     "backA11y": "वापस",

@@ -477,6 +477,11 @@ class RevenueCatWebhookController extends Controller
             return;
         }
 
+        // The free build has no paid level to fall back from.
+        if (config('app.free_app')) {
+            return;
+        }
+
         /**
          * One rule, read from one place.
          *

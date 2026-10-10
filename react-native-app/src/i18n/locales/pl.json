@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Ustawienia prywatności reklam",
+    "privacyChoicesHint": "Sprawdź lub zmień zgodę na reklamy",
+    "sectionTitle": "Reklamy"
+  },
   "allExercises": {
     "available": "Dostępne",
     "backA11y": "Wstecz",

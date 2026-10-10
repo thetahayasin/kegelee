@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Reklam gizliliği seçenekleri",
+    "privacyChoicesHint": "Reklamlar için onayınızı inceleyin veya değiştirin",
+    "sectionTitle": "Reklamlar"
+  },
   "allExercises": {
     "available": "Kullanılabilir",
     "backA11y": "Geri",

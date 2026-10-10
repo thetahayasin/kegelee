@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Datenschutzoptionen für Werbung",
+    "privacyChoicesHint": "Einwilligung für Werbung prüfen oder ändern",
+    "sectionTitle": "Werbung"
+  },
   "allExercises": {
     "available": "Verfügbar",
     "backA11y": "Zurück",

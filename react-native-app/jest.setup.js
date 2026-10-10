@@ -163,3 +163,33 @@ jest.mock('expo-localization', () => ({
   ],
   getCalendars: () => [{ timeZone: 'UTC' }],
 }));
+
+// AdMob is a native SDK with nothing to run under Jest. Ads are never
+// "ready" here, so every placement renders nothing and every interstitial
+// call goes straight to its navigation.
+jest.mock('react-native-google-mobile-ads', () => {
+  const ad = {
+    addAdEventListener: jest.fn(() => jest.fn()),
+    load: jest.fn(),
+    show: jest.fn(() => Promise.resolve()),
+  };
+  return {
+    __esModule: true,
+    default: () => ({
+      initialize: jest.fn(() => Promise.resolve([])),
+      setRequestConfiguration: jest.fn(() => Promise.resolve()),
+    }),
+    AdsConsent: {
+      gatherConsent: jest.fn(() => Promise.resolve({ canRequestAds: false })),
+      getConsentInfo: jest.fn(() => Promise.resolve({ canRequestAds: false })),
+      showPrivacyOptionsForm: jest.fn(() => Promise.resolve({ canRequestAds: false })),
+    },
+    AdsConsentPrivacyOptionsRequirementStatus: { REQUIRED: 'REQUIRED' },
+    AdEventType: { LOADED: 'loaded', ERROR: 'error', CLOSED: 'closed' },
+    MaxAdContentRating: { PG: 'PG' },
+    InterstitialAd: { createForAdRequest: jest.fn(() => ad) },
+    BannerAd: () => null,
+    BannerAdSize: { ANCHORED_ADAPTIVE_BANNER: 'ANCHORED_ADAPTIVE_BANNER' },
+    TestIds: { ADAPTIVE_BANNER: 'test-banner', INTERSTITIAL: 'test-interstitial' },
+  };
+});

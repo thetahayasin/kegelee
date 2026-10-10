@@ -1,4 +1,9 @@
 {
+  "ads": {
+    "privacyChoices": "Ad privacy choices",
+    "privacyChoicesHint": "Review or change your consent for ads",
+    "sectionTitle": "Ads"
+  },
   "allExercises": {
     "available": "Available",
     "backA11y": "Back",
