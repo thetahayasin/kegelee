@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "מודעה",
     "privacyChoices": "הגדרות פרטיות למודעות",
     "privacyChoicesHint": "עיון או שינוי של ההסכמה שלך למודעות",
     "sectionTitle": "מודעות"

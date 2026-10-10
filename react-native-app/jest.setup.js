@@ -189,7 +189,15 @@ jest.mock('react-native-google-mobile-ads', () => {
     MaxAdContentRating: { PG: 'PG' },
     InterstitialAd: { createForAdRequest: jest.fn(() => ad) },
     BannerAd: () => null,
-    BannerAdSize: { ANCHORED_ADAPTIVE_BANNER: 'ANCHORED_ADAPTIVE_BANNER' },
-    TestIds: { ADAPTIVE_BANNER: 'test-banner', INTERSTITIAL: 'test-interstitial' },
+    BannerAdSize: {
+      ANCHORED_ADAPTIVE_BANNER: 'ANCHORED_ADAPTIVE_BANNER',
+      INLINE_ADAPTIVE_BANNER: 'INLINE_ADAPTIVE_BANNER',
+      MEDIUM_RECTANGLE: 'MEDIUM_RECTANGLE',
+    },
+    TestIds: {
+      ADAPTIVE_BANNER: 'test-banner',
+      BANNER: 'test-inline',
+      INTERSTITIAL: 'test-interstitial',
+    },
   };
 });

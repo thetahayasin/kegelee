@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
+import { InlineAd } from '../../components/InlineAd';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect, NavigationProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -255,6 +256,11 @@ export const KnowledgeScreen = () => {
             <Text style={styles.continueBtnText}>{t('knowledge.continueToTraining')}</Text>
           </TouchableOpacity>
         )}
+
+        {/* Only once the basics are done, i.e. a return visit from the main
+            app. The first run through the lessons - a guest's, or the gate
+            before training - is the app's first impression and stays clean. */}
+        {basicsDone && <InlineAd variant="rectangle" />}
       </ScrollView>
 
     </SafeAreaView>

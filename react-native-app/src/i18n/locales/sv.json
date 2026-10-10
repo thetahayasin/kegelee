@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "Annons",
     "privacyChoices": "Integritetsval för annonser",
     "privacyChoicesHint": "Granska eller ändra ditt samtycke till annonser",
     "sectionTitle": "Annonser"

@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "Reklam",
     "privacyChoices": "Reklam gizliliği seçenekleri",
     "privacyChoicesHint": "Reklamlar için onayınızı inceleyin veya değiştirin",
     "sectionTitle": "Reklamlar"

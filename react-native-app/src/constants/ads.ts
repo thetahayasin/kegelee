@@ -19,11 +19,13 @@ import { TestIds } from 'react-native-google-mobile-ads';
  */
 const RELEASE_UNITS = {
   android: {
-    banner: '', // ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN
-    interstitial: '', // ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN
+    banner: '', // ca-app-pub-5990359088661035/NNNNNNNNNN  (Banner: tab bar)
+    inline: '', // ca-app-pub-5990359088661035/NNNNNNNNNN  (Banner: in-content)
+    interstitial: '', // ca-app-pub-5990359088661035/NNNNNNNNNN  (Interstitial)
   },
   ios: {
     banner: '',
+    inline: '',
     interstitial: '',
   },
 };
@@ -32,6 +34,9 @@ const platformUnits = Platform.OS === 'ios' ? RELEASE_UNITS.ios : RELEASE_UNITS.
 
 export const AD_UNITS = {
   banner: __DEV__ ? TestIds.ADAPTIVE_BANNER : platformUnits.banner || null,
+  // Its own unit so AdMob reports the two placements separately; falls back
+  // to the tab banner's unit when only one banner unit has been made.
+  inline: __DEV__ ? TestIds.BANNER : platformUnits.inline || platformUnits.banner || null,
   interstitial: __DEV__ ? TestIds.INTERSTITIAL : platformUnits.interstitial || null,
 };
 

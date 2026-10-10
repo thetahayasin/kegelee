@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "广告",
     "privacyChoices": "广告隐私选项",
     "privacyChoicesHint": "查看或更改您对广告的同意设置",
     "sectionTitle": "广告"

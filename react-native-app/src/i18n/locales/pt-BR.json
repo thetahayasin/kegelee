@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "Anúncio",
     "privacyChoices": "Opções de privacidade de anúncios",
     "privacyChoicesHint": "Revise ou altere seu consentimento para anúncios",
     "sectionTitle": "Anúncios"

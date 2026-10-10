@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "Advertentie",
     "privacyChoices": "Privacykeuzes voor advertenties",
     "privacyChoicesHint": "Bekijk of wijzig je toestemming voor advertenties",
     "sectionTitle": "Advertenties"

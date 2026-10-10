@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "Anzeige",
     "privacyChoices": "Datenschutzoptionen für Werbung",
     "privacyChoicesHint": "Einwilligung für Werbung prüfen oder ändern",
     "sectionTitle": "Werbung"

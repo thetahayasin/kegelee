@@ -1,5 +1,6 @@
 {
   "ads": {
+    "label": "إعلان",
     "privacyChoices": "خيارات خصوصية الإعلانات",
     "privacyChoicesHint": "راجع موافقتك على الإعلانات أو غيّرها",
     "sectionTitle": "الإعلانات"

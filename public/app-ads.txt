@@ -1,5 +1,1 @@
-# app-ads.txt for Kegelee (com.kegelee.app)
-# Served at https://kegelee.com/app-ads.txt - the root of the developer
-# website listed in Google Play Console. Replace the publisher id below with
-# your own from AdMob > Settings > Account information (pub-XXXXXXXXXXXXXXXX).
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+google.com, pub-5990359088661035, DIRECT, f08c47fec0942fa0
