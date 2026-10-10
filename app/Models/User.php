@@ -174,6 +174,20 @@ class User extends Authenticatable
     }
 
     /**
+     * Whether this account gets the premium features: the level picker, no
+     * free day cap, and a level that is never reverted.
+     *
+     * Every account does in the free, ad-supported build (config app.free_app).
+     * Otherwise it is exactly isSubscribed(). Kept separate from isSubscribed()
+     * on purpose: that one still answers "is this person PAYING", which the
+     * admin reports and the deletion log depend on.
+     */
+    public function hasPremiumAccess(): bool
+    {
+        return config('app.free_app') || $this->isSubscribed();
+    }
+
+    /**
      * The difficulty a NON-paying account belongs on, as a levels.id.
      *
      * Choosing a difficulty is part of the subscription: the picker is

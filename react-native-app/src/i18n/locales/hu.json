@@ -1,4 +1,10 @@
 {
+  "ads": {
+    "label": "Hirdetés",
+    "privacyChoices": "Hirdetési adatvédelmi beállítások",
+    "privacyChoicesHint": "A hirdetésekhez adott hozzájárulás megtekintése vagy módosítása",
+    "sectionTitle": "Hirdetések"
+  },
   "allExercises": {
     "available": "Elérhető",
     "backA11y": "Vissza",

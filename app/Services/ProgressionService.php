@@ -99,8 +99,8 @@ class ProgressionService
      */
     public function freeDayCapReached(User $user, string $exceptDate): bool
     {
-        // A subscriber has no cap at all.
-        if ($user->isSubscribed()) {
+        // A subscriber has no cap at all, and nor does anybody in the free build.
+        if ($user->hasPremiumAccess()) {
             return false;
         }
 

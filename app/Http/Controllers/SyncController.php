@@ -287,7 +287,7 @@ class SyncController extends Controller
          */
         $levelId = $request->input('level_id');
         if ($levelId
-            && ($user->is_admin || $user->isSubscribed())
+            && ($user->is_admin || $user->hasPremiumAccess())
             && Level::where('id', $levelId)->exists()
         ) {
             $user->update(['level_id' => (int) $levelId]);
@@ -1037,7 +1037,7 @@ class SyncController extends Controller
         // cancelled row still inside its paid period and a plan change whose
         // old row expired while the new one runs. Dropping a paying customer's
         // difficulty in the middle of either would be a worse bug than this.
-        if ($user->isSubscribed()) {
+        if ($user->hasPremiumAccess()) {
             return;
         }
 
@@ -1140,7 +1140,7 @@ class SyncController extends Controller
                  * it on every pull costs one boolean and makes the device's
                  * derivation a fallback rather than the only source.
                  */
-                'is_subscribed' => $user->isSubscribed(),
+                'is_subscribed' => $user->hasPremiumAccess(),
             ],
             'position'         => $position,
             'today'            => $today,
@@ -1910,7 +1910,7 @@ class SyncController extends Controller
             // still empty until the first sync pulls the rows down - so a
             // subscribed returning user goes straight in and an unsubscribed
             // one lands on the paywall with no flash in between.
-            'is_subscribed' => $user->isSubscribed(),
+            'is_subscribed' => $user->hasPremiumAccess(),
             'timezone' => $user->timezone,
         ];
     }

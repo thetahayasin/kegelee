@@ -15,6 +15,7 @@ import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { useBannerHeight } from '../../services/ads';
 import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
@@ -23,6 +24,7 @@ import {
 import { getDBConnection } from '../../db/sqlite';
 import { formatSubscriptionDate } from '../../utils/localDate';
 import { entitledSubscription } from '../../services/entitlement';
+import { FREE_APP } from '../../constants/monetization';
 import { getPosition, getTodayProgress, getStreak } from '../../services/progression';
 import {
   EXERCISES,
@@ -56,6 +58,7 @@ export const TrainingScreen = () => {
   const isFocused = useIsFocused();
   const { user, subscribed } = useAuth();
   const insets = useSafeAreaInsets();
+  const adHeight = useBannerHeight();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -175,7 +178,12 @@ export const TrainingScreen = () => {
       // 4th" over an account that has ALREADY lost access is worse than no
       // banner, and the local row can still look live after the backend has
       // expired it.
-      const sub = await entitledSubscription(user.id, !!user.is_admin).catch(() => null);
+      // None in the free build: "your trial ends" or "cancelled, subscribe
+      // again" would be selling something the app no longer sells. A legacy
+      // subscriber still reaches Google Play from Settings to cancel.
+      const sub = FREE_APP
+        ? null
+        : await entitledSubscription(user.id, !!user.is_admin).catch(() => null);
       const status = String(sub?.status || '').toLowerCase();
       if (status === 'canceled') {
         setSubNotice({
@@ -367,7 +375,7 @@ export const TrainingScreen = () => {
         // The tab bar floats above the content now, so nothing in the
         // layout reserves room for it. Without this the last card ends
         // up underneath it, unreachable at the bottom of the scroll.
-          { paddingBottom: tabBarClearance(insets.bottom) },
+          { paddingBottom: tabBarClearance(insets.bottom, adHeight) },
         ]}
         showsVerticalScrollIndicator={false}
         refreshControl={

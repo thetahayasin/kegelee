@@ -20,6 +20,7 @@ import { PremiumNotice } from '../../components/PremiumNotice';
 import { PROGRESS_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 import { useIsFocused, useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { useBannerHeight } from '../../services/ads';
 import { tabBarClearance, Palette, SPACE } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import {
@@ -72,6 +73,7 @@ export const ProgressScreen = () => {
   const { user, subscribed } = useAuth();
   const navigation = useNavigation<NavigationProp<any>>();
   const insets = useSafeAreaInsets();
+  const adHeight = useBannerHeight();
   const { width: windowWidth } = useWindowDimensions();
   const ringSizes = useMemo(() => ringSizesFor(windowWidth), [windowWidth]);
   const holdBtnSize = useMemo(() => {
@@ -83,7 +85,7 @@ export const ProgressScreen = () => {
   // gap the clearance exists to create, so the button's lower edge landed flush
   // against the top of the floating bar and the two read as one welded object.
   // Full clearance plus a step keeps a visible band of background between them.
-  const ctaBottom = tabBarClearance(insets.bottom) + SPACE.sm;
+  const ctaBottom = tabBarClearance(insets.bottom, adHeight) + SPACE.sm;
   const scrollPadBottom = ctaBottom + CTA_HEIGHT + SPACE.xl;
 
   const [loading, setLoading] = useState(true);

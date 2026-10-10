@@ -1,4 +1,10 @@
 {
+  "ads": {
+    "label": "Iklan",
+    "privacyChoices": "Pilihan privasi iklan",
+    "privacyChoicesHint": "Tinjau atau ubah persetujuan Anda untuk iklan",
+    "sectionTitle": "Iklan"
+  },
   "allExercises": {
     "available": "Tersedia",
     "backA11y": "Kembali",

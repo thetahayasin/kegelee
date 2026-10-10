@@ -1,4 +1,10 @@
 {
+  "ads": {
+    "label": "Реклама",
+    "privacyChoices": "Настройки конфиденциальности рекламы",
+    "privacyChoicesHint": "Просмотрите или измените согласие на рекламу",
+    "sectionTitle": "Реклама"
+  },
   "allExercises": {
     "available": "Доступно",
     "backA11y": "Назад",

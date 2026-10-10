@@ -35,6 +35,7 @@ import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { initDB } from './src/db/sqlite';
 import { initI18n } from './src/i18n';
 import { reportError } from './src/services/errors';
+import { initAds } from './src/services/ads';
 import { topUpFromDelivery } from './src/services/reminders';
 import { trackAppOpened, trackReminderTapped } from './src/services/events';
 import { Palette } from './src/theme/colors';
@@ -194,6 +195,10 @@ const Shell = () => {
         }
       }
       setReady(true);
+      // Consent first, then the SDK - see services/ads. Not awaited: the
+      // consent form, when one is due, draws over the app on its own, and
+      // nothing in the app waits for ads.
+      initAds().catch(() => {});
       // Only once the schema is open, because this writes a row - and after
       // the restart branch above, so a launch that immediately relaunches
       // itself for the layout direction is counted once rather than twice.

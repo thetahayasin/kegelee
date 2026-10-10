@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused, NavigationProp } from '@react-navigation/native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { Chevron } from '../../components/Chevron';
+import { InlineAd } from '../../components/InlineAd';
 import { useAuth } from '../../context/AuthContext';
 import { TYPE, SPACE, RADIUS, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
@@ -284,6 +285,8 @@ export const AllExercisesScreen = () => {
             </View>
           ),
         )}
+        {/* End of the list, after every exercise. */}
+        <InlineAd variant="rectangle" />
       </ScrollView>
     </SafeAreaView>
   );

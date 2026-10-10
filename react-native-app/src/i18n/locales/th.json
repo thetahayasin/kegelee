@@ -1,4 +1,10 @@
 {
+  "ads": {
+    "label": "โฆษณา",
+    "privacyChoices": "ตัวเลือกความเป็นส่วนตัวของโฆษณา",
+    "privacyChoicesHint": "ตรวจสอบหรือเปลี่ยนความยินยอมสำหรับโฆษณา",
+    "sectionTitle": "โฆษณา"
+  },
   "allExercises": {
     "available": "พร้อมใช้งาน",
     "backA11y": "กลับ",
