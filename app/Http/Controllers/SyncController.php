@@ -70,10 +70,6 @@ class SyncController extends Controller
             'settings'  => [
                 'google_login_enabled'               => (bool) $settings->get('google_login_enabled'),
                 'google_web_client_id'               => (string) $settings->get('google_client_id'),
-                'revenuecat_enabled'                  => (bool) $settings->get('revenuecat_enabled', true),
-                'revenuecat_android_public_sdk_key' => (string) $settings->get('revenuecat_android_public_sdk_key'),
-                'revenuecat_ios_public_sdk_key'     => (string) $settings->get('revenuecat_ios_public_sdk_key'),
-                'revenuecat_entitlement_id'         => (string) $settings->get('revenuecat_entitlement_id', 'premium'),
             ],
             'synced_at' => now()->toIso8601String(),
         ]);
@@ -116,7 +112,8 @@ class SyncController extends Controller
      * - measurements: [{client_id, seconds, measured_at_iso}]
      * - reminders: [{weekday, times[], is_enabled}]
      * - events: [{client_id, name, subject?, meta?, occurred_at_iso}]
-     * - subscriptions: [{purchase_token, store, ...}] - checked with the store
+     * - subscriptions: ignored. The app is free; older builds still send
+     *   their purchase tokens and are simply not read.
      *
      * Sessions, measurements and events de-duplicate on the client's own id,
      * so a push that succeeded server-side and lost its reply is safe to retry.
@@ -127,36 +124,6 @@ class SyncController extends Controller
 
         if (! $user) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
-        }
-
-        /**
-         * Trim the subscription list rather than reject the request for it.
-         *
-         * The cap below is right - a push is an outbox drain, not a bulk
-         * import - but rejecting the whole request when it is exceeded broke
-         * the rule stated below it, that one bad row must never fail the same
-         * sync forever. Local subscription rows only accumulate: every plan
-         * change and resubscribe is a new purchase token, and the client sent
-         * all of them on every sync. Past ten, the 422 killed the entire push,
-         * and the pull with it, since the client returns early when the push
-         * fails. Workouts stopped syncing because of a subscription the
-         * account had finished with, and reinstalling was the only cure.
-         *
-         * Fixed in the client too, which now sends nine at most. This is here
-         * because every device already carrying the old build is stuck until
-         * it updates, and they should not have to.
-         *
-         * Newest first, so the trim keeps the rows worth having.
-         */
-        if (is_array($request->input('subscriptions'))) {
-            $subs = collect($request->input('subscriptions'))
-                ->filter(fn ($s) => is_array($s))
-                ->sortByDesc(fn ($s) => (string) ($s['started_at'] ?? ''))
-                ->take(10)
-                ->values()
-                ->all();
-
-            $request->merge(['subscriptions' => $subs]);
         }
 
         // A push drains a device's outbox; it is never a bulk import. Bounding
@@ -199,11 +166,6 @@ class SyncController extends Controller
             'reminders.*.times'                   => 'sometimes|nullable|array|max:10',
             'training_days'                       => 'sometimes|array|max:500',
             'training_days.*'                     => 'array',
-            'subscriptions'                       => 'sometimes|array|max:10',
-            'subscriptions.*'                     => 'array',
-            'subscriptions.*.purchase_token'      => 'sometimes|nullable|string|max:512',
-            'subscriptions.*.plan_slug'           => 'sometimes|nullable|string|max:64',
-            'subscriptions.*.store'               => 'sometimes|nullable|string|max:32',
         ]);
 
         // One transaction for the whole local write set. A half-applied push
@@ -212,11 +174,6 @@ class SyncController extends Controller
         $applied = DB::transaction(fn () => $this->applyPushedData($request, $user, $progression));
 
         $synced = $applied['synced'];
-
-        // Store verification stays OUTSIDE that transaction: it calls
-        // RevenueCat and Google over the network, and a transaction held open
-        // across those is a database lock waiting on someone else's server.
-        $synced['subscriptions'] = $this->applyPushedSubscriptions($request, $user);
 
         return response()->json([
             'ok'     => true,
@@ -263,33 +220,9 @@ class SyncController extends Controller
             $user->update(['timezone' => $tz]);
         }
 
-        /**
-         * Level (chosen difficulty), from accounts allowed to choose one.
-         *
-         * Choosing a difficulty is part of the subscription - the picker is
-         * padlocked for a free account - and a lapse puts the account back on
-         * the level its quiz chose. That reset could never stick, because this
-         * accepted whatever level the device sent, from anybody.
-         *
-         * The device is holding the paid level: it has not pulled since the
-         * reset, and would not stop holding it if it had, because the push runs
-         * FIRST in a sync. So the order was: the server resets to level 2, the
-         * device pushes level 5, the server writes 5, and the pull the device
-         * then does agrees with it. Every sync, forever. The customer stayed
-         * locked to a difficulty they could no longer change, which is exactly
-         * the state the reset exists to prevent, and reinstalling was the only
-         * way out.
-         *
-         * A free account has no business setting this at all, so the honest fix
-         * is not a special case for the reset but the same rule the UI already
-         * draws: no subscription, no level change. Admins keep it so the app
-         * can still be previewed.
-         */
+        // Level (chosen difficulty). Everyone may choose one: the app is free.
         $levelId = $request->input('level_id');
-        if ($levelId
-            && ($user->is_admin || $user->hasPremiumAccess())
-            && Level::where('id', $levelId)->exists()
-        ) {
+        if ($levelId && Level::where('id', $levelId)->exists()) {
             $user->update(['level_id' => (int) $levelId]);
         }
         if ($request->has('level_started_days')) {
@@ -373,14 +306,7 @@ class SyncController extends Controller
             }
 
             $record->increment('sessions_count');
-            // The same free allowance the app applies before it writes the day
-            // locally. Both sides have to agree: without this the device stops
-            // a free account at day 1 and the backend carried it on, so the
-            // next pull moved the person's plan position backwards.
-            if (! $wasComplete
-                && $record->sessions_count >= $record->required_sessions
-                && ! $progression->freeDayCapReached($user, $record->date)
-            ) {
+            if (! $wasComplete && $record->sessions_count >= $record->required_sessions) {
                 $record->update(['completed_at' => $completedAt]);
             }
 
@@ -657,290 +583,6 @@ class SyncController extends Controller
     }
 
     /**
-     * Record purchases the device reports.
-     *
-     * Nothing here trusts the client with anything that decides entitlement:
-     * the RevenueCat app user id is OUR user id, the plan comes from the
-     * product the store confirms, and a token already recorded against
-     * another account is refused rather than moved.
-     *
-     * Declining is safe: the device re-sends every local purchase token on
-     * every sync, and the store webhooks write the row server-side as well.
-     */
-    private function applyPushedSubscriptions(Request $request, \App\Models\User $user): int
-    {
-        $recorded = 0;
-
-        foreach ($request->input('subscriptions', []) as $s) {
-            $token = trim((string) ($s['purchase_token'] ?? ''));
-            if ($token === '') {
-                continue;
-            }
-
-            $existing = \App\Models\Subscription::where('purchase_token', $token)->first();
-            if ($existing) {
-                // Our own token: the backend row is authoritative and the
-                // webhooks keep it current, so a push never rewrites it.
-                // Someone else's: a purchase token is proof of ONE account's
-                // payment, and re-attributing it would hand a second account
-                // the same subscription.
-                if ((int) $existing->user_id !== (int) $user->id) {
-                    Log::warning('Pushed purchase token belongs to another account; rejected', [
-                        'user_id'  => $user->id,
-                        'owner_id' => $existing->user_id,
-                    ]);
-                }
-
-                continue;
-            }
-
-            $pushedPlan = ! empty($s['plan_slug'])
-                ? \App\Models\Plan::where('slug', $s['plan_slug'])->first()
-                : null;
-
-            $store = (string) ($s['store'] ?? 'revenuecat');
-
-            if ($store === 'revenuecat') {
-                $recorded += $this->recordRevenueCatPurchase($user, $s, $token, $pushedPlan);
-            } elseif ($store === 'google_play') {
-                $recorded += $this->recordGooglePlayPurchase($user, $s, $token, $pushedPlan);
-            }
-        }
-
-        return $recorded;
-    }
-
-    /**
-     * A RevenueCat purchase, verified against RevenueCat before anything is
-     * written. Returns 1 when a subscription was recorded.
-     *
-     * @param  array<string, mixed>  $s
-     */
-    private function recordRevenueCatPurchase(\App\Models\User $user, array $s, string $token, ?\App\Models\Plan $pushedPlan): int
-    {
-        $rcService = app(\App\Services\RevenueCatService::class);
-
-        // No REST key means no way to check, and an unverifiable purchase is
-        // exactly the forgery this guard exists for.
-        if (! $rcService->isConfigured()) {
-            Log::error('RevenueCat REST key missing - cannot verify pushed purchase, declined', [
-                'user_id' => $user->id,
-            ]);
-
-            return 0;
-        }
-
-        // The app user id is OURS, never the client's. A pushed
-        // revenuecat_app_user_id let any signed-in account claim a stranger's
-        // entitlement simply by naming their subscriber id.
-        $appUserId = (string) $user->id;
-
-        try {
-            $subscriber = $rcService->getSubscriber($appUserId);
-
-            // Belt and braces on top of pinning the id: the subscriber
-            // RevenueCat answers with must actually be this user, by
-            // original_app_user_id or by alias.
-            $ownsUser = $subscriber && $rcService->subscriberOwnsUser($subscriber, $appUserId);
-        } catch (\Throwable $e) {
-            // Could not reach RevenueCat. Unknown is not the same as invalid,
-            // so decline for now and let the next sync retry rather than
-            // taking the client's word for it.
-            Log::warning('RevenueCat verification unavailable; purchase not recorded yet', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            return 0;
-        }
-
-        if (! $ownsUser) {
-            Log::warning('RevenueCat subscriber does not belong to this account; purchase rejected', [
-                'user_id' => $user->id,
-            ]);
-
-            return 0;
-        }
-
-        $entitlement = $rcService->getActiveEntitlement($subscriber);
-
-        if (! $entitlement) {
-            Log::warning('Pushed RevenueCat purchase has no active entitlement; rejected', [
-                'user_id' => $user->id,
-            ]);
-
-            return 0;
-        }
-
-        // The plan follows the VERIFIED product, never the pushed slug: the
-        // client naming 'premium-yearly' on a monthly purchase would otherwise
-        // record a year of access for a month's money.
-        $productId = $rcService->entitlementProductId($entitlement)
-            ?: trim((string) ($s['revenuecat_product_id'] ?? ''));
-
-        $plan = $productId !== '' ? $rcService->resolvePlan($productId) : null;
-
-        if (! $plan) {
-            // A row with no plan is worse than no row: it grants access that
-            // no price, period or renewal can be read off.
-            Log::warning('Pushed RevenueCat purchase matches no known plan; not recorded', [
-                'user_id'    => $user->id,
-                'product_id' => $productId,
-            ]);
-
-            return 0;
-        }
-
-        if ($pushedPlan && $pushedPlan->id !== $plan->id) {
-            Log::warning('Pushed plan_slug disagrees with the verified product; using the verified plan', [
-                'user_id'     => $user->id,
-                'pushed_slug' => $pushedPlan->slug,
-                'verified'    => $plan->slug,
-            ]);
-        }
-
-        $expiresAt = ! empty($entitlement['expires_date'])
-            ? $this->parseClientDate($entitlement['expires_date'])
-            : $this->parseClientDate($s['ends_at'] ?? null);
-        $isTrial = ($entitlement['period_type'] ?? '') === 'TRIAL';
-        $startedAt = $this->parseClientDate($s['started_at'] ?? null) ?? now();
-
-        // Retire whatever the user was on before.
-        //
-        // A plan change is a product change at the store: Play replaces the old
-        // subscription rather than running both. This code only ever CREATED
-        // rows though, so the previous one stayed 'active' with a future
-        // ends_at and the account ended up with two live subscriptions - a
-        // duplicate in the admin list, and an access loophole, since
-        // isSubscribed() stayed true off the stale row.
-        //
-        // Scoped to a DIFFERENT purchase_token so a repeat push of the same
-        // purchase never retires the row it is about to update.
-        \App\Models\Subscription::where('user_id', $user->id)
-            ->where('purchase_token', '!=', $token)
-            ->whereIn('status', ['active', 'trialing'])
-            ->update([
-                'status'        => 'expired',
-                'auto_renewing' => false,
-            ]);
-
-        $sub = \App\Models\Subscription::create([
-            'user_id'              => $user->id,
-            'plan_id'              => $plan->id,
-            'status'               => $isTrial ? 'trialing' : 'active',
-            'store'                => 'revenuecat',
-            'purchase_token'       => $token,
-            'google_order_id'      => $s['google_order_id'] ?? null,
-            'store_transaction_id' => $s['store_transaction_id'] ?? ($s['google_order_id'] ?? $token),
-            'trial_ends_at'        => $isTrial ? $expiresAt : null,
-            'started_at'           => $startedAt,
-            'ends_at'              => $expiresAt,
-            'auto_renewing'        => (bool) ($s['auto_renewing'] ?? true),
-        ]);
-
-        $this->mailSubscriptionStarted($sub);
-
-        // Keyed on the purchase token, which is the store's own name for this
-        // subscription. RevenueCat's webhook records the same fact from the
-        // other direction, and whichever arrives second finds the row already
-        // there rather than counting the sale twice.
-        $this->recordEvent(
-            $user->id,
-            UserEvent::SUBSCRIPTION_STARTED,
-            $plan->slug,
-            $isTrial ? 'trial' : 'paid',
-            ['store' => 'revenuecat'],
-            'push-'.$token,
-        );
-
-        return 1;
-    }
-
-    /**
-     * A Google Play purchase, verified against the Play Developer API.
-     * Returns 1 when a subscription was recorded.
-     *
-     * @param  array<string, mixed>  $s
-     */
-    private function recordGooglePlayPurchase(\App\Models\User $user, array $s, string $token, ?\App\Models\Plan $pushedPlan): int
-    {
-        // Play's URL names the product, so the plan has to be known BEFORE the
-        // call. The pushed slug is the only starting point here; what it
-        // cannot do is decide whether the purchase is real - that is what the
-        // verification below is for.
-        if (! $pushedPlan || ! $pushedPlan->store_product_id) {
-            Log::warning('Pushed Google Play purchase names no known plan; not recorded', [
-                'user_id' => $user->id,
-            ]);
-
-            return 0;
-        }
-
-        try {
-            $billing = app(\App\Services\GooglePlayBillingService::class);
-
-            // Play wants the SUBSCRIPTION id, not the base plan id. Our
-            // store_product_id is `premium_monthly:p1y`, and the full string
-            // 404s against .../subscriptions/{id}/tokens/{token}.
-            $productId = $pushedPlan->storeSubscriptionId();
-
-            $data = $billing->verifySubscription($productId, $token);
-
-            // 1 = paid, 2 = free trial. Anything else is not a valid purchase.
-            if (! in_array($data['paymentState'] ?? -1, [1, 2], true)) {
-                return 0;
-            }
-
-            $billing->acknowledgeSubscription($productId, $token);
-
-            $expiresAt = isset($data['expiryTimeMillis'])
-                ? \Carbon\Carbon::createFromTimestampMs((int) $data['expiryTimeMillis'])
-                : null;
-            $isTrial = ($data['paymentState'] ?? 0) === 2;
-
-            $sub = \App\Models\Subscription::create([
-                'user_id'              => $user->id,
-                'plan_id'              => $pushedPlan->id,
-                'status'               => $isTrial ? 'trialing' : 'active',
-                'store'                => 'google_play',
-                'purchase_token'       => $token,
-                'google_order_id'      => $data['orderId'] ?? ($s['google_order_id'] ?? null),
-                'store_transaction_id' => $data['orderId'] ?? ($s['google_order_id'] ?? null),
-                'trial_ends_at'        => $isTrial ? $expiresAt : null,
-                'started_at'           => $this->parseClientDate($s['started_at'] ?? null) ?? now(),
-                'ends_at'              => $expiresAt,
-                'auto_renewing'        => (bool) ($data['autoRenewing'] ?? true),
-            ]);
-
-            $this->mailSubscriptionStarted($sub);
-
-            return 1;
-        } catch (\Throwable $e) {
-            Log::warning('Pushed purchase token failed verification', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
-            return 0;
-        }
-    }
-
-    /**
-     * Welcome mail through SubscriptionMailer, which de-duplicates: the same
-     * purchase can arrive here and from a webhook within seconds.
-     */
-    private function mailSubscriptionStarted(\App\Models\Subscription $sub): void
-    {
-        try {
-            \App\Services\SubscriptionMailer::started($sub);
-        } catch (\Throwable $e) {
-            // A subscription that exists but sent no email is a support
-            // question; one that failed to save is lost money.
-            Log::warning('Subscription welcome mail failed', ['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
      * Parse a timestamp a client sent us, or null when it is unreadable.
      *
      * Carbon::parse THROWS on malformed input, so a single bad string turned
@@ -992,81 +634,6 @@ class SyncController extends Controller
      * Returns the authenticated user's progress data so a device can
      * re-hydrate its local IndexedDB after a fresh install or cache clear.
      */
-    /**
-     * Put a lapsed account back on the level a free account belongs on, on read.
-     *
-     * The same rule already runs on RevenueCat's EXPIRATION and REVOCATION
-     * events, and that is still the fast path. But it is the ONLY path: a lapse
-     * that arrives any other way - a Play notification instead of a RevenueCat
-     * one, a webhook dropped while the app was down, or simply `ends_at`
-     * passing with no event behind it at all - left the account entitled to
-     * nothing and still sitting on a paid difficulty it cannot leave, because
-     * the picker is padlocked for a free account. Paying again was the only
-     * exit. There is no scheduled sweep to catch it either.
-     *
-     * Deriving it here instead makes it self-healing: whatever route the lapse
-     * took, the next pull puts them back. Idempotent by construction - once the
-     * two ids match, this does nothing, so the event below is recorded once.
-     *
-     * Where "back" is - the quiz level, or level 1 for an account that has no
-     * quiz level of its own - comes from User::freeLevelId(), which the webhook
-     * path reads too, so the two can never disagree about it.
-     */
-    private function returnLapsedUserToOnboardingLevel(\App\Models\User $user): void
-    {
-        /**
-         * Null means this database has no level to put them on at all, and it
-         * is the only case where leaving the account alone is right: anything
-         * else written here is a foreign key the levels table rejects, thrown
-         * on EVERY pull, which takes syncing down entirely - not subscriptions,
-         * not workouts - rather than just the level reset.
-         *
-         * This used to give up on a missing onboarding_level as well, which is
-         * how the bug survived: an account created before the quiz was
-         * captured, or one whose profile push never landed, has no quiz level
-         * to go back to, so it was the one account that kept its paid
-         * difficulty forever. freeLevelId() answers level 1 for those.
-         */
-        $to = $user->freeLevelId();
-
-        if ($to === null || (int) $user->level_id === $to) {
-            return;
-        }
-
-        // isSubscribed() covers the whole entitlement rule, including a
-        // cancelled row still inside its paid period and a plan change whose
-        // old row expired while the new one runs. Dropping a paying customer's
-        // difficulty in the middle of either would be a worse bug than this.
-        if ($user->hasPremiumAccess()) {
-            return;
-        }
-
-        $from = (int) $user->level_id;
-        $fromNumber = (int) ($user->level?->number ?? 0);
-        // Read back off the id rather than off onboarding_level: the two differ
-        // whenever the fallback was used, and the event below reports a
-        // direction that has to describe the level actually written.
-        $toNumber = (int) (Level::whereKey($to)->value('number') ?? 0);
-
-        $user->update(['level_id' => $to]);
-
-        // Never at the cost of the response: a report that cannot be written
-        // must not turn a successful pull into a 500.
-        rescue(fn () => \App\Models\UserEvent::record(
-            $user->id,
-            \App\Models\UserEvent::LEVEL_CHANGED,
-            $toNumber > $fromNumber ? 'up' : 'down',
-            'lapse',
-            ['from' => $from, 'to' => $to, 'via' => 'pull'],
-        ), report: false);
-
-        Log::info('Level reset to the onboarding level on pull after lapse', [
-            'user_id' => $user->id,
-            'from' => $from,
-            'to' => $to,
-        ]);
-    }
-
     public function pull(Request $request, ProgressionService $progression): JsonResponse
     {
         $user = $request->user();
@@ -1074,35 +641,6 @@ class SyncController extends Controller
         if (! $user) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
-
-        /**
-         * Wrapped, and it must stay wrapped.
-         *
-         * Returning somebody's difficulty is a convenience. The pull is how
-         * every device on the network gets its state, and letting a
-         * convenience throw here takes the whole app offline for that account:
-         * one bad write and no workout, measurement or subscription change
-         * moves in either direction, on every sync, until the code is fixed.
-         *
-         * That is not hypothetical - it is exactly what a foreign key
-         * violation in here did. Reported so it is not silent, and survivable
-         * so it can never do that again.
-         */
-        /**
-         * Write down this account's expired rows before anything reads them.
-         *
-         * The scheduled reconcile used to be the only thing that did this, so
-         * an unfired scheduler left rows sitting at 'active' with a date months
-         * past. Doing it here means an account corrects itself the next time
-         * its own device syncs, with no cron in the picture.
-         *
-         * Scoped to this user and access-neutral by construction - see
-         * Subscription::sweepLapsed(). Rescued for the same reason the level
-         * reset below is: a convenience must never take a device offline.
-         */
-        rescue(fn () => \App\Models\Subscription::sweepLapsed($user->id));
-
-        rescue(fn () => $this->returnLapsedUserToOnboardingLevel($user));
 
         $position = $progression->position($user);
         $today = $progression->todayProgress($user);
@@ -1122,25 +660,10 @@ class SyncController extends Controller
                 // finished signing up - it restarted both.
                 'level_started_days' => (int) $user->level_started_days,
                 'onboarded_at' => $user->onboarded_at?->toIso8601String(),
-                /**
-                 * This server's own verdict on entitlement, not the raw rows.
-                 *
-                 * The rows below are a mirror, and the app was deriving the
-                 * gate from its copy of them. That works right up until a
-                 * mirror write does not land - the subscriptions section of a
-                 * pull is applied inside a try/catch that reports and moves on
-                 * - and then the device keeps its last good row forever. It
-                 * survives a restart, because the bootstrap reads the same
-                 * stale copy. A subscription the server had already expired
-                 * went on granting access with nothing on either side to say
-                 * why.
-                 *
-                 * Sign-in already answered this question (`is_subscribed` in
-                 * the login payload) and then never answered it again. Saying
-                 * it on every pull costs one boolean and makes the device's
-                 * derivation a fallback rather than the only source.
-                 */
-                'is_subscribed' => $user->hasPremiumAccess(),
+                // The app is free, so every account is entitled. Still sent
+                // because builds from before the switch, and the watch app,
+                // gate their premium features on it.
+                'is_subscribed' => true,
             ],
             'position'         => $position,
             'today'            => $today,
@@ -1192,21 +715,6 @@ class SyncController extends Controller
                     'required_sessions' => (int) $td->required_sessions,
                     'completed_at'      => $td->completed_at?->toIso8601String(),
                 ]),
-            'subscriptions' => $user->subscriptions()->with('plan:id,slug')->get()->map(fn (\App\Models\Subscription $s) => [
-                'id'                   => $s->id,
-                'plan_id'              => $s->plan_id,
-                'plan_slug'            => $s->plan?->slug,
-                'status'               => $s->status,
-                'store'                => $s->store,
-                'store_transaction_id' => $s->store_transaction_id,
-                'purchase_token'       => $s->purchase_token,
-                'google_order_id'      => $s->google_order_id,
-                'trial_ends_at'        => $s->trial_ends_at?->toIso8601String(),
-                'started_at'           => $s->started_at?->toIso8601String(),
-                'ends_at'              => $s->ends_at?->toIso8601String(),
-                'canceled_at'          => $s->canceled_at?->toIso8601String(),
-                'auto_renewing'        => (bool) $s->auto_renewing,
-            ]),
             // Echoed back so the device knows the profile landed and can
             // stop re-sending it, and so a reinstall can tell that this
             // account already has a first run recorded.
@@ -1904,13 +1412,9 @@ class SyncController extends Controller
             'basics_completed' => (bool) $user->is_admin
                 || $user->hasCompletedBasics()
                 || $user->workoutSessions()->exists(),
-            // Whether the account holds an active subscription (same rule as
-            // the web's EnsureSubscribed gate). The app seeds its subscription
-            // gate from this at sign-in - the local subscriptions table is
-            // still empty until the first sync pulls the rows down - so a
-            // subscribed returning user goes straight in and an unsubscribed
-            // one lands on the paywall with no flash in between.
-            'is_subscribed' => $user->hasPremiumAccess(),
+            // Always true: the app is free. Older builds read it at sign-in to
+            // decide whether to show a paywall, so it must keep saying yes.
+            'is_subscribed' => true,
             'timezone' => $user->timezone,
         ];
     }

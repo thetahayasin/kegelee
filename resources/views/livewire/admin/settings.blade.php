@@ -6,7 +6,7 @@
 
     {{-- Tabs --}}
     <div class="mb-6 flex flex-wrap gap-2">
-        @foreach (['branding' => 'Branding', 'email' => 'Email', 'google' => 'Google login', 'revenuecat' => 'RevenueCat & Billing', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
+        @foreach (['branding' => 'Branding', 'email' => 'Email', 'google' => 'Google login', 'homepage' => 'Homepage', 'seo' => 'SEO', 'code' => 'Code injection', 'security' => 'Security'] as $key => $label)
             <button @click="tab = '{{ $key }}'" :class="tab === '{{ $key }}' ? 'bg-accent text-white' : 'bg-surface text-muted'"
                     class="rounded-xl px-4 py-2 text-sm font-medium tap">{{ $label }}</button>
         @endforeach
@@ -22,7 +22,7 @@
             <div>
                 <label class="mb-1 block text-sm text-muted">Email accent colour</label>
                 <input type="color" wire:model="values.color_accent" class="h-11 w-24 rounded-xl border border-white/10 bg-surface-2 px-1">
-                <p class="mt-1 text-xs text-muted">Used in the subscription emails. The app's own colours are built in.</p>
+                <p class="mt-1 text-xs text-muted">Used in the emails. The app's own colours are built in.</p>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
@@ -101,99 +101,6 @@
                 <input type="password" wire:model="secrets.google_client_secret" autocomplete="new-password"
                        placeholder="{{ $secretsSet['google_client_secret'] ? 'Leave blank to keep the saved secret' : 'Not set' }}"
                        class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none"></div>
-        </div>
-
-        {{-- REVENUECAT & BILLING --}}
-        <div x-show="tab === 'revenuecat'" class="space-y-4 rounded-2xl bg-surface p-5">
-            <label class="flex items-center gap-3">
-                <input type="checkbox" wire:model="values.revenuecat_enabled" class="h-5 w-5 accent-[var(--c-accent)]">
-                <span>Enable RevenueCat In-App Subscriptions</span>
-            </label>
-
-            <p class="text-sm text-muted">
-                RevenueCat manages in-app purchases across iOS &amp; Android. Configure your Products, Offerings (<code class="text-content">default</code>), and Entitlement (<code class="text-content">premium</code>) in the RevenueCat dashboard.
-            </p>
-
-            <div class="grid gap-4 md:grid-cols-2">
-                <div>
-                    <label class="mb-1 block text-sm text-muted">RevenueCat Secret API Key (V1/V2)</label>
-                    <input type="password" wire:model="secrets.revenuecat_api_key" autocomplete="new-password"
-                           placeholder="{{ $secretsSet['revenuecat_api_key'] ? 'Leave blank to keep the saved key' : 'sk_...' }}"
-                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                    <p class="mt-1 text-xs text-muted">Used server-side to verify entitlements with RevenueCat REST API.</p>
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-sm text-muted">Webhook Authorization Header Secret</label>
-                    <input type="password" wire:model="secrets.revenuecat_webhook_secret" autocomplete="new-password"
-                           placeholder="{{ $secretsSet['revenuecat_webhook_secret'] ? 'Leave blank to keep the saved secret' : 'Not set' }}"
-                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                    <p class="mt-1 text-xs text-muted">Value set in RevenueCat Dashboard &rarr; Integrations &rarr; Webhooks &rarr; Authorization Header.</p>
-                    @unless ($secretsSet['revenuecat_webhook_secret'])
-                        {{-- The webhook creates subscriptions from its request body, so it
-                             refuses to process anything until this is set. Renewals,
-                             cancellations and expiries will NOT reach the app before then. --}}
-                        <p class="mt-2 rounded-lg border border-accent/40 bg-accent/10 p-2 text-xs leading-relaxed">
-                            <strong>Not set - subscription webhooks are being rejected.</strong>
-                            RevenueCat events (renewals, cancellations, expiries) are refused with a 503
-                            until this secret is set here <em>and</em> in the RevenueCat dashboard.
-                            RevenueCat retries, so nothing is lost once both sides match.
-                        </p>
-                    @endunless
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-sm text-muted">Android Public SDK Key</label>
-                    <input wire:model="values.revenuecat_android_public_sdk_key"
-                           placeholder="goog_..."
-                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="mb-1 block text-sm text-muted">iOS Public SDK Key</label>
-                    <input wire:model="values.revenuecat_ios_public_sdk_key"
-                           placeholder="appl_..."
-                           class="h-11 w-full rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                </div>
-            </div>
-
-            <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
-                <p class="font-semibold text-content">RevenueCat Webhook URL</p>
-                <p class="mt-1 font-mono text-xs break-all text-accent">{{ url('/webhooks/revenuecat') }}</p>
-                <p class="mt-2">Paste this URL into RevenueCat Dashboard &rarr; Project Settings &rarr; Integrations &rarr; Webhooks.</p>
-            </div>
-
-            <div>
-                <label class="mb-1 block text-sm text-muted">Entitlement Identifier</label>
-                <input wire:model="values.revenuecat_entitlement_id"
-                       placeholder="premium"
-                       class="h-11 w-48 rounded-xl border border-white/10 bg-surface-2 px-3 font-mono text-sm focus:border-accent focus:outline-none">
-                <p class="mt-1 text-xs text-muted">Default is <code>premium</code>.</p>
-            </div>
-
-            <div class="rounded-xl border border-white/10 bg-surface-2 p-4 text-sm text-muted">
-                <p class="font-semibold text-content">Subscription products</p>
-                <p class="mt-1">The plans are fixed in code. Create a subscription product in your Play Console / App Store Connect
-                    for each <span class="text-content">Product ID</span> below (base plan price shown for reference).</p>
-                <table class="mt-3 w-full text-left text-xs">
-                    <thead>
-                        <tr class="text-muted">
-                            <th class="pb-1.5 font-medium">Plan</th>
-                            <th class="pb-1.5 font-medium">Price</th>
-                            <th class="pb-1.5 font-medium">Product ID (use this in Store Console)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-content">
-                        @foreach ($plans as $plan)
-                            <tr class="border-t border-white/5">
-                                <td class="py-2">{{ $plan->name }}</td>
-                                <td class="py-2">${{ number_format($plan->price, 2) }}</td>
-                                <td class="py-2 font-mono">{{ $plan->store_product_id }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
         </div>
 
         {{-- HOMEPAGE --}}

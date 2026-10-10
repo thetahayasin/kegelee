@@ -120,6 +120,5 @@ class PushAcceptedIdsTest extends TestCase
         $this->assertSame(0, $response->json('synced.measurements'));
         $this->assertSame(0, $response->json('synced.events'));
         $this->assertSame(0, $response->json('synced.reminders'));
-        $this->assertSame(0, $response->json('synced.subscriptions'));
     }
 }

@@ -37,8 +37,6 @@ class AdminSettingsFormTest extends TestCase
         $this->settings()->setMany([
             'mail_password' => 'smtp-secret',
             'google_client_secret' => 'google-secret',
-            'revenuecat_api_key' => 'sk_live_secret',
-            'revenuecat_webhook_secret' => 'hook-secret',
             // No field in the form at all. The old mount() walked every
             // default, so this went to the browser too.
             'google_play_service_account_json' => '{"private_key":"-----BEGIN PRIVATE KEY-----"}',
@@ -46,7 +44,7 @@ class AdminSettingsFormTest extends TestCase
 
         $component = Livewire::test(Settings::class);
 
-        foreach (['smtp-secret', 'google-secret', 'sk_live_secret', 'hook-secret', 'BEGIN PRIVATE KEY'] as $secret) {
+        foreach (['smtp-secret', 'google-secret', 'BEGIN PRIVATE KEY'] as $secret) {
             $component->assertDontSee($secret, false);
         }
 
@@ -60,26 +58,26 @@ class AdminSettingsFormTest extends TestCase
 
     public function test_a_blank_secret_keeps_the_stored_one(): void
     {
-        $this->settings()->setMany(['revenuecat_api_key' => 'sk_original']);
+        $this->settings()->setMany(['google_client_secret' => 'sk_original']);
 
         Livewire::test(Settings::class)
             ->set('values.app_name', 'Renamed')
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertSame('sk_original', app(SettingsService::class)->get('revenuecat_api_key'));
+        $this->assertSame('sk_original', app(SettingsService::class)->get('google_client_secret'));
         $this->assertSame('Renamed', app(SettingsService::class)->get('app_name'));
     }
 
     public function test_a_typed_secret_replaces_the_stored_one(): void
     {
-        $this->settings()->setMany(['revenuecat_api_key' => 'sk_original']);
+        $this->settings()->setMany(['google_client_secret' => 'sk_original']);
 
         Livewire::test(Settings::class)
-            ->set('secrets.revenuecat_api_key', 'sk_new')
+            ->set('secrets.google_client_secret', 'sk_new')
             ->call('save');
 
-        $this->assertSame('sk_new', app(SettingsService::class)->get('revenuecat_api_key'));
+        $this->assertSame('sk_new', app(SettingsService::class)->get('google_client_secret'));
     }
 
     public function test_it_only_writes_keys_the_form_owns(): void

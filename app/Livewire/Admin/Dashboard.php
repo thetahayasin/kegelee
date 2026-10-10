@@ -134,7 +134,7 @@ class Dashboard extends Component
                 // period ends. A cancelled subscriber appears in one and not
                 // the other, so a widening gap is churn already decided and
                 // not yet arrived.
-                ['label' => 'Renewing', 'value' => Subscription::renewing()->distinct('user_id')->count('user_id'), 'route' => 'admin.subscriptions'],
+                ['label' => 'Renewing', 'value' => Subscription::renewing()->distinct('user_id')->count('user_id'), 'route' => 'admin.reports.money'],
                 ['label' => 'Users', 'value' => $totalUsers, 'route' => 'admin.users'],
                 ['label' => 'Sessions', 'value' => WorkoutSession::count(), 'route' => 'admin.dashboard'],
             ],

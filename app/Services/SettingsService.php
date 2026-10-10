@@ -50,16 +50,6 @@ class SettingsService
             // Progression rules (sessions-per-day, plan length) and the offline
             // sync interval are baked into the app - see App\Support\AppConfig.
 
-            // How many training days a free account may complete.
-            //
-            // Mirrors FREE_DAY_CAP in the app (react-native-app/src/constants/
-            // catalogues.ts), which is "exactly enough to unlock the third free
-            // exercise and not one more". A setting rather than a constant so
-            // the free tier can be widened for a promotion without a release -
-            // but the app carries its own copy, so changing it here only takes
-            // effect on the backend until the app is rebuilt.
-            'free_day_cap' => 1,
-
             // App access
             'app_enabled' => true,
 
@@ -80,19 +70,8 @@ class SettingsService
             'google_client_id' => '',
             'google_client_secret' => '',
 
-            // RevenueCat Billing
-            'revenuecat_enabled' => true,
-            'revenuecat_api_key' => '',
-            'revenuecat_webhook_secret' => '',
-            'revenuecat_android_public_sdk_key' => '',
-            'revenuecat_ios_public_sdk_key' => 'appl_fxTEorwDBjZRGLyQUKvsxNyCOFX',
-            'revenuecat_entitlement_id' => 'premium',
-
-            // Google Play Billing (legacy fallback)
-            'google_play_enabled' => false,
+            // Play listing, for the homepage's store link.
             'google_play_package_name' => 'com.kegelee.app',
-            'google_play_service_account_json' => '',
-            'subscription_trial_days' => 0,
 
             // Public homepage
             'homepage_enabled' => true,
