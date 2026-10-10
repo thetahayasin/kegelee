@@ -171,8 +171,8 @@ android {
         // and leave phones on the previous code. play-version-check.js reports
         // a band-blind "nextFree" (1005 while the watch sits at 1004) - that
         // number is the next free code in the app, NOT the next phone code.
-        versionCode 130
-        versionName "1.0.113"
+        versionCode 131
+        versionName "1.0.114"
 
         // CMake arguments:
         //  - CMAKE_OBJECT_PATH_MAX: belt-and-suspenders cap on New-Arch codegen

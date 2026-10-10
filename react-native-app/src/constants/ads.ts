@@ -5,9 +5,10 @@ import { TestIds } from 'react-native-google-mobile-ads';
  * AdMob ad unit ids, per platform.
  *
  * Fill these in from AdMob > Apps > Kegelee > Ad units. Until a release id is
- * filled in, that placement shows NOTHING in a release build rather than a
- * test ad: serving Google's test units to real users is a policy problem, and
- * an empty slot costs nothing.
+ * filled in, that placement serves Google's TEST unit even in a release
+ * build, so an internal-testing build shows (test) ads where the real ones
+ * will go. Test ads earn nothing, so production needs every id below filled
+ * in, plus the real app id in app.json.
  *
  * Debug builds always use Google's test units, whatever is filled in here.
  * Clicking your own live ads on a dev device can get the AdMob account
@@ -32,12 +33,15 @@ const RELEASE_UNITS = {
 
 const platformUnits = Platform.OS === 'ios' ? RELEASE_UNITS.ios : RELEASE_UNITS.android;
 
+const pick = (release: string, test: string): string =>
+  __DEV__ || !release ? test : release;
+
 export const AD_UNITS = {
-  banner: __DEV__ ? TestIds.ADAPTIVE_BANNER : platformUnits.banner || null,
+  banner: pick(platformUnits.banner, TestIds.ADAPTIVE_BANNER),
   // Its own unit so AdMob reports the two placements separately; falls back
   // to the tab banner's unit when only one banner unit has been made.
-  inline: __DEV__ ? TestIds.BANNER : platformUnits.inline || platformUnits.banner || null,
-  interstitial: __DEV__ ? TestIds.INTERSTITIAL : platformUnits.interstitial || null,
+  inline: pick(platformUnits.inline || platformUnits.banner, TestIds.BANNER),
+  interstitial: pick(platformUnits.interstitial, TestIds.INTERSTITIAL),
 };
 
 /**
