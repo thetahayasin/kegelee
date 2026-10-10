@@ -20,9 +20,10 @@ import { TestIds } from 'react-native-google-mobile-ads';
  */
 const RELEASE_UNITS = {
   android: {
-    banner: '', // ca-app-pub-5990359088661035/NNNNNNNNNN  (Banner: tab bar)
-    inline: '', // ca-app-pub-5990359088661035/NNNNNNNNNN  (Banner: in-content)
-    interstitial: '', // ca-app-pub-5990359088661035/NNNNNNNNNN  (Interstitial)
+    banner: 'ca-app-pub-5990359088661035/8792661528',
+    // No unit of its own yet, so the in-content ads share the banner's.
+    inline: '',
+    interstitial: 'ca-app-pub-5990359088661035/3540334841',
   },
   ios: {
     banner: '',
