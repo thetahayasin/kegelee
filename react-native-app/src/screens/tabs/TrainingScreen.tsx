@@ -45,6 +45,9 @@ import { Chevron } from '../../components/Chevron';
 const GRID_GUTTER = 6;
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+/** The day ring's drawn size, beside the hero text rather than above it. */
+const RING_SIZE = 88;
 import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { TourOverlay } from '../../components/TourOverlay';
@@ -435,11 +438,13 @@ export const TrainingScreen = () => {
           </View>
         )}
 
-        {/* Hero. The ring is the one thing a returning user opens the app to
-            check, so it is the screen's single focal point rather than a
-            68px circle sharing a row with a decorative dumbbell. */}
+        {/* Hero. The ring and the words about it sit side by side, so the
+            card reads as one line of state - where you are, what today asks,
+            what it takes - with a single action under it, instead of five
+            centred blocks stacked down the screen. The "2/2" that used to sit
+            in a strip of its own is gone: the ring already says it. */}
         <View style={styles.heroCard}>
-          <View style={styles.heroBody}>
+          <View style={styles.heroRow}>
             <View
               ref={tourRingRef}
               collapsable={false}
@@ -453,14 +458,14 @@ export const TrainingScreen = () => {
               }
             >
               <View style={{ transform: [{ rotate: '126deg' }] }}>
-                <Svg width={108} height={108} viewBox="0 0 132 132">
+                <Svg width={RING_SIZE} height={RING_SIZE} viewBox="0 0 132 132">
                   <Circle
                     cx={66}
                     cy={66}
                     r={R}
                     fill="none"
                     stroke={COLORS.borderStrong}
-                    strokeWidth={9}
+                    strokeWidth={10}
                     strokeDasharray={`${arcLength} 999`}
                     strokeLinecap="round"
                   />
@@ -470,7 +475,7 @@ export const TrainingScreen = () => {
                     r={R}
                     fill="none"
                     stroke={COLORS.accentText}
-                    strokeWidth={9}
+                    strokeWidth={10}
                     strokeDasharray={`${arcLength} 999`}
                     strokeDashoffset={dayArc.interpolate({
                       inputRange: [0, 1],
@@ -481,137 +486,95 @@ export const TrainingScreen = () => {
                 </Svg>
               </View>
               <View style={styles.ringCentre} pointerEvents="none">
-                <Text style={styles.ringCount}>
-                  {done}
-                  <Text style={styles.ringSlash}>/</Text>
-                  <Text style={styles.ringTotal}>{required}</Text>
-                </Text>
-                <Text style={styles.ringLabel}>{t('training.sessions')}</Text>
-              </View>
-            </View>
-
-            {/* Two strings and a real separator View, not one string with
-                three hard spaces baked into it. The spacing was part of the
-                translation, so every locale had to reproduce it by hand, it
-                could not respond to the font scale, and a translator who used
-                a normal space got a visibly different layout. */}
-            <View style={styles.heroOverlineRow}>
-              <Text style={styles.heroOverline}>
-                {t('training.monthLabel', { month })}
-              </Text>
-              <Text style={styles.heroOverlineDivider}>/</Text>
-              <Text style={styles.heroOverline}>
-                {t('training.dayLabel', { day })}
-              </Text>
-            </View>
-            <Text style={styles.heroHeadline}>
-              {complete ? t('training.todayIsDone') : t('training.readyWhenYouAre')}
-            </Text>
-
-            {/* The chain. Only once there is one to lose - a "0-day streak" on
-                a brand new account is a discouraging way to open an app, and
-                the ring above already carries day one.
-
-                Deliberately not a fourth cell in the strip below: those three
-                are facts about TODAY, and this is the only thing on the screen
-                that says anything about the days behind it. */}
-            {streak > 0 && (
-              <View style={styles.streakPill}>
-                <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                  <Path
-                    d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.6.7-3.1 1.5-4.3"
-                    stroke={COLORS.accentText}
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </Svg>
-                <Text style={styles.streakText} numberOfLines={1}>
-                  {t('training.streakDays', { count: streak })}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* Action strip, seated on the card one elevation step forward. */}
-          <View style={styles.actionStrip}>
-            {/* Three columns, evenly divided, rather than three differently
-                shaped chips pushed to the edges of a row. A pill, a bordered
-                chip and a badge each styled to their own rules read as three
-                unrelated objects that happened to land on the same line - and
-                when the day was not complete the third simply vanished,
-                leaving the other two re-spaced. Equal cells with a rule
-                between them hold their positions and read as one strip of
-                facts about today. No new copy: the same values, arranged. */}
-            <View style={styles.metaColumns}>
-              <View style={styles.metaCell}>
-                <Svg width={15} height={15} viewBox="0 0 24 24" fill="none">
-                  <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={1.8} />
-                  <Path d="M12 8v4l3 2" stroke={COLORS.textMuted} strokeWidth={1.8} strokeLinecap="round" />
-                </Svg>
-                <Text style={styles.metaValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-                  {sessionLength}
-                </Text>
-              </View>
-
-              <View style={styles.metaDivider} />
-
-              <View style={styles.metaCell}>
-                <Text
-                  style={[styles.metaValue, styles.metaValueAccent]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.7}
-                >
-                  {levelDef ? t(levelNameKey(levelDef.number)) : '-'}
-                </Text>
-              </View>
-
-              <View style={styles.metaDivider} />
-
-              {/* Always occupied: the cell shows the count until the day is
-                  done, then the tick. Nothing moves when it flips. */}
-              <View style={styles.metaCell}>
                 {complete ? (
-                  <>
-                    <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                      <Path d="M5 13l4 4L19 7" stroke={COLORS.accentText} strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" />
-                    </Svg>
-                    <Text style={[styles.metaValue, styles.metaValueAccent]} numberOfLines={1}>
-                      {t('training.complete')}
-                    </Text>
-                  </>
+                  <Svg width={26} height={26} viewBox="0 0 24 24" fill="none">
+                    <Path d="M5 13l4 4L19 7" stroke={COLORS.accentText} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+                  </Svg>
                 ) : (
-                  <Text style={styles.metaValue} numberOfLines={1}>
-                    {done}/{required}
+                  <Text style={styles.ringCount}>
+                    {done}
+                    <Text style={styles.ringSlash}>/</Text>
+                    <Text style={styles.ringTotal}>{required}</Text>
                   </Text>
+                )}
+                <Text style={styles.ringLabel} numberOfLines={1}>{t('training.sessions')}</Text>
+              </View>
+            </View>
+
+            <View style={styles.heroText}>
+              {/* Two strings and a real separator View, not one string with
+                  hard spaces baked into it, so the spacing follows the font
+                  scale and no translator has to reproduce it by hand. */}
+              <View style={styles.heroOverlineRow}>
+                <Text style={styles.heroOverline} numberOfLines={1}>
+                  {t('training.monthLabel', { month })}
+                </Text>
+                <Text style={styles.heroOverline}>/</Text>
+                <Text style={styles.heroOverline} numberOfLines={1}>
+                  {t('training.dayLabel', { day })}
+                </Text>
+              </View>
+              <Text style={styles.heroHeadline} numberOfLines={2}>
+                {complete ? t('training.todayIsDone') : t('training.readyWhenYouAre')}
+              </Text>
+              <Text style={styles.heroHelper} numberOfLines={2}>
+                {complete
+                  ? t('training.extraSessionsOptional')
+                  : t('training.sessionsCompleteToday', { count: required })}
+              </Text>
+
+              {/* Facts about today as chips on one wrapping line. The streak
+                  joins them only once there is one to lose: a "0-day streak"
+                  on a brand new account is a discouraging way to open. */}
+              <View style={styles.chipRow}>
+                <View style={styles.chip}>
+                  <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                    <Circle cx={12} cy={12} r={9} stroke={COLORS.textMuted} strokeWidth={2} />
+                    <Path d="M12 8v4l3 2" stroke={COLORS.textMuted} strokeWidth={2} strokeLinecap="round" />
+                  </Svg>
+                  <Text style={styles.chipText} numberOfLines={1}>{sessionLength}</Text>
+                </View>
+                <View style={[styles.chip, styles.chipAccent]}>
+                  <Text style={[styles.chipText, styles.chipTextAccent]} numberOfLines={1}>
+                    {levelDef ? t(levelNameKey(levelDef.number)) : '-'}
+                  </Text>
+                </View>
+                {streak > 0 && (
+                  <View style={[styles.chip, styles.chipAccent]}>
+                    <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                      <Path
+                        d="M12 3s5 4.5 5 9a5 5 0 0 1-10 0c0-1.6.7-3.1 1.5-4.3"
+                        stroke={COLORS.accentText}
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </Svg>
+                    <Text style={[styles.chipText, styles.chipTextAccent]} numberOfLines={1}>
+                      {t('training.streakDays', { count: streak })}
+                    </Text>
+                  </View>
                 )}
               </View>
             </View>
+          </View>
 
-            {/* Wrapped rather than ref'd directly: the shared Touchable
-                does not forward refs, and teaching it to would change a
-                component every screen in the app depends on for the sake of
-                one measurement. */}
-            <View ref={tourStartRef} collapsable={false}>
-              <TouchableOpacity
-                style={styles.startBtn}
-                accessibilityRole="button"
-                activeOpacity={0.85}
-                onPress={() => navigation.navigate('Workout')}
-              >
-                <Text style={styles.startBtnText}>
-                  {complete ? t('training.trainAgain') : t('training.startWorkout')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.helperText}>
-              {complete
-                ? t('training.extraSessionsOptional')
-                : t('training.sessionsCompleteToday', { count: required })}
-            </Text>
-
+          {/* Wrapped rather than ref'd directly: the shared Touchable does not
+              forward refs, and the tour only needs to measure the button. */}
+          <View ref={tourStartRef} collapsable={false} style={styles.heroAction}>
+            <TouchableOpacity
+              style={styles.startBtn}
+              accessibilityRole="button"
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Workout')}
+            >
+              <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                <Path d="M8 5.5v13l10.5-6.5L8 5.5z" fill={COLORS.onAccent} />
+              </Svg>
+              <Text style={styles.startBtnText}>
+                {complete ? t('training.trainAgain') : t('training.startWorkout')}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -847,17 +810,6 @@ export const TrainingScreen = () => {
 };
 
 const makeStyles = (COLORS: Palette) => StyleSheet.create({
-  heroOverlineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    marginTop: SPACE.xl,
-  },
-  heroOverlineDivider: {
-    ...TYPE.overline,
-    color: COLORS.textDim,
-  },
   /* Free-day cap notice ---------------------------------------------------
      Built from the same tokens as subNotice above, which is the other card on
      this screen that states a fact and offers one way to act on it. The old
@@ -965,10 +917,14 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
   },
-  // Tightened: the card opened the screen and took most of it, pushing the
-  // exercises below the fold on a short phone.
-  heroBody: { paddingHorizontal: SPACE.xl, paddingTop: 18, paddingBottom: SPACE.lg, alignItems: 'center' },
-  ringWrap: { width: 108, height: 108, justifyContent: 'center', alignItems: 'center' },
+  heroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACE.lg,
+    paddingHorizontal: SPACE.lg,
+    paddingTop: SPACE.lg,
+  },
+  ringWrap: { width: RING_SIZE, height: RING_SIZE, justifyContent: 'center', alignItems: 'center' },
   ringCentre: {
     position: 'absolute',
     top: 0,
@@ -978,29 +934,52 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ringCount: { fontSize: 30, fontWeight: '800', letterSpacing: -1.2, color: COLORS.white },
+  ringCount: { fontSize: 24, fontWeight: '800', letterSpacing: -1, color: COLORS.white },
   ringSlash: { color: COLORS.textDim, fontWeight: '800' },
   ringTotal: { color: COLORS.textMuted, fontWeight: '800' },
-  ringLabel: { ...TYPE.overline, fontSize: 10, color: COLORS.textDim, marginTop: 3 },
-  heroOverline: { ...TYPE.overline, color: COLORS.textDim },
-  heroHeadline: { ...TYPE.heading, color: COLORS.white, marginTop: 6 },
-  streakPill: {
+  ringLabel: { ...TYPE.overline, fontSize: 9, letterSpacing: 1, color: COLORS.textDim, marginTop: 2 },
+  // flex: 1 + minWidth: 0, so long translations wrap inside the column
+  // instead of pushing the ring off the card.
+  heroText: { flex: 1, minWidth: 0 },
+  heroOverlineRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'center',
+    gap: 6,
+  },
+  heroOverline: { ...TYPE.overline, fontSize: 10.5, color: COLORS.textDim },
+  heroHeadline: { ...TYPE.heading, fontSize: 19, color: COLORS.white, marginTop: 4 },
+  heroHelper: { ...TYPE.caption, color: COLORS.textMuted, marginTop: 2 },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 6,
     marginTop: SPACE.md,
-    paddingHorizontal: SPACE.md,
-    paddingVertical: 6,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.accentWash,
+    backgroundColor: COLORS.surface2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  streakText: {
-    ...TYPE.caption,
-    fontWeight: '700',
-    color: COLORS.accentText,
-    fontVariant: ['tabular-nums'],
+  chipAccent: { backgroundColor: COLORS.accentWash, borderColor: 'transparent' },
+  chipText: { ...TYPE.caption, fontWeight: '700', color: COLORS.textMuted, fontVariant: ['tabular-nums'] },
+  chipTextAccent: { color: COLORS.accentText },
+  heroAction: { padding: SPACE.lg },
+  startBtn: {
+    flexDirection: 'row',
+    gap: SPACE.sm,
+    backgroundColor: COLORS.accent,
+    borderRadius: RADIUS.md,
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  startBtnText: { color: COLORS.onAccent, fontWeight: '700', fontSize: 15, letterSpacing: -0.2 },
 
   /* Subscription notice --------------------------------------------------- */
   subNotice: {
@@ -1050,40 +1029,6 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     borderColor: COLORS.borderStrong,
   },
   errorRetryText: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.white },
-
-  /* Action strip -------------------------------------------------------- */
-  actionStrip: {
-    backgroundColor: COLORS.surface2,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingHorizontal: SPACE.xl,
-    paddingVertical: SPACE.lg,
-  },
-  metaColumns: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACE.md,
-  },
-  metaCell: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    minHeight: 20,
-  },
-  metaDivider: { width: 1, height: 18, backgroundColor: COLORS.border },
-  metaValue: { ...TYPE.bodySm, fontWeight: '700', color: COLORS.textMuted },
-  metaValueAccent: { color: COLORS.accentText },
-  startBtn: {
-    backgroundColor: COLORS.accent,
-    borderRadius: RADIUS.md,
-    height: 52,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  startBtnText: { color: COLORS.onAccent, fontWeight: '700', fontSize: 15, letterSpacing: -0.2 },
-  helperText: { ...TYPE.caption, color: COLORS.textDim, textAlign: 'center', marginTop: 10 },
 
   /* Exercises ----------------------------------------------------------- */
   railHeader: {

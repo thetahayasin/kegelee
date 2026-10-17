@@ -20,10 +20,12 @@ import { TestIds } from 'react-native-google-mobile-ads';
  */
 const RELEASE_UNITS = {
   android: {
-    banner: 'ca-app-pub-5990359088661035/8792661528',
-    // No unit of its own yet, so the in-content ads share the banner's.
+    // Empty until the pub-4945782785733907 account's units are verified;
+    // until then every placement serves Google's test unit (see `pick`), and
+    // app.json carries Google's test app id to match.
+    banner: '',
     inline: '',
-    interstitial: 'ca-app-pub-5990359088661035/3540334841',
+    interstitial: '',
   },
   ios: {
     banner: '',
