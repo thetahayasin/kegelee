@@ -54,9 +54,7 @@ export const AD_UNITS = {
  * "setTestDeviceIds(Arrays.asList(...))". Harmless for everyone else - it
  * only matches the phone it was printed on.
  */
-export const TEST_DEVICE_IDS: string[] = [
-  'FA7AB5EA8A398D250DC4AE889C56FD1F', // Pixel 7 (owner)
-];
+export const TEST_DEVICE_IDS: string[] = [];
 
 /**
  * The shortest gap between two interstitials.
