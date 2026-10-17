@@ -20,7 +20,7 @@ import mobileAds, {
   InterstitialAd,
   MaxAdContentRating,
 } from 'react-native-google-mobile-ads';
-import { AD_UNITS, INTERSTITIAL_MIN_GAP_MS } from '../constants/ads';
+import { AD_UNITS, INTERSTITIAL_MIN_GAP_MS, TEST_DEVICE_IDS } from '../constants/ads';
 import { FREE_APP } from '../constants/monetization';
 import { reportError } from './errors';
 
@@ -68,6 +68,7 @@ export const initAds = (): Promise<boolean> => {
         maxAdContentRating: MaxAdContentRating.PG,
         tagForChildDirectedTreatment: false,
         tagForUnderAgeOfConsent: false,
+        testDeviceIdentifiers: TEST_DEVICE_IDS,
       });
       await mobileAds().initialize();
       setReady(true);
@@ -146,6 +147,29 @@ let interstitialLoaded = false;
 let interstitialLoading = false;
 let lastShownAt = 0;
 
+/**
+ * Retry a failed interstitial load, backing off.
+ *
+ * The first load runs at launch. On a new AdMob account most requests come
+ * back "no fill", and without a retry the next attempt waited for the next
+ * finished workout - so the first session of the day almost never had an ad
+ * ready for it.
+ */
+const RETRY_FIRST_MS = 60 * 1000;
+const RETRY_MAX_MS = 10 * 60 * 1000;
+let retryMs = RETRY_FIRST_MS;
+let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+const scheduleRetry = () => {
+  if (retryTimer) return;
+  const delay = retryMs;
+  retryMs = Math.min(retryMs * 2, RETRY_MAX_MS);
+  retryTimer = setTimeout(() => {
+    retryTimer = null;
+    preloadInterstitial();
+  }, delay);
+};
+
 const preloadInterstitial = () => {
   if (!ready || !AD_UNITS.interstitial) return;
   if (interstitialLoaded || interstitialLoading) return;
@@ -155,12 +179,14 @@ const preloadInterstitial = () => {
       interstitial.addAdEventListener(AdEventType.LOADED, () => {
         interstitialLoaded = true;
         interstitialLoading = false;
+        retryMs = RETRY_FIRST_MS;
       });
       interstitial.addAdEventListener(AdEventType.ERROR, () => {
-        // No fill or no network. Nothing to show next time; the next
-        // opportunity will try again.
+        // No fill or no network. Try again later rather than waiting for
+        // the next workout to ask.
         interstitialLoaded = false;
         interstitialLoading = false;
+        scheduleRetry();
       });
     }
     interstitialLoading = true;

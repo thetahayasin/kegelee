@@ -46,6 +46,19 @@ export const AD_UNITS = {
 };
 
 /**
+ * Phones that always get Google's TEST ads, even from the real units.
+ *
+ * Tapping your own live ads counts as invalid traffic and can get the AdMob
+ * account suspended, so every phone the team tests on goes here. The id is
+ * printed in logcat by the ads SDK on first launch: look for
+ * "setTestDeviceIds(Arrays.asList(...))". Harmless for everyone else - it
+ * only matches the phone it was printed on.
+ */
+export const TEST_DEVICE_IDS: string[] = [
+  'FA7AB5EA8A398D250DC4AE889C56FD1F', // Pixel 7 (owner)
+];
+
+/**
  * The shortest gap between two interstitials.
  *
  * One is offered on the way out of a finished session, and a plan is two
