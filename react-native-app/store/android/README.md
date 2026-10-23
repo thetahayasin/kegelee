@@ -1,5 +1,15 @@
 # Kegelee Google Play listing
 
+## Status verified on 2026-10-23
+
+The five phone screenshots and the feature graphic below are on the Play
+listing in all 29 listing languages. They replaced the four green
+screenshots each language had, and pt-BR had none. Each language now has
+its own feature graphic, where before only en-US had one. Play edit
+`16428638632750484050` was committed through `scripts/play-screenshots.js`.
+A dry run straight afterwards found all 58 image sets byte-identical to the
+files here. Play reviews store listing changes before showing them.
+
 ## Phone screenshots
 
 `screenshots/<Play language>/` holds the five store screenshots for each of
