@@ -20,9 +20,18 @@ when screenshots are to be eligible for promotion. Folders use Play's language
 codes (`iw-IL` for Hebrew, `zh-CN` for Simplified Chinese, `no-NO`, regional
 codes for most European languages), so each one maps to a listing directly.
 
+## Feature graphic
+
+`feature-graphic/<Play language>.png` is the 1024 × 500 cover for each
+language. It shows the app's icon and name over the first screenshot's punch
+line and supporting line, beside the guided circle in the same upright phone.
+For Arabic and Hebrew the two halves swap sides. Before this, Play had a
+feature graphic for en-US only, which every other language showed.
+
 ### The words
 
-`headlines.json` holds every headline and supporting line, keyed by the app's
+`headlines.json` holds every headline and supporting line (the feature graphic
+reuses `training`), keyed by the app's
 language tags. `*Stars*` mark the phrase drawn as a white block; it is the
 headline's emphasis, kept to one line. `\n` forces a line break where a
 language needs one, such as Thai words that automatic breaking would split.
@@ -43,7 +52,9 @@ Arabic and Hebrew are laid out right to left.
    phone reports. Output goes to `capture/raw/` (not committed).
 2. `capture/frames.js` places each screen in `web/frame.html` with its
    headline. It draws the phone, its status bar and its camera, and captures
-   the result at 1080 × 1920 into `screenshots/`.
+   the result at 1080 × 1920 into `screenshots/`. It also renders
+   `web/feature.html` at 1024 × 500 into `feature-graphic/`. Both pages share
+   the headline and phone from `web/shared.css` and `web/shared.js`.
 
 The app's own code is told it is on Android, so it takes its Android paths,
 including Archivo. Only the native modules underneath are replaced: SQLite
@@ -77,17 +88,18 @@ cd store/android/capture
 npm install
 node build.js                 # bundle the app and the frame page into dist/
 node capture.js               # every language's screens into raw/, ~10 minutes
-node frames.js                # frame them into ../screenshots/, ~1 minute
+node frames.js                # frames and feature graphics, ~1 minute
 node capture.js --lang de,ar  # or just some languages (frames.js takes --lang too)
 ```
 
-After changing only `headlines.json` or `web/frame.html`, `node build.js &&
+After changing only `headlines.json` or the pages in `web/`, `node build.js &&
 node frames.js` is enough.
 
 ## Uploading
 
-`scripts/play-screenshots.js` replaces only the phone screenshots on each
-listing language. It does not change the icon, feature graphic, tablet/Wear
+`scripts/play-screenshots.js` replaces only the phone screenshots and the
+feature graphic on each listing language (`--only screenshots` or
+`--only feature` for one of them). It does not change the icon, tablet/Wear
 images or listing text. It uses the same service account as
 `scripts/play-upload.js`:
 

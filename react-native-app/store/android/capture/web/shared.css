@@ -1,0 +1,97 @@
+/*
+ * What the store frame (frame.html) and the feature graphic (feature.html)
+ * share: the palette, the headline with its emphasis block, and the phone.
+ *
+ * Black and white like the app. The emphasis in a headline is an inverted
+ * block, the way the app's primary button is a solid block of ink with the
+ * opposite colour on top.
+ */
+:root {
+  --ink: #ffffff;
+  --muted: #a3a3a3;
+  --ground: #000000;
+}
+html, body { margin: 0; overflow: hidden; background: var(--ground); }
+body { position: relative; color: var(--ink); font-family: 'Archivo', sans-serif; }
+
+h1 {
+  margin: 0;
+  font-family: 'ArchivoExpanded', 'Archivo', sans-serif;
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+h1 .em {
+  background: var(--ink);
+  color: var(--ground);
+  padding: 0 0.16em;
+  border-radius: 0.14em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  /* One block, never two: the headline shrinks before the phrase splits. */
+  white-space: nowrap;
+}
+.sub { margin: 0; font-weight: 500; line-height: 1.3; color: var(--muted); text-wrap: balance; }
+
+/* Korean wraps between words, Japanese and Chinese strictly. */
+:lang(ko) h1, :lang(ko) .sub { word-break: keep-all; }
+:lang(ja) h1, :lang(zh) h1, :lang(ja) .sub, :lang(zh) .sub { line-break: strict; }
+/* Han, kana and hangul fill the em box, so an emphasis block on the next
+   line would cover the one above at the Latin line height. */
+:lang(ja) h1, :lang(zh) h1, :lang(ko) h1 { line-height: 1.32; }
+
+/*
+ * An upright phone, drawn at 600px wide; a page scales it with `zoom`. Its
+ * screen is the 412 x 915 dp capture, under a status bar, a punch-hole camera
+ * and a gesture bar drawn here.
+ */
+.phone {
+  position: relative;
+  width: 600px; padding: 15px;
+  border-radius: 84px;
+  background: linear-gradient(140deg, #4a4a4a 0%, #161616 12%, #0b0b0b 50%, #151515 88%, #3c3c3c 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.22),
+    inset 0 0 0 6px #050505,
+    0 60px 120px rgba(0, 0, 0, 0.85),
+    0 0 160px rgba(255, 255, 255, 0.10);
+}
+.phone .btn { position: absolute; right: -5px; width: 6px; border-radius: 3px; background: linear-gradient(90deg, #2a2a2a, #5a5a5a); }
+.phone .btn.power { top: 290px; height: 100px; }
+.phone .btn.vol { top: 430px; height: 170px; }
+.phone .screen {
+  position: relative; overflow: hidden;
+  border-radius: 70px;
+  aspect-ratio: 412 / 915;
+  background: #000;
+}
+.phone .shot { display: block; width: 100%; height: 100%; }
+.phone .status {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: calc(32 / 915 * 100%);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 9% 0;
+  font-weight: 600; font-size: 21px; letter-spacing: 0.01em;
+}
+.phone .status svg { height: 19px; margin-inline-start: 7px; }
+.phone .icons { display: flex; align-items: center; }
+.phone .camera {
+  position: absolute; top: calc(11 / 915 * 100%); left: 50%;
+  width: 23px; height: 23px; margin-left: -11.5px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #2b2b2b, #050505 60%);
+  box-shadow: 0 0 0 2px #111;
+}
+.phone .pill {
+  position: absolute; bottom: 10px; left: 50%;
+  width: 160px; height: 6px; margin-left: -80px; border-radius: 3px;
+  background: rgba(255, 255, 255, 0.85);
+}
+.phone .glare {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%);
+}
+
+/* Right to left: the buttons and the glare change sides. */
+[dir='rtl'] .phone .btn { right: auto; left: -5px; }
+[dir='rtl'] .phone .glare { background: linear-gradient(245deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%); }

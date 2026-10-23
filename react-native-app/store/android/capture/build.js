@@ -168,9 +168,11 @@ const fontCss = () => {
     require.resolve('sql.js/dist/sql-wasm.wasm', { paths: [OWN_MODULES] }),
     path.join(DIST, 'sql-wasm.wasm'),
   );
-  for (const page of ['index.html', 'frame.html', 'fonts-cjk.js']) {
+  for (const page of ['index.html', 'frame.html', 'feature.html', 'shared.css', 'shared.js', 'fonts-cjk.js']) {
     fs.copyFileSync(path.join(HERE, 'web', page), path.join(DIST, page));
   }
+  // The app's own mark, for the feature graphic's icon tile.
+  fs.copyFileSync(path.join(APP, 'src', 'assets', 'logo.png'), path.join(DIST, 'logo.png'));
 
   await esbuild.build({
     entryPoints: [path.join(HERE, 'web', 'entry.js')],

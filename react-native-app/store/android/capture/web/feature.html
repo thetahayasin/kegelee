@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Kegelee Play feature graphic</title>
+    <!--
+      The Play feature graphic, 1024 x 500: the app's mark and name over the
+      first screenshot's punch line, beside the guided circle in an upright
+      phone. frames.js serves this from dist/, calls window.renderFeature(...)
+      and captures the viewport. Right to left, the two sides swap.
+    -->
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      html, body { width: 1024px; height: 500px; }
+
+      .glow {
+        position: absolute; inset: 0;
+        background: radial-gradient(34% 70% at 76% 56%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 72%);
+      }
+      [dir='rtl'] .glow { transform: scaleX(-1); }
+
+      .copy {
+        position: absolute; top: 0; bottom: 0; left: 64px; width: 540px;
+        display: flex; flex-direction: column; justify-content: center; gap: 26px;
+      }
+      [dir='rtl'] .copy { left: auto; right: 64px; }
+
+      .brand { display: flex; align-items: center; gap: 16px; }
+      .icon {
+        width: 60px; height: 60px; border-radius: 15px; overflow: hidden; flex: none;
+        background: #000; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.24);
+      }
+      .icon img { display: block; width: 100%; height: 100%; }
+      .name {
+        font-family: 'ArchivoExpanded', 'Archivo', sans-serif; font-weight: 800;
+        font-size: 30px; letter-spacing: -0.01em;
+      }
+      .sub { font-size: 23px; max-width: 500px; }
+
+      .slot { position: absolute; top: 40px; left: 644px; }
+      [dir='rtl'] .slot { left: 80px; }
+      .phone { zoom: 0.52; }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <div class="copy">
+      <div class="brand">
+        <div class="icon"><img src="logo.png" alt="" /></div>
+        <div class="name">Kegelee</div>
+      </div>
+      <h1 id="headline"></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="slot"><div class="phone" id="phone"></div></div>
+
+    <script src="fonts-cjk.js"></script>
+    <script src="shared.js"></script>
+    <script>
+      window.renderFeature = async ({ lang, dir, headline, sub, shot }) => {
+        setLanguage(lang, dir);
+        const h1 = document.getElementById('headline');
+        fillHeadline(h1, headline);
+        document.getElementById('sub').textContent = sub;
+        await mountPhone(document.getElementById('phone'), shot);
+        await document.fonts.ready;
+        const size = fitHeadline(h1, lang, { max: 58, twoLineMin: 44, threeLineMin: 34 });
+        await document.fonts.ready;
+        return { fontSize: size };
+      };
+    </script>
+  </body>
+</html>
