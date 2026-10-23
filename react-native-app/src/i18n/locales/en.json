@@ -385,6 +385,7 @@
     "badge": "Premium",
     "noticeProgress": "Measure your hold and watch the trend build.",
     "noticeSchedule": "Reminders for the days and times you train.",
+    "tryFree": "Try free",
     "unlockMore": "Unlock more with Premium"
   },
   "profile": {
@@ -591,6 +592,7 @@
     "extraSessionsOptional": "Extra sessions are optional",
     "freeCapCta": "Subscribe",
     "freeCapReached": "Your free plan stops at day {{day}}. Subscribe to keep going.",
+    "freeCapTrial": "Your free plan stops at day {{day}}. Start your free trial to keep going.",
     "knowledge": "Knowledge",
     "measureDaily": "Measure daily to track progress",
     "minutes_one": "{{count}} min",

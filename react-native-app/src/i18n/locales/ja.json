@@ -373,6 +373,7 @@
     "badge": "プレミアム",
     "noticeProgress": "保持時間を測定し、変化の推移を確認できます。",
     "noticeSchedule": "トレーニングする曜日と時間のリマインダー。",
+    "tryFree": "無料で試す",
     "unlockMore": "プレミアムでもっと解放"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "追加のセッションは任意です",
     "freeCapCta": "登録する",
     "freeCapReached": "無料プランは{{day}}日目までです。続けるには登録してください。",
+    "freeCapTrial": "無料プランは {{day}} 日目で終了します。無料トライアルを始めて続けましょう。",
     "knowledge": "基礎知識",
     "measureDaily": "毎日測定して変化を記録",
     "minutes_one": "{{count}}分",

@@ -373,6 +373,7 @@
     "badge": "프리미엄",
     "noticeProgress": "유지 시간을 측정하고 변화 추이를 확인하세요.",
     "noticeSchedule": "훈련하는 요일과 시간에 맞춘 알림.",
+    "tryFree": "무료 체험",
     "unlockMore": "프리미엄으로 더 열기"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "추가 세션은 선택 사항입니다",
     "freeCapCta": "구독하기",
     "freeCapReached": "무료 플랜은 {{day}}일 차까지입니다. 계속하려면 구독하세요.",
+    "freeCapTrial": "무료 플랜은 {{day}}일 차에서 멈춥니다. 무료 체험을 시작해 계속하세요.",
     "knowledge": "기초 지식",
     "measureDaily": "매일 측정해 변화를 확인하세요",
     "minutes_one": "{{count}}분",

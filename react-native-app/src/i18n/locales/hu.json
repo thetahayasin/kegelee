@@ -373,6 +373,7 @@
     "badge": "Prémium",
     "noticeProgress": "Mérd meg, meddig bírod, és nézd, ahogy alakul a görbe.",
     "noticeSchedule": "Emlékeztetők az edzésnapjaidra és -időpontjaidra.",
+    "tryFree": "Próbáld ki ingyen",
     "unlockMore": "Nyiss meg többet a Prémiummal"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "A további körök nem kötelezők",
     "freeCapCta": "Előfizetek",
     "freeCapReached": "Az ingyenes csomag a(z) {{day}}. napnál véget ér. Fizess elő, hogy folytathasd.",
+    "freeCapTrial": "Az ingyenes terved a(z) {{day}}. napon véget ér. Indítsd el az ingyenes próbaidőt a folytatáshoz.",
     "knowledge": "Tudnivalók",
     "measureDaily": "Mérj naponta, hogy lásd a fejlődést",
     "minutes_one": "{{count}} perc",

@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Đo thời gian giữ và xem tiến triển của bạn.",
     "noticeSchedule": "Nhắc nhở cho những ngày và giờ bạn tập.",
+    "tryFree": "Dùng thử miễn phí",
     "unlockMore": "Mở khóa thêm với Premium"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Các buổi thêm là tùy chọn",
     "freeCapCta": "Đăng ký",
     "freeCapReached": "Gói miễn phí dừng ở ngày {{day}}. Hãy đăng ký để tiếp tục.",
+    "freeCapTrial": "Gói miễn phí của bạn dừng ở ngày {{day}}. Hãy bắt đầu dùng thử miễn phí để tiếp tục.",
     "knowledge": "Kiến thức",
     "measureDaily": "Đo mỗi ngày để theo dõi tiến bộ",
     "minutes_one": "{{count}} phút",

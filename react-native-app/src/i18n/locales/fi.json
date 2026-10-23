@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Mittaa pitosi ja katso, miten käyrä kehittyy.",
     "noticeSchedule": "Muistutukset harjoituspäiville ja -ajoille.",
+    "tryFree": "Kokeile ilmaiseksi",
     "unlockMore": "Avaa lisää Premiumilla"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Lisäharjoitukset ovat vapaaehtoisia",
     "freeCapCta": "Tilaa",
     "freeCapReached": "Ilmainen käyttö päättyy päivään {{day}}. Tilaa, niin voit jatkaa.",
+    "freeCapTrial": "Ilmainen suunnitelmasi päättyy päivään {{day}}. Aloita ilmainen kokeilu jatkaaksesi.",
     "knowledge": "Tietoa",
     "measureDaily": "Mittaa päivittäin ja seuraa kehitystä",
     "minutes_one": "{{count}} min",

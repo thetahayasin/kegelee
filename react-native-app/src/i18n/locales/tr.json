@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Ne kadar tuttuğunu ölç ve gelişimi izle.",
     "noticeSchedule": "Antrenman yaptığın gün ve saatler için hatırlatıcılar.",
+    "tryFree": "Ücretsiz dene",
     "unlockMore": "Premium'la daha fazlasını aç"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Ek seanslar isteğe bağlı",
     "freeCapCta": "Abone ol",
     "freeCapReached": "Ücretsiz planın {{day}}. günde bitiyor. Devam etmek için abone ol.",
+    "freeCapTrial": "Ücretsiz planın {{day}}. günde duruyor. Devam etmek için ücretsiz denemeni başlat.",
     "knowledge": "Bilgi",
     "measureDaily": "İlerlemeni görmek için her gün ölç",
     "minutes_one": "{{count}} dk",

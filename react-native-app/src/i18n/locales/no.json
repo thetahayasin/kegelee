@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Mål hvor lenge du holder, og se utviklingen.",
     "noticeSchedule": "Påminnelser for dagene og tidene du trener.",
+    "tryFree": "Prøv gratis",
     "unlockMore": "Lås opp mer med Premium"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Ekstra økter er valgfrie",
     "freeCapCta": "Abonner",
     "freeCapReached": "Gratisplanen din stopper på dag {{day}}. Abonner for å fortsette.",
+    "freeCapTrial": "Gratisplanen din stopper på dag {{day}}. Start den gratis prøveperioden for å fortsette.",
     "knowledge": "Kunnskap",
     "measureDaily": "Mål daglig for å følge fremgangen",
     "minutes_one": "{{count}} min",

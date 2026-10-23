@@ -51,6 +51,7 @@ import { Watermark } from '../../components/Watermark';
 import { TourOverlay } from '../../components/TourOverlay';
 import { HOME_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 import { claimWelcomeOffer } from '../../services/upsell';
+import { useTrialDays } from '../../services/trialOffer';
 
 export const TrainingScreen = () => {
   const styles = useThemedStyles(makeStyles);
@@ -300,6 +301,8 @@ export const TrainingScreen = () => {
 
   /** A free account whose plan has stopped moving - see the hero note below. */
   const freeCapReached = !subscribed && !user?.is_admin && completedDays >= FREE_DAY_CAP;
+  // The trial, when this account can still take one: the card leads with it.
+  const trialDays = useTrialDays(user?.id, freeCapReached);
   const sessionLength = t('training.minutes', {
     count: levelDef ? Math.floor(levelDef.total_session_seconds / 60) : 1,
   });
@@ -606,14 +609,22 @@ export const TrainingScreen = () => {
         {freeCapReached && (
           <View style={styles.freeCapCard}>
             <Text style={styles.freeCapText}>
-              {t('training.freeCapReached', { day: FREE_DAY_CAP })}
+              {trialDays
+                ? t('training.freeCapTrial', { day: FREE_DAY_CAP })
+                : t('training.freeCapReached', { day: FREE_DAY_CAP })}
             </Text>
+            {/* A free trial is the easier yes, so when there is one it gets
+                the full-strength button and names the free days outright. */}
             <TouchableOpacity
-              style={styles.freeCapBtn}
+              style={[styles.freeCapBtn, trialDays ? styles.freeCapBtnStrong : null]}
               accessibilityRole="button"
               onPress={() => navigation.navigate('Paywall', { source: 'training' })}
             >
-              <Text style={styles.freeCapBtnText}>{t('training.freeCapCta')}</Text>
+              <Text style={[styles.freeCapBtnText, trialDays ? styles.freeCapBtnTextStrong : null]}>
+                {trialDays
+                  ? t('paywall.startFreeTrialCta', { count: trialDays })
+                  : t('training.freeCapCta')}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -855,6 +866,8 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     fontWeight: '700',
     color: COLORS.accentText,
   },
+  freeCapBtnStrong: { backgroundColor: COLORS.accent },
+  freeCapBtnTextStrong: { color: COLORS.onAccent },
   unlockCard: {
     flexDirection: 'row',
     alignItems: 'center',

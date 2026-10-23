@@ -39,6 +39,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Chevron } from '../../components/Chevron';
 import { Watermark } from '../../components/Watermark';
 import { track } from '../../services/events';
+import { useTrialDays } from '../../services/trialOffer';
 
 /**
  * Written out rather than built as `settings.appearance_${mode}`, so that a
@@ -97,6 +98,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   const navigation = useNavigation<NavigationProp<any>>();
   const isFocused = useIsFocused();
   const { user, logout, subscribed } = useAuth();
+  const trialDays = useTrialDays(user?.id, !subscribed && !user?.is_admin);
 
   const [loading, setLoading] = useState(true);
   const [pages, setPages] = useState<any[]>([]);
@@ -355,10 +357,16 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuText}>{t('settings.noActiveSubscription')}</Text>
-                <Text style={styles.menuSubtext}>{t('settings.subscribeToUnlockFullAccess')}</Text>
+                <Text style={styles.menuSubtext}>
+                  {trialDays
+                    ? t('paywall.everyPlanStartsWithTrial', { count: trialDays })
+                    : t('settings.subscribeToUnlockFullAccess')}
+                </Text>
               </View>
               <View style={styles.subscribePill}>
-                <Text style={styles.subscribePillText}>{t('settings.subscribe')}</Text>
+                <Text style={styles.subscribePillText}>
+                  {trialDays ? t('premium.tryFree') : t('settings.subscribe')}
+                </Text>
               </View>
             </TouchableOpacity>
           )}

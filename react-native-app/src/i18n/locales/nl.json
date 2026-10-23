@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Meet hoelang je vasthoudt en zie de lijn ontstaan.",
     "noticeSchedule": "Herinneringen voor de dagen en tijden waarop je traint.",
+    "tryFree": "Gratis proberen",
     "unlockMore": "Ontgrendel meer met Premium"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Extra sessies zijn optioneel",
     "freeCapCta": "Abonneren",
     "freeCapReached": "Je gratis abonnement stopt op dag {{day}}. Abonneer je om verder te gaan.",
+    "freeCapTrial": "Je gratis plan stopt op dag {{day}}. Start je gratis proefperiode om door te gaan.",
     "knowledge": "Uitleg",
     "measureDaily": "Meet dagelijks om vooruitgang te volgen",
     "minutes_one": "{{count}} min",

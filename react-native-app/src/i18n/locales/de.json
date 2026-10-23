@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Miss deine Haltedauer und sieh den Verlauf wachsen.",
     "noticeSchedule": "Erinnerungen für deine Trainingstage und -zeiten.",
+    "tryFree": "Gratis testen",
     "unlockMore": "Mit Premium mehr freischalten"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Weitere Einheiten sind optional",
     "freeCapCta": "Abonnieren",
     "freeCapReached": "Dein kostenloser Tarif endet an Tag {{day}}. Abonniere, um weiterzumachen.",
+    "freeCapTrial": "Dein kostenloser Plan endet an Tag {{day}}. Starte deine kostenlose Testphase, um weiterzumachen.",
     "knowledge": "Wissen",
     "measureDaily": "Miss täglich, um Fortschritte zu sehen",
     "minutes_one": "{{count}} Min.",

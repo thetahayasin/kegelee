@@ -373,6 +373,7 @@
     "badge": "Premium",
     "noticeProgress": "Ukur lama tahananmu dan lihat perkembangannya.",
     "noticeSchedule": "Pengingat untuk hari dan jam latihanmu.",
+    "tryFree": "Coba gratis",
     "unlockMore": "Buka lebih banyak dengan Premium"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "Sesi tambahan bersifat opsional",
     "freeCapCta": "Berlangganan",
     "freeCapReached": "Paket gratismu berhenti di hari {{day}}. Berlangganan untuk melanjutkan.",
+    "freeCapTrial": "Paket gratismu berhenti di hari {{day}}. Mulai uji coba gratis untuk melanjutkan.",
     "knowledge": "Pengetahuan",
     "measureDaily": "Ukur setiap hari untuk melihat kemajuan",
     "minutes_one": "{{count}} mnt",

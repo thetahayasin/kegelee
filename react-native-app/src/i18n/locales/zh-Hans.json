@@ -373,6 +373,7 @@
     "badge": "高级版",
     "noticeProgress": "测量你的坚持时长，看着曲线一点点长起来。",
     "noticeSchedule": "为训练的日子和时间设置提醒。",
+    "tryFree": "免费试用",
     "unlockMore": "用高级版解锁更多"
   },
   "profile": {
@@ -575,6 +576,7 @@
     "extraSessionsOptional": "额外训练可做可不做",
     "freeCapCta": "订阅",
     "freeCapReached": "免费方案到第 {{day}} 天为止。订阅即可继续。",
+    "freeCapTrial": "免费计划在第 {{day}} 天停止。开始免费试用，继续训练。",
     "knowledge": "知识",
     "measureDaily": "每天测量，记录变化",
     "minutes_one": "{{count}} 分钟",
