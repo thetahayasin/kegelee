@@ -1,0 +1,205 @@
+{
+  "en": {
+    "training": { "headline": "*Stronger* in minutes a day", "sub": "A guided Kegel plan that fits your day." },
+    "workout": { "headline": "Just *follow* the circle", "sub": "Every squeeze guided, second by second." },
+    "progress": { "headline": "*See* your strength grow", "sub": "Track your longest hold, week by week." },
+    "schedule": { "headline": "*Never* miss a day", "sub": "Reminders at the times that suit you." },
+    "basics": { "headline": "New to Kegels? *Start here.*", "sub": "Three short lessons. No guesswork." }
+  },
+  "ar": {
+    "training": { "headline": "*أقوى* بدقائق يوميًا", "sub": "خطة كيجل موجّهة تناسب يومك." },
+    "workout": { "headline": "فقط *اتبع* الدائرة", "sub": "كل انقباضة موجّهة، ثانية بثانية." },
+    "progress": { "headline": "*شاهد* قوتك تزداد", "sub": "تابع أطول مدة ثبات، أسبوعًا بعد أسبوع." },
+    "schedule": { "headline": "*لا تفوّت* أي يوم", "sub": "تذكيرات في الأوقات التي تناسبك." },
+    "basics": { "headline": "جديد على تمارين كيجل؟ *ابدأ هنا.*", "sub": "ثلاثة دروس قصيرة. بلا تخمين." }
+  },
+  "cs": {
+    "training": { "headline": "*Silnější* za pár minut denně", "sub": "Vedený plán Kegelových cviků na každý den." },
+    "workout": { "headline": "Stačí *sledovat* kruh", "sub": "Každé stažení vedené, vteřinu po vteřině." },
+    "progress": { "headline": "*Uvidíte*, jak sílíte", "sub": "Měřte nejdelší výdrž týden po týdnu." },
+    "schedule": { "headline": "*Nevynechte* ani den", "sub": "Připomínky v časech, které vám vyhovují." },
+    "basics": { "headline": "Kegelovy cviky poprvé? *Začněte tady.*", "sub": "Tři krátké lekce. Žádné hádání." }
+  },
+  "da": {
+    "training": { "headline": "*Stærkere* på få minutter om dagen", "sub": "En guidet knibeplan, der passer ind i din dag." },
+    "workout": { "headline": "Bare *følg* cirklen", "sub": "Hvert knib guidet, sekund for sekund." },
+    "progress": { "headline": "*Se* din styrke vokse", "sub": "Følg dit længste hold uge for uge." },
+    "schedule": { "headline": "Gå *aldrig* glip af en dag", "sub": "Påmindelser på de tidspunkter, der passer dig." },
+    "basics": { "headline": "Ny med knibeøvelser? *Start her.*", "sub": "Tre korte lektioner. Intet gætværk." }
+  },
+  "de": {
+    "training": { "headline": "*Stärker* in Minuten am Tag", "sub": "Ein geführter Kegel-Plan für deinen Alltag." },
+    "workout": { "headline": "*Folge* einfach dem Kreis", "sub": "Jede Anspannung geführt, Sekunde für Sekunde." },
+    "progress": { "headline": "*Sieh*, wie du stärker wirst", "sub": "Verfolge deine längste Haltezeit Woche für Woche." },
+    "schedule": { "headline": "*Nie* wieder einen Tag verpassen", "sub": "Erinnerungen genau dann, wenn es dir passt." },
+    "basics": { "headline": "Neu beim Kegel-Training? *Starte hier.*", "sub": "Drei kurze Lektionen. Kein Rätselraten." }
+  },
+  "es": {
+    "training": { "headline": "*Más fuerte* en minutos al día", "sub": "Un plan de Kegel guiado que se adapta a tu día." },
+    "workout": { "headline": "Solo *sigue* el círculo", "sub": "Cada contracción guiada, segundo a segundo." },
+    "progress": { "headline": "*Mira* cómo ganas fuerza", "sub": "Registra tu mejor marca semana a semana." },
+    "schedule": { "headline": "*Nunca* te saltes un día", "sub": "Recordatorios a las horas que mejor te vienen." },
+    "basics": { "headline": "¿Nuevo en los Kegel? *Empieza aquí.*", "sub": "Tres lecciones cortas. Sin adivinar." }
+  },
+  "es-419": {
+    "training": { "headline": "*Más fuerte* en minutos al día", "sub": "Un plan de Kegel guiado que se adapta a tu día." },
+    "workout": { "headline": "Solo *sigue* el círculo", "sub": "Cada contracción guiada, segundo a segundo." },
+    "progress": { "headline": "*Mira* cómo ganas fuerza", "sub": "Registra tu mejor marca semana a semana." },
+    "schedule": { "headline": "*Nunca* te saltes un día", "sub": "Recordatorios a la hora que más te convenga." },
+    "basics": { "headline": "¿Nuevo en los Kegel? *Comienza aquí.*", "sub": "Tres lecciones cortas. Sin adivinanzas." }
+  },
+  "fi": {
+    "training": { "headline": "*Vahvempi* minuuteissa päivässä", "sub": "Ohjattu Kegel-ohjelma, joka sopii päivääsi." },
+    "workout": { "headline": "*Seuraa* vain ympyrää", "sub": "Jokainen jännitys ohjattuna, sekunti sekunnilta." },
+    "progress": { "headline": "*Näe* voimasi kasvavan", "sub": "Seuraa pisintä pitoasi viikko viikolta." },
+    "schedule": { "headline": "*Älä koskaan* jätä päivää väliin", "sub": "Muistutukset sinulle sopiviin aikoihin." },
+    "basics": { "headline": "Kegel-harjoittelu uutta? *Aloita tästä.*", "sub": "Kolme lyhyttä oppituntia. Ei arvailua." }
+  },
+  "fr": {
+    "training": { "headline": "*Renforcez-vous* en quelques minutes par jour", "sub": "Un programme Kegel guidé qui s’adapte à votre journée." },
+    "workout": { "headline": "*Suivez* simplement le cercle", "sub": "Chaque contraction guidée, seconde par seconde." },
+    "progress": { "headline": "*Voyez* votre force progresser", "sub": "Suivez votre meilleur maintien semaine après semaine." },
+    "schedule": { "headline": "*Ne manquez* plus aucun jour", "sub": "Des rappels aux heures qui vous conviennent." },
+    "basics": { "headline": "Débutant en Kegel\u00a0? *Commencez ici.*", "sub": "Trois leçons courtes. Rien à deviner." }
+  },
+  "he": {
+    "training": { "headline": "*חזקים יותר* בכמה דקות ביום", "sub": "תוכנית קיגל מודרכת שמתאימה ליום שלכם." },
+    "workout": { "headline": "פשוט *עקבו* אחרי העיגול", "sub": "כל כיווץ מודרך, שנייה אחר שנייה." },
+    "progress": { "headline": "*ראו* איך הכוח שלכם גדל", "sub": "עקבו אחרי ההחזקה הארוכה ביותר, שבוע אחר שבוע." },
+    "schedule": { "headline": "*אל תפספסו* אף יום", "sub": "תזכורות בשעות שנוחות לכם." },
+    "basics": { "headline": "חדשים בקיגל? *התחילו כאן.*", "sub": "שלושה שיעורים קצרים. בלי ניחושים." }
+  },
+  "hi": {
+    "training": { "headline": "रोज़ कुछ ही मिनटों में *ज़्यादा मज़बूत*", "sub": "आपके दिन में फ़िट होने वाला गाइडेड केगल प्लान।" },
+    "workout": { "headline": "बस सर्कल को *फ़ॉलो करें*", "sub": "हर कसाव गाइडेड, सेकंड दर सेकंड।" },
+    "progress": { "headline": "अपनी ताक़त *बढ़ती देखें*", "sub": "हर हफ़्ते अपनी सबसे लंबी पकड़ ट्रैक करें।" },
+    "schedule": { "headline": "*कोई दिन* न छूटे", "sub": "आपके समय के हिसाब से रिमाइंडर।" },
+    "basics": { "headline": "केगल में नए हैं? *यहीं से शुरू करें।*", "sub": "तीन छोटे पाठ। कोई अंदाज़ा नहीं।" }
+  },
+  "hu": {
+    "training": { "headline": "*Erősebb* napi pár perc alatt", "sub": "Vezetett Kegel-program, ami belefér a napodba." },
+    "workout": { "headline": "Csak *kövesd* a kört", "sub": "Minden szorítás vezetve, másodpercről másodpercre." },
+    "progress": { "headline": "*Lásd*, ahogy erősödsz", "sub": "Kövesd a leghosszabb tartásodat hétről hétre." },
+    "schedule": { "headline": "*Soha* ne hagyj ki egy napot", "sub": "Emlékeztetők a neked megfelelő időpontokban." },
+    "basics": { "headline": "Most kezded a Kegelt? *Indulj innen.*", "sub": "Három rövid lecke. Semmi találgatás." }
+  },
+  "id": {
+    "training": { "headline": "*Lebih kuat* hanya beberapa menit sehari", "sub": "Program Kegel terpandu yang pas dengan harimu." },
+    "workout": { "headline": "Cukup *ikuti* lingkarannya", "sub": "Setiap kontraksi dipandu, detik demi detik." },
+    "progress": { "headline": "*Lihat* kekuatanmu bertambah", "sub": "Pantau tahanan terlamamu dari minggu ke minggu." },
+    "schedule": { "headline": "*Jangan* lewatkan sehari pun", "sub": "Pengingat di waktu yang cocok untukmu." },
+    "basics": { "headline": "Baru kenal Kegel? *Mulai di sini.*", "sub": "Tiga pelajaran singkat. Tanpa menebak-nebak." }
+  },
+  "it": {
+    "training": { "headline": "*Più forte* in pochi minuti al giorno", "sub": "Un programma Kegel guidato che si adatta alla tua giornata." },
+    "workout": { "headline": "Basta *seguire* il cerchio", "sub": "Ogni contrazione guidata, secondo dopo secondo." },
+    "progress": { "headline": "*Guarda* la tua forza crescere", "sub": "Monitora il tuo record, settimana dopo settimana." },
+    "schedule": { "headline": "*Non saltare* mai un giorno", "sub": "Promemoria negli orari che preferisci." },
+    "basics": { "headline": "Nuovo agli esercizi Kegel? *Inizia da qui.*", "sub": "Tre brevi lezioni. Niente dubbi." }
+  },
+  "ja": {
+    "training": { "headline": "1日数分で\n*もっと強く*", "sub": "あなたの毎日に合わせた、ガイド付きケーゲルプラン。" },
+    "workout": { "headline": "*円に合わせる*だけ", "sub": "締めるタイミングを1秒ずつガイド。" },
+    "progress": { "headline": "*強くなる*のが見える", "sub": "ベスト記録を毎週チェック。" },
+    "schedule": { "headline": "もう*1日も*忘れない", "sub": "都合のいい時間にリマインド。" },
+    "basics": { "headline": "ケーゲル体操は初めて？\n*ここから始めよう。*", "sub": "短いレッスンが3つ。迷わず始められます。" }
+  },
+  "ko": {
+    "training": { "headline": "하루 몇 분으로 *더 강하게*", "sub": "내 일상에 맞춘 가이드형 케겔 플랜." },
+    "workout": { "headline": "*원을 따라* 하기만 하세요", "sub": "매 수축을 초 단위로 안내해요." },
+    "progress": { "headline": "*강해지는* 모습을 확인하세요", "sub": "최고 버티기 기록을 주마다 추적해요." },
+    "schedule": { "headline": "*하루도* 놓치지 마세요", "sub": "원하는 시간에 알림을 받아요." },
+    "basics": { "headline": "케겔 운동이 처음인가요?\n*여기서 시작하세요.*", "sub": "짧은 레슨 세 개. 헷갈릴 일 없어요." }
+  },
+  "nl": {
+    "training": { "headline": "*Sterker* in een paar minuten per dag", "sub": "Een begeleid kegelplan dat in je dag past." },
+    "workout": { "headline": "*Volg* gewoon de cirkel", "sub": "Elke aanspanning begeleid, seconde voor seconde." },
+    "progress": { "headline": "*Zie* je kracht groeien", "sub": "Houd je beste score week na week bij." },
+    "schedule": { "headline": "Mis *nooit* meer een dag", "sub": "Herinneringen op de tijden die jou uitkomen." },
+    "basics": { "headline": "Nieuw met kegeloefeningen? *Begin hier.*", "sub": "Drie korte lessen. Geen giswerk." }
+  },
+  "no": {
+    "training": { "headline": "*Sterkere* på noen minutter om dagen", "sub": "En veiledet knipeplan som passer inn i dagen din." },
+    "workout": { "headline": "Bare *følg* sirkelen", "sub": "Hvert knip veiledet, sekund for sekund." },
+    "progress": { "headline": "*Se* styrken din vokse", "sub": "Følg ditt lengste hold uke for uke." },
+    "schedule": { "headline": "Gå *aldri* glipp av en dag", "sub": "Påminnelser når det passer deg." },
+    "basics": { "headline": "Ny med knipeøvelser? *Start her.*", "sub": "Tre korte leksjoner. Ingen gjetting." }
+  },
+  "pl": {
+    "training": { "headline": "*Silniejsze* mięśnie w\u00a0kilka minut dziennie", "sub": "Prowadzony plan ćwiczeń Kegla dopasowany do Twojego dnia." },
+    "workout": { "headline": "Po prostu *podążaj* za kołem", "sub": "Każde napięcie prowadzone sekunda po sekundzie." },
+    "progress": { "headline": "*Zobacz*, jak rośnie Twoja siła", "sub": "Śledź swoje najdłuższe trzymanie tydzień po tygodniu." },
+    "schedule": { "headline": "*Nie przegap* ani jednego dnia", "sub": "Przypomnienia o porach, które Ci pasują." },
+    "basics": { "headline": "Ćwiczenia Kegla to nowość? *Zacznij tutaj.*", "sub": "Trzy krótkie lekcje. Bez zgadywania." }
+  },
+  "pt-BR": {
+    "training": { "headline": "*Mais forte* em minutos por dia", "sub": "Um plano de Kegel guiado que cabe no seu dia." },
+    "workout": { "headline": "É só *seguir* o círculo", "sub": "Cada contração guiada, segundo a segundo." },
+    "progress": { "headline": "*Veja* sua força crescer", "sub": "Acompanhe sua sustentação mais longa semana a semana." },
+    "schedule": { "headline": "*Nunca* perca um dia", "sub": "Lembretes nos horários que funcionam para você." },
+    "basics": { "headline": "Novo no Kegel? *Comece aqui.*", "sub": "Três lições curtas. Sem adivinhação." }
+  },
+  "ro": {
+    "training": { "headline": "*Mai puternic* în câteva minute pe zi", "sub": "Un program Kegel ghidat, potrivit zilei tale." },
+    "workout": { "headline": "Doar *urmează* cercul", "sub": "Fiecare contracție ghidată, secundă cu secundă." },
+    "progress": { "headline": "*Vezi* cum devii mai puternic", "sub": "Urmărește cea mai lungă menținere, săptămână de săptămână." },
+    "schedule": { "headline": "*Nu rata* nicio zi", "sub": "Mementouri la orele care ți se potrivesc." },
+    "basics": { "headline": "Nou la exercițiile Kegel? *Începe aici.*", "sub": "Trei lecții scurte. Fără ghicit." }
+  },
+  "ru": {
+    "training": { "headline": "*Сильнее* за\u00a0минуты в\u00a0день", "sub": "Программа упражнений Кегеля, которая впишется в ваш день." },
+    "workout": { "headline": "Просто *следуйте* за кругом", "sub": "Каждое сжатие с подсказкой, секунда за секундой." },
+    "progress": { "headline": "*Смотрите*, как растёт ваша сила", "sub": "Отслеживайте самое долгое удержание неделю за неделей." },
+    "schedule": { "headline": "*Ни дня* без тренировки", "sub": "Напоминания в удобное для вас время." },
+    "basics": { "headline": "Новичок в упражнениях Кегеля? *Начните здесь.*", "sub": "Три коротких урока. Без догадок." }
+  },
+  "sk": {
+    "training": { "headline": "*Silnejší* za pár minút denne", "sub": "Vedený plán Kegelových cvikov na každý deň." },
+    "workout": { "headline": "Stačí *sledovať* kruh", "sub": "Každé stiahnutie vedené, sekundu po sekunde." },
+    "progress": { "headline": "*Uvidíte*, ako silniete", "sub": "Sledujte najdlhšie držanie týždeň po týždni." },
+    "schedule": { "headline": "*Nevynechajte* ani deň", "sub": "Pripomienky v časoch, ktoré vám vyhovujú." },
+    "basics": { "headline": "Kegelove cviky prvýkrát? *Začnite tu.*", "sub": "Tri krátke lekcie. Žiadne hádanie." }
+  },
+  "sv": {
+    "training": { "headline": "*Starkare* på några minuter om dagen", "sub": "En guidad knipplan som passar in i din dag." },
+    "workout": { "headline": "Bara *följ* cirkeln", "sub": "Varje knip guidat, sekund för sekund." },
+    "progress": { "headline": "*Se* din styrka växa", "sub": "Följ din längsta hållning vecka för vecka." },
+    "schedule": { "headline": "Missa *aldrig* en dag", "sub": "Påminnelser på tider som passar dig." },
+    "basics": { "headline": "Ny på knipövningar? *Börja här.*", "sub": "Tre korta lektioner. Inget gissande." }
+  },
+  "th": {
+    "training": { "headline": "*แข็งแรงขึ้น*\nในไม่กี่นาทีต่อวัน", "sub": "แผนคีเกลแบบมีคำแนะนำ ที่เข้ากับวันของคุณ" },
+    "workout": { "headline": "แค่ *ทำตามวงกลม*", "sub": "ทุกการขมิบมีคำแนะนำ ทีละวินาที" },
+    "progress": { "headline": "*เห็น* ความแข็งแรง\nที่เพิ่มขึ้น", "sub": "ติดตามสถิติการค้างที่นานที่สุดในแต่ละสัปดาห์" },
+    "schedule": { "headline": "*ไม่พลาด* สักวัน", "sub": "แจ้งเตือนในเวลาที่สะดวกสำหรับคุณ" },
+    "basics": { "headline": "เพิ่งเริ่มคีเกล?\n*เริ่มที่นี่*", "sub": "บทเรียนสั้นๆ 3 บท ไม่ต้องเดา" }
+  },
+  "tr": {
+    "training": { "headline": "Günde birkaç dakikada *daha güçlü*", "sub": "Gününe uyan rehberli Kegel planı." },
+    "workout": { "headline": "Sadece *çemberi takip et*", "sub": "Her sıkma saniye saniye rehberli." },
+    "progress": { "headline": "Gücünün arttığını *gör*", "sub": "En uzun tutuşunu haftadan haftaya takip et." },
+    "schedule": { "headline": "*Hiçbir günü* kaçırma", "sub": "Sana uyan saatlerde hatırlatıcılar." },
+    "basics": { "headline": "Kegel’de yeni misin? *Buradan başla.*", "sub": "Üç kısa ders. Tahmin yok." }
+  },
+  "uk": {
+    "training": { "headline": "*Сильніші* за\u00a0кілька хвилин на\u00a0день", "sub": "Програма вправ Кегеля, що вписується у ваш день." },
+    "workout": { "headline": "Просто *слідкуйте* за колом", "sub": "Кожне стискання з підказкою, секунда за секундою." },
+    "progress": { "headline": "*Дивіться*, як зростає ваша сила", "sub": "Відстежуйте найдовше утримання тиждень за тижнем." },
+    "schedule": { "headline": "*Жодного дня* без тренування", "sub": "Нагадування у зручний для вас час." },
+    "basics": { "headline": "Вперше робите вправи Кегеля? *Почніть тут.*", "sub": "Три короткі уроки. Без здогадок." }
+  },
+  "vi": {
+    "training": { "headline": "*Mạnh mẽ hơn* chỉ với vài phút mỗi ngày", "sub": "Kế hoạch Kegel có hướng dẫn, vừa vặn với ngày của bạn." },
+    "workout": { "headline": "Chỉ cần *theo vòng tròn*", "sub": "Mỗi lần siết đều có hướng dẫn, từng giây một." },
+    "progress": { "headline": "*Thấy rõ* sức mạnh tăng lên", "sub": "Theo dõi lần giữ lâu nhất của bạn qua từng tuần." },
+    "schedule": { "headline": "*Không bỏ lỡ* ngày nào", "sub": "Nhắc nhở vào giờ phù hợp với bạn." },
+    "basics": { "headline": "Mới tập Kegel? *Bắt đầu tại đây.*", "sub": "Ba bài học ngắn. Không cần đoán." }
+  },
+  "zh-Hans": {
+    "training": { "headline": "每天几分钟，\n*更强大*", "sub": "贴合你日常的凯格尔引导计划。" },
+    "workout": { "headline": "*跟着圆圈*练就好", "sub": "每一次收缩，逐秒引导。" },
+    "progress": { "headline": "*看见*力量增长", "sub": "每周追踪你的最长保持时间。" },
+    "schedule": { "headline": "*一天不落*", "sub": "在你方便的时间提醒你。" },
+    "basics": { "headline": "初次接触凯格尔？\n*从这里开始。*", "sub": "三节短课，不再摸索。" }
+  }
+}

@@ -1,78 +1,31 @@
 /**
- * Capture the Google Play phone screenshots, in every language the app ships.
+ * Capture the app's real screens, in every language it ships, for the Play
+ * screenshot frames.
  *
- * Serves dist/ (run build.js first), opens it in Chromium at 432 x 768 CSS px
- * with a device scale of 2.5 - a 1080 x 1920 PNG, the 9:16 portrait size Play
- * asks for - and walks the same five screens in each language. Every request
- * that leaves the page is failed, so the demo account never reaches the
- * backend.
+ * Serves dist/ (run build.js first) and opens it in Chromium shaped like an
+ * Android phone: 412 x 915 CSS px at a device scale of 2, with the status bar
+ * and gesture bar insets a phone reports, so the screens sit where they do on
+ * a device. Walks the same five screens in each language. Every request that
+ * leaves the page is failed, so the demo account never reaches the backend.
  *
  *   node capture.js                      # every language, every screen
  *   node capture.js --lang de,ar         # just these app languages
  *   node capture.js --scenes workout     # just these screens
  *
- * Output: ../screenshots/<Play language code>/<nn>-<screen>.png
+ * Output: raw/<Play language code>/<nn>-<screen>.png (gitignored), which
+ * frames.js then puts into the store frames.
  */
 const fs = require('fs');
-const http = require('http');
 const path = require('path');
-const { execSync } = require('child_process');
 
-const HERE = __dirname;
-const APP = path.resolve(HERE, '../../..');
-const DIST = path.join(HERE, 'dist');
-const OUT = path.join(HERE, '..', 'screenshots');
+const { HERE, APP, DIST, chromium, PLAY_LANGUAGE, isRtl, arg, languagesFromArgs, serve } = require('./common');
 
-const { chromium } = require(require.resolve('playwright', {
-  paths: [HERE, execSync('npm root -g').toString().trim()],
-}));
+const OUT = path.join(HERE, 'raw');
 
-/**
- * App language -> Google Play listing language.
- *
- * Play names a few of these differently from the app: Hebrew is still the old
- * `iw-IL`, Simplified Chinese is `zh-CN`, and most European languages carry a
- * region.
- */
-const PLAY_LANGUAGE = {
-  en: 'en-US',
-  ar: 'ar',
-  cs: 'cs-CZ',
-  da: 'da-DK',
-  de: 'de-DE',
-  es: 'es-ES',
-  'es-419': 'es-419',
-  fi: 'fi-FI',
-  fr: 'fr-FR',
-  he: 'iw-IL',
-  hi: 'hi-IN',
-  hu: 'hu-HU',
-  id: 'id',
-  it: 'it-IT',
-  ja: 'ja-JP',
-  ko: 'ko-KR',
-  nl: 'nl-NL',
-  no: 'no-NO',
-  pl: 'pl-PL',
-  'pt-BR': 'pt-BR',
-  ro: 'ro',
-  ru: 'ru-RU',
-  sk: 'sk',
-  sv: 'sv-SE',
-  th: 'th',
-  tr: 'tr-TR',
-  uk: 'uk',
-  vi: 'vi',
-  'zh-Hans': 'zh-CN',
-};
-
-const VIEWPORT = { width: 432, height: 768 };
-const SCALE = 2.5;
-
-const arg = (name) => {
-  const i = process.argv.indexOf(`--${name}`);
-  return i !== -1 ? process.argv[i + 1] : null;
-};
+/** A Pixel-sized phone: 20:9, with its status bar and gesture bar insets. */
+const VIEWPORT = { width: 412, height: 915 };
+const SCALE = 2;
+const INSETS = { top: 32, bottom: 20 };
 
 /**
  * What the main stack holds under each screenshot, opened by route name.
@@ -140,36 +93,6 @@ const waitForBeat = (page, count, label) =>
     { polling: 25, timeout: 30000 },
   );
 
-const serve = () =>
-  new Promise((resolve) => {
-    const types = {
-      '.html': 'text/html',
-      '.js': 'text/javascript',
-      '.css': 'text/css',
-      '.wasm': 'application/wasm',
-      '.ttf': 'font/ttf',
-      '.png': 'image/png',
-      '.jpg': 'image/jpeg',
-    };
-    const server = http.createServer((req, res) => {
-      const rel = decodeURIComponent(new URL(req.url, 'http://local').pathname);
-      const file = path.join(DIST, rel === '/' ? 'index.html' : rel);
-      if (!file.startsWith(DIST)) {
-        res.writeHead(403);
-        return res.end();
-      }
-      fs.readFile(file, (err, data) => {
-        if (err) {
-          res.writeHead(404);
-          return res.end();
-        }
-        res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' });
-        res.end(data);
-      });
-    });
-    server.listen(0, '127.0.0.1', () => resolve(server));
-  });
-
 /**
  * Shrink every overflowing adjustsFontSizeToFit text, as Android does.
  *
@@ -204,12 +127,12 @@ const fitText = (page) =>
  * the bottom row, which is the right in English and the left in Arabic.
  */
 const pressNext = (page, rtl) =>
-  page.evaluate((isRtl) => {
+  page.evaluate((endIsLeft) => {
     const vh = window.innerHeight;
     const buttons = [...document.querySelectorAll('[role="button"]')]
       .map((el) => ({ el, r: el.getBoundingClientRect() }))
       .filter(({ r }) => r.width > 0 && r.top > vh * 0.75);
-    buttons.sort((a, b) => (isRtl ? a.r.left - b.r.left : b.r.right - a.r.right));
+    buttons.sort((a, b) => (endIsLeft ? a.r.left - b.r.left : b.r.right - a.r.right));
     if (!buttons.length) throw new Error('no lesson navigation button found');
     buttons[0].el.click();
   }, rtl);
@@ -217,7 +140,7 @@ const pressNext = (page, rtl) =>
 async function captureLanguage(browser, base, lang, scenes) {
   const dir = path.join(OUT, PLAY_LANGUAGE[lang]);
   fs.mkdirSync(dir, { recursive: true });
-  const rtl = ['ar', 'he'].includes(lang.split('-')[0]);
+  const rtl = isRtl(lang);
 
   for (const [i, scene] of SCENES.entries()) {
     if (!scenes.includes(scene.name)) continue;
@@ -247,7 +170,9 @@ async function captureLanguage(browser, base, lang, scenes) {
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
 
-    await page.goto(`${base}/?lang=${encodeURIComponent(lang)}`);
+    await page.goto(
+      `${base}/?lang=${encodeURIComponent(lang)}&insetTop=${INSETS.top}&insetBottom=${INSETS.bottom}`,
+    );
     await page.waitForFunction(() => window.__navReady || window.__seedError, null, { timeout: 30000 });
     const seedError = await page.evaluate(() => window.__seedError || null);
     if (seedError) throw new Error(`${lang}: seeding failed\n${seedError}`);
@@ -276,10 +201,7 @@ async function captureLanguage(browser, base, lang, scenes) {
 
 (async () => {
   if (!fs.existsSync(path.join(DIST, 'app.js'))) throw new Error('dist/ is missing - run `node build.js` first');
-  const all = Object.keys(PLAY_LANGUAGE);
-  const langs = arg('lang') ? arg('lang').split(',') : all;
-  const unknown = langs.filter((l) => !all.includes(l));
-  if (unknown.length) throw new Error(`unknown app language(s): ${unknown.join(', ')}`);
+  const langs = languagesFromArgs();
   const scenes = arg('scenes') ? arg('scenes').split(',') : SCENES.map((s) => s.name);
 
   const server = await serve();

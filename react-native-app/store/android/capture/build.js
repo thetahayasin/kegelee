@@ -64,6 +64,12 @@ const resolver = {
         : undefined,
     );
 
+    // The phone's insets for the app's own hook and SafeAreaView; libraries
+    // keep the real module (and its provider) untouched.
+    build.onResolve({ filter: /^react-native-safe-area-context$/ }, (args) =>
+      isAppSource(args.importer) ? { path: path.join(SHIMS, 'safe-area-context.js') } : undefined,
+    );
+
     const names = Object.keys(NATIVE_SHIMS).map((n) => n.replace(/[/\-.@]/g, '\\$&'));
     build.onResolve({ filter: new RegExp(`^(${names.join('|')})$`) }, (args) => ({
       path: path.join(SHIMS, NATIVE_SHIMS[args.path]),
@@ -162,7 +168,9 @@ const fontCss = () => {
     require.resolve('sql.js/dist/sql-wasm.wasm', { paths: [OWN_MODULES] }),
     path.join(DIST, 'sql-wasm.wasm'),
   );
-  fs.copyFileSync(path.join(HERE, 'web', 'index.html'), path.join(DIST, 'index.html'));
+  for (const page of ['index.html', 'frame.html', 'fonts-cjk.js']) {
+    fs.copyFileSync(path.join(HERE, 'web', page), path.join(DIST, page));
+  }
 
   await esbuild.build({
     entryPoints: [path.join(HERE, 'web', 'entry.js')],

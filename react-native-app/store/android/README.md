@@ -2,46 +2,70 @@
 
 ## Phone screenshots
 
-`screenshots/<Play language>/` holds five phone screenshots for each of the
-29 languages the app ships, in the black-and-white theme with Archivo type:
+`screenshots/<Play language>/` holds the five store screenshots for each of
+the 29 languages the app ships. Each one has a centred punch line, with a
+short supporting line, above the real app screen in an upright Android phone.
+They use the app's black-and-white theme and Archivo type:
 
-1. Training home: Month 1 · Day 24, a 23-day streak and the next unlock.
-2. A guided session on the "Contract & hold" beat of Holding.
-3. Progress, with the longest-hold chart.
-4. The reminder schedule and month calendar.
-5. The basics lesson's guided circle.
+| # | Screen | English punch line |
+| --- | --- | --- |
+| 1 | Training home | **Stronger** in minutes a day |
+| 2 | Guided session | Just **follow** the circle |
+| 3 | Progress | **See** your strength grow |
+| 4 | Reminder schedule | **Never** miss a day |
+| 5 | Basics lesson | New to Kegels? **Start here.** |
 
-Every image is a 1080 × 1920 RGB PNG (9:16 portrait), the size Play
-asks for when screenshots are to be eligible for promotion. Folders use Play's
-language codes (`iw-IL` for Hebrew, `zh-CN` for Simplified Chinese, `no-NO`,
-regional codes for most European languages), so each one maps to a listing
-directly.
+Each image is a 1080 × 1920 RGB PNG (9:16 portrait), the size Play asks for
+when screenshots are to be eligible for promotion. Folders use Play's language
+codes (`iw-IL` for Hebrew, `zh-CN` for Simplified Chinese, `no-NO`, regional
+codes for most European languages), so each one maps to a listing directly.
+
+### The words
+
+`headlines.json` holds every headline and supporting line, keyed by the app's
+language tags. `*Stars*` mark the phrase drawn as a white block; it is the
+headline's emphasis, kept to one line. `\n` forces a line break where a
+language needs one, such as Thai words that automatic breaking would split.
+The copy uses each locale's own terminology from `src/i18n/locales`. For
+example, Swedish, Danish and Norwegian say knip/knibe/knipe rather than
+Kegel. It also keeps each locale's form of address (du, vous, вы).
+
+Headlines are sized to the largest that fits on two lines, or on three when
+two cannot fit. Naskh and Thai start larger because they draw small. The
+phone shrinks slightly under a tall headline rather than overlapping it.
+Arabic and Hebrew are laid out right to left.
 
 ### How they are made
 
-`capture/` renders the app's real `App.tsx`, navigator and screens in
-Chromium through React Native Web. The app's own code is told it is on
-Android, so it takes its Android paths, including Archivo. Only the native
-modules underneath are replaced: SQLite runs on sql.js, while notifications,
-billing and sign-in are inert stand-ins. The data is a local demo account
-seeded into the app's own tables and storage keys. Requests to kegelee.com are
-blocked, and the account is premium so no padlocks or offers cover the screens.
+1. `capture/capture.js` renders the app's real `App.tsx`, navigator and
+   screens in Chromium through React Native Web. It uses a Pixel-sized
+   window (412 × 915 dp at 2×) with the status-bar and gesture-bar insets a
+   phone reports. Output goes to `capture/raw/` (not committed).
+2. `capture/frames.js` places each screen in `web/frame.html` with its
+   headline. It draws the phone, its status bar and its camera, and captures
+   the result at 1080 × 1920 into `screenshots/`.
+
+The app's own code is told it is on Android, so it takes its Android paths,
+including Archivo. Only the native modules underneath are replaced: SQLite
+runs on sql.js, while notifications, billing and sign-in are inert
+stand-ins. The data is a local demo account seeded into the app's own tables
+and storage keys. Requests to kegelee.com are blocked, and the account is
+premium so no padlocks or offers cover the screens.
 
 Typography follows Android: Archivo comes from `android/.../res/font`.
 Arabic, Hebrew, Devanagari, Thai and CJK fall back to Noto, and Cyrillic to
-Roboto, as they do on a phone. Arabic and Hebrew are laid out right to left.
+Roboto, as they do on a phone. The daily session is shuffled, so
+`Math.random` is seeded to give every language the same session. The two
+animated screens are captured when the circle shows a given count and phase
+label.
 
 Two browser layout differences are corrected to match Android. `Text` keeps
 Yoga's `flexShrink: 0`, so tab labels are not clipped. `adjustsFontSizeToFit`
 shrinks long labels such as "Entrenamiento" to fit, using Android's 4dp
-floor, instead of ellipsizing them. The old iOS browser captures had both
-problems.
-The daily session is shuffled, so `Math.random` is seeded to give every
-language the same session. The two animated screens are captured when the
-circle shows a given count and phase label.
+floor, instead of ellipsizing them.
 
-These are browser renderings rather than device captures. There is no system
-status bar, and native-only effects such as elevation shadows are absent.
+These are browser renderings of the app rather than device captures.
+Native-only effects such as elevation shadows are absent.
 
 ### Regenerating
 
@@ -51,10 +75,14 @@ fonts-roboto (Ubuntu package names) for the fallback scripts.
 ```sh
 cd store/android/capture
 npm install
-node build.js                 # bundle the app into dist/
-node capture.js               # all 29 languages, ~10 minutes
-node capture.js --lang de,ar  # or just some
+node build.js                 # bundle the app and the frame page into dist/
+node capture.js               # every language's screens into raw/, ~10 minutes
+node frames.js                # frame them into ../screenshots/, ~1 minute
+node capture.js --lang de,ar  # or just some languages (frames.js takes --lang too)
 ```
+
+After changing only `headlines.json` or `web/frame.html`, `node build.js &&
+node frames.js` is enough.
 
 ## Uploading
 

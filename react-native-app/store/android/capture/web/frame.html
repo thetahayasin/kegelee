@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Kegelee Play frame</title>
+    <!--
+      One Play screenshot: a centred punch line over the real app screen in an
+      upright phone. frames.js serves this from dist/, calls
+      window.renderFrame(...) and captures the 1080 x 1920 viewport.
+
+      Black and white like the app. The emphasis in a headline is an inverted
+      block, the way the app's primary button is a solid block of ink with the
+      opposite colour on top.
+    -->
+    <link rel="stylesheet" href="fonts.css" />
+    <style>
+      :root {
+        --ink: #ffffff;
+        --muted: #a3a3a3;
+        --ground: #000000;
+      }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--ground); }
+      body { position: relative; color: var(--ink); font-family: 'Archivo', sans-serif; }
+
+      /* A soft light behind the phone; nothing else on the ground. */
+      .glow {
+        position: absolute; inset: 0;
+        background: radial-gradient(48% 30% at 50% 66%, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0) 72%);
+      }
+
+      .copy { position: absolute; top: 120px; left: 72px; right: 72px; text-align: center; }
+      h1 {
+        margin: 0;
+        font-family: 'ArchivoExpanded', 'Archivo', sans-serif;
+        font-weight: 800;
+        line-height: 1.16;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+      }
+      h1 .em {
+        background: var(--ink);
+        color: var(--ground);
+        padding: 0 0.16em;
+        border-radius: 0.14em;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+        /* One block, never two: the headline shrinks before the phrase splits. */
+        white-space: nowrap;
+      }
+      .sub {
+        margin: 34px auto 0; max-width: 860px;
+        font-weight: 500; font-size: 40px; line-height: 1.3;
+        color: var(--muted);
+        text-wrap: balance;
+      }
+
+      /* An upright phone, centred. Its screen is the 412 x 915 dp capture. */
+      .phone {
+        position: absolute; top: 600px; left: 240px;
+        width: 600px; padding: 15px;
+        border-radius: 84px;
+        background: linear-gradient(140deg, #4a4a4a 0%, #161616 12%, #0b0b0b 50%, #151515 88%, #3c3c3c 100%);
+        box-shadow:
+          inset 0 0 0 2px rgba(255, 255, 255, 0.22),
+          inset 0 0 0 6px #050505,
+          0 60px 120px rgba(0, 0, 0, 0.85),
+          0 0 160px rgba(255, 255, 255, 0.10);
+      }
+      .btn { position: absolute; right: -5px; width: 6px; border-radius: 3px; background: linear-gradient(90deg, #2a2a2a, #5a5a5a); }
+      .btn.power { top: 290px; height: 100px; }
+      .btn.vol { top: 430px; height: 170px; }
+      .screen {
+        position: relative; overflow: hidden;
+        border-radius: 70px;
+        aspect-ratio: 412 / 915;
+        background: #000;
+      }
+      .shot { display: block; width: 100%; height: 100%; }
+      .status {
+        position: absolute; top: 0; left: 0; right: 0;
+        height: calc(32 / 915 * 100%);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 6px 9% 0;
+        font-weight: 600; font-size: 21px; letter-spacing: 0.01em;
+      }
+      .status svg { height: 19px; margin-inline-start: 7px; }
+      .icons { display: flex; align-items: center; }
+      .camera {
+        position: absolute; top: calc(11 / 915 * 100%); left: 50%;
+        width: 23px; height: 23px; margin-left: -11.5px; border-radius: 50%;
+        background: radial-gradient(circle at 40% 35%, #2b2b2b, #050505 60%);
+        box-shadow: 0 0 0 2px #111;
+      }
+      .pill {
+        position: absolute; bottom: 10px; left: 50%;
+        width: 160px; height: 6px; margin-left: -80px; border-radius: 3px;
+        background: rgba(255, 255, 255, 0.85);
+      }
+      .glare {
+        position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+        background: linear-gradient(115deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%);
+      }
+
+      /* Right to left: the buttons and the glare change sides. */
+      [dir='rtl'] .btn { right: auto; left: -5px; }
+      [dir='rtl'] .glare { background: linear-gradient(245deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%); }
+
+      /* Korean wraps between words, Japanese and Chinese strictly. */
+      :lang(ko) h1, :lang(ko) .sub { word-break: keep-all; }
+      :lang(ja) h1, :lang(zh) h1, :lang(ja) .sub, :lang(zh) .sub { line-break: strict; }
+      /* Han, kana and hangul fill the em box, so an emphasis block on the next
+         line would cover the one above at the Latin line height. */
+      :lang(ja) h1, :lang(zh) h1, :lang(ko) h1 { line-height: 1.32; }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+
+    <div class="copy">
+      <h1 id="headline"></h1>
+      <p class="sub" id="sub"></p>
+    </div>
+
+    <div class="phone">
+      <div class="btn power"></div>
+      <div class="btn vol"></div>
+      <div class="screen">
+        <img class="shot" id="shot" alt="" />
+        <div class="status">
+          <span>9:30</span>
+          <span class="icons">
+            <svg viewBox="0 0 20 16"><path d="M10 15 0.6 4.6a13 13 0 0 1 18.8 0z" fill="#fff" /></svg>
+            <svg viewBox="0 0 18 16"><path d="M1 15h16V1z" fill="#fff" /></svg>
+            <svg viewBox="0 0 12 20"><rect x="3.5" y="0" width="5" height="2" rx="1" fill="#fff" /><rect x="0.5" y="1.5" width="11" height="18" rx="2.5" fill="#fff" /></svg>
+          </span>
+        </div>
+        <div class="camera"></div>
+        <div class="pill"></div>
+        <div class="glare"></div>
+      </div>
+    </div>
+
+    <script src="fonts-cjk.js"></script>
+    <script>
+      /** The phone's place when the copy leaves room for it, in px. */
+      const PHONE = { top: 560, width: 600, maxBottom: 1872 };
+
+      /**
+       * Fill the frame. `headline` marks its emphasised phrase with *stars*;
+       * a "\n" forces a line break where a language needs one.
+       */
+      window.renderFrame = async ({ lang, dir, headline, sub, shot }) => {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = dir;
+        installCjkFaces(lang);
+
+        const h1 = document.getElementById('headline');
+        h1.textContent = '';
+        headline.split(/(\*[^*]+\*)/).forEach((part) => {
+          if (!part) return;
+          const node = document.createElement('span');
+          if (part.startsWith('*') && part.endsWith('*')) node.className = 'em';
+          part.replace(/^\*|\*$/g, '').split('\n').forEach((line, i) => {
+            if (i) node.appendChild(document.createElement('br'));
+            node.appendChild(document.createTextNode(line));
+          });
+          h1.appendChild(node);
+        });
+        document.getElementById('sub').textContent = sub;
+
+        const img = document.getElementById('shot');
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error(`could not load ${shot}`));
+          img.src = shot;
+        });
+        await document.fonts.ready;
+
+        // The largest headline that fits on two lines down to 76px, else on
+        // three down to 56px - never a word cut off or pushed past the edge.
+        const fits = (size, maxLines) => {
+          h1.style.fontSize = `${size}px`;
+          const lineHeight = parseFloat(getComputedStyle(h1).lineHeight);
+          const lines = Math.round(h1.getBoundingClientRect().height / lineHeight);
+          return lines <= maxLines && h1.scrollWidth <= h1.clientWidth + 1;
+        };
+        // Naskh and Thai draw small for their pixel size, so they start larger
+        // to stand as tall on the page as the Latin headlines do.
+        const scale = { ar: 1.2, th: 1.15 }[lang.split('-')[0]] || 1;
+        const px = (n) => Math.round(n * scale);
+        let size = px(104);
+        while (size > px(76) && !fits(size, 2)) size -= 2;
+        if (!fits(size, 2)) {
+          size = px(104);
+          while (size > px(56) && !fits(size, 3)) size -= 2;
+        }
+        h1.style.fontSize = `${size}px`;
+
+        // The phone sits centred under the copy, as large as fits above the
+        // bottom edge: a taller headline gets a slightly smaller phone, never
+        // an overlap.
+        const phone = document.querySelector('.phone');
+        const copyBottom = document.querySelector('.copy').getBoundingClientRect().bottom;
+        const top = Math.max(PHONE.top, copyBottom + 64);
+        let width = PHONE.width;
+        const place = () => {
+          phone.style.top = `${top}px`;
+          phone.style.width = `${width}px`;
+          phone.style.left = `${(1080 - width) / 2}px`;
+          return phone.getBoundingClientRect();
+        };
+        let rect = place();
+        while (rect.bottom > PHONE.maxBottom && width > 440) {
+          width -= 4;
+          rect = place();
+        }
+        await document.fonts.ready;
+        return { fontSize: size, phoneWidth: width, phoneBottom: Math.round(rect.bottom) };
+      };
+    </script>
+  </body>
+</html>
