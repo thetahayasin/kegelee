@@ -302,7 +302,10 @@ export const TrainingScreen = () => {
   /** A free account whose plan has stopped moving - see the hero note below. */
   const freeCapReached = !subscribed && !user?.is_admin && completedDays >= FREE_DAY_CAP;
   // The trial, when this account can still take one: the card leads with it.
-  const trialDays = useTrialDays(user?.id, freeCapReached);
+  const trialDays = useTrialDays(
+    user?.id,
+    freeCapReached || subNotice?.kind === 'cancelled',
+  );
   const sessionLength = t('training.minutes', {
     count: levelDef ? Math.floor(levelDef.total_session_seconds / 60) : 1,
   });
@@ -447,7 +450,11 @@ export const TrainingScreen = () => {
                 accessibilityRole="button"
                 onPress={() => navigation.navigate('Paywall', { source: 'renew' })}
               >
-                <Text style={styles.subNoticeBtnText}>{t('settings.subscribe')}</Text>
+                <Text style={styles.subNoticeBtnText}>
+                  {trialDays
+                    ? t('paywall.startFreeTrialCta', { count: trialDays })
+                    : t('settings.subscribe')}
+                </Text>
               </TouchableOpacity>
             )}
           </View>

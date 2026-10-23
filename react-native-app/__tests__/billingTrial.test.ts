@@ -9,12 +9,14 @@
  * Staying quiet about a trial somebody was entitled to costs a little
  * conversion. So every uncertainty resolves to "no trial".
  *
- * The hard part is that on Android checkTrialOrIntroductoryPriceEligibility
- * answers UNKNOWN for everyone, always - Play does not expose per-customer
- * trial eligibility to the SDK. The real test there is two facts together:
- * Play served an offer with a free phase (it only serves offers this Google
- * account can actually take), AND this RevenueCat customer has never bought
- * anything.
+ * On Android checkTrialOrIntroductoryPriceEligibility answers UNKNOWN for
+ * everyone, always. The answer there is Play's: the trial offer's rule is
+ * "never had any subscription in this app", Play only serves the offer to
+ * Google accounts that qualify, so a free phase on the served option IS the
+ * eligibility. On iOS the purchase history still has to agree, because
+ * StoreKit's introPrice describes the product, not the customer.
+ *
+ * Jest runs as iOS unless a test switches Platform.OS.
  */
 jest.mock('../src/db/queries', () => ({
   getAppSetting: jest.fn(() => Promise.resolve('goog_testkey')),
@@ -31,6 +33,7 @@ jest.mock('../src/services/api', () => ({
   },
 }));
 
+import { Platform } from 'react-native';
 import Purchases from 'react-native-purchases';
 import { getPlanPricing } from '../src/services/billing';
 import { PLANS } from '../src/constants/plans';
@@ -119,7 +122,7 @@ describe('trial eligibility', () => {
     expect(pricing['premium-quarterly'].freeTrialDays).toBe(3);
   });
 
-  it('refuses the trial on UNKNOWN when this customer has bought before', async () => {
+  it('refuses the trial on UNKNOWN when this customer has bought before (iOS)', async () => {
     // Play returns the offer's phases whether or not the trial has been used,
     // so the free phase alone is not proof. A returning subscriber was shown
     // "3 days free" and then charged at once.
@@ -219,6 +222,73 @@ describe('trial eligibility', () => {
  * store's own currency, symbol placement and decimals, at zero - because it
  * sits directly above the price it turns into.
  */
+
+describe('trial eligibility on Android', () => {
+  beforeEach(() => {
+    jest.replaceProperty(Platform, 'OS', 'android');
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("trusts Play's served trial even when the app account has bought before", async () => {
+    // Play enforces "never had any subscription in this app" on the Google
+    // account and only serves the offer when it applies - e.g. a different
+    // Google account, or Play Billing Lab resetting eligibility for testing.
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(returningCustomer);
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].freeTrialDays).toBe(3);
+  });
+
+  it('offers no trial when Play serves no free phase', async () => {
+    (Purchases.getOfferings as jest.Mock).mockResolvedValue(offeringsWithTrial(undefined));
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].freeTrialDays).toBeNull();
+    expect(pricing['premium-quarterly'].priceString).toBe('$1.00');
+  });
+
+  it('still refuses when the store says INELIGIBLE', async () => {
+    (Purchases as any).checkTrialOrIntroductoryPriceEligibility = jest.fn(() =>
+      Promise.resolve(eligibilityFor(INTRO_INELIGIBLE)),
+    );
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].freeTrialDays).toBeNull();
+  });
+});
+
+
+describe('fresh store catalogue', () => {
+  it("shows the store's current currency, not the SDK's cached one", async () => {
+    // A Play country change (or Billing Lab's country switch): the cached
+    // catalogue still says USD, the refetched one says PKR.
+    (Purchases.getOfferings as jest.Mock).mockResolvedValue(offeringsWithTrial('P3D'));
+    const fresh = offeringsWithTrial('P3D');
+    for (const p of fresh.current.availablePackages) {
+      Object.assign(p.product, { priceString: 'Rs 4,450.00', price: 4450, currencyCode: 'PKR' });
+    }
+    (Purchases.syncAttributesAndOfferingsIfNeeded as jest.Mock).mockResolvedValueOnce(fresh);
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].currencyCode).toBe('PKR');
+    expect(pricing['premium-quarterly'].priceString).toBe('Rs 4,450.00');
+  });
+
+  it('falls back to the cached catalogue when the refetch fails', async () => {
+    (Purchases.syncAttributesAndOfferingsIfNeeded as jest.Mock).mockRejectedValueOnce(new Error('rate limited'));
+
+    const pricing = await getPlanPricing(42);
+
+    expect(pricing['premium-quarterly'].priceString).toBe('$1.00');
+  });
+});
+
 describe('trial price', () => {
   it('quotes the trial at zero in the plan\'s own currency', async () => {
     const pricing = await getPlanPricing(42);

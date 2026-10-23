@@ -627,6 +627,27 @@ const introEligibility = async (
 };
 
 /**
+ * The store catalogue as it stands NOW, not as the SDK last cached it.
+ *
+ * getOfferings answers from RevenueCat's cache, built from Play's product
+ * details at the time - so a change of Play country (a move, a VPN, or Play
+ * Billing Lab's country switch while testing) kept showing the old currency
+ * and the old trial eligibility until the cache aged out. The paywall and
+ * the trial prompts are exactly where that has to be current, so they ask
+ * for a refetch. It also refreshes the SDK's own copy, which is the one
+ * purchasePackage buys from, so the price shown and the price charged stay
+ * the same. Rate limited by the SDK; on any failure the cached catalogue is
+ * still a perfectly good answer.
+ */
+const freshOfferings = async () => {
+  try {
+    return await Purchases.syncAttributesAndOfferingsIfNeeded();
+  } catch {
+    return Purchases.getOfferings();
+  }
+};
+
+/**
  * Localized store pricing (and real trial eligibility) for every plan the
  * paywall lists, keyed by plan slug. A missing entry means the store or
  * RevenueCat does not serve that product right now: callers must show a
@@ -638,7 +659,7 @@ export const getPlanPricing = async (
 ): Promise<Record<string, PlanPricing>> => {
   if (!(await initBilling(userId ?? null))) return {};
 
-  const offerings = await Purchases.getOfferings();
+  const offerings = await freshOfferings();
   const packages = offerings?.current?.availablePackages || [];
   const out: Record<string, PlanPricing> = {};
 
@@ -667,7 +688,29 @@ export const getPlanPricing = async (
    * is a refund, a one-star review and a Play policy problem, while quietly
    * not mentioning a trial somebody was entitled to costs a little conversion.
    */
-  const everPurchased = eligibility === null ? true : await hasEverPurchased();
+  /**
+   * On Android the store's own answer is the trial answer.
+   *
+   * The free-trial offer's eligibility rule in Play Console is "new customer
+   * acquisition: never had any subscription in this app", which Play
+   * enforces itself - queryProductDetails only returns that offer to Google
+   * accounts that qualify, and only that account can redeem it. So a free
+   * phase on the served option (read by freeTrialDaysFor) already means
+   * "this Google account gets the trial".
+   *
+   * The RevenueCat purchase-history check used to be required on top of it,
+   * and that is wrong on Android: history follows the app ACCOUNT, Play's
+   * rule follows the Google account. It hid a trial Play was offering - and
+   * made Play Billing Lab's eligibility testing impossible to see in the app.
+   * iOS still needs it, because StoreKit's introPrice is a property of the
+   * product rather than of the customer.
+   */
+  const android = Platform.OS === 'android';
+  const everPurchased = android
+    ? false
+    : eligibility === null
+      ? true
+      : await hasEverPurchased();
 
   for (const { plan, pkg } of matched) {
     const status = eligibility?.[packageProductId(pkg) || ''] ?? INTRO_UNKNOWN;

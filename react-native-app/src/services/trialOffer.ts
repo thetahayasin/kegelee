@@ -7,13 +7,13 @@
  * getPlanPricing the paywall uses, so a prompt can never promise a trial the
  * paywall then refuses (getPlanPricing fails closed: unknown means no trial).
  *
- * Cached per account for a few minutes: the Training tab asks on every focus,
+ * Cached per account for a minute: the Training tab asks on every focus,
  * and the store answer does not change between two taps.
  */
 import { useEffect, useState } from 'react';
 import { getPlanPricing } from './billing';
 
-const TTL_MS = 10 * 60 * 1000;
+const TTL_MS = 60 * 1000;
 let cache: { userId: number; days: number | null; at: number } | null = null;
 
 export const trialDaysFor = async (userId: number): Promise<number | null> => {

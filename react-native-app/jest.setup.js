@@ -52,6 +52,10 @@ jest.mock('react-native-purchases', () => ({
     logIn: jest.fn(() => Promise.resolve({})),
     logOut: jest.fn(() => Promise.resolve({})),
     getOfferings: jest.fn(() => Promise.resolve({ current: null })),
+    // Same catalogue as getOfferings unless a test says otherwise.
+    syncAttributesAndOfferingsIfNeeded: jest.fn(function () {
+      return this.getOfferings();
+    }),
     getCustomerInfo: jest.fn(() => Promise.resolve({ entitlements: { active: {} } })),
     purchasePackage: jest.fn(),
     restorePurchases: jest.fn(() => Promise.resolve({ entitlements: { active: {} } })),
