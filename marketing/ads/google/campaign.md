@@ -25,7 +25,9 @@ and tell me before using any other setup.
    goal, so it's tracked for reporting but not used for bidding.
 2. **Upload the videos to YouTube** on your channel, as **Unlisted**. That's
    9 uploads: each of the three ads in 9×16, 1×1 and 16×9, from
-   `marketing/ads/videos/`. Name them like `Kegelee – impress – 9x16`.
+   `marketing/ads/videos/`. Name them like `Kegelee – impress – 9x16`. Ads
+   1 and 3 use Vecteezy footage, so put `Footage: Vecteezy` in their YouTube
+   descriptions (the free license requires the credit).
 3. **Currency.** Prices below are in USD. If the account was created in
    another currency, convert them.
 4. **Content suitability** (Tools → Content suitability):
@@ -78,18 +80,18 @@ headline 90, description 90.
 
 **Ad 1: Stamina is a muscle**
 - Headlines: `Stamina is a muscle. Train it.` · `Last longer. Feel stronger.` · `Guided Kegel workouts for men`
-- Long headline: `Stamina is a muscle. Most guys never train it. Start free.`
-- Descriptions: `Guided Kegel workouts that track your control as it climbs.` · `Last longer, feel stronger, perform better. Start free today.`
+- Long headline: `Stamina is a muscle. Most guys never train it. Download and start now.`
+- Descriptions: `Guided Kegel workouts that track your control as it climbs.` · `Last longer, feel stronger, perform better. Download the app and start now.`
 
 **Ad 2: Impress her**
 - Headlines: `Want to impress her?` · `Forget the abs. Last longer.` · `Last longer in bed`
 - Long headline: `It's not your abs. It's how long you last. Train the muscle that matters.`
-- Descriptions: `Guided Kegel workouts for men. Last longer, stay in control.` · `Leave her impressed. Start free with Kegelee.`
+- Descriptions: `Guided Kegel workouts for men. Last longer, stay in control.` · `Leave her impressed. Download Kegelee and start now.`
 
 **Ad 3: How long do you last?**
 - Headlines: `How long do you really last?` · `Stamina isn't luck` · `Go longer`
 - Long headline: `Be honest. How long do you really last? Stamina is a muscle you can train.`
-- Descriptions: `More stamina. More control. Guided Kegel workouts for men.` · `Track your control as it climbs. Start free today.`
+- Descriptions: `More stamina. More control. Guided Kegel workouts for men.` · `Track your control as it climbs. Download the app and start now.`
 
 ## Prices and thresholds
 

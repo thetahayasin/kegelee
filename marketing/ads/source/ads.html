@@ -65,6 +65,17 @@
   .zone.top { justify-content: flex-start; top: 312px; height: auto; }
   .zone > * { max-width: 100%; }
 
+  /* 4:5 feed: no app UI covers the frame, so the text takes most of it and a
+     smaller phone fits whole under its headline. */
+  .f4x5 .zone { top: 110px; height: 1130px; }
+  .f4x5 .zone.top { top: 96px; height: auto; }
+  /* 1:1: the phone sits on the right, its headline on the left. */
+  .f1x1 .zone { top: 80px; height: 920px; }
+  .f1x1 .zone.top { left: 70px; right: 530px; top: 0; height: 1080px; justify-content: center; align-items: flex-start; text-align: left; }
+  .f1x1 .zone.top > div { height: 330px !important; }
+  .f1x1 .head { font-size: 60px; }
+  .f1x1 .zone.top .sub { font-size: 36px !important; }
+
   /* Type */
   .x { text-shadow: 0 6px 40px rgba(0, 0, 0, .45); font-family: 'ArchivoX'; font-weight: 900; text-transform: uppercase; line-height: .98; letter-spacing: -.012em; white-space: nowrap; }
   .fit { display: block; width: 100%; overflow: hidden; }
@@ -157,6 +168,12 @@
 <script>
 const LOGO = '../../../react-native-app/src/assets/logo.png';
 const W = 1080, FPS = 30;
+
+// The ad is drawn natively in each shape rather than cropped from 9:16, so the
+// phone is never cut off. ?format= picks it.
+const FORMAT = new URLSearchParams(location.search).get('format') || '9x16';
+const H = { '9x16': 1920, '4x5': 1350, '1x1': 1080 }[FORMAT];
+const PHONE = { '9x16': { top: 640, width: 700 }, '4x5': { top: 320, width: 470 }, '1x1': { top: 100, width: 405, left: 600 } }[FORMAT];
 const DITHER = .022;
 
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -224,8 +241,8 @@ const progressScreen = () => `
   <div class="pg-seg"><span>Days</span><b>Weeks</b><span>Months</span></div>
   <div class="pg-btn">Take measurement</div>`;
 
-function phone(screen, { at = 0, top = 640, width = 700 } = {}) {
-  const k = width / 390, left = (W - width) / 2;
+function phone(screen, { at = 0, top = PHONE.top, width = PHONE.width } = {}) {
+  const k = width / 390, left = PHONE.left ?? (W - width) / 2;
   return `<div class="phone-wrap" style="left:${left}px;top:${top}px" data-at="${at}" data-fx="rise" data-cue="whoosh">
     <div class="phone" style="transform:scale(${k})"><div class="screen">${screen}</div><div class="island"></div></div>
   </div>`;
@@ -247,7 +264,7 @@ function endCard(tag) {
     <div data-at="0" data-fx="pop" data-cue="chime"><img class="logo" src="${LOGO}"></div>
     <div class="x word" data-at=".15" data-fx="up">Kegelee</div>
     <div class="tag" data-at=".32" data-fx="up">${tag}</div>
-    <div data-at=".55" data-fx="pop" data-cue="pop"><div class="cta">Start free ${arrow}</div></div>
+    <div data-at=".55" data-fx="pop" data-cue="pop"><div class="cta">Download &amp; start now ${arrow}</div></div>
     <div class="small" data-at=".8" data-fx="fade">Kegel &amp; pelvic floor trainer</div>
   </div>`;
 }
@@ -316,25 +333,25 @@ const ADS = {
     thumb: 1.5,
     vo: { file: 'vo/01-muscle.mp3', tempo: 1.1, at: [.05, 2.25, 4.45, 6, 7.45, 8.55, 10.95, 14.75, 15.3] },
     scenes: [
-      S(0, 2.2, `${stock('flex', 0, .55)}<div class="zone">
+      S(0, 2.2, `${stock('silhouette')}<div class="zone">
         ${line('Stamina', -.15, { size: 190 })}
         ${line('is a', .55, { size: 130 })}
         ${line('muscle.', 1, { size: 190, inv: true, shake: true })}
       </div>`),
-      S(2.2, 4.4, `${stock('bench')}<div class="zone">
+      S(2.2, 4.4, `${stock('nobodycares')}<div class="zone">
         ${line('Most guys', 0, { size: 150 })}
         ${line('never train it.', .7, { size: 140, inv: true, shake: true })}
       </div>`),
       S(4.4, 10.9, `${swaps([[head('Guided.<br>3–5 min a day.'), .25, 2.95], [head('Measure it.<br>Watch it climb.'), 3.05]])}
         ${phone(progressScreen())}`,
         { update: bars(3.3), cues: BARS.map((_, i) => ({ type: 'tick', t: 3.3 + i * .28 })) }),
-      S(10.9, 14.5, `${stock('incline')}<div class="zone">
+      S(10.9, 14.5, `${stock('locker')}<div class="zone">
         ${line('Last longer.', 0, { size: 140 })}
         ${line('Feel stronger.', 1.05, { size: 140 })}
         ${line('Perform better.', 2.1, { size: 140, inv: true, shake: true })}
         ${sub('In bed <b>and out of it.</b>', 2.7)}
       </div>`),
-      S(14.5, 17.3, endCard('Train your stamina.'), { update: endUpdate }),
+      S(14.5, 17.8, endCard('Train your stamina.'), { update: endUpdate }),
     ],
   },
 
@@ -343,12 +360,12 @@ const ADS = {
     thumb: 1.5,
     vo: { file: 'vo/02-impress.mp3', tempo: 1.1, at: [.05, 1.95, 3.2, 4.4, 6.65, 8.5, 9.75, 11.6, 13.05, 14.45, 15] },
     scenes: [
-      S(0, 1.9, `${stock('bench', 3)}<div class="zone">
+      S(0, 1.9, `${stock('trx', 0, .6)}<div class="zone">
         ${line('Want to', -.15, { size: 130 })}
         ${line('impress', .25, { size: 200 })}
         ${line('your girlfriend?', .75, { size: 120, inv: true, shake: true })}
       </div>`),
-      S(1.9, 3.15, `${stock('flex', 3, .55)}<div class="zone">
+      S(1.9, 3.15, `${stock('physique', 0, .6)}<div class="zone">
         ${line('Forget', 0, { size: 150, fx: 'fade' })}
         ${line('the abs.', .2, { size: 190, inv: true, shake: true })}
       </div>`),
@@ -369,15 +386,15 @@ const ADS = {
       S(9.7, 11, `${swaps([[head('Train it.', 'Guided Kegel workouts.'), .2]])}
         ${phone(workoutScreen())}`,
         { update: (r, lt) => runCircle(r, [SQUEEZE], lt - .3), cues: circleCues(.3, [SQUEEZE]) }),
-      S(11, 13, `${stock('incline', 4)}<div class="zone">
+      S(11, 13, `${stock('shoulder')}<div class="zone">
         ${line('Last longer.', 0, { size: 170, inv: true, shake: true })}
         ${line('Stay in control.', .6, { size: 130 })}
       </div>`),
-      S(13, 14.3, `${stock('bed', 2.5)}<div class="zone">
+      S(13, 14.3, `${stock('pulldown', 6, .6)}<div class="zone">
         ${line('She’ll', 0, { size: 200 })}
         ${line('notice.', .3, { size: 230, inv: true, shake: true })}
       </div>`),
-      S(14.3, 17.1, endCard('Leave her impressed.'), { update: endUpdate }),
+      S(14.3, 17.6, endCard('Leave her impressed.'), { update: endUpdate }),
     ],
   },
 
@@ -394,12 +411,12 @@ const ADS = {
         <div class="x timer" data-at="0" data-fx="fade" data-timer></div>
       </div>`,
         { update: timerUpdate, cues: [...Array(16)].map((_, i) => ({ type: 'tick', t: .05 + i * .1 })) }),
-      S(3.1, 5.5, `${stock('sheets')}<div class="zone">
+      S(3.1, 5.5, `${stock('headphones')}<div class="zone">
         ${line('If you had to', 0, { size: 130 })}
         ${line('think about it…', .55, { size: 130 })}
         ${line('keep watching.', 1.6, { size: 140, inv: true, shake: true })}
       </div>`),
-      S(5.5, 8.3, `${stock('bench', 6)}<div class="zone">
+      S(5.5, 8.3, `${stock('cable')}<div class="zone">
         ${line('Stamina in bed', 0, { size: 120 })}
         ${line('isn’t luck.', 1.05, { size: 170 })}
         ${line('It’s a muscle.', 2, { size: 150, inv: true, shake: true })}
@@ -411,12 +428,12 @@ const ADS = {
       S(9.7, 14, `${swaps([[head('Guided workouts.'), .25, 2.2], [head('Watch your control<br>climb.'), 2.35]])}
         ${phone(progressScreen())}`,
         { update: bars(2.4), cues: BARS.map((_, i) => ({ type: 'tick', t: 2.4 + i * .28 })) }),
-      S(14, 17.2, `${stock('incline', 7)}<div class="zone">
+      S(14, 17.2, `${stock('silhouette', 8)}<div class="zone">
         ${line('More stamina.', 0, { size: 140 })}
         ${line('More control.', .95, { size: 140 })}
         ${line('Better sex.', 2.05, { size: 190, inv: true, shake: true })}
       </div>`),
-      S(17.2, 20, endCard('Go longer.'), { update: endUpdate }),
+      S(17.2, 20.5, endCard('Go longer.'), { update: endUpdate }),
     ],
   },
 };
@@ -461,6 +478,8 @@ const params = new URLSearchParams(location.search);
 })();
 const AD = ADS[params.get('ad') || 'muscle'];
 const stage = document.getElementById('stage');
+stage.style.height = `${H}px`;
+stage.classList.add(`f${FORMAT}`);
 const cam = document.getElementById('cam');
 const wm = stage.querySelector('.wmark');
 
@@ -540,7 +559,13 @@ function renderAt(t) {
 
 window.AD_META = {
   duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb, vo: AD.vo || null,
-  clips: [...new Set([...document.querySelectorAll('.stock')].map(st => st.dataset.clip))],
+  // Seconds of each clip the ad reaches into, so render.mjs extracts no more than that.
+  clips: built.reduce((need, s) => {
+    for (const st of s.el.querySelectorAll('.stock')) {
+      need[st.dataset.clip] = Math.max(need[st.dataset.clip] || 0, parseFloat(st.dataset.off) + s.to - s.from);
+    }
+    return need;
+  }, {}),
 };
 window.renderAt = renderAt;
 window.ready = (async () => {

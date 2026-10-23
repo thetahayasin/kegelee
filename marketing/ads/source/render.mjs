@@ -8,8 +8,8 @@
 //
 // Each ad comes out five ways in ../videos:
 //   NN-name-9x16.mp4   Reels, Stories, and the default upload
-//   NN-name-4x5.mp4    Instagram and Facebook feed (a centre crop of the same frames)
-//   NN-name-1x1.mp4    YouTube in-feed (a square crop)
+//   NN-name-4x5.mp4    Instagram and Facebook feed (laid out for 4:5)
+//   NN-name-1x1.mp4    YouTube in-feed (laid out for a square)
 //   NN-name-16x9.mp4   YouTube in-stream (the vertical ad over a blurred copy of itself)
 //   NN-name-cover.jpg  a cover/thumbnail frame
 //
@@ -58,63 +58,73 @@ const X264 = ['-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-x264-params'
 
 const STOCK_DIR = path.join(HERE, 'stock');
 const prepared = {};
-function prepareStock(clip) {
-  if (clip in prepared) return prepared[clip];
+// Frames for the first `seconds` of a clip; an ad that reaches further in re-extracts it.
+function prepareStock(clip, seconds) {
+  if (clip in prepared && (prepared[clip] === null || prepared[clip].seconds >= seconds)) return prepared[clip];
   const src = fs.existsSync(STOCK_DIR) && fs.readdirSync(STOCK_DIR).find(f => path.parse(f).name === clip && !f.endsWith('.md'));
   if (!src) {
     console.log(`  no stock/${clip}.*, so that scene stays on the plain background`);
     return (prepared[clip] = null);
   }
   const dir = path.join(TMP, 'stock', clip);
+  fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
-  // Ten seconds is more than any scene holds a clip for.
-  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(STOCK_DIR, src), '-t', '10', '-vf',
+  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(STOCK_DIR, src), '-t', String(seconds + .5), '-vf',
     'fps=30,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,hue=s=0,eq=contrast=1.15:brightness=-0.02',
     '-q:v', '3', path.join(dir, '%05d.jpg')]);
-  return (prepared[clip] = { frames: fs.readdirSync(dir).length, base: `/__stock/${clip}/` });
+  return (prepared[clip] = { seconds, frames: fs.readdirSync(dir).length, base: `/__stock/${clip}/` });
 }
 
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
 
-for (const name of wanted) {
-  const n = String(ORDER.indexOf(name) + 1).padStart(2, '0');
-  const stem = path.join(OUT, `${n}-${name}`);
-  await page.goto(`${BASE}?ad=${name}`);
+// Each shape is drawn natively by ads.html, then gets the same soundtrack.
+const FORMATS = { '9x16': 1920, '4x5': 1350, '1x1': 1080 };
+
+async function renderFrames(name, format, height, silent) {
+  await page.setViewportSize({ width: 1080, height });
+  await page.goto(`${BASE}?ad=${name}&format=${format}`);
   await page.evaluate(() => window.ready);
   const meta = await page.evaluate(() => window.AD_META);
-  const frames = Math.round(meta.duration * FPS);
-  console.log(`${name}: ${meta.duration}s, ${frames} frames, ${meta.cues.length} sound cues`);
-  const clips = Object.fromEntries(meta.clips.map(c => [c, prepareStock(c)]).filter(([, v]) => v));
+  const clips = Object.fromEntries(Object.entries(meta.clips).map(([c, s]) => [c, prepareStock(c, s)]).filter(([, v]) => v));
   await page.evaluate(c => window.setStock(c), clips);
 
-  const silent = path.join(TMP, `${name}.mp4`);
   const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(FPS), '-i', '-',
     ...X264, '-movflags', '+faststart', silent], { stdio: ['pipe', 'inherit', 'inherit'] });
   const done = new Promise((resolve, reject) => ff.on('close', c => c === 0 ? resolve() : reject(new Error(`ffmpeg exited ${c}`))));
-  for (let i = 0; i < frames; i++) {
+  for (let i = 0; i < Math.round(meta.duration * FPS); i++) {
     await page.evaluate(t => window.renderAt(t), i / FPS);
     const jpg = await page.screenshot({ type: 'jpeg', quality: 94 });
     if (!ff.stdin.write(jpg)) await new Promise(r => ff.stdin.once('drain', r));
   }
   ff.stdin.end();
   await done;
+  return meta;
+}
 
-  await page.evaluate(t => window.renderAt(t), meta.thumb);
-  await page.screenshot({ path: `${stem}-cover.jpg`, type: 'jpeg', quality: 92 });
+for (const name of wanted) {
+  const n = String(ORDER.indexOf(name) + 1).padStart(2, '0');
+  const stem = path.join(OUT, `${n}-${name}`);
+  let meta;
+  for (const [format, height] of Object.entries(FORMATS)) {
+    meta = await renderFrames(name, format, height, path.join(TMP, `${name}-${format}.mp4`));
+    if (format === '9x16') {
+      console.log(`${name}: ${meta.duration}s, ${meta.cues.length} sound cues`);
+      await page.evaluate(t => window.renderAt(t), meta.thumb);
+      await page.screenshot({ path: `${stem}-cover.jpg`, type: 'jpeg', quality: 92 });
+    }
+  }
 
+  const frames = Math.round(meta.duration * FPS);
   const cues = path.join(TMP, `${name}.json`), wav = path.join(TMP, `${name}.wav`);
   fs.writeFileSync(cues, JSON.stringify({ duration: frames / FPS, cues: meta.cues, vo: meta.vo }));
   run('python3', [path.join(HERE, 'sfx.py'), cues, wav]);
 
-  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, '-i', wav, '-map', '0:v', '-map', '1:a',
-    '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', `${stem}-9x16.mp4`]);
-  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', `${stem}-9x16.mp4`, '-vf', 'crop=1080:1350:0:285',
-    ...X264, '-c:a', 'copy', '-movflags', '+faststart', `${stem}-4x5.mp4`]);
-  // Square, for YouTube in-feed: the text zone (y 300-1270) fits inside this crop.
-  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', `${stem}-9x16.mp4`, '-vf', 'crop=1080:1080:0:245',
-    ...X264, '-c:a', 'copy', '-movflags', '+faststart', `${stem}-1x1.mp4`]);
+  for (const format of Object.keys(FORMATS)) {
+    run('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(TMP, `${name}-${format}.mp4`), '-i', wav, '-map', '0:v', '-map', '1:a',
+      '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', `${stem}-${format}.mp4`]);
+  }
   // Landscape, for YouTube in-stream: the vertical ad in the middle, over a blurred, darkened copy of itself.
   run('ffmpeg', ['-y', '-loglevel', 'error', '-i', `${stem}-9x16.mp4`, '-filter_complex',
     '[0:v]split[a][b];[a]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,boxblur=40:4,eq=brightness=-0.3[bg];[b]scale=-2:1080[fg];[bg][fg]overlay=(W-w)/2:0',

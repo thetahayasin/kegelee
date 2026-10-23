@@ -10,15 +10,17 @@ black and white with bold Archivo type, to match the app.
 | 2 | `videos/02-impress-*` | 17s | "Want to impress your girlfriend? Forget the abs. Forget the car. It's how long you last in bed." |
 | 3 | `videos/03-howlong-*` | 20s | "Be honest. How long do you really last?" A stopwatch stops at 2:47. Then: more stamina, more control, better sex. |
 
-Ads 2 and 3 are built for stock footage behind the text. A clip goes in each
-slot listed in `source/stock/README.md`. Until a slot has a clip, it shows
-the plain dark background.
+Gym footage plays behind most scenes, graded black and white.
+`source/stock/README.md` lists the clips, which scene each sits behind, and the
+three slots that are still empty (car, sheets, clock). Every ad ends on
+"Kegelee. Download the app and start now." with a **Download & start now**
+button.
 
 Each ad comes in three files:
 
 - `*-9x16.mp4`: 1080×1920 for Reels and Stories. This is the main file to upload.
-- `*-4x5.mp4`: 1080×1350 for the Instagram and Facebook feeds. It's a crop of the same video.
-- `*-1x1.mp4`: 1080×1080 for YouTube in-feed.
+- `*-4x5.mp4`: 1080×1350 for the Instagram and Facebook feeds, laid out for that shape so the phone fits whole.
+- `*-1x1.mp4`: 1080×1080 for YouTube in-feed, with the phone beside its headline.
 - `*-16x9.mp4`: 1920×1080 for YouTube in-stream. It shows the vertical ad over a blurred copy of itself.
 - `*-cover.jpg`: the cover or thumbnail frame.
 
@@ -83,7 +85,9 @@ rejections can get the ad account restricted.
 - Main text: `Be honest. How long do you really last? ⏱️ Stamina isn't luck. It's a muscle, and you can train it.`
 - Headline: `Go longer`
 
-Use `Free to start` as the description on all three. Test two main texts per
+Use `Download the app and start now` as the description on all three. Ads 1
+and 3 use Vecteezy footage, so add `Footage: Vecteezy` to their post text or
+YouTube description. Test two main texts per
 ad by swapping in a hook from the list below.
 
 ### Hooks to try (first 1–2 seconds)
