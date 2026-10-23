@@ -25,9 +25,9 @@ and tell me before using any other setup.
    goal, so it's tracked for reporting but not used for bidding.
 2. **Upload the videos to YouTube** on your channel, as **Unlisted**. That's
    9 uploads: each of the three ads in 9×16, 1×1 and 16×9, from
-   `marketing/ads/videos/`. Name them like `Kegelee – impress – 9x16`. Ads
-   1 and 3 use Vecteezy footage, so put `Footage: Vecteezy` in their YouTube
-   descriptions (the free license requires the credit).
+   `marketing/ads/videos/`. Name them like `Kegelee – impress – 9x16`. All
+   three ads use some Vecteezy footage, so put `Footage: Vecteezy` in each
+   YouTube description (the free license requires the credit).
 3. **Currency.** Prices below are in USD. If the account was created in
    another currency, convert them.
 4. **Content suitability** (Tools → Content suitability):

@@ -249,9 +249,11 @@ function phone(screen, { at = 0, top = PHONE.top, width = PHONE.width } = {}) {
 }
 
 // Full-bleed stock footage behind a scene, `off` seconds into the clip. `dim`
-// darkens a bright clip further so white type still reads over it.
-const stock = (clip, off = 0, dim = 1) =>
-  `<div class="stock" data-clip="${clip}" data-off="${off}"><img alt=""${dim < 1 ? ` style="filter:brightness(${dim})"` : ''}></div>`;
+// darkens a bright clip further so white type still reads over it. `from` and
+// `to` (seconds into the scene) show it for only part of the scene; a later
+// stock() in the same scene sits on top, so this is how a scene cuts mid-way.
+const stock = (clip, off = 0, dim = 1, from = 0, to = 99) =>
+  `<div class="stock" data-clip="${clip}" data-off="${off}" data-a="${from}" data-b="${to}"><img alt=""${dim < 1 ? ` style="filter:brightness(${dim})"` : ''}></div>`;
 
 // One line of headline type that shrinks only if it would overflow the zone.
 const line = (text, at, { size = 150, inv = false, fx = 'slam', shake = false } = {}) =>
@@ -345,7 +347,7 @@ const ADS = {
       S(4.4, 10.9, `${swaps([[head('Guided.<br>3–5 min a day.'), .25, 2.95], [head('Measure it.<br>Watch it climb.'), 3.05]])}
         ${phone(progressScreen())}`,
         { update: bars(3.3), cues: BARS.map((_, i) => ({ type: 'tick', t: 3.3 + i * .28 })) }),
-      S(10.9, 14.5, `${stock('locker')}<div class="zone">
+      S(10.9, 14.5, `${stock('locker')}${stock('trx', 1, .6, 2.1)}<div class="zone">
         ${line('Last longer.', 0, { size: 140 })}
         ${line('Feel stronger.', 1.05, { size: 140 })}
         ${line('Perform better.', 2.1, { size: 140, inv: true, shake: true })}
@@ -373,7 +375,7 @@ const ADS = {
         ${line('Forget', 0, { size: 150, fx: 'fade' })}
         ${line('the car.', .2, { size: 190, inv: true, shake: true })}
       </div>`),
-      S(4.35, 6.6, `${stock('sheets')}<div class="zone">
+      S(4.35, 6.6, `${stock('stretch', 0, .6)}<div class="zone">
         ${line('It’s how long', 0, { size: 130 })}
         ${line('you last', .6, { size: 180 })}
         ${line('in bed.', 1.2, { size: 200, inv: true, shake: true })}
@@ -428,7 +430,7 @@ const ADS = {
       S(9.7, 14, `${swaps([[head('Guided workouts.'), .25, 2.2], [head('Watch your control<br>climb.'), 2.35]])}
         ${phone(progressScreen())}`,
         { update: bars(2.4), cues: BARS.map((_, i) => ({ type: 'tick', t: 2.4 + i * .28 })) }),
-      S(14, 17.2, `${stock('silhouette', 8)}<div class="zone">
+      S(14, 17.2, `${stock('silhouette', 8)}${stock('pulldown', 1, .6, 2.05)}<div class="zone">
         ${line('More stamina.', 0, { size: 140 })}
         ${line('More control.', .95, { size: 140 })}
         ${line('Better sex.', 2.05, { size: 190, inv: true, shake: true })}
@@ -540,8 +542,11 @@ function renderAt(t) {
     }
     if (s.update) s.update(s.el, lt, t);
     for (const st of s.el.querySelectorAll('.stock.on')) {
+      const a = parseFloat(st.dataset.a), b = parseFloat(st.dataset.b);
+      st.style.visibility = lt >= a && lt < b ? '' : 'hidden';
+      if (lt < a || lt >= b) continue;
       const clip = STOCK[st.dataset.clip], img = st.firstElementChild;
-      const f = Math.min(clip.frames - 1, Math.floor((lt + parseFloat(st.dataset.off)) * FPS));
+      const f = Math.min(clip.frames - 1, Math.floor((lt - a + parseFloat(st.dataset.off)) * FPS));
       const src = `${clip.base}${String(f + 1).padStart(5, '0')}.jpg`;
       if (img.dataset.src !== src) { img.dataset.src = src; img.src = src; pending.push(img.decode().catch(() => {})); }
       img.style.transform = `scale(${1.04 + .08 * lt / (s.to - s.from)})`;
@@ -562,7 +567,8 @@ window.AD_META = {
   // Seconds of each clip the ad reaches into, so render.mjs extracts no more than that.
   clips: built.reduce((need, s) => {
     for (const st of s.el.querySelectorAll('.stock')) {
-      need[st.dataset.clip] = Math.max(need[st.dataset.clip] || 0, parseFloat(st.dataset.off) + s.to - s.from);
+      const shown = Math.min(parseFloat(st.dataset.b), s.to - s.from) - parseFloat(st.dataset.a);
+      need[st.dataset.clip] = Math.max(need[st.dataset.clip] || 0, parseFloat(st.dataset.off) + shown);
     }
     return need;
   }, {}),

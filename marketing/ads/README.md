@@ -12,7 +12,7 @@ black and white with bold Archivo type, to match the app.
 
 Gym footage plays behind most scenes, graded black and white.
 `source/stock/README.md` lists the clips, which scene each sits behind, and the
-three slots that are still empty (car, sheets, clock). Every ad ends on
+two slots that are still empty (car, clock). Every ad ends on
 "Kegelee. Download the app and start now." with a **Download Now**
 button.
 
@@ -85,9 +85,9 @@ rejections can get the ad account restricted.
 - Main text: `Be honest. How long do you really last? ⏱️ Stamina isn't luck. It's a muscle, and you can train it.`
 - Headline: `Go longer`
 
-Use `Download the app and start now` as the description on all three. Ads 1
-and 3 use Vecteezy footage, so add `Footage: Vecteezy` to their post text or
-YouTube description. Test two main texts per
+Use `Download the app and start now` as the description on all three. All
+three ads use some Vecteezy footage, so add `Footage: Vecteezy` to each post's
+text or YouTube description. Test two main texts per
 ad by swapping in a hook from the list below.
 
 ### Hooks to try (first 1–2 seconds)
