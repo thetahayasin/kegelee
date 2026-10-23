@@ -5,7 +5,7 @@
   Nothing here animates on its own: renderAt(t) puts every element where it
   belongs at time t, so a frame is the same however long a screenshot takes.
 
-  Open ads.html?ad=invisible&t=1.2 in a browser to look at one frame, or add
+  Open ads.html?ad=muscle&t=1.2 in a browser to look at one frame, or add
   &guides=1 to see the zone that is safe from Reels/Stories UI and from the
   4:5 feed crop.
 -->
@@ -23,16 +23,11 @@
   @font-face { font-family: 'ArchivoX'; font-weight: 800; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_expanded_extrabold.ttf'); }
   @font-face { font-family: 'ArchivoX'; font-weight: 900; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_expanded_black.ttf'); }
 
-  /* The app's two palettes: white on black, black on white. Red only means "wrong". */
-  :root, .dark {
+  /* The app's dark palette: white on black. */
+  :root {
     --bg: #000; --ink: #fff; --muted: #a3a3a3;
-    --surface: #0e0e0e; --surface2: #171717; --surface3: #212121; --track: #262626;
-    --glow: 255, 255, 255; --danger: #ff6b6b; --wm: rgba(255, 255, 255, .045);
-  }
-  .light {
-    --bg: #fff; --ink: #0a0a0a; --muted: #5f5f5f;
-    --surface: #f3f3f3; --surface2: #e9e9e9; --surface3: #dedede; --track: #e2e2e2;
-    --glow: 0, 0, 0; --danger: #e5484d; --wm: rgba(0, 0, 0, .045);
+    --surface: #0e0e0e; --surface2: #171717; --surface3: #212121;
+    --glow: 255, 255, 255; --wm: rgba(255, 255, 255, .045);
   }
 
   html, body { margin: 0; background: #000; }
@@ -43,7 +38,20 @@
   }
   #cam, #scenes, .bgfx { position: absolute; inset: 0; }
   .vig { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 60% at 50% 38%, #161616 0%, #000 70%); }
-  .light .vig { background: radial-gradient(ellipse 90% 60% at 50% 38%, #fff 0%, #ececec 100%); }
+  /* Dark gradients span only a handful of 8-bit levels, so the video encoder
+     turns them into rings. A fixed, faint noise layer breaks the steps up.
+     It never moves, so it costs the encoder almost nothing. */
+  .dither { position: absolute; inset: 0; pointer-events: none; }
+
+  /* Stock footage: full bleed, already black and white (render.mjs grades it),
+     pushed in slowly and darkened so the type reads over it. */
+  .stock { position: absolute; inset: 0; overflow: hidden; display: none; }
+  .stock.on { display: block; }
+  .stock img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .stock::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, .7) 0%, rgba(0, 0, 0, .45) 40%, rgba(0, 0, 0, .55) 65%, rgba(0, 0, 0, .85) 100%);
+  }
   .wmark {
     position: absolute; left: 0; top: 0; transform-origin: 0 0;
     font: 900 430px/1 'ArchivoX'; color: var(--wm); white-space: nowrap; letter-spacing: -.02em;
@@ -58,7 +66,7 @@
   .zone > * { max-width: 100%; }
 
   /* Type */
-  .x { font-family: 'ArchivoX'; font-weight: 900; text-transform: uppercase; line-height: .98; letter-spacing: -.012em; white-space: nowrap; }
+  .x { text-shadow: 0 6px 40px rgba(0, 0, 0, .45); font-family: 'ArchivoX'; font-weight: 900; text-transform: uppercase; line-height: .98; letter-spacing: -.012em; white-space: nowrap; }
   .fit { display: block; width: 100%; overflow: hidden; }
   .inv { display: inline-block; background: var(--ink); color: var(--bg); padding: .06em .16em .02em; margin: .06em 0; }
   .sub { font-weight: 600; font-size: 54px; line-height: 1.22; color: var(--muted); margin-top: 34px; }
@@ -91,7 +99,6 @@
     border-radius: 58px; border: 10px solid #1b1b1b; background: var(--bg); color: var(--ink);
     box-shadow: 0 0 0 2px #333, 0 40px 160px rgba(255, 255, 255, .10);
   }
-  .phone.light { border-color: #e6e6e6; box-shadow: 0 0 0 2px #cfcfcf, 0 40px 120px rgba(0, 0, 0, .18); }
   .screen { position: absolute; inset: 0; border-radius: 48px; overflow: hidden; background: var(--bg); font-family: 'Archivo'; }
   .island { position: absolute; left: 50%; top: 11px; width: 118px; height: 34px; margin-left: -59px; border-radius: 20px; background: #000; }
   .sb { position: absolute; left: 34px; right: 30px; top: 17px; display: flex; justify-content: space-between; align-items: center; font: 700 16px 'Archivo'; }
@@ -108,16 +115,6 @@
   .ph-pause { position: absolute; left: 20px; right: 20px; top: 730px; height: 58px; border-radius: 18px; background: var(--surface2); display: flex; align-items: center; justify-content: center; gap: 6px; font: 700 18px 'Archivo'; }
   .ph-pause i { width: 5px; height: 17px; background: var(--ink); border-radius: 1px; }
   .ph-pause span { margin-left: 8px; }
-
-  .notif {
-    position: absolute; left: 12px; right: 12px; top: 54px; padding: 13px 14px; border-radius: 22px;
-    background: rgba(40, 40, 40, .96); display: flex; gap: 12px; align-items: center; color: #fff;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
-  }
-  .notif img { width: 40px; height: 40px; border-radius: 10px; background: #000; }
-  .notif .t { font: 700 15px 'Archivo'; display: flex; justify-content: space-between; }
-  .notif .t span { font-weight: 500; color: #9a9a9a; }
-  .notif .b { font: 500 15px/1.3 'Archivo'; color: #e6e6e6; margin-top: 2px; }
 
   .pg-title { position: absolute; left: 26px; top: 66px; font: 800 32px 'ArchivoX'; }
   .pg-best { position: absolute; left: 26px; right: 26px; top: 130px; display: flex; align-items: center; gap: 14px; }
@@ -136,26 +133,13 @@
   .pg-seg b { color: var(--ink); background: var(--surface3); padding: 9px 20px; border-radius: 20px; }
   .pg-btn { position: absolute; left: 20px; right: 20px; top: 668px; height: 62px; border-radius: 20px; background: var(--ink); color: var(--bg); font: 800 19px/62px 'Archivo'; text-align: center; }
 
-  /* Ad 3 checklist */
-  .row { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 118px; }
-  .row .rl { font-size: 66px; }
-  .row .box { width: 92px; height: 92px; border: 7px solid var(--ink); box-sizing: border-box; border-radius: 14px; flex: none; }
-  .row .box svg { width: 100%; height: 100%; }
-  .row path { fill: none; stroke: var(--ink); stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
-  .row.bad .rl { color: var(--danger); }
-  .row.bad .box { border-color: var(--danger); }
-  .row.bad path { stroke: var(--danger); }
-
-  /* Floating feature chips */
-  .chip {
-    position: absolute; display: flex; align-items: center; gap: 14px; padding: 22px 30px; border-radius: 26px;
-    background: var(--ink); color: var(--bg); font: 800 40px 'Archivo'; white-space: nowrap;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, .55);
-  }
+  /* "How long" stopwatch */
+  .timer { font-size: 150px; color: var(--muted); margin-top: 34px; }
+  .timer .d { display: inline-block; width: .82em; text-align: center; }
+  .timer .colon { display: inline-block; width: .32em; text-align: center; }
 
   /* End card */
   .end .logo { width: 250px; height: 250px; display: block; }
-  .light .end .logo { filter: invert(1); }
   .end .word { font-size: 128px; margin-top: 30px; }
   .end .tag { font: 600 50px/1.25 'Archivo'; color: var(--muted); margin-top: 22px; }
   .end .cta { display: inline-flex; align-items: center; gap: 18px; margin-top: 54px; padding: 32px 64px; border-radius: 100px; background: var(--ink); color: var(--bg); font: 800 58px 'Archivo'; }
@@ -168,10 +152,12 @@
 <div id="stage">
   <div class="bgfx"><div class="vig"></div><div class="wmark">KEGELEE</div></div>
   <div id="cam"><div id="scenes"></div></div>
+  <div class="dither"></div>
 </div>
 <script>
 const LOGO = '../../../react-native-app/src/assets/logo.png';
-const W = 1080;
+const W = 1080, FPS = 30;
+const DITHER = .022;
 
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const ease = {
@@ -191,9 +177,7 @@ const FX = {
 };
 
 const arrow = `<svg viewBox="0 0 24 24" width="1em" height="1em"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const flame = `<svg viewBox="0 0 24 24" width="1em" height="1em"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3 0-6 1-9z" fill="currentColor"/></svg>`;
 const trophy = `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 13v4M8 20h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const bell = `<svg viewBox="0 0 24 24" width="1em" height="1em"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 // ---------------------------------------------------------------- building blocks
 
@@ -240,12 +224,15 @@ const progressScreen = () => `
   <div class="pg-seg"><span>Days</span><b>Weeks</b><span>Months</span></div>
   <div class="pg-btn">Take measurement</div>`;
 
-function phone(screen, { at = 0, top = 640, width = 700, light = false } = {}) {
+function phone(screen, { at = 0, top = 640, width = 700 } = {}) {
   const k = width / 390, left = (W - width) / 2;
   return `<div class="phone-wrap" style="left:${left}px;top:${top}px" data-at="${at}" data-fx="rise" data-cue="whoosh">
-    <div class="phone ${light ? 'light' : ''}" style="transform:scale(${k})"><div class="screen">${screen}</div><div class="island"></div></div>
+    <div class="phone" style="transform:scale(${k})"><div class="screen">${screen}</div><div class="island"></div></div>
   </div>`;
 }
+
+// Full-bleed stock footage behind a scene, `off` seconds into the clip.
+const stock = (clip, off = 0) => `<div class="stock" data-clip="${clip}" data-off="${off}"><img alt=""></div>`;
 
 // One line of headline type that shrinks only if it would overflow the zone.
 const line = (text, at, { size = 150, inv = false, fx = 'slam', shake = false } = {}) =>
@@ -309,10 +296,10 @@ function circleCues(start, phases) {
 // phrase starts, in order; sfx.py cuts the take at its pauses and puts each
 // phrase there, sped up by `vo.tempo`. The scenes are timed around those
 // phrases, so the words on screen land with the voice.
+//
+// stock('name') puts the clip stock/name.* behind a scene (see render.mjs).
 
 const SQUEEZE = { label: 'Squeeze', inner: 'Contract & hold', dur: 3, contract: true };
-const RELAX = { label: 'Relax', inner: 'Relax', dur: 2, contract: false };
-const PH2 = [SQUEEZE, RELAX, SQUEEZE];
 
 // Headlines above the phone that replace one another: [html, in, out].
 const swaps = items => `<div class="zone top"><div style="position:relative;width:100%;height:170px">
@@ -322,167 +309,10 @@ const head = (text, subText) => `<div class="head">${text}</div>${subText ? `<di
 
 const ADS = {
 
-  // 1. The invisible workout. Deadpan hook, the joke is that nobody can tell.
-  invisible: {
-    theme: 'dark', thumb: 1.2,
-    vo: { file: 'vo/01-invisible.mp3', tempo: 1.12, at: [.05, 1.95, 2.85, 3.7, 5.55, 7.6, 11.05, 12.65, 14.25, 15.55, 16.15] },
-    scenes: [
-      S(0, 1.9, `<div class="zone">
-        ${line('I’m', -.15, { size: 200 })}
-        ${line('working', .2, { size: 200 })}
-        ${line('out', .45, { size: 200 })}
-        ${line('right now.', .75, { size: 160, inv: true, shake: true })}
-        ${sub('(seriously)', 1.3)}
-      </div>`),
-      ...[['In', 'meetings.', 1.9, 2.8], ['In', 'traffic.', 2.8, 3.65], ['In line for', 'coffee.', 3.65, 5], ['Reading', 'this.', 5, 5.5]].map(([a, b, from, to], i) =>
-        S(from, to, `<div class="zone">
-          ${line(a, 0, { size: 110, fx: 'fade' })}
-          ${line(b, 0, { size: 170, inv: i % 2 === 1, fx: 'slam' })}
-        </div>`)),
-      S(5.5, 7.3, `<div class="zone">
-        ${line('And nobody', 0, { size: 140 })}
-        ${line('can tell.', .5, { size: 150, inv: true, shake: true })}
-        ${sub('It’s called a <b>Kegel.</b>', 1)}
-      </div>`),
-      S(7.3, 12.6, `${swaps([[head('Follow the circle.', 'Squeeze. Hold. Relax.'), .25, 3.6], [head('3–5 min a day.', 'Guided, start to finish.'), 3.75]])}
-        ${phone(workoutScreen())}`,
-        { update: (r, lt) => runCircle(r, [SQUEEZE, RELAX, SQUEEZE], lt - .7), cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]) }),
-      S(12.6, 15.4, `<div class="zone">
-        ${line('No gym.', 0, { size: 150 })}
-        ${line('No gear.', .75, { size: 150 })}
-        ${line('No one knows.', 1.65, { size: 150, inv: true, shake: true })}
-      </div>`),
-      S(15.4, 18.4, endCard('The workout nobody sees.'), { update: endUpdate }),
-    ],
-  },
-
-  // 2. Follow-along. The viewer does a Kegel with the ad, which holds them for 8 seconds.
-  trythis: {
-    theme: 'dark', thumb: 1.4,
-    vo: { file: 'vo/02-trythis.mp3', tempo: 1.08, at: [.05, 3.6, 9.6, 12.6, 14.35, 18.05, 22.45] },
-    scenes: [
-      S(0, 3.5, `<div class="zone">
-        ${line('Try this', -.15, { size: 170 })}
-        ${line('right now.', 1, { size: 160, inv: true, shake: true })}
-        ${sub('Nobody will notice.', 2.1)}
-      </div>`),
-      S(3.5, 9.3, `<div class="zone">
-        ${line('Squeeze like', 0, { size: 130 })}
-        ${line('you’re holding', .3, { size: 130 })}
-        ${line('in a pee.', .6, { size: 150, inv: true, shake: true })}
-        ${sub('Belly, butt and thighs stay <b>relaxed.</b>', 3.1)}
-      </div>`),
-      S(9.3, 18, `<div class="zone" style="justify-content:space-between">
-          <div data-at="0" data-fx="up"><div class="kicker">Follow along</div><div class="x" style="font-size:150px" data-phase>Squeeze</div></div>
-          <div data-at=".1" data-fx="pop" style="margin:40px 0 10px">${circleHTML(540, true)}</div>
-          ${sub('Breathe normally.', .5, 'margin-top:0')}
-        </div>`,
-        { update: (r, lt) => runCircle(r, PH2, lt - .3), cues: circleCues(.3, PH2) }),
-      S(18, 22.3, `<div class="zone">
-        ${line('That was', 0, { size: 160 })}
-        ${line('a Kegel.', .5, { size: 160, inv: true, shake: true })}
-        ${sub('Now do it <b>3–5 min a day,</b> guided.', 1.4)}
-      </div>`),
-      S(22.3, 25.3, endCard('Your daily Kegel coach.'), { update: endUpdate }),
-    ],
-  },
-
-  // 3. Gym split. Light theme, so it looks nothing like the dark ads next to it in a feed.
-  legday: {
-    theme: 'light', thumb: 3.4,
-    vo: { file: 'vo/03-legday.mp3', tempo: 1.12, at: [0, .75, 1.45, 2.1, 2.85, 3.75, 5.95, 9.35, 11.6, 12.65, 14.05, 15.1, 16.35, 16.95] },
-    scenes: [
-      S(0, 5.9, `<div class="zone" style="justify-content:flex-start;top:310px">
-        <div class="kicker" data-at="-.3" data-fx="fade">This week</div>
-        ${[['Chest day', -.1], ['Back day', .65], ['Leg day', 1.35], ['Arm day', 2]].map(([l, a]) => row(l, a, true)).join('')}
-        ${row('Pelvic floor', 2.75, false)}
-        <div class="sub" style="color:var(--ink);font-weight:800;margin-top:40px" data-at="3.75" data-fx="up">The one muscle everyone skips.</div>
-      </div>`,
-        { update: rowsUpdate, cues: [{ type: 'buzz', t: 2.75 + .38 }] }),
-      S(5.9, 9.3, `<div class="zone">
-        <div class="kicker" data-at="0" data-fx="up">The muscle behind</div>
-        ${line('Control.', 1.2, { size: 150 })}
-        ${line('Core.', 1.75, { size: 150 })}
-        ${line('Confidence.', 2.3, { size: 150, inv: true, shake: true })}
-      </div>`),
-      S(9.3, 14, `${swaps([[head('Train it in<br>3–5 min a day.'), .25, 2.2], [head('Measure it.<br>Watch it climb.'), 2.3]])}
-        ${phone(progressScreen(), { light: true })}`,
-        { update: bars(2.4), cues: BARS.map((_, i) => ({ type: 'tick', t: 2.4 + i * .28 })) }),
-      S(14, 16.2, `<div class="zone">
-        ${line('Pelvic floor day?', 0, { size: 120 })}
-        ${line('Every day.', 1.05, { size: 160, inv: true, shake: true })}
-      </div>`),
-      S(16.2, 19, endCard('Train the muscle everyone skips.'), { update: endUpdate }),
-    ],
-  },
-
-  // 4. Screen time vs a few minutes.
-  screentime: {
-    theme: 'dark', thumb: 3.7,
-    vo: { file: 'vo/04-screentime.mp3', tempo: 1.12, at: [.05, 1.85, 2.75, 5.05, 7, 8.2, 10, 12.25, 13.6, 15.15, 15.7] },
-    scenes: [
-      S(0, 2.7, `<div class="zone">
-        <div class="kicker" data-at="-.3" data-fx="fade">Screen time today</div>
-        <div class="x fit" style="font-size:210px" data-at="-.3" data-fx="fade" data-count>0H 00M</div>
-        ${sub('…and counting.', 1.85)}
-      </div>`,
-        { update: countUpdate, cues: [...Array(14)].map((_, i) => ({ type: 'tick', t: .1 + i * .09 })).concat([{ type: 'hit', t: 1.35 }]), shakes: [1.35] }),
-      S(2.7, 4.8, `<div class="zone">
-        <div class="kicker" data-at="0" data-fx="fade">Time this takes</div>
-        ${line('3–5 min.', .7, { size: 220, inv: true, shake: true })}
-        ${sub('A day. That’s it.', 1.4)}
-      </div>`),
-      S(4.8, 12.2, `${swaps([[head('Guided by<br>a circle.'), .25, 2.05], [head('5 levels.<br>Level up as you go.'), 2.2, 3.25], [head('Reminders that<br>fit your day.'), 3.4, 5.05], [head('Streaks that<br>keep you going.'), 5.2]])}
-        ${phone(workoutScreen(`<div class="notif" data-at="3.4" data-fx="drop" data-cue="pop"><img src="${LOGO}"><div style="flex:1"><div class="t">Kegelee<span>now</span></div><div class="b">Your 3-minute session is ready.</div></div></div>`))}
-        <div class="chip" style="left:44px;top:1010px;transform-origin:left" data-at="2.2" data-fx="pop" data-cue="pop"><span>Level 1</span>${arrow}<span>5</span></div>
-        <div class="chip" style="right:44px;top:1150px" data-at="5.2" data-fx="pop" data-cue="pop">${flame}<span><span class="streak">17</span>-day streak</span></div>`,
-        { update: (r, lt) => { runCircle(r, [SQUEEZE, RELAX, SQUEEZE, RELAX], lt - .7); r.querySelector('.streak').textContent = lt > 5.7 ? 18 : 17; },
-          cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]).concat([{ type: 'tick', t: 5.7 }]) }),
-      S(12.2, 15, `<div class="zone">
-        ${line('4 hours', 0, { size: 150 })}
-        ${line('scrolling.', .25, { size: 150 })}
-        ${line('5 minutes', 1.4, { size: 150, inv: true })}
-        ${line('for this.', 1.6, { size: 150, inv: true, shake: true })}
-      </div>`),
-      S(15, 17.8, endCard('3–5 minutes. Every day.'), { update: endUpdate }),
-    ],
-  },
-
-  // 5. Stamina. The bedroom angle, said straight.
-  stamina: {
-    theme: 'dark', thumb: 2.1,
-    vo: { file: 'vo/05-stamina.mp3', tempo: 1.12, at: [.05, 2.45, 3.5, 5.05, 6.65, 8.7, 9.5, 10.75, 12.1, 13.75, 14.3] },
-    scenes: [
-      S(0, 2.4, `<div class="zone">
-        ${line('The muscle', -.15, { size: 170 })}
-        ${line('that makes you', .45, { size: 130 })}
-        ${line('last longer.', 1.15, { size: 160, inv: true, shake: true })}
-      </div>`),
-      S(2.4, 5, `<div class="zone">
-        ${line('Not your abs.', 0, { size: 140 })}
-        ${line('Not your arms.', 1.1, { size: 140 })}
-      </div>`),
-      S(5, 6.6, `<div class="zone">
-        ${line('It’s your', 0, { size: 150 })}
-        ${line('pelvic floor.', .4, { size: 150, inv: true, shake: true })}
-      </div>`),
-      S(6.6, 10.7, `<div class="zone">
-        <div class="kicker" data-at="0" data-fx="up">Train it and get</div>
-        ${line('More stamina.', 1.25, { size: 140 })}
-        ${line('More control.', 2.1, { size: 140 })}
-        ${line('Better in bed.', 2.9, { size: 140, inv: true, shake: true })}
-      </div>`),
-      S(10.7, 13.6, `${swaps([[head('3–5 min a day.', 'Guided by the circle.'), .25, 1.3], [head('Nobody has<br>to know.'), 1.4]])}
-        ${phone(workoutScreen())}`,
-        { update: (r, lt) => runCircle(r, [SQUEEZE, RELAX], lt - .5), cues: circleCues(.5, [SQUEEZE, RELAX]) }),
-      S(13.6, 16.4, endCard('Stronger in bed.'), { update: endUpdate }),
-    ],
-  },
-
-  // 6. Stamina is a muscle. Same angle, deeper voice, built around the hold tracker.
+  // Stamina is a muscle. Deep voice, built around the hold tracker.
   muscle: {
-    theme: 'dark', thumb: 1.5,
-    vo: { file: 'vo/06-muscle.mp3', tempo: 1.1, at: [.05, 2.25, 4.45, 6, 7.45, 8.55, 10.95, 14.75, 15.3] },
+    thumb: 1.5,
+    vo: { file: 'vo/01-muscle.mp3', tempo: 1.1, at: [.05, 2.25, 4.45, 6, 7.45, 8.55, 10.95, 14.75, 15.3] },
     scenes: [
       S(0, 2.2, `<div class="zone">
         ${line('Stamina', -.15, { size: 190 })}
@@ -505,28 +335,89 @@ const ADS = {
       S(14.5, 17.3, endCard('Train your stamina.'), { update: endUpdate }),
     ],
   },
-};
 
-// Ad 3: checklist rows. A tick draws in on each, the last one gets a red cross and a shudder.
-function row(label, at, ok) {
-  const mark = ok
-    ? `<path d="M22 52l18 18 38-40" pathLength="100"/>`
-    : `<path d="M28 28l44 44" pathLength="100"/><path d="M72 28L28 72" pathLength="100"/>`;
-  return `<div class="row ${ok ? '' : 'bad'}" data-at="${at}" data-fx="up" data-row="${at}"${ok ? ' data-cue="tick" data-cue-off=".18"' : ''}>
-    <span class="x rl">${label}</span><span class="box"><svg viewBox="0 0 100 100">${mark}</svg></span></div>`;
-}
-function rowsUpdate(root, lt) {
-  root.querySelectorAll('[data-row]').forEach(r => {
-    const rl = lt - parseFloat(r.dataset.row);
-    const bad = r.classList.contains('bad');
-    const start = bad ? .35 : .15;
-    r.querySelectorAll('path').forEach((p, i) => p.style.strokeDashoffset = 100 * (1 - clamp((rl - start - i * .1) / .2)));
-    if (bad && rl > .38 && rl < .8) {
-      const a = 16 * (1 - (rl - .38) / .42);
-      r.style.transform = `translateX(${a * Math.sin(rl * 70)}px)`;
-    }
-  });
-}
+  // Impress your girlfriend: it isn't the abs or the car.
+  impress: {
+    thumb: 1.5,
+    vo: { file: 'vo/02-impress.mp3', tempo: 1.1, at: [.05, 1.95, 3.2, 4.4, 6.65, 8.5, 9.75, 11.6, 13.05, 14.45, 15] },
+    scenes: [
+      S(0, 1.9, `${stock('bed')}<div class="zone">
+        ${line('Want to', -.15, { size: 130 })}
+        ${line('impress', .25, { size: 200 })}
+        ${line('your girlfriend?', .75, { size: 120, inv: true, shake: true })}
+      </div>`),
+      S(1.9, 3.15, `${stock('gym')}<div class="zone">
+        ${line('Forget', 0, { size: 150, fx: 'fade' })}
+        ${line('the abs.', .2, { size: 190, inv: true, shake: true })}
+      </div>`),
+      S(3.15, 4.35, `${stock('car')}<div class="zone">
+        ${line('Forget', 0, { size: 150, fx: 'fade' })}
+        ${line('the car.', .2, { size: 190, inv: true, shake: true })}
+      </div>`),
+      S(4.35, 6.6, `${stock('sheets')}<div class="zone">
+        ${line('It’s how long', 0, { size: 130 })}
+        ${line('you last', .6, { size: 180 })}
+        ${line('in bed.', 1.2, { size: 200, inv: true, shake: true })}
+      </div>`),
+      S(6.6, 9.7, `<div class="zone">
+        ${line('It comes down to', 0, { size: 110, fx: 'up' })}
+        ${line('one muscle.', 1.1, { size: 180 })}
+        ${line('Your pelvic floor.', 1.9, { size: 130, inv: true, shake: true })}
+      </div>`),
+      S(9.7, 11, `${swaps([[head('Train it.', 'Guided Kegel workouts.'), .2]])}
+        ${phone(workoutScreen())}`,
+        { update: (r, lt) => runCircle(r, [SQUEEZE], lt - .3), cues: circleCues(.3, [SQUEEZE]) }),
+      S(11, 13, `${stock('couple')}<div class="zone">
+        ${line('Last longer.', 0, { size: 170, inv: true, shake: true })}
+        ${line('Stay in control.', .6, { size: 130 })}
+      </div>`),
+      S(13, 14.3, `${stock('bed', 2.5)}<div class="zone">
+        ${line('She’ll', 0, { size: 200 })}
+        ${line('notice.', .3, { size: 230, inv: true, shake: true })}
+      </div>`),
+      S(14.3, 17.1, endCard('Leave her impressed.'), { update: endUpdate }),
+    ],
+  },
+
+  // How long do you really last? A clock that stops too early.
+  howlong: {
+    thumb: 2.5,
+    vo: { file: 'vo/03-howlong.mp3', tempo: 1.1, at: [.05, 1.05, 3.15, 4.7, 5.55, 7.5, 8.35, 9.75, 14.05, 16.05, 17.35, 17.9] },
+    scenes: [
+      S(0, 1, `${stock('clock')}<div class="zone">${line('Be honest.', -.15, { size: 190, inv: true })}</div>`),
+      S(1, 3.1, `${stock('clock', 1)}<div class="zone">
+        ${line('How long', 0, { size: 170 })}
+        ${line('do you really', .45, { size: 120 })}
+        ${line('last?', 1.3, { size: 240, inv: true, shake: true })}
+        <div class="x timer" data-at="0" data-fx="fade" data-timer></div>
+      </div>`,
+        { update: timerUpdate, cues: [...Array(16)].map((_, i) => ({ type: 'tick', t: .05 + i * .1 })) }),
+      S(3.1, 5.5, `${stock('sheets')}<div class="zone">
+        ${line('If you had to', 0, { size: 130 })}
+        ${line('think about it…', .55, { size: 130 })}
+        ${line('keep watching.', 1.6, { size: 140, inv: true, shake: true })}
+      </div>`),
+      S(5.5, 8.3, `${stock('gym')}<div class="zone">
+        ${line('Stamina in bed', 0, { size: 120 })}
+        ${line('isn’t luck.', 1.05, { size: 170 })}
+        ${line('It’s a muscle.', 2, { size: 150, inv: true, shake: true })}
+      </div>`),
+      S(8.3, 9.7, `<div class="zone">
+        ${line('Your', 0, { size: 150 })}
+        ${line('pelvic floor.', .2, { size: 170, inv: true, shake: true })}
+      </div>`),
+      S(9.7, 14, `${swaps([[head('Guided workouts.'), .25, 2.2], [head('Watch your control<br>climb.'), 2.35]])}
+        ${phone(progressScreen())}`,
+        { update: bars(2.4), cues: BARS.map((_, i) => ({ type: 'tick', t: 2.4 + i * .28 })) }),
+      S(14, 17.2, `${stock('couple', 2)}<div class="zone">
+        ${line('More stamina.', 0, { size: 140 })}
+        ${line('More control.', .95, { size: 140 })}
+        ${line('Better sex.', 2.05, { size: 190, inv: true, shake: true })}
+      </div>`),
+      S(17.2, 20, endCard('Go longer.'), { update: endUpdate }),
+    ],
+  },
+};
 
 // Progress screen: bars grow one after another from `start`, and the best-hold number follows them.
 function bars(start) {
@@ -541,23 +432,35 @@ function bars(start) {
   };
 }
 
-// Ad 4: the screen-time counter races up to 4h 12m and lands with a hit.
-function countUpdate(root, lt) {
-  const m = Math.round(252 * ease.out(clamp((lt - .1) / 1.25)));
-  const el = root.querySelector('[data-count]');
-  el.textContent = `${Math.floor(m / 60)}H ${String(m % 60).padStart(2, '0')}M`;
-  const k = lt > 1.35 ? 1 - ease.out(clamp((lt - 1.35) / .25)) : 0;
-  el.style.transform = `scale(${1 + .12 * k})`;
+// "How long" ad: a stopwatch that runs up to 2:47 and stops. Each digit gets
+// a fixed-width box so the time doesn't jitter as it changes.
+function timerUpdate(root, lt) {
+  const secs = Math.round(167 * ease.out(clamp(lt / 1.6)));
+  const text = `0${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+  root.querySelector('[data-timer]').innerHTML = [...text].map(c => `<span class="${c === ':' ? 'colon' : 'd'}">${c}</span>`).join('');
 }
 
 // ---------------------------------------------------------------- runtime
 
 const params = new URLSearchParams(location.search);
-const AD = ADS[params.get('ad') || 'invisible'];
+
+(() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const x = c.getContext('2d'), img = x.createImageData(256, 256);
+  let seed = 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < img.data.length; i += 4) {
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = 255;
+    img.data[i + 3] = Math.round(rnd() * DITHER * 255);
+  }
+  x.putImageData(img, 0, 0);
+  document.querySelector('.dither').style.backgroundImage = `url(${c.toDataURL()})`;
+})();
+const AD = ADS[params.get('ad') || 'muscle'];
 const stage = document.getElementById('stage');
 const cam = document.getElementById('cam');
 const wm = stage.querySelector('.wmark');
-stage.classList.add(AD.theme);
 
 const built = AD.scenes.map(sc => {
   const el = document.createElement('div');
@@ -593,7 +496,16 @@ function fit() {
   }
 }
 
+// Clips render.mjs has prepared: name -> { frames, base }.
+const STOCK = {};
+window.setStock = clips => {
+  Object.assign(STOCK, clips);
+  for (const st of document.querySelectorAll('.stock')) st.classList.toggle('on', !!STOCK[st.dataset.clip]);
+};
+
+// Resolves once every stock frame this moment needs has decoded.
 function renderAt(t) {
+  const pending = [];
   for (const s of built) {
     const on = t >= s.from && t < s.to;
     s.el.style.visibility = on ? 'visible' : 'hidden';
@@ -606,6 +518,13 @@ function renderAt(t) {
       if (it.out !== null && lt >= it.out) it.n.style.opacity = Math.min(+it.n.style.opacity, 1 - clamp((lt - it.out) / .15));
     }
     if (s.update) s.update(s.el, lt, t);
+    for (const st of s.el.querySelectorAll('.stock.on')) {
+      const clip = STOCK[st.dataset.clip], img = st.firstElementChild;
+      const f = Math.min(clip.frames - 1, Math.floor((lt + parseFloat(st.dataset.off)) * FPS));
+      const src = `${clip.base}${String(f + 1).padStart(5, '0')}.jpg`;
+      if (img.dataset.src !== src) { img.dataset.src = src; img.src = src; pending.push(img.decode().catch(() => {})); }
+      img.style.transform = `scale(${1.04 + .08 * lt / (s.to - s.from)})`;
+    }
   }
   let dx = 0, dy = 0;
   for (const st of SHAKES) {
@@ -614,9 +533,13 @@ function renderAt(t) {
   }
   cam.style.transform = `translate(${dx}px, ${dy}px)`;
   wm.style.transform = `translate(400px, ${40 - t * 18}px) rotate(90deg)`;
+  return Promise.all(pending);
 }
 
-window.AD_META = { duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb, vo: AD.vo || null };
+window.AD_META = {
+  duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb, vo: AD.vo || null,
+  clips: [...new Set([...document.querySelectorAll('.stock')].map(st => st.dataset.clip))],
+};
 window.renderAt = renderAt;
 window.ready = (async () => {
   await Promise.all(['400', '500', '600', '700', '800'].map(w => document.fonts.load(`${w} 20px Archivo`))
