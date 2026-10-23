@@ -21,6 +21,7 @@ import { DARK as COLORS } from '../theme/colors';
 import { reportError } from '../services/errors';
 import { trackCurrent } from '../services/events';
 import { getCurrentRouteName } from '../navigation/currentRoute';
+import { withAppFonts } from '../theme/fonts';
 
 interface Props {
   children: React.ReactNode;
@@ -126,7 +127,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = withAppFonts(StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -138,6 +139,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     marginBottom: 28,
+    tintColor: COLORS.text,
   },
   title: {
     fontSize: 22,
@@ -181,4 +183,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.white,
   },
-});
+}));

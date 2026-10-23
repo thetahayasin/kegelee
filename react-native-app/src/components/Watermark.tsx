@@ -3,6 +3,7 @@ import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Rect, Text } from 'react-native-svg';
 import { Palette } from '../theme/colors';
 import { useTheme, useThemedStyles } from '../theme/ThemeContext';
+import { DISPLAY_FAMILY } from '../theme/fonts';
 
 /**
  * Giant faint vertical "KEGELEE" behind the content, hugging the left edge -
@@ -12,7 +13,9 @@ import { useTheme, useThemedStyles } from '../theme/ThemeContext';
  * Purely decorative and non-interactive; sits behind all cards.
  */
 
-const systemFont = Platform.OS === 'android' ? 'sans-serif-black' : 'System';
+// The logo-style expanded cut on Android (registered in MainApplication;
+// react-native-svg resolves it through the same font manager).
+const systemFont = Platform.OS === 'android' ? DISPLAY_FAMILY : 'System';
 
 // Memoized: it takes no props and is rendered on every screen, so parent
 // re-renders should never re-reconcile this full-screen SVG.

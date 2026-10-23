@@ -50,6 +50,7 @@ import { EquipmentIcon } from '../../components/EquipmentIcon';
 import { Watermark } from '../../components/Watermark';
 import { TourOverlay } from '../../components/TourOverlay';
 import { HOME_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
+import { claimWelcomeOffer } from '../../services/upsell';
 
 export const TrainingScreen = () => {
   const styles = useThemedStyles(makeStyles);
@@ -93,6 +94,21 @@ export const TrainingScreen = () => {
    * spotlight on empty space.
    */
   const [showTour, setShowTour] = useState(false);
+  const showTourRef = useRef(false);
+  showTourRef.current = showTour;
+
+  /**
+   * The welcome offer: once per account, ever (services/upsell). Free
+   * accounts only - an admin or a subscriber has nothing to be offered.
+   */
+  const offerWelcome = () => {
+    if (!user || subscribed || user.is_admin) return;
+    claimWelcomeOffer(user.id)
+      .then((claimed) => {
+        if (claimed) navigation.navigate('Paywall', { source: 'welcome' });
+      })
+      .catch(() => {});
+  };
   const tourRingRef = useRef<View>(null);
   const tourStartRef = useRef<View>(null);
   const tourUnlocksRef = useRef<View>(null);
@@ -212,6 +228,10 @@ export const TrainingScreen = () => {
       if (!tourHandledRef.current && !(await hasSeenTour('home', user.id))) {
         tourHandledRef.current = true;
         setShowTour(true);
+      } else if (!tourHandledRef.current || !showTourRef.current) {
+        // Tour already behind them (an account from before this offer
+        // existed, or a later visit): the welcome offer, if it is still owed.
+        offerWelcome();
       }
     } catch (e) {
       console.error('Failed to load training screen data', e);
@@ -795,6 +815,9 @@ export const TrainingScreen = () => {
           setShowTour(false);
           tourHandledRef.current = true;
           if (user) markTourSeen('home', user.id, completed);
+          // The reader has just been shown their plan. That is the moment for
+          // the one unprompted trial offer - after the tour, never on top of it.
+          offerWelcome();
         }}
       />
     </SafeAreaView>

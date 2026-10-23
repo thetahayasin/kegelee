@@ -42,6 +42,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 import { Watermark } from '../../components/Watermark';
 import { EquipmentIcon } from '../../components/EquipmentIcon';
+import { claimSessionOffer } from '../../services/upsell';
 
 /** Enough shape for the celebration to render when the figures cannot be read. */
 const FALLBACK_POSITION = {
@@ -741,24 +742,31 @@ export const WorkoutCompleteScreen = () => {
               setShowUnlockPrompt(true);
             } else if (freeAllowanceSpent) {
               // Nothing new opened and nothing more will until they pay. The
-              // ask happens here, on the way out, once the session is banked.
+              // ask happens here, on the way out, once the session is banked -
+              // but at most once a day (services/upsell). Every other session
+              // goes home, where the paused-plan card still says why.
               //
-              // RESET, not navigate. `navigate` left this screen on the stack
-              // underneath the paywall, so closing the paywall came straight
-              // back to it - and the only button on it opens the paywall
-              // again. Continue, close, Continue, close: a loop with no way
-              // out but the system back gesture, on the screen that is meant
-              // to be the reward for finishing a session.
-              //
-              // The completion screen is DONE once Continue is pressed. What
-              // should be behind the paywall is the app.
-              navigation.reset({
-                index: 1,
-                routes: [
-                  { name: 'MainTabs' },
-                  { name: 'Paywall', params: { source: 'complete' } },
-                ],
-              });
+              // RESET, not navigate, when it does ask. `navigate` left this
+              // screen on the stack underneath the paywall, so closing the
+              // paywall came straight back to it - and the only button on it
+              // opened the paywall again: a loop with no way out but the
+              // system back gesture. What should be behind the paywall is the
+              // app.
+              const leave = async () => {
+                const ask = user ? await claimSessionOffer(user.id) : false;
+                if (!ask) {
+                  navigation.navigate('MainTabs');
+                  return;
+                }
+                navigation.reset({
+                  index: 1,
+                  routes: [
+                    { name: 'MainTabs' },
+                    { name: 'Paywall', params: { source: 'complete' } },
+                  ],
+                });
+              };
+              leave().catch(() => navigation.navigate('MainTabs'));
             } else {
               navigation.navigate('MainTabs');
             }

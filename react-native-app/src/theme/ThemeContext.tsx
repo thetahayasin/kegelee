@@ -9,6 +9,7 @@ import React, {
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DARK, LIGHT, Palette } from './colors';
+import { withAppFonts } from './fonts';
 
 /**
  * Appearance.
@@ -126,5 +127,6 @@ export const useThemeMode = (): Omit<ThemeValue, 'palette'> => {
  */
 export const useThemedStyles = <T,>(factory: (palette: Palette) => T): T => {
   const palette = useTheme();
-  return useMemo(() => factory(palette), [factory, palette]);
+  // withAppFonts adds the brand typeface to every text style; see theme/fonts.
+  return useMemo(() => withAppFonts(factory(palette)), [factory, palette]);
 };

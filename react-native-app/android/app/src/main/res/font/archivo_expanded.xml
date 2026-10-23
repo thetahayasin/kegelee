@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Archivo Expanded: the wide heavy cut that echoes the KE logo. Used for
+     titles and headlines only. Registered as "ArchivoExpanded". -->
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font app:fontStyle="normal" app:fontWeight="700" app:font="@font/archivo_expanded_bold" />
+    <font app:fontStyle="normal" app:fontWeight="800" app:font="@font/archivo_expanded_extrabold" />
+    <font app:fontStyle="normal" app:fontWeight="900" app:font="@font/archivo_expanded_black" />
+</font-family>

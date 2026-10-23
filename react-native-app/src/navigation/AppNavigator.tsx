@@ -63,7 +63,8 @@ export type RootStackParamList = {
           | 'settings'
           | 'complete'
           | 'training'
-          | 'renew';
+          | 'renew'
+          | 'welcome';
       }
     | undefined;
   LegalPage: { slug: string; title: string };

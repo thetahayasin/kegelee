@@ -1,5 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { View, PanResponder, StyleSheet, Animated, I18nManager } from 'react-native';
+import { withAppFonts } from '../theme/fonts';
 
 /**
  * Horizontal swipe between lesson steps.
@@ -88,6 +89,6 @@ export const SwipeSteps: React.FC<Props> = ({ step, count, onChange, children })
   );
 };
 
-const styles = StyleSheet.create({
+const styles = withAppFonts(StyleSheet.create({
   fill: { flex: 1, width: '100%' },
-});
+}));

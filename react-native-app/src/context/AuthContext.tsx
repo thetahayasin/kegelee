@@ -36,6 +36,7 @@ import {
 import { reportError } from '../services/errors';
 import { BASICS_LESSONS } from '../constants/basics';
 import i18n from '../i18n';
+import { forgetUpsellState } from '../services/upsell';
 
 const REQUIRED_LESSON_SLUGS = BASICS_LESSONS.map((l) => l.slug);
 
@@ -885,6 +886,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // skip the rebuild it needs.
       if (userId !== undefined) {
         await bestEffort('entitlement', () => forgetEntitlementState(userId));
+        await bestEffort('upsell', () => forgetUpsellState(userId));
         await bestEffort('reminderState', () => forgetReminderSchedule(userId));
       }
       setToken(null);

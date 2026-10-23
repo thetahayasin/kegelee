@@ -283,9 +283,13 @@ const makeStyles = (COLORS: Palette) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Same size as the native splash tile, so nothing jumps when React takes
+  // over. The mark is white on transparent and tinted to the ink colour:
+  // white on black in dark mode, black on light grey in light mode.
   logo: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
+    tintColor: COLORS.text,
   },
   spinner: {
     marginTop: 28,

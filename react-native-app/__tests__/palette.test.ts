@@ -31,9 +31,9 @@ describe('the palettes', () => {
   it('actually differ - a copied palette is not a light mode', () => {
     // Guards against LIGHT being pasted from DARK and half-edited. The glass
     // object is compared by its border, not by identity.
-    // `onAccent` is shared: both palettes put dark ink on their accent fill.
-    // Everything else has to differ.
-    const shared = ['onAccent'];
+    // Monochrome: the accent fill flips with the ground (white in dark, black
+    // in light), so even the ink on top of it differs. Everything differs.
+    const shared: string[] = [];
     const differing = KEYS.filter(
       (k) => JSON.stringify(DARK[k]) !== JSON.stringify(LIGHT[k]),
     );

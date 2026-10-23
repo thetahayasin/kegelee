@@ -1,13 +1,14 @@
 /**
  * Palettes
  *
- * The accent used to BE the text colour: `text`, `white` and `textMuted` were
- * all #c1ff72 at varying alpha, so 215 of the ~479 token references in the app
- * resolved to the same lime. With every element in the accent hue there is no
- * emphasis left to spend - which is what made the UI read as a prototype.
+ * Black and white, like the KE logo. The brand used to be a lime accent; it
+ * is now monochrome in both appearances: white on black in dark mode, black
+ * on white in light mode. Emphasis is carried by fill and weight rather than
+ * by hue - the accent is the full-strength ink, and a primary button is a
+ * solid block of it with the opposite colour on top.
  *
- * There is now a real neutral ramp, and lime carries exactly one meaning:
- * act here / in progress / done.
+ * Red is the only hue left, and it means one thing: something is wrong or
+ * about to be destroyed.
  *
  * TWO palettes, one key set. Nothing reads a palette directly: screens take
  * one as an argument (`makeStyles`) or from `useTheme()`, so the same
@@ -22,9 +23,9 @@
  * the light palette it correctly resolves to near-black ink.
  */
 export const DARK = {
-  // Unchanged (#060810) so the shipped splash screen and the Play store
-  // screenshots still line up.
-  bg: '#060810',
+  // True black, the logo's own ground, so the splash, the icon and the app
+  // are one surface.
+  bg: '#000000',
 
   // Cards are SOLID (opaque) - translucent surfaces forced the GPU to blend
   // every card over the full-screen watermark each frame, which stuttered while
@@ -33,53 +34,49 @@ export const DARK = {
   // These three are an elevation ramp rather than two arbitrary greys: each
   // step lightens as it comes forward, so depth is carried by fill instead of
   // by a drawn outline on every card.
-  surface: '#12151d',
+  surface: '#0e0e0e',
   // Buttons, inputs, and interactive components.
-  surface2: '#1a1f29',
+  surface2: '#171717',
   // Sheets, modals and anything sitting above surface2.
-  surface3: '#232937',
-  surfaceSolid: '#12151d',
+  surface3: '#212121',
+  surfaceSolid: '#0e0e0e',
 
-  accent: '#c1ff72',
-  accentSoft: '#d6ffa1',
-  success: '#c1ff72',
+  accent: '#ffffff',
+  accentSoft: '#e5e5e5',
+  success: '#ffffff',
   /**
    * The accent as INK - text, thin strokes, small icons.
    *
-   * On this ground it is simply the accent, and always was. It exists as a
-   * separate token for the light palette, where the same lime measures 1.3:1
-   * against a white card: a 2pt ring or a caption in it is not low contrast,
-   * it is invisible. See LIGHT.
+   * In a monochrome palette it is simply the accent. Kept as its own token so
+   * a future brand hue can differ between fills and type without touching
+   * every screen.
    */
-  accentText: '#c1ff72',
+  accentText: '#ffffff',
 
-  // Neutral text ramp, very slightly warm-green so it sits with the lime rather
-  // than reading as a separate cold grey.
-  text: '#f2f5ee',
-  white: '#f2f5ee',
-  textMuted: '#9aa39a',
-  whiteMuted: '#9aa39a',
+  // Neutral grey text ramp. textDim still clears 4.5:1 on black.
+  text: '#ffffff',
+  white: '#ffffff',
+  textMuted: '#a3a3a3',
+  whiteMuted: '#a3a3a3',
   // Third step down, for captions and de-emphasised metadata.
   //
   // Was #6e766e, which measured 4.1:1 against the tab bar - under the 4.5
   // minimum, and it is the colour of every inactive tab label. Nudged up two
   // steps; still clearly the quietest of the three text values.
-  textDim: '#7a827a',
-  whiteFaint: 'rgba(242, 245, 238, 0.10)',
+  textDim: '#8a8a8a',
+  whiteFaint: 'rgba(255, 255, 255, 0.10)',
 
   // Hairlines. Depth comes from the surface ramp, so these stay quiet.
-  border: 'rgba(255, 255, 255, 0.065)',
-  borderStrong: 'rgba(255, 255, 255, 0.12)',
+  border: 'rgba(255, 255, 255, 0.08)',
+  borderStrong: 'rgba(255, 255, 255, 0.16)',
 
   // Tint wash for the active-tab capsule and other accent fills, and the
   // matching edge for anything outlined in the accent.
   //
-  // Both existed as hand-written rgba() in a dozen screens - which is how the
-  // light palette shipped with the DARK lime in it: `rgba(193,255,114,0.12)`
-  // does not stop being #c1ff72 just because the ground under it turned white,
-  // so every accent-tinted card came out a washed pale yellow.
-  accentWash: 'rgba(193, 255, 114, 0.14)',
-  accentEdge: 'rgba(193, 255, 114, 0.28)',
+  // Tokens rather than hand-written rgba() in each screen, so the light
+  // palette can never inherit a tint meant for the dark one.
+  accentWash: 'rgba(255, 255, 255, 0.10)',
+  accentEdge: 'rgba(255, 255, 255, 0.30)',
   /**
    * The halo behind a training circle. Its own colour, not `accent`.
    *
@@ -91,13 +88,13 @@ export const DARK = {
    * The light palette uses a pale, high-key green instead, so the halo lands
    * as a soft tint rather than as a stain.
    */
-  glow: '#c1ff72',
+  glow: '#ffffff',
   dangerWash: 'rgba(255, 107, 107, 0.12)',
   dangerEdge: 'rgba(255, 107, 107, 0.30)',
   // The tab bar sits one hair above the ground so it reads as chrome, not page.
-  navBar: '#0b0e15',
+  navBar: '#121212',
 
-  onAccent: '#0c1a00',
+  onAccent: '#000000',
   danger: '#ff6b6b',
   // Text ON the danger fill. White on #ff6b6b is about 2.5:1 - it was the
   // least readable label in the app, on the button with the worst consequences
@@ -121,7 +118,7 @@ export const DARK = {
   // outlined, which is the look that made the set feel like a wireframe.
   glass: {
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.065)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
 };
 
@@ -135,14 +132,12 @@ export const DARK = {
  *    getting lighter too - white cards on an off-white page - so `surface` is
  *    the brightest value here and the ground is the tinted one.
  *
- * 2. The accent cannot stay #c1ff72. That lime is about 1.3:1 against white,
- *    and `accent` is not only a button fill - it is the colour of the "forgot
- *    password" link, the padlock captions on locked exercises and the Subscribe
- *    labels, all of which are TEXT. A deep lime keeps the brand hue and clears
- *    4.5:1 as text, while still taking white on top when it is a fill.
+ * 2. The accent flips with the ground: black ink here, white in the dark
+ *    palette. It is a fill (buttons, the ring) and also TEXT (links, padlock
+ *    captions, Subscribe labels), and black on white clears both easily.
  */
 export const LIGHT: Palette = {
-  bg: '#f4f6f0',
+  bg: '#f4f4f4',
 
   // The ramp runs the OTHER way here, and the first version got it backwards:
   // surface3 - sheets and modals, the layer furthest forward - was the darkest
@@ -154,63 +149,40 @@ export const LIGHT: Palette = {
   // cards and sheets are white, and the one step that recedes is surface2 -
   // inputs and pressed states, which SHOULD sit into the page.
   surface: '#ffffff',
-  surface2: '#f7f8f4',
+  surface2: '#f6f6f6',
   surface3: '#ffffff',
   surfaceSolid: '#ffffff',
 
-  /**
-   * The logo lime, taken down until it can be seen on a white page.
-   *
-   * The brand lime itself was tried here and it does not work: #c1ff72 is
-   * 1.08:1 against this ground. Not dim - not there. A ring, a progress bar or
-   * a filled button in it simply is not visible, which is what "too bright" on
-   * a light screen actually means.
-   *
-   * This is the SAME hue - 86 degrees, the logo's own - at 3.0:1 on the page,
-   * which clears the threshold for graphics: rings, glows, fills, the active
-   * tab capsule, anything with dark ink on top. Still plainly a lime, and as
-   * close to the brand as a light ground permits.
-   */
-  accent: '#5f9e0a',
-  /**
-   * And the same lime as INK.
-   *
-   * #c1ff72 is 1.3:1 on white. Not "a bit weak" - a caption or a 2pt stroke in
-   * it simply cannot be seen. This is that exact colour taken down its OWN hue
-   * (86 degrees, the logo's) until it reads: same colour, more of it. It is
-   * what the eye accepts as "the lime, written down".
-   */
-  accentText: '#4d7c0f',  // and one step darker again for type - 4.99:1.
-  accentSoft: '#3f6212',
-  success: '#4d7c0f',
+  // Black ink: buttons, rings, the active tab capsule.
+  accent: '#000000',
+  accentText: '#000000',
+  accentSoft: '#262626',
+  success: '#000000',
 
-  // The same warm-green neutral family as the dark ramp, read as ink.
-  text: '#14181a',
-  white: '#14181a',
-  textMuted: '#585f59',
-  whiteMuted: '#585f59',
+  // The same neutral greys as the dark ramp, read as ink.
+  text: '#0a0a0a',
+  white: '#0a0a0a',
+  textMuted: '#525252',
+  whiteMuted: '#525252',
   // Matched to the dark palette's step: 4.7:1 on the page and 5.1:1 on a
   // card, so an inactive tab label is legible rather than merely present.
-  textDim: '#68706a',
-  whiteFaint: 'rgba(20, 24, 26, 0.06)',
+  textDim: '#6b6b6b',
+  whiteFaint: 'rgba(0, 0, 0, 0.06)',
 
-  border: 'rgba(20, 24, 26, 0.10)',
-  borderStrong: 'rgba(20, 24, 26, 0.20)',
+  border: 'rgba(0, 0, 0, 0.10)',
+  borderStrong: 'rgba(0, 0, 0, 0.18)',
 
-  accentWash: 'rgba(95, 158, 10, 0.14)',
-  accentEdge: 'rgba(95, 158, 10, 0.34)',
-  // The accent again. A halo is soft and large, but it is still drawn ON a
-  // white page - the brand lime at 42% over white is indistinguishable from
-  // the page, which made the training circles look like they had no glow at
-  // all rather than a gentle one.
-  glow: '#5f9e0a',
+  accentWash: 'rgba(0, 0, 0, 0.07)',
+  accentEdge: 'rgba(0, 0, 0, 0.30)',
+  // The accent again, so the training circle's halo reads as a soft shadow
+  // on the white page.
+  glow: '#000000',
   dangerWash: 'rgba(192, 57, 43, 0.10)',
   dangerEdge: 'rgba(192, 57, 43, 0.32)',
   navBar: '#ffffff',
 
-  // Dark ink, because the fill is the bright lime again - the same pairing
-  // the dark palette uses. White on #c1ff72 is 1.4:1.
-  onAccent: '#0c1a00',
+  // White on the black fill: the dark palette's pairing, inverted.
+  onAccent: '#ffffff',
   danger: '#c0392b',
   onDanger: '#ffffff',
 
@@ -219,7 +191,7 @@ export const LIGHT: Palette = {
 
   glass: {
     borderWidth: 1,
-    borderColor: 'rgba(20, 24, 26, 0.10)',
+    borderColor: 'rgba(0, 0, 0, 0.10)',
   },
 };
 
@@ -233,9 +205,8 @@ export type Palette = typeof DARK;
 
 // Opacity for disabled buttons and locked cards.
 //
-// These sat at 0.5 / 0.55, which against this dark ground pushed lime text far
-// enough down that it became genuinely hard to read rather than merely
-// unavailable. 0.65 still clearly signals "you cannot use this yet" while
+// These sat at 0.5 / 0.55, which pushed text far enough down that it became
+// genuinely hard to read rather than merely unavailable. 0.65 still clearly signals "you cannot use this yet" while
 // leaving the label legible - which matters most for locked exercises, where
 // the whole point is that the user can see what they are working towards.
 export const DISABLED_OPACITY = 0.65;
