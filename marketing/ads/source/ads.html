@@ -217,7 +217,7 @@ const statusBar = () => `<div class="sb"><span>9:41</span><span class="bat"></sp
 const workoutScreen = (extra = '') => `
   <div class="wm-ph">KEGELEE</div>
   ${statusBar()}
-  <div class="ph-top"><svg class="ph-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>1m left</div>
+  <div class="ph-top"><svg class="ph-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>3m left</div>
   <div class="ph-circle">${circleHTML(214)}</div>
   <div class="ph-help">?</div>
   <div class="ph-tabs"><b>Holding</b><span>Rest</span><span>Trembling</span></div>
@@ -304,147 +304,205 @@ function circleCues(start, phases) {
 }
 
 // ---------------------------------------------------------------- the ads
+//
+// Every ad has an ElevenLabs voiceover (vo/). `vo.at` is the time each spoken
+// phrase starts, in order; sfx.py cuts the take at its pauses and puts each
+// phrase there, sped up by `vo.tempo`. The scenes are timed around those
+// phrases, so the words on screen land with the voice.
 
 const SQUEEZE = { label: 'Squeeze', inner: 'Contract & hold', dur: 3, contract: true };
 const RELAX = { label: 'Relax', inner: 'Relax', dur: 2, contract: false };
 const PH2 = [SQUEEZE, RELAX, SQUEEZE];
 
+// Headlines above the phone that replace one another: [html, in, out].
+const swaps = items => `<div class="zone top"><div style="position:relative;width:100%;height:170px">
+  ${items.map(([h, a, o]) => `<div class="swap" data-at="${a}" data-fx="up"${o ? ` data-out="${o}"` : ''}>${h}</div>`).join('')}
+</div></div>`;
+const head = (text, subText) => `<div class="head">${text}</div>${subText ? `<div class="sub" style="margin-top:14px;font-size:44px">${subText}</div>` : ''}`;
+
 const ADS = {
 
   // 1. The invisible workout. Deadpan hook, the joke is that nobody can tell.
   invisible: {
-    theme: 'dark', thumb: 1.0,
+    theme: 'dark', thumb: 1.2,
+    vo: { file: 'vo/01-invisible.mp3', tempo: 1.12, at: [.05, 1.95, 2.85, 3.7, 5.55, 7.6, 11.05, 12.65, 14.25, 15.55, 16.15] },
     scenes: [
-      S(0, 2.3, `<div class="zone">
+      S(0, 1.9, `<div class="zone">
         ${line('I’m', -.15, { size: 200 })}
-        ${line('working', .15, { size: 200 })}
-        ${line('out', .3, { size: 200 })}
-        ${line('right now.', .55, { size: 160, inv: true, shake: true })}
-        ${sub('(seriously)', 1.15)}
+        ${line('working', .2, { size: 200 })}
+        ${line('out', .45, { size: 200 })}
+        ${line('right now.', .75, { size: 160, inv: true, shake: true })}
+        ${sub('(seriously)', 1.3)}
       </div>`),
-      ...[['In a', 'meeting.'], ['In', 'traffic.'], ['In line for', 'coffee.'], ['Reading', 'this.']].map(([a, b], i) =>
-        S(2.3 + i * .55, 2.3 + (i + 1) * .55, `<div class="zone">
+      ...[['In', 'meetings.', 1.9, 2.8], ['In', 'traffic.', 2.8, 3.65], ['In line for', 'coffee.', 3.65, 5], ['Reading', 'this.', 5, 5.5]].map(([a, b, from, to], i) =>
+        S(from, to, `<div class="zone">
           ${line(a, 0, { size: 110, fx: 'fade' })}
           ${line(b, 0, { size: 170, inv: i % 2 === 1, fx: 'slam' })}
         </div>`)),
-      S(4.5, 6.5, `<div class="zone">
+      S(5.5, 7.3, `<div class="zone">
         ${line('And nobody', 0, { size: 140 })}
-        ${line('can tell.', .25, { size: 150, inv: true, shake: true })}
-        ${sub('It’s called a <b>Kegel.</b>', .85)}
+        ${line('can tell.', .5, { size: 150, inv: true, shake: true })}
+        ${sub('It’s called a <b>Kegel.</b>', 1)}
       </div>`),
-      S(6.5, 11, `<div class="zone top">
-          <div style="position:relative;width:100%;height:170px">
-            <div class="swap" data-at=".25" data-fx="up" data-out="2.2"><div class="head">Follow the circle.</div><div class="sub" style="margin-top:14px;font-size:44px">Squeeze. Hold. Relax.</div></div>
-            <div class="swap" data-at="2.35" data-fx="up"><div class="head">1 minute a day.</div><div class="sub" style="margin-top:14px;font-size:44px">Guided, start to finish.</div></div>
-          </div>
-        </div>
+      S(7.3, 12.6, `${swaps([[head('Follow the circle.', 'Squeeze. Hold. Relax.'), .25, 3.6], [head('3–5 min a day.', 'Guided, start to finish.'), 3.75]])}
         ${phone(workoutScreen())}`,
         { update: (r, lt) => runCircle(r, [SQUEEZE, RELAX, SQUEEZE], lt - .7), cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]) }),
-      S(11, 12.9, `<div class="zone">
+      S(12.6, 15.4, `<div class="zone">
         ${line('No gym.', 0, { size: 150 })}
-        ${line('No gear.', .3, { size: 150 })}
-        ${line('No one knows.', .6, { size: 150, inv: true, shake: true })}
+        ${line('No gear.', .75, { size: 150 })}
+        ${line('No one knows.', 1.65, { size: 150, inv: true, shake: true })}
       </div>`),
-      S(12.9, 15.9, endCard('The workout nobody sees.'), { update: endUpdate }),
+      S(15.4, 18.4, endCard('The workout nobody sees.'), { update: endUpdate }),
     ],
   },
 
   // 2. Follow-along. The viewer does a Kegel with the ad, which holds them for 8 seconds.
   trythis: {
-    theme: 'dark', thumb: .9,
+    theme: 'dark', thumb: 1.4,
+    vo: { file: 'vo/02-trythis.mp3', tempo: 1.08, at: [.05, 3.6, 9.6, 12.6, 14.35, 18.05, 22.45] },
     scenes: [
-      S(0, 2.2, `<div class="zone">
+      S(0, 3.5, `<div class="zone">
         ${line('Try this', -.15, { size: 170 })}
-        ${line('right now.', .25, { size: 160, inv: true, shake: true })}
-        ${sub('Nobody will notice.', .9)}
+        ${line('right now.', 1, { size: 160, inv: true, shake: true })}
+        ${sub('Nobody will notice.', 2.1)}
       </div>`),
-      S(2.2, 5, `<div class="zone">
+      S(3.5, 9.3, `<div class="zone">
         ${line('Squeeze like', 0, { size: 130 })}
-        ${line('you’re holding', .2, { size: 130 })}
-        ${line('in a pee.', .4, { size: 150, inv: true, shake: true })}
-        ${sub('Belly, butt and thighs stay <b>relaxed.</b>', 1.2)}
+        ${line('you’re holding', .3, { size: 130 })}
+        ${line('in a pee.', .6, { size: 150, inv: true, shake: true })}
+        ${sub('Belly, butt and thighs stay <b>relaxed.</b>', 3.1)}
       </div>`),
-      S(5, 13.4, `<div class="zone" style="justify-content:space-between">
+      S(9.3, 18, `<div class="zone" style="justify-content:space-between">
           <div data-at="0" data-fx="up"><div class="kicker">Follow along</div><div class="x" style="font-size:150px" data-phase>Squeeze</div></div>
           <div data-at=".1" data-fx="pop" style="margin:40px 0 10px">${circleHTML(540, true)}</div>
           ${sub('Breathe normally.', .5, 'margin-top:0')}
         </div>`,
         { update: (r, lt) => runCircle(r, PH2, lt - .3), cues: circleCues(.3, PH2) }),
-      S(13.4, 15.6, `<div class="zone">
+      S(18, 22.3, `<div class="zone">
         ${line('That was', 0, { size: 160 })}
-        ${line('a Kegel.', .25, { size: 160, inv: true, shake: true })}
-        ${sub('Now do it <b>1 minute a day,</b> guided.', .9)}
+        ${line('a Kegel.', .5, { size: 160, inv: true, shake: true })}
+        ${sub('Now do it <b>3–5 min a day,</b> guided.', 1.4)}
       </div>`),
-      S(15.6, 18.6, endCard('Your daily Kegel coach.'), { update: endUpdate }),
+      S(22.3, 25.3, endCard('Your daily Kegel coach.'), { update: endUpdate }),
     ],
   },
 
   // 3. Gym split. Light theme, so it looks nothing like the dark ads next to it in a feed.
   legday: {
-    theme: 'light', thumb: 2.6,
+    theme: 'light', thumb: 3.4,
+    vo: { file: 'vo/03-legday.mp3', tempo: 1.12, at: [0, .75, 1.45, 2.1, 2.85, 3.75, 5.95, 9.35, 11.6, 12.65, 14.05, 15.1, 16.35, 16.95] },
     scenes: [
-      S(0, 4.6, `<div class="zone" style="justify-content:flex-start;top:310px">
+      S(0, 5.9, `<div class="zone" style="justify-content:flex-start;top:310px">
         <div class="kicker" data-at="-.3" data-fx="fade">This week</div>
-        ${[['Chest day', -.1], ['Back day', .3], ['Leg day', .8], ['Arm day', 1.15]].map(([l, a]) => row(l, a, true)).join('')}
-        ${row('Pelvic floor', 1.7, false)}
-        <div class="sub" style="color:var(--ink);font-weight:800;margin-top:40px" data-at="2.8" data-fx="up">The one muscle everyone skips.</div>
+        ${[['Chest day', -.1], ['Back day', .65], ['Leg day', 1.35], ['Arm day', 2]].map(([l, a]) => row(l, a, true)).join('')}
+        ${row('Pelvic floor', 2.75, false)}
+        <div class="sub" style="color:var(--ink);font-weight:800;margin-top:40px" data-at="3.75" data-fx="up">The one muscle everyone skips.</div>
       </div>`,
-        { update: rowsUpdate, cues: [{ type: 'buzz', t: 1.7 + .38 }] }),
-      S(4.6, 7.2, `<div class="zone">
+        { update: rowsUpdate, cues: [{ type: 'buzz', t: 2.75 + .38 }] }),
+      S(5.9, 9.3, `<div class="zone">
         <div class="kicker" data-at="0" data-fx="up">The muscle behind</div>
-        ${line('Control.', .25, { size: 150 })}
-        ${line('Core.', .5, { size: 150 })}
-        ${line('Confidence.', .75, { size: 150, inv: true, shake: true })}
+        ${line('Control.', 1.2, { size: 150 })}
+        ${line('Core.', 1.75, { size: 150 })}
+        ${line('Confidence.', 2.3, { size: 150, inv: true, shake: true })}
       </div>`),
-      S(7.2, 11.6, `<div class="zone top">
-          <div style="position:relative;width:100%;height:170px">
-            <div class="swap" data-at=".25" data-fx="up" data-out="2.1"><div class="head">Train it in<br>1–5 min a day.</div></div>
-            <div class="swap" data-at="2.25" data-fx="up"><div class="head">Measure it.<br>Watch it climb.</div></div>
-          </div>
-        </div>
+      S(9.3, 14, `${swaps([[head('Train it in<br>3–5 min a day.'), .25, 2.2], [head('Measure it.<br>Watch it climb.'), 2.3]])}
         ${phone(progressScreen(), { light: true })}`,
-        { update: barsUpdate, cues: BARS.map((_, i) => ({ type: 'tick', t: 1.0 + i * .28 })) }),
-      S(11.6, 13.4, `<div class="zone">
+        { update: bars(2.4), cues: BARS.map((_, i) => ({ type: 'tick', t: 2.4 + i * .28 })) }),
+      S(14, 16.2, `<div class="zone">
         ${line('Pelvic floor day?', 0, { size: 120 })}
-        ${line('Every day.', .35, { size: 160, inv: true, shake: true })}
+        ${line('Every day.', 1.05, { size: 160, inv: true, shake: true })}
       </div>`),
-      S(13.4, 16.4, endCard('Train the muscle everyone skips.'), { update: endUpdate }),
+      S(16.2, 19, endCard('Train the muscle everyone skips.'), { update: endUpdate }),
     ],
   },
 
-  // 4. Screen time vs one minute.
+  // 4. Screen time vs a few minutes.
   screentime: {
-    theme: 'dark', thumb: 3.5,
+    theme: 'dark', thumb: 3.7,
+    vo: { file: 'vo/04-screentime.mp3', tempo: 1.12, at: [.05, 1.85, 2.75, 5.05, 7, 8.2, 10, 12.25, 13.6, 15.15, 15.7] },
     scenes: [
-      S(0, 2.6, `<div class="zone">
+      S(0, 2.7, `<div class="zone">
         <div class="kicker" data-at="-.3" data-fx="fade">Screen time today</div>
         <div class="x fit" style="font-size:210px" data-at="-.3" data-fx="fade" data-count>0H 00M</div>
-        ${sub('…and counting.', 1.55)}
+        ${sub('…and counting.', 1.85)}
       </div>`,
         { update: countUpdate, cues: [...Array(14)].map((_, i) => ({ type: 'tick', t: .1 + i * .09 })).concat([{ type: 'hit', t: 1.35 }]), shakes: [1.35] }),
-      S(2.6, 4.6, `<div class="zone">
+      S(2.7, 4.8, `<div class="zone">
         <div class="kicker" data-at="0" data-fx="fade">Time this takes</div>
-        ${line('1 min.', .25, { size: 250, inv: true, shake: true })}
-        ${sub('A day. That’s it.', .95)}
+        ${line('3–5 min.', .7, { size: 220, inv: true, shake: true })}
+        ${sub('A day. That’s it.', 1.4)}
       </div>`),
-      S(4.6, 11, `<div class="zone top">
-          <div style="position:relative;width:100%;height:170px">
-            ${[['Guided by<br>a circle.', .25, 1.7], ['5 levels.<br>1 to 5 minutes.', 1.85, 3.2], ['Reminders that<br>fit your day.', 3.35, 4.7], ['Streaks that<br>keep you going.', 4.85, 99]]
-              .map(([h, a, o]) => `<div class="swap" data-at="${a}" data-fx="up" data-out="${o}"><div class="head">${h}</div></div>`).join('')}
-          </div>
-        </div>
-        ${phone(workoutScreen(`<div class="notif" data-at="3.4" data-fx="drop" data-cue="pop"><img src="${LOGO}"><div style="flex:1"><div class="t">Kegelee<span>now</span></div><div class="b">Your 1-minute session is ready.</div></div></div>`))}
-        <div class="chip" style="left:44px;top:1010px;transform-origin:left" data-at="1.9" data-fx="pop" data-cue="pop"><span>Level 1</span>${arrow}<span>5</span></div>
-        <div class="chip" style="right:44px;top:1150px" data-at="4.9" data-fx="pop" data-cue="pop">${flame}<span><span class="streak">17</span>-day streak</span></div>`,
-        { update: (r, lt) => { runCircle(r, [SQUEEZE, RELAX, SQUEEZE, RELAX], lt - .7); r.querySelector('.streak').textContent = lt > 5.4 ? 18 : 17; },
-          cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]).concat([{ type: 'tick', t: 5.4 }]) }),
-      S(11, 12.8, `<div class="zone">
+      S(4.8, 12.2, `${swaps([[head('Guided by<br>a circle.'), .25, 2.05], [head('5 levels.<br>Level up as you go.'), 2.2, 3.25], [head('Reminders that<br>fit your day.'), 3.4, 5.05], [head('Streaks that<br>keep you going.'), 5.2]])}
+        ${phone(workoutScreen(`<div class="notif" data-at="3.4" data-fx="drop" data-cue="pop"><img src="${LOGO}"><div style="flex:1"><div class="t">Kegelee<span>now</span></div><div class="b">Your 3-minute session is ready.</div></div></div>`))}
+        <div class="chip" style="left:44px;top:1010px;transform-origin:left" data-at="2.2" data-fx="pop" data-cue="pop"><span>Level 1</span>${arrow}<span>5</span></div>
+        <div class="chip" style="right:44px;top:1150px" data-at="5.2" data-fx="pop" data-cue="pop">${flame}<span><span class="streak">17</span>-day streak</span></div>`,
+        { update: (r, lt) => { runCircle(r, [SQUEEZE, RELAX, SQUEEZE, RELAX], lt - .7); r.querySelector('.streak').textContent = lt > 5.7 ? 18 : 17; },
+          cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]).concat([{ type: 'tick', t: 5.7 }]) }),
+      S(12.2, 15, `<div class="zone">
         ${line('4 hours', 0, { size: 150 })}
-        ${line('scrolling.', .2, { size: 150 })}
-        ${line('1 minute', .6, { size: 150, inv: true })}
-        ${line('for this.', .8, { size: 150, inv: true, shake: true })}
+        ${line('scrolling.', .25, { size: 150 })}
+        ${line('5 minutes', 1.4, { size: 150, inv: true })}
+        ${line('for this.', 1.6, { size: 150, inv: true, shake: true })}
       </div>`),
-      S(12.8, 15.8, endCard('One minute. Every day.'), { update: endUpdate }),
+      S(15, 17.8, endCard('3–5 minutes. Every day.'), { update: endUpdate }),
+    ],
+  },
+
+  // 5. Stamina. The bedroom angle, said straight.
+  stamina: {
+    theme: 'dark', thumb: 2.1,
+    vo: { file: 'vo/05-stamina.mp3', tempo: 1.12, at: [.05, 2.45, 3.5, 5.05, 6.65, 8.7, 9.5, 10.75, 12.1, 13.75, 14.3] },
+    scenes: [
+      S(0, 2.4, `<div class="zone">
+        ${line('The muscle', -.15, { size: 170 })}
+        ${line('that makes you', .45, { size: 130 })}
+        ${line('last longer.', 1.15, { size: 160, inv: true, shake: true })}
+      </div>`),
+      S(2.4, 5, `<div class="zone">
+        ${line('Not your abs.', 0, { size: 140 })}
+        ${line('Not your arms.', 1.1, { size: 140 })}
+      </div>`),
+      S(5, 6.6, `<div class="zone">
+        ${line('It’s your', 0, { size: 150 })}
+        ${line('pelvic floor.', .4, { size: 150, inv: true, shake: true })}
+      </div>`),
+      S(6.6, 10.7, `<div class="zone">
+        <div class="kicker" data-at="0" data-fx="up">Train it and get</div>
+        ${line('More stamina.', 1.25, { size: 140 })}
+        ${line('More control.', 2.1, { size: 140 })}
+        ${line('Better in bed.', 2.9, { size: 140, inv: true, shake: true })}
+      </div>`),
+      S(10.7, 13.6, `${swaps([[head('3–5 min a day.', 'Guided by the circle.'), .25, 1.3], [head('Nobody has<br>to know.'), 1.4]])}
+        ${phone(workoutScreen())}`,
+        { update: (r, lt) => runCircle(r, [SQUEEZE, RELAX], lt - .5), cues: circleCues(.5, [SQUEEZE, RELAX]) }),
+      S(13.6, 16.4, endCard('Stronger in bed.'), { update: endUpdate }),
+    ],
+  },
+
+  // 6. Stamina is a muscle. Same angle, deeper voice, built around the hold tracker.
+  muscle: {
+    theme: 'dark', thumb: 1.5,
+    vo: { file: 'vo/06-muscle.mp3', tempo: 1.1, at: [.05, 2.25, 4.45, 6, 7.45, 8.55, 10.95, 14.75, 15.3] },
+    scenes: [
+      S(0, 2.2, `<div class="zone">
+        ${line('Stamina', -.15, { size: 190 })}
+        ${line('is a', .55, { size: 130 })}
+        ${line('muscle.', 1, { size: 190, inv: true, shake: true })}
+      </div>`),
+      S(2.2, 4.4, `<div class="zone">
+        ${line('Most guys', 0, { size: 150 })}
+        ${line('never train it.', .7, { size: 140, inv: true, shake: true })}
+      </div>`),
+      S(4.4, 10.9, `${swaps([[head('Guided.<br>3–5 min a day.'), .25, 2.95], [head('Measure it.<br>Watch it climb.'), 3.05]])}
+        ${phone(progressScreen())}`,
+        { update: bars(3.3), cues: BARS.map((_, i) => ({ type: 'tick', t: 3.3 + i * .28 })) }),
+      S(10.9, 14.5, `<div class="zone">
+        ${line('Last longer.', 0, { size: 140 })}
+        ${line('Feel stronger.', 1.05, { size: 140 })}
+        ${line('Perform better.', 2.1, { size: 140, inv: true, shake: true })}
+        ${sub('In bed <b>and out of it.</b>', 2.7)}
+      </div>`),
+      S(14.5, 17.3, endCard('Train your stamina.'), { update: endUpdate }),
     ],
   },
 };
@@ -470,15 +528,17 @@ function rowsUpdate(root, lt) {
   });
 }
 
-// Ad 3: bars on the progress screen grow one after another, and the best-hold number follows them.
-function barsUpdate(root, lt) {
-  let best = BARS[0];
-  root.querySelectorAll('.bar').forEach((b, i) => {
-    const p = clamp((lt - 1.0 - i * .28) / .45);
-    b.style.height = `${BARS[i] / 10 * 200 * ease.out(p)}px`;
-    if (p > .6) best = Math.max(best, BARS[i]);
-  });
-  root.querySelector('.best').textContent = best;
+// Progress screen: bars grow one after another from `start`, and the best-hold number follows them.
+function bars(start) {
+  return (root, lt) => {
+    let best = BARS[0];
+    root.querySelectorAll('.bar').forEach((b, i) => {
+      const p = clamp((lt - start - i * .28) / .45);
+      b.style.height = `${BARS[i] / 10 * 200 * ease.out(p)}px`;
+      if (p > .6) best = Math.max(best, BARS[i]);
+    });
+    root.querySelector('.best').textContent = best;
+  };
 }
 
 // Ad 4: the screen-time counter races up to 4h 12m and lands with a hit.
@@ -556,7 +616,7 @@ function renderAt(t) {
   wm.style.transform = `translate(400px, ${40 - t * 18}px) rotate(90deg)`;
 }
 
-window.AD_META = { duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb };
+window.AD_META = { duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb, vo: AD.vo || null };
 window.renderAt = renderAt;
 window.ready = (async () => {
   await Promise.all(['400', '500', '600', '700', '800'].map(w => document.fonts.load(`${w} 20px Archivo`))

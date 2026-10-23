@@ -1,20 +1,27 @@
-"""Synthesises the sound bed for one ad from its cue list.
+"""Builds the soundtrack for one ad: the voiceover plus sound effects.
 
     python3 sfx.py cues.json out.wav
 
-Every sound is generated here (no samples, nothing licensed): a low thump
-under each word that slams in, a click on each countdown second, a whoosh
-when the phone rises and a two-note chime on the end card. It is a bed to
-lay music over, not a soundtrack.
+The cue file comes from ads.html (via render.mjs). It lists a sound effect
+for each beat (a thump under each word that slams in, a click on each
+countdown second, a whoosh when the phone rises, a chime on the end card)
+and, when the ad has one, its voiceover: the take, how much to speed it up,
+and the time each spoken phrase should start (see vo.py).
+
+The thump and the whoosh are ElevenLabs sound effects in sfx/. The rest is
+synthesised here. There is no music: lay that over the finished video.
 """
 
 import json
+import os
 import sys
 import wave
 
 import numpy as np
 
-RATE = 44100
+from vo import RATE, lines, load, stretch
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 rng = np.random.default_rng(7)
 
 
@@ -22,13 +29,12 @@ def env(n, decay):
     return np.exp(-np.arange(n) / RATE * decay)
 
 
-def hit():
-    n = int(.26 * RATE)
-    t = np.arange(n) / RATE
-    freq = 48 + 70 * np.exp(-t * 22)
-    body = np.sin(2 * np.pi * np.cumsum(freq) / RATE) * env(n, 14)
-    click = rng.standard_normal(n) * env(n, 260) * .35
-    return (body + click) * .9
+def sample(name, length):
+    """A sound effect file from sfx/, cut to `length` seconds with a short fade out."""
+    audio = load(os.path.join(HERE, 'sfx', f'{name}.mp3'))[:int(length * RATE)]
+    fade = min(len(audio), int(.08 * RATE))
+    audio[-fade:] *= np.linspace(1, 0, fade)
+    return audio / (np.max(np.abs(audio)) or 1)
 
 
 def tick():
@@ -44,20 +50,6 @@ def pop():
     return np.sin(2 * np.pi * np.cumsum(freq) / RATE) * env(n, 38) * .38
 
 
-def whoosh():
-    n = int(.55 * RATE)
-    noise = rng.standard_normal(n)
-    # A one-pole low-pass whose cutoff opens and closes, shaped by a swell.
-    shape = np.sin(np.pi * np.arange(n) / n) ** 2
-    out = np.zeros(n)
-    y = 0.0
-    for i in range(n):
-        a = .02 + .25 * shape[i]
-        y += a * (noise[i] - y)
-        out[i] = y
-    return out * shape * 1.4
-
-
 def chime():
     n = int(1.4 * RATE)
     t = np.arange(n) / RATE
@@ -71,25 +63,69 @@ def chime():
 def buzz():
     n = int(.3 * RATE)
     t = np.arange(n) / RATE
-    wave_ = np.sign(np.sin(2 * np.pi * 98 * t)) * .5 + np.sin(2 * np.pi * 147 * t) * .5
-    return wave_ * env(n, 9) * .32
+    tone = np.sign(np.sin(2 * np.pi * 98 * t)) * .5 + np.sin(2 * np.pi * 147 * t) * .5
+    return tone * env(n, 9) * .32
 
 
-SOUNDS = {'hit': hit, 'tick': tick, 'pop': pop, 'whoosh': whoosh, 'chime': chime, 'buzz': buzz}
+SOUNDS = {
+    'hit': lambda: sample('hit', .6) * .8,
+    'whoosh': lambda: sample('whoosh', .5) * .45,
+    'tick': tick, 'pop': pop, 'chime': chime, 'buzz': buzz,
+}
+
+
+def effects(cues, size):
+    track = np.zeros(size)
+    made = {}
+    for cue in cues:
+        sound = made.setdefault(cue['type'], SOUNDS[cue['type']]())
+        start = int(cue['t'] * RATE)
+        end = min(size, start + len(sound))
+        if start < end:
+            track[start:end] += sound[:end - start]
+    return track
+
+
+def voiceover(spec, size):
+    """Cuts the take into phrases and puts each one at its own time."""
+    take = load(os.path.join(HERE, spec['file']))
+    phrases = lines(take, spec.get('gap', .3))
+    if len(phrases) != len(spec['at']):
+        sys.exit(f"{spec['file']}: found {len(phrases)} phrases but ads.html places {len(spec['at'])}")
+    track = np.zeros(size)
+    placed = []
+    for (s, e), at in zip(phrases, spec['at']):
+        piece = stretch(take[int(s * RATE):int(e * RATE)], spec.get('tempo', 1))
+        edge = int(.005 * RATE)
+        piece[:edge] *= np.linspace(0, 1, edge)
+        piece[-edge:] *= np.linspace(1, 0, edge)
+        start = int(at * RATE)
+        end = min(size, start + len(piece))
+        track[start:end] += piece[:end - start]
+        placed.append((at, at + len(piece) / RATE))
+    for (a, b), (c, _) in zip(placed, placed[1:]):
+        if b > c:
+            print(f"  warning: phrase at {a:.2f}s runs to {b:.2f}s, past the next one at {c:.2f}s")
+    if placed[-1][1] > size / RATE:
+        print(f"  warning: the last phrase runs past the end of the video ({placed[-1][1]:.2f}s)")
+    return track / (np.max(np.abs(track)) or 1)
 
 
 def main(cue_path, out_path):
     spec = json.load(open(cue_path))
-    track = np.zeros(int(spec['duration'] * RATE) + RATE)
-    for cue in spec['cues']:
-        sound = SOUNDS[cue['type']]()
-        start = int(cue['t'] * RATE)
-        end = min(len(track), start + len(sound))
-        if start < end:
-            track[start:end] += sound[:end - start]
-    track = track[:int(spec['duration'] * RATE)]
-    peak = np.max(np.abs(track)) or 1
-    track = track / peak * 10 ** (-3 / 20)
+    size = int(spec['duration'] * RATE)
+    sfx = effects(spec['cues'], size)
+    sfx /= np.max(np.abs(sfx)) or 1
+    if spec.get('vo'):
+        voice = voiceover(spec['vo'], size)
+        # Duck the effects while someone is talking, so the voice stays on top.
+        hop = int(.02 * RATE)
+        level = np.array([np.max(np.abs(voice[i:i + hop])) for i in range(0, size, hop)])
+        talking = np.repeat(np.convolve(level > .05, np.ones(8) / 8, 'same'), hop)[:size]
+        track = voice + sfx * .42 * (1 - .5 * talking)
+    else:
+        track = sfx
+    track = track / (np.max(np.abs(track)) or 1) * 10 ** (-1 / 20)
     pcm = (np.repeat(track[:, None], 2, axis=1) * 32767).astype('<i2')
     with wave.open(out_path, 'wb') as w:
         w.setnchannels(2)
