@@ -31,8 +31,6 @@ import { api } from '../../services/api';
 import { requestAppleAuthorization } from '../../services/appleAuth';
 import { clearProgressData } from '../../db/queries';
 import { entitledSubscription } from '../../services/entitlement';
-import { FREE_APP } from '../../constants/monetization';
-import { adPrivacyOptionsRequired, openAdPrivacyOptions } from '../../services/ads';
 import { manageSubscriptionUrl } from '../../services/billing';
 import { syncNow } from '../../services/sync';
 import { getDBConnection } from '../../db/sqlite';
@@ -104,7 +102,6 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   const [pages, setPages] = useState<any[]>([]);
   const [subscription, setSubscription] = useState<any>(null);
   const [manageUrl, setManageUrl] = useState<string | null>(null);
-  const [adPrivacyRow, setAdPrivacyRow] = useState(false);
 
   // Modals state
   const [resetModalVisible, setResetModalVisible] = useState(false);
@@ -177,16 +174,9 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
       setSubscription(sub);
 
       // Settings and the paywall share the store-aware cancellation route.
-      // In the free build there is nothing to sell, but somebody who paid
-      // before the switch is still being billed by the store and has to be
-      // able to reach the cancel button - so the link stays for exactly the
-      // accounts that hold a subscription row.
       setManageUrl(
-        (FREE_APP ? !!sub : subscribed)
-          ? await manageSubscriptionUrl(user.id, sub?.plan_slug)
-          : null,
+        subscribed ? await manageSubscriptionUrl(user.id, sub?.plan_slug) : null,
       );
-      setAdPrivacyRow(await adPrivacyOptionsRequired());
     } catch (e) {
       console.error(e);
     } finally {
@@ -330,13 +320,10 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
   return (
     <>
       <View style={styles.sectionsWrap}>
-        {/* Subscription section. In the free build it only exists for a
-            legacy subscriber, and holds nothing but the way out. */}
-        {(!FREE_APP || !!manageUrl) && (
-        <>
+        {/* Subscription section */}
         <Text style={styles.sectionLabel}>{t('settings.subscription')}</Text>
         <View style={styles.menuContainer}>
-          {FREE_APP ? null : subscribed ? (
+          {subscribed ? (
             // Tappable so a subscriber can reach the plan switcher. The paywall
             // doubles as "Manage Plan" and owns the RevenueCat product-change
             // flow (upgrade prorates immediately, downgrade defers to period
@@ -378,7 +365,7 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
 
           {manageUrl && (
             <TouchableOpacity
-              style={[styles.menuRow, !FREE_APP && styles.borderTop]}
+              style={[styles.menuRow, styles.borderTop]}
               onPress={() => {
                 // Leaving for Play's own subscription page. Worth counting
                 // because everything that happens after this tap - a
@@ -409,31 +396,6 @@ export const SettingsSections: React.FC<SettingsSectionsProps> = ({
             </TouchableOpacity>
           )}
         </View>
-        </>
-        )}
-
-        {/* Ad consent, revisitable. Google's EU consent policy requires it
-            wherever the consent form was shown, and only there. */}
-        {adPrivacyRow && (
-          <>
-            <Text style={styles.sectionLabel}>{t('ads.sectionTitle')}</Text>
-            <View style={styles.menuContainer}>
-              <TouchableOpacity
-                style={styles.menuRow}
-                accessibilityRole="button"
-                onPress={() => {
-                  openAdPrivacyOptions().catch(() => {});
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.menuText}>{t('ads.privacyChoices')}</Text>
-                  <Text style={styles.menuSubtext}>{t('ads.privacyChoicesHint')}</Text>
-                </View>
-                <Chevron color={COLORS.textMuted} />
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
 
         {/* The profile's own rows.
             They carry their own top margin, but the subscription card above

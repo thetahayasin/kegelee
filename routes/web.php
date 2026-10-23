@@ -6,7 +6,9 @@ use App\Http\Controllers\AdminMaintenanceController;
 use App\Http\Controllers\AssetLinksController;
 use App\Http\Controllers\DeployController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\GooglePlayWebhookController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\RevenueCatWebhookController;
 use App\Livewire\Admin;
 use App\Livewire\App\Page\Show as PageShow;
 use App\Livewire\Auth;
@@ -24,6 +26,30 @@ use Illuminate\Support\Facades\Route;
 | (routes/api.php).
 |
 */
+
+/*
+|--------------------------------------------------------------------------
+| RevenueCat Webhooks
+| RevenueCat server events push here; no CSRF / auth needed.
+|--------------------------------------------------------------------------
+*/
+// Throttled generously: real event volume is a trickle, but the endpoint mints
+// subscriptions from its request body, so an attacker who learns the bearer
+// secret must not be able to hammer it. 120/min is far above anything
+// RevenueCat sends, including retry bursts.
+Route::post('/webhooks/revenuecat', [RevenueCatWebhookController::class, 'handle'])
+    ->middleware('throttle:120,1')
+    ->name('webhooks.revenuecat');
+
+/*
+|--------------------------------------------------------------------------
+| Google Play Real-Time Developer Notifications (RTDN - legacy)
+| Pub/Sub pushes to this endpoint; no CSRF / auth needed.
+|--------------------------------------------------------------------------
+*/
+Route::post('/webhooks/google-play', [GooglePlayWebhookController::class, 'handle'])
+    ->middleware('throttle:120,1')
+    ->name('webhooks.google-play');
 
 /*
 |--------------------------------------------------------------------------
@@ -176,6 +202,7 @@ Route::prefix('mystic')->name('admin.')->group(function () {
         // closure route cannot be serialised - it would fail the whole cache
         // build rather than this one line.
         Route::redirect('insights', '/mystic/reports/engagement')->name('insights');
+        Route::get('subscriptions', Admin\Subscriptions::class)->name('subscriptions');
         Route::get('pages', Admin\Pages::class)->name('pages');
         Route::get('settings', Admin\Settings::class)->name('settings');
 

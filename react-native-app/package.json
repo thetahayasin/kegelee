@@ -36,7 +36,6 @@
     "react-i18next": "^17.0.12",
     "react-native": "0.86.3",
     "react-native-gesture-handler": "^3.0.2",
-    "react-native-google-mobile-ads": "17.2.0",
     "react-native-keep-awake": "^4.0.0",
     "react-native-purchases": "^10.7.1",
     "react-native-restart": "^0.0.29",

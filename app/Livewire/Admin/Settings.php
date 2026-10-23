@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Plan;
 use App\Services\SettingsService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +24,7 @@ class Settings extends Component
      *
      * $values is public component state: everything in it is serialised into
      * the page and sent to the browser on every render. Loading the stored
-     * SMTP password, the Google client secret or the
+     * SMTP password, the Google client secret, the RevenueCat keys or the
      * service-account JSON into it published them to anyone who could read the
      * HTML - including keys with no field in the form at all, which the old
      * mount() loaded anyway because it walked every default.
@@ -84,6 +85,12 @@ class Settings extends Component
         'google_login_enabled' => ['bool', 'general'],
         'google_client_id' => ['string', 'general'],
 
+        // RevenueCat
+        'revenuecat_enabled' => ['bool', 'general'],
+        'revenuecat_android_public_sdk_key' => ['string', 'general'],
+        'revenuecat_ios_public_sdk_key' => ['string', 'general'],
+        'revenuecat_entitlement_id' => ['string', 'general'],
+
         // Homepage
         'homepage_enabled' => ['bool', 'homepage'],
         'play_store_url' => ['string', 'homepage'],
@@ -114,6 +121,8 @@ class Settings extends Component
     public const SECRET_KEYS = [
         'mail_password' => 'general',
         'google_client_secret' => 'general',
+        'revenuecat_api_key' => 'general',
+        'revenuecat_webhook_secret' => 'general',
     ];
 
     /** Uploads, and the setting each one writes. */
@@ -390,6 +399,9 @@ class Settings extends Component
             'faviconUrl' => $url('favicon_path'),
             'ogImageUrl' => $url('seo_og_image'),
             'secretsSet' => $secretsSet,
+            // Queried here rather than in the blade: a template that runs
+            // database queries cannot be read, cached or tested as a template.
+            'plans'      => Plan::where('is_active', true)->orderBy('sort_order')->get(),
         ]);
     }
 }

@@ -78,6 +78,42 @@ class ProgressionService
         ];
     }
 
+    /**
+     * Whether a free account has already used up its allowance of completed
+     * days, and so must not be allowed to close another one.
+     *
+     * The same rule the app applies before it writes a day locally (see
+     * recordCompletedSession in react-native-app/src/db/queries.ts). Both sides
+     * have to agree or the two disagree about which day the person is on: the
+     * device would show day 2 and the next pull would move them back to day 1.
+     *
+     * The workout itself is always recorded - a session somebody did is a fact,
+     * and they should see it. It is the DAY that stops completing, which is
+     * what freezes plan position, exercise unlocks and the streak. Subscribing
+     * simply stops the cap applying, and the plan carries on from the day they
+     * had actually reached rather than restarting.
+     *
+     * $exceptDate (the day being closed) is excluded from the count on purpose:
+     * a day already part way through must be allowed to finish, or a free
+     * account is cut off half way through the very day that takes it to the cap.
+     */
+    public function freeDayCapReached(User $user, string $exceptDate): bool
+    {
+        // A subscriber has no cap at all.
+        if ($user->isSubscribed()) {
+            return false;
+        }
+
+        $cap = max(0, (int) $this->settings->get('free_day_cap', 1));
+
+        $completedElsewhere = $user->trainingDays()
+            ->whereNotNull('completed_at')
+            ->where('date', '!=', $exceptDate)
+            ->count();
+
+        return $completedElsewhere >= $cap;
+    }
+
     public function todayRecord(User $user, ?CarbonInterface $date = null): TrainingDay
     {
         $date ??= $this->today($user);
@@ -125,7 +161,10 @@ class ProgressionService
         $record->increment('sessions_count');
 
         $justCompletedDay = false;
-        if (! $wasComplete && $record->sessions_count >= $record->required_sessions) {
+        if (! $wasComplete
+            && $record->sessions_count >= $record->required_sessions
+            && ! $this->freeDayCapReached($user, $record->date)
+        ) {
             $record->update(['completed_at' => now()]);
             $justCompletedDay = true;
         }

@@ -33,9 +33,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PlatformPressable } from '@react-navigation/elements';
 import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
-import { RADIUS, SPACE, TAB_BAR, Palette, tabBarBottom } from '../theme/colors';
-import { AdBanner } from '../components/AdBanner';
-import { useBannerHeight } from '../services/ads';
+import { RADIUS, SPACE, TAB_BAR, Palette } from '../theme/colors';
 import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 export type RootStackParamList = {
@@ -153,14 +151,6 @@ const TabButton = ({ children, ...props }: BottomTabBarButtonProps) => (
 );
 
 const makeStyles = (COLORS: Palette) => StyleSheet.create({
-  tabsRoot: {
-    flex: 1,
-  },
-  bannerDock: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-  },
   // Capsule behind the active glyph. Adds shape as a second channel so the
   // active tab is not signalled by colour alone.
   tabIconWrap: {
@@ -204,9 +194,7 @@ const TabNavigator = () => {
   const barInset = Math.max(SPACE.md, Math.round((winWidth - barWidth) / 2));
   const styles = useThemedStyles(makeStyles);
   const COLORS = useTheme();
-  const adHeight = useBannerHeight();
   return (
-    <View style={styles.tabsRoot}>
     <Tab.Navigator
       screenOptions={({ route }) => ({
         // Mount tabs on first visit only, and freeze (suspend re-rendering of)
@@ -275,8 +263,7 @@ const TabNavigator = () => {
           end: barInset,
           // Above the Android nav bar / home indicator, never behind it, and
           // never flush against the screen edge on a phone that has neither.
-          // Lifted over the banner while one is showing.
-          bottom: tabBarBottom(insets.bottom, adHeight),
+          bottom: Math.max(insets.bottom, TAB_BAR.gap),
           height: TAB_BAR.height,
           paddingTop: 8,
           paddingBottom: 8,
@@ -314,13 +301,6 @@ const TabNavigator = () => {
       <Tab.Screen name="Schedule" component={ScheduleScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
-      {/* Docked to the bottom edge, above the system nav bar, with the
-          floating tab bar lifted clear of it. Drawn over the tab screens,
-          which pad themselves by the same height. */}
-      <View style={[styles.bannerDock, { bottom: insets.bottom }]} pointerEvents="box-none">
-        <AdBanner />
-      </View>
-    </View>
   );
 };
 

@@ -308,15 +308,6 @@ export const TAB_BAR = {
  * home indicator. The bar floats above it rather than behind it, so the
  * clearance is the bar, the larger of the inset and the design gap, and one
  * more gutter so the last card is not touching the bar's underside.
- *
- * `adHeight` is the banner docked under the bar (0 when there is no ad). The
- * bar lifts by the banner plus one gap, so it never touches the ad - Google
- * treats an ad flush against navigation as an invitation to accidental taps.
  */
-export const tabBarBottom = (insetBottom: number, adHeight = 0): number =>
-  adHeight > 0
-    ? insetBottom + adHeight + TAB_BAR.gap
-    : Math.max(insetBottom, TAB_BAR.gap);
-
-export const tabBarClearance = (insetBottom: number, adHeight = 0): number =>
-  TAB_BAR.height + tabBarBottom(insetBottom, adHeight) + SPACE.lg;
+export const tabBarClearance = (insetBottom: number): number =>
+  TAB_BAR.height + Math.max(insetBottom, TAB_BAR.gap) + SPACE.lg;

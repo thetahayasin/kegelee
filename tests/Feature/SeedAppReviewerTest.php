@@ -43,8 +43,12 @@ class SeedAppReviewerTest extends TestCase
         $this->assertNotNull($user->email_verified_at);
         $this->assertTrue(Hash::check('LocalTestOnly9!password', $user->password));
         $this->assertTrue($user->hasCompletedBasics());
-        // The app is free: nothing to grant, and nothing to count as a payer.
-        $this->assertSame(0, $user->subscriptions()->count());
+        $this->assertTrue($user->isSubscribed());
+        $sub = $user->activeSubscription();
+        $this->assertSame('manual', $sub->store);
+        $this->assertFalse($sub->auto_renewing);
+        $this->assertTrue($sub->ends_at->isAfter(now()->addMonths(11)));
+        $this->assertTrue($sub->ends_at->isBefore(now()->addMonths(13)));
         $this->postJson('/api/v1/auth/login', [
             'email' => 'reviewer@example.test', 'password' => 'LocalTestOnly9!password',
         ])->assertOk()->assertJsonPath('user.is_subscribed', true);

@@ -35,7 +35,6 @@ import {
   subscriptionEntitlementEndsAt,
 } from '../db/queries';
 import type { DBSubscription } from '../db/queries';
-import { FREE_APP } from '../constants/monetization';
 
 /**
  * How long an optimistic, server-unconfirmed purchase keeps access.
@@ -205,8 +204,6 @@ const readServerVerdict = async (userId: number): Promise<StoredVerdict | null> 
 };
 
 export type EntitlementSource =
-  /** The free, ad-supported build: everybody gets everything. */
-  | 'free'
   /** An admin previewing the app. */
   | 'admin'
   /** The backend said so on its last successful pull. */
@@ -251,11 +248,6 @@ export const resolveEntitlement = async (
   userId: number,
   isAdmin: boolean,
 ): Promise<Entitlement> => {
-  // Ahead of everything, including admin, so the source reads 'free' and no
-  // caller mistakes the ad-supported build for a paid entitlement.
-  if (FREE_APP) {
-    return { active: true, source: 'free', expiresAt: null, subscription: null };
-  }
   if (isAdmin) {
     return { active: true, source: 'admin', expiresAt: null, subscription: null };
   }

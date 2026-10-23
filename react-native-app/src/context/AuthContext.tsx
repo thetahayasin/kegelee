@@ -24,7 +24,6 @@ import {
   rememberServerVerdict,
   resolveEntitlement,
 } from '../services/entitlement';
-import { FREE_APP } from '../constants/monetization';
 import { googleNativeSignOut, consumeGoogleNonce } from '../services/googleAuth';
 import {
   logoutBilling,
@@ -155,9 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [onboarded, setOnboardedState] = useState<boolean>(false);
   const [basicsDone, setBasicsDone] = useState<boolean>(false);
-  // Starts open in the free build, so the first frame after a cold start is
-  // already the unlocked app rather than a flash of padlocks.
-  const [subscribed, setSubscribed] = useState<boolean>(FREE_APP);
+  const [subscribed, setSubscribed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
 
   /**
@@ -593,7 +590,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       typeof userPayload.is_subscribed === 'boolean' ? userPayload.is_subscribed : undefined,
     );
     const nextSubscribed =
-      FREE_APP || localUser.is_admin || userPayload.is_subscribed === true;
+      localUser.is_admin || userPayload.is_subscribed === true;
 
     // Reveal the app. setUser flips isAuthenticated to true; pairing it with the
     // gate values in the SAME tick (no await between the setState calls)
@@ -894,7 +891,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setApiToken(null);
       setUser(null);
       setBasicsDone(false);
-      setSubscribed(FREE_APP);
+      setSubscribed(false);
 
       // Clear SQLite tables. Scoped to this account - see clearUserData.
       await bestEffort('sqlite', () => clearUserData(userId));

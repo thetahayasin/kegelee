@@ -18,15 +18,6 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// The paid rules below are pinned with the free build's switch OFF; the
-// switch itself gets its own test at the bottom.
-let mockFreeApp = false;
-jest.mock('../src/constants/monetization', () => ({
-  get FREE_APP() {
-    return mockFreeApp;
-  },
-}));
-
 jest.mock('../src/db/queries', () => ({
   getActiveSubscription: jest.fn(async () => null),
   subscriptionEntitlementEndsAt: jest.fn(() => null),
@@ -278,18 +269,5 @@ describe('one verdict per account', () => {
 
     expect((await resolveEntitlement(USER, false)).active).toBe(true);
     expect((await resolveEntitlement(USER + 1, false)).active).toBe(false);
-  });
-});
-
-describe('free build', () => {
-  afterEach(() => {
-    mockFreeApp = false;
-  });
-
-  it('entitles every account, ahead of a server NO and with no row', async () => {
-    mockFreeApp = true;
-    await rememberServerVerdict(77, false);
-    const e = await resolveEntitlement(77, false);
-    expect(e).toEqual({ active: true, source: 'free', expiresAt: null, subscription: null });
   });
 });

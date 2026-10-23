@@ -19,7 +19,6 @@ import { PROFILE_TOUR, hasSeenTour, markTourSeen } from '../../services/tours';
 import { getAppSetting, saveAppSetting } from '../../db/queries';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { useBannerHeight } from '../../services/ads';
 import { TYPE, SPACE, RADIUS, tabBarClearance, Palette } from '../../theme/colors';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { LEVELS, levelNameKey } from '../../constants/catalogues';
@@ -41,7 +40,6 @@ export const ProfileScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { user, updateUserFields, subscribed } = useAuth();
   const insets = useSafeAreaInsets();
-  const adHeight = useBannerHeight();
 
   const [levelModalVisible, setLevelModalVisible] = useState(false);
 
@@ -180,7 +178,7 @@ export const ProfileScreen = () => {
         // The tab bar floats above the content now, so nothing in the
         // layout reserves room for it. Without this the last card ends
         // up underneath it, unreachable at the bottom of the scroll.
-          { paddingBottom: tabBarClearance(insets.bottom, adHeight) },
+          { paddingBottom: tabBarClearance(insets.bottom) },
         ]}
         showsVerticalScrollIndicator={false}
       >

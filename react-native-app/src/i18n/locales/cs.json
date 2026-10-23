@@ -1,10 +1,4 @@
 {
-  "ads": {
-    "label": "Reklama",
-    "privacyChoices": "Nastavení soukromí reklam",
-    "privacyChoicesHint": "Zkontrolujte nebo změňte souhlas s reklamami",
-    "sectionTitle": "Reklamy"
-  },
   "allExercises": {
     "available": "Dostupné",
     "backA11y": "Zpět",

@@ -14,7 +14,6 @@ import {
 import { TouchableOpacity } from '../../components/Touchable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { showInterstitialThen } from '../../services/ads';
 import { useAuth } from '../../context/AuthContext';
 import { track } from '../../services/events';
 import { Palette } from '../../theme/colors';
@@ -761,10 +760,7 @@ export const WorkoutCompleteScreen = () => {
                 ],
               });
             } else {
-              // The one interstitial in the app: on the way out of a banked
-              // session, never before or during one. Runs the navigation
-              // straight away when no ad is ready.
-              showInterstitialThen(() => navigation.navigate('MainTabs'));
+              navigation.navigate('MainTabs');
             }
           }}
         >
@@ -798,7 +794,7 @@ export const WorkoutCompleteScreen = () => {
                 style={[styles.unlockModalBtn, styles.unlockLaterBtn]}
                 onPress={() => {
                   setShowUnlockPrompt(false);
-                  showInterstitialThen(() => navigation.navigate('MainTabs'));
+                  navigation.navigate('MainTabs');
                 }}
               >
                 <Text style={styles.unlockLaterBtnText}>{t('workoutComplete.notNow')}</Text>

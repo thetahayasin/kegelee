@@ -7,7 +7,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import { TouchableOpacity } from '../../components/Touchable';
-import { InlineAd } from '../../components/InlineAd';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   useRoute,
@@ -144,9 +143,6 @@ export const ExerciseDetailScreen = () => {
           <Text style={styles.description}>{t(exerciseDescriptionKey(slug))}</Text>
           <Text style={styles.howTo}>{t(exerciseHowToKey(slug))}</Text>
         </View>
-        {/* After the how-to, inside the scroll: the sticky Try button sits
-            outside it, and InlineAd's own gutter keeps the two apart. */}
-        <InlineAd variant="banner" />
       </ScrollView>
 
       {/* Sticky CTA */}

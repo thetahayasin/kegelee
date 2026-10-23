@@ -14,7 +14,8 @@ Artisan::command('inspire', function () {
 | Maintenance
 |--------------------------------------------------------------------------
 |
-| Nothing here was scheduled before, so two tables grew forever.
+| Nothing here was scheduled before, so two tables grew forever and nothing
+| ever noticed a subscription the store had moved on from.
 |
 */
 
@@ -28,3 +29,7 @@ Schedule::call(function () {
     EmailCode::where('expires_at', '<', now()->subDay())->delete();
 })->hourly()->name('prune-expired-email-codes')->withoutOverlapping();
 
+// Re-checks subscriptions against the store: cancellations and expiries that
+// arrive as a webhook we never received are otherwise invisible, and the row
+// keeps granting access.
+Schedule::command('subscriptions:reconcile')->dailyAt('04:00');

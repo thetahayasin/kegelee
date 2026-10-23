@@ -239,6 +239,40 @@ class Subscription extends Model
             ->where($query->qualifyColumn('ends_at'), '<=', now());
     }
 
+    /**
+     * Write down the rows that have already run out.
+     *
+     * `status` only moves when a webhook says so. When an EXPIRATION is never
+     * delivered the row sits at 'active' with a date in the past forever, and
+     * the scheduled reconcile was the only thing that ever corrected it - so
+     * on a host where the scheduler is not firing, nothing did.
+     *
+     * Safe to call from a request path, and safe to call often:
+     *
+     * - It is access-neutral. entitled() already ignores anything past its
+     *   ends_at, so every row this touches was non-entitled before the write
+     *   and is non-entitled after it. The sweep corrects the bookkeeping, it
+     *   never takes access away.
+     * - It is idempotent, and a no-op UPDATE on the common path.
+     * - The day of slack is not decoration. An expiry and its renewal are not
+     *   simultaneous, and a row written to 'expired' the instant its date
+     *   passes would be locked out by a renewal webhook arriving minutes
+     *   later - 'expired' is not entitled at any date, so a late renewal that
+     *   pushes ends_at forward would leave a paying customer shut out until
+     *   something moved the status back.
+     *
+     * @param  int|null  $userId  Restrict to one account, for the request path.
+     */
+    public static function sweepLapsed(?int $userId = null): int
+    {
+        return static::query()
+            ->when($userId !== null, fn (Builder $q) => $q->where('user_id', $userId))
+            ->whereIn('status', ['active', 'trialing'])
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', now()->subDay())
+            ->update(['status' => 'expired', 'auto_renewing' => false]);
+    }
+
     public function discount(): BelongsTo
     {
         return $this->belongsTo(Discount::class);
