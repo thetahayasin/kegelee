@@ -1,0 +1,576 @@
+<!doctype html>
+<!--
+  Kegelee video ads, drawn as HTML and rendered frame by frame by render.mjs.
+
+  Nothing here animates on its own: renderAt(t) puts every element where it
+  belongs at time t, so a frame is the same however long a screenshot takes.
+
+  Open ads.html?ad=invisible&t=1.2 in a browser to look at one frame, or add
+  &guides=1 to see the zone that is safe from Reels/Stories UI and from the
+  4:5 feed crop.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kegelee ads</title>
+<style>
+  @font-face { font-family: 'Archivo'; font-weight: 400; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_regular.ttf'); }
+  @font-face { font-family: 'Archivo'; font-weight: 500; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_medium.ttf'); }
+  @font-face { font-family: 'Archivo'; font-weight: 600; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_semibold.ttf'); }
+  @font-face { font-family: 'Archivo'; font-weight: 700; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_bold.ttf'); }
+  @font-face { font-family: 'Archivo'; font-weight: 800; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_extrabold.ttf'); }
+  @font-face { font-family: 'ArchivoX'; font-weight: 700; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_expanded_bold.ttf'); }
+  @font-face { font-family: 'ArchivoX'; font-weight: 800; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_expanded_extrabold.ttf'); }
+  @font-face { font-family: 'ArchivoX'; font-weight: 900; src: url('../../../react-native-app/android/app/src/main/res/font/archivo_expanded_black.ttf'); }
+
+  /* The app's two palettes: white on black, black on white. Red only means "wrong". */
+  :root, .dark {
+    --bg: #000; --ink: #fff; --muted: #a3a3a3;
+    --surface: #0e0e0e; --surface2: #171717; --surface3: #212121; --track: #262626;
+    --glow: 255, 255, 255; --danger: #ff6b6b; --wm: rgba(255, 255, 255, .045);
+  }
+  .light {
+    --bg: #fff; --ink: #0a0a0a; --muted: #5f5f5f;
+    --surface: #f3f3f3; --surface2: #e9e9e9; --surface3: #dedede; --track: #e2e2e2;
+    --glow: 0, 0, 0; --danger: #e5484d; --wm: rgba(0, 0, 0, .045);
+  }
+
+  html, body { margin: 0; background: #000; }
+  #stage {
+    position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Archivo', sans-serif; -webkit-font-smoothing: antialiased;
+  }
+  #cam, #scenes, .bgfx { position: absolute; inset: 0; }
+  .vig { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 60% at 50% 38%, #161616 0%, #000 70%); }
+  .light .vig { background: radial-gradient(ellipse 90% 60% at 50% 38%, #fff 0%, #ececec 100%); }
+  .wmark {
+    position: absolute; left: 0; top: 0; transform-origin: 0 0;
+    font: 900 430px/1 'ArchivoX'; color: var(--wm); white-space: nowrap; letter-spacing: -.02em;
+  }
+
+  .scene { position: absolute; inset: 0; visibility: hidden; }
+  .zone {
+    position: absolute; left: 70px; right: 70px; top: 300px; height: 970px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+  .zone.top { justify-content: flex-start; top: 312px; height: auto; }
+  .zone > * { max-width: 100%; }
+
+  /* Type */
+  .x { font-family: 'ArchivoX'; font-weight: 900; text-transform: uppercase; line-height: .98; letter-spacing: -.012em; white-space: nowrap; }
+  .fit { display: block; width: 100%; overflow: hidden; }
+  .inv { display: inline-block; background: var(--ink); color: var(--bg); padding: .06em .16em .02em; margin: .06em 0; }
+  .sub { font-weight: 600; font-size: 54px; line-height: 1.22; color: var(--muted); margin-top: 34px; }
+  .sub b { color: var(--ink); font-weight: 800; }
+  .kicker { font-weight: 700; font-size: 40px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 26px; }
+  .head { font-family: 'ArchivoX'; font-weight: 900; font-size: 74px; line-height: 1.02; text-transform: uppercase; letter-spacing: -.01em; }
+  .swap { position: absolute; left: 0; right: 0; top: 0; }
+
+  /* Training circle, as in the app: a dark disc, a track, a white progress arc and a halo. */
+  .circ { position: relative; }
+  .circ .glow {
+    position: absolute; border-radius: 50%;
+    background: radial-gradient(circle closest-side,
+      rgba(var(--glow), 0) 56%, rgba(var(--glow), .08) 66%, rgba(var(--glow), .42) 90%, rgba(var(--glow), .24) 100%);
+  }
+  .circ svg { position: absolute; inset: 0; overflow: visible; }
+  .circ .trk { fill: var(--surface); stroke: var(--surface3); stroke-width: 6; }
+  .circ .prg { fill: none; stroke: var(--ink); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+  .circ .ctext { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .circ .num { font: 800 76px/1 'Archivo'; }
+  .circ .lbl { font: 700 17px/1.2 'Archivo'; margin-top: 8px; }
+  .circ.big .num { font: 900 250px/1 'ArchivoX'; margin-top: 10px; }
+  .circ.big .lbl { font: 700 40px/1.2 'Archivo'; color: var(--muted); margin-top: 6px; }
+  .circ.big .trk, .circ.big .prg { stroke-width: 5; }
+
+  /* Phone */
+  .phone-wrap { position: absolute; }
+  .phone {
+    position: relative; width: 390px; height: 844px; transform-origin: 0 0; box-sizing: border-box;
+    border-radius: 58px; border: 10px solid #1b1b1b; background: var(--bg); color: var(--ink);
+    box-shadow: 0 0 0 2px #333, 0 40px 160px rgba(255, 255, 255, .10);
+  }
+  .phone.light { border-color: #e6e6e6; box-shadow: 0 0 0 2px #cfcfcf, 0 40px 120px rgba(0, 0, 0, .18); }
+  .screen { position: absolute; inset: 0; border-radius: 48px; overflow: hidden; background: var(--bg); font-family: 'Archivo'; }
+  .island { position: absolute; left: 50%; top: 11px; width: 118px; height: 34px; margin-left: -59px; border-radius: 20px; background: #000; }
+  .sb { position: absolute; left: 34px; right: 30px; top: 17px; display: flex; justify-content: space-between; align-items: center; font: 700 16px 'Archivo'; }
+  .sb .bat { width: 26px; height: 12px; border-radius: 4px; border: 2px solid var(--ink); opacity: .9; position: relative; }
+  .sb .bat::after { content: ''; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 16px; border-radius: 1px; background: var(--ink); }
+  .wm-ph { position: absolute; left: 156px; top: 40px; transform: rotate(90deg); transform-origin: 0 0; font: 900 180px/1 'ArchivoX'; color: var(--wm); white-space: nowrap; }
+
+  .ph-top { position: absolute; left: 0; right: 0; top: 64px; text-align: center; font: 500 16px 'Archivo'; color: var(--muted); }
+  .ph-x { position: absolute; left: 26px; top: -2px; width: 22px; height: 22px; color: var(--muted); }
+  .ph-circle { position: absolute; left: 88px; top: 262px; }
+  .ph-help { position: absolute; left: 172px; top: 596px; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--surface3); text-align: center; font: 600 20px/44px 'Archivo'; color: var(--muted); }
+  .ph-tabs { position: absolute; left: 0; right: 0; top: 680px; display: flex; justify-content: center; gap: 30px; font: 500 19px 'Archivo'; color: var(--muted); }
+  .ph-tabs b { color: var(--ink); font-weight: 800; }
+  .ph-pause { position: absolute; left: 20px; right: 20px; top: 730px; height: 58px; border-radius: 18px; background: var(--surface2); display: flex; align-items: center; justify-content: center; gap: 6px; font: 700 18px 'Archivo'; }
+  .ph-pause i { width: 5px; height: 17px; background: var(--ink); border-radius: 1px; }
+  .ph-pause span { margin-left: 8px; }
+
+  .notif {
+    position: absolute; left: 12px; right: 12px; top: 54px; padding: 13px 14px; border-radius: 22px;
+    background: rgba(40, 40, 40, .96); display: flex; gap: 12px; align-items: center; color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+  }
+  .notif img { width: 40px; height: 40px; border-radius: 10px; background: #000; }
+  .notif .t { font: 700 15px 'Archivo'; display: flex; justify-content: space-between; }
+  .notif .t span { font-weight: 500; color: #9a9a9a; }
+  .notif .b { font: 500 15px/1.3 'Archivo'; color: #e6e6e6; margin-top: 2px; }
+
+  .pg-title { position: absolute; left: 26px; top: 66px; font: 800 32px 'ArchivoX'; }
+  .pg-best { position: absolute; left: 26px; right: 26px; top: 130px; display: flex; align-items: center; gap: 14px; }
+  .pg-best .trophy { width: 50px; height: 50px; border-radius: 14px; background: var(--surface); display: grid; place-items: center; }
+  .pg-best .m, .pg-card .m { font: 500 14px 'Archivo'; color: var(--muted); }
+  .pg-best .v { font: 800 26px 'Archivo'; }
+  .pg-last { margin-left: auto; text-align: right; }
+  .pg-last .v2 { font: 700 18px 'Archivo'; }
+  .pg-card { position: absolute; left: 18px; right: 18px; top: 212px; height: 350px; border-radius: 26px; background: var(--surface); padding: 22px 20px; box-sizing: border-box; }
+  .pg-card .h { font: 800 19px 'Archivo'; }
+  .bars { position: absolute; left: 20px; right: 20px; bottom: 22px; height: 230px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .bar-col { width: 40px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar { width: 36px; border-radius: 10px; background: var(--ink); height: 0; }
+  .bar-col span { font: 500 13px 'Archivo'; color: var(--muted); margin-top: 8px; }
+  .pg-seg { position: absolute; left: 70px; right: 70px; top: 590px; height: 50px; border-radius: 25px; background: var(--surface); display: flex; justify-content: space-around; align-items: center; font: 500 16px 'Archivo'; color: var(--muted); }
+  .pg-seg b { color: var(--ink); background: var(--surface3); padding: 9px 20px; border-radius: 20px; }
+  .pg-btn { position: absolute; left: 20px; right: 20px; top: 668px; height: 62px; border-radius: 20px; background: var(--ink); color: var(--bg); font: 800 19px/62px 'Archivo'; text-align: center; }
+
+  /* Ad 3 checklist */
+  .row { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 118px; }
+  .row .rl { font-size: 66px; }
+  .row .box { width: 92px; height: 92px; border: 7px solid var(--ink); box-sizing: border-box; border-radius: 14px; flex: none; }
+  .row .box svg { width: 100%; height: 100%; }
+  .row path { fill: none; stroke: var(--ink); stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+  .row.bad .rl { color: var(--danger); }
+  .row.bad .box { border-color: var(--danger); }
+  .row.bad path { stroke: var(--danger); }
+
+  /* Floating feature chips */
+  .chip {
+    position: absolute; display: flex; align-items: center; gap: 14px; padding: 22px 30px; border-radius: 26px;
+    background: var(--ink); color: var(--bg); font: 800 40px 'Archivo'; white-space: nowrap;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .55);
+  }
+
+  /* End card */
+  .end .logo { width: 250px; height: 250px; display: block; }
+  .light .end .logo { filter: invert(1); }
+  .end .word { font-size: 128px; margin-top: 30px; }
+  .end .tag { font: 600 50px/1.25 'Archivo'; color: var(--muted); margin-top: 22px; }
+  .end .cta { display: inline-flex; align-items: center; gap: 18px; margin-top: 54px; padding: 32px 64px; border-radius: 100px; background: var(--ink); color: var(--bg); font: 800 58px 'Archivo'; }
+  .end .small { font: 600 34px 'Archivo'; color: var(--muted); margin-top: 34px; letter-spacing: .02em; }
+
+  .guide { position: absolute; left: 0; right: 0; border-top: 3px dashed #f0f; z-index: 99; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bgfx"><div class="vig"></div><div class="wmark">KEGELEE</div></div>
+  <div id="cam"><div id="scenes"></div></div>
+</div>
+<script>
+const LOGO = '../../../react-native-app/src/assets/logo.png';
+const W = 1080;
+
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = {
+  out: p => 1 - Math.pow(1 - p, 3),
+  back: p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); },
+  inOut: p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2,
+};
+
+// Entrance effects. p runs 0..1 over `dur` seconds from the element's data-at.
+const FX = {
+  slam: { dur: .2,  f: (el, p) => { const e = ease.out(p); el.style.opacity = clamp(p * 3); el.style.transform = `scale(${1.55 - .55 * e})`; } },
+  up:   { dur: .35, f: (el, p) => { const e = ease.out(p); el.style.opacity = e; el.style.transform = `translateY(${(1 - e) * 60}px)`; } },
+  pop:  { dur: .34, f: (el, p) => { const e = ease.back(p); el.style.opacity = clamp(p * 2.5); el.style.transform = `scale(${.4 + .6 * e})`; } },
+  fade: { dur: .3,  f: (el, p) => { el.style.opacity = p; el.style.transform = ''; } },
+  rise: { dur: .6,  f: (el, p) => { const e = ease.out(p); el.style.opacity = 1; el.style.transform = `translateY(${(1 - e) * 1300}px)`; } },
+  drop: { dur: .4,  f: (el, p) => { const e = ease.back(p); el.style.opacity = clamp(p * 3); el.style.transform = `translateY(${(1 - e) * -140}px)`; } },
+};
+
+const arrow = `<svg viewBox="0 0 24 24" width="1em" height="1em"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const flame = `<svg viewBox="0 0 24 24" width="1em" height="1em"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3 0-6 1-9z" fill="currentColor"/></svg>`;
+const trophy = `<svg viewBox="0 0 24 24" width="26" height="26"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 13v4M8 20h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const bell = `<svg viewBox="0 0 24 24" width="1em" height="1em"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+// ---------------------------------------------------------------- building blocks
+
+const S = (from, to, html, o = {}) => ({ from, to, html, ...o });
+
+function circleHTML(size, big = false) {
+  // The app's halo reaches 1.7x; the big follow-along circle has text above and below it.
+  const g = size * (big ? 1.45 : 1.7), off = (g - size) / 2;
+  return `<div class="circ ${big ? 'big' : ''}" style="width:${size}px;height:${size}px">
+    <div class="glow" style="width:${g}px;height:${g}px;left:${-off}px;top:${-off}px"></div>
+    <svg viewBox="0 0 100 100" width="${size}" height="${size}">
+      <circle cx="50" cy="50" r="46" class="trk"/>
+      <circle cx="50" cy="50" r="46" class="prg" pathLength="100" transform="rotate(-90 50 50)"/>
+    </svg>
+    <div class="ctext"><div class="num">3</div><div class="lbl"></div></div>
+  </div>`;
+}
+
+const statusBar = () => `<div class="sb"><span>9:41</span><span class="bat"></span></div>`;
+
+const workoutScreen = (extra = '') => `
+  <div class="wm-ph">KEGELEE</div>
+  ${statusBar()}
+  <div class="ph-top"><svg class="ph-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>1m left</div>
+  <div class="ph-circle">${circleHTML(214)}</div>
+  <div class="ph-help">?</div>
+  <div class="ph-tabs"><b>Holding</b><span>Rest</span><span>Trembling</span></div>
+  <div class="ph-pause"><i></i><i></i><span>Pause</span></div>
+  ${extra}`;
+
+const BARS = [3, 4, 4, 6, 7, 9];
+const progressScreen = () => `
+  ${statusBar()}
+  <div class="pg-title">Progress</div>
+  <div class="pg-best">
+    <div class="trophy">${trophy}</div>
+    <div><div class="m">Best hold</div><div class="v"><span class="best">3</span> sec</div></div>
+    <div class="pg-last"><div class="m">Last measurement</div><div class="v2">Today</div></div>
+  </div>
+  <div class="pg-card">
+    <div class="h">Last 6 weeks</div><div class="m">Longest hold, in seconds</div>
+    <div class="bars">${BARS.map((v, i) => `<div class="bar-col"><div class="bar"></div><span>W${i + 1}</span></div>`).join('')}</div>
+  </div>
+  <div class="pg-seg"><span>Days</span><b>Weeks</b><span>Months</span></div>
+  <div class="pg-btn">Take measurement</div>`;
+
+function phone(screen, { at = 0, top = 640, width = 700, light = false } = {}) {
+  const k = width / 390, left = (W - width) / 2;
+  return `<div class="phone-wrap" style="left:${left}px;top:${top}px" data-at="${at}" data-fx="rise" data-cue="whoosh">
+    <div class="phone ${light ? 'light' : ''}" style="transform:scale(${k})"><div class="screen">${screen}</div><div class="island"></div></div>
+  </div>`;
+}
+
+// One line of headline type that shrinks only if it would overflow the zone.
+const line = (text, at, { size = 150, inv = false, fx = 'slam', shake = false } = {}) =>
+  `<div class="x fit" style="font-size:${size}px" data-at="${at}" data-fx="${fx}"${shake ? ' data-shake' : ''}>${inv ? `<span class="inv">${text}</span>` : text}</div>`;
+
+const sub = (html, at, style = '') => `<div class="sub" style="${style}" data-at="${at}" data-fx="up">${html}</div>`;
+
+function endCard(tag) {
+  return `<div class="zone end">
+    <div data-at="0" data-fx="pop" data-cue="chime"><img class="logo" src="${LOGO}"></div>
+    <div class="x word" data-at=".15" data-fx="up">Kegelee</div>
+    <div class="tag" data-at=".32" data-fx="up">${tag}</div>
+    <div data-at=".55" data-fx="pop" data-cue="pop"><div class="cta">Start free ${arrow}</div></div>
+    <div class="small" data-at=".8" data-fx="fade">Kegel &amp; pelvic floor trainer</div>
+  </div>`;
+}
+const endUpdate = (root, lt) => {
+  const cta = root.querySelector('.cta');
+  cta.style.transform = lt > .95 ? `scale(${1 + .035 * Math.sin((lt - .95) * 6.5)})` : '';
+};
+
+// A countdown that runs through phases: [{label, inner, dur, contract}]
+function phaseAt(phases, t) {
+  let acc = 0;
+  for (let i = 0; i < phases.length; i++) {
+    if (t < acc + phases[i].dur) return { i, ph: phases[i], e: t - acc };
+    acc += phases[i].dur;
+  }
+  const i = phases.length - 1;
+  return { i, ph: phases[i], e: phases[i].dur - 1e-6 };
+}
+function runCircle(root, phases, lt) {
+  const c = root.querySelector('.circ');
+  const started = lt >= 0;
+  const { ph, e } = phaseAt(phases, Math.max(0, lt));
+  const frac = started ? clamp(e / ph.dur) : 0;
+  c.querySelector('.prg').style.strokeDashoffset = 100 * (1 - frac);
+  c.querySelector('.num').textContent = started ? Math.max(1, Math.ceil(ph.dur - e - 1e-6)) : phases[0].dur;
+  c.querySelector('.lbl').textContent = ph.inner;
+  const k = ease.inOut(frac), glow = c.querySelector('.glow');
+  glow.style.transform = `scale(${ph.contract ? .9 + .14 * k : 1.04 - .14 * k})`;
+  glow.style.opacity = started ? (ph.contract ? .45 + .55 * k : 1 - .55 * k) : .45;
+  root.querySelectorAll('[data-phase]').forEach(el => {
+    el.textContent = ph.label;
+    el.style.transform = `scale(${1 + .14 * (1 - ease.out(clamp(e / .22)))})`;
+  });
+}
+function circleCues(start, phases) {
+  const cues = []; let acc = start;
+  for (const ph of phases) {
+    cues.push({ type: 'pop', t: acc });
+    for (let s = 1; s < ph.dur; s++) cues.push({ type: 'tick', t: acc + s });
+    acc += ph.dur;
+  }
+  return cues;
+}
+
+// ---------------------------------------------------------------- the ads
+
+const SQUEEZE = { label: 'Squeeze', inner: 'Contract & hold', dur: 3, contract: true };
+const RELAX = { label: 'Relax', inner: 'Relax', dur: 2, contract: false };
+const PH2 = [SQUEEZE, RELAX, SQUEEZE];
+
+const ADS = {
+
+  // 1. The invisible workout. Deadpan hook, the joke is that nobody can tell.
+  invisible: {
+    theme: 'dark', thumb: 1.0,
+    scenes: [
+      S(0, 2.3, `<div class="zone">
+        ${line('I’m', -.15, { size: 200 })}
+        ${line('working', .15, { size: 200 })}
+        ${line('out', .3, { size: 200 })}
+        ${line('right now.', .55, { size: 160, inv: true, shake: true })}
+        ${sub('(seriously)', 1.15)}
+      </div>`),
+      ...[['In a', 'meeting.'], ['In', 'traffic.'], ['In line for', 'coffee.'], ['Reading', 'this.']].map(([a, b], i) =>
+        S(2.3 + i * .55, 2.3 + (i + 1) * .55, `<div class="zone">
+          ${line(a, 0, { size: 110, fx: 'fade' })}
+          ${line(b, 0, { size: 170, inv: i % 2 === 1, fx: 'slam' })}
+        </div>`)),
+      S(4.5, 6.5, `<div class="zone">
+        ${line('And nobody', 0, { size: 140 })}
+        ${line('can tell.', .25, { size: 150, inv: true, shake: true })}
+        ${sub('It’s called a <b>Kegel.</b>', .85)}
+      </div>`),
+      S(6.5, 11, `<div class="zone top">
+          <div style="position:relative;width:100%;height:170px">
+            <div class="swap" data-at=".25" data-fx="up" data-out="2.2"><div class="head">Follow the circle.</div><div class="sub" style="margin-top:14px;font-size:44px">Squeeze. Hold. Relax.</div></div>
+            <div class="swap" data-at="2.35" data-fx="up"><div class="head">1 minute a day.</div><div class="sub" style="margin-top:14px;font-size:44px">Guided, start to finish.</div></div>
+          </div>
+        </div>
+        ${phone(workoutScreen())}`,
+        { update: (r, lt) => runCircle(r, [SQUEEZE, RELAX, SQUEEZE], lt - .7), cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]) }),
+      S(11, 12.9, `<div class="zone">
+        ${line('No gym.', 0, { size: 150 })}
+        ${line('No gear.', .3, { size: 150 })}
+        ${line('No one knows.', .6, { size: 150, inv: true, shake: true })}
+      </div>`),
+      S(12.9, 15.9, endCard('The workout nobody sees.'), { update: endUpdate }),
+    ],
+  },
+
+  // 2. Follow-along. The viewer does a Kegel with the ad, which holds them for 8 seconds.
+  trythis: {
+    theme: 'dark', thumb: .9,
+    scenes: [
+      S(0, 2.2, `<div class="zone">
+        ${line('Try this', -.15, { size: 170 })}
+        ${line('right now.', .25, { size: 160, inv: true, shake: true })}
+        ${sub('Nobody will notice.', .9)}
+      </div>`),
+      S(2.2, 5, `<div class="zone">
+        ${line('Squeeze like', 0, { size: 130 })}
+        ${line('you’re holding', .2, { size: 130 })}
+        ${line('in a pee.', .4, { size: 150, inv: true, shake: true })}
+        ${sub('Belly, butt and thighs stay <b>relaxed.</b>', 1.2)}
+      </div>`),
+      S(5, 13.4, `<div class="zone" style="justify-content:space-between">
+          <div data-at="0" data-fx="up"><div class="kicker">Follow along</div><div class="x" style="font-size:150px" data-phase>Squeeze</div></div>
+          <div data-at=".1" data-fx="pop" style="margin:40px 0 10px">${circleHTML(540, true)}</div>
+          ${sub('Breathe normally.', .5, 'margin-top:0')}
+        </div>`,
+        { update: (r, lt) => runCircle(r, PH2, lt - .3), cues: circleCues(.3, PH2) }),
+      S(13.4, 15.6, `<div class="zone">
+        ${line('That was', 0, { size: 160 })}
+        ${line('a Kegel.', .25, { size: 160, inv: true, shake: true })}
+        ${sub('Now do it <b>1 minute a day,</b> guided.', .9)}
+      </div>`),
+      S(15.6, 18.6, endCard('Your daily Kegel coach.'), { update: endUpdate }),
+    ],
+  },
+
+  // 3. Gym split. Light theme, so it looks nothing like the dark ads next to it in a feed.
+  legday: {
+    theme: 'light', thumb: 2.6,
+    scenes: [
+      S(0, 4.6, `<div class="zone" style="justify-content:flex-start;top:310px">
+        <div class="kicker" data-at="-.3" data-fx="fade">This week</div>
+        ${[['Chest day', -.1], ['Back day', .3], ['Leg day', .8], ['Arm day', 1.15]].map(([l, a]) => row(l, a, true)).join('')}
+        ${row('Pelvic floor', 1.7, false)}
+        <div class="sub" style="color:var(--ink);font-weight:800;margin-top:40px" data-at="2.8" data-fx="up">The one muscle everyone skips.</div>
+      </div>`,
+        { update: rowsUpdate, cues: [{ type: 'buzz', t: 1.7 + .38 }] }),
+      S(4.6, 7.2, `<div class="zone">
+        <div class="kicker" data-at="0" data-fx="up">The muscle behind</div>
+        ${line('Control.', .25, { size: 150 })}
+        ${line('Core.', .5, { size: 150 })}
+        ${line('Confidence.', .75, { size: 150, inv: true, shake: true })}
+      </div>`),
+      S(7.2, 11.6, `<div class="zone top">
+          <div style="position:relative;width:100%;height:170px">
+            <div class="swap" data-at=".25" data-fx="up" data-out="2.1"><div class="head">Train it in<br>1–5 min a day.</div></div>
+            <div class="swap" data-at="2.25" data-fx="up"><div class="head">Measure it.<br>Watch it climb.</div></div>
+          </div>
+        </div>
+        ${phone(progressScreen(), { light: true })}`,
+        { update: barsUpdate, cues: BARS.map((_, i) => ({ type: 'tick', t: 1.0 + i * .28 })) }),
+      S(11.6, 13.4, `<div class="zone">
+        ${line('Pelvic floor day?', 0, { size: 120 })}
+        ${line('Every day.', .35, { size: 160, inv: true, shake: true })}
+      </div>`),
+      S(13.4, 16.4, endCard('Train the muscle everyone skips.'), { update: endUpdate }),
+    ],
+  },
+
+  // 4. Screen time vs one minute.
+  screentime: {
+    theme: 'dark', thumb: 3.5,
+    scenes: [
+      S(0, 2.6, `<div class="zone">
+        <div class="kicker" data-at="-.3" data-fx="fade">Screen time today</div>
+        <div class="x fit" style="font-size:210px" data-at="-.3" data-fx="fade" data-count>0H 00M</div>
+        ${sub('…and counting.', 1.55)}
+      </div>`,
+        { update: countUpdate, cues: [...Array(14)].map((_, i) => ({ type: 'tick', t: .1 + i * .09 })).concat([{ type: 'hit', t: 1.35 }]), shakes: [1.35] }),
+      S(2.6, 4.6, `<div class="zone">
+        <div class="kicker" data-at="0" data-fx="fade">Time this takes</div>
+        ${line('1 min.', .25, { size: 250, inv: true, shake: true })}
+        ${sub('A day. That’s it.', .95)}
+      </div>`),
+      S(4.6, 11, `<div class="zone top">
+          <div style="position:relative;width:100%;height:170px">
+            ${[['Guided by<br>a circle.', .25, 1.7], ['5 levels.<br>1 to 5 minutes.', 1.85, 3.2], ['Reminders that<br>fit your day.', 3.35, 4.7], ['Streaks that<br>keep you going.', 4.85, 99]]
+              .map(([h, a, o]) => `<div class="swap" data-at="${a}" data-fx="up" data-out="${o}"><div class="head">${h}</div></div>`).join('')}
+          </div>
+        </div>
+        ${phone(workoutScreen(`<div class="notif" data-at="3.4" data-fx="drop" data-cue="pop"><img src="${LOGO}"><div style="flex:1"><div class="t">Kegelee<span>now</span></div><div class="b">Your 1-minute session is ready.</div></div></div>`))}
+        <div class="chip" style="left:44px;top:1010px;transform-origin:left" data-at="1.9" data-fx="pop" data-cue="pop"><span>Level 1</span>${arrow}<span>5</span></div>
+        <div class="chip" style="right:44px;top:1150px" data-at="4.9" data-fx="pop" data-cue="pop">${flame}<span><span class="streak">17</span>-day streak</span></div>`,
+        { update: (r, lt) => { runCircle(r, [SQUEEZE, RELAX, SQUEEZE, RELAX], lt - .7); r.querySelector('.streak').textContent = lt > 5.4 ? 18 : 17; },
+          cues: circleCues(.7, [SQUEEZE, RELAX, SQUEEZE]).concat([{ type: 'tick', t: 5.4 }]) }),
+      S(11, 12.8, `<div class="zone">
+        ${line('4 hours', 0, { size: 150 })}
+        ${line('scrolling.', .2, { size: 150 })}
+        ${line('1 minute', .6, { size: 150, inv: true })}
+        ${line('for this.', .8, { size: 150, inv: true, shake: true })}
+      </div>`),
+      S(12.8, 15.8, endCard('One minute. Every day.'), { update: endUpdate }),
+    ],
+  },
+};
+
+// Ad 3: checklist rows. A tick draws in on each, the last one gets a red cross and a shudder.
+function row(label, at, ok) {
+  const mark = ok
+    ? `<path d="M22 52l18 18 38-40" pathLength="100"/>`
+    : `<path d="M28 28l44 44" pathLength="100"/><path d="M72 28L28 72" pathLength="100"/>`;
+  return `<div class="row ${ok ? '' : 'bad'}" data-at="${at}" data-fx="up" data-row="${at}"${ok ? ' data-cue="tick" data-cue-off=".18"' : ''}>
+    <span class="x rl">${label}</span><span class="box"><svg viewBox="0 0 100 100">${mark}</svg></span></div>`;
+}
+function rowsUpdate(root, lt) {
+  root.querySelectorAll('[data-row]').forEach(r => {
+    const rl = lt - parseFloat(r.dataset.row);
+    const bad = r.classList.contains('bad');
+    const start = bad ? .35 : .15;
+    r.querySelectorAll('path').forEach((p, i) => p.style.strokeDashoffset = 100 * (1 - clamp((rl - start - i * .1) / .2)));
+    if (bad && rl > .38 && rl < .8) {
+      const a = 16 * (1 - (rl - .38) / .42);
+      r.style.transform = `translateX(${a * Math.sin(rl * 70)}px)`;
+    }
+  });
+}
+
+// Ad 3: bars on the progress screen grow one after another, and the best-hold number follows them.
+function barsUpdate(root, lt) {
+  let best = BARS[0];
+  root.querySelectorAll('.bar').forEach((b, i) => {
+    const p = clamp((lt - 1.0 - i * .28) / .45);
+    b.style.height = `${BARS[i] / 10 * 200 * ease.out(p)}px`;
+    if (p > .6) best = Math.max(best, BARS[i]);
+  });
+  root.querySelector('.best').textContent = best;
+}
+
+// Ad 4: the screen-time counter races up to 4h 12m and lands with a hit.
+function countUpdate(root, lt) {
+  const m = Math.round(252 * ease.out(clamp((lt - .1) / 1.25)));
+  const el = root.querySelector('[data-count]');
+  el.textContent = `${Math.floor(m / 60)}H ${String(m % 60).padStart(2, '0')}M`;
+  const k = lt > 1.35 ? 1 - ease.out(clamp((lt - 1.35) / .25)) : 0;
+  el.style.transform = `scale(${1 + .12 * k})`;
+}
+
+// ---------------------------------------------------------------- runtime
+
+const params = new URLSearchParams(location.search);
+const AD = ADS[params.get('ad') || 'invisible'];
+const stage = document.getElementById('stage');
+const cam = document.getElementById('cam');
+const wm = stage.querySelector('.wmark');
+stage.classList.add(AD.theme);
+
+const built = AD.scenes.map(sc => {
+  const el = document.createElement('div');
+  el.className = 'scene';
+  el.innerHTML = sc.html;
+  document.getElementById('scenes').appendChild(el);
+  const items = [...el.querySelectorAll('[data-at]')].map(n => ({
+    n, at: parseFloat(n.dataset.at), fx: FX[n.dataset.fx || 'up'],
+    out: n.dataset.out ? parseFloat(n.dataset.out) : null,
+  }));
+  return { ...sc, el, items };
+});
+
+const DURATION = Math.max(...AD.scenes.map(s => s.to));
+
+// Sound cues for render.mjs: thumps on slams, ticks on counts, a whoosh on the phone.
+const CUES = [];
+const SHAKES = [];
+for (const s of built) {
+  for (const it of s.items) {
+    if (it.n.dataset.fx === 'slam') CUES.push({ type: 'hit', t: s.from + it.at + .16 });
+    if (it.n.dataset.cue) CUES.push({ type: it.n.dataset.cue, t: s.from + it.at + parseFloat(it.n.dataset.cueOff || 0) });
+    if (it.n.hasAttribute('data-shake')) SHAKES.push(s.from + it.at + .2);
+  }
+  (s.cues || []).filter(c => c.t < s.to - s.from).forEach(c => CUES.push({ ...c, t: s.from + c.t }));
+  (s.shakes || []).forEach(t => SHAKES.push(s.from + t));
+}
+
+function fit() {
+  for (const el of document.querySelectorAll('.fit')) {
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > el.clientWidth + 1 && size > 30) { size -= 2; el.style.fontSize = size + 'px'; }
+  }
+}
+
+function renderAt(t) {
+  for (const s of built) {
+    const on = t >= s.from && t < s.to;
+    s.el.style.visibility = on ? 'visible' : 'hidden';
+    if (!on) continue;
+    const lt = t - s.from;
+    for (const it of s.items) {
+      const local = lt - it.at;
+      if (local < 0) { it.n.style.opacity = 0; continue; }
+      it.fx.f(it.n, clamp(local / it.fx.dur));
+      if (it.out !== null && lt >= it.out) it.n.style.opacity = Math.min(+it.n.style.opacity, 1 - clamp((lt - it.out) / .15));
+    }
+    if (s.update) s.update(s.el, lt, t);
+  }
+  let dx = 0, dy = 0;
+  for (const st of SHAKES) {
+    const d = t - st;
+    if (d >= 0 && d < .25) { const a = 14 * (1 - d / .25); dx += a * Math.sin(d * 95); dy += a * Math.cos(d * 70); }
+  }
+  cam.style.transform = `translate(${dx}px, ${dy}px)`;
+  wm.style.transform = `translate(400px, ${40 - t * 18}px) rotate(90deg)`;
+}
+
+window.AD_META = { duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb };
+window.renderAt = renderAt;
+window.ready = (async () => {
+  await Promise.all(['400', '500', '600', '700', '800'].map(w => document.fonts.load(`${w} 20px Archivo`))
+    .concat(['700', '800', '900'].map(w => document.fonts.load(`${w} 20px ArchivoX`))));
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+  fit();
+  renderAt(parseFloat(params.get('t') || AD.thumb));
+  if (params.get('guides')) {
+    for (const y of [300, 1270]) stage.insertAdjacentHTML('beforeend', `<div class="guide" style="top:${y}px"></div>`);
+    for (const y of [285, 1635]) stage.insertAdjacentHTML('beforeend', `<div class="guide" style="top:${y}px;border-color:#0ff"></div>`);
+  }
+  return true;
+})();
+</script>
+</body>
+</html>

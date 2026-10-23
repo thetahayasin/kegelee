@@ -38,6 +38,9 @@ public/build/
 public/storage
 database/*.sqlite
 
+# --- Marketing: ad videos and their sources, not part of any build ---------
+marketing/
+
 # --- React Native app ------------------------------------------------------
 react-native-app/node_modules/
 react-native-app/android/build/
