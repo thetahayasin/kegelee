@@ -6,9 +6,11 @@
 // Needs Playwright (with a Chromium), ffmpeg and python3 with numpy. If
 // Playwright is not resolvable from here, point PLAYWRIGHT_MODULE at it.
 //
-// Each ad comes out three ways in ../videos:
+// Each ad comes out five ways in ../videos:
 //   NN-name-9x16.mp4   Reels, Stories, and the default upload
 //   NN-name-4x5.mp4    Instagram and Facebook feed (a centre crop of the same frames)
+//   NN-name-1x1.mp4    YouTube in-feed (a square crop)
+//   NN-name-16x9.mp4   YouTube in-stream (the vertical ad over a blurred copy of itself)
 //   NN-name-cover.jpg  a cover/thumbnail frame
 //
 // Stock footage goes in ./stock, named after the clip an ad asks for
@@ -110,6 +112,13 @@ for (const name of wanted) {
     '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', `${stem}-9x16.mp4`]);
   run('ffmpeg', ['-y', '-loglevel', 'error', '-i', `${stem}-9x16.mp4`, '-vf', 'crop=1080:1350:0:285',
     ...X264, '-c:a', 'copy', '-movflags', '+faststart', `${stem}-4x5.mp4`]);
+  // Square, for YouTube in-feed: the text zone (y 300-1270) fits inside this crop.
+  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', `${stem}-9x16.mp4`, '-vf', 'crop=1080:1080:0:245',
+    ...X264, '-c:a', 'copy', '-movflags', '+faststart', `${stem}-1x1.mp4`]);
+  // Landscape, for YouTube in-stream: the vertical ad in the middle, over a blurred, darkened copy of itself.
+  run('ffmpeg', ['-y', '-loglevel', 'error', '-i', `${stem}-9x16.mp4`, '-filter_complex',
+    '[0:v]split[a][b];[a]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,boxblur=40:4,eq=brightness=-0.3[bg];[b]scale=-2:1080[fg];[bg][fg]overlay=(W-w)/2:0',
+    ...X264, '-c:a', 'copy', '-movflags', '+faststart', `${stem}-16x9.mp4`]);
 }
 
 await browser.close();

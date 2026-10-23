@@ -16,8 +16,10 @@ A slot with no clip shows the plain dark background.
 | `couple` | 2 ("Last longer"), 3 ("Better sex") | A couple embracing or laughing |
 | `clock` | 3 (hook) | A clock or stopwatch ticking, close up |
 
-Free sources that allow commercial use without credit: Pexels, Mixkit,
-Pixabay, Coverr.
+Vecteezy (vecteezy.com/free-videos) has suitable clips. Its free license
+allows commercial use but requires crediting Vecteezy; a Vecteezy Pro
+subscription removes that requirement. Pexels, Mixkit, Pixabay and Coverr
+allow commercial use without any credit.
 
 For the bedroom and couple slots, prefer shots where faces aren't clearly
 recognisable. The people in a stock clip never agreed to appear in an ad

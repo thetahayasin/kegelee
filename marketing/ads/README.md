@@ -18,7 +18,12 @@ Each ad comes in three files:
 
 - `*-9x16.mp4`: 1080×1920 for Reels and Stories. This is the main file to upload.
 - `*-4x5.mp4`: 1080×1350 for the Instagram and Facebook feeds. It's a crop of the same video.
+- `*-1x1.mp4`: 1080×1080 for YouTube in-feed.
+- `*-16x9.mp4`: 1920×1080 for YouTube in-stream. It shows the vertical ad over a blurred copy of itself.
 - `*-cover.jpg`: the cover or thumbnail frame.
+
+The Google Ads YouTube campaign (YouTube → Google Play only) is set out in
+`google/campaign.md`.
 
 All text sits inside the area that Reels/Stories buttons and the 4:5 crop don't
 cover.
