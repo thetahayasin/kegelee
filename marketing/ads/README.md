@@ -13,7 +13,7 @@ black and white with bold Archivo type, to match the app.
 Gym footage plays behind most scenes, graded black and white.
 `source/stock/README.md` lists the clips, which scene each sits behind, and the
 three slots that are still empty (car, sheets, clock). Every ad ends on
-"Kegelee. Download the app and start now." with a **Download & start now**
+"Kegelee. Download the app and start now." with a **Download Now**
 button.
 
 Each ad comes in three files:
