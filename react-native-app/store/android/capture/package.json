@@ -1,0 +1,15 @@
+{
+  "name": "kegelee-play-screenshots",
+  "private": true,
+  "description": "Captures the Google Play phone screenshots from the real app screens, rendered with React Native Web. See README.md.",
+  "scripts": {
+    "build": "node build.js",
+    "capture": "node capture.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10",
+    "react-dom": "19.2.3",
+    "react-native-web": "0.21.2",
+    "sql.js": "1.14.1"
+  }
+}

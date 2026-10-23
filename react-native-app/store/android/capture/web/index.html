@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kegelee</title>
+    <link rel="stylesheet" href="fonts.css" />
+    <style>
+      html, body, #root { height: 100%; margin: 0; }
+      body { background: #000; overflow: hidden; }
+      #root { display: flex; }
+      /* No scrollbars in a phone screenshot. */
+      * { scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
+    </style>
+    <script>
+      (function () {
+        var lang = new URLSearchParams(location.search).get('lang') || 'en';
+        var base = lang.split('-')[0];
+        document.documentElement.lang = lang;
+        document.documentElement.dir = base === 'ar' || base === 'he' ? 'rtl' : 'ltr';
+        // Han, kana and hangul take the forms of the language being shown, as
+        // Android picks the CJK face from the locale.
+        var cjk = { ja: 'JP', ko: 'KR', zh: 'SC' }[base] || 'SC';
+        var range = 'U+1100-11FF, U+2E80-2FDF, U+3000-30FF, U+3130-318F, U+31F0-31FF, U+3400-4DBF, U+4E00-9FFF, U+AC00-D7AF, U+F900-FAFF, U+FF00-FFEF';
+        var faces = [['Archivo', [400, 500, 600, 700, 800]], ['ArchivoExpanded', [700, 800, 900]]];
+        var css = '';
+        faces.forEach(function (f) {
+          f[1].forEach(function (w) {
+            var face = 'Noto Sans CJK ' + cjk + (w >= 600 ? ' Bold' : '');
+            css += "@font-face{font-family:'" + f[0] + "';font-weight:" + w + ";src:local('" + face + "');unicode-range:" + range + ';}';
+          });
+        });
+        var style = document.createElement('style');
+        style.textContent = css;
+        document.head.appendChild(style);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

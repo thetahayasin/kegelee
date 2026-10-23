@@ -1,6 +1,8 @@
 module.exports = {
   root: true,
   extends: '@react-native',
+  // The screenshot harness's bundle of the whole app, rebuilt on every run.
+  ignorePatterns: ['store/android/capture/dist/'],
   rules: {
     // React Navigation's screenOptions takes render props (tabBarIcon,
     // tabBarButton). They render module-level components rather than defining
@@ -13,7 +15,13 @@ module.exports = {
       // shared config's browser/react-native globals apply and every
       // `require`, `module`, `process` and `__dirname` in here is flagged as
       // undefined - noise that trained everyone to ignore lint on scripts/.
-      files: ['scripts/**/*.js', '*.config.js', '.eslintrc.js', 'jest.setup.js'],
+      files: [
+        'scripts/**/*.js',
+        'store/android/capture/*.js',
+        '*.config.js',
+        '.eslintrc.js',
+        'jest.setup.js',
+      ],
       env: { node: true },
     },
   ],
