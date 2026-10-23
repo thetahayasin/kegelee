@@ -11,7 +11,7 @@
 //   NN-name-4x5.mp4    Instagram and Facebook feed (a centre crop of the same frames)
 //   NN-name-cover.jpg  a cover/thumbnail frame
 
-import { execFileSync } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import fs from 'node:fs';
@@ -56,18 +56,17 @@ for (const name of wanted) {
   const frames = Math.round(meta.duration * FPS);
   console.log(`${name}: ${meta.duration}s, ${frames} frames, ${meta.cues.length} sound cues`);
 
-  // Numbered files, not a pipe: ffmpeg's JPEG pipe parser sometimes merges two
-  // frames into one, which shortens the video and pulls it out of sync with the voice.
-  const dir = path.join(TMP, name);
-  fs.mkdirSync(dir);
+  const silent = path.join(TMP, `${name}.mp4`);
+  const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(FPS), '-i', '-',
+    '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', silent], { stdio: ['pipe', 'inherit', 'inherit'] });
+  const done = new Promise((resolve, reject) => ff.on('close', c => c === 0 ? resolve() : reject(new Error(`ffmpeg exited ${c}`))));
   for (let i = 0; i < frames; i++) {
     await page.evaluate(t => window.renderAt(t), i / FPS);
-    await page.screenshot({ path: path.join(dir, `${String(i).padStart(5, '0')}.jpg`), type: 'jpeg', quality: 94 });
+    const jpg = await page.screenshot({ type: 'jpeg', quality: 94 });
+    if (!ff.stdin.write(jpg)) await new Promise(r => ff.stdin.once('drain', r));
   }
-  const silent = path.join(TMP, `${name}.mp4`);
-  run('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(dir, '%05d.jpg'),
-    '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', silent]);
-  fs.rmSync(dir, { recursive: true, force: true });
+  ff.stdin.end();
+  await done;
 
   await page.evaluate(t => window.renderAt(t), meta.thumb);
   await page.screenshot({ path: `${stem}-cover.jpg`, type: 'jpeg', quality: 92 });
