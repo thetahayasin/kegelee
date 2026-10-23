@@ -1,13 +1,15 @@
 /**
- * Read or replace the phone screenshots and feature graphic on the Google
- * Play listing.
+ * Read or replace the phone screenshots, feature graphic and Wear OS
+ * screenshots on the Google Play listing.
  *
  * The counterpart to store/android/capture: that produces one folder of
  * 1080 x 1920 PNGs per Play language under store/android/screenshots, and one
  * 1024 x 500 PNG per language under store/android/feature-graphic, and this
- * puts them on the listing. Only `phoneScreenshots` and `featureGraphic` are
- * touched - the icon, the tablet and Wear images and every word of the
- * listing text are left exactly as they are.
+ * puts them on the listing. Wear OS screenshots - plain square captures of
+ * the watch app, which is English only - come from store/android/
+ * wear-screenshots and go to every listing language. Only `phoneScreenshots`,
+ * `featureGraphic` and `wearScreenshots` are touched - the icon, the tablet
+ * images and every word of the listing text are left exactly as they are.
  *
  * Usage:
  *   node scripts/play-screenshots.js --list [--download dir]
@@ -15,7 +17,7 @@
  *       discarded. --download saves the images so they can be looked at.
  *
  *   node scripts/play-screenshots.js --upload [--languages de-DE,fr-FR]
- *                                    [--only screenshots|feature] [--dry-run]
+ *                                    [--only screenshots|feature|wear] [--dry-run]
  *       Replace each listing's images with the matching ones on disk. An
  *       image set that is already byte-for-byte the new one is skipped, so
  *       re-running after a partial failure only redoes the rest.
@@ -48,6 +50,7 @@ const KEY_PATH = arg('key', path.join(ROOT, 'play-service-account.json'));
 const PACKAGE = arg('package', 'com.kegelee.app');
 const SHOTS = arg('dir', path.join(ROOT, 'store', 'android', 'screenshots'));
 const FEATURES = arg('feature-dir', path.join(ROOT, 'store', 'android', 'feature-graphic'));
+const WEAR = arg('wear-dir', path.join(ROOT, 'store', 'android', 'wear-screenshots'));
 const ONLY = arg('languages', null);
 const ONLY_KIND = arg('only', null);
 const DOWNLOAD = arg('download', null);
@@ -133,12 +136,33 @@ function featureSets() {
 }
 
 /**
+ * The Wear OS screenshots: images directly in the folder serve every
+ * language (`*`); a <Play language> subfolder, should one ever exist, wins for
+ * that language.
+ */
+function wearSets() {
+  if (!fs.existsSync(WEAR)) return {};
+  const sets = {};
+  const all = fs.readdirSync(WEAR).filter((f) => IMAGE.test(f)).sort();
+  if (all.length) sets['*'] = all.map((f) => path.join(WEAR, f));
+  for (const lang of fs.readdirSync(WEAR)) {
+    const dir = path.join(WEAR, lang);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    const files = fs.readdirSync(dir).filter((f) => IMAGE.test(f)).sort();
+    if (files.length) sets[lang] = files.map((f) => path.join(dir, f));
+  }
+  return sets;
+}
+
+/**
  * What this script manages on a listing, and how much of each Play takes:
- * up to eight phone screenshots, exactly one feature graphic.
+ * up to eight phone screenshots, exactly one feature graphic, up to eight
+ * Wear OS screenshots.
  */
 const KINDS = [
   { key: 'screenshots', type: 'phoneScreenshots', label: 'screenshots', max: 8, sets: screenshotSets },
   { key: 'feature', type: 'featureGraphic', label: 'feature graphic', max: 1, sets: featureSets },
+  { key: 'wear', type: 'wearScreenshots', label: 'Wear OS screenshots', max: 8, sets: wearSets },
 ];
 
 /** The images a Play listing language should take: its own, else the closest language's. */
@@ -150,7 +174,7 @@ function folderFor(language, sets) {
   if ((base === 'nb' || base === 'nn') && sets['no-NO']) return 'no-NO';
   if (base === 'zh' && sets['zh-CN']) return 'zh-CN';
   if (base === 'en' && sets['en-US']) return 'en-US';
-  return Object.keys(sets).find((l) => l.split('-')[0] === base) || null;
+  return Object.keys(sets).find((l) => l.split('-')[0] === base) || (sets['*'] ? '*' : null);
 }
 
 const sha256 = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -249,7 +273,7 @@ function serviceAccount() {
         const current = await images(language, kind.type);
         const same =
           current.length === files.length && current.every((img, i) => img.sha256 === sha256(files[i]));
-        const via = from === language ? '' : ` (from ${from})`;
+        const via = from === language ? '' : from === '*' ? ' (shared set)' : ` (from ${from})`;
         if (same) {
           console.log(`  ${language.padEnd(7)} unchanged${via}`);
           continue;
@@ -268,7 +292,7 @@ function serviceAccount() {
         }
         changed += 1;
       }
-      const unused = Object.keys(sets).filter((l) => !used.has(l));
+      const unused = Object.keys(sets).filter((l) => l !== '*' && !used.has(l));
       if (unused.length && !ONLY) console.log(`  no Play listing (left alone): ${unused.join(', ')}`);
     }
 

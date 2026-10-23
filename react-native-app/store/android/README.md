@@ -107,10 +107,15 @@ node frames.js` is enough.
 
 ## Uploading
 
-`scripts/play-screenshots.js` replaces only the phone screenshots and the
-feature graphic on each listing language (`--only screenshots` or
-`--only feature` for one of them). It does not change the icon, tablet/Wear
-images or listing text. It uses the same service account as
+`scripts/play-screenshots.js` replaces only the phone screenshots, the
+feature graphic and the Wear OS screenshots on each listing language
+(`--only screenshots`, `--only feature` or `--only wear` for one of them).
+It does not change the icon, tablet images or listing text.
+
+Wear OS screenshots go in `wear-screenshots/` as plain square captures of the
+watch app, with no frame or text, as Play's Wear OS guidelines require. Images
+directly in that folder go to every listing language, because the watch UI
+is English only. It uses the same service account as
 `scripts/play-upload.js`:
 
 ```sh

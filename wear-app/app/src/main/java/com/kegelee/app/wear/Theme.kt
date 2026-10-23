@@ -15,10 +15,12 @@ import androidx.wear.compose.material.Typography
  * The phone app's two palettes, on a watch.
  *
  * Both taken from `src/theme/colors.ts` rather than re-picked, so the watch and
- * the phone read as one product in either appearance. The light one is not a
- * naive inversion: its accent is several steps darker (`#5f9e0a` against
- * `#c1ff72`) because the bright lime is invisible on a white ground - the phone
- * learned that the hard way and the note in its own palette says so.
+ * the phone read as one product in either appearance. Black and white like the
+ * KE logo: white on true black in the dark palette, black on light grey in the
+ * light one. Emphasis is carried by fill and weight rather than by hue - the
+ * accent is the full-strength ink, and a primary button is a solid block of it
+ * with the ground colour on top. Red is the only hue left, and it means
+ * something is wrong.
  */
 data class Palette(
     val bg: Color,
@@ -46,35 +48,37 @@ data class Palette(
 )
 
 val DarkPalette = Palette(
-    bg = Color(0xFF060810),
-    surface = Color(0xFF12151D),
-    surface2 = Color(0xFF1A1F29),
-    accent = Color(0xFFC1FF72),
-    accentSoft = Color(0xFFD6FFA1),
-    text = Color(0xFFF2F5EE),
-    textMuted = Color(0xFF9AA3B2),
-    // A step up from the ground is plenty on a dark screen.
-    control = Color(0xFF1F2531),
+    // True black, the logo's own ground - and on an OLED watch, pixels off.
+    bg = Color(0xFF000000),
+    surface = Color(0xFF0E0E0E),
+    surface2 = Color(0xFF171717),
+    accent = Color(0xFFFFFFFF),
+    accentSoft = Color(0xFFE5E5E5),
+    text = Color(0xFFFFFFFF),
+    textMuted = Color(0xFFA3A3A3),
+    // A step up from the ground is plenty on a dark screen: the phone's
+    // surface2, the fill it gives buttons and inputs.
+    control = Color(0xFF171717),
     controlEdge = Color(0x00000000),
-    track = Color(0xFF232937),
-    glow = Color(0xFFC1FF72),
-    danger = Color(0xFFFF8A80),
+    track = Color(0xFF212121),
+    glow = Color(0xFFFFFFFF),
+    danger = Color(0xFFFF6B6B),
 )
 
 val LightPalette = Palette(
-    bg = Color(0xFFF4F6F0),
+    bg = Color(0xFFF4F4F4),
     surface = Color(0xFFFFFFFF),
-    surface2 = Color(0xFFF7F8F4),
-    accent = Color(0xFF5F9E0A),
-    accentSoft = Color(0xFF3F6212),
-    text = Color(0xFF14181A),
-    textMuted = Color(0xFF585F59),
+    surface2 = Color(0xFFF6F6F6),
+    accent = Color(0xFF000000),
+    accentSoft = Color(0xFF262626),
+    text = Color(0xFF0A0A0A),
+    textMuted = Color(0xFF525252),
     // White against the off-white ground, plus a hairline - which is what the
     // phone's own light cards do, and the only way a control reads as one here.
     control = Color(0xFFFFFFFF),
-    controlEdge = Color(0x22141A1A),
-    track = Color(0xFFE2E6DC),
-    glow = Color(0xFF5F9E0A),
+    controlEdge = Color(0x1A000000),
+    track = Color(0xFFE0E0E0),
+    glow = Color(0xFF000000),
     danger = Color(0xFFC0392B),
 )
 
