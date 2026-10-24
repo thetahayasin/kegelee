@@ -49,8 +49,8 @@ android {
          * collide again as the phone climbs - and so a code on its own says
          * which app it came from.
          */
-        versionCode = 1005
-        versionName = "1.0.114"
+        versionCode = 1006
+        versionName = "1.0.122"
     }
 
     signingConfigs {
