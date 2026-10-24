@@ -70,7 +70,8 @@ function prepareStock(clip, seconds) {
   fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
   run('ffmpeg', ['-y', '-loglevel', 'error', '-i', path.join(STOCK_DIR, src), '-t', String(seconds + .5), '-vf',
-    'fps=30,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,hue=s=0,eq=contrast=1.15:brightness=-0.02',
+    // Some clips store non-square pixels (a vertical video squeezed into a 1920x1080 frame), so square them first.
+    'scale=trunc(iw*sar/2)*2:ih,setsar=1,fps=30,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,hue=s=0,eq=contrast=1.15:brightness=-0.02',
     '-q:v', '3', path.join(dir, '%05d.jpg')]);
   return (prepared[clip] = { seconds, frames: fs.readdirSync(dir).length, base: `/__stock/${clip}/` });
 }

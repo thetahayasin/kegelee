@@ -17,7 +17,7 @@ These are trimmed 1080×1920 copies of the clips you supplied.
 | `nobodycares` | Bench machine under a "NOBODY CARES, WORK HARDER" sign | Pexels | Ad 1 "Most guys never train it" |
 | `locker` | Muscular silhouette walking through a locker room (cropped from landscape) | Vecteezy | Ad 1 "Last longer. Feel stronger. Perform better." |
 | `trx` | Woman doing TRX lunges (darkened extra) | Pexels | Ad 1 "Perform better… in bed", ad 2 hook "Want to impress your girlfriend?" |
-| `stretch` | Woman stretching in a park (cropped from landscape; darkened extra) | Vecteezy | Ad 2 "It's how long you last in bed" |
+| `stretch` | Woman stretching in a park (darkened extra) | Vecteezy | Ad 2 "It's how long you last in bed" |
 | `physique` | Muscular man in a bright gym (darkened extra) | Pexels | Ad 2 "Forget the abs" |
 | `shoulder` | Shoulder press, dark gym | Pexels | Ad 2 "Last longer. Stay in control." |
 | `pulldown` | Woman on a lat pulldown, from behind (darkened extra) | Pexels | Ad 2 "She'll notice", ad 3 "Better sex" |
