@@ -251,7 +251,7 @@ const progressScreen = () => `
 
 function phone(screen, { at = 0, top = PHONE.top, width = PHONE.width } = {}) {
   const k = width / 390, left = PHONE.left ?? (W - width) / 2;
-  return `<div class="phone-wrap" style="left:${left}px;top:${top}px" data-at="${at}" data-fx="rise" data-cue="whoosh">
+  return `<div class="phone-wrap" style="left:${left}px;top:${top}px" data-at="${at}" data-fx="rise">
     <div class="phone" style="transform:scale(${k})"><div class="screen">${screen}</div><div class="island"></div></div>
   </div>`;
 }
@@ -590,8 +590,8 @@ const built = AD.scenes.map(sc => {
 
 const DURATION = Math.max(...AD.scenes.map(s => s.to));
 
-// Sound cues for render.mjs: thumps on slams, ticks on counts, a whoosh on
-// every cut. Every slam also punches the frame in; the big boxed ones shake it.
+// Sound cues for render.mjs: thumps on slams, ticks on counts. Every slam
+// also punches the frame in; the big boxed ones shake it.
 const CUES = [];
 const SHAKES = [];
 const PUNCHES = [];
@@ -607,9 +607,6 @@ for (const s of built) {
   }
   (s.cues || []).filter(c => c.t < s.to - s.from).forEach(c => CUES.push({ ...c, t: s.from + c.t }));
   (s.shakes || []).forEach(t => SHAKES.push(s.from + t));
-}
-for (const t of CUTS) {
-  if (!CUES.some(c => c.type === 'whoosh' && Math.abs(c.t - t) < .1)) CUES.push({ type: 'whoosh', t });
 }
 
 function fit() {

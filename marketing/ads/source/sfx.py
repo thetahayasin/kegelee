@@ -4,7 +4,7 @@
 
 The cue file comes from ads.html (via render.mjs). It lists a sound effect
 for each beat (a thump under each word that slams in, a click on each
-countdown second, a whoosh when the phone rises, a chime on the end card)
+countdown second, a chime on the end card)
 and, when the ad has one, its voiceover: the take, how much to speed it up,
 and the time each spoken phrase should start (see vo.py).
 

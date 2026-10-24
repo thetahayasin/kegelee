@@ -43,7 +43,6 @@ The voiceover is timed phrase by phrase, so each line is spoken as its words
 hit the screen. Under it:
 
 - a deep bass hit when big words land
-- a whoosh as the phone slides up
 - ticks on the stopwatch and progress bars
 - a chime on the end card
 
