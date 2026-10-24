@@ -10,8 +10,10 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   useWindowDimensions,
+  AccessibilityInfo,
 } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity } from '../../components/Touchable';
@@ -67,26 +69,90 @@ const artHeightFor = (height: number) => Math.round(height * 0.52);
  */
 const ON_ART = '#f2f5ee';
 
+/**
+ * Each slide's footage: a short black-and-white loop, plus a still from it.
+ *
+ * Two women and two men across the three slides - the third loop runs a woman
+ * training into a man training - because the app is for both and the first
+ * screen anybody sees should say so. Black and white to sit inside the KE
+ * palette; each loop fades in and out of black so the restart is not a cut.
+ *
+ * The still is drawn first and stays under the video, so a slide is never
+ * blank while the player spins up, and it is all that shows for someone who
+ * has asked the phone to reduce motion.
+ */
 const SLIDES = [
   {
     key: 'private',
-    art: require('../../assets/onboarding/private.jpg'),
+    video: require('../../assets/onboarding/onboard_strength.mp4'),
+    poster: require('../../assets/onboarding/onboard_strength.jpg'),
     titleKey: 'onboarding.slide1Title',
     bodyKey: 'onboarding.slide1Body',
   },
   {
     key: 'anywhere',
-    art: require('../../assets/onboarding/anywhere.jpg'),
+    video: require('../../assets/onboarding/onboard_anywhere.mp4'),
+    poster: require('../../assets/onboarding/onboard_anywhere.jpg'),
     titleKey: 'onboarding.slide2Title',
     bodyKey: 'onboarding.slide2Body',
   },
   {
     key: 'routine',
-    art: require('../../assets/onboarding/routine.jpg'),
+    video: require('../../assets/onboarding/onboard_progress.mp4'),
+    poster: require('../../assets/onboarding/onboard_progress.jpg'),
     titleKey: 'onboarding.slide3Title',
     bodyKey: 'onboarding.slide3Body',
   },
 ];
+
+/**
+ * One slide's moving picture.
+ *
+ * Only the slide on screen plays; the others hold paused, so three decoders
+ * are never running at once. Muted, and mixed with whatever the phone is
+ * already playing - an onboarding loop must never stop somebody's music.
+ *
+ * textureView, not the default SurfaceView: a SurfaceView ignores the
+ * rounded corners this frame is clipped to and draws over the scrim.
+ */
+const SlideArt: React.FC<{
+  video: number;
+  poster: number;
+  active: boolean;
+  still: boolean;
+  width: number;
+  height: number;
+}> = ({ video, poster, active, still, width, height }) => {
+  const player = useVideoPlayer(video, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.audioMixingMode = 'mixWithOthers';
+  });
+  useEffect(() => {
+    if (active && !still) player.play();
+    else player.pause();
+  }, [active, still, player]);
+  return (
+    <>
+      <Image
+        source={poster}
+        style={[StyleSheet.absoluteFill, { width, height }]}
+        resizeMode="cover"
+        accessible={false}
+      />
+      {!still && (
+        <VideoView
+          player={player}
+          style={{ width, height }}
+          contentFit="cover"
+          nativeControls={false}
+          surfaceType="textureView"
+          allowsPictureInPicture={false}
+        />
+      )}
+    </>
+  );
+};
 
 /**
  * Fades the photograph into the page rather than cutting it off.
@@ -159,6 +225,13 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   const artH = artHeightFor(height);
 
   const [index, setIndex] = useState(0);
+  // The phone's "reduce motion" setting: stills only, no looping footage.
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion).catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => sub.remove();
+  }, []);
   const isLast = index === SLIDES.length - 1;
   /**
    * The slides hand off to the quiz, and the quiz to the plans sheet.
@@ -363,15 +436,16 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         scrollEventThrottle={16}
         keyExtractor={(s) => s.key}
         getItemLayout={(_d, i) => ({ length: width, offset: width * i, index: i })}
-        renderItem={({ item }) => (
+        renderItem={({ item, index: i }) => (
           <View style={[styles.slide, { width }]}>
             <View style={[styles.art, { width, height: artH }]}>
-              <Image
-                source={item.art}
-                style={{ width, height: artH }}
-                resizeMode="cover"
-                accessibilityRole="image"
-                accessible={false}
+              <SlideArt
+                video={item.video}
+                poster={item.poster}
+                active={i === index}
+                still={reduceMotion}
+                width={width}
+                height={artH}
               />
               <Scrim width={width} artH={artH} />
             </View>

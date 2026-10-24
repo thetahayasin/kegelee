@@ -177,3 +177,9 @@ jest.mock('expo-apple-authentication', () => ({
   AppleAuthenticationButtonType: { CONTINUE: 2 },
   AppleAuthenticationButtonStyle: { WHITE_OUTLINE: 1 },
 }));
+
+// expo-video is a native player; under Jest the slides render their still.
+jest.mock('expo-video', () => ({
+  useVideoPlayer: jest.fn(() => ({ play: jest.fn(), pause: jest.fn() })),
+  VideoView: () => null,
+}));
