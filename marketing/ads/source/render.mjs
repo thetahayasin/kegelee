@@ -34,7 +34,7 @@ const OUT = path.resolve(HERE, '../videos');
 const TMP = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'kegelee-ads-'));
 const FPS = 30;
 
-const ORDER = ['muscle', 'impress', 'howlong'];
+const ORDER = ['muscle', 'impress', 'howlong', 'chestday', 'roundtwo'];
 const wanted = process.argv.slice(2).length ? process.argv.slice(2) : ORDER;
 
 // Chromium will not load fonts into a file:// page, so serve the repo over HTTP.

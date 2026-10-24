@@ -1,6 +1,6 @@
 # Google Ads campaign: YouTube → Google Play
 
-One campaign that shows the three Kegelee ads on YouTube only and sends
+One campaign that shows the five Kegelee ads on YouTube only and sends
 people to the Play Store listing. It runs in English-speaking countries that
 pay well, and never on Search or Display.
 
@@ -24,9 +24,9 @@ and tell me before using any other setup.
    turn on **In-app purchases (Google Play)** and set it as a *secondary*
    goal, so it's tracked for reporting but not used for bidding.
 2. **Upload the videos to YouTube** on your channel, as **Unlisted**. That's
-   9 uploads: each of the three ads in 9×16, 1×1 and 16×9, from
-   `marketing/ads/videos/`. Name them like `Kegelee – impress – 9x16`. All
-   three ads use some Vecteezy footage, so put `Footage: Vecteezy` in each
+   15 uploads: each of the five ads in 9×16, 1×1 and 16×9, from
+   `marketing/ads/videos/`. Name them like `Kegelee – impress – 9x16`. Every
+   ad uses some Vecteezy footage, so put `Footage: Vecteezy` in each
    YouTube description (the free license requires the credit).
 3. **Currency.** Prices below are in USD. If the account was created in
    another currency, convert them.
@@ -93,6 +93,16 @@ headline 90, description 90.
 - Long headline: `Be honest. How long do you really last? Stamina is a muscle you can train.`
 - Descriptions: `More stamina. More control. Guided Kegel workouts for men.` · `Track your control as it climbs. Download the app and start now.`
 
+**Ad 4: Chest day**
+- Headlines: `You train everything but this` · `The muscle you never train` · `Leave her speechless`
+- Long headline: `You train your chest, arms and legs. Not the one muscle that matters in bed.`
+- Descriptions: `Guided Kegel workouts that track every rep.` · `Last longer. Hit harder. Download the app and start now.`
+
+**Ad 5: Round two**
+- Headlines: `She wants round two` · `Round two? Easy.` · `Ready every time`
+- Long headline: `She wants round two. Stamina is a muscle. Train it and be ready every time.`
+- Descriptions: `More stamina. More control. Guided Kegel workouts for men.` · `Be ready every time. Download the app and start now.`
+
 ## Prices and thresholds
 
 **Break-even cost per install (CPI).** After Google Play's 15% cut, the plans
@@ -146,7 +156,7 @@ start, with a target CPA of about $10–12.
 ## Google's ad policy
 
 Google's sexual health policy doesn't allow ads that focus on sexual
-enhancement. Ads 2 and 3 ("last longer in bed", "better sex") are likely to
-be disapproved or limited. Ad 1 is the mildest and the most likely to run.
+enhancement. Ads 2 to 5 ("last longer in bed", "better sex", "round two") are
+likely to be disapproved or limited. Ad 1 is the mildest and the most likely to run.
 If an ad is disapproved, appeal once. Repeated violations can get the
 account suspended.

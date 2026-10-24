@@ -1,14 +1,16 @@
 # Kegelee video ads for Instagram and Facebook
 
-Three video ads on the stamina angle. Each has an AI voiceover from
+Five video ads on the stamina angle. Each has an AI voiceover from
 ElevenLabs in the same deep voice (Grant), plus AI sound effects. They're
 black and white with bold Archivo type, to match the app.
 
 | # | File | Length | Hook |
 |---|------|--------|------|
-| 1 | `videos/01-muscle-*` | 17s | "Stamina is a muscle. Most guys never train it." Then: last longer, feel stronger, perform better. |
-| 2 | `videos/02-impress-*` | 17s | "Want to impress your girlfriend? Forget the abs. Forget the car. It's how long you last in bed." |
-| 3 | `videos/03-howlong-*` | 20s | "Be honest. How long do you really last?" A stopwatch stops at 2:47. Then: more stamina, more control, better sex. |
+| 1 | `videos/01-muscle-*` | 16s | "Stamina is a muscle. Most guys never train it." Then: last longer, feel stronger, perform better. |
+| 2 | `videos/02-impress-*` | 15s | "Want to impress your girlfriend? Forget the abs. Forget the car. It's how long you last in bed." |
+| 3 | `videos/03-howlong-*` | 18s | "Be honest. How long do you really last?" A stopwatch stops at 2:47. Then: more stamina, more control, better sex. |
+| 4 | `videos/04-chestday-*` | 16s | "You train your chest. Your arms. Your legs. But the one muscle that matters in bed? You've never trained it." Ends on "Leave her speechless." |
+| 5 | `videos/05-roundtwo-*` | 14s | "POV: she wants round two. And you're already done. Not anymore." Ends on "Round two? Easy." |
 
 Gym footage plays behind most scenes, graded black and white.
 `source/stock/README.md` lists the clips, which scene each sits behind, and the
@@ -16,7 +18,7 @@ two slots that are still empty (car, clock). Every ad ends on
 "Kegelee. Download the app and start now." with a **Download Now**
 button.
 
-Each ad comes in three files:
+Each ad comes in these files:
 
 - `*-9x16.mp4`: 1080×1920 for Reels and Stories. This is the main file to upload.
 - `*-4x5.mp4`: 1080×1350 for the Instagram and Facebook feeds, laid out for that shape so the phone fits whole.
@@ -26,6 +28,11 @@ Each ad comes in three files:
 
 The Google Ads YouTube campaign (YouTube → Google Play only) is set out in
 `google/campaign.md`.
+
+**To get them on your Desktop** (Windows): download this folder, then
+double-click `export-to-desktop.cmd`. It makes `Desktop\ads` with one folder
+per ad (`01 Stamina is a muscle`, `02 Impress her`, …) and copies each ad's
+files into its folder. Run it again after new ads are rendered.
 
 All text sits inside the area that Reels/Stories buttons and the 4:5 crop don't
 cover.
@@ -47,7 +54,7 @@ track in CapCut or Ads Manager at about 15–20% volume, under the voice:
   Content → Sound Collection.
 - **CapCut** (free): Audio → Sounds. Use only tracks marked for commercial use.
 
-A dark, slow phonk or trap beat suits all three. Don't use popular Instagram
+A dark, slow phonk or trap beat suits all of them. Don't use popular Instagram
 songs: they aren't licensed for ads, so the ad gets muted or pulled.
 
 **Listen to the end card** and check that "Kegelee" is pronounced the way you
@@ -66,7 +73,7 @@ say it. If not, that one line can be regenerated.
 5. Turn off Meta's automatic "enhancements" that add music or change the text.
 
 **Expect review trouble.** Meta's rules don't allow ads about sexual
-performance, and all three ads say it straight ("last longer", "better
+performance, and every ad says it straight ("last longer", "better
 sex"). Some may be approved, some limited, some rejected. If one is
 rejected, request a review once. If it's rejected again, stop: repeated
 rejections can get the ad account restricted.
@@ -85,8 +92,16 @@ rejections can get the ad account restricted.
 - Main text: `Be honest. How long do you really last? ⏱️ Stamina isn't luck. It's a muscle, and you can train it.`
 - Headline: `Go longer`
 
-Use `Download the app and start now` as the description on all three. All
-three ads use some Vecteezy footage, so add `Footage: Vecteezy` to each post's
+**04 – Chest day**
+- Main text: `You train your chest. Your arms. Your legs. But the one muscle that matters in bed? 👀 Kegelee trains it with guided workouts and tracks every rep.`
+- Headline: `Leave her speechless`
+
+**05 – Round two**
+- Main text: `She wants round two. Are you ready? 😏 Stamina is a muscle. Train it with Kegelee and be ready every time.`
+- Headline: `Round two? Easy.`
+
+Use `Download the app and start now` as the description on every ad. Every
+ad uses some Vecteezy footage, so add `Footage: Vecteezy` to each post's
 text or YouTube description. Test two main texts per
 ad by swapping in a hook from the list below.
 
@@ -117,7 +132,7 @@ Paste this:
 
 ## Testing
 
-- Run all three in one ad set at **$15–20 a day** for 3–4 days without changes.
+- Run all five in one ad set at **$15–20 a day** for 3–4 days without changes.
 - In Ads Manager (Columns → Customize → Video), check:
   - **Hook rate** = 3-second plays ÷ impressions. Aim for over 30%.
   - **Hold rate** = ThruPlays ÷ 3-second plays. Aim for over 15%.
@@ -140,7 +155,7 @@ list its phrases, then give `vo.at` one time per phrase.
 Stock clips go in `source/stock/`; its README lists the slots. To render:
 
 ```sh
-node marketing/ads/source/render.mjs            # all three
+node marketing/ads/source/render.mjs            # all of them
 node marketing/ads/source/render.mjs impress    # just one
 ```
 

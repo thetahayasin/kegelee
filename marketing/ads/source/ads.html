@@ -446,6 +446,88 @@ const ADS = {
       S(17.2, 20.5, endCard('Go longer.'), { update: endUpdate }),
     ],
   },
+
+  // Chest day: you train everything except the muscle that matters in bed.
+  chestday: {
+    thumb: 1.2,
+    vo: { file: 'vo/04-chestday.mp3', tempo: 1.1, at: [.05, 1.6, 2.65, 3.65, 5.75, 7.05, 8.35, 11.75, 15.15, 15.75] },
+    scenes: [
+      S(0, 1.55, `${stock('chestpress')}<div class="zone">
+        ${line('You train', -.15, { size: 150 })}
+        ${line('your chest.', .45, { size: 170, inv: true, shake: true })}
+      </div>`),
+      S(1.55, 2.6, `${stock('flex', 0, .55)}<div class="zone">
+        ${line('Your arms.', 0, { size: 190 })}
+      </div>`),
+      S(2.6, 3.6, `${stock('bench')}<div class="zone">
+        ${line('Your legs.', 0, { size: 190 })}
+      </div>`),
+      S(3.6, 5.7, `${stock('trx', 0, .6)}<div class="zone">
+        ${line('But the one muscle', 0, { size: 120 })}
+        ${line('that matters', .7, { size: 130 })}
+        ${line('in bed?', 1.3, { size: 210, inv: true, shake: true })}
+      </div>`),
+      S(5.7, 7, `<div class="zone">
+        ${line('You’ve never', 0, { size: 150 })}
+        ${line('trained it.', .45, { size: 170, inv: true, shake: true })}
+      </div>`),
+      S(7, 8.3, `<div class="zone">
+        ${line('Your', 0, { size: 150 })}
+        ${line('pelvic floor.', .2, { size: 170, inv: true, shake: true })}
+      </div>`),
+      S(8.3, 11.7, `${swaps([[head('Guided workouts.'), .2, 1.8], [head('Tracks every rep.'), 1.9]])}
+        ${phone(workoutScreen())}`,
+        { update: (r, lt) => runCircle(r, [SQUEEZE], lt - .3), cues: circleCues(.3, [SQUEEZE]) }),
+      S(11.7, 15, `${stock('silhouette', 4)}${stock('stretch', 1, .6, 1.85)}<div class="zone">
+        ${line('Last longer.', 0, { size: 150 })}
+        ${line('Hit harder.', 1, { size: 150 })}
+        ${line('Leave her', 1.85, { size: 130 })}
+        ${line('speechless.', 2.5, { size: 170, inv: true, shake: true })}
+      </div>`),
+      S(15, 18, endCard('Leave her speechless.'), { update: endUpdate }),
+    ],
+  },
+
+  // POV: she wants round two.
+  roundtwo: {
+    thumb: 1.0,
+    vo: { file: 'vo/05-roundtwo.mp3', tempo: 1.1, at: [.05, 1.55, 3.05, 4.25, 5.95, 7.15, 9.75, 10.75, 11.75, 12.6, 13.45, 14.05] },
+    scenes: [
+      S(0, 1.5, `${stock('pulldown', 3, .6)}<div class="zone">
+        <div class="kicker" data-at="-.3" data-fx="fade">POV</div>
+        ${line('She wants', -.15, { size: 170 })}
+        ${line('round two.', .55, { size: 180, inv: true, shake: true })}
+      </div>`),
+      S(1.5, 3, `${stock('headphones', 2)}<div class="zone">
+        ${line('And you’re', 0, { size: 150 })}
+        ${line('already done.', .6, { size: 150, inv: true })}
+      </div>`),
+      S(3, 4.2, `<div class="zone">
+        ${line('Not', 0, { size: 240 })}
+        ${line('anymore.', .3, { size: 200, inv: true, shake: true })}
+      </div>`),
+      S(4.2, 5.9, `${stock('cable')}<div class="zone">
+        ${line('Stamina', 0, { size: 190 })}
+        ${line('is a muscle.', .75, { size: 160, inv: true, shake: true })}
+      </div>`),
+      S(5.9, 7.1, `<div class="zone">
+        ${line('Your', 0, { size: 150 })}
+        ${line('pelvic floor.', .2, { size: 170, inv: true, shake: true })}
+      </div>`),
+      S(7.1, 9.7, `${swaps([[head('Train it.'), .2, 1.2], [head('Ready<br>every time.'), 1.3]])}
+        ${phone(progressScreen())}`,
+        { update: bars(1), cues: BARS.map((_, i) => ({ type: 'tick', t: 1 + i * .28 })) }),
+      S(9.7, 11.7, `${stock('shoulder', 2)}<div class="zone">
+        ${line('More stamina.', 0, { size: 150 })}
+        ${line('More control.', 1, { size: 150, inv: true, shake: true })}
+      </div>`),
+      S(11.7, 13.3, `${stock('trx', 1, .6)}${stock('silhouette', 8, 1, .85)}<div class="zone">
+        ${line('Round two?', 0, { size: 180 })}
+        ${line('Easy.', .9, { size: 260, inv: true, shake: true })}
+      </div>`),
+      S(13.3, 16.3, endCard('Round two? Easy.'), { update: endUpdate }),
+    ],
+  },
 };
 
 // Progress screen: bars grow one after another from `start`, and the best-hold number follows them.
