@@ -75,7 +75,8 @@ const ON_ART = '#f2f5ee';
  * Two women and two men across the three slides - the third loop runs a woman
  * training into a man training - because the app is for both and the first
  * screen anybody sees should say so. Black and white to sit inside the KE
- * palette; each loop fades in and out of black so the restart is not a cut.
+ * palette. Each loop opens straight on a full frame - no fade from black -
+ * and its tail is blended into its own head, so the restart is seamless.
  *
  * The still is drawn first and stays under the video, so a slide is never
  * blank while the player spins up, and it is all that shows for someone who
@@ -132,6 +133,10 @@ const SlideArt: React.FC<{
     if (active && !still) player.play();
     else player.pause();
   }, [active, still, player]);
+  // Hidden until it has a frame to show. The still underneath is that same
+  // first frame, so the hand-over is invisible - no black flash while the
+  // decoder spins up.
+  const [shown, setShown] = useState(false);
   return (
     <>
       <Image
@@ -143,7 +148,8 @@ const SlideArt: React.FC<{
       {!still && (
         <VideoView
           player={player}
-          style={{ width, height }}
+          style={{ width, height, opacity: shown ? 1 : 0 }}
+          onFirstFrameRender={() => setShown(true)}
           contentFit="cover"
           nativeControls={false}
           surfaceType="textureView"
