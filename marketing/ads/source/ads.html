@@ -42,6 +42,8 @@
      turns them into rings. A fixed, faint noise layer breaks the steps up.
      It never moves, so it costs the encoder almost nothing. */
   .dither { position: absolute; inset: 0; pointer-events: none; }
+  /* A short white flash on every cut. */
+  .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
 
   /* Stock footage: full bleed, already black and white (render.mjs grades it),
      pushed in slowly and darkened so the type reads over it. */
@@ -163,11 +165,17 @@
 <div id="stage">
   <div class="bgfx"><div class="vig"></div><div class="wmark">KEGELEE</div></div>
   <div id="cam"><div id="scenes"></div></div>
+  <div class="flash"></div>
   <div class="dither"></div>
 </div>
 <script>
 const LOGO = '../../../react-native-app/src/assets/logo.png';
 const W = 1080, FPS = 30;
+
+// The scenes below are timed for a voice at 1.1x. SPEED plays the whole edit
+// faster than that (voice included) for a quicker, Reels-style pace; the stock
+// footage keeps playing at its own speed.
+const SPEED = 1.14;
 
 // The ad is drawn natively in each shape rather than cropped from 9:16, so the
 // phone is never cut off. ?format= picks it.
@@ -483,6 +491,7 @@ const stage = document.getElementById('stage');
 stage.style.height = `${H}px`;
 stage.classList.add(`f${FORMAT}`);
 const cam = document.getElementById('cam');
+const flashEl = stage.querySelector('.flash');
 const wm = stage.querySelector('.wmark');
 
 const built = AD.scenes.map(sc => {
@@ -499,17 +508,26 @@ const built = AD.scenes.map(sc => {
 
 const DURATION = Math.max(...AD.scenes.map(s => s.to));
 
-// Sound cues for render.mjs: thumps on slams, ticks on counts, a whoosh on the phone.
+// Sound cues for render.mjs: thumps on slams, ticks on counts, a whoosh on
+// every cut. Every slam also punches the frame in; the big boxed ones shake it.
 const CUES = [];
 const SHAKES = [];
+const PUNCHES = [];
+const CUTS = built.slice(1).map(s => s.from);
 for (const s of built) {
   for (const it of s.items) {
-    if (it.n.dataset.fx === 'slam') CUES.push({ type: 'hit', t: s.from + it.at + .16 });
+    if (it.n.dataset.fx === 'slam') {
+      CUES.push({ type: 'hit', t: s.from + it.at + .16 });
+      PUNCHES.push({ t: s.from + it.at + .2, amp: it.n.hasAttribute('data-shake') ? .06 : .025 });
+    }
     if (it.n.dataset.cue) CUES.push({ type: it.n.dataset.cue, t: s.from + it.at + parseFloat(it.n.dataset.cueOff || 0) });
     if (it.n.hasAttribute('data-shake')) SHAKES.push(s.from + it.at + .2);
   }
   (s.cues || []).filter(c => c.t < s.to - s.from).forEach(c => CUES.push({ ...c, t: s.from + c.t }));
   (s.shakes || []).forEach(t => SHAKES.push(s.from + t));
+}
+for (const t of CUTS) {
+  if (!CUES.some(c => c.type === 'whoosh' && Math.abs(c.t - t) < .1)) CUES.push({ type: 'whoosh', t });
 }
 
 function fit() {
@@ -526,8 +544,10 @@ window.setStock = clips => {
   for (const st of document.querySelectorAll('.stock')) st.classList.toggle('on', !!STOCK[st.dataset.clip]);
 };
 
-// Resolves once every stock frame this moment needs has decoded.
-function renderAt(t) {
+// Resolves once every stock frame this moment needs has decoded. `real` is
+// seconds into the video; the scenes are timed in seconds before SPEED.
+function renderAt(real) {
+  const t = real * SPEED;
   const pending = [];
   for (const s of built) {
     const on = t >= s.from && t < s.to;
@@ -546,10 +566,10 @@ function renderAt(t) {
       st.style.visibility = lt >= a && lt < b ? '' : 'hidden';
       if (lt < a || lt >= b) continue;
       const clip = STOCK[st.dataset.clip], img = st.firstElementChild;
-      const f = Math.min(clip.frames - 1, Math.floor((lt - a + parseFloat(st.dataset.off)) * FPS));
+      const f = Math.min(clip.frames - 1, Math.floor(((lt - a) / SPEED + parseFloat(st.dataset.off)) * FPS));
       const src = `${clip.base}${String(f + 1).padStart(5, '0')}.jpg`;
       if (img.dataset.src !== src) { img.dataset.src = src; img.src = src; pending.push(img.decode().catch(() => {})); }
-      img.style.transform = `scale(${1.04 + .08 * lt / (s.to - s.from)})`;
+      img.style.transform = `scale(${1.04 + .12 * lt / (s.to - s.from)})`;
     }
   }
   let dx = 0, dy = 0;
@@ -557,17 +577,32 @@ function renderAt(t) {
     const d = t - st;
     if (d >= 0 && d < .25) { const a = 14 * (1 - d / .25); dx += a * Math.sin(d * 95); dy += a * Math.cos(d * 70); }
   }
-  cam.style.transform = `translate(${dx}px, ${dy}px)`;
+  let zoom = 1;
+  for (const p of PUNCHES) {
+    const d = t - p.t;
+    if (d >= 0 && d < .22) zoom += p.amp * (1 - d / .22) ** 2;
+  }
+  cam.style.transform = `translate(${dx}px, ${dy}px) scale(${zoom})`;
+  let flash = 0;
+  for (const c of CUTS) {
+    const d = t - c;
+    if (d >= 0 && d < .12) flash = Math.max(flash, .18 * (1 - d / .12));
+  }
+  flashEl.style.opacity = flash;
   wm.style.transform = `translate(400px, ${40 - t * 18}px) rotate(90deg)`;
   return Promise.all(pending);
 }
 
+// Everything render.mjs and sfx.py get is in seconds of the finished video.
 window.AD_META = {
-  duration: DURATION, cues: CUES.sort((a, b) => a.t - b.t), thumb: AD.thumb, vo: AD.vo || null,
+  duration: DURATION / SPEED,
+  cues: CUES.map(c => ({ ...c, t: c.t / SPEED })).sort((a, b) => a.t - b.t),
+  thumb: AD.thumb / SPEED,
+  vo: AD.vo ? { ...AD.vo, tempo: AD.vo.tempo * SPEED, at: AD.vo.at.map(t => t / SPEED) } : null,
   // Seconds of each clip the ad reaches into, so render.mjs extracts no more than that.
   clips: built.reduce((need, s) => {
     for (const st of s.el.querySelectorAll('.stock')) {
-      const shown = Math.min(parseFloat(st.dataset.b), s.to - s.from) - parseFloat(st.dataset.a);
+      const shown = (Math.min(parseFloat(st.dataset.b), s.to - s.from) - parseFloat(st.dataset.a)) / SPEED;
       need[st.dataset.clip] = Math.max(need[st.dataset.clip] || 0, parseFloat(st.dataset.off) + shown);
     }
     return need;
@@ -580,7 +615,7 @@ window.ready = (async () => {
   await document.fonts.ready;
   await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
   fit();
-  renderAt(parseFloat(params.get('t') || AD.thumb));
+  renderAt(parseFloat(params.get('t') || AD.thumb / SPEED));
   if (params.get('guides')) {
     for (const y of [300, 1270]) stage.insertAdjacentHTML('beforeend', `<div class="guide" style="top:${y}px"></div>`);
     for (const y of [285, 1635]) stage.insertAdjacentHTML('beforeend', `<div class="guide" style="top:${y}px;border-color:#0ff"></div>`);
